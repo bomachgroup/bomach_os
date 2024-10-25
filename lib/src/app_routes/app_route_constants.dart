@@ -13,4 +13,5 @@ class RouteConstants {
   static const String leaves = 'leaves';
   static const String clients = '/clients';
   static const String login = '/login';
+  static const String realEstate = '/service/real-estate';
 }
