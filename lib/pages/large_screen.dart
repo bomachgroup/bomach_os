@@ -5,42 +5,38 @@ import 'package:go_router/go_router.dart';
 
 class LargeScreenDashboard extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
-   const LargeScreenDashboard({
-    super.key, required this.navigationShell});
+  const LargeScreenDashboard({super.key, required this.navigationShell});
 
   @override
   State<LargeScreenDashboard> createState() => _LargeScreenDashboardState();
 }
 
 class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
- 
-
   @override
   Widget build(BuildContext context) {
-    return    Scaffold(
-        body: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const Expanded(child:  SideMenue()),
-            Expanded(
+    return Scaffold(
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Expanded(child: SideMenu()),
+          Expanded(
               flex: 5,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                   const TopNavigationBar(),
-                   Container(
-                     padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 28),
-                    child: widget.navigationShell),
-                
+                    const TopNavigationBar(),
+                    Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32.0, vertical: 28),
+                        child: widget.navigationShell),
                   ],
                 ),
-              )
-            )
-          ],
-        ),
-      );
+              ))
+        ],
+      ),
+    );
   }
 }

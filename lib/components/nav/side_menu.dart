@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expanded_tile/flutter_expanded_tile.dart';
 import 'package:go_router/go_router.dart';
 
-class SideMenue extends StatefulWidget {
-  const SideMenue({
+class SideMenu extends StatefulWidget {
+  const SideMenu({
     super.key,
   });
 
   @override
-  State<SideMenue> createState() => _SideMenueState();
+  State<SideMenu> createState() => _SideMenueState();
 }
 
-class _SideMenueState extends State<SideMenue> {
+class _SideMenueState extends State<SideMenu> {
   int sideMenueSelectedState = 0;
   int subMenueSelectedState = -1;
   // final ExpandedTileController _expandedTileController =ExpandedTileController();
