@@ -1,7 +1,7 @@
 import 'package:bms_front_end/components/custom_search_field.dart';
 import 'package:bms_front_end/components/responsive_widget.dart';
-import 'package:bms_front_end/views/styles/colors_style.dart';
-import 'package:bms_front_end/views/styles/textstyle.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 class TopNavigationBar extends StatelessWidget {
@@ -18,8 +18,8 @@ class TopNavigationBar extends StatelessWidget {
       child: Row(
         children: [
           Visibility(
-            visible: ResponsiveWidget.isSmallScreen(context),
-            child: const Icon(Icons.menu)),
+              visible: ResponsiveWidget.isSmallScreen(context),
+              child: const Icon(Icons.menu)),
           const SizedBox(
             width: 20,
           ),
@@ -27,14 +27,19 @@ class TopNavigationBar extends StatelessWidget {
           const Spacer(),
           Row(
             children: [
-            
               const Icon(Icons.notifications),
-              const SizedBox(width: 20,),
+              const SizedBox(
+                width: 20,
+              ),
               Image.asset('assets/icons/EnglishFlag.png'),
-              const SizedBox(width: 16,),
+              const SizedBox(
+                width: 16,
+              ),
               const Text('English'),
-              const SizedBox(width: 10,),
-               Image.asset('assets/icons/Drop Down.png'),
+              const SizedBox(
+                width: 10,
+              ),
+              Image.asset('assets/icons/Drop Down.png'),
               SizedBox(
                 width: 180,
                 child: ListTile(
@@ -42,7 +47,8 @@ class TopNavigationBar extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: const BoxDecoration(
-                      image: DecorationImage(image: AssetImage('assets/icons/profileIcon.png')),
+                        image: DecorationImage(
+                            image: AssetImage('assets/icons/profileIcon.png')),
                         // color: AppColors.secondaryColor,
                         shape: BoxShape.circle),
                   ),
@@ -53,7 +59,7 @@ class TopNavigationBar extends StatelessWidget {
                   subtitle: const Text('Admin'),
                 ),
               ),
-             Image.asset('assets/icons/arrowDownOutline.png')
+              Image.asset('assets/icons/arrowDownOutline.png')
             ],
           )
         ],

@@ -1,12 +1,14 @@
-import 'package:bms_front_end/views/styles/colors_style.dart';
-import 'package:bms_front_end/views/styles/textstyle.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 class CustomTxField extends StatelessWidget {
   final String hintText;
   final String? title;
   const CustomTxField({
-    super.key, required this.hintText, this.title,
+    super.key,
+    required this.hintText,
+    this.title,
   });
 
   @override
@@ -15,19 +17,21 @@ class CustomTxField extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title??'',style: AppText.black_400_16,),
+          Text(
+            title ?? '',
+            style: AppText.black_400_16,
+          ),
           TextField(
             decoration: InputDecoration(
               hintText: hintText,
               border: OutlineInputBorder(
-                
-                borderSide: const BorderSide(color: AppColors.borderColor,width: 0),
-                borderRadius: BorderRadius.circular(16)
-              ),
+                  borderSide:
+                      const BorderSide(color: AppColors.borderColor, width: 0),
+                  borderRadius: BorderRadius.circular(16)),
               focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: AppColors.borderColor,width: 0),
-                borderRadius: BorderRadius.circular(16)
-              ),
+                  borderSide:
+                      const BorderSide(color: AppColors.borderColor, width: 0),
+                  borderRadius: BorderRadius.circular(16)),
             ),
           ),
         ],

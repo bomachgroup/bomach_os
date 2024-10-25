@@ -1,4 +1,4 @@
-import 'package:bms_front_end/views/styles/colors_style.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class AllActivities extends StatelessWidget {
@@ -22,8 +22,9 @@ class AllActivities extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 22),
             decoration: BoxDecoration(
-              color: AppColors.cardColor,
-                borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0XFFE0E0E0))),
+                color: AppColors.cardColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0XFFE0E0E0))),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

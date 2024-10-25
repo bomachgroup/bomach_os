@@ -1,11 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:bms_front_end/views/pages/dashboad/components/all_activities.dart';
-import 'package:bms_front_end/views/pages/dashboad/components/all_clients.dart';
-import 'package:bms_front_end/views/pages/dashboad/components/all_projects.dart';
-import 'package:bms_front_end/views/pages/dashboad/components/project_chart.dart';
-import 'package:bms_front_end/views/styles/textstyle.dart';
+import 'package:bms_front_end/components/all_activities.dart';
+import 'package:bms_front_end/components/all_clients.dart';
+import 'package:bms_front_end/components/all_projects.dart';
+import 'package:bms_front_end/components/project_chart.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({
@@ -14,7 +13,7 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return   Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
@@ -23,11 +22,13 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                    const Text(
+                  const Text(
                     'Welcome to Admin Dashboard,',
                     style: AppText.black_600_32,
                   ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   const AllActivities(),
                   const SizedBox(
                     height: 26,
@@ -54,7 +55,6 @@ class DashboardScreen extends StatelessWidget {
                     height: 12,
                   ),
                   const AllProjects(),
-               
                 ],
               ),
             )),
@@ -66,37 +66,44 @@ class DashboardScreen extends StatelessWidget {
             child: Container(
               child: Column(
                 children: [
-          
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                         const Column(
-                              children: [
-              Text('2:45pm'),
-              Text('Wednesday'),
-                              ],
-                        ),
-                         const SizedBox(
-                      width: 19,
-                    ),
-                    Column(
-                      children: [
-                        const Text('Branch'),
-                        Row(
-                              children: [const Text('Enugu'), 
-                              const SizedBox(width: 6,),
-                              Image.asset('assets/icons/arrowDownOutline.png')],
-                        ),
-                      ],
-                    ),
-                      ],
-                    ),
-                    const SizedBox(height: 49,),
+                    children: [
+                      const Column(
+                        children: [
+                          Text('2:45pm'),
+                          Text('Wednesday'),
+                        ],
+                      ),
+                      const SizedBox(
+                        width: 19,
+                      ),
+                      Column(
+                        children: [
+                          const Text('Branch'),
+                          Row(
+                            children: [
+                              const Text('Enugu'),
+                              const SizedBox(
+                                width: 6,
+                              ),
+                              Image.asset('assets/icons/arrowDownOutline.png')
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 49,
+                  ),
                   const ProjectChart(),
                   const SizedBox(
                     height: 20,
                   ),
-                  const AllClientInvoice(count: 5,),
+                  const AllClientInvoice(
+                    count: 5,
+                  ),
                 ],
               ),
             ))
@@ -104,9 +111,3 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-

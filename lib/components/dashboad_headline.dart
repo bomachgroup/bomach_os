@@ -1,4 +1,4 @@
-// import 'package:bms_front_end/views/styles/textstyle.dart';
+// import 'package:bms_front_end/src/constants/textstyle.dart';
 // import 'package:flutter/material.dart';
 
 // class DashboadHeadline extends StatelessWidget {

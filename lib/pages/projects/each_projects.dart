@@ -1,16 +1,16 @@
+import 'package:bms_front_end/components/create_milestone.dart';
 import 'package:bms_front_end/components/custom_button.dart';
 import 'package:bms_front_end/components/custom_search_field.dart';
-import 'package:bms_front_end/views/pages/projects/components/create_milestone.dart';
-import 'package:bms_front_end/views/pages/projects/components/projectOverview.dart';
-import 'package:bms_front_end/views/pages/projects/components/project_associate.dart';
-import 'package:bms_front_end/views/pages/projects/components/project_files.dart';
-import 'package:bms_front_end/views/pages/projects/components/project_meetings.dart';
-import 'package:bms_front_end/views/pages/projects/components/project_members.dart';
-import 'package:bms_front_end/views/pages/projects/components/project_milestone.dart';
-import 'package:bms_front_end/views/pages/projects/components/project_task.dart';
-import 'package:bms_front_end/views/pages/projects/components/project_work_sites.dart';
-import 'package:bms_front_end/views/styles/colors_style.dart';
-import 'package:bms_front_end/views/styles/textstyle.dart';
+import 'package:bms_front_end/components/projectOverview.dart';
+import 'package:bms_front_end/components/project_associate.dart';
+import 'package:bms_front_end/components/project_files.dart';
+import 'package:bms_front_end/components/project_meetings.dart';
+import 'package:bms_front_end/components/project_members.dart';
+import 'package:bms_front_end/components/project_milestone.dart';
+import 'package:bms_front_end/components/project_task.dart';
+import 'package:bms_front_end/components/project_work_sites.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 class EachProjects extends StatefulWidget {
@@ -21,7 +21,7 @@ class EachProjects extends StatefulWidget {
 }
 
 class _EachProjectsState extends State<EachProjects> {
-  final List<Widget> _pages=[
+  final List<Widget> _pages = [
     const ProjectOverview(),
     const ProjectMembers(),
     const ProjectWorkSite(),
@@ -31,105 +31,176 @@ class _EachProjectsState extends State<EachProjects> {
     const ProjectAssociate(),
     const ProjectMeetings()
   ];
-  int projectMemberState=0;
+  int projectMemberState = 0;
   @override
   Widget build(BuildContext context) {
-    return  Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Projects',
+              style: AppText.black_500_32,
+            ),
+            const Spacer(),
+            const SizedBox(width: 108, child: CustomSearchField()),
+            const SizedBox(
+              width: 20,
+            ),
+            projectMemberState == 0
+                ? CustomButton(child: 'Add New Employee', onTap: () {})
+                : projectMemberState == 1
+                    ? CustomButton(child: 'Add Project membe', onTap: () {})
+                    : projectMemberState == 4
+                        ? CustomButton(
+                            child: 'Create milestone',
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const AlertDialog(
+                                      contentPadding: EdgeInsets.all(0),
+                                      content: CreateMilestone(),
+                                    );
+                                  });
+                            })
+                        : const SizedBox()
+          ],
+        ),
+        const Row(
+          children: [
+            Text(
+              'Projects',
+              style: AppText.black_400_14,
+            ),
+            SizedBox(
+              width: 8,
+            ),
+            Icon(
+              Icons.arrow_forward_ios_outlined,
+              size: 12,
+            ),
+            SizedBox(
+              width: 8,
+            ),
+            Text(
+              'Benji express project ',
+              style: AppText.black_400_14,
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 21,
+        ),
+        SizedBox(
+          height: 50,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
             children: [
-              const Text('Projects',style: AppText.black_500_32,),
-              const Spacer(),
-              const SizedBox(
-                width: 108,
-                child: CustomSearchField()),
-                const SizedBox(width: 20,),
-            projectMemberState==0?CustomButton(child: 'Add New Employee', onTap: (){})
-            : projectMemberState==1?CustomButton(child: 'Add Project membe', onTap: (){})
-            :projectMemberState==4?CustomButton(child: 'Create milestone', onTap: (){
-              showDialog(context: context, builder: (context){
-                return  const AlertDialog(
-                  contentPadding: EdgeInsets.all(0),
-                  content: CreateMilestone(),
-                );
-              });
-            }):const SizedBox()
-            ],
-          ),
-          const Row(
-            children: [
-              Text('Projects',style: AppText.black_400_14,),
-              SizedBox(width: 8,),
-              Icon(Icons.arrow_forward_ios_outlined,size: 12,),
-              SizedBox(width: 8,),
-                Text('Benji express project ',style: AppText.black_400_14,),
-            ],
-          ),
-          const SizedBox(height: 21,),
-           SizedBox(
-            height: 50,
-             child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                InButton(title: 'Overview', onTap: (){
+              InButton(
+                title: 'Overview',
+                onTap: () {
                   setState(() {
-                    projectMemberState=0;
+                    projectMemberState = 0;
                   });
-                }, isSelected: projectMemberState==0,),
-                const SizedBox(width: 10,),
-             InButton(title: 'Members', onTap: (){
-               setState(() {
-                    projectMemberState=1;
+                },
+                isSelected: projectMemberState == 0,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Members',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 1;
                   });
-             }, isSelected: projectMemberState==1,),
-                const SizedBox(width: 10,),
-               InButton(title: 'Work site', onTap: (){
-                 setState(() {
-                    projectMemberState=2;
+                },
+                isSelected: projectMemberState == 1,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Work site',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 2;
                   });
-               }, isSelected: projectMemberState==2,),
-                const SizedBox(width: 10,),
-                InButton(title: 'Files', onTap: (){
-                   setState(() {
-                    projectMemberState=3;
+                },
+                isSelected: projectMemberState == 2,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Files',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 3;
                   });
-                }, isSelected: projectMemberState==3,),
-                const SizedBox(width: 10,),
-                InButton(title: 'Milestone', onTap: (){
-                   setState(() {
-                    projectMemberState=4;
+                },
+                isSelected: projectMemberState == 3,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Milestone',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 4;
                   });
-                }, isSelected: projectMemberState==4,),
-                const SizedBox(width: 10,),
-                InButton(title: 'Tasks', onTap: (){
-                   setState(() {
-                    projectMemberState=5;
+                },
+                isSelected: projectMemberState == 4,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Tasks',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 5;
                   });
-                }, isSelected: projectMemberState==5,),
-                const SizedBox(width: 10,),
-                InButton(title: 'Associates', onTap: (){
-                   setState(() {
-                    projectMemberState=6;
+                },
+                isSelected: projectMemberState == 5,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Associates',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 6;
                   });
-                }, isSelected: projectMemberState==6,),
-                 const SizedBox(width: 10,),
-                InButton(title: 'Meetings', onTap: (){
-                   setState(() {
-                    projectMemberState=7;
+                },
+                isSelected: projectMemberState == 6,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Meetings',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 7;
                   });
-                }, isSelected: projectMemberState==7,),
-              ],
-                  ),
-           ),
-          const SizedBox(height: 23,),
-          Container(
-            child: _pages[projectMemberState]
-          )
-          
-        ],
-      );
+                },
+                isSelected: projectMemberState == 7,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 23,
+        ),
+        Container(child: _pages[projectMemberState])
+      ],
+    );
   }
 }
 
@@ -166,7 +237,7 @@ class _EachProjectsState extends State<EachProjects> {
 //               crossAxisAlignment: CrossAxisAlignment.start,
 //               children: [
 //                 const Row(
-                 
+
 //                   children: [
 //                     CustomTxField(
 //                       title: 'Milestone title*',
@@ -179,7 +250,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                 ),
 //                 const SizedBox(height: 20,),
 //                         Row(
-                 
+
 //                   children: [
 //                     CustomDropdownT(items: const [], onChanged: (v){}, hintText: 'Marital status'),
 //                       const SizedBox(width: 24,),
@@ -206,7 +277,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                 ),
 //                        const SizedBox(height: 20,),
 //                        const Row(
-                  
+
 //                   children: [
 //                     CustomTxField(
 //                       title: 'Start date(optional)*',
@@ -235,7 +306,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                       borderRadius: BorderRadius.circular(14)
 //                     ),
 //                     child: const Text('Save',style: AppText.white_400_16,)),
-              
+
 //                 ],
 //                ),
 //              )
@@ -246,14 +317,15 @@ class _EachProjectsState extends State<EachProjects> {
 //   }
 // }
 
-
-
 class InButton extends StatelessWidget {
   final String title;
   final bool isSelected;
   final VoidCallback onTap;
   const InButton({
-    super.key, required this.title, required this.onTap,required this.isSelected, 
+    super.key,
+    required this.title,
+    required this.onTap,
+    required this.isSelected,
   });
 
   @override
@@ -261,13 +333,17 @@ class InButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32,vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
         decoration: BoxDecoration(
-          border:isSelected?Border.all(color: AppColors.buttonColor) :Border.all(color: AppColors.borderColor,width: 0.6),
-          color:isSelected? AppColors.buttonColor:Colors.transparent,
-          borderRadius: BorderRadius.circular(16)
+            border: isSelected
+                ? Border.all(color: AppColors.buttonColor)
+                : Border.all(color: AppColors.borderColor, width: 0.6),
+            color: isSelected ? AppColors.buttonColor : Colors.transparent,
+            borderRadius: BorderRadius.circular(16)),
+        child: Text(
+          title,
+          style: isSelected ? AppText.white_300_16 : AppText.black_300_16,
         ),
-        child: Text(title,style:isSelected? AppText.white_300_16:AppText.black_300_16,),
       ),
     );
   }

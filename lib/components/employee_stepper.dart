@@ -1,4 +1,4 @@
-import 'package:bms_front_end/views/styles/colors_style.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class EmployeInfoStepper extends StatelessWidget {
@@ -25,9 +25,7 @@ class EmployeInfoStepper extends StatelessWidget {
           width: 32,
         ),
         BlackCommunity(
-            title: Text('Documents'),
-            icon: Icon(Icons.person),
-            selectes: true),
+            title: Text('Documents'), icon: Icon(Icons.person), selectes: true),
       ],
     );
   }
@@ -42,7 +40,8 @@ class BlackCommunity extends StatelessWidget {
     super.key,
     required this.title,
     required this.icon,
-    required this.selectes, this.onTap,
+    required this.selectes,
+    this.onTap,
   });
 
   @override
