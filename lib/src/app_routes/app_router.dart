@@ -10,6 +10,7 @@ import 'package:bms_front_end/pages/large_screen.dart';
 import 'package:bms_front_end/pages/projects/each_projects.dart';
 import 'package:bms_front_end/pages/projects/projects_page.dart';
 import 'package:bms_front_end/pages/projects/task_page.dart';
+import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:go_router/go_router.dart';
@@ -35,10 +36,6 @@ final goRoute = GoRouter(
             GoRoute(
               path: RouteConstants.home,
               builder: (context, state) => const DashboardScreen(),
-            ),
-            GoRoute(
-              path: RouteConstants.login,
-              builder: (context, state) => const LoginScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [
@@ -84,6 +81,12 @@ final goRoute = GoRouter(
             GoRoute(
               path: RouteConstants.tasks,
               builder: (context, state) => const TaskPage(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: RouteConstants.realEstate,
+              builder: (context, state) => const RealEstateScreen(),
             ),
           ]),
         ])

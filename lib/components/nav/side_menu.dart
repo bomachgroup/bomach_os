@@ -341,24 +341,41 @@ class _SideMenueState extends State<SideMenu> {
                     : Colors.transparent,
                 children: const []),
             ExpandableSideBarItem(
-                expandedTileController: ExpandedTileController(
-                    isExpanded: sideMenueSelectedState == 6),
-                title: Text(
-                  'Services',
-                  style: sideMenueSelectedState == 6
-                      ? AppText.sideMWhite_400_14
-                      : AppText.black_400_14,
+              expandedTileController: ExpandedTileController(
+                  isExpanded: sideMenueSelectedState == 6),
+              title: Text(
+                'Services',
+                style: sideMenueSelectedState == 6
+                    ? AppText.sideMWhite_400_14
+                    : AppText.black_400_14,
+              ),
+              icon: Image.asset('assets/icons/workflow.png'),
+              onTap: () {
+                setState(() {
+                  sideMenueSelectedState = 6;
+                });
+              },
+              titleColor: sideMenueSelectedState == 6
+                  ? AppColors.buttonColor
+                  : Colors.transparent,
+              children: [
+                SubSideBarItems(
+                  title: Text(
+                    'Real Estate',
+                    style: subMenueSelectedState == 12
+                        ? AppText.sideMBlueText_400_14
+                        : AppText.sideMText_300_14,
+                  ),
+                  onTap: () {
+                    context.go(RouteConstants.realEstate);
+                    setState(() {
+                      subMenueSelectedState = 12;
+                    });
+                  },
+                  isSelected: subMenueSelectedState == 12,
                 ),
-                icon: Image.asset('assets/icons/workflow.png'),
-                onTap: () {
-                  setState(() {
-                    sideMenueSelectedState = 6;
-                  });
-                },
-                titleColor: sideMenueSelectedState == 6
-                    ? AppColors.buttonColor
-                    : Colors.transparent,
-                children: const []),
+              ],
+            ),
             NonExpandableSideBarItem(
               titleColor: sideMenueSelectedState == 7
                   ? AppColors.buttonColor
