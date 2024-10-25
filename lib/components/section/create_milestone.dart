@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/custom_dropdown.dart';
-import 'package:bms_front_end/components/custom_textfield.dart';
+import 'package:bms_front_end/components/drop/custom_dropdown.dart';
+import 'package:bms_front_end/components/input/custom_textfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';

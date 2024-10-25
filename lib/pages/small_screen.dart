@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/header.dart';
-import 'package:bms_front_end/components/side_menue.dart';
+import 'package:bms_front_end/components/nav/header.dart';
+import 'package:bms_front_end/components/nav/side_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,16 +9,13 @@ class SmallScreenDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       drawer: const Drawer(
-        child: SideMenue(),
+        child: SideMenu(),
       ),
       body: SingleChildScrollView(
         child: Column(
-          children: [
-            const TopNavigationBar(),
-            navigationShell
-          ],
+          children: [const TopNavigationBar(), navigationShell],
         ),
       ),
     );

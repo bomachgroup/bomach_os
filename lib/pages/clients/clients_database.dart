@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/custom_button.dart';
-import 'package:bms_front_end/components/custom_search_field.dart';
+import 'package:bms_front_end/components/button/custom_button.dart';
+import 'package:bms_front_end/components/input/custom_search_field.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';

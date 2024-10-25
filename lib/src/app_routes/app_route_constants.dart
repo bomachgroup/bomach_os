@@ -1,4 +1,3 @@
-
 class RouteConstants {
   static const String home = '/dashboard';
   static const String company = '/company';
@@ -13,4 +12,5 @@ class RouteConstants {
   static const String worksite = '/works/worksite';
   static const String leaves = 'leaves';
   static const String clients = '/clients';
+  static const String login = '/login';
 }

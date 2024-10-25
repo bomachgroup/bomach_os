@@ -1,6 +1,6 @@
-import 'package:bms_front_end/components/employee_documentation.dart';
-import 'package:bms_front_end/components/personalInfo.dart';
-import 'package:bms_front_end/components/professionalInfo.dart';
+import 'package:bms_front_end/components/section/employee_documentation.dart';
+import 'package:bms_front_end/components/section/personalInfo.dart';
+import 'package:bms_front_end/components/section/professionalInfo.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/custom_search_field.dart';
-import 'package:bms_front_end/components/responsive_widget.dart';
+import 'package:bms_front_end/components/input/custom_search_field.dart';
+import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';

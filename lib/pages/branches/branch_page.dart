@@ -1,6 +1,6 @@
-import 'package:bms_front_end/components/all_activities.dart';
-import 'package:bms_front_end/components/all_clients.dart';
-import 'package:bms_front_end/components/custom_button.dart';
+import 'package:bms_front_end/components/section/all_activities.dart';
+import 'package:bms_front_end/components/section/all_clients.dart';
+import 'package:bms_front_end/components/button/custom_button.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';

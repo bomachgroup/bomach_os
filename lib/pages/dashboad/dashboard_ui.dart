@@ -1,8 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:bms_front_end/components/all_activities.dart';
-import 'package:bms_front_end/components/all_clients.dart';
-import 'package:bms_front_end/components/all_projects.dart';
-import 'package:bms_front_end/components/project_chart.dart';
+import 'package:bms_front_end/components/section/all_activities.dart';
+import 'package:bms_front_end/components/section/all_clients.dart';
+import 'package:bms_front_end/components/section/all_projects.dart';
+import 'package:bms_front_end/components/chart/project_chart.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 

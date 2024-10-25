@@ -24,7 +24,7 @@ class _SideMenueState extends State<SideMenu> {
       key: GlobalKey(),
       height: MediaQuery.of(context).size.height,
       padding: const EdgeInsets.only(right: 16, left: 16, top: 48, bottom: 16),
-      color: AppColors.secondaryColor,
+      color: AppColors.sideMenuColor,
       child: SingleChildScrollView(
         child: Column(
           children: [
