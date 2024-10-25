@@ -1,139 +1,114 @@
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/components/button/signin_button.dart';
 import 'package:flutter/material.dart';
+
+import '../../components/input/login_textfield.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+   // final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: const Color(0XFF494CA6),
-      body: Center(
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.9,
-          width: MediaQuery.of(context).size.width * 0.5,
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 40),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(39),
-              border: Border.all(color: AppColors.whiteColor)),
-          //  color: const Color(0XFF494CA6),
+        body: Container(
+      alignment: Alignment.center,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage(
+                "assets/loginbackground/pexels-padrinan-255379.jpg",
+              ),
+              fit: BoxFit.cover)),
+      child: Container(
+        margin: const EdgeInsets.all(40),
+        padding: const EdgeInsets.all(10),
+        width: 500,
+        decoration: BoxDecoration(
+            border: Border.all(
+              color: const Color.fromARGB(255, 224, 222, 222),
+              width: 0.5,
+            ),
+            borderRadius: BorderRadius.circular(20)),
+        child: SingleChildScrollView(
           child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                height: 155,
+              //bomach icon
+              SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Image.asset("assets/logo/bomach.png")),
+              const SizedBox(
+                height: 9,
               ),
               const Text(
-                'Hellow Welcome',
-                style: AppText.white_400_18,
+                "Hey, welcome",
+                style: TextStyle(
+                    fontSize: 9,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(
-                height: 18,
+                height: 15,
               ),
               const Text(
-                'Sign In',
-                style: AppText.white_600_32,
+                "Sign In",
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(
-                height: 41,
+                height: 20,
               ),
-              const T_TextField(),
-              const SizedBox(
-                height: 8,
-              ),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  T_TextField(),
-                  SizedBox(
-                    height: 12,
-                  ),
-                  Text(
-                    'Show Password',
-                    style: TextStyle(
-                        color: Color(0XFFE5E5E8),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400),
-                  ),
-                ],
+              const FormTextField(
+                title: "User ID",
+                hintText: "Enter User ID",
               ),
               const SizedBox(
-                height: 41,
+                height: 10,
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(73),
-                    color: AppColors.whiteColor),
-                child: const Center(
-                    child: Text(
-                  'Sign In',
-                  style: TextStyle(
-                      color: Color(0XFF3E4095),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20),
-                )),
+              const FormTextField(
+                title: "PIN",
+                hintText: "Enter PIN/password",
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Row(
+                  children: [
+                    Checkbox(
+                        // checkColor: Color.fromARGB(0, 37, 36, 36),
+                        fillColor: const WidgetStatePropertyAll(
+                            Color.fromRGBO(224, 222, 222, 1)),
+                        value: true,
+                        onChanged: (value) {}),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    const Text(
+                      "Show Password",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    )
+                  ],
+                ),
               ),
               const SizedBox(
-                height: 8,
+                height: 20,
               ),
-              const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Forget Password',
-                    style: TextStyle(
-                        color: Color(0XFFE5E5E8),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400),
-                  )),
+              SigninButton(
+                onPressed: () {},
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              const Row(children: [
+                Text(
+                  "Forgot password?",
+                  style: TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ])
             ],
           ),
-          // width: 626,
         ),
       ),
-    );
-  }
-}
-
-class T_TextField extends StatelessWidget {
-  const T_TextField({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 400,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'User ID',
-            style: AppText.white_600_20,
-          ),
-          const SizedBox(
-            height: 8,
-          ),
-          TextFormField(
-            decoration: InputDecoration(
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 34, vertical: 15),
-                hintText: 'Enter User ID',
-                hintStyle: const TextStyle(
-                    color: Color(0XFFB0B0C0),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16),
-                border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(73)),
-                fillColor: Colors.white,
-                filled: true),
-          ),
-        ],
-      ),
-    );
+    ));
   }
 }
