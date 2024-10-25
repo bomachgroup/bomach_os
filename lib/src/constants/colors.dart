@@ -15,4 +15,5 @@ class AppColors {
   static const buttonColor = Color(0XFF0055FF);
   static const borderColor = Color(0XFFE8E8E8);
   static const sideMenueTextColor = Color(0XFF313131);
+  
 }
