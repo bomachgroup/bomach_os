@@ -12,6 +12,7 @@ class CustomSearchField extends StatelessWidget {
         child: SizedBox(
       height: 38,
       child: TextField(
+        style: TextStyle(fontSize: 16),
         decoration: InputDecoration(
             hintText: 'Search',
             fillColor: const Color(0XFFF5F6FA),
