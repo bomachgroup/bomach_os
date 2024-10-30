@@ -1,8 +1,5 @@
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
-
-const int largeScreenSize = 1200;
-const int mediumScreenSize = 700;
-const int smallScreenSize = 360;
 
 class ResponsiveWidget extends StatelessWidget {
   final Widget largeScreen;
@@ -14,16 +11,6 @@ class ResponsiveWidget extends StatelessWidget {
     this.mediumScreen,
     this.smallScreen,
   });
-
-  static bool isSmallScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width < mediumScreenSize;
-
-  static bool ismediumScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width >= mediumScreenSize &&
-      MediaQuery.of(context).size.width < largeScreenSize;
-
-  static bool islargeScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width >= largeScreenSize;
 
   @override
   Widget build(BuildContext context) {

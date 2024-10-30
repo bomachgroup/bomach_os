@@ -19,7 +19,10 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const Expanded(child: SideMenu()),
+          const SizedBox(
+            width: 300,
+            child: SideMenu(),
+          ),
           Expanded(
               flex: 5,
               child: SingleChildScrollView(

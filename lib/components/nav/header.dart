@@ -1,7 +1,8 @@
 import 'package:bms_front_end/components/input/custom_search_field.dart';
-import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 
 class TopNavigationBar extends StatelessWidget {
@@ -18,13 +19,13 @@ class TopNavigationBar extends StatelessWidget {
       child: Row(
         children: [
           Visibility(
-              visible: ResponsiveWidget.isSmallScreen(context),
+              visible: isSmallScreen(context) || isMediumScreen(context),
               child: const Icon(Icons.menu)),
           const SizedBox(
-            width: 20,
+            width: kDefaultSpaceSM,
           ),
           const CustomSearchField(),
-          const Spacer(),
+          kSizedBoxWidthBG,
           Row(
             children: [
               const Icon(Icons.notifications),
@@ -33,16 +34,19 @@ class TopNavigationBar extends StatelessWidget {
               ),
               Image.asset('assets/icons/EnglishFlag.png'),
               const SizedBox(
-                width: 16,
+                width: kDefaultSpaceSM,
               ),
-              const Text('English'),
-              const SizedBox(
-                width: 10,
-              ),
+              if (!isSmallScreen(context)) const Text('English'),
+              if (!isSmallScreen(context))
+                const SizedBox(
+                  width: 10,
+                ),
               Image.asset('assets/icons/Drop Down.png'),
+              kSizedBoxWidth,
               SizedBox(
-                width: 180,
+                width: isSmallScreen(context) ? 50 : 180,
                 child: ListTile(
+                  contentPadding: EdgeInsets.zero,
                   leading: Container(
                     width: 48,
                     height: 48,
@@ -52,14 +56,20 @@ class TopNavigationBar extends StatelessWidget {
                         // color: AppColors.secondaryColor,
                         shape: BoxShape.circle),
                   ),
-                  title: const Text(
-                    'Moni Roy',
-                    style: AppText.black_600_14,
-                  ),
-                  subtitle: const Text('Admin'),
+                  title: isSmallScreen(context)
+                      ? null
+                      : const Text(
+                          'Moni Roy',
+                          style: AppText.black_600_14,
+                        ),
+                  subtitle: isSmallScreen(context) ? null : const Text('Admin'),
                 ),
               ),
-              Image.asset('assets/icons/arrowDownOutline.png')
+              kSizedBoxWidthSM,
+              Image.asset(
+                'assets/icons/arrowDownOutline.png',
+                width: 20,
+              )
             ],
           )
         ],
