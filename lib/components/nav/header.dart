@@ -26,6 +26,7 @@ class TopNavigationBar extends StatelessWidget {
           ),
           const CustomSearchField(),
           kSizedBoxWidthBG,
+          if (isLargeScreen(context)) const Spacer(),
           Row(
             children: [
               const Icon(Icons.notifications),
