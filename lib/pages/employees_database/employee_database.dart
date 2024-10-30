@@ -238,14 +238,22 @@ class EmployessDatabaseButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(left: 13, top: 10, bottom: 10, right: 13),
       decoration: BoxDecoration(
-          color: AppColors.whiteColor, borderRadius: BorderRadius.circular(14)),
+          color: Color(0XFFF5F6FA), borderRadius: BorderRadius.circular(14)),
       child: Row(
         children: [
-          Text(title),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
           const SizedBox(
             width: 6,
           ),
-          const Icon(Icons.arrow_drop_down)
+          const Icon(
+            Icons.arrow_drop_down,
+            color: Colors.grey,
+          )
         ],
       ),
     );
