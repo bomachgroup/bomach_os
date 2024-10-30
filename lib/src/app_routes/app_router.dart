@@ -7,6 +7,7 @@ import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
 import 'package:bms_front_end/pages/employees_database/employee_profile.dart';
 import 'package:bms_front_end/pages/hr/leads.dart';
+import 'package:bms_front_end/pages/hr/leaves.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
 import 'package:bms_front_end/pages/projects/each_projects.dart';
 import 'package:bms_front_end/pages/projects/projects_page.dart';
@@ -94,6 +95,12 @@ final goRoute = GoRouter(
             GoRoute(
               path: RouteConstants.leads,
               builder: (context, state) => const LeadsPage(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: RouteConstants.leaves,
+              builder: (context, state) => const Leaves(),
             ),
           ]),
         ])

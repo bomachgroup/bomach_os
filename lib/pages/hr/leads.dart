@@ -33,7 +33,7 @@ class _LeadsPageState extends State<LeadsPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CustomButton(child: 'New Client ', onTap: () {}),
+            CustomButton(child: 'New Leads', onTap: () {}),
             const SizedBox(
               width: 32,
             ),
