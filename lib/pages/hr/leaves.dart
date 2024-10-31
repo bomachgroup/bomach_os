@@ -27,10 +27,12 @@ class _LeavesState extends State<Leaves> {
       const SizedBox(
         height: 32,
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+      Wrap(
+        runSpacing: 20,
         children: [
-          CustomButton(child: 'New Leave', onTap: () {}),
+          SizedBox(
+              width: 150,
+              child: CustomButton(child: 'New Leave', onTap: () {})),
           const SizedBox(
             width: 32,
           ),
@@ -42,8 +44,11 @@ class _LeavesState extends State<Leaves> {
           const SizedBox(
             width: 32,
           ),
-          const EmployessDatabaseButton(
-            title: 'Sort',
+          SizedBox(
+            width: 150,
+            child: const EmployessDatabaseButton(
+              title: 'Sort',
+            ),
           ),
         ],
       ),
