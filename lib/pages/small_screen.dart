@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/nav/header.dart';
 import 'package:bms_front_end/components/nav/side_menu.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,8 +15,14 @@ class SmallScreenDashboard extends StatelessWidget {
         child: SideMenu(),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [const TopNavigationBar(), navigationShell],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: kDefaultSpace),
+          child: Column(
+            children: [
+              const TopNavigationBar(),
+              navigationShell,
+            ],
+          ),
         ),
       ),
     );

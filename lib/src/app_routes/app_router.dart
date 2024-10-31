@@ -31,6 +31,8 @@ final goRoute = GoRouter(
         builder: (context, state, navigationShell) => ResponsiveWidget(
               smallScreen:
                   SmallScreenDashboard(navigationShell: navigationShell),
+              mediumScreen:
+                  SmallScreenDashboard(navigationShell: navigationShell),
               largeScreen:
                   LargeScreenDashboard(navigationShell: navigationShell),
             ),
