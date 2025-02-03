@@ -16,13 +16,13 @@ class MyApp extends StatelessWidget {
       title: 'BMS System',
       theme: ThemeData(
         dataTableTheme: const DataTableThemeData(
-          decoration: BoxDecoration(color: Colors.transparent)
-          // dataRowColor: WidgetStatePropertyAll<Color>()
-        ),
-        scaffoldBackgroundColor:  AppColors.backgroundColor,
+            decoration: BoxDecoration(color: Colors.transparent)
+            // dataRowColor: WidgetStatePropertyAll<Color>()
+            ),
+        scaffoldBackgroundColor: AppColors.whiteColor,
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
-        // pageTransitionsTheme: 
+        // pageTransitionsTheme:
       ),
       routerConfig: goRoute,
     );
