@@ -18,12 +18,13 @@ class TopNavigationBar extends StatelessWidget {
       height: 70,
       child: Row(
         children: [
-          Visibility(
-              visible: isSmallScreen(context) || isMediumScreen(context),
-              child: const Icon(Icons.menu)),
-          const SizedBox(
-            width: kDefaultSpaceSM,
+          IconButton(
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            icon: const Icon(Icons.menu),
           ),
+          kSizedBoxWidth,
           const CustomSearchField(),
           kSizedBoxWidthBG,
           if (isLargeScreen(context)) const Spacer(),
@@ -42,10 +43,14 @@ class TopNavigationBar extends StatelessWidget {
                 const SizedBox(
                   width: 10,
                 ),
-              Image.asset('assets/icons/Drop Down.png'),
+              const Icon(
+                Icons.keyboard_arrow_down_outlined,
+                size: 20,
+                color: AppColors.grey1,
+              ),
               kSizedBoxWidth,
               SizedBox(
-                width: isSmallScreen(context) ? 50 : 180,
+                width: isSmallScreen(context) ? 50 : 150,
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Container(
@@ -53,7 +58,8 @@ class TopNavigationBar extends StatelessWidget {
                     height: 48,
                     decoration: const BoxDecoration(
                         image: DecorationImage(
-                            image: AssetImage('assets/icons/profileIcon.png')),
+                          image: AssetImage('assets/icons/profileIcon.png'),
+                        ),
                         // color: AppColors.secondaryColor,
                         shape: BoxShape.circle),
                   ),
@@ -61,16 +67,26 @@ class TopNavigationBar extends StatelessWidget {
                       ? null
                       : const Text(
                           'Moni Roy',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: AppText.black_600_14,
                         ),
-                  subtitle: isSmallScreen(context) ? null : const Text('Admin'),
+                  subtitle: isSmallScreen(context)
+                      ? null
+                      : const Text(
+                          'Admin',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                 ),
               ),
-              kSizedBoxWidthSM,
-              Image.asset(
-                'assets/icons/arrowDownOutline.png',
-                width: 20,
-              )
+              if (!isSmallScreen(context)) ...[
+                kSizedBoxWidthSM,
+                Image.asset(
+                  'assets/icons/arrowDownOutline.png',
+                  width: 20,
+                )
+              ],
             ],
           )
         ],
@@ -78,29 +94,3 @@ class TopNavigationBar extends StatelessWidget {
     );
   }
 }
-
-// class CustomSearch extends StatelessWidget {
-//   const CustomSearch({
-//     super.key,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Expanded(
-//         child: SizedBox(
-//       height: 38,
-//       child: TextField(
-//         decoration: InputDecoration(
-//             hintText: 'Search',
-//             fillColor: const Color(0XFFF5F6FA),
-//             filled: true,
-//             contentPadding:
-//                 const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-//             border: OutlineInputBorder(
-//                 borderSide: const BorderSide(
-//                     color: Color(0XFFD5D5D5), width: 0.6),
-//                 borderRadius: BorderRadius.circular(13))),
-//       ),
-//     ));
-//   }
-// }

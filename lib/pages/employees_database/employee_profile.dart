@@ -89,7 +89,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                        color: AppColors.buttonColor,
+                        color: AppColors.blueColor,
                         borderRadius: BorderRadius.circular(32)),
                     child: const Row(
                       children: [
@@ -129,7 +129,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         Container(
                           decoration: BoxDecoration(
                               color: employeeDetailSelectionState == 0
-                                  ? AppColors.buttonColor
+                                  ? AppColors.blueColor
                                   : Colors.transparent,
                               borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(20),
@@ -157,7 +157,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         Container(
                           decoration: BoxDecoration(
                               color: employeeDetailSelectionState == 1
-                                  ? AppColors.buttonColor
+                                  ? AppColors.blueColor
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(10)),
                           child: ListTile(
@@ -177,7 +177,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         Container(
                           decoration: BoxDecoration(
                               color: employeeDetailSelectionState == 2
-                                  ? AppColors.buttonColor
+                                  ? AppColors.blueColor
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(10)),
                           child: ListTile(
@@ -197,7 +197,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         Container(
                           decoration: BoxDecoration(
                               color: employeeDetailSelectionState == 3
-                                  ? AppColors.buttonColor
+                                  ? AppColors.blueColor
                                   : Colors.transparent,
                               borderRadius: const BorderRadius.only(
                                   bottomLeft: Radius.circular(20),
@@ -261,7 +261,7 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
               title: const Text('Personal Information'),
               icon: const Icon(Icons.person),
               color: employeeProfileSelectionStepperState == 0
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               onTap: () {
                 setState(() {
@@ -275,7 +275,7 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
             EmployeeInfoStepper(
               width: 200,
               color: employeeProfileSelectionStepperState == 1
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               title: const Text('Professional Information'),
               icon: const Icon(Icons.person),
@@ -290,7 +290,7 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
             ),
             EmployeeInfoStepper(
               color: employeeProfileSelectionStepperState == 2
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               width: 115,
               title: const Text('Documents'),
@@ -569,7 +569,7 @@ class DocumentHolder extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          // color: AppColors.buttonColor,
+          // color: AppColors.blueColor,
           border: Border.all(width: 0.6, color: AppColors.borderColor),
           borderRadius: BorderRadius.circular(14)),
       width: 360,

@@ -331,7 +331,7 @@ class addTask extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.buttonColor),
+                          border: Border.all(color: AppColors.blueColor),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Column(
@@ -365,7 +365,7 @@ class addTask extends StatelessWidget {
                         horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: AppColors.buttonColor),
+                        color: AppColors.blueColor),
                     child: const Text(
                       'Save',
                       style: AppText.black_400_14,

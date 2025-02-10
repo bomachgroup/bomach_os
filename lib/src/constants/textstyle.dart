@@ -55,7 +55,7 @@ class AppText {
       fontSize: 16, fontWeight: FontWeight.w300, color: Color(0XFF313131));
 
   static const sideMBlueText_300_14 = TextStyle(
-      fontSize: 14, fontWeight: FontWeight.w300, color: AppColors.buttonColor);
+      fontSize: 14, fontWeight: FontWeight.w300, color: AppColors.blueColor);
   static const sideMBlueText_400_14 = TextStyle(
-      fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.buttonColor);
+      fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.blueColor);
 }

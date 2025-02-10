@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class EmployeeDatabase extends StatelessWidget {
-  final DataTableSource _myData = MyData();
-  EmployeeDatabase({
-    super.key,
-  });
+  const EmployeeDatabase({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +40,7 @@ class EmployeeDatabase extends StatelessWidget {
                         horizontal: 16, vertical: 16),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color: AppColors.buttonColor),
+                        color: AppColors.blueColor),
                     child: Row(
                       children: [
                         Container(
@@ -238,12 +235,13 @@ class EmployessDatabaseButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(left: 13, top: 10, bottom: 10, right: 13),
       decoration: BoxDecoration(
-          color: Color(0XFFF5F6FA), borderRadius: BorderRadius.circular(14)),
+          color: const Color(0XFFF5F6FA),
+          borderRadius: BorderRadius.circular(14)),
       child: Row(
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.grey,
             ),
           ),

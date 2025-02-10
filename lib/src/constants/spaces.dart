@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const double kDefaultSpaceSM = 10;
 const double kDefaultSpace = 20;
+const double kDefaultSpaceBG = 30;
 
 const kSizedBoxSM = SizedBox(height: kDefaultSpaceSM);
 const kSizedBox = SizedBox(height: kDefaultSpace);

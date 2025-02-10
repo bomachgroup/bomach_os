@@ -135,7 +135,7 @@ class CreateMilestone extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 16),
                       decoration: BoxDecoration(
-                          color: AppColors.buttonColor,
+                          color: AppColors.blueColor,
                           borderRadius: BorderRadius.circular(14)),
                       child: const Text(
                         'Save',

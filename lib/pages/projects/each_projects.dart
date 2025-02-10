@@ -1,6 +1,6 @@
-import 'package:bms_front_end/components/section/create_milestone.dart';
 import 'package:bms_front_end/components/button/custom_button.dart';
 import 'package:bms_front_end/components/input/custom_search_field.dart';
+import 'package:bms_front_end/components/section/create_milestone.dart';
 import 'package:bms_front_end/components/section/projectOverview.dart';
 import 'package:bms_front_end/components/section/project_associate.dart';
 import 'package:bms_front_end/components/section/project_files.dart';
@@ -302,7 +302,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                   Container(
 //                     padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 16),
 //                     decoration: BoxDecoration(
-//                       color: AppColors.buttonColor,
+//                       color: AppColors.blueColor,
 //                       borderRadius: BorderRadius.circular(14)
 //                     ),
 //                     child: const Text('Save',style: AppText.white_400_16,)),
@@ -336,9 +336,9 @@ class InButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
         decoration: BoxDecoration(
             border: isSelected
-                ? Border.all(color: AppColors.buttonColor)
+                ? Border.all(color: AppColors.blueColor)
                 : Border.all(color: AppColors.borderColor, width: 0.6),
-            color: isSelected ? AppColors.buttonColor : Colors.transparent,
+            color: isSelected ? AppColors.blueColor : Colors.transparent,
             borderRadius: BorderRadius.circular(16)),
         child: Text(
           title,

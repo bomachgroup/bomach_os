@@ -24,20 +24,22 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
             child: SideMenu(),
           ),
           Expanded(
-              flex: 5,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const TopNavigationBar(),
-                    Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32.0, vertical: 28),
-                        child: widget.navigationShell),
-                  ],
-                ),
-              ))
+            flex: 5,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const TopNavigationBar(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0, vertical: 28),
+                    child: widget.navigationShell,
+                  ),
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );

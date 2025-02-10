@@ -17,7 +17,6 @@ class SideMenu extends StatefulWidget {
 class _SideMenueState extends State<SideMenu> {
   int sideMenueSelectedState = 0;
   int subMenueSelectedState = -1;
-  // final ExpandedTileController _expandedTileController =ExpandedTileController();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,7 +41,7 @@ class _SideMenueState extends State<SideMenu> {
             ),
             NonExpandableSideBarItem(
               titleColor: sideMenueSelectedState == 0
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               title: Text(
                 'Dashboard',
@@ -65,7 +64,7 @@ class _SideMenueState extends State<SideMenu> {
             ),
             ExpandableSideBarItem(
                 titleColor: sideMenueSelectedState == 1
-                    ? AppColors.buttonColor
+                    ? AppColors.blueColor
                     : Colors.transparent,
                 title: Text(
                   'Company',
@@ -127,7 +126,7 @@ class _SideMenueState extends State<SideMenu> {
               expandedTileController: ExpandedTileController(
                   isExpanded: sideMenueSelectedState == 2),
               titleColor: sideMenueSelectedState == 2
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               title: Text(
                 'HR',
@@ -230,7 +229,7 @@ class _SideMenueState extends State<SideMenu> {
               expandedTileController: ExpandedTileController(
                   isExpanded: sideMenueSelectedState == 3),
               titleColor: sideMenueSelectedState == 3
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               title: Text(
                 'Work',
@@ -318,7 +317,7 @@ class _SideMenueState extends State<SideMenu> {
                 },
                 icon: Image.asset('assets/icons/workflow.png'),
                 titleColor: sideMenueSelectedState == 4
-                    ? AppColors.buttonColor
+                    ? AppColors.blueColor
                     : Colors.transparent,
                 children: const []),
             ExpandableSideBarItem(
@@ -337,7 +336,7 @@ class _SideMenueState extends State<SideMenu> {
                   });
                 },
                 titleColor: sideMenueSelectedState == 5
-                    ? AppColors.buttonColor
+                    ? AppColors.blueColor
                     : Colors.transparent,
                 children: const []),
             ExpandableSideBarItem(
@@ -356,7 +355,7 @@ class _SideMenueState extends State<SideMenu> {
                 });
               },
               titleColor: sideMenueSelectedState == 6
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               children: [
                 SubSideBarItems(
@@ -378,7 +377,7 @@ class _SideMenueState extends State<SideMenu> {
             ),
             NonExpandableSideBarItem(
               titleColor: sideMenueSelectedState == 7
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               title: const Text('Notification'),
               icon: const Icon(Icons.settings),
@@ -390,7 +389,7 @@ class _SideMenueState extends State<SideMenu> {
             ),
             NonExpandableSideBarItem(
               titleColor: sideMenueSelectedState == 8
-                  ? AppColors.buttonColor
+                  ? AppColors.blueColor
                   : Colors.transparent,
               title: const Text('Settings'),
               icon: const Icon(Icons.notification_add),
@@ -426,7 +425,7 @@ class SubSideBarItems extends StatelessWidget {
       leading: Visibility(
           visible: isSelected,
           child: const CircleAvatar(
-            backgroundColor: AppColors.buttonColor,
+            backgroundColor: AppColors.blueColor,
             radius: 5,
           )),
       title: title,

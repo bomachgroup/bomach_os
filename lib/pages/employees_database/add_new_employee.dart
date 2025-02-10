@@ -64,7 +64,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                     icon: const Icon(Icons.person),
                     title: const Text('Personal Information'),
                     color: selectionStepperState == 0
-                        ? AppColors.buttonColor
+                        ? AppColors.blueColor
                         : Colors.transparent,
                     onTap: () {
                       setState(() {
@@ -77,7 +77,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                   ),
                   EmployeeInfoStepper(
                     color: selectionStepperState == 1
-                        ? AppColors.buttonColor
+                        ? AppColors.blueColor
                         : Colors.transparent,
                     width: 200,
                     icon: const Icon(Icons.person),
@@ -93,7 +93,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                   ),
                   EmployeeInfoStepper(
                     color: selectionStepperState == 2
-                        ? AppColors.buttonColor
+                        ? AppColors.blueColor
                         : Colors.transparent,
                     width: 115,
                     icon: const Icon(Icons.person),
@@ -162,7 +162,7 @@ class EmployeeInfoStepper extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: color ?? AppColors.buttonColor),
+                color: color ?? AppColors.blueColor),
             width: width ?? 180,
             height: 3,
           )

@@ -74,11 +74,11 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                 height: 45,
                 child: SearchField(),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Container(
-                padding: EdgeInsets.all(5),
+                padding: const EdgeInsets.all(5),
                 height: 50,
                 width: 120,
                 decoration: BoxDecoration(
@@ -87,26 +87,26 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                     width: 0.6,
                     color: AppColors.borderColor,
                   ),
-                  color: Color(0XFFF5F6FA),
+                  color: const Color(0XFFF5F6FA),
                 ),
                 child: Row(
                   children: [
-                    Text(
+                    const Text(
                       "Branch",
                       style: TextStyle(color: Colors.grey),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 6,
                     ),
-                    VerticalDivider(
+                    const VerticalDivider(
                       color: AppColors.borderColor,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 6,
                     ),
                     DropdownButton(
                         // value: ,
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.arrow_downward,
                           size: 20,
                         ),
@@ -121,7 +121,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
             height: 15,
           ),
           //real estate header
-          Align(
+          const Align(
             alignment: Alignment.centerLeft,
             child: Text(
               "Real Estate development",
@@ -140,7 +140,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                   isLargeScreen(context) ? [1.fr, 1.fr] : [1.fr, 1.fr, 1.fr],
               children: List.generate(
                   6,
-                  (index) => RealEstateCard(
+                  (index) => const RealEstateCard(
                         image: "assets/image/image.png",
                         title: "Aso villa Estate",
                         details:

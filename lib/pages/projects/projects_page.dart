@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ProjectsPage extends StatelessWidget {
-  ProjectsPage({super.key});
-  final DataTableSource _myData = MyData();
+  const ProjectsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +147,7 @@ class ProjectsPage extends StatelessWidget {
               children: [
                 Container(
                   decoration: const BoxDecoration(
-                      color: AppColors.buttonColor, shape: BoxShape.circle),
+                      color: AppColors.blueColor, shape: BoxShape.circle),
                   width: 36,
                   height: 36,
                 ),
@@ -204,7 +203,7 @@ class ProjectsPage extends StatelessWidget {
               width: 102,
               height: 14,
               decoration: BoxDecoration(
-                  color: AppColors.buttonColor,
+                  color: AppColors.blueColor,
                   borderRadius: BorderRadius.circular(12)),
             ),
             const SizedBox(

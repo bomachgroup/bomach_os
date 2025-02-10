@@ -15,14 +15,15 @@ class SmallScreenDashboard extends StatelessWidget {
         child: SideMenu(),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: kDefaultSpace),
-          child: Column(
-            children: [
-              const TopNavigationBar(),
-              navigationShell,
-            ],
-          ),
+        child: Column(
+          children: [
+            const TopNavigationBar(),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: kDefaultSpace, vertical: 20),
+              child: navigationShell,
+            ),
+          ],
         ),
       ),
     );

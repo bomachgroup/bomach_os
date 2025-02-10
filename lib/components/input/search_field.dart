@@ -1,35 +1,46 @@
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
-
-import '../../src/constants/colors.dart';
 
 class SearchField extends StatelessWidget {
   const SearchField({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final border = OutlineInputBorder(
-      borderSide: const BorderSide(color: AppColors.borderColor, width: 0.6),
-      borderRadius: BorderRadius.circular(13),
-    );
     return Expanded(
-        child: SizedBox(
-      height: 45,
-      child: TextField(
-        decoration: InputDecoration(
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(kDefaultSpaceSM),
+          border: Border.all(color: AppColors.grey1.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          decoration: InputDecoration(
+            fillColor: AppColors.whiteColor,
+            hintText: "Search...",
+            hintStyle: TextStyle(
+              color: AppColors.grey1.withOpacity(0.8),
+              fontSize: 16,
+            ),
             prefixIcon: Icon(
               Icons.search,
-              color: Colors.grey,
+              color: AppColors.grey1.withOpacity(0.5),
             ),
-            hintText: "Search",
-            hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
-            fillColor: const Color(0XFFF5F6FA),
-            filled: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            border: border,
-            enabledBorder: border,
-            focusedBorder: border),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
       ),
-    ));
+    );
   }
 }

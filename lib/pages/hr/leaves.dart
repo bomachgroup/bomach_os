@@ -44,9 +44,9 @@ class _LeavesState extends State<Leaves> {
           const SizedBox(
             width: 32,
           ),
-          SizedBox(
+          const SizedBox(
             width: 150,
-            child: const EmployessDatabaseButton(
+            child: EmployessDatabaseButton(
               title: 'Sort',
             ),
           ),

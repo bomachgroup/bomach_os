@@ -64,7 +64,7 @@ class BlackCommunity extends StatelessWidget {
             child: Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                    color: AppColors.buttonColor,
+                    color: AppColors.blueColor,
                     borderRadius: BorderRadius.circular(12)),
                 height: 3,
                 // width: 210,
