@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/button/custom_button.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:bms_front_end/components/input/search_field.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -34,7 +34,7 @@ class DepartmentPage extends StatelessWidget {
           spacing: 10,
           runSpacing: 10,
           children: [
-            CustomButton(
+            MyElevatedButton(
               icon: const Icon(
                 Icons.add_circle_outline_rounded,
                 color: AppColors.whiteColor,

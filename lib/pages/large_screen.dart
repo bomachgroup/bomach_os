@@ -14,6 +14,8 @@ class LargeScreenDashboard extends StatefulWidget {
 class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.sizeOf(context);
+
     return Scaffold(
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,22 +26,24 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
             child: SideMenu(),
           ),
           Expanded(
-            flex: 5,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const TopNavigationBar(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32.0, vertical: 28),
-                    child: widget.navigationShell,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const TopNavigationBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Container(
+                      width: media.width - 300,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32.0, vertical: 28),
+                      child: widget.navigationShell,
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          )
+          ),
         ],
       ),
     );

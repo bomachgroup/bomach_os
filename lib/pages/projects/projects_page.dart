@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/button/custom_button.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/custom_search_field.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -27,7 +27,7 @@ class ProjectsPage extends StatelessWidget {
         ),
         Row(
           children: [
-            CustomButton(child: 'Add New Project', onTap: () {}),
+            MyElevatedButton(child: 'Add New Project', onTap: () {}),
             const SizedBox(
               width: 20,
             ),

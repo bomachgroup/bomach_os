@@ -2,7 +2,7 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 
-class CustomButton extends StatelessWidget {
+class MyElevatedButton extends StatelessWidget {
   final Widget? icon;
   final String child;
   final Function()? onTap;
@@ -20,7 +20,7 @@ class CustomButton extends StatelessWidget {
   final FontWeight? fontWeight;
   final String? fontFamily;
 
-  const CustomButton({
+  const MyElevatedButton({
     super.key,
     this.icon,
     required this.child,
@@ -65,8 +65,7 @@ class CustomButton extends StatelessWidget {
                   strokeWidth: 2, color: AppColors.whiteColor),
             )
           : Row(
-              mainAxisSize:
-                  MainAxisSize.min, // Ensures button only takes needed space
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[
                   icon!,

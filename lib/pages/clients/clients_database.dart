@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/button/custom_button.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/custom_search_field.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -27,7 +27,7 @@ class ClientsDatabasePage extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CustomButton(child: 'New Client ', onTap: () {}),
+            MyElevatedButton(child: 'New Client ', onTap: () {}),
             const SizedBox(
               width: 32,
             ),

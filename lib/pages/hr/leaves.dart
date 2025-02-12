@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../components/button/custom_button.dart';
+import '../../components/button/my_elevated_button.dart';
 import '../../components/input/search_field.dart';
 import '../../src/constants/textstyle.dart';
 import '../employees_database/employee_database.dart';
@@ -32,7 +32,7 @@ class _LeavesState extends State<Leaves> {
         children: [
           SizedBox(
               width: 150,
-              child: CustomButton(child: 'New Leave', onTap: () {})),
+              child: MyElevatedButton(child: 'New Leave', onTap: () {})),
           const SizedBox(
             width: 32,
           ),

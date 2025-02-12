@@ -18,13 +18,15 @@ class TopNavigationBar extends StatelessWidget {
       height: 70,
       child: Row(
         children: [
-          IconButton(
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            icon: const Icon(Icons.menu),
-          ),
-          kSizedBoxWidth,
+          if (!isLargeScreen(context)) ...[
+            IconButton(
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+              icon: const Icon(Icons.menu),
+            ),
+            kSizedBoxWidth,
+          ],
           const CustomSearchField(),
           kSizedBoxWidthBG,
           if (isLargeScreen(context)) const Spacer(),

@@ -2,8 +2,7 @@ import 'package:bms_front_end/components/input/search_field.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
-import '../../components/button/custom_button.dart';
-import '../../components/input/custom_search_field.dart';
+import '../../components/button/my_elevated_button.dart';
 import '../employees_database/employee_database.dart';
 
 class LeadsPage extends StatefulWidget {
@@ -33,7 +32,7 @@ class _LeadsPageState extends State<LeadsPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CustomButton(child: 'New Leads', onTap: () {}),
+            MyElevatedButton(child: 'New Leads', onTap: () {}),
             const SizedBox(
               width: 32,
             ),

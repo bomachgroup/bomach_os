@@ -38,7 +38,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  IconHeaderButton(
+                  MyIconButton(
                     icon: Icons.add_outlined,
                     colorBackground: const Color(0xFF0055FF),
                     onPressed: () {},
@@ -46,7 +46,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                   const SizedBox(
                     width: 10,
                   ),
-                  IconHeaderButton(
+                  MyIconButton(
                     icon: Icons.notes,
                     colorBackground: const Color(0xFF0055FF),
                     onPressed: () {},
@@ -54,7 +54,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                   const SizedBox(
                     width: 10,
                   ),
-                  IconHeaderButton(
+                  MyIconButton(
                     icon: Icons.notifications,
                     colorBackground: const Color(0xFF0055FF),
                     onPressed: () {},
@@ -131,13 +131,30 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
 
           //body
           SizedBox(
-            height: isLargeScreen(context) ? 900 : 1350,
+            height: isLargeScreen(context)
+                ? 900
+                : isMediumScreen(context)
+                    ? 3000
+                    : 1350,
             child: LayoutGrid(
               gridFit: GridFit.expand,
-              columnSizes:
-                  isLargeScreen(context) ? [1.fr, 1.fr, 1.fr] : [1.fr, 1.fr],
-              rowSizes:
-                  isLargeScreen(context) ? [1.fr, 1.fr] : [1.fr, 1.fr, 1.fr],
+              columnSizes: isLargeScreen(context)
+                  ? [1.fr, 1.fr, 1.fr]
+                  : isMediumScreen(context)
+                      ? [1.fr, 1.fr]
+                      : [1.fr],
+              rowSizes: isLargeScreen(context)
+                  ? [1.fr, 1.fr]
+                  : isMediumScreen(context)
+                      ? [1.fr, 1.fr, 1.fr]
+                      : [
+                          1.fr,
+                          1.fr,
+                          1.fr,
+                          1.fr,
+                          1.fr,
+                          1.fr,
+                        ],
               children: List.generate(
                   6,
                   (index) => const RealEstateCard(

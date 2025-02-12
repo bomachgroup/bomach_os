@@ -23,12 +23,11 @@ dependencies:
   data_table_2: ^2.5.15
   go_router: ^14.2.8
   get_it: ^8.0.0
-  # flutter_admin_scaffold: ^1.3.0
   animated_tree_view: ^2.3.0
   percent_indicator: ^4.2.3
   readmore: ^3.0.0
-  # layout_grids: ^0.2.0
   flutter_layout_grid: ^2.0.7
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:

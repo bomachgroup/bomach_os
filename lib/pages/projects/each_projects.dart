@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/button/custom_button.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/custom_search_field.dart';
 import 'package:bms_front_end/components/section/create_milestone.dart';
 import 'package:bms_front_end/components/section/projectOverview.dart';
@@ -50,11 +50,11 @@ class _EachProjectsState extends State<EachProjects> {
               width: 20,
             ),
             projectMemberState == 0
-                ? CustomButton(child: 'Add New Employee', onTap: () {})
+                ? MyElevatedButton(child: 'Add New Employee', onTap: () {})
                 : projectMemberState == 1
-                    ? CustomButton(child: 'Add Project membe', onTap: () {})
+                    ? MyElevatedButton(child: 'Add Project membe', onTap: () {})
                     : projectMemberState == 4
-                        ? CustomButton(
+                        ? MyElevatedButton(
                             child: 'Create milestone',
                             onTap: () {
                               showDialog(

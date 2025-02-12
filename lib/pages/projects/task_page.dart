@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/button/custom_button.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/drop/custom_dropdown.dart';
 import 'package:bms_front_end/components/input/custom_search_field.dart';
 import 'package:bms_front_end/components/input/custom_textfield.dart';
@@ -35,7 +35,7 @@ class TaskPage extends StatelessWidget {
             const SizedBox(
               width: 16,
             ),
-            CustomButton(
+            MyElevatedButton(
                 icon: const Icon(
                   Icons.add,
                   color: AppColors.whiteColor,
