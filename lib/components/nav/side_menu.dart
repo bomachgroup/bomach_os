@@ -453,25 +453,23 @@ class ExpandableSideBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpandedTile(
-        onTap: onTap,
-        theme: ExpandedTileThemeData(
-          footerBackgroundColor: Colors.transparent,
-          headerPadding: const EdgeInsets.all(12),
-          contentBackgroundColor: Colors.transparent,
-          headerBorder: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(10)),
-          // headerColor: Colors.transparent,
-          headerColor: titleColor,
-          headerSplashColor: Colors.transparent,
-          contentSeparatorColor: Colors.transparent,
-          // headerColor: titleColor,
-          // colo
-        ),
-        title: title,
-        leading: icon,
-        content: Column(children: children),
-        controller: expandedTileController);
+      onTap: onTap,
+      theme: ExpandedTileThemeData(
+        footerBackgroundColor: Colors.transparent,
+        headerPadding: const EdgeInsets.all(12),
+        contentBackgroundColor: Colors.transparent,
+        headerBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(10)),
+        headerColor: titleColor,
+        headerSplashColor: Colors.transparent,
+        contentSeparatorColor: Colors.transparent,
+      ),
+      title: title,
+      leading: icon,
+      content: Column(children: children),
+      controller: expandedTileController,
+    );
   }
 }
 
@@ -492,8 +490,9 @@ class NonExpandableSideBarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: titleColor, borderRadius: BorderRadius.circular(10)),
-      // color: titleColor,
+        color: titleColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: ListTile(
         tileColor: titleColor,
         leading: icon,

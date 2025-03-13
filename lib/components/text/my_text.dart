@@ -6,19 +6,26 @@ class MyText extends StatelessWidget {
   final double size;
   final Color color;
   final int weight;
+  final String? fontFamily;
   const MyText(
     this.text, {
     super.key,
     required this.size,
     required this.weight,
     this.color = AppColors.blackColor,
+    this.fontFamily,
   });
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(color: color, fontSize: size, fontWeight: getWeight()),
+      style: TextStyle(
+        fontFamily: fontFamily,
+        color: color,
+        fontSize: size,
+        fontWeight: getWeight(),
+      ),
     );
   }
 

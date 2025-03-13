@@ -25,13 +25,15 @@ class CustomTxField extends StatelessWidget {
             decoration: InputDecoration(
               hintText: hintText,
               border: OutlineInputBorder(
-                  borderSide:
-                      const BorderSide(color: AppColors.borderColor, width: 0),
-                  borderRadius: BorderRadius.circular(16)),
+                borderSide:
+                    const BorderSide(color: AppColors.borderColor, width: 0),
+                borderRadius: BorderRadius.circular(16),
+              ),
               focusedBorder: OutlineInputBorder(
-                  borderSide:
-                      const BorderSide(color: AppColors.borderColor, width: 0),
-                  borderRadius: BorderRadius.circular(16)),
+                borderSide:
+                    const BorderSide(color: AppColors.borderColor, width: 0),
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
         ],
