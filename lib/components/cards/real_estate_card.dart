@@ -16,14 +16,14 @@ class RealEstateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(15),
-      margin: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
           width: 0.6,
           color: AppColors.borderColor,
         ),
-        color: Color(0XFFF5F6FA),
+        color: const Color(0XFFF5F6FA),
       ),
       width: 400,
       child: Column(
@@ -41,7 +41,7 @@ class RealEstateCard extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               title,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
           ),
           Expanded(
@@ -49,20 +49,21 @@ class RealEstateCard extends StatelessWidget {
               details,
               trimLines: 2,
               trimMode: TrimMode.Line,
-              trimCollapsedText: "Show more",
+              trimCollapsedText: "Read more",
               trimExpandedText: "Less",
-              style: TextStyle(fontSize: 12, overflow: TextOverflow.ellipsis),
-              moreStyle: TextStyle(
+              style: const TextStyle(
+                  fontSize: 12, overflow: TextOverflow.ellipsis),
+              moreStyle: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   overflow: TextOverflow.ellipsis),
-              lessStyle: TextStyle(
+              lessStyle: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   overflow: TextOverflow.ellipsis),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Expanded(
@@ -71,11 +72,11 @@ class RealEstateCard extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                     elevation: 4,
                     fixedSize: const Size(400, 50),
-                    backgroundColor: Color(0xFF0055FF)),
+                    backgroundColor: const Color(0xFF0055FF)),
                 child: Text(
                   overflow: TextOverflow.ellipsis,
                   buttonText,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFFFFFFF),
                   ),
                 )),

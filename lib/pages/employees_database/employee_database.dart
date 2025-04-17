@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_input.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -67,37 +68,30 @@ class EmployeeDatabase extends StatelessWidget {
           const SizedBox(
             height: 18,
           ),
-          Row(
+          const Row(
             children: [
               SizedBox(
                 width: 276,
                 height: 48,
-                child: TextField(
-                  decoration: InputDecoration(
-                      hintText: 'Search by name, role, department',
-                      fillColor: AppColors.whiteColor,
-                      filled: true,
-                      border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.circular(16))),
-                ),
+                child: MyTextFormField(
+                    hintText: 'Search by name, role, department'),
               ),
-              const SizedBox(
+              SizedBox(
                 width: 24,
               ),
-              const EmployessDatabaseButton(
+              EmployessDatabaseButton(
                 title: 'Enugu',
               ),
-              const SizedBox(
+              SizedBox(
                 width: 24,
               ),
-              const EmployessDatabaseButton(
+              EmployessDatabaseButton(
                 title: 'Aso villa Estate',
               ),
-              const SizedBox(
+              SizedBox(
                 width: 24,
               ),
-              const EmployessDatabaseButton(
+              EmployessDatabaseButton(
                 title: 'Department',
               ),
             ],
@@ -106,11 +100,13 @@ class EmployeeDatabase extends StatelessWidget {
             height: 18,
           ),
           Container(
+            width: MediaQuery.sizeOf(context).width,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
                 border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
                 borderRadius: BorderRadius.circular(16)),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -127,31 +123,36 @@ class EmployeeDatabase extends StatelessWidget {
   List<DataColumn> _createColumns() {
     return [
       const DataColumn(
-          headingRowAlignment: MainAxisAlignment.start,
-          label: Text(
-            "Employee ID",
-          )),
+        headingRowAlignment: MainAxisAlignment.start,
+        label: Text(
+          "Employee ID",
+        ),
+      ),
       const DataColumn(
-          label: Text(
-        "Employee Name",
-      )),
+        label: Text(
+          "Employee Name",
+        ),
+      ),
       const DataColumn(label: Text("Department")),
       const DataColumn(
           label: Text(
         "Designation",
       )),
       const DataColumn(
-          label: Text(
-        "E. Type",
-      )),
+        label: Text(
+          "E. Type",
+        ),
+      ),
       const DataColumn(
-          label: Text(
-        "Status",
-      )),
+        label: Text(
+          "Status",
+        ),
+      ),
       const DataColumn(
-          label: Text(
-        "Action",
-      )),
+        label: Text(
+          "Action",
+        ),
+      ),
     ];
   }
 
@@ -159,45 +160,41 @@ class EmployeeDatabase extends StatelessWidget {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          SizedBox(width: 100, child: Text("345321231")),
+          Text("345321231"),
         ),
         DataCell(
           onTap: () {},
-          SizedBox(
-              width: 182,
-              child: GestureDetector(
-                onTap: () {
-                  context.go(RouteConstants.employeeProfile);
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.secondaryColor,
-                      ),
-                      width: 36,
-                      height: 36,
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    const Text("Darlene Robertson"),
-                  ],
+          GestureDetector(
+            onTap: () {
+              context.go(RouteConstants.employeeProfile);
+            },
+            child: Row(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.secondaryColor,
+                  ),
+                  width: 36,
+                  height: 36,
                 ),
-              )),
+                const SizedBox(
+                  width: 8,
+                ),
+                const Text("Darlene Robertson"),
+              ],
+            ),
+          ),
         ),
         const DataCell(
-          SizedBox(width: 100, child: Text("Design")),
+          Text("Design"),
         ),
         const DataCell(
-          SizedBox(width: 130, child: Text("UI/UX Designer")),
+          Text("UI/UX Designer"),
         ),
         DataCell(
           Container(
-              width: 90,
               margin: const EdgeInsets.symmetric(vertical: 8),
-              // padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                   border: Border.all(width: 0.6),
                   color: AppColors.whiteColor,
@@ -207,8 +204,6 @@ class EmployeeDatabase extends StatelessWidget {
         DataCell(
           Container(
               margin: const EdgeInsets.symmetric(vertical: 8),
-              width: 90,
-              // padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                   border: Border.all(width: 0.6),
                   color: AppColors.whiteColor,
@@ -216,7 +211,7 @@ class EmployeeDatabase extends StatelessWidget {
               child: const Center(child: Text("Retired"))),
         ),
         const DataCell(
-          SizedBox(width: 60, child: Icon(Icons.more_vert_outlined)),
+          Icon(Icons.more_vert_outlined),
         ),
       ]);
     });

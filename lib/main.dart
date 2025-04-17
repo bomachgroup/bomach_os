@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           // textTheme: GoogleFonts.poppinsTextTheme(),
         ),
-        routerConfig: goRoute,
+        routerConfig: goRouter,
       ),
     );
   }

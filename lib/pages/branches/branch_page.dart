@@ -414,7 +414,7 @@ class _BranchPageState extends State<BranchPage> {
           ),
           // In a real app, you'd use a calendar package or custom implementation
           SizedBox(
-            height: 350,
+            height: 400,
             child: TableCalendar(
               availableGestures: AvailableGestures.none,
               availableCalendarFormats: const {

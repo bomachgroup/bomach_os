@@ -23,7 +23,9 @@ class EachProjects extends StatefulWidget {
 class _EachProjectsState extends State<EachProjects> {
   final List<Widget> _pages = [
     const ProjectOverview(),
-    const ProjectMembers(),
+    const ProjectMembers(
+      members: [],
+    ),
     const ProjectWorkSite(),
     const ProjectFiles(),
     const ProjectMilestone(),

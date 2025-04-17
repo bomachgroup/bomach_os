@@ -109,7 +109,6 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
               const SizedBox(
                 height: 30,
               ),
-
               _pages[selectionStepperState],
               const SizedBox(
                 height: 30,
@@ -132,7 +131,6 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
   }
 }
 
-//
 class EmployeeInfoStepper extends StatelessWidget {
   final Text title;
   final Color? color;

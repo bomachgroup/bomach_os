@@ -1,4 +1,6 @@
+// Component imports
 import 'package:bms_front_end/components/section/responsive_widget.dart';
+// Page imports
 import 'package:bms_front_end/pages/auth/login_screen.dart';
 import 'package:bms_front_end/pages/branches/branch_page.dart';
 import 'package:bms_front_end/pages/branches/department.dart';
@@ -20,50 +22,62 @@ import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-StatefulShellBranch statefulShellBranch(String path, Widget screen) {
-  return StatefulShellBranch(routes: [
-    GoRoute(
-      path: path,
-      builder: (context, state) => screen,
-    ),
-  ]);
+/// Map of all dashboard screens to their routes for better maintainability
+final Map<String, Widget> _dashboardRoutes = {
+  RouteConstants.home: const DashboardScreen(),
+  RouteConstants.enugu: const BranchPage(),
+  RouteConstants.employees: const EmployeeDatabase(),
+  RouteConstants.addEmployees: const AddEmployesScreen(),
+  RouteConstants.employeeProfile: const EmployeeProfile(),
+  RouteConstants.clients: const ClientsDatabasePage(),
+  RouteConstants.projects: const ProjectsPage(),
+  RouteConstants.eachprojects: const EachProjects(),
+  RouteConstants.worksite: const EmployeeProfile(),
+  RouteConstants.tasks: const TaskPage(),
+  RouteConstants.realEstate: const RealEstateScreen(),
+  RouteConstants.leads: const LeadsPage(),
+  RouteConstants.leaves: const Leaves(),
+  RouteConstants.meetings: const Meetings(),
+  RouteConstants.department: const DepartmentPage(),
+};
+
+/// Creates a branch for StatefulShellRoute with a single route
+StatefulShellBranch _createBranch(String path, Widget screen) {
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: path,
+        builder: (context, state) => screen,
+      ),
+    ],
+  );
 }
 
-final goRoute = GoRouter(
+/// Main router configuration
+final goRouter = GoRouter(
   initialLocation: RouteConstants.department,
   routes: [
+    // Login route (outside the dashboard shell)
     GoRoute(
       path: RouteConstants.login,
       builder: (context, state) => const LoginScreen(),
     ),
-    // Dashboard
+
+    // Dashboard with indexed stack navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => ResponsiveWidget(
         smallScreen: SmallScreenDashboard(navigationShell: navigationShell),
         mediumScreen: SmallScreenDashboard(navigationShell: navigationShell),
         largeScreen: LargeScreenDashboard(navigationShell: navigationShell),
       ),
-      branches: [
-        statefulShellBranch(RouteConstants.home, const DashboardScreen()),
-        statefulShellBranch(RouteConstants.enugu, const BranchPage()),
-        statefulShellBranch(RouteConstants.employees, const EmployeeDatabase()),
-        statefulShellBranch(
-            RouteConstants.addEmployees, const AddEmployesScreen()),
-        statefulShellBranch(
-            RouteConstants.employeeProfile, const EmployeeProfile()),
-        statefulShellBranch(
-            RouteConstants.clients, const ClientsDatabasePage()),
-        statefulShellBranch(RouteConstants.projects, const ProjectsPage()),
-        statefulShellBranch(RouteConstants.eachprojects, const EachProjects()),
-        statefulShellBranch(RouteConstants.worksite, const EmployeeProfile()),
-        statefulShellBranch(RouteConstants.tasks, const TaskPage()),
-        statefulShellBranch(
-            RouteConstants.realEstate, const RealEstateScreen()),
-        statefulShellBranch(RouteConstants.leads, const LeadsPage()),
-        statefulShellBranch(RouteConstants.leaves, const Leaves()),
-        statefulShellBranch(RouteConstants.meetings, const Meetings()),
-        statefulShellBranch(RouteConstants.department, const DepartmentPage()),
-      ],
-    )
+      branches: _dashboardRoutes.entries
+          .map((entry) => _createBranch(entry.key, entry.value))
+          .toList(),
+    ),
   ],
+
+  // Handle errors and redirects
+  errorBuilder: (context, state) => const Center(
+    child: Text('Page not found'),
+  ),
 );
