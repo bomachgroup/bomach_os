@@ -1,9 +1,9 @@
+import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:bms_front_end/components/input/search_field.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/button/my_elevated_button.dart';
-import '../employees_database/employee_database.dart';
 
 class LeadsPage extends StatefulWidget {
   const LeadsPage({super.key});
@@ -44,8 +44,8 @@ class _LeadsPageState extends State<LeadsPage> {
             const SizedBox(
               width: 32,
             ),
-            const EmployessDatabaseButton(
-              title: 'Sort',
+            const SortBar(
+              text: 'Sort',
             ),
           ],
         ),

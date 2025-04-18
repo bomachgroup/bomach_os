@@ -1,6 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:bms_front_end/components/input/custom_search_field.dart';
-import 'package:bms_front_end/pages/employees_database/employee_database.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +39,8 @@ class ClientsDatabasePage extends StatelessWidget {
             const SizedBox(
               width: 32,
             ),
-            const EmployessDatabaseButton(
-              title: 'Sort',
+            const SortBar(
+              text: 'Sort',
             )
           ],
         ),

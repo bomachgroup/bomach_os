@@ -1,7 +1,11 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:bms_front_end/components/input/my_input.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/color.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,59 +20,46 @@ class EmployeeDatabase extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Employee’s Database',
-                    style: AppText.black_600_32,
-                  ),
-                  Text(
-                    'Employee’s Database',
-                    style: AppText.black_600_14,
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () {
-                  // locator<NavigationService>().navigateTo(AddEmployee);
-                  context.go(RouteConstants.addEmployees);
-                },
-                child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: AppColors.blueColor),
-                    child: Row(
+              Expanded(
+                child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.whiteColor),
-                                shape: BoxShape.circle),
-                            child: const Icon(
-                              Icons.add,
-                              color: AppColors.whiteColor,
-                              size: 20,
-                            )),
-                        const SizedBox(
-                          width: 10,
+                        Text(
+                          'Employee’s Database',
+                          style: AppText.black_600_32,
                         ),
-                        const Text(
-                          'Add New Employee',
-                          style: AppText.white_400_16,
+                        Text(
+                          'Employee’s Database',
+                          style: AppText.black_600_14,
                         ),
                       ],
-                    )),
+                    ),
+                    MyElevatedButton(
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: AppColors.whiteColor,
+                      ),
+                      child: 'Add New Employee',
+                      onTap: () {
+                        context.go(RouteConstants.addEmployees);
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(
-            height: 18,
-          ),
-          const Row(
+          kSizedBoxBG,
+          const Wrap(
+            spacing: 8, // Horizontal space between items
+            runSpacing: 8, // Vertical space when wrapping
             children: [
               SizedBox(
                 width: 276,
@@ -76,42 +67,45 @@ class EmployeeDatabase extends StatelessWidget {
                 child: MyTextFormField(
                     hintText: 'Search by name, role, department'),
               ),
-              SizedBox(
-                width: 24,
+              SortBar(
+                text: 'Enugu',
               ),
-              EmployessDatabaseButton(
-                title: 'Enugu',
+              SortBar(
+                text: 'Aso villa Estate',
               ),
-              SizedBox(
-                width: 24,
-              ),
-              EmployessDatabaseButton(
-                title: 'Aso villa Estate',
-              ),
-              SizedBox(
-                width: 24,
-              ),
-              EmployessDatabaseButton(
-                title: 'Department',
+              SortBar(
+                text: 'Department',
               ),
             ],
           ),
-          const SizedBox(
-            height: 18,
-          ),
+          kSizedBox,
+          kSizedBoxSM,
           Container(
-            width: MediaQuery.sizeOf(context).width,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-                border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-                borderRadius: BorderRadius.circular(16)),
+              border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SingleChildScrollView(
+                Scrollbar(
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                        columns: _createColumns(), rows: _createRows(context)))
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: bodySpace(context),
+                      ),
+                      child: DataTable(
+                          columnSpacing: 24,
+                          horizontalMargin: 12,
+                          columns: _createColumns(),
+                          rows: _createRows(context)),
+                    ),
+                  ),
+                ),
               ],
             ),
           )
@@ -173,10 +167,10 @@ class EmployeeDatabase extends StatelessWidget {
                 Container(
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.secondaryColor,
                   ),
                   width: 36,
                   height: 36,
+                  child: Image.asset('assets/icons/profileIcon.png'),
                 ),
                 const SizedBox(
                   width: 8,
@@ -193,22 +187,54 @@ class EmployeeDatabase extends StatelessWidget {
           Text("UI/UX Designer"),
         ),
         DataCell(
-          Container(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                  border: Border.all(width: 0.6),
-                  color: AppColors.whiteColor,
-                  borderRadius: BorderRadius.circular(6)),
-              child: const Center(child: Text("Full-time"))),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            width: 0.6,
+                            color: getRandomColorFromList('full-time')),
+                        color: getRandomColorFromList('full-time')
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6)),
+                    child: const Center(
+                      child: Text("Full-time"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         DataCell(
-          Container(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                  border: Border.all(width: 0.6),
-                  color: AppColors.whiteColor,
-                  borderRadius: BorderRadius.circular(6)),
-              child: const Center(child: Text("Retired"))),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            width: 0.6,
+                            color: getRandomColorFromList('retired')),
+                        color: getRandomColorFromList('retired')
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6)),
+                    child: const Center(
+                      child: Text("Retired"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         const DataCell(
           Icon(Icons.more_vert_outlined),
@@ -216,89 +242,4 @@ class EmployeeDatabase extends StatelessWidget {
       ]);
     });
   }
-}
-
-class EmployessDatabaseButton extends StatelessWidget {
-  final String title;
-  const EmployessDatabaseButton({
-    super.key,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 13, top: 10, bottom: 10, right: 13),
-      decoration: BoxDecoration(
-          color: const Color(0XFFF5F6FA),
-          borderRadius: BorderRadius.circular(14)),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(
-            width: 6,
-          ),
-          const Icon(
-            Icons.arrow_drop_down,
-            color: Colors.grey,
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class MyData extends DataTableSource {
-  late BuildContext context;
-  final List<Map<String, dynamic>> _data = List.generate(10, (index) {
-    return {
-      'EmployeeID': '345321231',
-      "Employee Name": 'Darlene Robertson',
-      'Department': 'Design',
-      'Designation': "UI/UX Designer",
-      'E. Type': 'Full-time',
-      'Status': 'Retired'
-    };
-  });
-  @override
-  DataRow? getRow(int index) {
-    return DataRow(cells: [
-      DataCell(SizedBox(
-          width: 90, child: Text(_data[index]['EmployeeID'].toString()))),
-      DataCell(SizedBox(
-          width: 120,
-          child: GestureDetector(
-              onTap: () {
-                // context.go(RouteConstants.employeeProfile);
-                // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>const EmployeeDatabasePage()));
-              },
-              child: Text(_data[index]['Employee Name'].toString())))),
-      DataCell(SizedBox(
-          width: 90, child: Text(_data[index]['Department'].toString()))),
-      DataCell(
-          // placeholder: true,
-          SizedBox(
-              width: 90, child: Text(_data[index]['Designation'].toString()))),
-      DataCell(
-          SizedBox(width: 90, child: Text(_data[index]['E. Type'].toString()))),
-      DataCell(
-          SizedBox(width: 90, child: Text(_data[index]['Status'].toString()))),
-      const DataCell(
-          SizedBox(width: 90, child: Icon(Icons.more_vert_outlined))),
-    ]);
-  }
-
-  @override
-  bool get isRowCountApproximate => false;
-
-  @override
-  int get rowCount => _data.length;
-
-  @override
-  int get selectedRowCount => 0;
 }

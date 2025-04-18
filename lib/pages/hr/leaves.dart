@@ -1,9 +1,9 @@
+import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/button/my_elevated_button.dart';
 import '../../components/input/search_field.dart';
 import '../../src/constants/textstyle.dart';
-import '../employees_database/employee_database.dart';
 
 class Leaves extends StatefulWidget {
   const Leaves({super.key});
@@ -46,8 +46,8 @@ class _LeavesState extends State<Leaves> {
           ),
           const SizedBox(
             width: 150,
-            child: EmployessDatabaseButton(
-              title: 'Sort',
+            child: SortBar(
+              text: 'Sort',
             ),
           ),
         ],

@@ -3,14 +3,14 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 
 class SortBar extends StatelessWidget {
-  const SortBar({super.key});
+  final String text;
+  const SortBar({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
-      width: 95,
       padding: const EdgeInsets.symmetric(horizontal: 10),
+      height: 48,
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(kDefaultSpaceSM),
@@ -25,11 +25,11 @@ class SortBar extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            "Sort",
-            style: TextStyle(
+          Text(
+            text,
+            style: const TextStyle(
               color: AppColors.grey1,
               fontSize: 16,
             ),

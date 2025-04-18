@@ -46,7 +46,9 @@ class DepartmentPage extends StatelessWidget {
               width: 217,
               child: SearchField(),
             ),
-            const SortBar(),
+            const SortBar(
+              text: "Sort",
+            ),
           ],
         ),
         kSizedBoxBG,
