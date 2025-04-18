@@ -1,3 +1,5 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/section/employee_documentation.dart';
 import 'package:bms_front_end/components/section/personalInfo.dart';
 import 'package:bms_front_end/components/section/professionalInfo.dart';
@@ -20,7 +22,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     const ProfessionalInformation(),
     const EmployeeDocumentation(),
   ];
-  int selectionStepperState = 0;
+  int selectionStepperState = 2;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -113,16 +115,22 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
               const SizedBox(
                 height: 30,
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text('Cancel'),
-                  SizedBox(
-                    width: 20,
+                  MyOutlinedButton(
+                    textColor: AppColors.blackColor,
+                    borderColor: null,
+                    child: 'Cancel',
+                    onTap: () {},
                   ),
-                  Text('Next'),
+                  const SizedBox(width: 16),
+                  MyElevatedButton(
+                    child: 'Next',
+                    onTap: () {},
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         )

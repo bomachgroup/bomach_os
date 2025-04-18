@@ -1,43 +1,45 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 
 class EmployeeDocumentation extends StatelessWidget {
   const EmployeeDocumentation({super.key});
 
   @override
-  Widget build(Object context) {
-    return Column(
+  Widget build(BuildContext context) {
+    return LayoutGrid(
+      columnSizes: isSmallScreen(context) ? [1.fr] : [1.fr, 1.fr],
+      rowSizes: isSmallScreen(context)
+          ? [
+              auto,
+              auto,
+              auto,
+              auto,
+            ]
+          : const [
+              auto,
+              auto,
+            ],
+      columnGap: kDefaultSpaceTiny,
+      rowGap: kDefaultSpaceTiny,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            DocumentUpload(
-              title: 'Upload Appointment Letter',
-              upload: () {},
-            ),
-            // const SizedBox(width: 16,),
-            DocumentUpload(
-              title: 'Upload Salary Slips',
-              upload: () {},
-            ),
-          ],
+        DocumentUpload(
+          title: 'Upload Appointment Letter',
+          upload: () {},
         ),
-        const SizedBox(
-          height: 16,
+        DocumentUpload(
+          title: 'Upload Salary Slips',
+          upload: () {},
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            DocumentUpload(
-              title: 'Upload Reliving Letter',
-              upload: () {},
-            ),
-            // const SizedBox(width: 16,),
-            DocumentUpload(
-              title: 'Upload Experience Letter',
-              upload: () {},
-            ),
-          ],
+        DocumentUpload(
+          title: 'Upload Reliving Letter',
+          upload: () {},
+        ),
+        DocumentUpload(
+          title: 'Upload Experience Letter',
+          upload: () {},
         ),
       ],
     );
@@ -65,9 +67,10 @@ class DocumentUpload extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10), border: Border.all()),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(),
+          ),
           // color: AppColors.secondaryColor,
-          width: 496,
           child: Column(
             children: [
               Container(
