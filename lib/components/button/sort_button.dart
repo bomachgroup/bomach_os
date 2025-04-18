@@ -1,5 +1,4 @@
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 
 class SortBar extends StatelessWidget {
@@ -13,7 +12,7 @@ class SortBar extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(kDefaultSpaceSM),
+        borderRadius: BorderRadius.circular(15),
         border: Border.all(color: AppColors.grey1.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(

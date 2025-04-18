@@ -84,19 +84,19 @@ class MyTextFormField extends StatelessWidget {
               fillColor: fillColor ?? AppColors.whiteColor,
               hoverColor: AppColors.whiteColor,
               border: OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(10),
+                borderRadius: borderRadius ?? BorderRadius.circular(15),
                 borderSide: const BorderSide(
                   color: AppColors.cardColor,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(10),
+                borderRadius: borderRadius ?? BorderRadius.circular(15),
                 borderSide: const BorderSide(
                   color: AppColors.cardColor,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(10),
+                borderRadius: borderRadius ?? BorderRadius.circular(15),
                 borderSide: const BorderSide(
                   color: AppColors.cardColor,
                   width: 2,

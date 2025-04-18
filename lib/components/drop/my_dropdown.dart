@@ -39,7 +39,7 @@ class MyDropdown extends StatelessWidget {
               decoration: !state.hasError
                   ? null
                   : BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(15),
                       border: Border.all(color: AppColors.kRedColor, width: 1),
                     ),
               child: DropdownMenu(
@@ -63,19 +63,19 @@ class MyDropdown extends StatelessWidget {
                   focusColor: AppColors.whiteColor,
                   hoverColor: AppColors.whiteColor,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                     borderSide: const BorderSide(
                       color: AppColors.cardColor,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                     borderSide: const BorderSide(
                       color: AppColors.cardColor,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                     borderSide: const BorderSide(
                       color: AppColors.cardColor,
                       width: 2,

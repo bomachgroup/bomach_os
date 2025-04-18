@@ -1,221 +1,239 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
+import 'package:bms_front_end/components/input/my_input.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/color.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../components/button/my_elevated_button.dart';
-import '../../components/input/search_field.dart';
-import '../../src/constants/textstyle.dart';
+class LeavesPage extends StatelessWidget {
+  const LeavesPage({super.key});
 
-class Leaves extends StatefulWidget {
-  const Leaves({super.key});
-
-  @override
-  State<Leaves> createState() => _LeavesState();
-}
-
-class _LeavesState extends State<Leaves> {
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text(
-        'Leaves',
-        style: AppText.black_500_32,
-      ),
-      const Text(
-        'Leaves',
-        style: AppText.black_400_14,
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      Wrap(
-        runSpacing: 20,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-              width: 150,
-              child: MyElevatedButton(child: 'New Leave', onTap: () {})),
-          const SizedBox(
-            width: 32,
+          const Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Leaves',
+                    style: AppText.black_600_32,
+                  ),
+                  Text(
+                    'Leaves',
+                    style: AppText.black_600_14,
+                  ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(
-            width: 217,
-            height: 45,
-            child: SearchField(),
-          ),
-          const SizedBox(
-            width: 32,
-          ),
-          const SizedBox(
-            width: 150,
-            child: SortBar(
-              text: 'Sort',
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(
-        height: 22,
-      ),
-      Container(
-        decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0xFFB5B5B5)),
-            borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          children: [
-            SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                    decoration: const BoxDecoration(),
-                    columns: _createColumns(),
-                    rows: _createRows(context))),
-            const SizedBox(
-              height: 4,
-            ),
-            const Divider(),
-            const SizedBox(
-              height: 8,
-            ),
-            const Row(
-              children: [
-                Text('Showing'),
-                Text('Showing 1 to 8 out of 60 records'),
-              ],
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-          ],
-        ),
-      ),
-    ]);
-  }
-}
-
-List<DataColumn> _createColumns() {
-  return [
-    DataColumn(label: Checkbox(value: false, onChanged: (value) {})),
-    const DataColumn(
-        // headingRowAlignment: MainAxisAlignment.start,
-        label: Expanded(
-      child: Text(
-        overflow: TextOverflow.ellipsis,
-        "Employee ID",
-      ),
-    )),
-    const DataColumn(
-        label: Expanded(
-      child: Text(
-        overflow: TextOverflow.ellipsis,
-        "Employee Name",
-      ),
-    )),
-    const DataColumn(label: Text("Leave date")),
-    const DataColumn(
-        label: Text(
-      "Duration",
-    )),
-    const DataColumn(
-        label: Expanded(
-      child: Text(
-        overflow: TextOverflow.ellipsis,
-        "Leave Type",
-      ),
-    )),
-    const DataColumn(
-        label: Expanded(
-      child: Text(
-        "Paid",
-        overflow: TextOverflow.ellipsis,
-      ),
-    )),
-    const DataColumn(
-        label: Expanded(
-      child: Text(
-        "Status",
-        overflow: TextOverflow.ellipsis,
-      ),
-    )),
-  ];
-}
-
-List<DataRow> _createRows(BuildContext context) {
-  return List.generate(10, (index) {
-    return DataRow(cells: <DataCell>[
-      DataCell(SizedBox(
-        height: 40,
-        child: Checkbox(value: false, onChanged: (value) {}),
-      )),
-      const DataCell(
-        SizedBox(width: 80, child: Text("#1234567")),
-      ),
-      const DataCell(
-        SizedBox(
-            width: 250,
-            child: Row(
-              children: [
-                SizedBox(
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.amber,
+          kSizedBoxBG,
+          Wrap(
+            spacing: 8, // Horizontal space between items
+            runSpacing: 8, // Vertical space when wrapping
+            children: [
+              MyElevatedButton(
+                icon: const Icon(
+                  Icons.add_circle_outline_rounded,
+                  color: AppColors.whiteColor,
+                ),
+                child: 'New Leave',
+                onTap: () {},
+              ),
+              kSizedBoxWidth,
+              SizedBox(
+                width: 220,
+                height: 48,
+                child: MyTextFormField(
+                  hintText: 'Search...',
+                  leading: Icon(
+                    Icons.search,
+                    color: AppColors.grey1.withOpacity(0.5),
                   ),
                 ),
-                SizedBox(
-                  width: 5,
+              ),
+              const SortBar(
+                text: 'Sort',
+              ),
+            ],
+          ),
+          kSizedBox,
+          kSizedBoxSM,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Scrollbar(
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: bodySpace(context),
+                      ),
+                      child: DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context),
+                      ),
+                    ),
+                  ),
                 ),
-                Column(
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  List<DataColumn> _createColumns() {
+    return [
+      const DataColumn(
+        headingRowAlignment: MainAxisAlignment.start,
+        label: Text(
+          "Employee ID",
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Employee Name",
+        ),
+      ),
+      const DataColumn(
+          label: Text(
+        "Leave date",
+      )),
+      const DataColumn(
+        label: Text(
+          "Duration",
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Leave Type",
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Paid",
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Status",
+        ),
+      ),
+    ];
+  }
+
+  List<DataRow> _createRows(BuildContext context) {
+    return List.generate(10, (index) {
+      return DataRow(cells: <DataCell>[
+        const DataCell(
+          Text("#23456"),
+        ),
+        DataCell(
+          onTap: () {},
+          GestureDetector(
+            onTap: () {
+              context.go(RouteConstants.employeeProfile);
+            },
+            child: Row(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  width: 36,
+                  height: 36,
+                  child: Image.asset('assets/icons/profileIcon.png'),
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
+                const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Darlene"),
-                    Text("UI/UX Designer"),
+                    MyText("Darlene Robertson", size: 16, weight: 400),
+                    MyText("UI/UX Designer", size: 14, weight: 300)
                   ],
                 ),
               ],
-            )),
-      ),
-      const DataCell(
-        SizedBox(width: 200, child: Text('11/01/2024')),
-      ),
-      const DataCell(
-        SizedBox(width: 150, child: Text("5days")),
-      ),
-      DataCell(
-        SizedBox(
-            height: 30,
-            // width: 50,
-            child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Colors.green.withOpacity(0.8), width: 1.5),
-                    color: Colors.green.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(12)),
-                child: Text(
-                  "Sick",
-                  style: TextStyle(
-                    color: Colors.green.withOpacity(0.8),
+            ),
+          ),
+        ),
+        const DataCell(
+          Text("11/02/2024"),
+        ),
+        const DataCell(
+          Text("5 days"),
+        ),
+        const DataCell(
+          Text("Yes"),
+        ),
+        DataCell(
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            width: 0.6,
+                            color: getRandomColorFromList('Earned👍🏼')),
+                        color: getRandomColorFromList('Earned👍🏼')
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6)),
+                    child: const Center(
+                      child: Text("Earned👍🏼"),
+                    ),
                   ),
-                ))),
-      ),
-      const DataCell(
-        SizedBox(width: 100, child: Text("Yes")),
-      ),
-      const DataCell(
-        SizedBox(
-            width: 100,
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.orange,
-                  radius: 6,
+                ],
+              ),
+            ],
+          ),
+        ),
+        DataCell(
+          Row(
+            children: [
+              Container(
+                height: 10,
+                width: 10,
+                decoration: const ShapeDecoration(
+                  color: AppColors.green2,
+                  shape: OvalBorder(),
                 ),
-                SizedBox(
-                  width: 5,
-                ),
-                Text("Pending"),
-              ],
-            )),
-      ),
-    ]);
-  });
+              ),
+              kSizedBoxWidthTiny,
+              const Text("Approved"),
+            ],
+          ),
+        ),
+      ]);
+    });
+  }
 }

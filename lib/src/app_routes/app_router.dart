@@ -36,7 +36,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.tasks: const TaskPage(),
   RouteConstants.realEstate: const RealEstateScreen(),
   RouteConstants.leads: const LeadsPage(),
-  RouteConstants.leaves: const Leaves(),
+  RouteConstants.leaves: const LeavesPage(),
   RouteConstants.meetings: const Meetings(),
   RouteConstants.department: const DepartmentPage(),
 };

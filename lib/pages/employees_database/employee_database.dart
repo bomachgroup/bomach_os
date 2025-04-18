@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:bms_front_end/components/input/my_input.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -41,16 +42,32 @@ class EmployeeDatabase extends StatelessWidget {
                         ),
                       ],
                     ),
-                    MyElevatedButton(
-                      icon: const Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: AppColors.whiteColor,
-                      ),
-                      child: 'Add New Employee',
-                      onTap: () {
-                        context.go(RouteConstants.addEmployees);
-                      },
-                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MyElevatedButton(
+                          icon: const Icon(
+                            Icons.add_circle_outline_rounded,
+                            color: AppColors.whiteColor,
+                          ),
+                          child: 'Add New Employee',
+                          onTap: () {
+                            context.go(RouteConstants.addEmployees);
+                          },
+                        ),
+                        kSizedBoxWidth,
+                        MyOutlinedButton(
+                          icon: const Icon(
+                            Icons.tune,
+                            color: AppColors.blackColor,
+                          ),
+                          textColor: AppColors.blackColor,
+                          borderColor: null,
+                          child: 'Filter',
+                          onTap: () {},
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -99,6 +116,8 @@ class EmployeeDatabase extends StatelessWidget {
                         minWidth: bodySpace(context),
                       ),
                       child: DataTable(
+                          dataRowMinHeight: 68,
+                          dataRowMaxHeight: 68,
                           columnSpacing: 24,
                           horizontalMargin: 12,
                           columns: _createColumns(),

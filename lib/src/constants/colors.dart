@@ -20,6 +20,7 @@ class AppColors {
   static const blackColor = Color(0XFF000000);
   static const sideMenueTextColor = Color(0XFF313131);
   static const green = Color(0XFF2DAB03);
+  static const green2 = Color(0XFF13CF09);
 
   static const grey1 = Color(0XFF7E7E7E);
   static const grey2 = Color(0XFFA2A1A8);

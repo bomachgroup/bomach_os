@@ -822,7 +822,7 @@ class _BranchPageState extends State<BranchPage> {
                     children: [
                       MyOutlinedButton(
                         textColor: AppColors.darkGrey1,
-                        borderColor: AppColors.backgroundColor,
+                        borderColor: null,
                         child: 'Cancel',
                         onTap: () {
                           Navigator.pop(context);

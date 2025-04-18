@@ -170,7 +170,7 @@ class _SideMenueState extends State<SideMenu> {
                   ),
                   onTap: () {
                     context.go(
-                      RouteConstants.addEmployees,
+                      RouteConstants.leaves,
                     );
                     setState(() {
                       subMenueSelectedState = 5;
@@ -203,11 +203,13 @@ class _SideMenueState extends State<SideMenu> {
                         : AppText.sideMText_300_14,
                   ),
                   onTap: () {
+                    context.go(RouteConstants.leads);
+
                     setState(() {
-                      subMenueSelectedState = 4;
+                      subMenueSelectedState = 7;
                     });
                   },
-                  isSelected: false,
+                  isSelected: subMenueSelectedState == 7,
                 ),
                 SubSideBarItems(
                   title: Text(
@@ -217,11 +219,13 @@ class _SideMenueState extends State<SideMenu> {
                         : AppText.sideMText_300_14,
                   ),
                   onTap: () {
+                    context.go(RouteConstants.department);
+
                     setState(() {
-                      subMenueSelectedState = 5;
+                      subMenueSelectedState = 8;
                     });
                   },
-                  isSelected: false,
+                  isSelected: subMenueSelectedState == 8,
                 ),
               ],
             ),

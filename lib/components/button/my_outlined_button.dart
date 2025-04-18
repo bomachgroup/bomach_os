@@ -45,7 +45,9 @@ class MyOutlinedButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: disable || isLoading ? null : onTap,
       style: ElevatedButton.styleFrom(
-        side: borderColor != null ? BorderSide(color: borderColor!) : null,
+        side: borderColor != null
+            ? BorderSide(color: borderColor!)
+            : BorderSide.none,
         padding:
             padding ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
         disabledBackgroundColor: bgColor.withOpacity(0.5),
@@ -55,6 +57,7 @@ class MyOutlinedButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderCurve ?? 16),
         ),
         shadowColor: AppColors.blackColor.withOpacity(0.4),
+
         minimumSize: Size(0, height ?? 44), // Allows flexible width
       ),
       child: isLoading
