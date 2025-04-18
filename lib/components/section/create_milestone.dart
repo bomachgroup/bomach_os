@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/drop/custom_dropdown.dart';
+import 'package:bms_front_end/components/drop/my_dropdown.dart';
 import 'package:bms_front_end/components/input/custom_textfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -65,14 +65,14 @@ class CreateMilestone extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      CustomDropdownT(
+                      MyDropdown(
                           items: const [],
                           onChanged: (v) {},
                           hintText: 'Marital status'),
                       const SizedBox(
                         width: 24,
                       ),
-                      CustomDropdownT(
+                      MyDropdown(
                           items: const [],
                           onChanged: (v) {},
                           hintText: 'Marital status'),

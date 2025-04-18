@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/drop/custom_dropdown.dart';
+import 'package:bms_front_end/components/drop/my_dropdown.dart';
 import 'package:bms_front_end/components/input/custom_textfield.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +27,7 @@ class ProfessionalInformation extends StatelessWidget {
         ),
         Row(
           children: [
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'Select Employment type',
               onChanged: (String? value) {},
@@ -35,7 +35,7 @@ class ProfessionalInformation extends StatelessWidget {
             const SizedBox(
               width: 23,
             ),
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'select worksite (optional)',
               onChanged: (String? value) {},
@@ -47,7 +47,7 @@ class ProfessionalInformation extends StatelessWidget {
         ),
         Row(
           children: [
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'Select Designation',
               onChanged: (String? value) {},
@@ -55,7 +55,7 @@ class ProfessionalInformation extends StatelessWidget {
             const SizedBox(
               width: 23,
             ),
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'Select Start Date',
               onChanged: (String? value) {},
@@ -67,7 +67,7 @@ class ProfessionalInformation extends StatelessWidget {
         ),
         Row(
           children: [
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'Select Office Location',
               onChanged: (String? value) {},
@@ -79,7 +79,7 @@ class ProfessionalInformation extends StatelessWidget {
         ),
         Row(
           children: [
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'City',
               onChanged: (String? value) {},
@@ -87,7 +87,7 @@ class ProfessionalInformation extends StatelessWidget {
             const SizedBox(
               width: 23,
             ),
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'State',
               onChanged: (String? value) {},
@@ -95,7 +95,7 @@ class ProfessionalInformation extends StatelessWidget {
             const SizedBox(
               width: 23,
             ),
-            CustomDropdownT(
+            MyDropdown(
               items: const ['kkk', 'lll'],
               hintText: 'Nationality',
               onChanged: (String? value) {},

@@ -1,5 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/drop/custom_dropdown.dart';
+import 'package:bms_front_end/components/drop/my_dropdown.dart';
 import 'package:bms_front_end/components/input/custom_search_field.dart';
 import 'package:bms_front_end/components/input/custom_textfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -203,7 +203,7 @@ class addTask extends StatelessWidget {
                           const SizedBox(
                             width: 24,
                           ),
-                          CustomDropdownT(
+                          MyDropdown(
                               title: 'Task Categories*',
                               items: const [],
                               onChanged: (String? value) {},
@@ -215,7 +215,7 @@ class addTask extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          CustomDropdownT(
+                          MyDropdown(
                               title: 'Project*',
                               items: const [],
                               onChanged: (String? value) {},
@@ -234,7 +234,7 @@ class addTask extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          CustomDropdownT(
+                          MyDropdown(
                               title: 'Assign to*',
                               items: const [],
                               onChanged: (String? value) {},
@@ -260,7 +260,7 @@ class addTask extends StatelessWidget {
                           const SizedBox(
                             width: 24,
                           ),
-                          CustomDropdownT(
+                          MyDropdown(
                               title: 'Taks status*',
                               items: const [],
                               onChanged: (String? value) {},
@@ -308,14 +308,14 @@ class addTask extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          CustomDropdownT(
+                          MyDropdown(
                               items: const [],
                               onChanged: (v) {},
                               hintText: 'Repeat every*'),
                           const SizedBox(
                             width: 24,
                           ),
-                          CustomDropdownT(
+                          MyDropdown(
                               items: const [],
                               onChanged: (v) {},
                               hintText: 'Time*'),

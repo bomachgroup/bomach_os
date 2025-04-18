@@ -1,5 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/drop/my_dropdown.dart';
+import 'package:bms_front_end/components/input/my_input.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -61,7 +63,9 @@ class _BranchPageState extends State<BranchPage> {
                           color: AppColors.whiteColor,
                         ),
                         child: 'New Branch',
-                        onTap: () {},
+                        onTap: () {
+                          showCreateBranchModal(context);
+                        },
                       ),
                     ],
                   ),
@@ -639,6 +643,208 @@ class _BranchPageState extends State<BranchPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void showCreateBranchModal(BuildContext context) {
+    final TextEditingController branchNameController = TextEditingController();
+    final TextEditingController officeAddressController =
+        TextEditingController();
+    final TextEditingController lgaController = TextEditingController();
+    final TextEditingController startDateController1 = TextEditingController();
+    final TextEditingController startDateController2 = TextEditingController();
+
+    String? selectedCountry;
+    String? selectedState;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: AppColors.backgroundColor,
+            ),
+            padding: const EdgeInsets.all(kDefaultSpace),
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Create Branch",
+                      style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 20),
+
+                  // Branch Name & Country
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: branchNameController,
+                          hintText: "---",
+                          title: 'Branch Name*',
+                        ),
+                      ),
+                      kSizedBoxWidth,
+                      Expanded(
+                        child: MyDropdown(
+                          items: const ['Nigeria', 'Ghana'],
+                          onChanged: (val) {},
+                          hintText: '---',
+                          title: 'Country*',
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  kSizedBoxBG,
+
+                  // State & L.G.A
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyDropdown(
+                          items: const ['Lagos', 'Abuja'],
+                          onChanged: (val) {},
+                          hintText: '---',
+                          title: 'State*',
+                        ),
+                      ),
+                      kSizedBoxWidth,
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: lgaController,
+                          hintText: "---",
+                          title: 'L.G.A*',
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  kSizedBoxBG,
+
+                  // Office Address
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyTextFormField(
+                          maxLines: 3,
+                          controller: officeAddressController,
+                          hintText: "---",
+                          title: 'Office Address*',
+                        ),
+                      ),
+                    ],
+                  ),
+                  kSizedBoxBG,
+
+                  // Start Dates
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: startDateController2,
+                          hintText: "---",
+                          title: 'Start date (optional)*',
+                          onTap: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              startDateController2.text =
+                                  picked.toLocal().toString().split(' ')[0];
+                            }
+                          },
+                        ),
+                      ),
+                      kSizedBoxWidth,
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: startDateController2,
+                          hintText: "---",
+                          title: 'Start date (optional)*',
+                          onTap: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              startDateController2.text =
+                                  picked.toLocal().toString().split(' ')[0];
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  kSizedBoxBG,
+
+                  // File Upload
+                  GestureDetector(
+                    onTap: () {
+                      // TODO: Trigger file picker
+                    },
+                    child: Container(
+                      height: 100,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.blueColor,
+                          width: 1.5,
+                          style: BorderStyle.solid,
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.upload_file,
+                            size: 32, color: AppColors.blueColor),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Actions
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      MyOutlinedButton(
+                        textColor: AppColors.darkGrey1,
+                        borderColor: AppColors.backgroundColor,
+                        child: 'Cancel',
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      MyElevatedButton(
+                        icon: const Icon(
+                          Icons.check,
+                          color: AppColors.whiteColor,
+                        ),
+                        child: 'Save',
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

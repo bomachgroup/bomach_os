@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/drop/custom_dropdown.dart';
+import 'package:bms_front_end/components/drop/my_dropdown.dart';
 import 'package:bms_front_end/components/input/custom_textfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +56,7 @@ class PersonalInformation extends StatelessWidget {
           ),
           Row(
             children: [
-              CustomDropdownT(
+              MyDropdown(
                 items: const [],
                 onChanged: (String? value) {},
                 hintText: 'Gender',
@@ -64,7 +64,7 @@ class PersonalInformation extends StatelessWidget {
               const SizedBox(
                 width: 23,
               ),
-              CustomDropdownT(
+              MyDropdown(
                 items: const [],
                 onChanged: (String? value) {},
                 hintText: 'Marital status',
@@ -76,7 +76,7 @@ class PersonalInformation extends StatelessWidget {
           ),
           Row(
             children: [
-              CustomDropdownT(
+              MyDropdown(
                   items: const [], onChanged: (v) {}, hintText: 'Address'),
             ],
           ),
@@ -85,22 +85,20 @@ class PersonalInformation extends StatelessWidget {
           ),
           Row(
             children: [
-              CustomDropdownT(
-                  items: const [], onChanged: (v) {}, hintText: 'City'),
+              MyDropdown(items: const [], onChanged: (v) {}, hintText: 'City'),
               const SizedBox(
                 width: 23,
               ),
-              CustomDropdownT(
-                  items: const [], onChanged: (v) {}, hintText: 'State'),
+              MyDropdown(items: const [], onChanged: (v) {}, hintText: 'State'),
               const SizedBox(
                 width: 23,
               ),
-              CustomDropdownT(
+              MyDropdown(
                   items: const [], onChanged: (v) {}, hintText: 'Nationality'),
             ],
           )
           //  const SizedBox(height: 24,),
-          //  CustomDropdownT(items: const [],
+          //  MyDropdown(items: const [],
           //      onChanged: (String? value) {  },
           //       hintText: 'Gender',),
         ],
