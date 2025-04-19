@@ -1,7 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/create_milestone.dart';
-import 'package:bms_front_end/components/section/projectOverview.dart';
+import 'package:bms_front_end/components/section/project_overview.dart';
 import 'package:bms_front_end/components/section/project_associate.dart';
 import 'package:bms_front_end/components/section/project_files.dart';
 import 'package:bms_front_end/components/section/project_meetings.dart';

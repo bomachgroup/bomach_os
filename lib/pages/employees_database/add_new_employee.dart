@@ -1,7 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/section/employee_documentation.dart';
-import 'package:bms_front_end/components/section/personalInfo.dart';
+import 'package:bms_front_end/components/section/personal_info.dart';
 import 'package:bms_front_end/components/section/professionalInfo.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';

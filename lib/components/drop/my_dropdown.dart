@@ -40,7 +40,7 @@ class MyDropdown extends StatelessWidget {
                   ? null
                   : BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: AppColors.kRedColor, width: 1),
+                      border: Border.all(color: AppColors.redColor, width: 1),
                     ),
               child: DropdownMenu(
                 controller: controller,
@@ -56,7 +56,7 @@ class MyDropdown extends StatelessWidget {
                 hintText: hintText,
                 inputDecorationTheme: InputDecorationTheme(
                   errorStyle: const TextStyle(
-                    color: AppColors.kRedColor,
+                    color: AppColors.redColor,
                   ),
                   filled: true,
                   fillColor: AppColors.whiteColor,
@@ -84,14 +84,14 @@ class MyDropdown extends StatelessWidget {
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                     borderSide: const BorderSide(
-                      color: AppColors.kRedColor,
+                      color: AppColors.redColor,
                       width: 2.0,
                     ),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                     borderSide: const BorderSide(
-                      color: AppColors.kRedColor,
+                      color: AppColors.redColor,
                       width: 2.0,
                     ),
                   ),
@@ -112,7 +112,7 @@ class MyDropdown extends StatelessWidget {
                 child: Text(
                   state.errorText!,
                   style: const TextStyle(
-                    color: AppColors.kRedColor,
+                    color: AppColors.redColor,
                     fontSize: 12,
                   ),
                 ),

@@ -17,6 +17,7 @@ class TopNavigationBar extends StatelessWidget {
       color: AppColors.whiteColor,
       height: 70,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (!isLargeScreen(context)) ...[
             IconButton(
@@ -27,14 +28,18 @@ class TopNavigationBar extends StatelessWidget {
             ),
             kSizedBoxWidth,
           ],
-          MyTextFormField(
-            hintText: 'Search...',
-            leading: Icon(
-              Icons.search,
-              color: AppColors.grey1.withValues(alpha: 0.5),
+          Container(
+            width: 400,
+            padding: const EdgeInsets.only(top: 10),
+            child: MyTextFormField(
+              hintText: 'Search...',
+              leading: Icon(
+                Icons.search,
+                color: AppColors.grey1.withValues(alpha: 0.5),
+              ),
             ),
           ),
-          kSizedBoxWidthBG,
+          kSizedBoxWidth,
           if (isLargeScreen(context)) const Spacer(),
           Row(
             children: [

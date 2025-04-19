@@ -3,7 +3,7 @@ import 'dart:ui';
 class AppColors {
   static const primaryColor = Color(0XFF00B2FE);
   static const blueColor = Color(0XFF0055FF);
-  static const kRedColor = Color(0xFFEC2623);
+  static const redColor = Color(0xFFEC2623);
 
   static const sideMenueItemColor = Color(0XFF8E92BC);
   static const sideMenueTileColor = Color(0XFFA1C1FF);

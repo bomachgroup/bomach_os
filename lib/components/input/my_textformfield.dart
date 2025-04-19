@@ -115,7 +115,7 @@ class MyTextFormField extends StatelessWidget {
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
                 borderSide: const BorderSide(
-                  color: AppColors.kRedColor,
+                  color: AppColors.redColor,
                   width: 2.0,
                 ),
               ),
