@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/input/custom_search_field.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -27,7 +27,13 @@ class TopNavigationBar extends StatelessWidget {
             ),
             kSizedBoxWidth,
           ],
-          const CustomSearchField(),
+          MyTextFormField(
+            hintText: 'Search...',
+            leading: Icon(
+              Icons.search,
+              color: AppColors.grey1.withValues(alpha: 0.5),
+            ),
+          ),
           kSizedBoxWidthBG,
           if (isLargeScreen(context)) const Spacer(),
           Row(

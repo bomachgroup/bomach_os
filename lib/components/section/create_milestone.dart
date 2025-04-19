@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/drop/my_dropdown.dart';
 import 'package:bms_front_end/components/input/custom_textfield.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -49,13 +50,13 @@ class CreateMilestone extends StatelessWidget {
                 children: [
                   const Row(
                     children: [
-                      CustomTxField(
+                      MyTextFormField(
                           title: 'Milestone title*',
                           hintText: 'Enter Milestone title'),
                       SizedBox(
                         width: 24,
                       ),
-                      CustomTxField(
+                      MyTextFormField(
                           title: 'Milestone title*',
                           hintText: 'Enter Milestone title'),
                     ],
@@ -105,13 +106,13 @@ class CreateMilestone extends StatelessWidget {
                   ),
                   const Row(
                     children: [
-                      CustomTxField(
+                      MyTextFormField(
                           title: 'Start date(optional)*',
                           hintText: '12-10-2024'),
                       SizedBox(
                         width: 24,
                       ),
-                      CustomTxField(
+                      MyTextFormField(
                           title: 'End date(optional)*', hintText: '01-12-2024'),
                     ],
                   ),

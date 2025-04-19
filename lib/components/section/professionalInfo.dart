@@ -1,5 +1,5 @@
 import 'package:bms_front_end/components/drop/my_dropdown.dart';
-import 'package:bms_front_end/components/input/custom_textfield.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:flutter/material.dart';
 
 class ProfessionalInformation extends StatelessWidget {
@@ -11,13 +11,13 @@ class ProfessionalInformation extends StatelessWidget {
       children: [
         const Row(
           children: [
-            CustomTxField(
+            MyTextFormField(
               hintText: 'Empolyee ID',
             ),
             SizedBox(
               width: 23,
             ),
-            CustomTxField(
+            MyTextFormField(
               hintText: 'User Name',
             ),
           ],

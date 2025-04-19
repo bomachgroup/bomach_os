@@ -1,10 +1,10 @@
 import 'package:bms_front_end/components/cards/real_estate_card.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 
 import '../../components/button/icon_button.dart';
-import '../../components/input/search_field.dart';
 import '../../src/constants/colors.dart';
 
 class RealEstateScreen extends StatefulWidget {
@@ -69,10 +69,16 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
           ),
           Row(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 217,
                 height: 45,
-                child: SearchField(),
+                child: MyTextFormField(
+                  hintText: 'Search...',
+                  leading: Icon(
+                    Icons.search,
+                    color: AppColors.grey1.withValues(alpha: 0.5),
+                  ),
+                ),
               ),
               const SizedBox(
                 width: 10,

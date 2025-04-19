@@ -1,6 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
-import 'package:bms_front_end/components/input/search_field.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -42,9 +42,15 @@ class DepartmentPage extends StatelessWidget {
               child: 'New Department',
               onTap: () {},
             ),
-            const SizedBox(
+            SizedBox(
               width: 217,
-              child: SearchField(),
+              child: MyTextFormField(
+                hintText: 'Search...',
+                leading: Icon(
+                  Icons.search,
+                  color: AppColors.grey1.withValues(alpha: 0.5),
+                ),
+              ),
             ),
             const SortBar(
               text: "Sort",

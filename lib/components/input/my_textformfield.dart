@@ -1,5 +1,4 @@
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 class MyTextFormField extends StatelessWidget {
@@ -11,9 +10,11 @@ class MyTextFormField extends StatelessWidget {
   final String hintText;
   final Widget? leading;
   final Widget? trailing;
+  final double? spaceBettwenText;
   final double? height;
   final double? width;
   final Color? fillColor;
+  final Color? textColor;
   final BorderRadius? borderRadius;
   final TextAlign textAlign;
   final TextInputType keyboardType;
@@ -35,12 +36,14 @@ class MyTextFormField extends StatelessWidget {
     this.height,
     this.width,
     this.fillColor,
+    this.textColor,
     this.borderRadius,
     this.textAlign = TextAlign.start,
     this.keyboardType = TextInputType.text,
     this.title,
     this.onTap,
     this.maxLines = 1,
+    this.spaceBettwenText,
   });
 
   @override
@@ -56,8 +59,15 @@ class MyTextFormField extends StatelessWidget {
           if (title != null)
             Text(
               title ?? '',
-              style: AppText.black_400_16,
+              style: TextStyle(
+                color: textColor ?? AppColors.blackColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
             ),
+          SizedBox(
+            height: spaceBettwenText,
+          ),
           TextFormField(
             maxLines: maxLines,
             readOnly: onTap != null,

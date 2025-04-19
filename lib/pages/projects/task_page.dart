@@ -1,7 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/drop/my_dropdown.dart';
-import 'package:bms_front_end/components/input/custom_search_field.dart';
-import 'package:bms_front_end/components/input/custom_textfield.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,17 @@ class TaskPage extends StatelessWidget {
         ),
         Row(
           children: [
-            const SizedBox(width: 217, height: 48, child: CustomSearchField()),
+            SizedBox(
+              width: 217,
+              height: 48,
+              child: MyTextFormField(
+                hintText: 'Search...',
+                leading: Icon(
+                  Icons.search,
+                  color: AppColors.grey1.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
             const SizedBox(
               width: 16,
             ),
@@ -196,7 +205,7 @@ class addTask extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const CustomTxField(
+                          const MyTextFormField(
                             hintText: '--',
                             title: 'Task Name',
                           ),
@@ -223,7 +232,7 @@ class addTask extends StatelessWidget {
                           const SizedBox(
                             width: 24,
                           ),
-                          const CustomTxField(
+                          const MyTextFormField(
                             hintText: '--',
                             title: 'Short Code',
                           ),
@@ -242,7 +251,7 @@ class addTask extends StatelessWidget {
                           const SizedBox(
                             width: 24,
                           ),
-                          const CustomTxField(
+                          const MyTextFormField(
                             hintText: '--',
                             title: 'Start date*',
                           ),
@@ -253,7 +262,7 @@ class addTask extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          const CustomTxField(
+                          const MyTextFormField(
                             hintText: '--',
                             title: 'Deadline(optional)*',
                           ),
@@ -272,7 +281,7 @@ class addTask extends StatelessWidget {
                       ),
                       const Row(
                         children: [
-                          CustomTxField(
+                          MyTextFormField(
                             hintText: '--',
                             title: 'Task summary/Note*',
                           ),

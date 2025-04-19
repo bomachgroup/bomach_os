@@ -1,5 +1,5 @@
 import 'package:bms_front_end/components/drop/my_dropdown.dart';
-import 'package:bms_front_end/components/input/custom_textfield.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -24,13 +24,13 @@ class PersonalInformation extends StatelessWidget {
           ),
           const Row(
             children: [
-              CustomTxField(
+              MyTextFormField(
                 hintText: 'Enter First name',
               ),
               SizedBox(
                 width: 23,
               ),
-              CustomTxField(
+              MyTextFormField(
                 hintText: 'Enter Last name',
               ),
             ],
@@ -40,13 +40,13 @@ class PersonalInformation extends StatelessWidget {
           ),
           const Row(
             children: [
-              CustomTxField(
+              MyTextFormField(
                 hintText: 'Enter Surname name',
               ),
               SizedBox(
                 width: 23,
               ),
-              CustomTxField(
+              MyTextFormField(
                 hintText: 'Enter your Email address',
               ),
             ],

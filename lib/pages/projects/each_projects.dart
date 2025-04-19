@@ -1,5 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/input/custom_search_field.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/create_milestone.dart';
 import 'package:bms_front_end/components/section/projectOverview.dart';
 import 'package:bms_front_end/components/section/project_associate.dart';
@@ -47,7 +47,16 @@ class _EachProjectsState extends State<EachProjects> {
               style: AppText.black_500_32,
             ),
             const Spacer(),
-            const SizedBox(width: 108, child: CustomSearchField()),
+            SizedBox(
+              width: 108,
+              child: MyTextFormField(
+                hintText: 'Search...',
+                leading: Icon(
+                  Icons.search,
+                  color: AppColors.grey1.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
             const SizedBox(
               width: 20,
             ),
