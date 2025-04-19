@@ -29,7 +29,12 @@ class TopNavigationBar extends StatelessWidget {
             kSizedBoxWidth,
           ],
           Container(
-            width: 400,
+            constraints: BoxConstraints(
+                maxWidth: isLargeScreen(context)
+                    ? 400
+                    : isMediumScreen(context)
+                        ? 200
+                        : 150),
             padding: const EdgeInsets.only(top: 10),
             child: MyTextFormField(
               hintText: 'Search...',
@@ -40,7 +45,7 @@ class TopNavigationBar extends StatelessWidget {
             ),
           ),
           kSizedBoxWidth,
-          if (isLargeScreen(context)) const Spacer(),
+          const Spacer(),
           Row(
             children: [
               const Icon(Icons.notifications),

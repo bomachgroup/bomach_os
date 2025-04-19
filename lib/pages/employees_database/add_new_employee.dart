@@ -25,7 +25,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     const ProfessionalInformation(),
     const EmployeeDocumentation(),
   ];
-  int selectionStepperState = 2;
+  int selectionStepperState = 0;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -41,10 +41,12 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
               'Employee’s Database',
               style: AppText.black_400_14,
             ),
+            kSizedBoxWidthSM,
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 12,
             ),
+            kSizedBoxWidthSM,
             Text(
               'Add New Employee',
               style: AppText.black_400_14,
@@ -60,56 +62,62 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  EmployeeInfoStepper(
-                    isActive: selectionStepperState == 0,
-                    icon: SvgPicture.asset(
-                      "assets/svg/person.svg",
-                    ),
-                    activeIcon: SvgPicture.asset(
-                      "assets/svg/person-filled.svg",
-                    ),
-                    title: 'Personal Information',
-                    onTap: () {
-                      setState(() {
-                        selectionStepperState = 0;
-                      });
-                    },
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      EmployeeInfoStepper(
+                        isActive: selectionStepperState == 0,
+                        icon: SvgPicture.asset(
+                          "assets/svg/person.svg",
+                        ),
+                        activeIcon: SvgPicture.asset(
+                          "assets/svg/person-filled.svg",
+                        ),
+                        title: 'Personal Information',
+                        onTap: () {
+                          setState(() {
+                            selectionStepperState = 0;
+                          });
+                        },
+                      ),
+                      kSizedBoxWidth,
+                      EmployeeInfoStepper(
+                        isActive: selectionStepperState == 1,
+                        icon: SvgPicture.asset(
+                          "assets/svg/briefcase.svg",
+                        ),
+                        activeIcon: SvgPicture.asset(
+                          "assets/svg/briefcase-filled.svg",
+                        ),
+                        title: 'Professional Information',
+                        onTap: () {
+                          setState(() {
+                            selectionStepperState = 1;
+                          });
+                        },
+                      ),
+                      kSizedBoxWidth,
+                      EmployeeInfoStepper(
+                        isActive: selectionStepperState == 2,
+                        icon: SvgPicture.asset(
+                          "assets/svg/document.svg",
+                        ),
+                        activeIcon: SvgPicture.asset(
+                          "assets/svg/document-filled.svg",
+                        ),
+                        title: 'Documents',
+                        onTap: () {
+                          setState(() {
+                            selectionStepperState = 2;
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  kSizedBoxWidth,
-                  EmployeeInfoStepper(
-                    isActive: selectionStepperState == 1,
-                    icon: SvgPicture.asset(
-                      "assets/svg/briefcase.svg",
-                    ),
-                    activeIcon: SvgPicture.asset(
-                      "assets/svg/briefcase-filled.svg",
-                    ),
-                    title: 'Professional Information',
-                    onTap: () {
-                      setState(() {
-                        selectionStepperState = 1;
-                      });
-                    },
-                  ),
-                  kSizedBoxWidth,
-                  EmployeeInfoStepper(
-                    isActive: selectionStepperState == 2,
-                    icon: SvgPicture.asset(
-                      "assets/svg/document.svg",
-                    ),
-                    activeIcon: SvgPicture.asset(
-                      "assets/svg/document-filled.svg",
-                    ),
-                    title: 'Documents',
-                    onTap: () {
-                      setState(() {
-                        selectionStepperState = 2;
-                      });
-                    },
-                  ),
-                ],
+                ),
               ),
               kSizedBoxBG,
               _pages[selectionStepperState],

@@ -3,12 +3,12 @@ import 'package:bms_front_end/components/section/responsive_widget.dart';
 // Page imports
 import 'package:bms_front_end/pages/auth/login_screen.dart';
 import 'package:bms_front_end/pages/branches/branch_page.dart';
-import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/clients/clients_database.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
 import 'package:bms_front_end/pages/employees_database/employee_profile.dart';
+import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/leads.dart';
 import 'package:bms_front_end/pages/hr/leaves.dart';
 import 'package:bms_front_end/pages/hr/meetings.dart';
@@ -55,7 +55,7 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
 
 /// Main router configuration
 final goRouter = GoRouter(
-  initialLocation: RouteConstants.department,
+  initialLocation: RouteConstants.home,
   routes: [
     // Login route (outside the dashboard shell)
     GoRoute(
