@@ -22,6 +22,7 @@ dependencies:
   readmore: ^3.0.0
   flutter_layout_grid: ^2.0.7
   table_calendar: ^3.2.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +39,7 @@ flutter:
     - assets/image/
     - assets/fonts/
     - assets/svg/
+    - assets/svg/sidebar/
 
   fonts:
     - family: Poppins
