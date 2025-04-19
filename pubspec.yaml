@@ -18,11 +18,6 @@ dependencies:
   dotted_border: ^2.1.0
   flutter_expanded_tile: ^0.4.0
   go_router: ^14.2.8
-  # data_table_2: ^2.5.15
-  # google_fonts: ^6.2.1
-  # expansion_tile_group: ^2.1.0
-  # get_it: ^8.0.0
-  # animated_tree_view: ^2.3.0
   percent_indicator: ^4.2.3
   readmore: ^3.0.0
   flutter_layout_grid: ^2.0.7

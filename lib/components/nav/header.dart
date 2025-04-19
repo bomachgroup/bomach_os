@@ -36,7 +36,7 @@ class TopNavigationBar extends StatelessWidget {
               const SizedBox(
                 width: 20,
               ),
-              Image.asset('assets/icons/EnglishFlag.png'),
+              Image.asset('assets/icons/english-flag.png'),
               const SizedBox(
                 width: kDefaultSpaceSM,
               ),
@@ -60,7 +60,7 @@ class TopNavigationBar extends StatelessWidget {
                     height: 48,
                     decoration: const BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage('assets/icons/profileIcon.png'),
+                          image: AssetImage('assets/icons/profile-icon.png'),
                         ),
                         // color: AppColors.secondaryColor,
                         shape: BoxShape.circle),
@@ -85,7 +85,7 @@ class TopNavigationBar extends StatelessWidget {
               if (!isSmallScreen(context)) ...[
                 kSizedBoxWidthSM,
                 Image.asset(
-                  'assets/icons/arrowDownOutline.png',
+                  'assets/icons/arrow-down-outline.png',
                   width: 20,
                 )
               ],

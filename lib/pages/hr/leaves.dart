@@ -166,7 +166,7 @@ class LeavesPage extends StatelessWidget {
                   ),
                   width: 36,
                   height: 36,
-                  child: Image.asset('assets/icons/profileIcon.png'),
+                  child: Image.asset('assets/icons/profile-icon.png'),
                 ),
                 const SizedBox(
                   width: 8,

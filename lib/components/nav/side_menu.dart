@@ -50,7 +50,7 @@ class _SideMenueState extends State<SideMenu> {
                     : AppText.black_400_14,
               ),
               icon: Image.asset(
-                'assets/icons/galaryIcon.png',
+                'assets/icons/gallery-icon.png',
                 color: sideMenueSelectedState == 0
                     ? Colors.white
                     : AppColors.blackColor,
@@ -140,7 +140,7 @@ class _SideMenueState extends State<SideMenu> {
                 });
               },
               icon: Image.asset(
-                'assets/icons/Clients.png',
+                'assets/icons/clients.png',
                 color: sideMenueSelectedState == 2
                     ? Colors.white
                     : AppColors.blackColor,
