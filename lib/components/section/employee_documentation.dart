@@ -1,6 +1,8 @@
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 
@@ -22,8 +24,8 @@ class EmployeeDocumentation extends StatelessWidget {
               auto,
               auto,
             ],
-      columnGap: kDefaultSpaceTiny,
-      rowGap: kDefaultSpaceTiny,
+      columnGap: kDefaultSpace,
+      rowGap: kDefaultSpace,
       children: [
         DocumentUpload(
           title: 'Upload Appointment Letter',
@@ -61,28 +63,36 @@ class DocumentUpload extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title),
-        const SizedBox(
-          height: 8,
-        ),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(),
-          ),
-          // color: AppColors.secondaryColor,
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    color: AppColors.blueColor,
-                    borderRadius: BorderRadius.circular(10)),
-                width: 40,
-                height: 40,
-              ),
-              const Text('Drag & Drop or choose file to upload'),
-              const Text('Supported formats : Jpeg, pdf')
-            ],
+        kSizedBoxSM,
+        DottedBorder(
+          color: AppColors.blueColor,
+          borderType: BorderType.RRect,
+          radius: const Radius.circular(12),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      color: AppColors.blueColor,
+                      borderRadius: BorderRadius.circular(10)),
+                  width: 40,
+                  height: 40,
+                ),
+                kSizedBoxSM,
+                const Text('Drag & Drop or choose file to upload'),
+                const MyText(
+                  'Supported formats : Jpeg, pdf',
+                  size: 11,
+                  weight: 300,
+                  color: AppColors.darkGrey2,
+                )
+              ],
+            ),
           ),
         ),
       ],

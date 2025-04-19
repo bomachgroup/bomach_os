@@ -120,7 +120,8 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                 children: [
                   MyOutlinedButton(
                     textColor: AppColors.blackColor,
-                    borderColor: null,
+                    borderColor: AppColors.borderColor,
+                    bgColor: AppColors.backgroundColor,
                     child: 'Cancel',
                     onTap: () {},
                   ),
