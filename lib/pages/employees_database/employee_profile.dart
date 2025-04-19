@@ -1,7 +1,8 @@
-import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
+import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class EmployeeProfile extends StatefulWidget {
   const EmployeeProfile({super.key});
@@ -258,11 +259,14 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
         Row(
           children: [
             EmployeeInfoStepper(
-              title: const Text('Personal Information'),
-              icon: const Icon(Icons.person),
-              color: employeeProfileSelectionStepperState == 0
-                  ? AppColors.blueColor
-                  : Colors.transparent,
+              isActive: employeeProfileSelectionStepperState == 0,
+              icon: SvgPicture.asset(
+                "assets/svg/person.svg",
+              ),
+              activeIcon: SvgPicture.asset(
+                "assets/svg/person-filled.svg",
+              ),
+              title: 'Personal Information',
               onTap: () {
                 setState(() {
                   employeeProfileSelectionStepperState = 0;
@@ -273,12 +277,14 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
               width: 20,
             ),
             EmployeeInfoStepper(
-              width: 200,
-              color: employeeProfileSelectionStepperState == 1
-                  ? AppColors.blueColor
-                  : Colors.transparent,
-              title: const Text('Professional Information'),
-              icon: const Icon(Icons.person),
+              isActive: employeeProfileSelectionStepperState == 1,
+              icon: SvgPicture.asset(
+                "assets/svg/briefcase.svg",
+              ),
+              activeIcon: SvgPicture.asset(
+                "assets/svg/briefcase-filled.svg",
+              ),
+              title: 'Professional Information',
               onTap: () {
                 setState(() {
                   employeeProfileSelectionStepperState = 1;
@@ -289,12 +295,14 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
               width: 20,
             ),
             EmployeeInfoStepper(
-              color: employeeProfileSelectionStepperState == 2
-                  ? AppColors.blueColor
-                  : Colors.transparent,
-              width: 115,
-              title: const Text('Documents'),
-              icon: const Icon(Icons.person),
+              isActive: employeeProfileSelectionStepperState == 2,
+              icon: SvgPicture.asset(
+                "assets/svg/document.svg",
+              ),
+              activeIcon: SvgPicture.asset(
+                "assets/svg/document-filled.svg",
+              ),
+              title: 'Documents',
               onTap: () {
                 setState(() {
                   employeeProfileSelectionStepperState = 2;

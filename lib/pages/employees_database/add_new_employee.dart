@@ -1,11 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/section/employee_documentation.dart';
 import 'package:bms_front_end/components/section/personal_info.dart';
-import 'package:bms_front_end/components/section/professionalInfo.dart';
+import 'package:bms_front_end/components/section/professional_info.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class AddEmployesScreen extends StatefulWidget {
   const AddEmployesScreen({
@@ -48,9 +51,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 32,
-        ),
+        kSizedBoxBG,
         Container(
           padding: const EdgeInsets.all(26),
           decoration: BoxDecoration(
@@ -59,47 +60,49 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // EmployeeInfoStepper(title: const Text('Personal Information'), icon: const Icon(Icons.person), onTap: () {  },),
               Row(
                 children: [
                   EmployeeInfoStepper(
-                    icon: const Icon(Icons.person),
-                    title: const Text('Personal Information'),
-                    color: selectionStepperState == 0
-                        ? AppColors.blueColor
-                        : Colors.transparent,
+                    isActive: selectionStepperState == 0,
+                    icon: SvgPicture.asset(
+                      "assets/svg/person.svg",
+                    ),
+                    activeIcon: SvgPicture.asset(
+                      "assets/svg/person-filled.svg",
+                    ),
+                    title: 'Personal Information',
                     onTap: () {
                       setState(() {
                         selectionStepperState = 0;
                       });
                     },
                   ),
-                  const SizedBox(
-                    width: 20,
-                  ),
+                  kSizedBoxWidth,
                   EmployeeInfoStepper(
-                    color: selectionStepperState == 1
-                        ? AppColors.blueColor
-                        : Colors.transparent,
-                    width: 200,
-                    icon: const Icon(Icons.person),
-                    title: const Text('Professional Information'),
+                    isActive: selectionStepperState == 1,
+                    icon: SvgPicture.asset(
+                      "assets/svg/briefcase.svg",
+                    ),
+                    activeIcon: SvgPicture.asset(
+                      "assets/svg/briefcase-filled.svg",
+                    ),
+                    title: 'Professional Information',
                     onTap: () {
                       setState(() {
                         selectionStepperState = 1;
                       });
                     },
                   ),
-                  const SizedBox(
-                    width: 20,
-                  ),
+                  kSizedBoxWidth,
                   EmployeeInfoStepper(
-                    color: selectionStepperState == 2
-                        ? AppColors.blueColor
-                        : Colors.transparent,
-                    width: 115,
-                    icon: const Icon(Icons.person),
-                    title: const Text('Documents'),
+                    isActive: selectionStepperState == 2,
+                    icon: SvgPicture.asset(
+                      "assets/svg/document.svg",
+                    ),
+                    activeIcon: SvgPicture.asset(
+                      "assets/svg/document-filled.svg",
+                    ),
+                    title: 'Documents',
                     onTap: () {
                       setState(() {
                         selectionStepperState = 2;
@@ -108,20 +111,16 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              kSizedBoxBG,
               _pages[selectionStepperState],
-              const SizedBox(
-                height: 30,
-              ),
+              kSizedBoxBG,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
                     textColor: AppColors.blackColor,
                     borderColor: AppColors.borderColor,
-                    bgColor: AppColors.backgroundColor,
+                    bgColor: AppColors.greyBg,
                     child: 'Cancel',
                     onTap: () {},
                   ),
@@ -136,45 +135,6 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
           ),
         )
       ],
-    );
-  }
-}
-
-class EmployeeInfoStepper extends StatelessWidget {
-  final Text title;
-  final Color? color;
-  final Widget icon;
-  final double? width;
-  final VoidCallback onTap;
-  const EmployeeInfoStepper({
-    super.key,
-    required this.title,
-    required this.icon,
-    this.width,
-    required this.onTap,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [icon, title],
-          ),
-          Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: color ?? AppColors.blueColor),
-            width: width ?? 180,
-            height: 3,
-          )
-        ],
-      ),
     );
   }
 }

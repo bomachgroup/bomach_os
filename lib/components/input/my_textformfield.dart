@@ -12,7 +12,6 @@ class MyTextFormField extends StatelessWidget {
   final Widget? trailing;
   final double? spaceBettwenText;
   final double? height;
-  final double? width;
   final Color? fillColor;
   final Color? textColor;
   final BorderRadius? borderRadius;
@@ -34,7 +33,6 @@ class MyTextFormField extends StatelessWidget {
     this.leading,
     this.trailing,
     this.height,
-    this.width,
     this.fillColor,
     this.textColor,
     this.borderRadius,
@@ -48,11 +46,19 @@ class MyTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Default fill color
+    final Color defaultFillColor = fillColor ?? AppColors.whiteColor;
+
+    // Create a lighter version of the fill color for focus state
+    final Color lighterFillColor = HSLColor.fromColor(defaultFillColor)
+        .withLightness((HSLColor.fromColor(defaultFillColor).lightness + 0.1)
+            .clamp(0.0, 1.0))
+        .toColor();
+
     return Container(
-      width: width, // Takes only available space if null
-      height: height, // Can be set to custom height if needed
-      constraints:
-          const BoxConstraints(minHeight: 50), // Ensures it’s not too small
+      constraints: BoxConstraints(
+        minHeight: height ?? 50,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -66,61 +72,70 @@ class MyTextFormField extends StatelessWidget {
               ),
             ),
           SizedBox(
-            height: spaceBettwenText,
+            height: spaceBettwenText ?? 0,
           ),
-          TextFormField(
-            maxLines: maxLines,
-            readOnly: onTap != null,
-            onTap: onTap,
-            focusNode: focusNode,
-            controller: controller,
-            validator: validator,
-            onSaved: onSaved,
-            onChanged: onChanged,
-            textInputAction: textInputAction,
-            textAlign: textAlign,
-            cursorColor: Colors.black,
-            autocorrect: true,
-            enableSuggestions: true,
-            keyboardType: keyboardType,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-            ),
-            decoration: InputDecoration(
-              hintText: hintText,
-              filled: true,
-              fillColor: fillColor ?? AppColors.whiteColor,
-              hoverColor: AppColors.whiteColor,
-              border: OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(15),
-                borderSide: const BorderSide(
-                  color: AppColors.cardColor,
-                ),
+          SizedBox(
+            height: height,
+            child: TextFormField(
+              maxLines: maxLines,
+              readOnly: onTap != null,
+              onTap: onTap,
+              focusNode: focusNode,
+              controller: controller,
+              validator: validator,
+              onSaved: onSaved,
+              onChanged: onChanged,
+              textInputAction: textInputAction,
+              textAlign: textAlign,
+              cursorColor: Colors.black,
+              autocorrect: true,
+              enableSuggestions: true,
+              keyboardType: keyboardType,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(15),
-                borderSide: const BorderSide(
-                  color: AppColors.cardColor,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: (height != null && height! > 50)
+                        ? (height! - 40) / 2
+                        : 10,
+                    horizontal: 12),
+                hintText: hintText,
+                filled: true,
+                fillColor: defaultFillColor,
+                hoverColor: defaultFillColor,
+                focusColor: lighterFillColor,
+                border: OutlineInputBorder(
+                  borderRadius: borderRadius ?? BorderRadius.circular(15),
+                  borderSide: const BorderSide(
+                    color: AppColors.cardColor,
+                  ),
                 ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(15),
-                borderSide: const BorderSide(
-                  color: AppColors.cardColor,
-                  width: 2,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: borderRadius ?? BorderRadius.circular(15),
+                  borderSide: const BorderSide(
+                    color: AppColors.cardColor,
+                  ),
                 ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: const BorderSide(
-                  color: AppColors.redColor,
-                  width: 2.0,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: borderRadius ?? BorderRadius.circular(15),
+                  borderSide: const BorderSide(
+                    color: AppColors.cardColor,
+                    width: 2,
+                  ),
                 ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(
+                    color: AppColors.redColor,
+                    width: 2.0,
+                  ),
+                ),
+                prefixIcon: leading,
+                suffixIcon: trailing,
               ),
-              prefixIcon: leading,
-              suffixIcon: trailing,
             ),
           ),
         ],

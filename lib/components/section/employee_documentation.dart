@@ -5,6 +5,7 @@ import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+import 'package:flutter_svg/svg.dart';
 
 class EmployeeDocumentation extends StatelessWidget {
   const EmployeeDocumentation({super.key});
@@ -77,11 +78,15 @@ class DocumentUpload extends StatelessWidget {
             child: Column(
               children: [
                 Container(
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                       color: AppColors.blueColor,
                       borderRadius: BorderRadius.circular(10)),
                   width: 40,
                   height: 40,
+                  child: SvgPicture.asset(
+                    "assets/svg/upload.svg",
+                  ),
                 ),
                 kSizedBoxSM,
                 const Text('Drag & Drop or choose file to upload'),

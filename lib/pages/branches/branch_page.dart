@@ -651,11 +651,7 @@ class _BranchPageState extends State<BranchPage> {
     final TextEditingController officeAddressController =
         TextEditingController();
     final TextEditingController lgaController = TextEditingController();
-    final TextEditingController startDateController1 = TextEditingController();
     final TextEditingController startDateController2 = TextEditingController();
-
-    String? selectedCountry;
-    String? selectedState;
 
     showDialog(
       context: context,
@@ -666,7 +662,7 @@ class _BranchPageState extends State<BranchPage> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: AppColors.backgroundColor,
+              color: AppColors.greyBg,
             ),
             padding: const EdgeInsets.all(kDefaultSpace),
             constraints: const BoxConstraints(maxWidth: 800),
@@ -680,7 +676,6 @@ class _BranchPageState extends State<BranchPage> {
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 20),
 
-                  // Branch Name & Country
                   Row(
                     children: [
                       Expanded(
@@ -704,7 +699,6 @@ class _BranchPageState extends State<BranchPage> {
 
                   kSizedBoxBG,
 
-                  // State & L.G.A
                   Row(
                     children: [
                       Expanded(
@@ -728,8 +722,6 @@ class _BranchPageState extends State<BranchPage> {
 
                   kSizedBoxBG,
 
-                  // Office Address
-
                   Row(
                     children: [
                       Expanded(
@@ -744,7 +736,6 @@ class _BranchPageState extends State<BranchPage> {
                   ),
                   kSizedBoxBG,
 
-                  // Start Dates
                   Row(
                     children: [
                       Expanded(
@@ -791,11 +782,8 @@ class _BranchPageState extends State<BranchPage> {
 
                   kSizedBoxBG,
 
-                  // File Upload
                   GestureDetector(
-                    onTap: () {
-                      // TODO: Trigger file picker
-                    },
+                    onTap: () {},
                     child: Container(
                       height: 100,
                       width: double.infinity,
