@@ -1,9 +1,11 @@
 import 'package:bms_front_end/components/button/signin_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/scaffold/scaffold.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -107,7 +109,9 @@ class LoginScreen extends StatelessWidget {
                   height: 20,
                 ),
                 SigninButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.go(RouteConstants.home);
+                  },
                 ),
                 const SizedBox(
                   height: 5,

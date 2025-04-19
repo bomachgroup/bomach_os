@@ -3,6 +3,7 @@ import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expanded_tile/flutter_expanded_tile.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -47,9 +48,9 @@ class _SideMenuState extends State<SideMenu> {
 
     final icon = SvgPicture.asset(
       iconPath,
-      // color: isSelected ? Colors.white : AppColors.blackColor,
       colorFilter: ColorFilter.mode(
-          isSelected ? Colors.white : AppColors.blackColor, BlendMode.srcIn),
+          isSelected ? AppColors.whiteColor : AppColors.blackColor,
+          BlendMode.srcIn),
     );
 
     final title = Text(
@@ -69,6 +70,9 @@ class _SideMenuState extends State<SideMenu> {
           });
           _saveMenuState(index, -1);
           onTap?.call();
+          if (!isLargeScreen(context)) {
+            Navigator.of(context).pop();
+          }
         },
       );
     }
@@ -110,6 +114,9 @@ class _SideMenuState extends State<SideMenu> {
         });
         _saveMenuState(selectedMenu, index);
         onTap();
+        if (!isLargeScreen(context)) {
+          Navigator.of(context).pop();
+        }
       },
     );
   }
@@ -295,24 +302,36 @@ class ExpandableSideBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpandedTile(
-      onTap: onTap,
-      theme: ExpandedTileThemeData(
-        footerBackgroundColor: Colors.transparent,
-        headerPadding: const EdgeInsets.all(12),
-        contentPadding: const EdgeInsets.only(top: 0),
-        contentBackgroundColor: Colors.transparent,
-        headerBorder: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(10)),
-        headerColor: titleColor,
-        headerSplashColor: Colors.transparent,
-        contentSeparatorColor: Colors.transparent,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ExpandedTile(
+        onTap: onTap,
+        theme: ExpandedTileThemeData(
+          footerBackgroundColor: Colors.transparent,
+          headerPadding: const EdgeInsets.all(12),
+          contentPadding: const EdgeInsets.only(top: 0),
+          contentBackgroundColor: Colors.transparent,
+          headerBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(10)),
+          headerColor: titleColor,
+          headerSplashColor: Colors.transparent,
+          contentSeparatorColor: Colors.transparent,
+        ),
+        title: title,
+        leading: icon,
+        content: Column(children: children),
+        controller: expandedTileController,
+        trailing: SvgPicture.asset(
+          "assets/svg/arrow-ios-down.svg",
+          colorFilter: ColorFilter.mode(
+              expandedTileController.isExpanded
+                  ? AppColors.whiteColor
+                  : AppColors.blackColor,
+              BlendMode.srcIn),
+        ),
+        trailingRotation: 180,
       ),
-      title: title,
-      leading: icon,
-      content: Column(children: children),
-      controller: expandedTileController,
     );
   }
 }
@@ -333,6 +352,7 @@ class NonExpandableSideBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: titleColor,
         borderRadius: BorderRadius.circular(10),

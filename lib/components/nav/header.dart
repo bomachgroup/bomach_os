@@ -4,6 +4,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class TopNavigationBar extends StatelessWidget {
   const TopNavigationBar({
@@ -99,10 +100,9 @@ class TopNavigationBar extends StatelessWidget {
                 ),
               ),
               if (!isSmallScreen(context)) ...[
-                kSizedBoxWidthSM,
-                Image.asset(
-                  'assets/icons/arrow-down-outline.png',
-                  width: 20,
+                kSizedBoxWidthTiny,
+                SvgPicture.asset(
+                  "assets/svg/circle-dropdown.svg",
                 )
               ],
             ],

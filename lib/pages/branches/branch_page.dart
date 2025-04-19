@@ -329,7 +329,7 @@ class _BranchPageState extends State<BranchPage> {
               onPressed: () {},
               child: const Text(
                 'View all',
-                style: TextStyle(color: Colors.blue),
+                style: TextStyle(color: AppColors.blueColor),
               ),
             ),
           ],
@@ -412,7 +412,7 @@ class _BranchPageState extends State<BranchPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Icon(Icons.calendar_today, color: Colors.blue),
+                Icon(Icons.calendar_today, color: AppColors.blueColor),
               ],
             ),
           ),
