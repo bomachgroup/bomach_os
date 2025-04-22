@@ -1,6 +1,8 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
+import 'package:bms_front_end/components/input/my_checkbox.dart';
+import 'package:bms_front_end/components/input/my_radio.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -322,6 +324,7 @@ class FilterDialogState extends State<FilterDialog> {
           color: AppColors.greyBg,
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             const Align(
@@ -337,7 +340,12 @@ class FilterDialogState extends State<FilterDialog> {
                   child: MyTextFormField(
                     controller: _searchController,
                     hintText: "Search Employee",
-                    leading: SvgPicture.asset("assets/svg/search.svg"),
+                    leading: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: SvgPicture.asset(
+                        "assets/svg/search.svg",
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -354,25 +362,25 @@ class FilterDialogState extends State<FilterDialog> {
               runSpacing: 10,
               children: departments.map((dept) {
                 final selected = selectedDepartments.contains(dept);
-                return FilterChip(
-                  selected: selected,
-                  onSelected: (_) {
-                    setState(() {
-                      selected
-                          ? selectedDepartments.remove(dept)
-                          : selectedDepartments.add(dept);
-                    });
-                  },
-                  selectedColor: Colors.blue,
-                  backgroundColor: Colors.white,
-                  labelStyle:
-                      TextStyle(color: selected ? Colors.white : Colors.black),
-                  checkmarkColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                    side: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  label: Text(dept),
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MyCheckbox(
+                      isChecked: selected,
+                      onChanged: (value) {
+                        setState(() {
+                          selected
+                              ? selectedDepartments.remove(dept)
+                              : selectedDepartments.add(dept);
+                        });
+                      },
+                    ),
+                    kSizedBoxWidthSM,
+                    Text(
+                      dept,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
                 );
               }).toList(),
             ),
@@ -384,24 +392,18 @@ class FilterDialogState extends State<FilterDialog> {
             ),
             const SizedBox(height: 10),
             Wrap(
-              // spacing: 8,
+              spacing: 8,
               runSpacing: 8,
               children: types.map((type) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Radio<String>(
-                      value: type,
-                      groupValue: selectedType,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedType = value;
-                        });
-                      },
-                    ),
-                    Text(type),
-                  ],
+                return MyRadio<String?>(
+                  label: type,
+                  value: type,
+                  groupValue: selectedType,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedType = value;
+                    });
+                  },
                 );
               }).toList(),
             ),
