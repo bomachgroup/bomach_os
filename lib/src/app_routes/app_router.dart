@@ -2,8 +2,8 @@
 import 'package:bms_front_end/components/section/responsive_widget.dart';
 // Page imports
 import 'package:bms_front_end/pages/auth/login_screen.dart';
-import 'package:bms_front_end/pages/branches/branch_page.dart';
-import 'package:bms_front_end/pages/clients/clients_database.dart';
+import 'package:bms_front_end/pages/branch/branch.dart';
+import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
@@ -13,9 +13,9 @@ import 'package:bms_front_end/pages/hr/leads.dart';
 import 'package:bms_front_end/pages/hr/leaves.dart';
 import 'package:bms_front_end/pages/hr/meetings.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
-import 'package:bms_front_end/pages/projects/each_projects.dart';
-import 'package:bms_front_end/pages/projects/projects_page.dart';
-import 'package:bms_front_end/pages/projects/task_page.dart';
+import 'package:bms_front_end/pages/project/each_project.dart';
+import 'package:bms_front_end/pages/project/projects.dart';
+import 'package:bms_front_end/pages/project/task.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';

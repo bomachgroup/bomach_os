@@ -248,15 +248,16 @@ class NewClientDialogState extends State<NewClientDialog> {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1050),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            color: AppColors.greyBg,
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.grey,
-                spreadRadius: 1,
-                blurRadius: 5,
-              ),
-            ]),
+          borderRadius: BorderRadius.circular(30),
+          color: AppColors.greyBg,
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.grey,
+              spreadRadius: 1,
+              blurRadius: 5,
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
