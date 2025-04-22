@@ -2,12 +2,10 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class LeadsPage extends StatelessWidget {
   const LeadsPage({super.key});
@@ -15,7 +13,7 @@ class LeadsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 28),
+      padding: const EdgeInsets.symmetric(vertical: 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -161,7 +159,7 @@ class LeadsPage extends StatelessWidget {
               onTap: () {},
               GestureDetector(
                 onTap: () {
-                  context.go(RouteConstants.employeeProfile);
+                  // context.go(RouteConstants.employeeProfile);
                 },
                 child: Row(
                   children: [

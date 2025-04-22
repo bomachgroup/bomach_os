@@ -67,6 +67,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       EmployeeInfoStepper(
                         isActive: selectionStepperState == 0,
