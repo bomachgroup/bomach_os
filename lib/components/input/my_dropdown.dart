@@ -14,6 +14,7 @@ class MyDropdown extends StatelessWidget {
     this.fillColor,
     this.height,
     this.width,
+    this.spaceBettwenText,
   });
 
   final List<String> items;
@@ -25,6 +26,7 @@ class MyDropdown extends StatelessWidget {
   final Color? fillColor;
   final double? height;
   final double? width;
+  final double? spaceBettwenText;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,9 @@ class MyDropdown extends StatelessWidget {
                     title ?? '',
                     style: AppText.black_400_16,
                   ),
+                SizedBox(
+                  height: spaceBettwenText ?? 0,
+                ),
                 Container(
                   key: containerKey,
                   height: height,

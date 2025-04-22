@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -53,7 +54,7 @@ class LeavesPage extends StatelessWidget {
                 onTap: () {
                   showDialog(
                     context: context,
-                    builder: (context) => const LeaveDetailsDialog(),
+                    builder: (context) => const AssignLeaveDialog(),
                   );
                 },
               ),
@@ -164,7 +165,10 @@ class LeavesPage extends StatelessWidget {
           onTap: () {},
           GestureDetector(
             onTap: () {
-              // context.go(RouteConstants.employeeProfile);
+              showDialog(
+                context: context,
+                builder: (context) => const LeaveDetailsDialog(),
+              );
             },
             child: Row(
               children: [
@@ -578,6 +582,326 @@ class LeaveDetailsDialog extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class AssignLeaveDialog extends StatefulWidget {
+  const AssignLeaveDialog({super.key});
+
+  @override
+  State<AssignLeaveDialog> createState() => _AssignLeaveDialogState();
+}
+
+class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
+  final TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _leaveDateController =
+      TextEditingController(text: '12-12-2024');
+  final TextEditingController _startDateController =
+      TextEditingController(text: '12-10-2024');
+  final TextEditingController _endDateController =
+      TextEditingController(text: '12-10-2024');
+  final TextEditingController _durationController =
+      TextEditingController(text: '5days');
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    _leaveDateController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
+    _durationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppColors.whiteColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 846),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Assign leave/Edit',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(height: 1),
+
+            // Form fields
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    children: [
+                      // First row
+                      const Row(
+                        children: [
+                          // Choose Employee
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  hintText: "----",
+                                  items: [],
+                                  spaceBettwenText: 10,
+                                  title: 'Choose Employee*',
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // Leave Type
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  hintText: "----",
+                                  items: [],
+                                  spaceBettwenText: 10,
+                                  title: 'Leave Type*',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Second row
+                      Row(
+                        children: [
+                          // Status
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  hintText: "----",
+                                  items: [],
+                                  spaceBettwenText: 10,
+                                  title: 'Status*',
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // Leave date
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyTextFormField(
+                                  controller: _leaveDateController,
+                                  hintText: '----',
+                                  spaceBettwenText: 10,
+                                  title: 'Leave date*',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Reason for absence
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MyTextFormField(
+                            controller: _reasonController,
+                            maxLines: 4,
+                            hintText: '----',
+                            spaceBettwenText: 10,
+                            title: 'Reason for absence*',
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Start and End dates
+                      Row(
+                        children: [
+                          // Start date
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyTextFormField(
+                                  controller: _startDateController,
+                                  hintText: '----',
+                                  spaceBettwenText: 10,
+                                  title: 'Start date(optional)*',
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // End date
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyTextFormField(
+                                  controller: _endDateController,
+                                  spaceBettwenText: 10,
+                                  title: 'Start date(optional)*',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // File upload and Duration
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // File upload
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'File (optional)*',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                DottedBorder(
+                                  color: AppColors.blueColor,
+                                  dashPattern: const [5, 5],
+                                  strokeWidth: 2,
+                                  borderType: BorderType.RRect,
+                                  radius: const Radius.circular(8),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    height: 150,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          alignment: Alignment.center,
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                              color: AppColors.blueColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          width: 40,
+                                          height: 40,
+                                          child: SvgPicture.asset(
+                                            "assets/svg/upload.svg",
+                                          ),
+                                        ),
+                                        kSizedBoxSM,
+                                        const Text(
+                                          'Drag & Drop or choose files to upload',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const MyText(
+                                          'Supported formats : Jpeg, pdf',
+                                          textAlign: TextAlign.center,
+                                          size: 11,
+                                          weight: 300,
+                                          color: AppColors.darkGrey2,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // Duration
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyTextFormField(
+                                  controller: _durationController,
+                                  spaceBettwenText: 10,
+                                  title: 'Start date(optional)*',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Action Buttons
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MyOutlinedButton(
+                    textColor: AppColors.darkGrey1,
+                    borderColor: null,
+                    child: 'Cancel',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  MyElevatedButton(
+                    icon: SvgPicture.asset(
+                      "assets/svg/check.svg",
+                      colorFilter: const ColorFilter.mode(
+                          AppColors.whiteColor, BlendMode.srcIn),
+                    ),
+                    child: 'Save',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
