@@ -212,17 +212,22 @@ class _SideMenuState extends State<SideMenu> {
             isExpandable: true,
           ),
           _buildMenuItem(
-            index: 5,
+            index: 13,
             label: 'Calendar',
             iconPath: 'assets/svg/sidebar/calendar.svg',
             isExpandable: true,
           ),
           _buildMenuItem(
-            index: 6,
-            label: 'Services',
-            iconPath: 'assets/svg/sidebar/calendar.svg',
-            isExpandable: true,
-          ),
+              index: 6,
+              label: 'Services',
+              iconPath: 'assets/svg/sidebar/calendar.svg',
+              isExpandable: true,
+              children: [
+                _buildSubItem(
+                    index: 9,
+                    label: 'Real Estate',
+                    onTap: () => context.go(RouteConstants.realEstate)),
+              ]),
           _buildMenuItem(
               index: 7,
               label: 'Notification',

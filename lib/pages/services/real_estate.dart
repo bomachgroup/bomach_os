@@ -39,7 +39,11 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   MyIconButton(
-                    icon: Icons.add_outlined,
+                    icon: const Icon(
+                      Icons.add_outlined,
+                      size: 20,
+                      color: Color(0xFFFFFFFF),
+                    ),
                     colorBackground: const Color(0xFF0055FF),
                     onPressed: () {},
                   ),
@@ -47,7 +51,11 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                     width: 10,
                   ),
                   MyIconButton(
-                    icon: Icons.notes,
+                    icon: const Icon(
+                      Icons.notes,
+                      size: 20,
+                      color: Color(0xFFFFFFFF),
+                    ),
                     colorBackground: const Color(0xFF0055FF),
                     onPressed: () {},
                   ),
@@ -55,7 +63,11 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                     width: 10,
                   ),
                   MyIconButton(
-                    icon: Icons.notifications,
+                    icon: const Icon(
+                      Icons.notifications,
+                      size: 20,
+                      color: Color(0xFFFFFFFF),
+                    ),
                     colorBackground: const Color(0xFF0055FF),
                     onPressed: () {},
                   ),

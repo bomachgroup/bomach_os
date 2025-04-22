@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MyIconButton extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final Color colorBackground;
   final VoidCallback? onPressed;
 
@@ -20,11 +20,7 @@ class MyIconButton extends StatelessWidget {
         backgroundColor: colorBackground,
       ),
       onPressed: onPressed,
-      icon: Icon(
-        icon,
-        size: 20,
-        color: const Color(0xFFFFFFFF),
-      ),
+      icon: icon,
     );
   }
 }
