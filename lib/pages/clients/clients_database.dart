@@ -7,6 +7,7 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -301,60 +302,62 @@ class NewClientDialogState extends State<NewClientDialog> {
                 ],
               ),
             ),
-            kSizedBox,
-            kSizedBoxSM,
             SizedBox(
               height: 600,
               child: SingleChildScrollView(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: kDefaultSpaceBG),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: kDefaultSpaceBG, vertical: kDefaultSpaceBG),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      kSizedBox,
                       Row(
-                        spacing: 10,
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const ClientInfoCard(),
                           Expanded(
-                            child: StatsCard(
-                              title: 'Total Projects',
-                              value: '1',
-                              icon: SvgPicture.asset("assets/svg/database.svg"),
-                            ),
-                          ),
-                          Expanded(
-                            child: StatsCard(
-                              title: 'Total Earnings',
-                              value: '0',
-                              icon: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  const SizedBox(),
-                                  Positioned(
-                                    left: -10,
-                                    child: SvgPicture.asset(
-                                        "assets/svg/naira-coin.svg"),
+                            child: Wrap(
+                              // crossAxisAlignment: CrossAxisAlignment.start,
+                              runSpacing: 15,
+                              spacing: 15,
+                              children: [
+                                const ClientInfoCard(),
+                                StatsCard(
+                                  title: 'Total Projects',
+                                  value: '1',
+                                  icon: SvgPicture.asset(
+                                      "assets/svg/database.svg"),
+                                ),
+                                StatsCard(
+                                  title: 'Due Invoice',
+                                  value: '3',
+                                  icon:
+                                      SvgPicture.asset("assets/svg/server.svg"),
+                                ),
+                                StatsCard(
+                                  title: 'Total Earnings',
+                                  value: '0',
+                                  icon: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      const SizedBox(),
+                                      Positioned(
+                                        left: -10,
+                                        child: SvgPicture.asset(
+                                            "assets/svg/naira-coin.svg"),
+                                      ),
+                                      Positioned(
+                                        child: SvgPicture.asset(
+                                            "assets/svg/naira-coin.svg"),
+                                      )
+                                    ],
                                   ),
-                                  Positioned(
-                                    child: SvgPicture.asset(
-                                        "assets/svg/naira-coin.svg"),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: StatsCard(
-                              title: 'Due Invoice',
-                              value: '3',
-                              icon: SvgPicture.asset("assets/svg/server.svg"),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                       kSizedBox,
-                      kSizedBoxSM,
                       const Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -369,7 +372,6 @@ class NewClientDialogState extends State<NewClientDialog> {
                           ),
                         ],
                       ),
-                      kSizedBoxBG,
                     ],
                   ),
                 ),
@@ -388,6 +390,7 @@ class ClientInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: !isLargeScreen(context) ? double.infinity : 400,
       decoration: BoxDecoration(
         color: const Color.fromRGBO(255, 255, 255, 1),
         borderRadius: BorderRadius.circular(18),
@@ -472,23 +475,8 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color valueColor;
-
-    switch (title) {
-      case 'Total Projects':
-        valueColor = Colors.blue;
-        break;
-      case 'Total Earnings':
-        valueColor = Colors.blue;
-        break;
-      case 'Due Invoice':
-        valueColor = Colors.blue;
-        break;
-      default:
-        valueColor = Colors.blue;
-    }
-
     return Container(
+      width: !isLargeScreen(context) ? double.infinity : 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
         color: AppColors.whiteColor,
@@ -515,10 +503,10 @@ class StatsCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: valueColor,
+                  color: AppColors.blue2,
                 ),
               ),
               icon,

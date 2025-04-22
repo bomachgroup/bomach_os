@@ -295,12 +295,15 @@ class _BranchPageState extends State<BranchPage> {
               children: [
                 smallIcon,
                 kSizedBoxWidthSM,
-                Text(
-                  subtext,
-                  style: const TextStyle(
-                    color: AppColors.darkBlue,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
+                Expanded(
+                  child: Text(
+                    subtext,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.darkBlue,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
                 ),
               ],
@@ -405,13 +408,17 @@ class _BranchPageState extends State<BranchPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Company Schedule',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    'Company Schedule',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+                kSizedBoxWidthSM,
                 Icon(Icons.calendar_today, color: AppColors.blueColor),
               ],
             ),
@@ -675,7 +682,6 @@ class _BranchPageState extends State<BranchPage> {
                   Text("Create Branch",
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 20),
-
                   Row(
                     children: [
                       Expanded(
@@ -688,7 +694,10 @@ class _BranchPageState extends State<BranchPage> {
                       kSizedBoxWidth,
                       Expanded(
                         child: MyDropdown(
-                          items: const ['Nigeria', 'Ghana'],
+                          items: const [
+                            'Nigeria',
+                            'Ghana',
+                          ],
                           onChanged: (val) {},
                           hintText: '---',
                           title: 'Country*',
