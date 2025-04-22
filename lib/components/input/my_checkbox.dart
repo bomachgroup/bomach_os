@@ -4,15 +4,26 @@ import 'package:flutter/material.dart';
 class MyCheckbox extends StatelessWidget {
   final bool isChecked;
   final ValueChanged<bool> onChanged;
+  final Color? backgroundColor;
+  final Color? checkColor;
 
   const MyCheckbox({
     super.key,
     required this.isChecked,
     required this.onChanged,
+    this.backgroundColor,
+    this.checkColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final Color effectiveBackgroundColor = isChecked
+        ? (backgroundColor ?? AppColors.blueColor)
+        : AppColors.whiteColor;
+    final Color effectiveBorderColor = isChecked
+        ? (backgroundColor ?? AppColors.blueColor)
+        : Colors.grey.shade300;
+
     return GestureDetector(
       onTap: () => onChanged(!isChecked),
       child: AnimatedContainer(
@@ -20,18 +31,18 @@ class MyCheckbox extends StatelessWidget {
         width: 22,
         height: 22,
         decoration: BoxDecoration(
-          color: isChecked ? AppColors.blueColor : AppColors.whiteColor,
+          color: effectiveBackgroundColor,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: isChecked ? AppColors.blueColor : Colors.grey.shade300,
+            color: effectiveBorderColor,
             width: 2,
           ),
         ),
         child: isChecked
-            ? const Icon(
+            ? Icon(
                 Icons.check,
                 size: 16,
-                color: Colors.white,
+                color: checkColor ?? Colors.white,
               )
             : null,
       ),

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/signin_button.dart';
+import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/scaffold/scaffold.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -87,17 +88,18 @@ class LoginScreen extends StatelessWidget {
                     spaceBettwenText: 10,
                   ),
                 ),
+                kSizedBoxSM,
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Row(
                     children: [
-                      Checkbox(
-                          // checkColor: Color.fromARGB(0, 37, 36, 36),
-                          fillColor: const WidgetStatePropertyAll(
-                              Color.fromRGBO(224, 222, 222, 1)),
-                          value: true,
-                          onChanged: (value) {}),
-                      kSizedBoxWidthTiny,
+                      MyCheckbox(
+                        checkColor: AppColors.blueColor,
+                        backgroundColor: AppColors.whiteColor,
+                        isChecked: true,
+                        onChanged: (val) {},
+                      ),
+                      kSizedBoxWidthSM,
                       const Text(
                         "Show Password",
                         style: TextStyle(color: Colors.white, fontSize: 12),

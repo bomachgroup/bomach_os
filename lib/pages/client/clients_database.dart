@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/icon_button.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
@@ -281,11 +282,18 @@ class NewClientDialogState extends State<NewClientDialog> {
                           MyIconButton(
                             icon: SvgPicture.asset("assets/svg/plus.svg"),
                             colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {},
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const AddInvoiceDialog();
+                                },
+                              );
+                            },
                           ),
                           kSizedBoxWidthSM,
                           MyIconButton(
-                            icon: SvgPicture.asset("assets/svg/note.svg"),
+                            icon: SvgPicture.asset("assets/svg/note2.svg"),
                             colorBackground: const Color(0xFF0055FF),
                             onPressed: () {
                               showDialog(
@@ -1146,6 +1154,122 @@ class ServiceItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class AddInvoiceDialog extends StatefulWidget {
+  const AddInvoiceDialog({super.key});
+
+  @override
+  State<AddInvoiceDialog> createState() => _AddInvoiceDialogState();
+}
+
+class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppColors.whiteColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 846),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Invoice Form',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(height: 1),
+
+            // Form fields
+            const Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    children: [
+                      // Start and End dates
+                      Row(
+                        children: [
+                          // Start date
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyTextFormField(
+                                  hintText: '-----',
+                                  spaceBettwenText: 10,
+                                  title: 'Company/customer Name',
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // End date
+                          Spacer(),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Action Buttons
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MyOutlinedButton(
+                    textColor: AppColors.darkGrey1,
+                    borderColor: null,
+                    child: 'Cancel',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  MyElevatedButton(
+                    icon: SvgPicture.asset(
+                      "assets/svg/note.svg",
+                      colorFilter: const ColorFilter.mode(
+                          AppColors.whiteColor, BlendMode.srcIn),
+                    ),
+                    child: 'Generate',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
