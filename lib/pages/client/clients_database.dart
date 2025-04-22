@@ -328,12 +328,6 @@ class NewClientDialogState extends State<NewClientDialog> {
                                       "assets/svg/database.svg"),
                                 ),
                                 StatsCard(
-                                  title: 'Due Invoice',
-                                  value: '3',
-                                  icon:
-                                      SvgPicture.asset("assets/svg/server.svg"),
-                                ),
-                                StatsCard(
                                   title: 'Total Earnings',
                                   value: '0',
                                   icon: Stack(
@@ -351,6 +345,12 @@ class NewClientDialogState extends State<NewClientDialog> {
                                       )
                                     ],
                                   ),
+                                ),
+                                StatsCard(
+                                  title: 'Due Invoice',
+                                  value: '3',
+                                  icon:
+                                      SvgPicture.asset("assets/svg/server.svg"),
                                 ),
                               ],
                             ),
