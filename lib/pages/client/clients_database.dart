@@ -287,7 +287,14 @@ class NewClientDialogState extends State<NewClientDialog> {
                           MyIconButton(
                             icon: SvgPicture.asset("assets/svg/note.svg"),
                             colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {},
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const InvoiceContent();
+                                },
+                              );
+                            },
                           ),
                           kSizedBoxWidthSM,
                           MyIconButton(
@@ -640,6 +647,502 @@ class ProjectsCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InvoiceContent extends StatelessWidget {
+  const InvoiceContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppColors.whiteColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(kDefaultSpaceBG),
+          constraints: const BoxConstraints(maxWidth: 595),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Company Logo
+              Image.asset(
+                "assets/logo/bomach.png",
+                height: 129,
+                width: 175,
+              ),
+
+              kSizedBox,
+
+              // Invoice Header
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Invoice Title & Number
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'INVOICE',
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '#794653',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Invoice Dates
+                  const Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Bill date: 02.08.2024',
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                            kSizedBoxWidthSM,
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Icon(
+                              Icons.arrow_forward_sharp,
+                              color: Colors.black54,
+                            ),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                'Due: 12.08.2024',
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 40),
+
+              // FROM, TO, INFO Section
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // FROM Section
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'FROM:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black45,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Bomach group',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Suite 9 Swiss Guard Plaza,450 Ogui Road,\nEnugu state, Nigeria.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w300,
+                            color: AppColors.darkGrey2,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // TO Section
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'TO:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black45,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Jenny group',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'plot 2,\n6 Kelly Rd, Uwani\nEnugu, Nigeria',
+                          style: TextStyle(
+                            color: AppColors.darkGrey2,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w300,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // INFO Section
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'INFO:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.blackColor,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        InfoRow(label: 'Account number:', value: '0978984573'),
+                        InfoRow(label: 'Account name:', value: 'Jonesy'),
+                        InfoRow(label: 'Bank name:', value: 'First Bank'),
+                        InfoRow(label: 'Phone:', value: '+234 806 558 7786'),
+                        InfoRow(label: 'Email:', value: 'Jonesy@gmail.com'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+
+              // Services Table
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Column(
+                  children: [
+                    // Table Header
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              'QUANTITY',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: Text(
+                              'SERVICE',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              'COST',
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Divider(height: 1),
+
+                    // Service Item 1
+                    ServiceItem(
+                      quantity: '1',
+                      service: 'LAND SURVEY',
+                      description: '2sq meter',
+                      cost: '\$ 4000',
+                    ),
+
+                    Divider(height: 1),
+
+                    // Service Item 2
+                    ServiceItem(
+                      quantity: '1',
+                      service: 'REAL ESTATE',
+                      description: '5 bedroom duplex',
+                      cost: '\$ 2000',
+                    ),
+
+                    Divider(height: 1),
+
+                    // Service Item 3
+                    ServiceItem(
+                      quantity: '1',
+                      service: 'SURVEY PLANNING',
+                      description: '---',
+                      cost: '\$ 1000',
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Totals
+              Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppColors.greyBg,
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: const Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // Total
+                            Text(
+                              'TOTAL',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            SizedBox(height: 16),
+
+                            // Subtotal
+                            Text(
+                              'SUBTOTAL',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.black54,
+                              ),
+                            ),
+
+                            SizedBox(height: 8),
+
+                            // Tax
+                            Text(
+                              'TAX',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // Total
+                            Text(
+                              '\$ 7000',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            SizedBox(height: 16),
+
+                            // Subtotal
+                            Text(
+                              '\$ 7000',
+                              style: TextStyle(
+                                color: Colors.black54,
+                              ),
+                            ),
+
+                            SizedBox(height: 8),
+
+                            Text(
+                              '\$ 000',
+                              style: TextStyle(
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const InfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              color: AppColors.darkGrey2,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w300,
+              color: AppColors.darkGrey2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ServiceItem extends StatelessWidget {
+  final String quantity;
+  final String service;
+  final String description;
+  final String cost;
+
+  const ServiceItem({
+    super.key,
+    required this.quantity,
+    required this.service,
+    required this.description,
+    required this.cost,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                kSizedBoxWidth,
+                Text(
+                  quantity,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  service,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              cost,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
