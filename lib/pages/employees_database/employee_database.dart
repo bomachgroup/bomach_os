@@ -9,6 +9,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 class EmployeeDatabase extends StatelessWidget {
@@ -65,7 +66,14 @@ class EmployeeDatabase extends StatelessWidget {
                           textColor: AppColors.blackColor,
                           borderColor: null,
                           child: 'Filter',
-                          onTap: () {},
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return const FilterDialog();
+                              },
+                            );
+                          },
                         ),
                       ],
                     )
@@ -262,5 +270,166 @@ class EmployeeDatabase extends StatelessWidget {
         ),
       ]);
     });
+  }
+}
+
+class FilterDialog extends StatefulWidget {
+  const FilterDialog({super.key});
+
+  @override
+  FilterDialogState createState() => FilterDialogState();
+}
+
+class FilterDialogState extends State<FilterDialog> {
+  final TextEditingController _searchController = TextEditingController();
+  final List<String> departments = [
+    'Design',
+    'HR',
+    'Sales',
+    'Business Analyst',
+    'Project Manager',
+    'Java',
+    'Python',
+    'React JS',
+    'Account',
+    'Nods JS',
+  ];
+  final List<String> types = [
+    'Full-time',
+    'Hybrid',
+    'Remote',
+    'Intern',
+    'Part-time',
+  ];
+
+  List<String> selectedDepartments = [
+    'Design',
+    'Java',
+    'Python',
+    'Project Manager'
+  ];
+  String? selectedType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 383),
+        padding: const EdgeInsets.all(kDefaultSpace),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: AppColors.greyBg,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Filter",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 20),
+            // Search Box
+            Row(
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _searchController,
+                    hintText: "Search Employee",
+                    leading: SvgPicture.asset("assets/svg/search.svg"),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Department",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: departments.map((dept) {
+                final selected = selectedDepartments.contains(dept);
+                return FilterChip(
+                  selected: selected,
+                  onSelected: (_) {
+                    setState(() {
+                      selected
+                          ? selectedDepartments.remove(dept)
+                          : selectedDepartments.add(dept);
+                    });
+                  },
+                  selectedColor: Colors.blue,
+                  backgroundColor: Colors.white,
+                  labelStyle:
+                      TextStyle(color: selected ? Colors.white : Colors.black),
+                  checkmarkColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    side: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  label: Text(dept),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Select Type",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              // spacing: 8,
+              runSpacing: 8,
+              children: types.map((type) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Radio<String>(
+                      value: type,
+                      groupValue: selectedType,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedType = value;
+                        });
+                      },
+                    ),
+                    Text(type),
+                  ],
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: MyOutlinedButton(
+                    textColor: AppColors.darkGrey1,
+                    borderColor: AppColors.grey3.withValues(alpha: 0.2),
+                    child: 'Cancel',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: MyElevatedButton(
+                    child: 'Apply',
+                    onTap: () {},
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -85,7 +85,8 @@ class MyDropdown extends StatelessWidget {
                       elevation: WidgetStateProperty.all(8),
                       shadowColor: WidgetStateProperty.all(
                           Colors.black.withOpacity(0.1)),
-                      backgroundColor: WidgetStateProperty.all(fillColor),
+                      backgroundColor: WidgetStateProperty.all(
+                          fillColor ?? AppColors.greyBg),
                       padding: WidgetStateProperty.all(
                           const EdgeInsets.symmetric(vertical: 8)),
                       side: WidgetStateProperty.all(BorderSide(
@@ -157,8 +158,7 @@ class MyDropdown extends StatelessWidget {
                               backgroundColor:
                                   WidgetStateProperty.resolveWith((states) {
                                 if (states.contains(WidgetState.hovered)) {
-                                  return fillColor?.withOpacity(0.5) ??
-                                      Colors.blue.withOpacity(0.05);
+                                  return AppColors.blueColor.withOpacity(0.05);
                                 }
                                 return Colors.transparent;
                               }),
