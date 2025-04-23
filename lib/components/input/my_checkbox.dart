@@ -5,6 +5,8 @@ class MyCheckbox extends StatelessWidget {
   final bool isChecked;
   final ValueChanged<bool> onChanged;
   final Color? backgroundColor;
+  final Color? backgroundNotCheckedColor;
+  final Color? borderNotCheckedColor;
   final Color? checkColor;
 
   const MyCheckbox({
@@ -12,6 +14,8 @@ class MyCheckbox extends StatelessWidget {
     required this.isChecked,
     required this.onChanged,
     this.backgroundColor,
+    this.backgroundNotCheckedColor,
+    this.borderNotCheckedColor,
     this.checkColor,
   });
 
@@ -19,10 +23,10 @@ class MyCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color effectiveBackgroundColor = isChecked
         ? (backgroundColor ?? AppColors.blueColor)
-        : AppColors.whiteColor;
+        : backgroundNotCheckedColor ?? AppColors.whiteColor;
     final Color effectiveBorderColor = isChecked
         ? (backgroundColor ?? AppColors.blueColor)
-        : Colors.grey.shade300;
+        : borderNotCheckedColor ?? Colors.grey.shade300;
 
     return GestureDetector(
       onTap: () => onChanged(!isChecked),

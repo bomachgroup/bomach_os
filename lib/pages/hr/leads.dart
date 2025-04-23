@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_button.dart';
+import 'package:bms_front_end/components/button/sort_bar.dart';
+import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -74,7 +75,6 @@ class LeadsPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Scrollbar(
                   thumbVisibility: true,
@@ -92,6 +92,7 @@ class LeadsPage extends StatelessWidget {
                         horizontalMargin: 12,
                         columns: _createColumns(),
                         rows: _createRows(context),
+                        showBottomBorder: true,
                       ),
                     ),
                   ),
@@ -109,7 +110,12 @@ class LeadsPage extends StatelessWidget {
     return [
       DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Checkbox(value: false, onChanged: (val) {}),
+        label: MyCheckbox(
+          isChecked: false,
+          onChanged: (val) {},
+          backgroundNotCheckedColor: AppColors.transparent,
+          borderNotCheckedColor: AppColors.grey4,
+        ),
       ),
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
@@ -152,40 +158,40 @@ class LeadsPage extends StatelessWidget {
           cells: <DataCell>[
             DataCell(
               onTap: () {},
-              Checkbox(value: false, onChanged: (val) {}),
+              MyCheckbox(
+                isChecked: false,
+                onChanged: (val) {},
+                backgroundNotCheckedColor: AppColors.transparent,
+                borderNotCheckedColor: AppColors.grey4,
+              ),
             ),
             const DataCell(
               Text("001"),
             ),
             DataCell(
               onTap: () {},
-              GestureDetector(
-                onTap: () {
-                  // context.go(RouteConstants.employeeProfile);
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      width: 36,
-                      height: 36,
-                      child: Image.asset('assets/icons/profile-icon.png'),
+              Row(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MyText("Darlene Robertson", size: 16, weight: 400),
-                        MyText("MTN Nigeria", size: 14, weight: 300)
-                      ],
-                    ),
-                  ],
-                ),
+                    width: 36,
+                    height: 36,
+                    child: Image.asset('assets/icons/profile-icon.png'),
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MyText("Darlene Robertson", size: 16, weight: 400),
+                      MyText("MTN Nigeria", size: 14, weight: 300)
+                    ],
+                  ),
+                ],
               ),
             ),
             const DataCell(

@@ -1,7 +1,13 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/sort_filter_bar.dart';
+import 'package:bms_front_end/components/chart/process_status.dart';
+import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -27,12 +33,19 @@ class ProjectsPage extends StatelessWidget {
         ),
         Row(
           children: [
-            MyElevatedButton(child: 'Add New Project', onTap: () {}),
-            const SizedBox(
-              width: 20,
+            MyElevatedButton(
+              icon: const Icon(
+                Icons.add_circle_outline_rounded,
+                color: AppColors.whiteColor,
+              ),
+              child: 'Add New Project',
+              onTap: () {
+                context.go(RouteConstants.addEmployees);
+              },
             ),
+            kSizedBoxWidth,
             SizedBox(
-              width: 131,
+              width: 180,
               child: MyTextFormField(
                 hintText: 'Search...',
                 leading: Icon(
@@ -40,12 +53,13 @@ class ProjectsPage extends StatelessWidget {
                   color: AppColors.grey1.withValues(alpha: 0.5),
                 ),
               ),
-            )
+            ),
+            kSizedBoxWidth,
+            const SortFilterBar(),
           ],
         ),
-        const SizedBox(
-          height: 20,
-        ),
+        kSizedBox,
+        kSizedBoxSM,
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
@@ -53,26 +67,28 @@ class ProjectsPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(16)),
           child: Column(
             children: [
-              SingleChildScrollView(
+              Scrollbar(
+                thumbVisibility: true,
+                trackVisibility: true,
+                child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                      dataRowHeight: 60,
-                      // decoration: BoxDecoration(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: bodySpace(context),
+                    ),
+                    child: DataTable(
+                      dataRowMinHeight: 68,
+                      dataRowMaxHeight: 68,
+                      columnSpacing: 24,
+                      horizontalMargin: 12,
                       columns: _createColumns(),
-                      rows: _createRows(context))),
-              const SizedBox(
-                height: 4,
+                      rows: _createRows(context),
+                      showBottomBorder: true,
+                    ),
+                  ),
+                ),
               ),
-              const Divider(),
-              const SizedBox(
-                height: 8,
-              ),
-              const Row(
-                children: [
-                  Text('Showing'),
-                  Text('Showing 1 to 8 out of 60 records'),
-                ],
-              ),
+              const MyPaginator(),
               const SizedBox(
                 height: 8,
               ),
@@ -86,14 +102,14 @@ class ProjectsPage extends StatelessWidget {
   List<DataColumn> _createColumns() {
     return [
       DataColumn(
-          headingRowAlignment: MainAxisAlignment.start,
-          label: Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-                border: Border.all(color: AppColors.borderColor, width: 0.6),
-                borderRadius: BorderRadius.circular(8)),
-          )),
+        headingRowAlignment: MainAxisAlignment.start,
+        label: MyCheckbox(
+          isChecked: false,
+          onChanged: (value) {},
+          backgroundNotCheckedColor: AppColors.transparent,
+          borderNotCheckedColor: AppColors.grey4,
+        ),
+      ),
       const DataColumn(
           headingRowAlignment: MainAxisAlignment.start,
           label: Text(
@@ -128,46 +144,114 @@ class ProjectsPage extends StatelessWidget {
   }
 
   List<DataRow> _createRows(BuildContext context) {
-    return List.generate(19, (index) {
+    return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
-        DataCell(Container(
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-              border: Border.all(color: AppColors.borderColor, width: 0.9),
-              borderRadius: BorderRadius.circular(4)),
-        )),
+        DataCell(
+          MyCheckbox(
+            isChecked: false,
+            onChanged: (value) {},
+            backgroundNotCheckedColor: AppColors.transparent,
+            borderNotCheckedColor: AppColors.grey4,
+          ),
+        ),
         const DataCell(
-          SizedBox(width: 120, child: Text("#234@BMA/ENU")),
+          SizedBox(width: 120, child: Text("#455653")),
         ),
         DataCell(
-          SizedBox(
-              width: 152,
-              child: GestureDetector(
-                  onTap: () {
-                    context.go(RouteConstants.eachprojects);
-                  },
-                  child: const Text("Benji Express mobile app project"))),
+          onTap: () {
+            context.go(RouteConstants.eachprojects);
+          },
+          const SizedBox(
+              width: 152, child: Text("Benji Express mobile app project")),
         ),
         DataCell(
           SizedBox(
             width: 80,
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
-                Container(
-                  decoration: const BoxDecoration(
-                      color: AppColors.blueColor, shape: BoxShape.circle),
-                  width: 36,
-                  height: 36,
+                const SizedBox(),
+                Positioned(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.whiteColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        "assets/image/man-demo.png",
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
                 ),
                 Positioned(
-                  // right: 1,
+                  left: (20),
                   child: Container(
-                    decoration: const BoxDecoration(
-                        color: AppColors.secondaryColor,
-                        shape: BoxShape.circle),
-                    width: 36,
-                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.whiteColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        "assets/icons/profile-icon.png",
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 40,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.whiteColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        "assets/image/man-demo.png",
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 60,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.whiteColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        "assets/icons/profile-icon.png",
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -181,95 +265,37 @@ class ProjectsPage extends StatelessWidget {
           SizedBox(width: 100, child: Text("27/09/2024")),
         ),
         DataCell(
-          SizedBox(
-              width: 250,
-              child: Row(
+          Row(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                width: 36,
+                height: 36,
+                child: Image.asset('assets/icons/profile-icon.png'),
+              ),
+              const SizedBox(
+                width: 8,
+              ),
+              const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.secondaryColor),
-                    width: 36,
-                    height: 36,
-                  ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Jane Okoro"),
-                      Text("Jenny group of company"),
-                    ],
-                  ),
+                  MyText("Darlene Robertson", size: 16, weight: 400),
+                  MyText("MTN Nigeria", size: 14, weight: 300)
                 ],
-              )),
+              ),
+            ],
+          ),
         ),
-        DataCell(Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 102,
-              height: 14,
-              decoration: BoxDecoration(
-                  color: AppColors.blueColor,
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-            const SizedBox(
-              height: 4,
-            ),
-            Container(
-              width: 102,
-              height: 28,
-              decoration: BoxDecoration(
-                  color: AppColors.borderColor,
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-          ],
-        )),
-        DataCell(
-          SizedBox(
-              width: 50,
-              child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                  width: 20,
-                  height: 30,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.borderColor,
-                      )),
-                  child: const Center(child: Icon(Icons.more_vert_sharp)))),
+        const DataCell(
+          ProgressStatus(),
+        ),
+        const DataCell(
+          Icon(Icons.more_vert_outlined),
         ),
       ]);
     });
   }
-}
-
-class MyData extends DataTableSource {
-  @override
-  DataRow? getRow(int index) {
-    return const DataRow(cells: [
-      DataCell(Text('#455653')),
-      DataCell(Text('Benji Express mobile app project')),
-      DataCell(Text('data')),
-      DataCell(Text('data')),
-      DataCell(Text('data')),
-      DataCell(Text('data')),
-      DataCell(Text('data')),
-    ]);
-  }
-
-  @override
-  // TODO: implement isRowCountApproximate
-  bool get isRowCountApproximate => false;
-
-  @override
-  // TODO: implement rowCount
-  int get rowCount => 1;
-
-  @override
-  // TODO: implement selectedRowCount
-  int get selectedRowCount => 0;
 }
