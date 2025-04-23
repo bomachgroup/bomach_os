@@ -20,6 +20,7 @@ class MyTextFormField extends StatelessWidget {
   final String? title;
   final void Function()? onTap;
   final int maxLines;
+  final List<BoxShadow>? boxShadow;
 
   const MyTextFormField({
     super.key,
@@ -42,6 +43,7 @@ class MyTextFormField extends StatelessWidget {
     this.onTap,
     this.maxLines = 1,
     this.spaceBettwenText,
+    this.boxShadow,
   });
 
   @override
@@ -58,6 +60,9 @@ class MyTextFormField extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(
         minHeight: height ?? 50,
+      ),
+      decoration: BoxDecoration(
+        boxShadow: boxShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

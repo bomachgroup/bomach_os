@@ -12,8 +12,15 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class ProjectsPage extends StatelessWidget {
+class ProjectsPage extends StatefulWidget {
   const ProjectsPage({super.key});
+
+  @override
+  State<ProjectsPage> createState() => _ProjectsPageState();
+}
+
+class _ProjectsPageState extends State<ProjectsPage> {
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +59,14 @@ class ProjectsPage extends StatelessWidget {
                   Icons.search,
                   color: AppColors.grey1.withValues(alpha: 0.5),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
             ),
             kSizedBoxWidth,
@@ -68,9 +83,11 @@ class ProjectsPage extends StatelessWidget {
           child: Column(
             children: [
               Scrollbar(
+                controller: _scrollController,
                 thumbVisibility: true,
                 trackVisibility: true,
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
