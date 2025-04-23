@@ -638,6 +638,11 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
           children: [
             // Header
             Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.grey4),
+                ),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -656,8 +661,6 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                 ],
               ),
             ),
-
-            const Divider(height: 1),
 
             // Form fields
             Expanded(

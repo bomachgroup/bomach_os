@@ -175,6 +175,11 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
           children: [
             // Header
             Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.grey4),
+                ),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,8 +198,6 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                 ],
               ),
             ),
-
-            const Divider(height: 1),
 
             // Form fields
             const Expanded(
@@ -375,15 +378,18 @@ class MilestoneDetailDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
-        padding: const EdgeInsets.all(kDefaultSpace),
+        // padding: const EdgeInsets.all(kDefaultSpace),
         constraints: const BoxConstraints(maxWidth: 846),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            kSizedBox,
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.grey4),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -402,10 +408,6 @@ class MilestoneDetailDialog extends StatelessWidget {
               ),
             ),
 
-            kSizedBox,
-
-            const Divider(height: 1),
-
             // Form fields
             Expanded(
               child: SingleChildScrollView(
@@ -414,7 +416,7 @@ class MilestoneDetailDialog extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
+                          horizontal: 50, vertical: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -431,9 +433,17 @@ class MilestoneDetailDialog extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const MyText("Tasks", size: 20, weight: 400),
-                    kSizedBox,
-                    const ProjectTask(),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 25),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MyText("Tasks", size: 20, weight: 400),
+                          kSizedBox,
+                          ProjectTask(),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -441,6 +451,11 @@ class MilestoneDetailDialog extends StatelessWidget {
 
             // Action buttons
             Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: AppColors.grey4),
+                ),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
