@@ -1,15 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/create_milestone.dart';
-import 'package:bms_front_end/components/section/project_overview.dart';
 import 'package:bms_front_end/components/section/project_associate.dart';
 import 'package:bms_front_end/components/section/project_files.dart';
 import 'package:bms_front_end/components/section/project_meetings.dart';
 import 'package:bms_front_end/components/section/project_members.dart';
 import 'package:bms_front_end/components/section/project_milestone.dart';
+import 'package:bms_front_end/components/section/project_overview.dart';
 import 'package:bms_front_end/components/section/project_task.dart';
 import 'package:bms_front_end/components/section/project_work_sites.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
@@ -40,46 +41,68 @@ class _EachProjectsState extends State<EachProjects> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Projects',
-              style: AppText.black_500_32,
-            ),
-            const Spacer(),
-            SizedBox(
-              width: 108,
-              child: MyTextFormField(
-                hintText: 'Search...',
-                leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
-                ),
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  const Text(
+                    'Projects',
+                    style: AppText.black_500_32,
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        child: MyTextFormField(
+                          hintText: 'Search...',
+                          leading: Icon(
+                            Icons.search,
+                            color: AppColors.grey1.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      if ([0, 1, 4].contains(projectMemberState))
+                        MyElevatedButton(
+                          icon: const Icon(
+                            Icons.add_circle_outline_rounded,
+                            color: AppColors.whiteColor,
+                          ),
+                          child: projectMemberState == 0
+                              ? 'Add New Employee'
+                              : projectMemberState == 1
+                                  ? 'Add Project member'
+                                  : 'Create milestone',
+                          onTap: () {
+                            if (projectMemberState == 4) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const AlertDialog(
+                                    contentPadding: EdgeInsets.all(0),
+                                    content: CreateMilestone(),
+                                  );
+                                },
+                              );
+                            }
+                          },
+                        )
+                    ],
+                  )
+                ],
               ),
             ),
-            const SizedBox(
-              width: 20,
-            ),
-            projectMemberState == 0
-                ? MyElevatedButton(child: 'Add New Employee', onTap: () {})
-                : projectMemberState == 1
-                    ? MyElevatedButton(child: 'Add Project membe', onTap: () {})
-                    : projectMemberState == 4
-                        ? MyElevatedButton(
-                            child: 'Create milestone',
-                            onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const AlertDialog(
-                                      contentPadding: EdgeInsets.all(0),
-                                      content: CreateMilestone(),
-                                    );
-                                  });
-                            })
-                        : const SizedBox()
           ],
         ),
+        kSizedBoxSM,
         const Row(
           children: [
             Text(

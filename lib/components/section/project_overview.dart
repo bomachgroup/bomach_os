@@ -1,6 +1,10 @@
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class ProjectOverview extends StatelessWidget {
@@ -13,103 +17,166 @@ class ProjectOverview extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              height: 150,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: AppColors.borderColor),
-                  borderRadius: BorderRadius.circular(24)),
-              child: Row(
+            Expanded(
+              child: Wrap(
+                runSpacing: 20,
+                spacing: 20,
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const Text(
-                        'Project progress',
-                        style: AppText.black_500_16,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      CircularPercentIndicator(
-                        startAngle: 180,
-                        percent: 0.67,
-                        center: const Text('67%'),
-                        lineWidth: 15.0,
-                        radius: 36,
-                      ),
-                    ],
+                  Container(
+                    height: 160,
+                    width: isLargeScreen(context) ? null : double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      border:
+                          Border.all(width: 1, color: AppColors.borderColor),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Project progress',
+                              style: AppText.black_500_16,
+                            ),
+                            const SizedBox(height: 10),
+                            CircularPercentIndicator(
+                              startAngle: 180.0,
+                              percent: 0.67,
+                              radius: 40.0,
+                              lineWidth: 15.0,
+                              circularStrokeCap: CircularStrokeCap.round,
+                              center: const MyText(
+                                '67%',
+                                size: 18,
+                                weight: 400,
+                                color: AppColors.orange,
+                              ),
+                              linearGradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFFE8620F),
+                                  Color(0xFFFFDC3D),
+                                  Color(0xFFFFDC3D),
+                                ],
+                                stops: [0.0, 0.5, 1.0],
+                              ),
+                              rotateLinearGradient: true,
+                              backgroundColor: AppColors.grey2,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 24),
+                        // This nested Row now also lines up at the top
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyText(
+                                  'Start date',
+                                  size: 12,
+                                  weight: 400,
+                                  color: AppColors.grey2,
+                                ),
+                                SizedBox(height: 8),
+                                MyText(
+                                  'Start date',
+                                  size: 16,
+                                  weight: 500,
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 21),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyText(
+                                  'Start date',
+                                  size: 12,
+                                  weight: 400,
+                                  color: AppColors.grey2,
+                                ),
+                                SizedBox(height: 8),
+                                MyText(
+                                  'Due date',
+                                  size: 16,
+                                  weight: 500,
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                  const SizedBox(
-                    width: 24,
+                  Container(
+                    height: 150,
+                    width: isLargeScreen(context) ? null : double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 18),
+                    decoration: BoxDecoration(
+                        border:
+                            Border.all(width: 1, color: AppColors.borderColor),
+                        borderRadius: BorderRadius.circular(24)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const MyText(
+                          'Client',
+                          size: 16,
+                          weight: 500,
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.asset(
+                                  "assets/image/man-demo.png",
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 24,
+                            ),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyText(
+                                  'Miss Jane',
+                                  size: 20,
+                                  weight: 500,
+                                ),
+                                MyText(
+                                  'Jenny group of company',
+                                  size: 14,
+                                  weight: 400,
+                                  color: AppColors.grey2,
+                                ),
+                              ],
+                            ),
+                            kSizedBoxWidthBG,
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                  const Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text('Start date'),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Text('12/10/2023')
-                        ],
-                      ),
-                      SizedBox(
-                        width: 21,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text('Due date'),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Text('02/02/2025')
-                        ],
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Container(
-              height: 150,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-              decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: AppColors.borderColor),
-                  borderRadius: BorderRadius.circular(24)),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Client',
-                    style: AppText.black_500_16,
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                      ),
-                      SizedBox(
-                        width: 24,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Miss Jane'),
-                          Text('Jenny group of company'),
-                        ],
-                      )
-                    ],
-                  )
                 ],
               ),
             ),
@@ -118,9 +185,10 @@ class ProjectOverview extends StatelessWidget {
         const SizedBox(
           height: 32,
         ),
-        const Text(
+        const MyText(
           'Statistics',
-          style: AppText.black_500_20,
+          size: 20,
+          weight: 500,
         ),
         const SizedBox(
           height: 16,
@@ -130,7 +198,7 @@ class ProjectOverview extends StatelessWidget {
           child: Row(
             children: [
               ProjectExpenceTrack(
-                expence: 'Project Buldget',
+                expence: 'Project budget',
                 amount: 0.00,
               ),
               SizedBox(
@@ -185,26 +253,44 @@ class ProjectExpenceTrack extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MyText(
             expence,
-            style: AppText.black_500_20,
+            size: 20,
+            weight: 500,
           ),
           const SizedBox(
             height: 5,
           ),
           Align(
             alignment: Alignment.bottomRight,
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: const BoxDecoration(
-                  color: AppColors.borderColor, shape: BoxShape.circle),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const SizedBox(),
+                Positioned(
+                  left: -13,
+                  child: SvgPicture.asset(
+                    "assets/svg/naira-coin.svg",
+                    height: 44,
+                  ),
+                ),
+                Positioned(
+                  child: SvgPicture.asset(
+                    "assets/svg/naira-coin.svg",
+                    height: 44,
+                  ),
+                )
+              ],
             ),
           ),
           const SizedBox(
             height: 5,
           ),
-          const Text('0.00')
+          const MyText(
+            '0.00',
+            size: 20,
+            weight: 500,
+          )
         ],
       ),
     );
