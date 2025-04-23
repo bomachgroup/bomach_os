@@ -50,14 +50,7 @@ class ClientsDatabasePage extends StatelessWidget {
                   color: AppColors.whiteColor,
                 ),
                 child: 'New Client',
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const NewClientDialog();
-                    },
-                  );
-                },
+                onTap: () {},
               ),
               kSizedBoxWidth,
               SizedBox(
@@ -171,7 +164,12 @@ class ClientsDatabasePage extends StatelessWidget {
           onTap: () {},
           GestureDetector(
             onTap: () {
-              // context.go(RouteConstants.employeeProfile);
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const NewClientDialog();
+                },
+              );
             },
             child: Row(
               children: [

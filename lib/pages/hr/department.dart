@@ -148,9 +148,10 @@ class DepartmentCard extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(40),
                         child: Image.asset(
-                          'assets/logo/bomach.png',
+                          'assets/image/man-demo.png',
                           height: 40,
                           width: 40,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       kSizedBoxWidth,

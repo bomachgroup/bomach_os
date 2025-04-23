@@ -10,7 +10,7 @@ class RouteConstants {
   static const String eachprojects = '/works/projects/eachprojects';
   static const String tasks = '/works/tasks';
   static const String worksite = '/works/worksite';
-  static const String clients = '/clients';
+  static const String clients = '/hr/clients';
   static const String login = '/login';
   static const String realEstate = '/service/real-estate';
   static const String leads = '/hr/leads';
