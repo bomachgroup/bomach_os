@@ -1,6 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/section/create_milestone.dart';
 import 'package:bms_front_end/components/section/project_files.dart';
 import 'package:bms_front_end/components/section/project_members.dart';
 import 'package:bms_front_end/components/section/project_milestone.dart';
@@ -85,10 +84,7 @@ class _EachProjectsState extends State<EachProjects> {
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return const AlertDialog(
-                                    contentPadding: EdgeInsets.all(0),
-                                    content: CreateMilestone(),
-                                  );
+                                  return const AddMileStoneDialog();
                                 },
                               );
                             }
