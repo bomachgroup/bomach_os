@@ -67,6 +67,12 @@ class MyDropdown extends StatelessWidget {
                               Border.all(color: AppColors.redColor, width: 1),
                         ),
                   child: DropdownMenu(
+                    trailingIcon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                    ),
+                    selectedTrailingIcon: const Icon(
+                      Icons.keyboard_arrow_up_rounded,
+                    ),
                     controller: controller,
                     onSelected: (value) {
                       controller?.text = value?.toString() ?? '';
