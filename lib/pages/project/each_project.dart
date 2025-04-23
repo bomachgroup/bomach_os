@@ -1,9 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/create_milestone.dart';
-import 'package:bms_front_end/components/section/project_associate.dart';
 import 'package:bms_front_end/components/section/project_files.dart';
-import 'package:bms_front_end/components/section/project_meetings.dart';
 import 'package:bms_front_end/components/section/project_members.dart';
 import 'package:bms_front_end/components/section/project_milestone.dart';
 import 'package:bms_front_end/components/section/project_overview.dart';
@@ -24,15 +22,13 @@ class EachProjects extends StatefulWidget {
 class _EachProjectsState extends State<EachProjects> {
   final List<Widget> _pages = [
     const ProjectOverview(),
-    const ProjectMembers(
-      members: [],
-    ),
+    const ProjectMembers(),
     const ProjectWorkSite(),
     const ProjectFiles(),
     const ProjectMilestone(),
     const ProjectTask(),
-    const ProjectAssociate(),
-    const ProjectMeetings()
+    // const ProjectAssociate(),
+    // const ProjectMeetings()
   ];
   int projectMemberState = 0;
   @override
@@ -53,7 +49,6 @@ class _EachProjectsState extends State<EachProjects> {
                     'Projects',
                     style: AppText.black_500_32,
                   ),
-                  const Spacer(),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -70,7 +65,7 @@ class _EachProjectsState extends State<EachProjects> {
                       const SizedBox(
                         width: 20,
                       ),
-                      if ([0, 1, 4].contains(projectMemberState))
+                      if ([0, 1, 2, 4, 5].contains(projectMemberState))
                         MyElevatedButton(
                           icon: const Icon(
                             Icons.add_circle_outline_rounded,
@@ -80,7 +75,11 @@ class _EachProjectsState extends State<EachProjects> {
                               ? 'Add New Employee'
                               : projectMemberState == 1
                                   ? 'Add Project member'
-                                  : 'Create milestone',
+                                  : projectMemberState == 2
+                                      ? "Add Worksite"
+                                      : projectMemberState == 4
+                                          ? 'Create milestone'
+                                          : "Add Task",
                           onTap: () {
                             if (projectMemberState == 4) {
                               showDialog(
@@ -205,27 +204,27 @@ class _EachProjectsState extends State<EachProjects> {
               const SizedBox(
                 width: 10,
               ),
-              InButton(
-                title: 'Associates',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 6;
-                  });
-                },
-                isSelected: projectMemberState == 6,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Meetings',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 7;
-                  });
-                },
-                isSelected: projectMemberState == 7,
-              ),
+              // InButton(
+              //   title: 'Associates',
+              //   onTap: () {
+              //     setState(() {
+              //       projectMemberState = 6;
+              //     });
+              //   },
+              //   isSelected: projectMemberState == 6,
+              // ),
+              // const SizedBox(
+              //   width: 10,
+              // ),
+              // InButton(
+              //   title: 'Meetings',
+              //   onTap: () {
+              //     setState(() {
+              //       projectMemberState = 7;
+              //     });
+              //   },
+              //   isSelected: projectMemberState == 7,
+              // ),
             ],
           ),
         ),
@@ -367,13 +366,15 @@ class InButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
         decoration: BoxDecoration(
-            border: isSelected
-                ? Border.all(color: AppColors.blueColor)
-                : Border.all(color: AppColors.borderColor, width: 0.6),
-            color: isSelected ? AppColors.blueColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(16)),
+          border: isSelected
+              ? Border.all(color: AppColors.blueColor, width: 0.6)
+              : Border.all(color: AppColors.borderColor, width: 0.6),
+          color: isSelected ? AppColors.blueColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Text(
           title,
           style: isSelected ? AppText.white_300_16 : AppText.black_300_16,

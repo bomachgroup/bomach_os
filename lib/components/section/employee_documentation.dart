@@ -89,9 +89,13 @@ class DocumentUpload extends StatelessWidget {
                   ),
                 ),
                 kSizedBoxSM,
-                const Text('Drag & Drop or choose file to upload'),
+                const Text(
+                  'Drag & Drop or choose file to upload',
+                  textAlign: TextAlign.center,
+                ),
                 const MyText(
                   'Supported formats : Jpeg, pdf',
+                  textAlign: TextAlign.center,
                   size: 11,
                   weight: 300,
                   color: AppColors.darkGrey2,
