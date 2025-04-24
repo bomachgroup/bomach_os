@@ -13,6 +13,7 @@ class RouteConstants {
   static const String login = '/login';
   static const String realEstate = '/service/real-estate';
   static const String serviceOrder = '/service/service-order';
+  static const String landSurvey = '/service/land-survey';
   static const String clients = '/hr/clients';
   static const String leads = '/hr/leads';
   static const String leaves = '/hr/leaves';

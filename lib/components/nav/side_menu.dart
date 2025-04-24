@@ -230,6 +230,10 @@ class _SideMenuState extends State<SideMenu> {
                     index: 10,
                     label: 'Real Estate',
                     onTap: () => context.go(RouteConstants.realEstate)),
+                _buildSubItem(
+                    index: 11,
+                    label: 'Land Survey',
+                    onTap: () => context.go(RouteConstants.landSurvey)),
               ]),
           _buildMenuItem(
               index: 7,

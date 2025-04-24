@@ -5,7 +5,6 @@ import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../components/button/icon_button.dart';
@@ -105,40 +104,26 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
         ),
 
         //body
-        SizedBox(
-          height: isLargeScreen(context)
-              ? 900
+        GridView.count(
+          padding: EdgeInsets.zero,
+          childAspectRatio: 0.825,
+          shrinkWrap: true,
+          crossAxisCount: isLargeScreen(context)
+              ? 3
               : isMediumScreen(context)
-                  ? 3000
-                  : 1350,
-          child: LayoutGrid(
-            gridFit: GridFit.expand,
-            columnSizes: isLargeScreen(context)
-                ? [1.fr, 1.fr, 1.fr]
-                : isMediumScreen(context)
-                    ? [1.fr, 1.fr]
-                    : [1.fr],
-            rowSizes: isLargeScreen(context)
-                ? [1.fr, 1.fr]
-                : isMediumScreen(context)
-                    ? [1.fr, 1.fr, 1.fr]
-                    : [
-                        1.fr,
-                        1.fr,
-                        1.fr,
-                        1.fr,
-                        1.fr,
-                        1.fr,
-                      ],
-            children: List.generate(
-                6,
-                (index) => const RealEstateCard(
-                      image: "assets/image/image.png",
-                      title: "Aso villa Estate",
-                      details:
-                          "If you're visiting this page, you're likely here because you're searching for a random sentence. Sometimes a random word just isn't enough, and that is where the random sentence generator comes into play. By inputting the desired number, you can make a list of as many random sentences as you want or need. Producing random sentences can be helpful in a number of different ways.",
-                      buttonText: "View estate Properties",
-                    )),
+                  ? 2
+                  : 1,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          children: List.generate(
+            6,
+            (index) => const RealEstateCard(
+              image: "assets/image/image.png",
+              title: "Aso villa Estate",
+              details:
+                  "If you're visiting this page, you're likely here because you're searching for a random sentence...",
+              buttonText: "View estate Properties",
+            ),
           ),
         )
       ],
