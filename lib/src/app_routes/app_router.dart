@@ -17,6 +17,7 @@ import 'package:bms_front_end/pages/project/each_project.dart';
 import 'package:bms_front_end/pages/project/projects.dart';
 import 'package:bms_front_end/pages/project/task.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
+import 'package:bms_front_end/pages/services/service_order.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.leaves: const LeavesPage(),
   RouteConstants.meetings: const Meetings(),
   RouteConstants.department: const DepartmentPage(),
+  RouteConstants.serviceOrder: const ServiceOrder(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

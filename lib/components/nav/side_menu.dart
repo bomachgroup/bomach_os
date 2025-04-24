@@ -225,6 +225,10 @@ class _SideMenuState extends State<SideMenu> {
               children: [
                 _buildSubItem(
                     index: 9,
+                    label: 'Serivce Order',
+                    onTap: () => context.go(RouteConstants.serviceOrder)),
+                _buildSubItem(
+                    index: 10,
                     label: 'Real Estate',
                     onTap: () => context.go(RouteConstants.realEstate)),
               ]),

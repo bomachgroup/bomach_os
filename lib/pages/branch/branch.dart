@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/invoice.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -354,8 +355,6 @@ class _BranchPageState extends State<BranchPage> {
             children: List.generate(
               3,
               (index) => Container(
-                padding: const EdgeInsets.symmetric(
-                    vertical: kDefaultSpace, horizontal: kDefaultSpace),
                 decoration: BoxDecoration(
                   border: index + 1 == 3
                       ? null
@@ -363,23 +362,7 @@ class _BranchPageState extends State<BranchPage> {
                           bottom: BorderSide(color: AppColors.grey1),
                         ),
                 ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.description, color: Colors.red),
-                    kSizedBoxWidthSM,
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Invoice #1273636'),
-                        Text('Chijiokeugo@nggs')
-                      ],
-                    ),
-                    Spacer(),
-                    Icon(Icons.download),
-                    kSizedBoxWidthSM,
-                    Icon(Icons.share)
-                  ],
-                ),
+                child: const InvoiceCard(),
               ),
             ),
           ),
