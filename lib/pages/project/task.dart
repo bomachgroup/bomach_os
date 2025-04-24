@@ -1,13 +1,27 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-class TaskPage extends StatelessWidget {
+class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
+
+  @override
+  State<TaskPage> createState() => TaskPageState();
+}
+
+class TaskPageState extends State<TaskPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +42,9 @@ class TaskPage extends StatelessWidget {
         const SizedBox(
           height: 17,
         ),
-        Row(
+        Wrap(
+          runSpacing: kDefaultSpace,
+          spacing: kDefaultSpace,
           children: [
             SizedBox(
               width: 217,
@@ -41,12 +57,9 @@ class TaskPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(
-              width: 16,
-            ),
             MyElevatedButton(
                 icon: const Icon(
-                  Icons.add,
+                  Icons.add_circle_outline_rounded,
                   color: AppColors.whiteColor,
                 ),
                 child: 'Add Task',
@@ -56,47 +69,49 @@ class TaskPage extends StatelessWidget {
                       builder: (context) {
                         return const AlertDialog(
                           contentPadding: EdgeInsets.all(0),
-                          content: addTask(),
+                          content: null,
                         );
                       });
                 })
           ],
         ),
-        const SizedBox(
-          height: 12,
-        ),
+        kSizedBox,
+        kSizedBoxSM,
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-              border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-              borderRadius: BorderRadius.circular(16)),
+            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Column(
             children: [
-              SingleChildScrollView(
+              Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                trackVisibility: true,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
                   scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                      // decoration: BoxDecoration(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: bodySpace(context),
+                    ),
+                    child: DataTable(
+                      dataRowMinHeight: 68,
+                      dataRowMaxHeight: 68,
+                      columnSpacing: 24,
+                      horizontalMargin: 12,
                       columns: _createColumns(),
-                      rows: _createRows(context))),
-              const SizedBox(
-                height: 4,
+                      rows: _createRows(context),
+                      showBottomBorder: true,
+                    ),
+                  ),
+                ),
               ),
-              const Divider(),
-              const SizedBox(
-                height: 8,
-              ),
-              const Row(
-                children: [
-                  Text('Showing'),
-                  Text('Showing 1 to 8 out of 60 records'),
-                ],
-              ),
-              const SizedBox(
-                height: 8,
-              ),
+              const MyPaginator(),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -104,27 +119,35 @@ class TaskPage extends StatelessWidget {
   List<DataColumn> _createColumns() {
     return [
       const DataColumn(
-          headingRowAlignment: MainAxisAlignment.start,
-          label: Text(
-            "Task code",
-          )),
+        headingRowAlignment: MainAxisAlignment.start,
+        label: Text(
+          "Task code",
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Task Name",
+        ),
+      ),
       const DataColumn(
           label: Text(
-        "Task Name",
-      )),
-      const DataColumn(label: Text("Assign to")),
-      const DataColumn(
-          label: Text(
-        "Start date",
+        "Assign to",
       )),
       const DataColumn(
-          label: Text(
-        "Due date",
-      )),
+        label: Text(
+          "Start date",
+        ),
+      ),
       const DataColumn(
-          label: Text(
-        "Status",
-      )),
+        label: Text(
+          "Due date",
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Status",
+        ),
+      ),
     ];
   }
 
@@ -132,258 +155,46 @@ class TaskPage extends StatelessWidget {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          SizedBox(width: 100, child: Text("#1234567")),
-        ),
-        const DataCell(
-          SizedBox(
-              width: 250, child: Text("Benji Express user login Interface")),
+          Text("#1234567"),
         ),
         DataCell(
-          SizedBox(
-            width: 70,
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                  color: AppColors.secondaryColor, shape: BoxShape.circle),
+          onTap: () {},
+          const MyText("Benji Express user login Interface",
+              size: 16, weight: 400),
+        ),
+        DataCell(
+          Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
             ),
+            width: 36,
+            height: 36,
+            child: Image.asset('assets/icons/profile-icon.png'),
           ),
         ),
         const DataCell(
-          SizedBox(width: 100, child: Text("12/10/2023")),
+          Text("11/02/2024"),
         ),
         const DataCell(
-          SizedBox(width: 100, child: Text("02/02/2025")),
+          Text("11/02/2024"),
         ),
-        const DataCell(
-          SizedBox(width: 100, child: Text("Undone")),
+        DataCell(
+          Row(
+            children: [
+              Container(
+                height: 10,
+                width: 10,
+                decoration: const ShapeDecoration(
+                  color: AppColors.blueColor,
+                  shape: OvalBorder(),
+                ),
+              ),
+              kSizedBoxWidthTiny,
+              const Text("Undone"),
+            ],
+          ),
         ),
       ]);
     });
-  }
-}
-
-class addTask extends StatelessWidget {
-  const addTask({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 700,
-      height: 700,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Add Task',
-                  style: AppText.black_500_24,
-                ),
-                GestureDetector(
-                    onTap: () {
-                      context.pop();
-                    },
-                    child: const Icon(Icons.cancel_outlined))
-              ],
-            ),
-          ),
-          const Divider(),
-          const SizedBox(
-            height: 32,
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 51.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          const MyTextFormField(
-                            hintText: '--',
-                            title: 'Task Name',
-                          ),
-                          const SizedBox(
-                            width: 24,
-                          ),
-                          MyDropdown(
-                              title: 'Task Categories*',
-                              items: const [],
-                              onChanged: (String? value) {},
-                              hintText: '--')
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        children: [
-                          MyDropdown(
-                              title: 'Project*',
-                              items: const [],
-                              onChanged: (String? value) {},
-                              hintText: '--'),
-                          const SizedBox(
-                            width: 24,
-                          ),
-                          const MyTextFormField(
-                            hintText: '--',
-                            title: 'Short Code',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        children: [
-                          MyDropdown(
-                              title: 'Assign to*',
-                              items: const [],
-                              onChanged: (String? value) {},
-                              hintText: '--'),
-                          const SizedBox(
-                            width: 24,
-                          ),
-                          const MyTextFormField(
-                            hintText: '--',
-                            title: 'Start date*',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        children: [
-                          const MyTextFormField(
-                            hintText: '--',
-                            title: 'Deadline(optional)*',
-                          ),
-                          const SizedBox(
-                            width: 24,
-                          ),
-                          MyDropdown(
-                              title: 'Taks status*',
-                              items: const [],
-                              onChanged: (String? value) {},
-                              hintText: '--')
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Row(
-                        children: [
-                          MyTextFormField(
-                            hintText: '--',
-                            title: 'Task summary/Note*',
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 51,
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 51.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Other Details',
-                        style: AppText.black_600_32,
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Row(
-                        children: [
-                          Text('Repeat'),
-                          Text('Time estimate '),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        children: [
-                          MyDropdown(
-                              items: const [],
-                              onChanged: (v) {},
-                              hintText: 'Repeat every*'),
-                          const SizedBox(
-                            width: 24,
-                          ),
-                          MyDropdown(
-                              items: const [],
-                              onChanged: (v) {},
-                              hintText: 'Time*'),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text('Upload File (optional)*'),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.blueColor),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Column(
-                          children: [
-                            Text('Drag & Drop or choose file to upload'),
-                            Text('Supported formats :doc, pdf')
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 51,
-          ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const Text('Cancel'),
-                const SizedBox(
-                  width: 16,
-                ),
-                Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: AppColors.blueColor),
-                    child: const Text(
-                      'Save',
-                      style: AppText.black_400_14,
-                    )),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
