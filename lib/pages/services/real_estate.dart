@@ -108,7 +108,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
         //body
         GridView.count(
           padding: EdgeInsets.zero,
-          childAspectRatio: 0.825,
+          childAspectRatio: 0.86,
           shrinkWrap: true,
           crossAxisCount: isLargeScreen(context)
               ? 3

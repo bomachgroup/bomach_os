@@ -4,6 +4,7 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/pages/services/widget/image_slider.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -166,240 +167,30 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 672,
-          child: ImageCarousel(),
+        kSizedBox,
+        SizedBox(
+          height: (isSmallScreen(context) ? 500 : 672) + 114,
+          child: const ImageCarousel(),
         ),
 
         kSizedBoxBG,
-        Wrap(
-          spacing: 20,
-          runSpacing: 20,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.grey4,
-                ),
-                borderRadius: BorderRadius.circular(24.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        !isLargeScreen(context)
+            ? Wrap(
+                runSpacing: 20,
+                spacing: 20,
                 children: [
-                  const Text(
-                    'Description',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Discover your own piece of paradise with the Seaside Serenity Villa. With an open floor plan, breathtaking ocean views from every room, and direct access to a pristine sandy beach, this property is the epitome of coastal living.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(
-                    height: 1,
-                    color: AppColors.black,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 10),
-                    alignment: Alignment.center,
-                    height: 105,
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Bedrooms
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SvgPicture.asset(
-                                      "assets/svg/bed.svg",
-                                      colorFilter: const ColorFilter.mode(
-                                        AppColors.black,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Bedrooms',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  '04',
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const VerticalDivider(
-                            color: AppColors.black,
-                            thickness: 1,
-                            width: 20,
-                          ),
-                          // Bathrooms
-                          Center(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SvgPicture.asset(
-                                      "assets/svg/bath-tub.svg",
-                                      colorFilter: const ColorFilter.mode(
-                                        AppColors.black,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Bathrooms',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  '03',
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const VerticalDivider(
-                            color: AppColors.black,
-                            thickness: 1,
-                            width: 20,
-                          ),
-                          // Area
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SvgPicture.asset(
-                                      "assets/svg/area.svg",
-                                      colorFilter: const ColorFilter.mode(
-                                        AppColors.black,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Area',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                const Column(
-                                  children: [
-                                    Text(
-                                      '1,500',
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Square Feet',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-                  // Property Details Row
+                  description(),
+                  keyFetures(),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 20,
+                children: [
+                  description(),
+                  keyFetures(),
                 ],
               ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Features and Amenities
-                  const Text(
-                    'Key Features and Amenities',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15),
-                    child: Column(
-                      children: [
-                        // Feature Items
-                        _buildFeatureItem(
-                          'Expansive oceanfront terrace for outdoor entertaining',
-                        ),
-                        _buildFeatureItem(
-                          'Gourmet kitchen with top-of-the-line appliances',
-                        ),
-                        _buildFeatureItem(
-                          'Private beach access for morning strolls and sunset views',
-                        ),
-                        _buildFeatureItem(
-                          'Master suite with a spa-inspired bathroom and ocean-facing balcony',
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
 
         kSizedBoxBG,
 
@@ -495,16 +286,16 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
               const Text(
                 'Additional Fees',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.w500,
                   color: AppColors.black,
                 ),
               ),
-              const SizedBox(height: 16),
+              kSizedBoxBG,
 
               const Divider(
                 height: 1,
-                color: AppColors.black,
+                color: AppColors.grey4,
               ),
               Container(
                 padding: const EdgeInsets.only(top: 10),
@@ -528,15 +319,15 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                           const Text(
                             'N58,000,000',
                             style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
                     const VerticalDivider(
-                      color: AppColors.black,
+                      color: AppColors.grey4,
                       thickness: 1,
                       width: 20,
                     ),
@@ -555,8 +346,8 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                           const Text(
                             '15%',
                             style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -568,7 +359,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
               kSizedBox,
               const Divider(
                 height: 1,
-                color: AppColors.black,
+                color: AppColors.grey4,
               ),
               Container(
                 padding: const EdgeInsets.only(top: 10),
@@ -592,15 +383,15 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                           const Text(
                             'N25,000',
                             style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
                     const VerticalDivider(
-                      color: AppColors.black,
+                      color: AppColors.grey4,
                       thickness: 1,
                       width: 20,
                     ),
@@ -619,8 +410,8 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                           const Text(
                             'N50,000',
                             style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -664,6 +455,227 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget description() {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(24.0),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: AppColors.grey4,
+          ),
+          borderRadius: BorderRadius.circular(24.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Description',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+                color: AppColors.black,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Discover your own piece of paradise with the Seaside Serenity Villa. With an open floor plan, breathtaking ocean views from every room, and direct access to a pristine sandy beach, this property is the epitome of coastal living.',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Divider(
+              height: 1,
+              color: AppColors.grey4,
+            ),
+            Container(
+              padding: const EdgeInsets.only(top: 10),
+              alignment: Alignment.center,
+              height: 130,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Bedrooms
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SvgPicture.asset(
+                                "assets/svg/bed.svg",
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.grey1,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Bedrooms',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            '04',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const VerticalDivider(
+                      color: AppColors.grey4,
+                      thickness: 1,
+                      width: 20,
+                    ),
+                    // Bathrooms
+                    Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SvgPicture.asset(
+                                "assets/svg/bath-tub.svg",
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.grey1,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Bathrooms',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            '03',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const VerticalDivider(
+                      color: AppColors.grey4,
+                      thickness: 1,
+                      width: 20,
+                    ),
+                    // Area
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SvgPicture.asset(
+                                "assets/svg/area.svg",
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.grey1,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Area',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Expanded(
+                            child: Text(
+                              '1,500 Square Feet',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+            // Property Details Row
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget keyFetures() {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Features and Amenities
+          const Text(
+            'Key Features and Amenities',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w500,
+              color: AppColors.black,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          Padding(
+            padding: const EdgeInsets.only(left: 15),
+            child: Column(
+              children: [
+                // Feature Items
+                _buildFeatureItem(
+                  'Expansive oceanfront terrace for outdoor entertaining',
+                ),
+                _buildFeatureItem(
+                  'Gourmet kitchen with top-of-the-line appliances',
+                ),
+                _buildFeatureItem(
+                  'Private beach access for morning strolls and sunset views',
+                ),
+                _buildFeatureItem(
+                  'Master suite with a spa-inspired bathroom and ocean-facing balcony',
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +16,21 @@ class ImageCarousel extends StatefulWidget {
 class ImageCarouselState extends State<ImageCarousel> {
   final PageController _controller = PageController();
   int _currentPage = 0;
-
   final List<List<String>> imagePairs = [
     ['assets/image/man-demo.png', 'assets/image/man-demo.png'],
     ['assets/image/man-demo.png', 'assets/image/man-demo.png'],
-    // Add more pairs if needed
+    ['assets/image/man-demo.png', 'assets/image/man-demo.png'],
+    ['assets/image/man-demo.png', 'assets/image/man-demo.png'],
+    ['assets/image/man-demo.png', 'assets/image/man-demo.png'],
   ];
+  late List<String> flatList;
+
+  @override
+  void initState() {
+    flatList = imagePairs.expand((i) => i).toList();
+
+    super.initState();
+  }
 
   void _goToPage(int index) {
     if (index >= 0 && index < imagePairs.length) {
@@ -32,6 +43,51 @@ class ImageCarouselState extends State<ImageCarousel> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Container(
+          height: 114,
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.black,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            separatorBuilder: (context, index) => kSizedBoxWidth,
+            itemCount: flatList.length,
+            itemBuilder: (context, index) {
+              int pageIndex = index ~/ 2;
+              log("pageIndex $pageIndex");
+
+              return InkWell(
+                onTap: () {
+                  setState(() {
+                    _controller.animateToPage(
+                      index ~/ 2,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                    log("_currentPage $_currentPage");
+                    _currentPage = index ~/ 2;
+                  });
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    flatList[index],
+                    fit: BoxFit.cover,
+                    width: 102,
+                    height: 68,
+                    opacity: (_currentPage == pageIndex)
+                        ? const AlwaysStoppedAnimation(1)
+                        : const AlwaysStoppedAnimation(0.5),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
         Expanded(
           child: PageView.builder(
             controller: _controller,
@@ -43,23 +99,26 @@ class ImageCarouselState extends State<ImageCarousel> {
             itemCount: imagePairs.length,
             itemBuilder: (context, index) {
               return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 40),
+                padding: const EdgeInsets.symmetric(vertical: 40),
                 child: Row(
                   children: [
                     Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: Image.asset(imagePairs[index][0],
-                            fit: BoxFit.cover),
+                        child: Image.asset(
+                          imagePairs[index][0],
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: Image.asset(imagePairs[index][1],
-                            fit: BoxFit.cover),
+                        child: Image.asset(
+                          imagePairs[index][1],
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ],
