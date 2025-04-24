@@ -2,10 +2,12 @@ import 'package:bms_front_end/components/button/sort_filter_bar2..dart';
 import 'package:bms_front_end/components/cards/real_estate_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../components/button/icon_button.dart';
 import '../../src/constants/colors.dart';
@@ -117,7 +119,7 @@ class _LandSurveyScreenState extends State<LandSurveyScreen> {
           mainAxisSpacing: 16,
           children: List.generate(
             6,
-            (index) => const RealEstateCard(
+            (index) => RealEstateCard(
               image: "assets/image/image.png",
               title: "Aso villa Estate",
               details:
@@ -127,6 +129,9 @@ class _LandSurveyScreenState extends State<LandSurveyScreen> {
               bathRoom: 5,
               sqm: 500,
               price: 100,
+              onTap: () {
+                context.go(RouteConstants.landSurveyDetail);
+              },
             ),
           ),
         )

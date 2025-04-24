@@ -23,4 +23,5 @@ class RouteConstants {
   static const String realEstateDetail = '/service/real-estate/detail';
   static const String serviceOrder = '/service/service-order';
   static const String landSurvey = '/service/land-survey';
+  static const String landSurveyDetail = '/service/land-survey/detail';
 }
