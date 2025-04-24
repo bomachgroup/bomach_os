@@ -10,6 +10,7 @@ import '../../src/constants/colors.dart';
 class RealEstateCard extends StatelessWidget {
   final String image, title, details, buttonText;
   final num? price, bedRoom, bathRoom, sqm;
+  final dynamic Function()? onTap;
 
   const RealEstateCard({
     super.key,
@@ -17,6 +18,7 @@ class RealEstateCard extends StatelessWidget {
     required this.title,
     required this.details,
     required this.buttonText,
+    this.onTap,
     this.price,
     this.bedRoom,
     this.bathRoom,
@@ -40,11 +42,14 @@ class RealEstateCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            image,
-            width: 400,
-            height: 200,
-            fit: BoxFit.fill,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(13),
+            child: Image.asset(
+              image,
+              width: 400,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
           ),
           const SizedBox(
             height: 10,
@@ -164,7 +169,7 @@ class RealEstateCard extends StatelessWidget {
               ],
               Expanded(
                 child: MyElevatedButton(
-                  onTap: () {},
+                  onTap: onTap,
                   child: buttonText,
                 ),
               ),

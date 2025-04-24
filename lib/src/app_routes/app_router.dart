@@ -18,6 +18,7 @@ import 'package:bms_front_end/pages/project/projects.dart';
 import 'package:bms_front_end/pages/project/task.dart';
 import 'package:bms_front_end/pages/services/land_survey.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
+import 'package:bms_front_end/pages/services/real_estate_detail.dart';
 import 'package:bms_front_end/pages/services/service_order.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -33,7 +34,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.employeeProfile: const EmployeeProfile(),
   RouteConstants.clients: const ClientsDatabasePage(),
   RouteConstants.projects: const ProjectsPage(),
-  RouteConstants.eachprojects: const EachProjects(),
+  RouteConstants.eachProjects: const EachProjects(),
   RouteConstants.worksite: const EmployeeProfile(),
   RouteConstants.tasks: const TaskPage(),
   RouteConstants.realEstate: const RealEstateScreen(),
@@ -43,6 +44,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.department: const DepartmentPage(),
   RouteConstants.serviceOrder: const ServiceOrder(),
   RouteConstants.landSurvey: const LandSurveyScreen(),
+  RouteConstants.realEstateDetail: const RealEstateDetailScreen(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

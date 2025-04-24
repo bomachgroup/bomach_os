@@ -183,7 +183,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
         ),
         DataCell(
           onTap: () {
-            context.go(RouteConstants.eachprojects);
+            context.go(RouteConstants.eachProjects);
           },
           const SizedBox(
               width: 152, child: Text("Benji Express mobile app project")),

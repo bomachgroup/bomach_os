@@ -2,10 +2,12 @@ import 'package:bms_front_end/components/button/sort_filter_bar2..dart';
 import 'package:bms_front_end/components/cards/real_estate_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../components/button/icon_button.dart';
 import '../../src/constants/colors.dart';
@@ -117,12 +119,15 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
           mainAxisSpacing: 16,
           children: List.generate(
             6,
-            (index) => const RealEstateCard(
-              image: "assets/image/image.png",
+            (index) => RealEstateCard(
+              image: "assets/image/man-demo.png",
               title: "Aso villa Estate",
               details:
                   "If you're visiting this page, you're likely here because you're searching for a random sentence...",
               buttonText: "View estate Properties",
+              onTap: () {
+                context.go(RouteConstants.realEstateDetail);
+              },
             ),
           ),
         )
