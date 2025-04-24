@@ -63,8 +63,7 @@ class MyDropdown extends StatelessWidget {
                       ? null
                       : BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          border:
-                              Border.all(color: AppColors.redColor, width: 1),
+                          border: Border.all(color: AppColors.red, width: 1),
                         ),
                   child: DropdownMenu(
                     trailingIcon: const Icon(
@@ -108,12 +107,12 @@ class MyDropdown extends StatelessWidget {
                     ),
                     inputDecorationTheme: InputDecorationTheme(
                       errorStyle: const TextStyle(
-                        color: AppColors.redColor,
+                        color: AppColors.red,
                       ),
                       filled: true,
-                      fillColor: fillColor ?? AppColors.whiteColor,
-                      focusColor: fillColor ?? AppColors.whiteColor,
-                      hoverColor: fillColor ?? AppColors.whiteColor,
+                      fillColor: fillColor ?? AppColors.white,
+                      focusColor: fillColor ?? AppColors.white,
+                      hoverColor: fillColor ?? AppColors.white,
                       contentPadding: height != null
                           ? EdgeInsets.symmetric(
                               vertical: (height! - 40) / 2, horizontal: 16)
@@ -121,33 +120,33 @@ class MyDropdown extends StatelessWidget {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: const BorderSide(
-                          color: AppColors.cardColor,
+                          color: AppColors.card,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: const BorderSide(
-                          color: AppColors.cardColor,
+                          color: AppColors.card,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: const BorderSide(
-                          color: AppColors.cardColor,
+                          color: AppColors.card,
                           width: 2,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: const BorderSide(
-                          color: AppColors.redColor,
+                          color: AppColors.red,
                           width: 2.0,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: const BorderSide(
-                          color: AppColors.redColor,
+                          color: AppColors.red,
                           width: 2.0,
                         ),
                       ),
@@ -169,7 +168,7 @@ class MyDropdown extends StatelessWidget {
                               backgroundColor:
                                   WidgetStateProperty.resolveWith((states) {
                                 if (states.contains(WidgetState.hovered)) {
-                                  return AppColors.blueColor.withOpacity(0.05);
+                                  return AppColors.blue.withOpacity(0.05);
                                 }
                                 return Colors.transparent;
                               }),
@@ -204,7 +203,7 @@ class MyDropdown extends StatelessWidget {
                     child: Text(
                       state.errorText!,
                       style: const TextStyle(
-                        color: AppColors.redColor,
+                        color: AppColors.red,
                         fontSize: 12,
                       ),
                     ),

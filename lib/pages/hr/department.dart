@@ -37,7 +37,7 @@ class DepartmentPage extends StatelessWidget {
             MyElevatedButton(
               icon: const Icon(
                 Icons.add_circle_outline_rounded,
-                color: AppColors.whiteColor,
+                color: AppColors.white,
               ),
               child: 'New Department',
               onTap: () {},
@@ -91,7 +91,7 @@ class DepartmentCard extends StatelessWidget {
           horizontal: kDefaultSpace, vertical: kDefaultSpace),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: AppColors.whiteColor,
+        color: AppColors.white,
       ),
       child: Column(
         children: [
@@ -107,7 +107,7 @@ class DepartmentCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: AppColors.blackColor,
+                        color: AppColors.black,
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
                       ),
@@ -129,7 +129,7 @@ class DepartmentCard extends StatelessWidget {
               Text(
                 'View All',
                 style: TextStyle(
-                  color: AppColors.blueColor,
+                  color: AppColors.blue,
                   fontWeight: FontWeight.w400,
                   fontSize: 16,
                 ),
@@ -164,7 +164,7 @@ class DepartmentCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: AppColors.blackColor,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w400,
                                 fontSize: 14,
                               ),

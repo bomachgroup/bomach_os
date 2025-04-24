@@ -55,7 +55,7 @@ class _LeadsPageState extends State<LeadsPage> {
             MyElevatedButton(
               icon: const Icon(
                 Icons.add_circle_outline_rounded,
-                color: AppColors.whiteColor,
+                color: AppColors.white,
               ),
               child: 'New Leads',
               onTap: () {},

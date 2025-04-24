@@ -43,7 +43,7 @@ class LoginScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                      color: AppColors.whiteColor,
+                      color: AppColors.white,
                       borderRadius: BorderRadius.circular(20)),
                   height: 155,
                   width: 175,
@@ -72,7 +72,7 @@ class LoginScreen extends StatelessWidget {
                   child: MyTextFormField(
                     title: "User ID",
                     hintText: "Enter User ID",
-                    textColor: AppColors.whiteColor,
+                    textColor: AppColors.white,
                     borderRadius: BorderRadius.circular(30),
                     spaceBettwenText: 10,
                   ),
@@ -83,7 +83,7 @@ class LoginScreen extends StatelessWidget {
                   child: MyTextFormField(
                     title: "PIN",
                     hintText: "Enter PIN/password",
-                    textColor: AppColors.whiteColor,
+                    textColor: AppColors.white,
                     borderRadius: BorderRadius.circular(30),
                     spaceBettwenText: 10,
                   ),
@@ -94,8 +94,8 @@ class LoginScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       MyCheckbox(
-                        checkColor: AppColors.blueColor,
-                        backgroundColor: AppColors.whiteColor,
+                        checkColor: AppColors.blue,
+                        backgroundColor: AppColors.white,
                         isChecked: true,
                         onChanged: (val) {},
                       ),

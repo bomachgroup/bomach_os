@@ -58,7 +58,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
           padding: const EdgeInsets.all(26),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(width: 0.6, color: AppColors.borderColor)),
+              border: Border.all(width: 0.6, color: AppColors.border)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -127,8 +127,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.blackColor,
-                    borderColor: AppColors.borderColor,
+                    textColor: AppColors.black,
                     bgColor: AppColors.greyBg,
                     child: 'Cancel',
                     onTap: () {},

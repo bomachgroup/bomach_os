@@ -66,7 +66,7 @@ class DocumentUpload extends StatelessWidget {
         Text(title),
         kSizedBoxSM,
         DottedBorder(
-          color: AppColors.blueColor,
+          color: AppColors.blue,
           borderType: BorderType.RRect,
           radius: const Radius.circular(12),
           child: Container(
@@ -80,7 +80,7 @@ class DocumentUpload extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                      color: AppColors.blueColor,
+                      color: AppColors.blue,
                       borderRadius: BorderRadius.circular(10)),
                   width: 40,
                   height: 40,

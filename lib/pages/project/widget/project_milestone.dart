@@ -164,7 +164,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -352,7 +352,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                     icon: SvgPicture.asset(
                       "assets/svg/check.svg",
                       colorFilter: const ColorFilter.mode(
-                          AppColors.whiteColor, BlendMode.srcIn),
+                          AppColors.white, BlendMode.srcIn),
                     ),
                     child: 'Save',
                     onTap: () {},
@@ -373,7 +373,7 @@ class MilestoneDetailDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -473,7 +473,7 @@ class MilestoneDetailDialog extends StatelessWidget {
                     icon: SvgPicture.asset(
                       "assets/svg/edit-pencil.svg",
                       colorFilter: const ColorFilter.mode(
-                          AppColors.whiteColor, BlendMode.srcIn),
+                          AppColors.white, BlendMode.srcIn),
                     ),
                     child: 'Edit',
                     onTap: () {},

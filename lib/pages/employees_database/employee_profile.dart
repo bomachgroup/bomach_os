@@ -52,7 +52,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(width: 0.6, color: AppColors.borderColor)),
+              border: Border.all(width: 0.6, color: AppColors.border)),
           child: Row(
             children: [
               Expanded(
@@ -66,7 +66,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                              color: AppColors.borderColor,
+                              color: AppColors.border,
                               borderRadius: BorderRadius.circular(16)),
                           width: 100,
                           height: 100,
@@ -86,7 +86,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                               'Darlene Robertson',
                               size: 24,
                               weight: 600,
-                              color: AppColors.blackColor,
+                              color: AppColors.black,
                             ),
                             const SizedBox(
                               height: 8,
@@ -129,7 +129,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                     MyElevatedButton(
                       icon: const Icon(
                         Icons.edit,
-                        color: AppColors.whiteColor,
+                        color: AppColors.white,
                       ),
                       child: 'Edit Profile',
                       onTap: () {},
@@ -154,14 +154,14 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
               width: isSmallScreen(context) ? 50 : 242,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.borderColor),
+                border: Border.all(color: AppColors.border),
               ),
               child: Column(
                 children: [
                   Container(
                     decoration: BoxDecoration(
                         color: employeeDetailSelectionState == 0
-                            ? AppColors.blueColor
+                            ? AppColors.blue
                             : Colors.transparent,
                         borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(20),
@@ -190,8 +190,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                             : "assets/svg/person.svg",
                         colorFilter: ColorFilter.mode(
                             employeeDetailSelectionState == 0
-                                ? AppColors.whiteColor
-                                : AppColors.blackColor,
+                                ? AppColors.white
+                                : AppColors.black,
                             BlendMode.srcIn),
                       ),
                     ),
@@ -199,7 +199,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   Container(
                     decoration: BoxDecoration(
                         color: employeeDetailSelectionState == 1
-                            ? AppColors.blueColor
+                            ? AppColors.blue
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(10)),
                     child: ListTile(
@@ -224,8 +224,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         "assets/svg/todo.svg",
                         colorFilter: ColorFilter.mode(
                             employeeDetailSelectionState == 1
-                                ? AppColors.whiteColor
-                                : AppColors.blackColor,
+                                ? AppColors.white
+                                : AppColors.black,
                             BlendMode.srcIn),
                       ),
                     ),
@@ -233,7 +233,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   Container(
                     decoration: BoxDecoration(
                         color: employeeDetailSelectionState == 2
-                            ? AppColors.blueColor
+                            ? AppColors.blue
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(10)),
                     child: ListTile(
@@ -258,8 +258,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         "assets/svg/todo2.svg",
                         colorFilter: ColorFilter.mode(
                             employeeDetailSelectionState == 2
-                                ? AppColors.whiteColor
-                                : AppColors.blackColor,
+                                ? AppColors.white
+                                : AppColors.black,
                             BlendMode.srcIn),
                       ),
                     ),
@@ -267,7 +267,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   Container(
                     decoration: BoxDecoration(
                         color: employeeDetailSelectionState == 3
-                            ? AppColors.blueColor
+                            ? AppColors.blue
                             : Colors.transparent,
                         borderRadius: const BorderRadius.only(
                             bottomLeft: Radius.circular(20),
@@ -294,8 +294,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         "assets/svg/todo.svg",
                         colorFilter: ColorFilter.mode(
                             employeeDetailSelectionState == 3
-                                ? AppColors.whiteColor
-                                : AppColors.blackColor,
+                                ? AppColors.white
+                                : AppColors.black,
                             BlendMode.srcIn),
                       ),
                     ),
@@ -483,7 +483,7 @@ class DocumentHolder extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          border: Border.all(width: 0.6, color: AppColors.borderColor),
+          border: Border.all(width: 0.6, color: AppColors.border),
           borderRadius: BorderRadius.circular(14)),
       // width: 360,
       height: 56,

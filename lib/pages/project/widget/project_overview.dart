@@ -27,8 +27,7 @@ class ProjectOverview extends StatelessWidget {
                     width: isLargeScreen(context) ? null : double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      border:
-                          Border.all(width: 1, color: AppColors.borderColor),
+                      border: Border.all(width: 1, color: AppColors.border),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Row(
@@ -123,8 +122,7 @@ class ProjectOverview extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 18),
                     decoration: BoxDecoration(
-                        border:
-                            Border.all(width: 1, color: AppColors.borderColor),
+                        border: Border.all(width: 1, color: AppColors.border),
                         borderRadius: BorderRadius.circular(24)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,7 +246,7 @@ class ProjectExpenceTrack extends StatelessWidget {
       width: 283,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
-          border: Border.all(width: 1, color: AppColors.borderColor),
+          border: Border.all(width: 1, color: AppColors.border),
           borderRadius: BorderRadius.circular(21)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

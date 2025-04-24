@@ -35,7 +35,7 @@ class _ProgressStatusState extends State<ProgressStatus> {
                 child: Container(
                   height: 14,
                   decoration: const BoxDecoration(
-                    color: AppColors.blueColor,
+                    color: AppColors.blue,
                     borderRadius: BorderRadius.horizontal(
                       left: Radius.circular(8),
                     ),

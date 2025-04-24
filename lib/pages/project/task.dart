@@ -60,7 +60,7 @@ class TaskPageState extends State<TaskPage> {
             MyElevatedButton(
                 icon: const Icon(
                   Icons.add_circle_outline_rounded,
-                  color: AppColors.whiteColor,
+                  color: AppColors.white,
                 ),
                 child: 'Add Task',
                 onTap: () {
@@ -185,7 +185,7 @@ class TaskPageState extends State<TaskPage> {
                 height: 10,
                 width: 10,
                 decoration: const ShapeDecoration(
-                  color: AppColors.blueColor,
+                  color: AppColors.blue,
                   shape: OvalBorder(),
                 ),
               ),

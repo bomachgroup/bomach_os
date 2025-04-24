@@ -22,10 +22,10 @@ class MyCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color effectiveBackgroundColor = isChecked
-        ? (backgroundColor ?? AppColors.blueColor)
-        : backgroundNotCheckedColor ?? AppColors.whiteColor;
+        ? (backgroundColor ?? AppColors.blue)
+        : backgroundNotCheckedColor ?? AppColors.white;
     final Color effectiveBorderColor = isChecked
-        ? (backgroundColor ?? AppColors.blueColor)
+        ? (backgroundColor ?? AppColors.blue)
         : borderNotCheckedColor ?? Colors.grey.shade300;
 
     return GestureDetector(

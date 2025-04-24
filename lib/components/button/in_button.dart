@@ -22,9 +22,9 @@ class InButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
         decoration: BoxDecoration(
           border: isSelected
-              ? Border.all(color: AppColors.blueColor, width: 0.6)
+              ? Border.all(color: AppColors.blue, width: 0.6)
               : Border.all(color: AppColors.darkGrey2, width: 0.6),
-          color: isSelected ? AppColors.blueColor : AppColors.transparent,
+          color: isSelected ? AppColors.blue : AppColors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(

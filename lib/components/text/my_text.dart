@@ -14,7 +14,7 @@ class MyText extends StatelessWidget {
     super.key,
     required this.size,
     required this.weight,
-    this.color = AppColors.blackColor,
+    this.color = AppColors.black,
     this.fontFamily,
     this.maxLines,
     this.textAlign,

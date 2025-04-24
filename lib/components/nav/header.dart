@@ -15,7 +15,7 @@ class TopNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 23),
-      color: AppColors.whiteColor,
+      color: AppColors.white,
       height: 70,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

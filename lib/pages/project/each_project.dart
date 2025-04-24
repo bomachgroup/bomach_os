@@ -69,7 +69,7 @@ class _EachProjectsState extends State<EachProjects> {
                         MyElevatedButton(
                           icon: const Icon(
                             Icons.add_circle_outline_rounded,
-                            color: AppColors.whiteColor,
+                            color: AppColors.white,
                           ),
                           child: projectMemberState == 0
                               ? 'Add New Employee'
@@ -332,7 +332,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                   Container(
 //                     padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 16),
 //                     decoration: BoxDecoration(
-//                       color: AppColors.blueColor,
+//                       color: AppColors.blue,
 //                       borderRadius: BorderRadius.circular(14)
 //                     ),
 //                     child: const Text('Save',style: AppText.white_400_16,)),

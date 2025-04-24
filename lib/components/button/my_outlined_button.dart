@@ -28,9 +28,9 @@ class MyOutlinedButton extends StatelessWidget {
     this.isLoading = false,
     this.disable = false,
     this.upper = false,
-    this.textColor = AppColors.blueColor,
-    this.bgColor = AppColors.whiteColor,
-    this.borderColor = AppColors.blueColor,
+    this.textColor = AppColors.blue,
+    this.bgColor = AppColors.white,
+    this.borderColor = AppColors.blue,
     this.width,
     this.height,
     this.borderCurve,
@@ -56,7 +56,7 @@ class MyOutlinedButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderCurve ?? 16),
         ),
-        shadowColor: AppColors.blackColor.withOpacity(0.4),
+        shadowColor: AppColors.black.withOpacity(0.4),
 
         minimumSize: Size(0, height ?? 44), // Allows flexible width
       ),
@@ -65,7 +65,7 @@ class MyOutlinedButton extends StatelessWidget {
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
-                  strokeWidth: 2, color: AppColors.blueColor),
+                  strokeWidth: 2, color: AppColors.blue),
             )
           : Row(
               mainAxisSize:

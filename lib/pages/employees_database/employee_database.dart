@@ -63,7 +63,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
                       MyElevatedButton(
                         icon: const Icon(
                           Icons.add_circle_outline_rounded,
-                          color: AppColors.whiteColor,
+                          color: AppColors.white,
                         ),
                         child: 'Add New Employee',
                         onTap: () {
@@ -74,9 +74,9 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
                       MyOutlinedButton(
                         icon: const Icon(
                           Icons.tune,
-                          color: AppColors.blackColor,
+                          color: AppColors.black,
                         ),
-                        textColor: AppColors.blackColor,
+                        textColor: AppColors.black,
                         borderColor: null,
                         child: 'Filter',
                         onTap: () {

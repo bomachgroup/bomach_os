@@ -58,7 +58,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
             MyElevatedButton(
               icon: const Icon(
                 Icons.add_circle_outline_rounded,
-                color: AppColors.whiteColor,
+                color: AppColors.white,
               ),
               child: 'New Client',
               onTap: () {},
@@ -273,7 +273,7 @@ class NewClientDialogState extends State<NewClientDialog> {
             Container(
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                color: AppColors.whiteColor,
+                color: AppColors.white,
               ),
               padding: const EdgeInsets.all(kDefaultSpaceBG),
               child: Row(
@@ -502,7 +502,7 @@ class StatsCard extends StatelessWidget {
       width: !isLargeScreen(context) ? double.infinity : 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        color: AppColors.whiteColor,
+        color: AppColors.white,
         border: Border.all(
           color: AppColors.grey4,
           width: 0.6,
@@ -562,7 +562,7 @@ class ProfileInfoCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        color: AppColors.whiteColor,
+        color: AppColors.white,
         border: Border.all(
           color: AppColors.grey4,
           width: 0.6,
@@ -622,7 +622,7 @@ class ProjectsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        color: AppColors.whiteColor,
+        color: AppColors.white,
         border: Border.all(
           color: AppColors.grey4,
           width: 0.6,
@@ -676,7 +676,7 @@ class InvoiceContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -860,7 +860,7 @@ class InvoiceContent extends StatelessWidget {
                           'INFO:',
                           style: TextStyle(
                             fontSize: 14,
-                            color: AppColors.blackColor,
+                            color: AppColors.black,
                           ),
                         ),
                         SizedBox(height: 8),
@@ -1177,7 +1177,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -1267,7 +1267,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     icon: SvgPicture.asset(
                       "assets/svg/note.svg",
                       colorFilter: const ColorFilter.mode(
-                          AppColors.whiteColor, BlendMode.srcIn),
+                          AppColors.white, BlendMode.srcIn),
                     ),
                     child: 'Generate',
                     onTap: () {},

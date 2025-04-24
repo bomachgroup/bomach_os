@@ -128,7 +128,7 @@ class _ProjectTaskState extends State<ProjectTask> {
                 height: 10,
                 width: 10,
                 decoration: const ShapeDecoration(
-                  color: AppColors.blueColor,
+                  color: AppColors.blue,
                   shape: OvalBorder(),
                 ),
               ),

@@ -39,7 +39,7 @@ class MyPaginatorState extends State<MyPaginator> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: DropdownButton<int>(
-                  focusColor: AppColors.backgroundColor,
+                  focusColor: AppColors.background,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   value: rowsPerPage,
                   underline: const SizedBox(),
@@ -90,12 +90,12 @@ class MyPaginatorState extends State<MyPaginator> {
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: currentPage == i
-                              ? AppColors.blueColor
-                              : AppColors.whiteColor,
+                              ? AppColors.blue
+                              : AppColors.white,
                         ),
                         borderRadius:
                             BorderRadius.circular(currentPage == i ? 10 : 35),
-                        color: currentPage == i ? null : AppColors.whiteColor,
+                        color: currentPage == i ? null : AppColors.white,
                       ),
                       child: MyText('$i',
                           size: 14, weight: currentPage == i ? 700 : 400),

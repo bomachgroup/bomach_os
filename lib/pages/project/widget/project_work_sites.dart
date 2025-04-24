@@ -11,7 +11,7 @@ class ProjectWorkSite extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(28),
       ),
       width: 319,

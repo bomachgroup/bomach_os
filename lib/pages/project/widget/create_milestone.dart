@@ -15,8 +15,7 @@ class CreateMilestone extends StatelessWidget {
     return SingleChildScrollView(
       child: Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            color: AppColors.whiteColor),
+            borderRadius: BorderRadius.circular(24), color: AppColors.white),
         width: 800,
         height: 690,
         child: Column(
@@ -90,8 +89,8 @@ class CreateMilestone extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                            color: AppColors.borderColor, width: 0.8)),
+                        border:
+                            Border.all(color: AppColors.border, width: 0.8)),
                     child: const TextField(
                       maxLines: 10,
                       decoration: InputDecoration(
@@ -135,7 +134,7 @@ class CreateMilestone extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 16),
                       decoration: BoxDecoration(
-                          color: AppColors.blueColor,
+                          color: AppColors.blue,
                           borderRadius: BorderRadius.circular(14)),
                       child: const Text(
                         'Save',

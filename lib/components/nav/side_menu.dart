@@ -49,8 +49,7 @@ class _SideMenuState extends State<SideMenu> {
     final icon = SvgPicture.asset(
       iconPath,
       colorFilter: ColorFilter.mode(
-          isSelected ? AppColors.whiteColor : AppColors.blackColor,
-          BlendMode.srcIn),
+          isSelected ? AppColors.white : AppColors.black, BlendMode.srcIn),
     );
 
     final title = Text(
@@ -60,7 +59,7 @@ class _SideMenuState extends State<SideMenu> {
 
     if (!isExpandable) {
       return NonExpandableSideBarItem(
-        titleColor: isSelected ? AppColors.blueColor : Colors.transparent,
+        titleColor: isSelected ? AppColors.blue : Colors.transparent,
         icon: icon,
         title: title,
         onTap: () {
@@ -79,7 +78,7 @@ class _SideMenuState extends State<SideMenu> {
 
     return ExpandableSideBarItem(
       expandedTileController: ExpandedTileController(isExpanded: isSelected),
-      titleColor: isSelected ? AppColors.blueColor : Colors.transparent,
+      titleColor: isSelected ? AppColors.blue : Colors.transparent,
       icon: icon,
       title: title,
       onTap: () {
@@ -124,7 +123,7 @@ class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.sideMenuColor,
+      color: AppColors.sideMenu,
       padding: const EdgeInsets.only(right: 16, left: 16),
       height: MediaQuery.sizeOf(context).height,
       child: ListView(
@@ -284,7 +283,7 @@ class SubSideBarItems extends StatelessWidget {
       leading: Visibility(
           visible: isSelected,
           child: const CircleAvatar(
-            backgroundColor: AppColors.blueColor,
+            backgroundColor: AppColors.blue,
             radius: 5,
           )),
       title: title,
@@ -335,8 +334,8 @@ class ExpandableSideBarItem extends StatelessWidget {
           "assets/svg/arrow-ios-down.svg",
           colorFilter: ColorFilter.mode(
               expandedTileController.isExpanded
-                  ? AppColors.whiteColor
-                  : AppColors.blackColor,
+                  ? AppColors.white
+                  : AppColors.black,
               BlendMode.srcIn),
         ),
         trailingRotation: 180,

@@ -49,7 +49,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             MyElevatedButton(
               icon: const Icon(
                 Icons.add_circle_outline_rounded,
-                color: AppColors.whiteColor,
+                color: AppColors.white,
               ),
               child: 'Add New Project',
               onTap: () {
@@ -200,7 +200,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.whiteColor,
+                        color: AppColors.white,
                         width: 1,
                       ),
                     ),
@@ -221,7 +221,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.whiteColor,
+                        color: AppColors.white,
                         width: 1,
                       ),
                     ),
@@ -242,7 +242,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.whiteColor,
+                        color: AppColors.white,
                         width: 1,
                       ),
                     ),
@@ -263,7 +263,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.whiteColor,
+                        color: AppColors.white,
                         width: 1,
                       ),
                     ),
@@ -335,7 +335,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -533,7 +533,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       ),
                     ),
                     const Divider(
-                      color: AppColors.cardColor,
+                      color: AppColors.card,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -577,7 +577,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                     ),
                                     const SizedBox(height: 8),
                                     DottedBorder(
-                                      color: AppColors.blueColor,
+                                      color: AppColors.blue,
                                       dashPattern: const [5, 5],
                                       strokeWidth: 2,
                                       borderType: BorderType.RRect,
@@ -593,7 +593,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                               alignment: Alignment.center,
                                               padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
-                                                  color: AppColors.blueColor,
+                                                  color: AppColors.blue,
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           10)),
@@ -730,7 +730,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                     icon: SvgPicture.asset(
                       "assets/svg/check.svg",
                       colorFilter: const ColorFilter.mode(
-                          AppColors.whiteColor, BlendMode.srcIn),
+                          AppColors.white, BlendMode.srcIn),
                     ),
                     child: 'Save',
                     onTap: () {},

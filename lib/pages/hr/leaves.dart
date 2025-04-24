@@ -59,7 +59,7 @@ class _LeavesPageState extends State<LeavesPage> {
             MyElevatedButton(
               icon: const Icon(
                 Icons.add_circle_outline_rounded,
-                color: AppColors.whiteColor,
+                color: AppColors.white,
               ),
               child: 'New Leave',
               onTap: () {
@@ -265,7 +265,7 @@ class LeaveDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -361,18 +361,18 @@ class LeaveDetailsDialog extends StatelessWidget {
                               icon: SvgPicture.asset(
                                 "assets/svg/check.svg",
                                 colorFilter: const ColorFilter.mode(
-                                    AppColors.whiteColor, BlendMode.srcIn),
+                                    AppColors.white, BlendMode.srcIn),
                               ),
                               child: 'Approve',
                               onTap: () {},
                             ),
                             const SizedBox(width: 12),
                             MyElevatedButton(
-                              bgColor: AppColors.redColor,
+                              bgColor: AppColors.red,
                               icon: SvgPicture.asset(
                                 "assets/svg/x.svg",
                                 colorFilter: const ColorFilter.mode(
-                                    AppColors.whiteColor, BlendMode.srcIn),
+                                    AppColors.white, BlendMode.srcIn),
                               ),
                               child: 'Cancel',
                               onTap: () {},
@@ -397,7 +397,7 @@ class LeaveDetailsDialog extends StatelessWidget {
                               icon: SvgPicture.asset(
                                 "assets/svg/edit-pencil.svg",
                                 colorFilter: const ColorFilter.mode(
-                                    AppColors.whiteColor, BlendMode.srcIn),
+                                    AppColors.white, BlendMode.srcIn),
                               ),
                               child: 'Edit',
                               onTap: () {},
@@ -554,7 +554,7 @@ class LeaveDetailsDialog extends StatelessWidget {
           const SizedBox(height: 12),
           Center(
             child: DottedBorder(
-              color: AppColors.blueColor,
+              color: AppColors.blue,
               dashPattern: const [5, 5],
               strokeWidth: 2,
               borderType: BorderType.RRect,
@@ -569,7 +569,7 @@ class LeaveDetailsDialog extends StatelessWidget {
                       alignment: Alignment.center,
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                          color: AppColors.blueColor,
+                          color: AppColors.blue,
                           borderRadius: BorderRadius.circular(10)),
                       width: 40,
                       height: 40,
@@ -627,7 +627,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -814,7 +814,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                 ),
                                 const SizedBox(height: 8),
                                 DottedBorder(
-                                  color: AppColors.blueColor,
+                                  color: AppColors.blue,
                                   dashPattern: const [5, 5],
                                   strokeWidth: 2,
                                   borderType: BorderType.RRect,
@@ -830,7 +830,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                           alignment: Alignment.center,
                                           padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
-                                              color: AppColors.blueColor,
+                                              color: AppColors.blue,
                                               borderRadius:
                                                   BorderRadius.circular(10)),
                                           width: 40,
@@ -904,7 +904,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                     icon: SvgPicture.asset(
                       "assets/svg/check.svg",
                       colorFilter: const ColorFilter.mode(
-                          AppColors.whiteColor, BlendMode.srcIn),
+                          AppColors.white, BlendMode.srcIn),
                     ),
                     child: 'Save',
                     onTap: () {},

@@ -28,8 +28,8 @@ class MyElevatedButton extends StatelessWidget {
     this.isLoading = false,
     this.disable = false,
     this.upper = false,
-    this.textColor = AppColors.whiteColor,
-    this.bgColor = AppColors.blueColor,
+    this.textColor = AppColors.white,
+    this.bgColor = AppColors.blue,
     this.borderColor,
     this.width,
     this.height,
@@ -54,7 +54,7 @@ class MyElevatedButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderCurve ?? 16),
         ),
-        shadowColor: AppColors.blackColor.withOpacity(0.4),
+        shadowColor: AppColors.black.withOpacity(0.4),
         minimumSize: Size(0, height ?? 44), // Allows flexible width
       ),
       child: isLoading
@@ -62,7 +62,7 @@ class MyElevatedButton extends StatelessWidget {
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
-                  strokeWidth: 2, color: AppColors.whiteColor),
+                  strokeWidth: 2, color: AppColors.white),
             )
           : Row(
               mainAxisSize: MainAxisSize.min,

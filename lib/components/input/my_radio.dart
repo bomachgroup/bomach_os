@@ -26,7 +26,7 @@ class MyRadio<T> extends StatelessWidget {
             data: RadioThemeData(
               fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return AppColors.blueColor; // active fill
+                  return AppColors.blue; // active fill
                 }
                 return AppColors.darkGrey2; // inactive border
               }),

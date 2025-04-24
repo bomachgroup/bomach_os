@@ -49,7 +49,7 @@ class MyTextFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Default fill color
-    final Color defaultFillColor = fillColor ?? AppColors.whiteColor;
+    final Color defaultFillColor = fillColor ?? AppColors.white;
 
     // Create a lighter version of the fill color for focus state
     final Color lighterFillColor = HSLColor.fromColor(defaultFillColor)
@@ -71,7 +71,7 @@ class MyTextFormField extends StatelessWidget {
             Text(
               title ?? '',
               style: TextStyle(
-                color: textColor ?? AppColors.blackColor,
+                color: textColor ?? AppColors.black,
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
               ),
@@ -115,26 +115,26 @@ class MyTextFormField extends StatelessWidget {
                 border: OutlineInputBorder(
                   borderRadius: borderRadius ?? BorderRadius.circular(15),
                   borderSide: const BorderSide(
-                    color: AppColors.cardColor,
+                    color: AppColors.card,
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: borderRadius ?? BorderRadius.circular(15),
                   borderSide: const BorderSide(
-                    color: AppColors.cardColor,
+                    color: AppColors.card,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: borderRadius ?? BorderRadius.circular(15),
                   borderSide: const BorderSide(
-                    color: AppColors.cardColor,
+                    color: AppColors.card,
                     width: 2,
                   ),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
                   borderSide: const BorderSide(
-                    color: AppColors.redColor,
+                    color: AppColors.red,
                     width: 2.0,
                   ),
                 ),

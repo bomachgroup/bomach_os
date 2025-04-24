@@ -103,7 +103,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                   borderRadius: BorderRadius.circular(13),
                   border: Border.all(
                     width: 0.6,
-                    color: AppColors.borderColor,
+                    color: AppColors.border,
                   ),
                   color: const Color(0XFFF5F6FA),
                 ),
@@ -117,7 +117,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                       width: 6,
                     ),
                     const VerticalDivider(
-                      color: AppColors.borderColor,
+                      color: AppColors.border,
                     ),
                     const SizedBox(
                       width: 6,

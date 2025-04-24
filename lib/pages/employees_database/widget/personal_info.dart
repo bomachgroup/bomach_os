@@ -178,7 +178,7 @@ class ProfilePicture extends StatelessWidget {
     return DottedBorder(
       dashPattern: const [10, 10],
       strokeWidth: 2,
-      color: AppColors.cardColor,
+      color: AppColors.card,
       borderType: BorderType.RRect,
       radius: const Radius.circular(12),
       child: Container(

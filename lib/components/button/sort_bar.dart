@@ -11,7 +11,7 @@ class SortBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       height: 48,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: AppColors.grey1.withOpacity(0.3)),
         boxShadow: [

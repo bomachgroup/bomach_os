@@ -61,7 +61,7 @@ class _BranchPageState extends State<BranchPage> {
                       MyElevatedButton(
                         icon: const Icon(
                           Icons.add_circle_outline_rounded,
-                          color: AppColors.whiteColor,
+                          color: AppColors.white,
                         ),
                         child: 'New Branch',
                         onTap: () {
@@ -149,7 +149,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blueColor.withOpacity(0.15)),
+                color: AppColors.blue.withOpacity(0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -177,7 +177,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blueColor.withOpacity(0.15)),
+                color: AppColors.blue.withOpacity(0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -205,7 +205,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blueColor.withOpacity(0.15)),
+                color: AppColors.blue.withOpacity(0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -233,7 +233,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blueColor.withOpacity(0.15)),
+                color: AppColors.blue.withOpacity(0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -253,7 +253,7 @@ class _BranchPageState extends State<BranchPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -333,7 +333,7 @@ class _BranchPageState extends State<BranchPage> {
               onPressed: () {},
               child: const Text(
                 'View all',
-                style: TextStyle(color: AppColors.blueColor),
+                style: TextStyle(color: AppColors.blue),
               ),
             ),
           ],
@@ -342,7 +342,7 @@ class _BranchPageState extends State<BranchPage> {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            color: AppColors.whiteColor,
+            color: AppColors.white,
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.2),
@@ -402,7 +402,7 @@ class _BranchPageState extends State<BranchPage> {
                   ),
                 ),
                 kSizedBoxWidthSM,
-                Icon(Icons.calendar_today, color: AppColors.blueColor),
+                Icon(Icons.calendar_today, color: AppColors.blue),
               ],
             ),
           ),
@@ -426,7 +426,7 @@ class _BranchPageState extends State<BranchPage> {
                 rightChevronIcon: Icon(Icons.arrow_forward),
               ),
               calendarStyle: const CalendarStyle(
-                rangeHighlightColor: AppColors.blueColor,
+                rangeHighlightColor: AppColors.blue,
               ),
             ),
           ),
@@ -474,7 +474,7 @@ class _BranchPageState extends State<BranchPage> {
         Text(
           time,
           style: const TextStyle(
-            color: AppColors.blackColor,
+            color: AppColors.black,
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
@@ -498,7 +498,7 @@ class _BranchPageState extends State<BranchPage> {
               Text(
                 title,
                 style: const TextStyle(
-                  color: AppColors.blackColor,
+                  color: AppColors.black,
                   fontWeight: FontWeight.w300,
                   fontSize: 14,
                 ),
@@ -506,7 +506,7 @@ class _BranchPageState extends State<BranchPage> {
               Text(
                 subtitle,
                 style: const TextStyle(
-                  color: AppColors.blackColor,
+                  color: AppColors.black,
                   fontWeight: FontWeight.w600,
                   fontSize: 18,
                 ),
@@ -782,14 +782,14 @@ class _BranchPageState extends State<BranchPage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.blueColor,
+                          color: AppColors.blue,
                           width: 1.5,
                           style: BorderStyle.solid,
                         ),
                       ),
                       child: const Center(
                         child: Icon(Icons.upload_file,
-                            size: 32, color: AppColors.blueColor),
+                            size: 32, color: AppColors.blue),
                       ),
                     ),
                   ),
@@ -812,7 +812,7 @@ class _BranchPageState extends State<BranchPage> {
                       MyElevatedButton(
                         icon: const Icon(
                           Icons.check,
-                          color: AppColors.whiteColor,
+                          color: AppColors.white,
                         ),
                         child: 'Save',
                         onTap: () {},
