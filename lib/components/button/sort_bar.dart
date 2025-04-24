@@ -13,10 +13,10 @@ class SortBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.grey1.withOpacity(0.3)),
+        border: Border.all(color: AppColors.grey1.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -36,7 +36,7 @@ class SortBar extends StatelessWidget {
           const SizedBox(width: 6),
           Icon(
             Icons.arrow_drop_down_rounded,
-            color: AppColors.grey1.withOpacity(0.5),
+            color: AppColors.grey1.withValues(alpha: 0.5),
             size: 30,
           ),
         ],

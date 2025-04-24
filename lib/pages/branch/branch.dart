@@ -137,7 +137,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withOpacity(0.2),
+              color: AppColors.green.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -149,7 +149,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withOpacity(0.15)),
+                color: AppColors.blue.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -165,7 +165,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withOpacity(0.2),
+              color: AppColors.green.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -177,7 +177,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withOpacity(0.15)),
+                color: AppColors.blue.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -193,7 +193,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withOpacity(0.2),
+              color: AppColors.green.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -205,7 +205,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withOpacity(0.15)),
+                color: AppColors.blue.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -221,7 +221,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withOpacity(0.2),
+              color: AppColors.green.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -233,7 +233,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withOpacity(0.15)),
+                color: AppColors.blue.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -257,7 +257,7 @@ class _BranchPageState extends State<BranchPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 1,
             blurRadius: 5,
           ),
@@ -345,7 +345,7 @@ class _BranchPageState extends State<BranchPage> {
             color: AppColors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withValues(alpha: 0.2),
                 spreadRadius: 1,
                 blurRadius: 5,
               ),
@@ -378,7 +378,7 @@ class _BranchPageState extends State<BranchPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 1,
             blurRadius: 5,
           ),
@@ -485,7 +485,7 @@ class _BranchPageState extends State<BranchPage> {
           height: 51,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.blue.withOpacity(0.0)],
+              colors: [Colors.blue, Colors.blue.withValues(alpha: 0.0)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -526,7 +526,7 @@ class _BranchPageState extends State<BranchPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 1,
             blurRadius: 5,
           ),

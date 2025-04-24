@@ -48,13 +48,13 @@ class MyElevatedButton extends StatelessWidget {
         side: borderColor != null ? BorderSide(color: borderColor!) : null,
         padding:
             padding ?? const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
-        disabledBackgroundColor: bgColor.withOpacity(0.5),
+        disabledBackgroundColor: bgColor.withValues(alpha: 0.5),
         backgroundColor: bgColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderCurve ?? 16),
         ),
-        shadowColor: AppColors.black.withOpacity(0.4),
+        shadowColor: AppColors.black.withValues(alpha: 0.4),
         minimumSize: Size(0, height ?? 44), // Allows flexible width
       ),
       child: isLoading

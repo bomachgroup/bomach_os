@@ -11,10 +11,10 @@ class SortFilterBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.grey1.withOpacity(0.3)),
+        border: Border.all(color: AppColors.grey1.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -31,7 +31,7 @@ class SortFilterBar extends StatelessWidget {
               child: Text("Sort by", style: TextStyle(fontSize: 16)),
             ),
             VerticalDivider(
-              color: AppColors.grey1.withOpacity(0.3),
+              color: AppColors.grey1.withValues(alpha: 0.3),
               thickness: 1,
               width: 20, // space between items
             ),
@@ -47,7 +47,7 @@ class SortFilterBar extends StatelessWidget {
               ),
             ),
             VerticalDivider(
-              color: AppColors.grey1.withOpacity(0.3),
+              color: AppColors.grey1.withValues(alpha: 0.3),
               thickness: 1,
               width: 20,
             ),
