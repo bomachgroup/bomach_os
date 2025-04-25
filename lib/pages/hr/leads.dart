@@ -35,11 +35,11 @@ class _LeadsPageState extends State<LeadsPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                MyText(
                   'Leads',
                   style: AppText.black_600_32,
                 ),
-                Text(
+                MyText(
                   'Leads',
                   style: AppText.black_600_14,
                 ),
@@ -131,31 +131,31 @@ class _LeadsPageState extends State<LeadsPage> {
       ),
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "Leads ID",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Contact Name",
         ),
       ),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Email",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Phone no.",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Lead Owner",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Date of creation",
         ),
       ),
@@ -178,7 +178,7 @@ class _LeadsPageState extends State<LeadsPage> {
               ),
             ),
             const DataCell(
-              Text("001"),
+              MyText("001"),
             ),
             DataCell(
               onTap: () {},
@@ -207,16 +207,16 @@ class _LeadsPageState extends State<LeadsPage> {
               ),
             ),
             const DataCell(
-              Text("Jennygroup45@gmail.com"),
+              MyText("Jennygroup45@gmail.com"),
             ),
             const DataCell(
-              Text("+234 808 986 2487"),
+              MyText("+234 808 986 2487"),
             ),
             const DataCell(
-              Text("--"),
+              MyText("--"),
             ),
             const DataCell(
-              Text("27/09/2024"),
+              MyText("27/09/2024"),
             ),
           ],
         );

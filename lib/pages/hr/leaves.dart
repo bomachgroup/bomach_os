@@ -39,11 +39,11 @@ class _LeavesPageState extends State<LeavesPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                MyText(
                   'Leaves',
                   style: AppText.black_600_32,
                 ),
-                Text(
+                MyText(
                   'Leaves',
                   style: AppText.black_600_14,
                 ),
@@ -131,36 +131,36 @@ class _LeavesPageState extends State<LeavesPage> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "Employee ID",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Employee Name",
         ),
       ),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Leave date",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Duration",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Leave Type",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Paid",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Status",
         ),
       ),
@@ -171,7 +171,7 @@ class _LeavesPageState extends State<LeavesPage> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          Text("#23456"),
+          MyText("#23456"),
         ),
         DataCell(
           onTap: () {
@@ -205,13 +205,13 @@ class _LeavesPageState extends State<LeavesPage> {
           ),
         ),
         const DataCell(
-          Text("11/02/2024"),
+          MyText("11/02/2024"),
         ),
         const DataCell(
-          Text("5 days"),
+          MyText("5 days"),
         ),
         const DataCell(
-          Text("Yes"),
+          MyText("Yes"),
         ),
         DataCell(
           Column(
@@ -230,7 +230,7 @@ class _LeavesPageState extends State<LeavesPage> {
                             .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6)),
                     child: const Center(
-                      child: Text("Earned👍🏼"),
+                      child: MyText("Earned👍🏼"),
                     ),
                   ),
                 ],
@@ -250,7 +250,7 @@ class _LeavesPageState extends State<LeavesPage> {
                 ),
               ),
               kSizedBoxWidthTiny,
-              const Text("Approved"),
+              const MyText("Approved"),
             ],
           ),
         ),
@@ -282,7 +282,7 @@ class LeaveDetailsDialog extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  const MyText(
                     'Leave Details',
                     style: TextStyle(
                       fontSize: 24,
@@ -302,7 +302,7 @@ class LeaveDetailsDialog extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: const Text(
+              child: const MyText(
                 'Apply date: 12-01-2024, 11:20am',
                 style: TextStyle(
                   fontSize: 14,
@@ -425,7 +425,7 @@ class LeaveDetailsDialog extends StatelessWidget {
         children: [
           SizedBox(
             width: 200,
-            child: Text(
+            child: MyText(
               label,
               style: TextStyle(
                 fontSize: 16,
@@ -434,7 +434,7 @@ class LeaveDetailsDialog extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
+            child: MyText(
               value,
               style: const TextStyle(
                 fontSize: 16,
@@ -455,7 +455,7 @@ class LeaveDetailsDialog extends StatelessWidget {
         children: [
           SizedBox(
             width: 200,
-            child: Text(
+            child: MyText(
               label,
               style: TextStyle(
                 fontSize: 16,
@@ -474,7 +474,7 @@ class LeaveDetailsDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
+              const MyText(
                 'Pending',
                 style: TextStyle(
                   fontSize: 16,
@@ -495,7 +495,7 @@ class LeaveDetailsDialog extends StatelessWidget {
         children: [
           SizedBox(
             width: 200,
-            child: Text(
+            child: MyText(
               label,
               style: TextStyle(
                 fontSize: 16,
@@ -510,7 +510,7 @@ class LeaveDetailsDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.blue.shade200),
             ),
-            child: Text(
+            child: MyText(
               tag,
               style: TextStyle(
                 fontSize: 14,
@@ -534,7 +534,7 @@ class LeaveDetailsDialog extends StatelessWidget {
             children: [
               SizedBox(
                 width: 200,
-                child: Text(
+                child: MyText(
                   label,
                   style: TextStyle(
                     fontSize: 16,
@@ -542,7 +542,7 @@ class LeaveDetailsDialog extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
+              MyText(
                 value,
                 style: const TextStyle(
                   fontSize: 16,
@@ -584,6 +584,7 @@ class LeaveDetailsDialog extends StatelessWidget {
                       size: 11,
                       weight: 300,
                       color: AppColors.darkGrey2,
+                      isSelectable: false,
                     )
                   ],
                 ),
@@ -647,7 +648,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  const MyText(
                     'Assign leave/Edit',
                     style: TextStyle(
                       fontSize: 24,
@@ -805,7 +806,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                const MyText(
                                   'File (optional)*',
                                   style: TextStyle(
                                     fontSize: 16,
@@ -840,7 +841,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                           ),
                                         ),
                                         kSizedBoxSM,
-                                        const Text(
+                                        const MyText(
                                           'Drag & Drop or choose files to upload',
                                           textAlign: TextAlign.center,
                                         ),

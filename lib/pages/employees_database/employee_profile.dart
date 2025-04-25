@@ -29,17 +29,17 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const MyText(
           'Employee’s Database',
           style: AppText.black_600_32,
         ),
         const Row(
           children: [
-            Text(
+            MyText(
               'Employee’s Database',
               style: AppText.black_400_14,
             ),
-            Text(
+            MyText(
               'Darlene Robertson',
               style: AppText.black_400_14,
             ),
@@ -99,7 +99,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                                   height: 20,
                                 ),
                                 kSizedBoxWidthSM,
-                                const Text(
+                                const MyText(
                                   'UI/UX Designer',
                                   style: AppText.black_400_16,
                                 ),
@@ -116,7 +116,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                                   height: 20,
                                 ),
                                 kSizedBoxWidthSM,
-                                const Text(
+                                const MyText(
                                   'Darlenerob1@example.com',
                                   style: AppText.black_400_14,
                                 ),
@@ -178,7 +178,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       },
                       title: isSmallScreen(context)
                           ? null
-                          : Text(
+                          : MyText(
                               'Profile',
                               style: employeeDetailSelectionState == 0
                                   ? AppText.white_600_16
@@ -214,7 +214,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       },
                       title: isSmallScreen(context)
                           ? null
-                          : Text(
+                          : MyText(
                               'Reports Files',
                               style: employeeDetailSelectionState == 1
                                   ? AppText.white_600_16
@@ -248,7 +248,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       },
                       title: isSmallScreen(context)
                           ? null
-                          : Text(
+                          : MyText(
                               'Projects',
                               style: employeeDetailSelectionState == 2
                                   ? AppText.white_600_16
@@ -284,7 +284,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       },
                       title: isSmallScreen(context)
                           ? null
-                          : Text(
+                          : MyText(
                               'Tasks',
                               style: employeeDetailSelectionState == 3
                                   ? AppText.white_600_16
@@ -727,14 +727,14 @@ class ProfileFiedsHolder extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MyText(
             title,
             style: AppText.sideMText_300_14,
           ),
           const SizedBox(
             height: 3,
           ),
-          Text(
+          MyText(
             detail,
             style: AppText.black_400_16,
           ),
@@ -781,8 +781,8 @@ class Task extends StatelessWidget {
 //           ),
 //           const Row(
 //             children: [
-//               Text('Showing'),
-//               Text('Showing 1 to 8 out of 60 records'),
+//               MyText('Showing'),
+//               MyText('Showing 1 to 8 out of 60 records'),
 //             ],
 //           ),
 //           const SizedBox(
@@ -797,24 +797,24 @@ class Task extends StatelessWidget {
 //     return [
 //       const DataColumn(
 //           headingRowAlignment: MainAxisAlignment.start,
-//           label: Text(
+//           label: MyText(
 //             "Task code",
 //           )),
 //       const DataColumn(
-//           label: Text(
+//           label: MyText(
 //         "Task Name",
 //       )),
-//       const DataColumn(label: Text("Assign to")),
+//       const DataColumn(label: MyText("Assign to")),
 //       const DataColumn(
-//           label: Text(
+//           label: MyText(
 //         "Start date",
 //       )),
 //       const DataColumn(
-//           label: Text(
+//           label: MyText(
 //         "Due date",
 //       )),
 //       const DataColumn(
-//           label: Text(
+//           label: MyText(
 //         "Status",
 //       )),
 //     ];
@@ -824,11 +824,11 @@ class Task extends StatelessWidget {
 //     return List.generate(10, (index) {
 //       return DataRow(cells: <DataCell>[
 //         const DataCell(
-//           SizedBox(width: 100, child: Text("#1234567")),
+//           SizedBox(width: 100, child: MyText("#1234567")),
 //         ),
 //         const DataCell(
 //           SizedBox(
-//               width: 250, child: Text("Benji Express user login Interface")),
+//               width: 250, child: MyText("Benji Express user login Interface")),
 //         ),
 //         DataCell(
 //           SizedBox(
@@ -842,13 +842,13 @@ class Task extends StatelessWidget {
 //           ),
 //         ),
 //         const DataCell(
-//           SizedBox(width: 100, child: Text("12/10/2023")),
+//           SizedBox(width: 100, child: MyText("12/10/2023")),
 //         ),
 //         const DataCell(
-//           SizedBox(width: 100, child: Text("02/02/2025")),
+//           SizedBox(width: 100, child: MyText("02/02/2025")),
 //         ),
 //         const DataCell(
-//           SizedBox(width: 100, child: Text("Undone")),
+//           SizedBox(width: 100, child: MyText("Undone")),
 //         ),
 //       ]);
 //     });

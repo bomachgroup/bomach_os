@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/employees_database/widget/employee_documentation.dart';
 import 'package:bms_front_end/pages/employees_database/widget/personal_info.dart';
 import 'package:bms_front_end/pages/employees_database/widget/professional_info.dart';
@@ -31,13 +32,13 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const MyText(
           'Employee’s Database',
           style: AppText.black_600_32,
         ),
         const Row(
           children: [
-            Text(
+            MyText(
               'Employee’s Database',
               style: AppText.black_400_14,
             ),
@@ -47,7 +48,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
               size: 12,
             ),
             kSizedBoxWidthSM,
-            Text(
+            MyText(
               'Add New Employee',
               style: AppText.black_400_14,
             ),

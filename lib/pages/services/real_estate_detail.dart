@@ -26,7 +26,7 @@ class _RealEstateDetailScreenState extends State<RealEstateDetailScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //header
-            const Text(
+            const MyText(
               "Services",
               style: TextStyle(
                 fontSize: 20,
@@ -99,7 +99,7 @@ class _RealEstateDetailScreenState extends State<RealEstateDetailScreen> {
 
         const Align(
           alignment: Alignment.centerLeft,
-          child: Text(
+          child: MyText(
             "Aso villa Estate",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
           ),

@@ -63,7 +63,7 @@ class DocumentUpload extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title),
+        MyText(title),
         kSizedBoxSM,
         DottedBorder(
           color: AppColors.blue,
@@ -89,7 +89,7 @@ class DocumentUpload extends StatelessWidget {
                   ),
                 ),
                 kSizedBoxSM,
-                const Text(
+                const MyText(
                   'Drag & Drop or choose file to upload',
                   textAlign: TextAlign.center,
                 ),

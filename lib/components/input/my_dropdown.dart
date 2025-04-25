@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class MyDropdown extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (title != null)
-                  Text(
+                  MyText(
                     title ?? '',
                     style: AppText.black_400_16,
                   ),
@@ -200,7 +201,7 @@ class MyDropdown extends StatelessWidget {
                 if (state.hasError)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
+                    child: MyText(
                       state.errorText!,
                       style: const TextStyle(
                         color: AppColors.red,

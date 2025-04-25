@@ -39,7 +39,7 @@ class _BranchPageState extends State<BranchPage> {
                   const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      MyText(
                         'Enugu Branch',
                         style: AppText.black_600_32,
                       ),
@@ -273,7 +273,7 @@ class _BranchPageState extends State<BranchPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  MyText(
                     value,
                     style: const TextStyle(
                       fontSize: 38,
@@ -284,7 +284,7 @@ class _BranchPageState extends State<BranchPage> {
                 ],
               ),
             ),
-            Text(
+            MyText(
               label,
               style: const TextStyle(
                 color: Colors.grey,
@@ -297,9 +297,9 @@ class _BranchPageState extends State<BranchPage> {
                 smallIcon,
                 kSizedBoxWidthSM,
                 Expanded(
-                  child: Text(
+                  child: MyText(
                     subtext,
-                    overflow: TextOverflow.ellipsis,
+                    // overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.darkBlue,
                       fontSize: 12,
@@ -322,7 +322,7 @@ class _BranchPageState extends State<BranchPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            const MyText(
               'Client Invoice',
               style: TextStyle(
                 fontSize: 20,
@@ -331,8 +331,9 @@ class _BranchPageState extends State<BranchPage> {
             ),
             TextButton(
               onPressed: () {},
-              child: const Text(
+              child: const MyText(
                 'View all',
+                isSelectable: false,
                 style: TextStyle(color: AppColors.blue),
               ),
             ),
@@ -392,9 +393,9 @@ class _BranchPageState extends State<BranchPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
+                  child: MyText(
                     'Company Schedule',
-                    overflow: TextOverflow.ellipsis,
+                    // overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -471,7 +472,7 @@ class _BranchPageState extends State<BranchPage> {
   }) {
     return Row(
       children: [
-        Text(
+        MyText(
           time,
           style: const TextStyle(
             color: AppColors.black,
@@ -495,7 +496,7 @@ class _BranchPageState extends State<BranchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              MyText(
                 title,
                 style: const TextStyle(
                   color: AppColors.black,
@@ -503,7 +504,7 @@ class _BranchPageState extends State<BranchPage> {
                   fontSize: 14,
                 ),
               ),
-              Text(
+              MyText(
                 subtitle,
                 style: const TextStyle(
                   color: AppColors.black,
@@ -545,7 +546,7 @@ class _BranchPageState extends State<BranchPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        MyText(
                           'Branch',
                           style: TextStyle(
                             fontSize: 16,
@@ -556,7 +557,7 @@ class _BranchPageState extends State<BranchPage> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
+                            MyText(
                               'Enugu',
                               style: TextStyle(
                                 fontSize: 14,
@@ -584,7 +585,7 @@ class _BranchPageState extends State<BranchPage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            MyText(
                               '8:02:09 AM',
                               style: TextStyle(
                                 fontSize: 12,
@@ -592,7 +593,7 @@ class _BranchPageState extends State<BranchPage> {
                               ),
                               textAlign: TextAlign.right,
                             ),
-                            Text(
+                            MyText(
                               ' WAT',
                               style: TextStyle(
                                 fontSize: 10,
@@ -613,7 +614,7 @@ class _BranchPageState extends State<BranchPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              MyText(
                 'Today:',
                 style: TextStyle(
                   fontSize: 16,
@@ -621,7 +622,7 @@ class _BranchPageState extends State<BranchPage> {
                   color: AppColors.darkBlue,
                 ),
               ),
-              Text(
+              MyText(
                 '18th November 2023',
                 style: TextStyle(
                   fontSize: 16,
@@ -662,7 +663,7 @@ class _BranchPageState extends State<BranchPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Create Branch",
+                  MyText("Create Branch",
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 20),
                   Row(

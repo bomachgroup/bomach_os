@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class _ProgressStatusState extends State<ProgressStatus> {
               ),
               Positioned.fill(
                 child: Center(
-                  child: Text(
+                  child: MyText(
                     "${(progress * 100).toInt()}%",
                     style: const TextStyle(
                       color: Colors.white,
@@ -75,7 +76,7 @@ class _ProgressStatusState extends State<ProgressStatus> {
                     ),
                   ),
                   kSizedBoxWidthTiny,
-                  Text(status),
+                  MyText(status),
                   kSizedBoxWidthSM,
                   const Icon(Icons.keyboard_arrow_down, size: 16)
                 ],

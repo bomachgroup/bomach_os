@@ -38,7 +38,7 @@ class ProjectOverview extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            const MyText(
                               'Project progress',
                               style: AppText.black_500_16,
                             ),

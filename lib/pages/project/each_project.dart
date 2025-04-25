@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/in_button.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/project/widget/project_files.dart';
 import 'package:bms_front_end/pages/project/widget/project_members.dart';
 import 'package:bms_front_end/pages/project/widget/project_milestone.dart';
@@ -45,7 +46,7 @@ class _EachProjectsState extends State<EachProjects> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Text(
+                  const MyText(
                     'Projects',
                     style: AppText.black_500_32,
                   ),
@@ -101,7 +102,7 @@ class _EachProjectsState extends State<EachProjects> {
         kSizedBoxSM,
         const Row(
           children: [
-            Text(
+            MyText(
               'Projects',
               style: AppText.black_400_14,
             ),
@@ -115,7 +116,7 @@ class _EachProjectsState extends State<EachProjects> {
             SizedBox(
               width: 8,
             ),
-            Text(
+            MyText(
               'Benji express project ',
               style: AppText.black_400_14,
             ),
@@ -255,7 +256,7 @@ class _EachProjectsState extends State<EachProjects> {
 //               child: Row(
 //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //                 children: [
-//                   Text('Create Milestones',style: AppText.black_500_28,),
+//                   MyText('Create Milestones',style: AppText.black_500_28,),
 //                   Icon(Icons.cancel_outlined)
 //                 ],
 //               ),
@@ -288,7 +289,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                   ],
 //                 ),
 //                 const SizedBox(height: 20,),
-//                 const Text('Milestone Summary/Description*'),
+//                 const MyText('Milestone Summary/Description*'),
 //                 const SizedBox(height: 8,),
 //                 Container(
 //                   height: 89,
@@ -327,7 +328,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                child: Row(
 //                 mainAxisAlignment: MainAxisAlignment.end,
 //                 children: [
-//                     const Text('Cancel'),
+//                     const MyText('Cancel'),
 //                   const SizedBox(width: 16,),
 //                   Container(
 //                     padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 16),
@@ -335,7 +336,7 @@ class _EachProjectsState extends State<EachProjects> {
 //                       color: AppColors.blue,
 //                       borderRadius: BorderRadius.circular(14)
 //                     ),
-//                     child: const Text('Save',style: AppText.white_400_16,)),
+//                     child: const MyText('Save',style: AppText.white_400_16,)),
 
 //                 ],
 //                ),

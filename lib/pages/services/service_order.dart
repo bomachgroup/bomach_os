@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/in_button.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/widget/invoice_list.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +24,11 @@ class _ServiceOrderState extends State<ServiceOrder> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const MyText(
           'Service Order',
           style: AppText.black_500_32,
         ),
-        const Text(
+        const MyText(
           'Service Order',
           style: AppText.black_600_14,
         ),

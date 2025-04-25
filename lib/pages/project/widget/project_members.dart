@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/color.dart';
@@ -64,27 +65,27 @@ class _ProjectMembersState extends State<ProjectMembers> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "Employee ID",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Employee Name",
         ),
       ),
-      const DataColumn(label: Text("Department")),
+      const DataColumn(label: MyText("Department")),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Designation",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "E. Type",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Action",
         ),
       ),
@@ -95,7 +96,7 @@ class _ProjectMembersState extends State<ProjectMembers> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          Text("345321231"),
+          MyText("345321231"),
         ),
         DataCell(
           onTap: () {
@@ -114,15 +115,15 @@ class _ProjectMembersState extends State<ProjectMembers> {
               const SizedBox(
                 width: 8,
               ),
-              const Text("Darlene Robertson"),
+              const MyText("Darlene Robertson"),
             ],
           ),
         ),
         const DataCell(
-          Text("Design"),
+          MyText("Design"),
         ),
         const DataCell(
-          Text("UI/UX Designer"),
+          MyText("UI/UX Designer"),
         ),
         DataCell(
           Column(
@@ -141,7 +142,7 @@ class _ProjectMembersState extends State<ProjectMembers> {
                             .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6)),
                     child: const Center(
-                      child: Text("Full-time"),
+                      child: MyText("Full-time"),
                     ),
                   ),
                 ],

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -57,7 +58,7 @@ class TopNavigationBar extends StatelessWidget {
               const SizedBox(
                 width: kDefaultSpaceSM,
               ),
-              if (!isSmallScreen(context)) const Text('English'),
+              if (!isSmallScreen(context)) const MyText('English'),
               if (!isSmallScreen(context))
                 const SizedBox(
                   width: 10,
@@ -84,18 +85,18 @@ class TopNavigationBar extends StatelessWidget {
                   ),
                   title: isSmallScreen(context)
                       ? null
-                      : const Text(
+                      : const MyText(
                           'Moni Roy',
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          // overflow: TextOverflow.ellipsis,
                           style: AppText.black_600_14,
                         ),
                   subtitle: isSmallScreen(context)
                       ? null
-                      : const Text(
+                      : const MyText(
                           'Admin',
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          // overflow: TextOverflow.ellipsis,
                         ),
                 ),
               ),

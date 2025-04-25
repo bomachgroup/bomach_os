@@ -31,7 +31,7 @@ class MyPaginatorState extends State<MyPaginator> {
         children: [
           Row(
             children: [
-              const Text("Showing", style: TextStyle(color: AppColors.grey2)),
+              const MyText("Showing", style: TextStyle(color: AppColors.grey2)),
               const SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
@@ -46,7 +46,7 @@ class MyPaginatorState extends State<MyPaginator> {
                   items: rowsOptions.map((int value) {
                     return DropdownMenuItem<int>(
                       value: value,
-                      child: Text("$value"),
+                      child: MyText("$value"),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -62,7 +62,7 @@ class MyPaginatorState extends State<MyPaginator> {
             ],
           ),
           if (isLargeScreen(context))
-            Text(
+            MyText(
               "Showing $start to $end out of $totalRecords records",
               style: TextStyle(color: Colors.grey[600]),
             ),

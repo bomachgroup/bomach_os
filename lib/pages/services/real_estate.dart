@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/sort_filter_bar2..dart';
 import 'package:bms_front_end/components/cards/real_estate_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -28,7 +29,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //header
-            const Text(
+            const MyText(
               "Services",
               style: TextStyle(
                 fontSize: 20,
@@ -99,7 +100,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
         //real estate header
         const Align(
           alignment: Alignment.centerLeft,
-          child: Text(
+          child: MyText(
             "Real Estate development",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
           ),

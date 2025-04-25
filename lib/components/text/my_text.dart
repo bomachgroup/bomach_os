@@ -3,37 +3,66 @@ import 'package:flutter/material.dart';
 
 class MyText extends StatelessWidget {
   final String text;
-  final double size;
-  final Color color;
-  final int weight;
+  final double? size;
+  final Color? color;
+  final int? weight;
   final String? fontFamily;
   final int? maxLines;
   final TextAlign? textAlign;
+  final bool isSelectable;
+  final TextStyle? style;
   const MyText(
     this.text, {
     super.key,
-    required this.size,
-    required this.weight,
-    this.color = AppColors.black,
+    this.size,
+    this.weight,
+    this.color,
     this.fontFamily,
     this.maxLines,
     this.textAlign,
+    this.isSelectable = true,
+    this.style,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: textAlign,
-      overflow: TextOverflow.ellipsis,
-      maxLines: maxLines,
-      style: TextStyle(
-        fontFamily: fontFamily,
-        color: color,
-        fontSize: size,
-        fontWeight: getWeight(),
-      ),
-    );
+    return isSelectable
+        ? SelectableText(
+            text,
+            textAlign: textAlign,
+            // overflow: TextOverflow.ellipsis,
+            maxLines: maxLines,
+            style: style?.copyWith(
+                  fontFamily: fontFamily,
+                  color: color,
+                  fontSize: size,
+                  fontWeight: getWeight(),
+                ) ??
+                TextStyle(
+                  fontFamily: fontFamily,
+                  color: color ?? AppColors.black,
+                  fontSize: size,
+                  fontWeight: getWeight(),
+                ),
+          )
+        : Text(
+            text,
+            textAlign: textAlign,
+            overflow: TextOverflow.ellipsis,
+            maxLines: maxLines,
+            style: style?.copyWith(
+                  fontFamily: fontFamily,
+                  color: color,
+                  fontSize: size,
+                  fontWeight: getWeight(),
+                ) ??
+                TextStyle(
+                  fontFamily: fontFamily,
+                  color: color ?? AppColors.black,
+                  fontSize: size,
+                  fontWeight: getWeight(),
+                ),
+          );
   }
 
   FontWeight? getWeight() {

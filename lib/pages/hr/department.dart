@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -18,7 +19,7 @@ class DepartmentPage extends StatelessWidget {
       children: [
         const Row(
           children: [
-            Text(
+            MyText(
               'Enugu Branch',
               style: AppText.black_600_32,
             ),
@@ -102,20 +103,20 @@ class DepartmentCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    MyText(
                       'Design Department',
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      // overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.black,
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
                       ),
                     ),
-                    Text(
+                    MyText(
                       '20 Members',
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      // overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.grey2,
                         fontWeight: FontWeight.w400,
@@ -126,8 +127,9 @@ class DepartmentCard extends StatelessWidget {
                 ),
               ),
               kSizedBoxWidthSM,
-              Text(
+              MyText(
                 'View All',
+                isSelectable: false,
                 style: TextStyle(
                   color: AppColors.blue,
                   fontWeight: FontWeight.w400,
@@ -159,20 +161,20 @@ class DepartmentCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            MyText(
                               'Dianne Russell',
                               maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              // overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: AppColors.black,
                                 fontWeight: FontWeight.w400,
                                 fontSize: 14,
                               ),
                             ),
-                            Text(
+                            MyText(
                               'Lead UI/UX Designer',
                               maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              // overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: AppColors.grey2,
                                 fontWeight: FontWeight.w300,
@@ -184,7 +186,7 @@ class DepartmentCard extends StatelessWidget {
                       ),
                       kSizedBoxWidthSM,
                       if (index == 0) ...[
-                        const Text(
+                        const MyText(
                           'HOD 👑',
                           style: TextStyle(
                             color: AppColors.green,

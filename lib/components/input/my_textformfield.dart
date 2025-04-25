@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -68,7 +69,7 @@ class MyTextFormField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null)
-            Text(
+            MyText(
               title ?? '',
               style: TextStyle(
                 color: textColor ?? AppColors.black,

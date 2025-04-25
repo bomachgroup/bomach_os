@@ -31,11 +31,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const MyText(
           'Projects',
           style: AppText.black_500_32,
         ),
-        const Text(
+        const MyText(
           'Projects',
           style: AppText.black_400_14,
         ),
@@ -136,32 +136,32 @@ class _ProjectsPageState extends State<ProjectsPage> {
       ),
       const DataColumn(
           headingRowAlignment: MainAxisAlignment.start,
-          label: Text(
+          label: MyText(
             "PJ code",
           )),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Project Name",
       )),
-      const DataColumn(label: Text("Members")),
+      const DataColumn(label: MyText("Members")),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Start date",
       )),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Deadline",
       )),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Clients",
       )),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Status",
       )),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Action",
       )),
     ];
@@ -179,14 +179,14 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ),
         ),
         const DataCell(
-          SizedBox(width: 120, child: Text("#455653")),
+          SizedBox(width: 120, child: MyText("#455653")),
         ),
         DataCell(
           onTap: () {
             context.go(RouteConstants.eachProjects);
           },
           const SizedBox(
-              width: 152, child: Text("Benji Express mobile app project")),
+              width: 152, child: MyText("Benji Express mobile app project")),
         ),
         DataCell(
           SizedBox(
@@ -283,10 +283,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ),
         ),
         const DataCell(
-          SizedBox(width: 100, child: Text("27/09/2024")),
+          SizedBox(width: 100, child: MyText("27/09/2024")),
         ),
         const DataCell(
-          SizedBox(width: 100, child: Text("27/09/2024")),
+          SizedBox(width: 100, child: MyText("27/09/2024")),
         ),
         DataCell(
           Row(
@@ -351,7 +351,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  const MyText(
                     'Add Project',
                     style: TextStyle(
                       fontSize: 24,
@@ -568,7 +568,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                    const MyText(
                                       'Upload File (optional)*',
                                       style: TextStyle(
                                         fontSize: 16,
@@ -614,7 +614,8 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                               size: 11,
                                               weight: 300,
                                               color: AppColors.darkGrey2,
-                                            )
+                                              isSelectable: false,
+                                            ),
                                           ],
                                         ),
                                       ),

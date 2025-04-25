@@ -1,5 +1,6 @@
 // Component imports
 import 'package:bms_front_end/components/section/responsive_widget.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 // Page imports
 import 'package:bms_front_end/pages/auth/login_screen.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
@@ -86,6 +87,6 @@ final goRouter = GoRouter(
 
   // Handle errors and redirects
   errorBuilder: (context, state) => const Center(
-    child: Text('Page not found'),
+    child: MyText('Page not found'),
   ),
 );

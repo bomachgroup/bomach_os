@@ -63,31 +63,31 @@ class _ProjectTaskState extends State<ProjectTask> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "Task code",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Task Name",
         ),
       ),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Assign to",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Start date",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Due date",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Status",
         ),
       ),
@@ -98,7 +98,7 @@ class _ProjectTaskState extends State<ProjectTask> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          Text("#1234567"),
+          MyText("#1234567"),
         ),
         DataCell(
           onTap: () {},
@@ -116,10 +116,10 @@ class _ProjectTaskState extends State<ProjectTask> {
           ),
         ),
         const DataCell(
-          Text("11/02/2024"),
+          MyText("11/02/2024"),
         ),
         const DataCell(
-          Text("11/02/2024"),
+          MyText("11/02/2024"),
         ),
         DataCell(
           Row(
@@ -133,7 +133,7 @@ class _ProjectTaskState extends State<ProjectTask> {
                 ),
               ),
               kSizedBoxWidthTiny,
-              const Text("Undone"),
+              const MyText("Undone"),
             ],
           ),
         ),

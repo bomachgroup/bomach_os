@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -201,7 +202,7 @@ class ProfilePicture extends StatelessWidget {
               ),
             ),
             kSizedBox,
-            const Text(
+            const MyText(
               'Add Profile Picture',
               textAlign: TextAlign.center,
               style: TextStyle(

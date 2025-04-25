@@ -28,14 +28,14 @@ class TaskPageState extends State<TaskPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const MyText(
           'Tasks',
           style: AppText.black_500_32,
         ),
         const SizedBox(
           height: 8,
         ),
-        const Text(
+        const MyText(
           'Tasks',
           style: AppText.black_400_14,
         ),
@@ -120,31 +120,31 @@ class TaskPageState extends State<TaskPage> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "Task code",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Task Name",
         ),
       ),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Assign to",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Start date",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Due date",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Status",
         ),
       ),
@@ -155,7 +155,7 @@ class TaskPageState extends State<TaskPage> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          Text("#1234567"),
+          MyText("#1234567"),
         ),
         DataCell(
           onTap: () {},
@@ -173,10 +173,10 @@ class TaskPageState extends State<TaskPage> {
           ),
         ),
         const DataCell(
-          Text("11/02/2024"),
+          MyText("11/02/2024"),
         ),
         const DataCell(
-          Text("11/02/2024"),
+          MyText("11/02/2024"),
         ),
         DataCell(
           Row(
@@ -190,7 +190,7 @@ class TaskPageState extends State<TaskPage> {
                 ),
               ),
               kSizedBoxWidthTiny,
-              const Text("Undone"),
+              const MyText("Undone"),
             ],
           ),
         ),

@@ -36,7 +36,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //header
-            const Text(
+            const MyText(
               "Services",
               style: TextStyle(
                 fontSize: 20,
@@ -115,7 +115,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      const MyText(
                         "Serenity bungalow",
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.w500),
@@ -220,12 +220,14 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
         kSizedBox,
         Container(
           height: 70,
+          alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
           decoration: BoxDecoration(
             color: AppColors.black2,
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               MyText(
                 "Note",
@@ -246,7 +248,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                   size: 16,
                   weight: 400,
                   color: AppColors.white,
-                  maxLines: 2,
+                  maxLines: 1,
                 ),
               )
             ],
@@ -283,7 +285,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              const MyText(
                 'Additional Fees',
                 style: TextStyle(
                   fontSize: 20,
@@ -308,7 +310,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          MyText(
                             'Rent',
                             style: TextStyle(
                               fontSize: 16,
@@ -316,7 +318,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          const MyText(
                             'N58,000,000',
                             style: TextStyle(
                               fontSize: 20,
@@ -335,7 +337,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          MyText(
                             'Brokerage Fees',
                             style: TextStyle(
                               fontSize: 16,
@@ -343,7 +345,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          const MyText(
                             '15%',
                             style: TextStyle(
                               fontSize: 20,
@@ -372,7 +374,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          MyText(
                             'Caution Fees',
                             style: TextStyle(
                               fontSize: 16,
@@ -380,7 +382,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          const MyText(
                             'N25,000',
                             style: TextStyle(
                               fontSize: 20,
@@ -399,7 +401,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          MyText(
                             'Legal Fees',
                             style: TextStyle(
                               fontSize: 16,
@@ -407,7 +409,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          const MyText(
                             'N50,000',
                             style: TextStyle(
                               fontSize: 20,
@@ -446,7 +448,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
           ),
           kSizedBoxWidthSM,
           Expanded(
-            child: Text(
+            child: MyText(
               text,
               style: const TextStyle(
                 fontSize: 16,
@@ -473,7 +475,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            const MyText(
               'Description',
               style: TextStyle(
                 fontSize: 24,
@@ -482,7 +484,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            const MyText(
               'Discover your own piece of paradise with the Seaside Serenity Villa. With an open floor plan, breathtaking ocean views from every room, and direct access to a pristine sandy beach, this property is the epitome of coastal living.',
               style: TextStyle(
                 fontSize: 16,
@@ -521,7 +523,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              Text(
+                              MyText(
                                 'Bedrooms',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -531,7 +533,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          const MyText(
                             '04',
                             style: TextStyle(
                               fontSize: 28,
@@ -563,7 +565,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              Text(
+                              MyText(
                                 'Bathrooms',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -573,7 +575,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          const MyText(
                             '03',
                             style: TextStyle(
                               fontSize: 28,
@@ -605,7 +607,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              Text(
+                              MyText(
                                 'Area',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -616,7 +618,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                           ),
                           const SizedBox(height: 8),
                           const Expanded(
-                            child: Text(
+                            child: MyText(
                               '1,500 Square Feet',
                               style: TextStyle(
                                 fontSize: 28,
@@ -646,7 +648,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Features and Amenities
-          const Text(
+          const MyText(
             'Key Features and Amenities',
             style: TextStyle(
               fontSize: 24,

@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -37,7 +38,7 @@ class MyRadio<T> extends StatelessWidget {
               onChanged: onChanged,
             ),
           ),
-          Text(
+          MyText(
             label,
             style: const TextStyle(fontSize: 16),
           ),

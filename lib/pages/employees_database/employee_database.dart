@@ -5,6 +5,7 @@ import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_radio.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -47,11 +48,11 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      MyText(
                         'Employee’s Database',
                         style: AppText.black_600_32,
                       ),
-                      Text(
+                      MyText(
                         'Employee’s Database',
                         style: AppText.black_600_14,
                       ),
@@ -162,32 +163,32 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "Employee ID",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Employee Name",
         ),
       ),
-      const DataColumn(label: Text("Department")),
+      const DataColumn(label: MyText("Department")),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Designation",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "E. Type",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Status",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Action",
         ),
       ),
@@ -198,7 +199,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          Text("345321231"),
+          MyText("345321231"),
         ),
         DataCell(
           onTap: () {
@@ -217,15 +218,15 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
               const SizedBox(
                 width: 8,
               ),
-              const Text("Darlene Robertson"),
+              const MyText("Darlene Robertson"),
             ],
           ),
         ),
         const DataCell(
-          Text("Design"),
+          MyText("Design"),
         ),
         const DataCell(
-          Text("UI/UX Designer"),
+          MyText("UI/UX Designer"),
         ),
         DataCell(
           Column(
@@ -244,7 +245,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
                             .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6)),
                     child: const Center(
-                      child: Text("Full-time"),
+                      child: MyText("Full-time"),
                     ),
                   ),
                 ],
@@ -269,7 +270,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
                             .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6)),
                     child: const Center(
-                      child: Text("Retired"),
+                      child: MyText("Retired"),
                     ),
                   ),
                 ],
@@ -339,7 +340,7 @@ class FilterDialogState extends State<FilterDialog> {
           children: [
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text("Filter",
+              child: MyText("Filter",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 20),
@@ -363,7 +364,7 @@ class FilterDialogState extends State<FilterDialog> {
             const SizedBox(height: 20),
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text("Department",
+              child: MyText("Department",
                   style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 10),
@@ -386,7 +387,7 @@ class FilterDialogState extends State<FilterDialog> {
                       },
                     ),
                     kSizedBoxWidthSM,
-                    Text(
+                    MyText(
                       dept,
                       style: const TextStyle(color: Colors.black),
                     ),
@@ -397,7 +398,7 @@ class FilterDialogState extends State<FilterDialog> {
             const SizedBox(height: 20),
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text("Select Type",
+              child: MyText("Select Type",
                   style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 10),

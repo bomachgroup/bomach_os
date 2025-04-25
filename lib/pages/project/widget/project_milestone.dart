@@ -70,29 +70,29 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "S/N",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Milestone Title",
         ),
       ),
       const DataColumn(
-        label: Text("Milestone cost"),
+        label: MyText("Milestone cost"),
       ),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Task count",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Status",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Action",
         ),
       ),
@@ -103,7 +103,7 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          Text("1."),
+          MyText("1."),
         ),
         DataCell(
           onTap: () {
@@ -112,13 +112,13 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
               builder: (context) => const MilestoneDetailDialog(),
             );
           },
-          const Text("Benji user UI"),
+          const MyText("Benji user UI"),
         ),
         const DataCell(
-          Text("\$2.00"),
+          MyText("\$2.00"),
         ),
         const DataCell(
-          Text("1"),
+          MyText("1"),
         ),
         DataCell(
           Column(
@@ -137,7 +137,7 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
                             .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6)),
                     child: const Center(
-                      child: Text("Incomplete"),
+                      child: MyText("Incomplete"),
                     ),
                   ),
                 ],
@@ -184,7 +184,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  const MyText(
                     'Create Milestones',
                     style: TextStyle(
                       fontSize: 24,
@@ -393,7 +393,7 @@ class MilestoneDetailDialog extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  const MyText(
                     'Milestone Details',
                     style: TextStyle(
                       fontSize: 24,
@@ -496,7 +496,7 @@ class MilestoneDetailDialog extends StatelessWidget {
         children: [
           SizedBox(
             width: 200,
-            child: Text(
+            child: MyText(
               label,
               style: TextStyle(
                 fontSize: 16,
@@ -505,7 +505,7 @@ class MilestoneDetailDialog extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
+            child: MyText(
               value,
               style: const TextStyle(
                 fontSize: 16,

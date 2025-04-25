@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class CreateMilestone extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  const MyText(
                     'Create Milestones',
                     style: AppText.black_500_28,
                   ),
@@ -80,7 +81,7 @@ class CreateMilestone extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  const Text('Milestone Summary/Description*'),
+                  const MyText('Milestone Summary/Description*'),
                   const SizedBox(
                     height: 8,
                   ),
@@ -126,7 +127,7 @@ class CreateMilestone extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const Text('Cancel'),
+                  const MyText('Cancel'),
                   const SizedBox(
                     width: 16,
                   ),
@@ -136,7 +137,7 @@ class CreateMilestone extends StatelessWidget {
                       decoration: BoxDecoration(
                           color: AppColors.blue,
                           borderRadius: BorderRadius.circular(14)),
-                      child: const Text(
+                      child: const MyText(
                         'Save',
                         style: AppText.white_400_16,
                       )),

@@ -2,6 +2,7 @@ import 'package:bms_front_end/components/button/signin_button.dart';
 import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/scaffold/scaffold.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -50,7 +51,7 @@ class LoginScreen extends StatelessWidget {
                   child: Image.asset("assets/logo/bomach.png"),
                 ),
                 kSizedBoxTiny,
-                const Text(
+                const MyText(
                   "Hey, welcome",
                   style: TextStyle(
                     fontSize: 14,
@@ -59,7 +60,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 kSizedBoxSM,
-                const Text(
+                const MyText(
                   "Sign In",
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
@@ -100,7 +101,7 @@ class LoginScreen extends StatelessWidget {
                         onChanged: (val) {},
                       ),
                       kSizedBoxWidthSM,
-                      const Text(
+                      const MyText(
                         "Show Password",
                         style: TextStyle(color: Colors.white, fontSize: 12),
                       )
@@ -120,7 +121,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const Row(
                   children: [
-                    Text(
+                    MyText(
                       "Forgot password?",
                       style: TextStyle(
                           color: Colors.white,

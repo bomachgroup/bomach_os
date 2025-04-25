@@ -38,11 +38,11 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                MyText(
                   'Clients',
                   style: AppText.black_600_32,
                 ),
-                Text(
+                MyText(
                   'Clients',
                   style: AppText.black_600_14,
                 ),
@@ -125,41 +125,41 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: Text(
+        label: MyText(
           "Client ID",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Client Name",
         ),
       ),
       const DataColumn(
-          label: Text(
+          label: MyText(
         "Email",
       )),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Phone Number",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "PJ Number",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Start",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Status",
         ),
       ),
       const DataColumn(
-        label: Text(
+        label: MyText(
           "Action",
         ),
       ),
@@ -170,7 +170,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         const DataCell(
-          Text("#23456"),
+          MyText("#23456"),
         ),
         DataCell(
           onTap: () {
@@ -206,16 +206,16 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
           ),
         ),
         const DataCell(
-          Text("Jennygroup45@gmail.com"),
+          MyText("Jennygroup45@gmail.com"),
         ),
         const DataCell(
-          Text("+234 808 986 2487"),
+          MyText("+234 808 986 2487"),
         ),
         const DataCell(
-          Text("002"),
+          MyText("002"),
         ),
         const DataCell(
-          Text("27/09/2024"),
+          MyText("27/09/2024"),
         ),
         DataCell(
           Row(
@@ -229,7 +229,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
                 ),
               ),
               kSizedBoxWidthTiny,
-              const Text("Active"),
+              const MyText("Active"),
             ],
           ),
         ),
@@ -426,7 +426,7 @@ class ClientInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          const MyText(
             'Client',
             style: TextStyle(
               fontSize: 16,
@@ -450,14 +450,14 @@ class ClientInfoCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const MyText(
                     'Miss Jane',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const Text(
+                  const MyText(
                     'Jenny group of company',
                     style: TextStyle(
                       fontSize: 14,
@@ -466,7 +466,7 @@ class ClientInfoCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  MyText(
                     'Last login: 23:01, 1/10/2024',
                     style: TextStyle(
                       fontSize: 11,
@@ -512,7 +512,7 @@ class StatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MyText(
             title,
             style: const TextStyle(
               fontSize: 16,
@@ -524,7 +524,7 @@ class StatsCard extends StatelessWidget {
             // mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              MyText(
                 value,
                 style: const TextStyle(
                   fontSize: 28,
@@ -572,7 +572,7 @@ class ProfileInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          const MyText(
             'Profile Info',
             style: TextStyle(
               fontSize: 18,
@@ -589,7 +589,7 @@ class ProfileInfoCard extends StatelessWidget {
               return Row(
                 children: [
                   Expanded(
-                    child: Text(
+                    child: MyText(
                       infoItems[index]['label']!,
                       style: TextStyle(
                         color: Colors.grey.shade600,
@@ -597,7 +597,7 @@ class ProfileInfoCard extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Text(
+                    child: MyText(
                       infoItems[index]['value']!,
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
@@ -632,7 +632,7 @@ class ProjectsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          const MyText(
             'Projects',
             style: TextStyle(
               fontSize: 18,
@@ -706,7 +706,7 @@ class InvoiceContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        const MyText(
                           'INVOICE',
                           style: TextStyle(
                             fontSize: 36,
@@ -715,7 +715,7 @@ class InvoiceContent extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        MyText(
                           '#794653',
                           style: TextStyle(
                             fontSize: 32,
@@ -736,10 +736,10 @@ class InvoiceContent extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
+                              child: MyText(
                                 'Bill date: 02.08.2024',
                                 maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
+                                // overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black54,
@@ -759,10 +759,10 @@ class InvoiceContent extends StatelessWidget {
                             ),
                             SizedBox(width: 4),
                             Expanded(
-                              child: Text(
+                              child: MyText(
                                 'Due: 12.08.2024',
                                 maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
+                                // overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black54,
@@ -788,7 +788,7 @@ class InvoiceContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        MyText(
                           'FROM:',
                           style: TextStyle(
                             fontSize: 14,
@@ -796,7 +796,7 @@ class InvoiceContent extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 8),
-                        Text(
+                        MyText(
                           'Bomach group',
                           style: TextStyle(
                             fontSize: 20,
@@ -804,7 +804,7 @@ class InvoiceContent extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 8),
-                        Text(
+                        MyText(
                           'Suite 9 Swiss Guard Plaza,450 Ogui Road,\nEnugu state, Nigeria.',
                           style: TextStyle(
                             fontSize: 12,
@@ -822,7 +822,7 @@ class InvoiceContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        MyText(
                           'TO:',
                           style: TextStyle(
                             fontSize: 14,
@@ -830,7 +830,7 @@ class InvoiceContent extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 8),
-                        Text(
+                        MyText(
                           'Jenny group',
                           style: TextStyle(
                             fontSize: 20,
@@ -838,7 +838,7 @@ class InvoiceContent extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 8),
-                        Text(
+                        MyText(
                           'plot 2,\n6 Kelly Rd, Uwani\nEnugu, Nigeria',
                           style: TextStyle(
                             color: AppColors.darkGrey2,
@@ -856,7 +856,7 @@ class InvoiceContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        MyText(
                           'INFO:',
                           style: TextStyle(
                             fontSize: 14,
@@ -893,7 +893,7 @@ class InvoiceContent extends StatelessWidget {
                         children: [
                           Expanded(
                             flex: 2,
-                            child: Text(
+                            child: MyText(
                               'QUANTITY',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -902,7 +902,7 @@ class InvoiceContent extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 5,
-                            child: Text(
+                            child: MyText(
                               'SERVICE',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -911,7 +911,7 @@ class InvoiceContent extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 2,
-                            child: Text(
+                            child: MyText(
                               'COST',
                               textAlign: TextAlign.right,
                               style: TextStyle(
@@ -973,7 +973,7 @@ class InvoiceContent extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             // Total
-                            Text(
+                            MyText(
                               'TOTAL',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -985,7 +985,7 @@ class InvoiceContent extends StatelessWidget {
                             SizedBox(height: 16),
 
                             // Subtotal
-                            Text(
+                            MyText(
                               'SUBTOTAL',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -996,7 +996,7 @@ class InvoiceContent extends StatelessWidget {
                             SizedBox(height: 8),
 
                             // Tax
-                            Text(
+                            MyText(
                               'TAX',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -1011,7 +1011,7 @@ class InvoiceContent extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             // Total
-                            Text(
+                            MyText(
                               '\$ 7000',
                               style: TextStyle(
                                 fontSize: 18,
@@ -1022,7 +1022,7 @@ class InvoiceContent extends StatelessWidget {
                             SizedBox(height: 16),
 
                             // Subtotal
-                            Text(
+                            MyText(
                               '\$ 7000',
                               style: TextStyle(
                                 color: Colors.black54,
@@ -1031,7 +1031,7 @@ class InvoiceContent extends StatelessWidget {
 
                             SizedBox(height: 8),
 
-                            Text(
+                            MyText(
                               '\$ 000',
                               style: TextStyle(
                                 color: Colors.black54,
@@ -1067,7 +1067,7 @@ class InfoRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MyText(
             label,
             style: const TextStyle(
               fontSize: 12,
@@ -1075,7 +1075,7 @@ class InfoRow extends StatelessWidget {
               color: AppColors.darkGrey2,
             ),
           ),
-          Text(
+          MyText(
             value,
             style: const TextStyle(
               fontSize: 10,
@@ -1116,7 +1116,7 @@ class ServiceItem extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 kSizedBoxWidth,
-                Text(
+                MyText(
                   quantity,
                   style: const TextStyle(
                     fontSize: 16,
@@ -1131,7 +1131,7 @@ class ServiceItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                MyText(
                   service,
                   style: const TextStyle(
                     fontSize: 16,
@@ -1139,7 +1139,7 @@ class ServiceItem extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                MyText(
                   description,
                   style: TextStyle(
                     fontSize: 14,
@@ -1151,7 +1151,7 @@ class ServiceItem extends StatelessWidget {
           ),
           Expanded(
             flex: 2,
-            child: Text(
+            child: MyText(
               cost,
               textAlign: TextAlign.right,
               style: const TextStyle(
@@ -1192,7 +1192,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  const MyText(
                     'Invoice Form',
                     style: TextStyle(
                       fontSize: 24,

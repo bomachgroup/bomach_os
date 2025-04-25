@@ -16,7 +16,7 @@ class ProjectFiles extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("No file found "),
+          const MyText("No file found "),
           kSizedBoxSM,
           DottedBorder(
             color: AppColors.blue,
@@ -42,7 +42,7 @@ class ProjectFiles extends StatelessWidget {
                     ),
                   ),
                   kSizedBoxSM,
-                  const Text(
+                  const MyText(
                     'Drag & Drop or choose file to upload',
                     textAlign: TextAlign.center,
                   ),

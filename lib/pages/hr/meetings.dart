@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:flutter/material.dart';
 
 import '../../src/constants/textstyle.dart';
@@ -10,7 +11,7 @@ class Meetings extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const MyText(
           'Meetings',
           style: AppText.black_500_32,
         ),
@@ -20,7 +21,7 @@ class Meetings extends StatelessWidget {
             onPressed: () {},
             child: const Row(
               children: [
-                Text(
+                MyText(
                   "Meeting",
                   style: AppText.black_400_14,
                 ),
