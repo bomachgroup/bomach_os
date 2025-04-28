@@ -199,8 +199,18 @@ class _LeadsPageState extends State<LeadsPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText("Darlene Robertson", size: 16, weight: 400),
-                      MyText("MTN Nigeria", size: 14, weight: 300)
+                      MyText(
+                        "Darlene Robertson",
+                        size: 16,
+                        weight: 400,
+                        isSelectable: false,
+                      ),
+                      MyText(
+                        "MTN Nigeria",
+                        size: 14,
+                        weight: 300,
+                        isSelectable: false,
+                      )
                     ],
                   ),
                 ],

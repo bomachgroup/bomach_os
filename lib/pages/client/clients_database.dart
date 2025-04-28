@@ -198,7 +198,12 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MyText("Darlene Robertson", size: 16, weight: 400),
+                  MyText(
+                    "Darlene Robertson",
+                    size: 16,
+                    weight: 400,
+                    isSelectable: false,
+                  ),
                   MyText("Jenny group of company", size: 14, weight: 300)
                 ],
               ),

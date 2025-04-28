@@ -218,7 +218,10 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
               const SizedBox(
                 width: 8,
               ),
-              const MyText("Darlene Robertson"),
+              const MyText(
+                "Darlene Robertson",
+                isSelectable: false,
+              ),
             ],
           ),
         ),

@@ -197,8 +197,18 @@ class _LeavesPageState extends State<LeavesPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MyText("Darlene Robertson", size: 16, weight: 400),
-                  MyText("UI/UX Designer", size: 14, weight: 300)
+                  MyText(
+                    "Darlene Robertson",
+                    size: 16,
+                    weight: 400,
+                    isSelectable: false,
+                  ),
+                  MyText(
+                    "UI/UX Designer",
+                    size: 14,
+                    weight: 300,
+                    isSelectable: false,
+                  )
                 ],
               ),
             ],
@@ -214,28 +224,31 @@ class _LeavesPageState extends State<LeavesPage> {
           MyText("Yes"),
         ),
         DataCell(
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 0.6,
-                            color: getRandomColorFromList('Earned👍🏼')),
-                        color: getRandomColorFromList('Earned👍🏼')
-                            .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6)),
-                    child: const Center(
-                      child: MyText("Earned👍🏼"),
+          SizedBox(
+            width: 100,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                              width: 0.6,
+                              color: getRandomColorFromList('Earned👍🏼')),
+                          color: getRandomColorFromList('Earned👍🏼')
+                              .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6)),
+                      child: const Center(
+                        child: MyText("Earned👍🏼"),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
         DataCell(
