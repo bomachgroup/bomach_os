@@ -72,6 +72,7 @@ class _EmployeeInfoStepperState extends State<EmployeeInfoStepper> {
               kSizedBoxWidthSM,
               MyText(
                 widget.title,
+                isSelectable: false,
                 key: _textKey,
                 weight: widget.isActive ? 600 : 300,
                 size: 16,

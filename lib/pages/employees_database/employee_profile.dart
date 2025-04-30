@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/project/widget/project_task.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -22,7 +23,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
     const ProfiledDetail(),
     const ReportFiles(),
     const Projects(),
-    const Task()
+    const ProjectTask()
   ];
   @override
   Widget build(BuildContext context) {
@@ -180,6 +181,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                           ? null
                           : MyText(
                               'Profile',
+                              isSelectable: false,
                               style: employeeDetailSelectionState == 0
                                   ? AppText.white_600_16
                                   : AppText.sideMText_300_16,
@@ -216,6 +218,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                           ? null
                           : MyText(
                               'Reports Files',
+                              isSelectable: false,
                               style: employeeDetailSelectionState == 1
                                   ? AppText.white_600_16
                                   : AppText.sideMText_300_16,
@@ -250,6 +253,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                           ? null
                           : MyText(
                               'Projects',
+                              isSelectable: false,
                               style: employeeDetailSelectionState == 2
                                   ? AppText.white_600_16
                                   : AppText.sideMText_300_16,
@@ -286,6 +290,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                           ? null
                           : MyText(
                               'Tasks',
+                              isSelectable: false,
                               style: employeeDetailSelectionState == 3
                                   ? AppText.white_600_16
                                   : AppText.sideMText_300_16,
@@ -742,15 +747,6 @@ class ProfileFiedsHolder extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class Task extends StatelessWidget {
-  const Task({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }
 

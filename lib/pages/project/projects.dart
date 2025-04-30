@@ -186,7 +186,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
             context.go(RouteConstants.eachProjects);
           },
           const SizedBox(
-              width: 152, child: MyText("Benji Express mobile app project")),
+              width: 152,
+              child: MyText(
+                "Benji Express mobile app project",
+                isSelectable: false,
+              )),
         ),
         DataCell(
           SizedBox(
