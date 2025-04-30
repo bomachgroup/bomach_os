@@ -55,7 +55,7 @@ class MyElevatedButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderCurve ?? 16),
         ),
         shadowColor: AppColors.black.withValues(alpha: 0.4),
-        minimumSize: Size(0, height ?? 44), // Allows flexible width
+        minimumSize: Size(width ?? 0, height ?? 44), // Allows flexible width
       ),
       child: isLoading
           ? const SizedBox(

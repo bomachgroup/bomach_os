@@ -102,8 +102,8 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
   List<DataRow> _createRows(BuildContext context) {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText("1."),
+        DataCell(
+          MyText("{$index+1.}"),
         ),
         DataCell(
           onTap: () {
@@ -118,7 +118,7 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
           MyText("\$2.00"),
         ),
         const DataCell(
-          MyText("1"),
+          MyText("01"),
         ),
         DataCell(
           Column(
