@@ -1,5 +1,7 @@
+import 'package:bms_front_end/firebase_options.dart';
 import 'package:bms_front_end/src/app_routes/app_router.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,6 +9,9 @@ late SharedPreferences prefs;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   prefs = await SharedPreferences.getInstance();
 
