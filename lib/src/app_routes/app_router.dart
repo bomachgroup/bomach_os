@@ -4,7 +4,7 @@ import 'package:bms_front_end/components/text/my_text.dart';
 // Page imports
 import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
-import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/pages/project/widget/clients_database.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';

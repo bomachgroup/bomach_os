@@ -21,9 +21,10 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
   int employeeDetailSelectionState = 0;
   final List<Widget> _employeeDetailpages = [
     const ProfiledDetail(),
-    const ReportFiles(),
+    const SizedBox(),
     const Projects(),
-    const ProjectTaskTable()
+    const ProjectTaskTable(),
+    const ReportFiles(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -217,14 +218,14 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       title: isSmallScreen(context)
                           ? null
                           : MyText(
-                              'Reports Files',
+                              'Activity',
                               isSelectable: false,
                               style: employeeDetailSelectionState == 1
                                   ? AppText.white_600_16
                                   : AppText.sideMText_300_16,
                             ),
                       leading: SvgPicture.asset(
-                        "assets/svg/todo.svg",
+                        "assets/svg/heart-rate.svg",
                         colorFilter: ColorFilter.mode(
                             employeeDetailSelectionState == 1
                                 ? AppColors.white
@@ -296,9 +297,44 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                                   : AppText.sideMText_300_16,
                             ),
                       leading: SvgPicture.asset(
-                        "assets/svg/todo.svg",
+                        "assets/svg/tasks.svg",
                         colorFilter: ColorFilter.mode(
                             employeeDetailSelectionState == 3
+                                ? AppColors.white
+                                : AppColors.black,
+                            BlendMode.srcIn),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: employeeDetailSelectionState == 4
+                            ? AppColors.blue
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: ListTile(
+                      contentPadding: !isSmallScreen(context)
+                          ? null
+                          : const EdgeInsets.symmetric(
+                              horizontal: 11, vertical: 0),
+                      onTap: () {
+                        setState(() {
+                          employeeDetailSelectionState = 4;
+                        });
+                      },
+                      title: isSmallScreen(context)
+                          ? null
+                          : MyText(
+                              'Reports Files',
+                              isSelectable: false,
+                              style: employeeDetailSelectionState == 4
+                                  ? AppText.white_600_16
+                                  : AppText.sideMText_300_16,
+                            ),
+                      leading: SvgPicture.asset(
+                        "assets/svg/todo.svg",
+                        colorFilter: ColorFilter.mode(
+                            employeeDetailSelectionState == 4
                                 ? AppColors.white
                                 : AppColors.black,
                             BlendMode.srcIn),

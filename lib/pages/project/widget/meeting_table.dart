@@ -181,7 +181,13 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText("O2 Arena Estate Dev", size: 24, weight: 600),
+                  const Expanded(
+                      child: MyText(
+                    "O2 Arena Estate Dev",
+                    size: 24,
+                    weight: 600,
+                    maxLines: 1,
+                  )),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -231,11 +237,11 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: kDefaultSpaceBG, vertical: kDefaultSpaceBG),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       kSizedBox,
-                      const Row(
+                      Row(
                         children: [
                           Expanded(
                             child: Wrap(
@@ -247,31 +253,9 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
                           ),
                         ],
                       ),
-                      const MeetingInfoCard(),
+                      MeetingInfoCard(),
                       kSizedBox,
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          color: AppColors.white,
-                          border: Border.all(
-                            color: AppColors.grey4,
-                            width: 0.6,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(16.0),
-                        child: const Column(
-                          children: [
-                            MyText(
-                              'Suggestions and comments',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                          ],
-                        ),
-                      ),
+                      SuggestionsAndComments(),
                     ],
                   ),
                 ),
@@ -280,6 +264,217 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class SuggestionsAndComments extends StatelessWidget {
+  const SuggestionsAndComments({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: AppColors.white,
+        border: Border.all(
+          color: AppColors.grey4,
+          width: 0.6,
+        ),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      child: const Column(
+        children: [
+          Row(
+            children: [
+              MyText(
+                'Suggestions and comments',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          kSizedBoxSM,
+          Column(
+            children: [
+              MessageBubble(
+                message:
+                    '@janeagbo she talk up the function of a program manager.',
+                time: '9:54 PM',
+                isMe: false,
+              ),
+              MessageBubble(
+                message: 'I solely think thats gonna be the best idea for now',
+                time: '9:54 PM',
+                isMe: false,
+              ),
+              MessageBubble(
+                message:
+                    'uhh... I guess we should give everyone time to think about and come up with a better suggestion..',
+                time: '9:54 PM',
+                isMe: true,
+              ),
+            ],
+          ),
+          kSizedBoxSM,
+          ChatInputField(),
+        ],
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  final String message;
+  final String time;
+  final bool isMe;
+
+  const MessageBubble({
+    super.key,
+    required this.message,
+    required this.time,
+    required this.isMe,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isMe ? AppColors.blue : AppColors.grey6,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            MyText(
+              message,
+              style: TextStyle(
+                color: isMe ? AppColors.grey6 : AppColors.black,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MyText(
+                  time,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: isMe ? AppColors.grey6 : Colors.black54,
+                  ),
+                ),
+                SvgPicture.asset(
+                  "assets/svg/two-checks.svg",
+                  colorFilter: ColorFilter.mode(
+                    isMe ? AppColors.grey6 : Colors.black54,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ChatInputField extends StatelessWidget {
+  const ChatInputField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const SizedBox(width: 8),
+        Expanded(
+          child: TextField(
+            cursorColor: Colors.black,
+            decoration: InputDecoration(
+              hintText: 'Write a message...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(
+                  color: AppColors.card,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(
+                  color: AppColors.card,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(
+                  color: AppColors.card,
+                  width: 2,
+                ),
+              ),
+              filled: true,
+              fillColor: AppColors.greyBg,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              prefixIcon: PopupMenuButton<String>(
+                color: AppColors.white,
+                icon: SvgPicture.asset("assets/svg/clip.svg"),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'photo',
+                    child: Row(
+                      children: [
+                        SvgPicture.asset("assets/svg/picture.svg"),
+                        kSizedBoxWidthSM,
+                        const Text('Photo or video'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'camera',
+                    child: Row(
+                      children: [
+                        SvgPicture.asset("assets/svg/camera.svg"),
+                        kSizedBoxWidthSM,
+                        const Text('Camera'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'file',
+                    child: Row(
+                      children: [
+                        SvgPicture.asset("assets/svg/file.svg"),
+                        kSizedBoxWidthSM,
+                        const Text('File'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset("assets/svg/emoji.svg"),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: SvgPicture.asset("assets/svg/record.svg"),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
