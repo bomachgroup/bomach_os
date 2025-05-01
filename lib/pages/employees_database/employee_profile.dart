@@ -1,14 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/employees_database/widget/add_note_dialog.dart';
 import 'package:bms_front_end/pages/employees_database/widget/assign_task_dialog.dart';
+import 'package:bms_front_end/pages/employees_database/widget/documents_table.dart';
+import 'package:bms_front_end/pages/employees_database/widget/report_files_table.dart';
 import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_svg/svg.dart';
 
 class EmployeeProfile extends StatefulWidget {
@@ -25,7 +27,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
     const SizedBox(),
     const Projects(),
     const ProjectTaskTable(),
-    const ReportFiles(),
+    const ReportFilesTable(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -129,27 +131,60 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                         ),
                       ],
                     ),
-                    MyElevatedButton(
-                      icon: Icon(
-                        employeeDetailSelectionState == 3
-                            ? Icons.add_circle_outline_rounded
-                            : Icons.edit,
-                        color: AppColors.white,
-                      ),
-                      child: employeeDetailSelectionState == 3
-                          ? "Assign Task"
-                          : 'Edit Profile',
-                      onTap: () {
-                        if (employeeDetailSelectionState == 3) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AssignTaskDialog();
-                            },
-                          );
-                        }
-                      },
-                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            MyElevatedButton(
+                              icon: SvgPicture.asset(
+                                employeeDetailSelectionState == 3
+                                    ? "assets/svg/add-circle.svg"
+                                    : "assets/svg/edit-pencil.svg",
+                                colorFilter: const ColorFilter.mode(
+                                    AppColors.white, BlendMode.srcIn),
+                              ),
+                              child: employeeDetailSelectionState == 3
+                                  ? "Assign Task"
+                                  : employeeDetailSelectionState == 4
+                                      ? "Add Notes"
+                                      : 'Edit Profile',
+                              onTap: () {
+                                if (employeeDetailSelectionState == 3) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return const AssignTaskDialog();
+                                    },
+                                  );
+                                }
+                                if (employeeDetailSelectionState == 4) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return const AddNoteDialog();
+                                    },
+                                  );
+                                }
+                              },
+                            ),
+                            kSizedBoxWidth,
+                            if (employeeDetailSelectionState == 4)
+                              MyElevatedButton(
+                                icon: SvgPicture.asset(
+                                  "assets/svg/upload3.svg",
+                                  colorFilter: const ColorFilter.mode(
+                                      AppColors.white, BlendMode.srcIn),
+                                ),
+                                child: "Upload file",
+                                onTap: () {},
+                              ),
+                          ],
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -385,7 +420,7 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
   final List<Widget> _employeeProfilePages = [
     const PersonalInfoDetail(),
     const ProfessionaInfoDetail(),
-    const DocumentDetail()
+    const DocumentsTable()
   ];
   int employeeProfileSelectionStepperState = 0;
 
@@ -462,70 +497,12 @@ class _ProfiledDetailState extends State<ProfiledDetail> {
   }
 }
 
-class ReportFiles extends StatelessWidget {
-  const ReportFiles({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutGrid(
-      columnSizes: !isLargeScreen(context) ? [1.fr] : [1.fr, 1.fr],
-      rowSizes: const [
-        auto,
-        auto,
-        auto,
-        auto,
-        auto,
-        auto,
-      ],
-      columnGap: kDefaultSpaceBG,
-      rowGap: kDefaultSpaceBG,
-      children: const [
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-      ],
-    );
-  }
-}
-
 class Projects extends StatelessWidget {
   const Projects({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container();
-  }
-}
-
-class DocumentDetail extends StatelessWidget {
-  const DocumentDetail({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutGrid(
-      columnSizes: !isLargeScreen(context) ? [1.fr] : [1.fr, 1.fr],
-      rowSizes: const [
-        auto,
-        auto,
-        auto,
-        auto,
-        auto,
-        auto,
-      ],
-      columnGap: kDefaultSpaceBG,
-      rowGap: kDefaultSpaceBG,
-      children: const [
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-        DocumentHolder(documentDetail: "Aso Villa PJ report 12/8/2024.png"),
-      ],
-    );
   }
 }
 

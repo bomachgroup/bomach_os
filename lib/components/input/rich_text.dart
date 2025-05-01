@@ -3,7 +3,8 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class RichTextEditor extends StatefulWidget {
-  const RichTextEditor({super.key});
+  final bool removeAt;
+  const RichTextEditor({super.key, this.removeAt = false});
 
   @override
   State<RichTextEditor> createState() => _RichTextEditorState();
@@ -102,6 +103,9 @@ class _RichTextEditorState extends State<RichTextEditor> {
   }
 
   void _checkForTagTrigger(String value) {
+    if (widget.removeAt) {
+      return;
+    }
     // Check if '@' is typed and show project tag suggestions
     final selection = _controller.selection;
     if (selection.isCollapsed && selection.start > 0) {
@@ -195,34 +199,38 @@ class _RichTextEditorState extends State<RichTextEditor> {
                 color: _isStrikethrough ? AppColors.blue : AppColors.black),
             _toggleStrikethrough,
           ),
-          _buildFormatButton(
-            const Icon(Icons.alternate_email),
-            () {
-              // Insert @ symbol at current cursor position
-              final selection = _controller.selection;
-              final newText = _controller.text
-                  .replaceRange(selection.start, selection.end, '@');
-              _controller.value = TextEditingValue(
-                text: newText,
-                selection: TextSelection.collapsed(offset: selection.start + 1),
-              );
-              setState(() {
-                _showProjectTagSuggestions = true;
-                _currentTagQuery = '';
-              });
-              _focusNode.requestFocus();
-            },
-          ),
-          Expanded(
-            child: MyText(
-              '(use the @ button to make reference to a particular project or Tasks. E.g @#123TSK)',
-              maxLines: 1,
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+          if (!widget.removeAt)
+            _buildFormatButton(
+              const Icon(Icons.alternate_email),
+              () {
+                // Insert @ symbol at current cursor position
+                final selection = _controller.selection;
+                final newText = _controller.text
+                    .replaceRange(selection.start, selection.end, '@');
+                _controller.value = TextEditingValue(
+                  text: newText,
+                  selection:
+                      TextSelection.collapsed(offset: selection.start + 1),
+                );
+                setState(() {
+                  _showProjectTagSuggestions = true;
+                  _currentTagQuery = '';
+                });
+                _focusNode.requestFocus();
+              },
             ),
-          ),
-          const SizedBox(width: 8),
-          const MyText('*',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          if (!widget.removeAt) ...[
+            Expanded(
+              child: MyText(
+                '(use the @ button to make reference to a particular project or Tasks. E.g @#123TSK)',
+                maxLines: 1,
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const MyText('*',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          ]
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/input/rich_text.dart';
+import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/employees_database/widget/employee_table.dart';
@@ -10,7 +11,6 @@ import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
 import 'package:bms_front_end/pages/project/widget/site_equipment_table.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -181,15 +181,14 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
             ),
 
             // Form fields
-            Expanded(
+            const Expanded(
               child: SingleChildScrollView(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Column(
                     children: [
                       // First row
-                      const Row(
+                      Row(
                         children: [
                           // Choose Employee
                           Expanded(
@@ -223,10 +222,10 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       // Second row
-                      const Row(
+                      Row(
                         children: [
                           // Status
                           Expanded(
@@ -248,9 +247,9 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           MyTextFormField(
@@ -262,10 +261,10 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       // Start and End dates
-                      const Row(
+                      Row(
                         children: [
                           // Start date
                           Expanded(
@@ -297,9 +296,9 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           MyText(
@@ -312,7 +311,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       // File upload and Duration
                       Row(
@@ -323,56 +322,15 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const MyText(
+                                MyText(
                                   'Upload  File (optional)*',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                DottedBorder(
-                                  color: AppColors.blue,
-                                  dashPattern: const [5, 5],
-                                  strokeWidth: 2,
-                                  borderType: BorderType.RRect,
-                                  radius: const Radius.circular(8),
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    height: 150,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          alignment: Alignment.center,
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                              color: AppColors.blue,
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          width: 40,
-                                          height: 40,
-                                          child: SvgPicture.asset(
-                                            "assets/svg/upload.svg",
-                                          ),
-                                        ),
-                                        kSizedBoxSM,
-                                        const MyText(
-                                          'Drag & Drop or choose files to upload',
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const MyText(
-                                          'Supported formats : Jpeg, pdf',
-                                          textAlign: TextAlign.center,
-                                          size: 11,
-                                          weight: 300,
-                                          color: AppColors.darkGrey2,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                SizedBox(height: 8),
+                                UploadFile(),
                               ],
                             ),
                           ),

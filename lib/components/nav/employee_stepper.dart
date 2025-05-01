@@ -6,16 +6,18 @@ import 'package:flutter/material.dart';
 class EmployeeInfoStepper extends StatefulWidget {
   final String title;
   final bool isActive;
-  final Widget icon;
-  final Widget activeIcon;
+  final bool allowInactiveBorder;
+  final Widget? icon;
+  final Widget? activeIcon;
   final VoidCallback onTap;
 
   const EmployeeInfoStepper({
     super.key,
     required this.title,
     this.isActive = false,
-    required this.icon,
-    required this.activeIcon,
+    this.allowInactiveBorder = true,
+    this.icon,
+    this.activeIcon,
     required this.onTap,
   });
 
@@ -68,7 +70,8 @@ class _EmployeeInfoStepperState extends State<EmployeeInfoStepper> {
         children: [
           Row(
             children: [
-              widget.isActive ? widget.activeIcon : widget.icon,
+              (widget.isActive ? widget.activeIcon : widget.icon) ??
+                  const SizedBox(),
               kSizedBoxWidthSM,
               MyText(
                 widget.title,
@@ -85,7 +88,11 @@ class _EmployeeInfoStepperState extends State<EmployeeInfoStepper> {
             duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: widget.isActive ? AppColors.blue : AppColors.darkGrey3,
+              color: widget.isActive
+                  ? AppColors.blue
+                  : widget.allowInactiveBorder
+                      ? AppColors.darkGrey3
+                      : AppColors.transparent,
             ),
             width: _textWidth,
             height: 3,
