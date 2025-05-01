@@ -1,7 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/project/widget/project_task.dart';
+import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -23,7 +23,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
     const ProfiledDetail(),
     const ReportFiles(),
     const Projects(),
-    const ProjectTask()
+    const ProjectTaskTable()
   ];
   @override
   Widget build(BuildContext context) {

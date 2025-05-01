@@ -159,8 +159,12 @@ class TaskPageState extends State<TaskPage> {
         ),
         DataCell(
           onTap: () {},
-          const MyText("Benji Express user login Interface",
-              size: 16, weight: 400),
+          const MyText(
+            "Benji Express user login Interface",
+            size: 16,
+            weight: 400,
+            isSelectable: false,
+          ),
         ),
         DataCell(
           Container(

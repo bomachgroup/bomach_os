@@ -4,14 +4,14 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 
-class ProjectTask extends StatefulWidget {
-  const ProjectTask({super.key});
+class ProjectTaskTable extends StatefulWidget {
+  const ProjectTaskTable({super.key});
 
   @override
-  State<ProjectTask> createState() => _ProjectTaskState();
+  State<ProjectTaskTable> createState() => _ProjectTaskTableState();
 }
 
-class _ProjectTaskState extends State<ProjectTask> {
+class _ProjectTaskTableState extends State<ProjectTaskTable> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -102,8 +102,12 @@ class _ProjectTaskState extends State<ProjectTask> {
         ),
         DataCell(
           onTap: () {},
-          const MyText("Benji Express user login Interface",
-              size: 16, weight: 400),
+          const MyText(
+            "Benji Express user login Interface",
+            isSelectable: false,
+            size: 16,
+            weight: 400,
+          ),
         ),
         DataCell(
           Container(

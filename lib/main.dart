@@ -31,9 +31,9 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: AppColors.greyBg,
           useMaterial3: true,
           textSelectionTheme: TextSelectionThemeData(
-            selectionColor: Colors.blue.withValues(alpha: 0.3),
-            cursorColor: Colors.blue,
-            selectionHandleColor: Colors.blue,
+            selectionColor: AppColors.blue.withValues(alpha: 0.3),
+            cursorColor: AppColors.blue,
+            selectionHandleColor: AppColors.blue,
           ),
         ),
         routerConfig: goRouter,

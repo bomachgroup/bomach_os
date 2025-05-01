@@ -115,7 +115,10 @@ class _ProjectMembersState extends State<ProjectMembers> {
               const SizedBox(
                 width: 8,
               ),
-              const MyText("Darlene Robertson"),
+              const MyText(
+                "Darlene Robertson",
+                isSelectable: false,
+              ),
             ],
           ),
         ),

@@ -2,11 +2,12 @@ import 'package:bms_front_end/components/button/in_button.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/project/widget/meeting_table.dart';
 import 'package:bms_front_end/pages/project/widget/project_files.dart';
 import 'package:bms_front_end/pages/project/widget/project_members.dart';
 import 'package:bms_front_end/pages/project/widget/project_milestone.dart';
 import 'package:bms_front_end/pages/project/widget/project_overview.dart';
-import 'package:bms_front_end/pages/project/widget/project_task.dart';
+import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
 import 'package:bms_front_end/pages/project/widget/project_work_sites.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -27,9 +28,9 @@ class _EachProjectsState extends State<EachProjects> {
     const ProjectWorkSite(),
     const ProjectFiles(),
     const ProjectMilestone(),
-    const ProjectTask(),
-    // const ProjectAssociate(),
-    // const ProjectMeetings()
+    const ProjectTaskTable(),
+    const SizedBox(),
+    const MeetingTable()
   ];
   int projectMemberState = 0;
   @override
@@ -202,27 +203,27 @@ class _EachProjectsState extends State<EachProjects> {
               const SizedBox(
                 width: 10,
               ),
-              // InButton(
-              //   title: 'Associates',
-              //   onTap: () {
-              //     setState(() {
-              //       projectMemberState = 6;
-              //     });
-              //   },
-              //   isSelected: projectMemberState == 6,
-              // ),
-              // const SizedBox(
-              //   width: 10,
-              // ),
-              // InButton(
-              //   title: 'Meetings',
-              //   onTap: () {
-              //     setState(() {
-              //       projectMemberState = 7;
-              //     });
-              //   },
-              //   isSelected: projectMemberState == 7,
-              // ),
+              InButton(
+                title: 'Associates',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 6;
+                  });
+                },
+                isSelected: projectMemberState == 6,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              InButton(
+                title: 'Meetings',
+                onTap: () {
+                  setState(() {
+                    projectMemberState = 7;
+                  });
+                },
+                isSelected: projectMemberState == 7,
+              ),
             ],
           ),
         ),
