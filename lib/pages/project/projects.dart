@@ -5,13 +5,13 @@ import 'package:bms_front_end/components/chart/process_status.dart';
 import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -577,7 +577,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                           ),
                           const SizedBox(height: 24),
 
-                          Row(
+                          const Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // File upload
@@ -585,60 +585,17 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const MyText(
+                                    MyText(
                                       'Upload File (optional)*',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    DottedBorder(
-                                      color: AppColors.blue,
-                                      dashPattern: const [5, 5],
-                                      strokeWidth: 2,
-                                      borderType: BorderType.RRect,
-                                      radius: const Radius.circular(8),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        height: 150,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              alignment: Alignment.center,
-                                              padding: const EdgeInsets.all(10),
-                                              decoration: BoxDecoration(
-                                                  color: AppColors.blue,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              width: 40,
-                                              height: 40,
-                                              child: SvgPicture.asset(
-                                                "assets/svg/upload.svg",
-                                              ),
-                                            ),
-                                            kSizedBoxSM,
-                                            const Text(
-                                              'Drag & Drop or choose files to upload',
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            const MyText(
-                                              'Supported formats :doc, pdf',
-                                              textAlign: TextAlign.center,
-                                              size: 11,
-                                              weight: 300,
-                                              color: AppColors.darkGrey2,
-                                              isSelectable: false,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    const Row(
+                                    SizedBox(height: 8),
+                                    UploadFile(),
+                                    SizedBox(height: 24),
+                                    Row(
                                       children: [
                                         // Start date
                                         Expanded(

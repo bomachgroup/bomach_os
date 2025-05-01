@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/employees_database/widget/assign_task_dialog.dart';
 import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -129,12 +130,25 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       ],
                     ),
                     MyElevatedButton(
-                      icon: const Icon(
-                        Icons.edit,
+                      icon: Icon(
+                        employeeDetailSelectionState == 3
+                            ? Icons.add_circle_outline_rounded
+                            : Icons.edit,
                         color: AppColors.white,
                       ),
-                      child: 'Edit Profile',
-                      onTap: () {},
+                      child: employeeDetailSelectionState == 3
+                          ? "Assign Task"
+                          : 'Edit Profile',
+                      onTap: () {
+                        if (employeeDetailSelectionState == 3) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AssignTaskDialog();
+                            },
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -271,12 +285,11 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                        color: employeeDetailSelectionState == 3
-                            ? AppColors.blue
-                            : Colors.transparent,
-                        borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20))),
+                      color: employeeDetailSelectionState == 3
+                          ? AppColors.blue
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: ListTile(
                       contentPadding: !isSmallScreen(context)
                           ? null
@@ -308,10 +321,14 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                        color: employeeDetailSelectionState == 4
-                            ? AppColors.blue
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10)),
+                      color: employeeDetailSelectionState == 4
+                          ? AppColors.blue
+                          : Colors.transparent,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
                     child: ListTile(
                       contentPadding: !isSmallScreen(context)
                           ? null
@@ -785,104 +802,3 @@ class ProfileFiedsHolder extends StatelessWidget {
     );
   }
 }
-
-// class Task extends StatelessWidget {
-//   const Task({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-//       decoration: BoxDecoration(
-//           border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-//           borderRadius: BorderRadius.circular(16)),
-//       child: Column(
-//         children: [
-//           SingleChildScrollView(
-//               scrollDirection: Axis.horizontal,
-//               child: DataTable(
-//                   // decoration: BoxDecoration(),
-//                   columns: _createColumns(),
-//                   rows: _createRows(context))),
-//           const SizedBox(
-//             height: 4,
-//           ),
-//           const Divider(),
-//           const SizedBox(
-//             height: 8,
-//           ),
-//           const Row(
-//             children: [
-//               MyText('Showing'),
-//               MyText('Showing 1 to 8 out of 60 records'),
-//             ],
-//           ),
-//           const SizedBox(
-//             height: 8,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   List<DataColumn> _createColumns() {
-//     return [
-//       const DataColumn(
-//           headingRowAlignment: MainAxisAlignment.start,
-//           label: MyText(
-//             "Task code",
-//           )),
-//       const DataColumn(
-//           label: MyText(
-//         "Task Name",
-//       )),
-//       const DataColumn(label: MyText("Assign to")),
-//       const DataColumn(
-//           label: MyText(
-//         "Start date",
-//       )),
-//       const DataColumn(
-//           label: MyText(
-//         "Due date",
-//       )),
-//       const DataColumn(
-//           label: MyText(
-//         "Status",
-//       )),
-//     ];
-//   }
-
-//   List<DataRow> _createRows(BuildContext context) {
-//     return List.generate(10, (index) {
-//       return DataRow(cells: <DataCell>[
-//         const DataCell(
-//           SizedBox(width: 100, child: MyText("#1234567")),
-//         ),
-//         const DataCell(
-//           SizedBox(
-//               width: 250, child: MyText("Benji Express user login Interface")),
-//         ),
-//         DataCell(
-//           SizedBox(
-//             width: 70,
-//             child: Container(
-//               width: 32,
-//               height: 32,
-//               decoration: const BoxDecoration(
-//                   color: AppColors.secondaryColor, shape: BoxShape.circle),
-//             ),
-//           ),
-//         ),
-//         const DataCell(
-//           SizedBox(width: 100, child: MyText("12/10/2023")),
-//         ),
-//         const DataCell(
-//           SizedBox(width: 100, child: MyText("02/02/2025")),
-//         ),
-//         const DataCell(
-//           SizedBox(width: 100, child: MyText("Undone")),
-//         ),
-//       ]);
-//     });
-//   }
-// }
