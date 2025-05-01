@@ -1,10 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/input/rich_text.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/employees_database/widget/employee_table.dart';
 import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
 import 'package:bms_front_end/pages/project/widget/site_equipment_table.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -41,7 +47,20 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
                       weight: 500,
                     ),
                   ),
-                  MyElevatedButton(child: "Add Employee", onTap: () {})
+                  MyElevatedButton(
+                      child: "Add Employee",
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: AppColors.white,
+                      ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const CreateWorkSiteReport();
+                          },
+                        );
+                      })
                 ],
               ),
             ),
@@ -111,6 +130,295 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
         if (selectionStepperState == 1) const SiteEquipmentTable(),
         if (selectionStepperState == 2) const ProjectTaskTable(),
       ],
+    );
+  }
+}
+
+class CreateWorkSiteReport extends StatefulWidget {
+  const CreateWorkSiteReport({super.key});
+
+  @override
+  State<CreateWorkSiteReport> createState() => _CreateWorkSiteReportState();
+}
+
+class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 846),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.grey4),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const MyText(
+                    'Worksite Report',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+
+            // Form fields
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    children: [
+                      // First row
+                      const Row(
+                        children: [
+                          // Choose Employee
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  hintText: "----",
+                                  items: [],
+                                  spaceBettwenText: 10,
+                                  title: 'Report Title*',
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // Leave Type
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  hintText: "----",
+                                  items: [],
+                                  spaceBettwenText: 10,
+                                  title: 'Location*',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Second row
+                      const Row(
+                        children: [
+                          // Status
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  hintText: "----",
+                                  items: [],
+                                  spaceBettwenText: 10,
+                                  title: 'Office*',
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // Leave date
+                          Spacer()
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MyTextFormField(
+                            maxLines: 4,
+                            hintText: '----',
+                            spaceBettwenText: 10,
+                            title: 'Office Address*',
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Start and End dates
+                      const Row(
+                        children: [
+                          // Start date
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  hintText: '----',
+                                  spaceBettwenText: 10,
+                                  title: 'Report Type*',
+                                  items: [],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // End date
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyTextFormField(
+                                  spaceBettwenText: 10,
+                                  title: 'Awaiting approval',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MyText(
+                            'Deeds (Write a note)',
+                            weight: 400,
+                            size: 16,
+                          ),
+                          kSizedBoxSM,
+                          RichTextEditor(),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // File upload and Duration
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // File upload
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const MyText(
+                                  'Upload  File (optional)*',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                DottedBorder(
+                                  color: AppColors.blue,
+                                  dashPattern: const [5, 5],
+                                  strokeWidth: 2,
+                                  borderType: BorderType.RRect,
+                                  radius: const Radius.circular(8),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    height: 150,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          alignment: Alignment.center,
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                              color: AppColors.blue,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          width: 40,
+                                          height: 40,
+                                          child: SvgPicture.asset(
+                                            "assets/svg/upload.svg",
+                                          ),
+                                        ),
+                                        kSizedBoxSM,
+                                        const MyText(
+                                          'Drag & Drop or choose files to upload',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const MyText(
+                                          'Supported formats : Jpeg, pdf',
+                                          textAlign: TextAlign.center,
+                                          size: 11,
+                                          weight: 300,
+                                          color: AppColors.darkGrey2,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Action Buttons
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MyOutlinedButton(
+                    textColor: AppColors.darkGrey1,
+                    borderColor: null,
+                    child: 'Cancel',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  MyElevatedButton(
+                    icon: SvgPicture.asset(
+                      "assets/svg/check.svg",
+                      colorFilter: const ColorFilter.mode(
+                          AppColors.white, BlendMode.srcIn),
+                    ),
+                    child: 'Save',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
