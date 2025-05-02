@@ -282,51 +282,60 @@ class NewClientDialogState extends State<NewClientDialog> {
               ),
               padding: const EdgeInsets.all(kDefaultSpaceBG),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText("Jane Okoro", size: 24, weight: 600),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          MyIconButton(
-                            icon: SvgPicture.asset("assets/svg/plus.svg"),
-                            colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const AddInvoiceDialog();
-                                },
-                              );
-                            },
-                          ),
-                          kSizedBoxWidthSM,
-                          MyIconButton(
-                            icon: SvgPicture.asset("assets/svg/note2.svg"),
-                            colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const InvoiceContent();
-                                },
-                              );
-                            },
-                          ),
-                          kSizedBoxWidthSM,
-                          MyIconButton(
-                            icon:
-                                SvgPicture.asset("assets/svg/notification.svg"),
-                            colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {},
-                          ),
-                        ],
-                      )
-                    ],
-                  )
+                  Expanded(
+                    child: Wrap(
+                      spacing: 15,
+                      runSpacing: 15,
+                      alignment: WrapAlignment.spaceBetween,
+                      children: [
+                        const MyText("Jane Okoro", size: 24, weight: 600),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                MyIconButton(
+                                  icon: SvgPicture.asset("assets/svg/plus.svg"),
+                                  colorBackground: const Color(0xFF0055FF),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return const AddInvoiceDialog();
+                                      },
+                                    );
+                                  },
+                                ),
+                                kSizedBoxWidthSM,
+                                MyIconButton(
+                                  icon:
+                                      SvgPicture.asset("assets/svg/note2.svg"),
+                                  colorBackground: const Color(0xFF0055FF),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return const InvoiceContent();
+                                      },
+                                    );
+                                  },
+                                ),
+                                kSizedBoxWidthSM,
+                                MyIconButton(
+                                  icon: SvgPicture.asset(
+                                      "assets/svg/notification.svg"),
+                                  colorBackground: const Color(0xFF0055FF),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -452,34 +461,36 @@ class ClientInfoCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const MyText(
-                    'Miss Jane',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const MyText(
+                      'Miss Jane',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const MyText(
-                    'Jenny group of company',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey,
+                    const MyText(
+                      'Jenny group of company',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  MyText(
-                    'Last login: 23:01, 1/10/2024',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey.shade600,
+                    const SizedBox(height: 4),
+                    MyText(
+                      'Last login: 23:01, 1/10/2024',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

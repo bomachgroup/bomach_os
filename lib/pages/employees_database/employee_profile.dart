@@ -44,6 +44,12 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
               'Employee’s Database',
               style: AppText.black_400_14,
             ),
+            kSizedBoxWidthSM,
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 12,
+            ),
+            kSizedBoxWidthSM,
             MyText(
               'Darlene Robertson',
               style: AppText.black_400_14,
@@ -84,50 +90,54 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                           ),
                         ),
                         kSizedBoxWidth,
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const MyText(
-                              'Darlene Robertson',
-                              size: 24,
-                              weight: 600,
-                              color: AppColors.black,
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/svg/briefcase.svg",
-                                  height: 20,
-                                ),
-                                kSizedBoxWidthSM,
-                                const MyText(
-                                  'UI/UX Designer',
-                                  style: AppText.black_400_16,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/svg/message.svg",
-                                  height: 20,
-                                ),
-                                kSizedBoxWidthSM,
-                                const MyText(
-                                  'Darlenerob1@example.com',
-                                  style: AppText.black_400_14,
-                                ),
-                              ],
-                            ),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const MyText(
+                                'Darlene Robertson',
+                                size: 24,
+                                weight: 600,
+                                color: AppColors.black,
+                              ),
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SvgPicture.asset(
+                                    "assets/svg/briefcase.svg",
+                                    height: 20,
+                                  ),
+                                  kSizedBoxWidthSM,
+                                  const MyText(
+                                    'UI/UX Designer',
+                                    style: AppText.black_400_16,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 8,
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SvgPicture.asset(
+                                    "assets/svg/message.svg",
+                                    height: 20,
+                                  ),
+                                  kSizedBoxWidthSM,
+                                  const Expanded(
+                                    child: MyText(
+                                      'Darlenerob1@example.com',
+                                      style: AppText.black_400_14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

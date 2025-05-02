@@ -1,7 +1,7 @@
 import 'package:bms_front_end/components/button/sort_filter_bar2..dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/project/widget/clients_database.dart';
+import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/pages/services/widget/image_slider.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
@@ -87,18 +87,26 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
         ),
         Row(
           children: [
-            SizedBox(
-              width: 200,
-              child: MyTextFormField(
-                hintText: "Search...",
-                leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
-                ),
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.start,
+                spacing: 15,
+                runSpacing: 15,
+                children: [
+                  SizedBox(
+                    width: 200,
+                    child: MyTextFormField(
+                      hintText: "Search...",
+                      leading: Icon(
+                        Icons.search,
+                        color: AppColors.grey1.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                  const SortFilterBar2(),
+                ],
               ),
             ),
-            kSizedBoxWidth,
-            const SortFilterBar2(),
           ],
         ),
 
@@ -112,15 +120,16 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                 alignment: WrapAlignment.spaceBetween,
                 runSpacing: 20,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    spacing: 15,
+                    runSpacing: 15,
                     children: [
                       const MyText(
                         "Serenity bungalow",
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.w500),
                       ),
-                      kSizedBoxWidth,
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -522,14 +531,16 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              MyText(
-                                'Bedrooms',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
+                              if (!isSmallScreen(context)) ...[
+                                const SizedBox(width: 8),
+                                MyText(
+                                  'Bedrooms',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
-                              ),
+                              ]
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -564,14 +575,16 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              MyText(
-                                'Bathrooms',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
+                              if (!isSmallScreen(context)) ...[
+                                const SizedBox(width: 8),
+                                MyText(
+                                  'Bathrooms',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -606,14 +619,16 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              MyText(
-                                'Area',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
+                              if (!isSmallScreen(context)) ...[
+                                const SizedBox(width: 8),
+                                MyText(
+                                  'Area',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                           const SizedBox(height: 8),

@@ -2,7 +2,7 @@ import 'package:bms_front_end/components/button/sort_filter_bar2..dart';
 import 'package:bms_front_end/components/cards/real_estate_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/project/widget/clients_database.dart';
+import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
@@ -80,18 +80,27 @@ class _LandSurveyScreenState extends State<LandSurveyScreen> {
         ),
         Row(
           children: [
-            SizedBox(
-              width: 200,
-              child: MyTextFormField(
-                hintText: "Search...",
-                leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
-                ),
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.start,
+                spacing: 15,
+                runSpacing: 15,
+                children: [
+                  SizedBox(
+                    width: 200,
+                    child: MyTextFormField(
+                      hintText: "Search...",
+                      leading: Icon(
+                        Icons.search,
+                        color: AppColors.grey1.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                  kSizedBoxWidth,
+                  const SortFilterBar2(),
+                ],
               ),
             ),
-            kSizedBoxWidth,
-            const SortFilterBar2(),
           ],
         ),
         const SizedBox(
@@ -110,7 +119,11 @@ class _LandSurveyScreenState extends State<LandSurveyScreen> {
         GridView.count(
           physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
-          childAspectRatio: 0.7,
+          childAspectRatio: isLargeScreen(context)
+              ? 0.7
+              : isMediumScreen(context)
+                  ? 0.7
+                  : 0.6,
           shrinkWrap: true,
           crossAxisCount: isLargeScreen(context)
               ? 3

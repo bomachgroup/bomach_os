@@ -49,8 +49,8 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Wrap(
+                    runSpacing: 15,
                     children: [
                       MyElevatedButton(
                         icon: const Icon(

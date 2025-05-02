@@ -50,8 +50,8 @@ class _BranchPageState extends State<BranchPage> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Wrap(
+                    runSpacing: 15,
                     children: [
                       MyOutlinedButton(
                         child: 'Company profile',
@@ -799,24 +799,31 @@ class _BranchPageState extends State<BranchPage> {
 
                   // Actions
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      MyOutlinedButton(
-                        textColor: AppColors.darkGrey1,
-                        borderColor: null,
-                        child: 'Cancel',
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      const SizedBox(width: 16),
-                      MyElevatedButton(
-                        icon: const Icon(
-                          Icons.check,
-                          color: AppColors.white,
+                      Expanded(
+                        child: Wrap(
+                          spacing: 15,
+                          runSpacing: 15,
+                          alignment: WrapAlignment.end,
+                          children: [
+                            MyOutlinedButton(
+                              textColor: AppColors.darkGrey1,
+                              borderColor: null,
+                              child: 'Cancel',
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            MyElevatedButton(
+                              icon: const Icon(
+                                Icons.check,
+                                color: AppColors.white,
+                              ),
+                              child: 'Save',
+                              onTap: () {},
+                            ),
+                          ],
                         ),
-                        child: 'Save',
-                        onTap: () {},
                       ),
                     ],
                   ),
