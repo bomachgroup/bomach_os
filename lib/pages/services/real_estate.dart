@@ -108,6 +108,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
 
         //body
         GridView.count(
+          physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
           childAspectRatio: 0.86,
           shrinkWrap: true,

@@ -413,6 +413,7 @@ class ProjectOverview extends StatelessWidget {
                         ),
                         kSizedBox,
                         ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           separatorBuilder: (context, index) => kSizedBoxSM,
                           itemCount: 3,

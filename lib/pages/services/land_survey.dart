@@ -108,6 +108,7 @@ class _LandSurveyScreenState extends State<LandSurveyScreen> {
 
         //body
         GridView.count(
+          physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
           childAspectRatio: 0.7,
           shrinkWrap: true,

@@ -54,21 +54,22 @@ class TopNavigationBar extends StatelessWidget {
               const SizedBox(
                 width: 20,
               ),
-              Image.asset('assets/icons/english-flag.png'),
-              const SizedBox(
-                width: kDefaultSpaceSM,
-              ),
-              if (!isSmallScreen(context)) const MyText('English'),
-              if (!isSmallScreen(context))
+              if (!isSmallScreen(context)) ...[
+                Image.asset('assets/icons/english-flag.png'),
+                const SizedBox(
+                  width: kDefaultSpaceSM,
+                ),
+                const MyText('English'),
                 const SizedBox(
                   width: 10,
                 ),
-              const Icon(
-                Icons.keyboard_arrow_down_outlined,
-                size: 20,
-                color: AppColors.grey1,
-              ),
-              kSizedBoxWidth,
+                const Icon(
+                  Icons.keyboard_arrow_down_outlined,
+                  size: 20,
+                  color: AppColors.grey1,
+                ),
+                kSizedBoxWidth,
+              ],
               SizedBox(
                 width: isSmallScreen(context) ? 50 : 150,
                 child: ListTile(
