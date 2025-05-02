@@ -27,14 +27,14 @@ class ProjectOverview extends StatelessWidget {
                 children: [
                   Container(
                     height: 160,
-                    width: isLargeScreen(context) ? null : double.infinity,
+                    width: isLargeScreen(context) ? 400 : double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: AppColors.border),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      // mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Column(
@@ -73,55 +73,57 @@ class ProjectOverview extends StatelessWidget {
                         ),
                         const SizedBox(width: 24),
                         // This nested Row now also lines up at the top
-                        const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  'Start date',
-                                  size: 12,
-                                  weight: 400,
-                                  color: AppColors.grey2,
-                                ),
-                                SizedBox(height: 8),
-                                MyText(
-                                  'Start date',
-                                  size: 16,
-                                  weight: 500,
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 21),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  'Start date',
-                                  size: 12,
-                                  weight: 400,
-                                  color: AppColors.grey2,
-                                ),
-                                SizedBox(height: 8),
-                                MyText(
-                                  'Due date',
-                                  size: 16,
-                                  weight: 500,
-                                ),
-                              ],
-                            )
-                          ],
+                        const Expanded(
+                          child: Wrap(
+                            spacing: 15,
+                            runSpacing: 15,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  MyText(
+                                    'Start date',
+                                    size: 12,
+                                    weight: 400,
+                                    color: AppColors.grey2,
+                                  ),
+                                  SizedBox(height: 8),
+                                  MyText(
+                                    'Start date',
+                                    size: 16,
+                                    weight: 500,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(width: 21),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  MyText(
+                                    'Start date',
+                                    size: 12,
+                                    weight: 400,
+                                    color: AppColors.grey2,
+                                  ),
+                                  SizedBox(height: 8),
+                                  MyText(
+                                    'Due date',
+                                    size: 16,
+                                    weight: 500,
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
                         )
                       ],
                     ),
                   ),
                   Container(
                     height: 150,
-                    width: isLargeScreen(context) ? null : double.infinity,
+                    width: isLargeScreen(context) ? 400 : double.infinity,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 18),
                     decoration: BoxDecoration(
@@ -139,7 +141,7 @@ class ProjectOverview extends StatelessWidget {
                           height: 16,
                         ),
                         Row(
-                          mainAxisSize: MainAxisSize.min,
+                          // mainAxisSize: MainAxisSize.min,
                           children: [
                             CircleAvatar(
                               radius: 30,
@@ -156,21 +158,23 @@ class ProjectOverview extends StatelessWidget {
                             const SizedBox(
                               width: 24,
                             ),
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  'Miss Jane',
-                                  size: 20,
-                                  weight: 500,
-                                ),
-                                MyText(
-                                  'Jenny group of company',
-                                  size: 14,
-                                  weight: 400,
-                                  color: AppColors.grey2,
-                                ),
-                              ],
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  MyText(
+                                    'Miss Jane',
+                                    size: 20,
+                                    weight: 500,
+                                  ),
+                                  MyText(
+                                    'Jenny group of company',
+                                    size: 14,
+                                    weight: 400,
+                                    color: AppColors.grey2,
+                                  ),
+                                ],
+                              ),
                             ),
                             kSizedBoxWidthBG,
                           ],

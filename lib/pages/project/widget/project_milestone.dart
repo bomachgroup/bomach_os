@@ -187,11 +187,13 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'Create Milestones',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  const Expanded(
+                    child: MyText(
+                      'Create Milestones',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -396,11 +398,13 @@ class MilestoneDetailDialog extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'Milestone Details',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  const Expanded(
+                    child: MyText(
+                      'Milestone Details',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -497,8 +501,8 @@ class MilestoneDetailDialog extends StatelessWidget {
         crossAxisAlignment:
             maxLines > 1 ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            width: 200,
+          Expanded(
+            // width: 200,
             child: MyText(
               label,
               style: TextStyle(

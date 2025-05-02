@@ -36,11 +36,13 @@ class _ViewTaskDialogState extends State<ViewTaskDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'Task ID - #SSC23',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  const Expanded(
+                    child: MyText(
+                      'Task ID - #SSC23',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -399,7 +401,7 @@ class _ViewTaskDialogState extends State<ViewTaskDialog> {
                           const Row(
                             children: [
                               SizedBox(
-                                width: 250,
+                                width: 200,
                                 child: UploadFile(),
                               ),
                             ],
@@ -422,25 +424,33 @@ class _ViewTaskDialogState extends State<ViewTaskDialog> {
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 15,
+                      runSpacing: 15,
+                      alignment: WrapAlignment.end,
+                      children: [
+                        MyOutlinedButton(
+                          textColor: AppColors.darkGrey1,
+                          borderColor: null,
+                          child: 'Cancel',
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                        MyElevatedButton(
+                          icon: SvgPicture.asset(
+                            "assets/svg/check.svg",
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.white, BlendMode.srcIn),
+                          ),
+                          child: 'Mark completed',
+                          onTap: () {},
+                        ),
+                      ],
                     ),
-                    child: 'Mark completed',
-                    onTap: () {},
                   ),
                 ],
               ),

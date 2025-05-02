@@ -77,7 +77,7 @@ class MyPaginatorState extends State<MyPaginator> {
                     ? () => setState(() => currentPage--)
                     : null,
               ),
-              for (int i = 1; i <= 4; i++)
+              for (int i = 1; i <= 3; i++)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: GestureDetector(

@@ -563,10 +563,12 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                           // File upload and Duration
                           const Row(
                             children: [
-                              MyText(
-                                'Other Details',
-                                size: 32,
-                                weight: 600,
+                              Expanded(
+                                child: MyText(
+                                  'Other Details',
+                                  size: 32,
+                                  weight: 600,
+                                ),
                               ),
                               kSizedBoxWidthSM,
                               Icon(
@@ -650,10 +652,12 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                     onChanged: (value) {},
                                   ),
                                   kSizedBoxWidthSM,
-                                  const MyText(
-                                      "Send task notifications to Employee",
-                                      size: 14,
-                                      weight: 400),
+                                  const Expanded(
+                                    child: MyText(
+                                        "Send task notifications to Employee",
+                                        size: 14,
+                                        weight: 400),
+                                  ),
                                 ],
                               ),
                               Row(
@@ -664,10 +668,12 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                     onChanged: (value) {},
                                   ),
                                   kSizedBoxWidthSM,
-                                  const MyText(
-                                      "Send task notifications to Employee",
-                                      size: 14,
-                                      weight: 400),
+                                  const Expanded(
+                                    child: MyText(
+                                        "Send task notifications to Employee",
+                                        size: 14,
+                                        weight: 400),
+                                  ),
                                 ],
                               ),
                             ],

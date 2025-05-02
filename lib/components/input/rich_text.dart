@@ -175,7 +175,7 @@ class _RichTextEditorState extends State<RichTextEditor> {
   Widget _buildFormatToolbar() {
     return Container(
       color: AppColors.white,
-      child: Row(
+      child: Wrap(
         children: [
           _buildFontSizeDropdown(),
           const SizedBox(width: 8),

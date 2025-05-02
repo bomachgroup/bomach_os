@@ -179,55 +179,64 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
               ),
               padding: const EdgeInsets.all(kDefaultSpaceBG),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Expanded(
-                      child: MyText(
-                    "O2 Arena Estate Dev",
-                    size: 24,
-                    weight: 600,
-                    maxLines: 1,
-                  )),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          MyIconButton(
-                            icon: SvgPicture.asset("assets/svg/plus.svg"),
-                            colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {
-                              // showDialog(
-                              //   context: context,
-                              //   builder: (context) {
-                              //   },
-                              // );
-                            },
+                  Expanded(
+                    child: Wrap(
+                      runSpacing: 15,
+                      alignment: WrapAlignment.spaceBetween,
+                      children: [
+                        const Expanded(
+                          child: MyText(
+                            "O2 Arena Estate Dev",
+                            size: 24,
+                            weight: 600,
+                            maxLines: 1,
                           ),
-                          kSizedBoxWidthSM,
-                          MyIconButton(
-                            icon: SvgPicture.asset("assets/svg/note2.svg"),
-                            colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {
-                              // showDialog(
-                              //   context: context,
-                              //   builder: (context) {
-                              //   },
-                              // );
-                            },
-                          ),
-                          kSizedBoxWidthSM,
-                          MyIconButton(
-                            icon:
-                                SvgPicture.asset("assets/svg/notification.svg"),
-                            colorBackground: const Color(0xFF0055FF),
-                            onPressed: () {},
-                          ),
-                        ],
-                      )
-                    ],
-                  )
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                MyIconButton(
+                                  icon: SvgPicture.asset("assets/svg/plus.svg"),
+                                  colorBackground: const Color(0xFF0055FF),
+                                  onPressed: () {
+                                    // showDialog(
+                                    //   context: context,
+                                    //   builder: (context) {
+                                    //   },
+                                    // );
+                                  },
+                                ),
+                                kSizedBoxWidthSM,
+                                MyIconButton(
+                                  icon:
+                                      SvgPicture.asset("assets/svg/note2.svg"),
+                                  colorBackground: const Color(0xFF0055FF),
+                                  onPressed: () {
+                                    // showDialog(
+                                    //   context: context,
+                                    //   builder: (context) {
+                                    //   },
+                                    // );
+                                  },
+                                ),
+                                kSizedBoxWidthSM,
+                                MyIconButton(
+                                  icon: SvgPicture.asset(
+                                      "assets/svg/notification.svg"),
+                                  colorBackground: const Color(0xFF0055FF),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -287,11 +296,13 @@ class SuggestionsAndComments extends StatelessWidget {
         children: [
           Row(
             children: [
-              MyText(
-                'Suggestions and comments',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: MyText(
+                  'Suggestions and comments',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

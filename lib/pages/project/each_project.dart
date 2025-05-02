@@ -51,8 +51,9 @@ class _EachProjectsState extends State<EachProjects> {
                     'Projects',
                     style: AppText.black_500_32,
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Wrap(
+                    spacing: 15,
+                    runSpacing: 15,
                     children: [
                       SizedBox(
                         width: 150,
@@ -63,9 +64,6 @@ class _EachProjectsState extends State<EachProjects> {
                             color: AppColors.grey1.withValues(alpha: 0.5),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 20,
                       ),
                       if ([0, 1, 2, 4, 5].contains(projectMemberState))
                         MyElevatedButton(
