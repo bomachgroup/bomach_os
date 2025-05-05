@@ -45,6 +45,7 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
                       "Agbani Site, behind Orando fuel station, Eke Agbani",
                       size: 28,
                       weight: 500,
+                      maxLines: 2,
                     ),
                   ),
                   MyElevatedButton(

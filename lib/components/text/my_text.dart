@@ -11,6 +11,7 @@ class MyText extends StatelessWidget {
   final TextAlign? textAlign;
   final bool isSelectable;
   final TextStyle? style;
+
   const MyText(
     this.text, {
     super.key,
@@ -26,43 +27,40 @@ class MyText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isSelectable
-        ? SelectableText(
-            text,
-            textAlign: textAlign,
-            // overflow: TextOverflow.ellipsis,
-            maxLines: maxLines,
-            style: style?.copyWith(
-                  fontFamily: fontFamily,
-                  color: color,
-                  fontSize: size,
-                  fontWeight: getWeight(),
-                ) ??
-                TextStyle(
-                  fontFamily: fontFamily,
-                  color: color ?? AppColors.black,
-                  fontSize: size,
-                  fontWeight: getWeight(),
-                ),
-          )
-        : Text(
-            text,
-            textAlign: textAlign,
-            overflow: TextOverflow.ellipsis,
-            maxLines: maxLines,
-            style: style?.copyWith(
-                  fontFamily: fontFamily,
-                  color: color,
-                  fontSize: size,
-                  fontWeight: getWeight(),
-                ) ??
-                TextStyle(
-                  fontFamily: fontFamily,
-                  color: color ?? AppColors.black,
-                  fontSize: size,
-                  fontWeight: getWeight(),
-                ),
-          );
+    final finalStyle = style?.copyWith(
+          fontFamily: fontFamily,
+          color: color,
+          fontSize: size,
+          fontWeight: getWeight(),
+        ) ??
+        TextStyle(
+          fontFamily: fontFamily,
+          color: color ?? AppColors.black,
+          fontSize: size,
+          fontWeight: getWeight(),
+        );
+
+    if (isSelectable) {
+      return SelectableRegion(
+        focusNode: FocusNode(),
+        selectionControls: materialTextSelectionControls,
+        child: Text(
+          text,
+          textAlign: textAlign,
+          overflow: TextOverflow.ellipsis,
+          maxLines: maxLines,
+          style: finalStyle,
+        ),
+      );
+    }
+
+    return Text(
+      text,
+      textAlign: textAlign,
+      overflow: TextOverflow.ellipsis,
+      maxLines: maxLines,
+      style: finalStyle,
+    );
   }
 
   FontWeight? getWeight() {

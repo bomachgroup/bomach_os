@@ -249,19 +249,6 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      kSizedBox,
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Wrap(
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              runSpacing: 15,
-                              spacing: 15,
-                              children: [],
-                            ),
-                          ),
-                        ],
-                      ),
                       MeetingInfoCard(),
                       kSizedBox,
                       SuggestionsAndComments(),
@@ -351,51 +338,132 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isMe ? AppColors.blue : AppColors.grey6,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment:
-              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+      child: Align(
+        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Row(
+          mainAxisAlignment:
+              isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            MyText(
-              message,
-              style: TextStyle(
-                color: isMe ? AppColors.grey6 : AppColors.black,
+            // Conditional order of widgets based on isMe
+            if (!isMe) CurvedBackground(isMe: isMe),
+
+            Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.7,
+              ),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isMe ? AppColors.blue : AppColors.grey6,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(12),
+                  topRight: const Radius.circular(12),
+                  bottomLeft: Radius.circular(isMe ? 12 : 0),
+                  bottomRight: Radius.circular(isMe ? 0 : 12),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  MyText(
+                    message,
+                    style: TextStyle(
+                      color: isMe ? AppColors.grey6 : AppColors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MyText(
+                        time,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isMe ? AppColors.grey6 : Colors.black54,
+                        ),
+                      ),
+                      if (isMe) ...[
+                        const SizedBox(width: 4),
+                        SvgPicture.asset(
+                          "assets/svg/two-checks.svg",
+                          height: 12,
+                          width: 12,
+                          colorFilter: ColorFilter.mode(
+                            isMe ? AppColors.grey6 : Colors.black54,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                MyText(
-                  time,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isMe ? AppColors.grey6 : Colors.black54,
-                  ),
-                ),
-                SvgPicture.asset(
-                  "assets/svg/two-checks.svg",
-                  colorFilter: ColorFilter.mode(
-                    isMe ? AppColors.grey6 : Colors.black54,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ],
-            ),
+
+            // Add the curved background for my messages
+            if (isMe) CurvedBackground(isMe: isMe),
           ],
         ),
       ),
     );
   }
+}
+
+class CurvedBackground extends StatelessWidget {
+  final bool isMe;
+
+  const CurvedBackground({super.key, required this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 12,
+      height: 20,
+      child: CustomPaint(
+        painter: CurvePainter(isMe: isMe),
+      ),
+    );
+  }
+}
+
+class CurvePainter extends CustomPainter {
+  final bool isMe;
+
+  CurvePainter({required this.isMe});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = isMe ? AppColors.blue : AppColors.grey6
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 0
+      ..isAntiAlias = true;
+
+    final path = Path();
+
+    if (isMe) {
+      // Right side bubble tail
+      path.moveTo(0, 0);
+      path.lineTo(0, 20);
+      path.lineTo(12, 20);
+      path.quadraticBezierTo(4, 16, 0, 0);
+      path.close();
+    } else {
+      // Left side bubble tail
+      path.moveTo(12, 0);
+      path.lineTo(12, 20);
+      path.lineTo(0, 20);
+      path.quadraticBezierTo(8, 16, 12, 0);
+      path.close();
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class ChatInputField extends StatelessWidget {

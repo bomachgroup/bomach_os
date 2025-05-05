@@ -157,6 +157,7 @@ class _RichTextEditorState extends State<RichTextEditor> {
     return SizedBox(
       height: 232,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildFormatToolbar(),
           Expanded(
@@ -242,7 +243,10 @@ class _RichTextEditorState extends State<RichTextEditor> {
       items: [12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 32.0]
           .map((size) => DropdownMenuItem<double>(
                 value: size,
-                child: MyText("Size $size"),
+                child: MyText(
+                  "Size $size",
+                  isSelectable: false,
+                ),
               ))
           .toList(),
       onChanged: (value) {

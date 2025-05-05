@@ -53,8 +53,8 @@ class _LeavesPageState extends State<LeavesPage> {
         ),
         kSizedBoxBG,
         Wrap(
-          spacing: 8, // Horizontal space between items
-          runSpacing: 8, // Vertical space when wrapping
+          spacing: 15, // Horizontal space between items
+          runSpacing: 15, // Vertical space when wrapping
           children: [
             MyElevatedButton(
               icon: const Icon(
@@ -69,7 +69,6 @@ class _LeavesPageState extends State<LeavesPage> {
                 );
               },
             ),
-            kSizedBoxWidth,
             SizedBox(
               width: 220,
               height: 48,
@@ -791,7 +790,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                   ),
                                 ),
                                 SizedBox(height: 8),
-                               UploadFile(),
+                                UploadFile(),
                               ],
                             ),
                           ),
