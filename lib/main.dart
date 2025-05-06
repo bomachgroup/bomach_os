@@ -3,6 +3,8 @@ import 'package:bms_front_end/src/app_routes/app_router.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 late SharedPreferences prefs;
@@ -26,6 +28,12 @@ class MyApp extends StatelessWidget {
       data: MediaQuery.of(context)
           .copyWith(textScaler: const TextScaler.linear(1.0)),
       child: MaterialApp.router(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          FlutterQuillLocalizations.delegate,
+        ],
         debugShowCheckedModeBanner: false,
         title: 'Bomach OS',
         theme: ThemeData(

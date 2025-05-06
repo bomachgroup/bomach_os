@@ -257,28 +257,31 @@ class ProjectOverview extends StatelessWidget {
                           ),
                         ),
                         kSizedBoxWidth,
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const MyText(
-                              "Good Morning",
-                              weight: 800,
-                              size: 11,
-                            ),
-                            kSizedBoxSM,
-                            const MyText(
-                              "Dr. Cassy Melina",
-                              weight: 800,
-                              size: 18,
-                            ),
-                            kSizedBoxSM,
-                            MyElevatedButton(
-                              // width: 220,
-                              child: "5 Appointments",
-                              onTap: () {},
-                              bgColor: AppColors.darkBlue2,
-                            )
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const MyText(
+                                "Good Morning",
+                                weight: 800,
+                                size: 11,
+                              ),
+                              kSizedBoxSM,
+                              const MyText(
+                                "Dr. Cassy Melina",
+                                weight: 800,
+                                size: 18,
+                                maxLines: 1,
+                              ),
+                              kSizedBoxSM,
+                              MyElevatedButton(
+                                // width: 220,
+                                child: "5 Appointments",
+                                onTap: () {},
+                                bgColor: AppColors.darkBlue2,
+                              )
+                            ],
+                          ),
                         )
                       ],
                     ),
@@ -444,24 +447,25 @@ class ProjectOverview extends StatelessWidget {
                                     ),
                                   ),
                                   kSizedBoxWidth,
-                                  const Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyText(
-                                        "Dr. Fred Israc",
-                                        weight: 600,
-                                        size: 14,
-                                        color: AppColors.black,
-                                      ),
-                                      MyText(
-                                        "Endocrinologists | FCPS",
-                                        weight: 500,
-                                        size: 11,
-                                      ),
-                                    ],
+                                  const Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        MyText(
+                                          "Dr. Fred Israc",
+                                          weight: 600,
+                                          size: 14,
+                                          color: AppColors.black,
+                                        ),
+                                        MyText(
+                                          "Endocrinologists | FCPS",
+                                          weight: 500,
+                                          size: 11,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  const Spacer(),
                                   SvgPicture.asset(
                                     "assets/svg/arrow-right.svg",
                                     colorFilter: const ColorFilter.mode(
