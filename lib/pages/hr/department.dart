@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -8,6 +9,7 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+import 'package:flutter_svg/svg.dart';
 
 class DepartmentPage extends StatelessWidget {
   const DepartmentPage({super.key});
@@ -41,7 +43,14 @@ class DepartmentPage extends StatelessWidget {
                 color: AppColors.white,
               ),
               child: 'New Department',
-              onTap: () {},
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const CreateDepartmentDialog();
+                  },
+                );
+              },
             ),
             SizedBox(
               width: 217,
@@ -208,6 +217,138 @@ class DepartmentCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CreateDepartmentDialog extends StatefulWidget {
+  const CreateDepartmentDialog({super.key});
+
+  @override
+  State<CreateDepartmentDialog> createState() => _CreateDepartmentDialogState();
+}
+
+class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
+  final TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _leaveDateController =
+      TextEditingController(text: '12-12-2024');
+  final TextEditingController _startDateController =
+      TextEditingController(text: '12-10-2024');
+  final TextEditingController _endDateController =
+      TextEditingController(text: '12-10-2024');
+  final TextEditingController _durationController =
+      TextEditingController(text: '5days');
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    _leaveDateController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
+    _durationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 846),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.grey4),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const MyText(
+                    'Add Department',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+
+            // Form fields
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    children: [
+                      const MyTextFormField(
+                        hintText: "----",
+                        spaceBettwenText: 10,
+                        title: 'Name*',
+                      ),
+                      const SizedBox(height: 24),
+                      MyTextFormField(
+                        controller: _reasonController,
+                        maxLines: 4,
+                        hintText: '----',
+                        spaceBettwenText: 10,
+                        title: 'Description',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Action Buttons
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MyOutlinedButton(
+                    textColor: AppColors.darkGrey1,
+                    borderColor: null,
+                    child: 'Cancel',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  MyElevatedButton(
+                    icon: SvgPicture.asset(
+                      "assets/svg/check.svg",
+                      colorFilter: const ColorFilter.mode(
+                          AppColors.white, BlendMode.srcIn),
+                    ),
+                    child: 'Save',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
