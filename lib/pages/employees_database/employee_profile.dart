@@ -12,6 +12,7 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 class EmployeeProfile extends StatefulWidget {
   const EmployeeProfile({super.key});
@@ -38,19 +39,22 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
           'Employee’s Database',
           style: AppText.black_600_32,
         ),
-        const Row(
+        Row(
           children: [
             MyText(
               'Employee’s Database',
               style: AppText.black_400_14,
+              onTap: () {
+                context.pop();
+              },
             ),
             kSizedBoxWidthSM,
-            Icon(
+            const Icon(
               Icons.arrow_forward_ios_rounded,
               size: 12,
             ),
             kSizedBoxWidthSM,
-            MyText(
+            const MyText(
               'Darlene Robertson',
               style: AppText.black_400_14,
             ),

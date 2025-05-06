@@ -183,7 +183,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
         ),
         DataCell(
           onTap: () {
-            context.go(RouteConstants.eachProjects);
+            context.push(RouteConstants.eachProjects);
           },
           const SizedBox(
               width: 152,

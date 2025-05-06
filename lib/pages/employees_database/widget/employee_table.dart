@@ -106,7 +106,7 @@ List<DataRow> _createRows(BuildContext context) {
       ),
       DataCell(
         onTap: () {
-          context.go(RouteConstants.employeeProfile);
+          context.push(RouteConstants.employeeProfile);
         },
         Row(
           children: [

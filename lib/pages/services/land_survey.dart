@@ -145,7 +145,7 @@ class _LandSurveyScreenState extends State<LandSurveyScreen> {
               sqm: 500,
               price: 100,
               onTap: () {
-                context.go(RouteConstants.landSurveyDetail);
+                context.push(RouteConstants.landSurveyDetail);
               },
             ),
           ),

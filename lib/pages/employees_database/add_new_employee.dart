@@ -10,6 +10,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 class AddEmployesScreen extends StatefulWidget {
   const AddEmployesScreen({
@@ -32,9 +33,12 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText(
+        MyText(
           'Employee’s Database',
           style: AppText.black_600_32,
+          onTap: () {
+            context.pop();
+          },
         ),
         const Row(
           children: [

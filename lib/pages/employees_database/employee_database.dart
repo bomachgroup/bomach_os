@@ -59,7 +59,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase> {
                         ),
                         child: 'Add New Employee',
                         onTap: () {
-                          context.go(RouteConstants.addEmployees);
+                          context.push(RouteConstants.addEmployees);
                         },
                       ),
                       kSizedBoxWidth,

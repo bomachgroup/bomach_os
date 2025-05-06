@@ -140,7 +140,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                   "If you're visiting this page, you're likely here because you're searching for a random sentence...",
               buttonText: "View estate Properties",
               onTap: () {
-                context.go(RouteConstants.realEstateDetail);
+                context.push(RouteConstants.realEstateDetail);
               },
             ),
           ),

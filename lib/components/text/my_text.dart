@@ -11,6 +11,7 @@ class MyText extends StatelessWidget {
   final TextAlign? textAlign;
   final bool isSelectable;
   final TextStyle? style;
+  final void Function()? onTap;
 
   const MyText(
     this.text, {
@@ -23,6 +24,7 @@ class MyText extends StatelessWidget {
     this.textAlign,
     this.isSelectable = true,
     this.style,
+    this.onTap,
   });
 
   @override
@@ -40,7 +42,7 @@ class MyText extends StatelessWidget {
           fontWeight: getWeight(),
         );
 
-    if (isSelectable) {
+    if (isSelectable && onTap == null) {
       return SelectableRegion(
         focusNode: FocusNode(),
         selectionControls: materialTextSelectionControls,
@@ -54,12 +56,15 @@ class MyText extends StatelessWidget {
       );
     }
 
-    return Text(
-      text,
-      textAlign: textAlign,
-      overflow: TextOverflow.ellipsis,
-      maxLines: maxLines,
-      style: finalStyle,
+    return InkWell(
+      onTap: onTap,
+      child: Text(
+        text,
+        textAlign: textAlign,
+        overflow: TextOverflow.ellipsis,
+        maxLines: maxLines,
+        style: finalStyle,
+      ),
     );
   }
 
