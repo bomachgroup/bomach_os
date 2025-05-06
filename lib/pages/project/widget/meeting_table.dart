@@ -351,9 +351,9 @@ class MessageBubble extends StatelessWidget {
             if (!isMe) CurvedBackground(isMe: isMe),
 
             Container(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.7,
-              ),
+              // constraints: BoxConstraints(
+              //   maxWidth: MediaQuery.of(context).size.width * 0.7,
+              // ),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isMe ? AppColors.blue : AppColors.grey6,

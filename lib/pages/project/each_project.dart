@@ -2,6 +2,8 @@ import 'package:bms_front_end/components/button/in_button.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/project/widget/add_project_member_dialog.dart';
+import 'package:bms_front_end/pages/project/widget/add_worksite_dialog.dart';
 import 'package:bms_front_end/pages/project/widget/meeting_table.dart';
 import 'package:bms_front_end/pages/project/widget/project_files.dart';
 import 'package:bms_front_end/pages/project/widget/project_members.dart';
@@ -86,6 +88,23 @@ class _EachProjectsState extends State<EachProjects> {
                                 context: context,
                                 builder: (context) {
                                   return const AddMileStoneDialog();
+                                },
+                              );
+                            }
+
+                            if (projectMemberState == 2) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const AddWorksiteDialog();
+                                },
+                              );
+                            }
+                            if (projectMemberState == 1) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const AddProjectMemberDialog();
                                 },
                               );
                             }

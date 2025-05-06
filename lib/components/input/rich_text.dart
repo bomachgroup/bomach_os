@@ -52,6 +52,7 @@ class _RichTextEditorState extends State<RichTextEditor> {
                   showClearFormat: false,
                   showColorButton: false,
                   showListBullets: false,
+                  showQuote: false,
                   // toolbarIconAlignment: WrapAlignment.start,
                   // toolbarIconCrossAlignment: WrapCrossAlignment.start
                   // multiRowsDisplay: false,

@@ -24,7 +24,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+        constraints: const BoxConstraints(maxWidth: 846, maxHeight: 600),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -107,7 +107,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                       colorFilter: const ColorFilter.mode(
                           AppColors.white, BlendMode.srcIn),
                     ),
-                    child: 'Save',
+                    child: 'Submit',
                     onTap: () {},
                   ),
                 ],
