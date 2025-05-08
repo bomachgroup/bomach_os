@@ -261,7 +261,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const MyText(
-                                      'Upload File (optional)*',
+                                      'Upload File (optional)',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,

@@ -6,6 +6,7 @@ import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/input/upload_file.dart';
+import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -334,7 +335,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ),
         ),
         const DataCell(
-          Icon(Icons.more_vert_outlined),
+          ThreeDotPop(),
         ),
       ]);
     });
@@ -588,7 +589,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     MyText(
-                                      'Upload File (optional)*',
+                                      'Upload File (optional)',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,

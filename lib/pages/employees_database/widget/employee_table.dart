@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -184,7 +185,7 @@ List<DataRow> _createRows(BuildContext context) {
         ),
       ),
       const DataCell(
-        Icon(Icons.more_vert_outlined),
+        ThreeDotPop(),
       ),
     ]);
   });

@@ -2,6 +2,7 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
@@ -149,7 +150,7 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
           ),
         ),
         const DataCell(
-          Icon(Icons.more_vert_outlined),
+          ThreeDotPop(),
         ),
       ]);
     });

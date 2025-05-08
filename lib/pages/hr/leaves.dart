@@ -581,26 +581,6 @@ class AssignLeaveDialog extends StatefulWidget {
 }
 
 class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
-  final TextEditingController _reasonController = TextEditingController();
-  final TextEditingController _leaveDateController =
-      TextEditingController(text: '12-12-2024');
-  final TextEditingController _startDateController =
-      TextEditingController(text: '12-10-2024');
-  final TextEditingController _endDateController =
-      TextEditingController(text: '12-10-2024');
-  final TextEditingController _durationController =
-      TextEditingController(text: '5days');
-
-  @override
-  void dispose() {
-    _reasonController.dispose();
-    _leaveDateController.dispose();
-    _startDateController.dispose();
-    _endDateController.dispose();
-    _durationController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -640,15 +620,14 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
             ),
 
             // Form fields
-            Expanded(
+            const Expanded(
               child: SingleChildScrollView(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Column(
                     children: [
                       // First row
-                      const Row(
+                      Row(
                         children: [
                           // Choose Employee
                           Expanded(
@@ -682,13 +661,13 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       // Second row
                       Row(
                         children: [
                           // Status
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -701,14 +680,13 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           // Leave date
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 MyTextFormField(
-                                  controller: _leaveDateController,
                                   hintText: '----',
                                   spaceBetweenText: 10,
                                   title: 'Leave date*',
@@ -719,14 +697,13 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       // Reason for absence
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           MyTextFormField(
-                            controller: _reasonController,
                             maxLines: 4,
                             hintText: '----',
                             spaceBetweenText: 10,
@@ -735,7 +712,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       // Start and End dates
                       Row(
@@ -746,7 +723,6 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 MyTextFormField(
-                                  controller: _startDateController,
                                   hintText: '----',
                                   spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
@@ -754,14 +730,13 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           // End date
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 MyTextFormField(
-                                  controller: _endDateController,
                                   spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
                                 ),
@@ -771,14 +746,14 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       // File upload and Duration
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // File upload
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -794,16 +769,16 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           // Duration
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 MyTextFormField(
-                                  controller: _durationController,
                                   spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
+                                  hintText: '12-10-2024',
                                 ),
                               ],
                             ),

@@ -3,6 +3,7 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -239,7 +240,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
           ),
         ),
         const DataCell(
-          Icon(Icons.more_vert_outlined),
+          ThreeDotPop(),
         ),
       ]);
     });

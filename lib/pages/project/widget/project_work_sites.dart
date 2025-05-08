@@ -324,7 +324,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 MyText(
-                                  'Upload  File (optional)*',
+                                  'Upload  File (optional)',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,

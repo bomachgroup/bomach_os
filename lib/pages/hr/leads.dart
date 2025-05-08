@@ -4,6 +4,7 @@ import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/hr/widget/add_lead_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -60,7 +61,14 @@ class _LeadsPageState extends State<LeadsPage> {
                 color: AppColors.white,
               ),
               child: 'New Leads',
-              onTap: () {},
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const AddLeadDialog();
+                  },
+                );
+              },
             ),
             kSizedBoxWidth,
             SizedBox(
@@ -506,7 +514,7 @@ class ProfileInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final infoItems = [
       {'label': 'Leads ID', 'value': '001'},
-      {'label': 'Full Name', 'value': 'Jane Okoro'},
+      {'label': 'Contact Name', 'value': 'Jane Okoro'},
       {'label': 'Phone', 'value': '+2349077745777'},
       {'label': 'Email', 'value': 'Janeokoro45@gmail.com'},
     ];

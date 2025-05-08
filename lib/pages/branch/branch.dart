@@ -776,7 +776,7 @@ class _BranchPageState extends State<BranchPage> {
 
                   kSizedBoxBG,
                   const MyText(
-                    "Upload Branch File (optional)*",
+                    "Upload Branch File (optional)",
                     style: TextStyle(
                       color: AppColors.black,
                       fontSize: 16,
