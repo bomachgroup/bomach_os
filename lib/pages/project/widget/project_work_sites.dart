@@ -199,7 +199,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                                 MyDropdown(
                                   hintText: "----",
                                   items: [],
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Report Title*',
                                 ),
                               ],
@@ -214,7 +214,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                                 MyDropdown(
                                   hintText: "----",
                                   items: [],
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Location*',
                                 ),
                               ],
@@ -236,7 +236,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                                 MyDropdown(
                                   hintText: "----",
                                   items: [],
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Office*',
                                 ),
                               ],
@@ -256,7 +256,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                           MyTextFormField(
                             maxLines: 4,
                             hintText: '----',
-                            spaceBettwenText: 10,
+                            spaceBetweenText: 10,
                             title: 'Office Address*',
                           ),
                         ],
@@ -274,7 +274,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                               children: [
                                 MyDropdown(
                                   hintText: '----',
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Report Type*',
                                   items: [],
                                 ),
@@ -288,7 +288,7 @@ class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 MyTextFormField(
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Awaiting approval',
                                 ),
                               ],

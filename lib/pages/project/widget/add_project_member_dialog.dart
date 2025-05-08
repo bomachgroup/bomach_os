@@ -62,7 +62,7 @@ class AddProjectMemberDialogState extends State<AddProjectMemberDialog> {
                     children: [
                       MyDropdown(
                         hintText: "----",
-                        spaceBettwenText: 10,
+                        spaceBetweenText: 10,
                         title: 'Employee*',
                         items: [
                           "John Agbo",
@@ -74,7 +74,7 @@ class AddProjectMemberDialogState extends State<AddProjectMemberDialog> {
                       MyTextFormField(
                         maxLines: 4,
                         hintText: '----',
-                        spaceBettwenText: 10,
+                        spaceBetweenText: 10,
                         title: 'Details',
                       ),
                     ],

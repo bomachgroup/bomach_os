@@ -402,7 +402,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                   children: [
                                     MyTextFormField(
                                       hintText: '---',
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Project Name',
                                     ),
                                   ],
@@ -415,7 +415,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     MyTextFormField(
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       hintText: "PJ short code",
                                       title: 'Short Code',
                                     ),
@@ -437,7 +437,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                   children: [
                                     MyTextFormField(
                                       hintText: '12-10-2024',
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Start date(optional)*',
                                     ),
                                   ],
@@ -450,7 +450,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     MyTextFormField(
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       hintText: "12-10-2024",
                                       title: 'Deadline(optional)*',
                                     ),
@@ -470,7 +470,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                     MyDropdown(
                                       hintText: "----",
                                       items: [],
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Project Category*',
                                     ),
                                   ],
@@ -485,7 +485,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                     MyDropdown(
                                       hintText: "----",
                                       items: [],
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Department(optional)*',
                                     ),
                                   ],
@@ -507,7 +507,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                     MyDropdown(
                                       hintText: "----",
                                       items: [],
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Client*',
                                     ),
                                   ],
@@ -522,7 +522,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                     MyDropdown(
                                       hintText: "----",
                                       items: [],
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Employee/members*',
                                     ),
                                   ],
@@ -540,7 +540,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                               MyTextFormField(
                                 maxLines: 4,
                                 hintText: '----',
-                                spaceBettwenText: 10,
+                                spaceBetweenText: 10,
                                 title: 'Project summary/Note*',
                               ),
                             ],
@@ -607,7 +607,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                             children: [
                                               MyDropdown(
                                                 hintText: '----',
-                                                spaceBettwenText: 10,
+                                                spaceBetweenText: 10,
                                                 title: 'Currency*',
                                                 items: [],
                                               ),
@@ -622,7 +622,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               MyTextFormField(
-                                                spaceBettwenText: 10,
+                                                spaceBetweenText: 10,
                                                 hintText: "----",
                                                 title: 'Project Budget*',
                                               ),

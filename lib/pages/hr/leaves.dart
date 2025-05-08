@@ -658,7 +658,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                 MyDropdown(
                                   hintText: "----",
                                   items: [],
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Choose Employee*',
                                 ),
                               ],
@@ -673,7 +673,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                 MyDropdown(
                                   hintText: "----",
                                   items: [],
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Leave Type*',
                                 ),
                               ],
@@ -695,7 +695,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                 MyDropdown(
                                   hintText: "----",
                                   items: [],
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Status*',
                                 ),
                               ],
@@ -710,7 +710,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                 MyTextFormField(
                                   controller: _leaveDateController,
                                   hintText: '----',
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Leave date*',
                                 ),
                               ],
@@ -729,7 +729,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                             controller: _reasonController,
                             maxLines: 4,
                             hintText: '----',
-                            spaceBettwenText: 10,
+                            spaceBetweenText: 10,
                             title: 'Reason for absence*',
                           ),
                         ],
@@ -748,7 +748,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                                 MyTextFormField(
                                   controller: _startDateController,
                                   hintText: '----',
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
                                 ),
                               ],
@@ -762,7 +762,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                               children: [
                                 MyTextFormField(
                                   controller: _endDateController,
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
                                 ),
                               ],
@@ -802,7 +802,7 @@ class _AssignLeaveDialogState extends State<AssignLeaveDialog> {
                               children: [
                                 MyTextFormField(
                                   controller: _durationController,
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
                                 ),
                               ],

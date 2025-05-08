@@ -220,7 +220,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                               children: [
                                 MyTextFormField(
                                   hintText: "Enter Milestone title",
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Milestone title*',
                                 ),
                               ],
@@ -233,7 +233,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                               children: [
                                 MyTextFormField(
                                   hintText: "Enter Milestone cost",
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Milestone Cost*',
                                 ),
                               ],
@@ -255,7 +255,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                                 MyDropdown(
                                   hintText: "Marital status",
                                   items: [],
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Status*',
                                 ),
                               ],
@@ -269,7 +269,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                               children: [
                                 MyDropdown(
                                   hintText: 'Milestone title',
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Milestone title*',
                                   items: [],
                                 ),
@@ -288,7 +288,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                           MyTextFormField(
                             maxLines: 4,
                             hintText: '----',
-                            spaceBettwenText: 10,
+                            spaceBetweenText: 10,
                             title: 'Milestone Summary/Description*',
                           ),
                         ],
@@ -306,7 +306,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                               children: [
                                 MyTextFormField(
                                   hintText: '----',
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
                                 ),
                               ],
@@ -319,7 +319,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 MyTextFormField(
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Start date(optional)*',
                                 ),
                               ],

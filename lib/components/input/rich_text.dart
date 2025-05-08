@@ -70,11 +70,15 @@ class _RichTextEditorState extends State<RichTextEditor> {
               ),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Expanded(
-              child: QuillEditor.basic(
-                controller: _controllerQuillEC,
-                config: const QuillEditorConfig(minHeight: 200),
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: QuillEditor.basic(
+                    controller: _controllerQuillEC,
+                    config: const QuillEditorConfig(minHeight: 200),
+                  ),
+                ),
+              ],
             ),
           )
         ],

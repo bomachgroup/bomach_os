@@ -11,7 +11,7 @@ class MyTextFormField extends StatelessWidget {
   final String hintText;
   final Widget? leading;
   final Widget? trailing;
-  final double? spaceBettwenText;
+  final double? spaceBetweenText;
   final double? height;
   final Color? fillColor;
   final Color? textColor;
@@ -43,7 +43,7 @@ class MyTextFormField extends StatelessWidget {
     this.title,
     this.onTap,
     this.maxLines = 1,
-    this.spaceBettwenText,
+    this.spaceBetweenText,
     this.boxShadow,
   });
 
@@ -78,7 +78,7 @@ class MyTextFormField extends StatelessWidget {
               ),
             ),
           SizedBox(
-            height: spaceBettwenText ?? 0,
+            height: spaceBetweenText ?? (title != null ? 10 : 0),
           ),
           SizedBox(
             height: height,

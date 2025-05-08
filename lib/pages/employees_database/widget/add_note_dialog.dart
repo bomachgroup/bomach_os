@@ -66,7 +66,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                           Expanded(
                             child: MyTextFormField(
                               hintText: "Enter Title",
-                              spaceBettwenText: 10,
+                              spaceBetweenText: 10,
                             ),
                           ),
                         ],

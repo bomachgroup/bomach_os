@@ -65,14 +65,14 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                           Expanded(
                             child: MyTextFormField(
                               hintText: "----",
-                              spaceBettwenText: 10,
+                              spaceBetweenText: 10,
                               title: 'Name*',
                             ),
                           ),
                           Expanded(
                             child: MyTextFormField(
                               hintText: "----",
-                              spaceBettwenText: 10,
+                              spaceBetweenText: 10,
                               title: 'Location*',
                             ),
                           ),
@@ -82,7 +82,7 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                       MyTextFormField(
                         maxLines: 4,
                         hintText: '----',
-                        spaceBettwenText: 10,
+                        spaceBetweenText: 10,
                         title: 'Details',
                       ),
                     ],

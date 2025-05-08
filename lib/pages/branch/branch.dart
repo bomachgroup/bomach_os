@@ -3,6 +3,7 @@ import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/cards/invoice.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -774,26 +775,16 @@ class _BranchPageState extends State<BranchPage> {
                   ),
 
                   kSizedBoxBG,
-
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      height: 100,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.blue,
-                          width: 1.5,
-                          style: BorderStyle.solid,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.upload_file,
-                            size: 32, color: AppColors.blue),
-                      ),
+                  const MyText(
+                    "Upload Branch File (optional)*",
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
+                  kSizedBoxSM,
+                  const UploadFile(),
 
                   const SizedBox(height: 24),
 

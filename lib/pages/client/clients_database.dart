@@ -1242,7 +1242,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                               children: [
                                 MyTextFormField(
                                   hintText: '-----',
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   title: 'Company/customer Name',
                                 ),
                               ],

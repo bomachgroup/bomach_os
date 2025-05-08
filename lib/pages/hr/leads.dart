@@ -7,7 +7,9 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class LeadsPage extends StatefulWidget {
   const LeadsPage({super.key});
@@ -181,7 +183,14 @@ class _LeadsPageState extends State<LeadsPage> {
               MyText("001"),
             ),
             DataCell(
-              onTap: () {},
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const ViewLeadsDialog();
+                  },
+                );
+              },
               Row(
                 children: [
                   Container(
@@ -231,6 +240,407 @@ class _LeadsPageState extends State<LeadsPage> {
           ],
         );
       },
+    );
+  }
+}
+
+class ViewLeadsDialog extends StatefulWidget {
+  const ViewLeadsDialog({super.key});
+
+  @override
+  ViewLeadsDialogState createState() => ViewLeadsDialogState();
+}
+
+class ViewLeadsDialogState extends State<ViewLeadsDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1050),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          color: AppColors.greyBg,
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.grey,
+              spreadRadius: 1,
+              blurRadius: 5,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                color: AppColors.white,
+              ),
+              padding: const EdgeInsets.all(kDefaultSpaceBG),
+              child: const Row(
+                children: [
+                  MyText("Lead", size: 24, weight: 600),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 600,
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: kDefaultSpaceBG, vertical: kDefaultSpaceBG),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      kSizedBox,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Wrap(
+                              // crossAxisAlignment: CrossAxisAlignment.start,
+                              runSpacing: 15,
+                              spacing: 15,
+                              children: [
+                                const ClientInfoCard(),
+                                StatsCard(
+                                  title: 'Source',
+                                  value: 'Facebook',
+                                  icon: SvgPicture.asset(
+                                      "assets/svg/database.svg"),
+                                ),
+                                StatsCard(
+                                  title: 'Prospective value',
+                                  value: '1000',
+                                  icon: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      const SizedBox(),
+                                      Positioned(
+                                        left: -10,
+                                        child: SvgPicture.asset(
+                                            "assets/svg/naira-coin.svg"),
+                                      ),
+                                      Positioned(
+                                        child: SvgPicture.asset(
+                                            "assets/svg/naira-coin.svg"),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      kSizedBox,
+                      const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: ProfileInfoCard(),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            flex: 3,
+                            child: ProjectsCard(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ClientInfoCard extends StatelessWidget {
+  const ClientInfoCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: !isLargeScreen(context) ? double.infinity : 400,
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(255, 255, 255, 1),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: AppColors.grey4,
+          width: 0.6,
+        ),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const MyText(
+            'Client',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          kSizedBoxSM,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: Image.asset(
+                  "assets/image/man-demo.png",
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const MyText(
+                      'Jane Okoro',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const MyText(
+                      'Business woman',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    MyText(
+                      'Date of creation: 27/09/2024',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class StatsCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final Widget icon;
+
+  const StatsCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: !isLargeScreen(context) ? double.infinity : 280,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: AppColors.white,
+        border: Border.all(
+          color: AppColors.grey4,
+          width: 0.6,
+        ),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MyText(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            // mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: MyText(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.blue2,
+                  ),
+                ),
+              ),
+              icon,
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProfileInfoCard extends StatelessWidget {
+  const ProfileInfoCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final infoItems = [
+      {'label': 'Leads ID', 'value': '001'},
+      {'label': 'Full Name', 'value': 'Jane Okoro'},
+      {'label': 'Phone', 'value': '+2349077745777'},
+      {'label': 'Email', 'value': 'Janeokoro45@gmail.com'},
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: AppColors.white,
+        border: Border.all(
+          color: AppColors.grey4,
+          width: 0.6,
+        ),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const MyText(
+            'Personal Info',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const BouncingScrollPhysics(),
+            itemCount: infoItems.length,
+            separatorBuilder: (context, index) => kSizedBoxSM,
+            itemBuilder: (context, index) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: MyText(
+                      infoItems[index]['label']!,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: MyText(
+                      infoItems[index]['value']!,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProjectsCard extends StatelessWidget {
+  const ProjectsCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: AppColors.white,
+        border: Border.all(
+          color: AppColors.grey4,
+          width: 0.6,
+        ),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MyText(
+            'Detail',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          kSizedBoxSM,
+          MyText(
+            'Detail bfndsn sdbnm,adn sdvbjnm,sdv bjsvdv,mnsa sbdndms,',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+            maxLines: 10,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const InfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MyText(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              color: AppColors.darkGrey2,
+            ),
+          ),
+          MyText(
+            value,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w300,
+              color: AppColors.darkGrey2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

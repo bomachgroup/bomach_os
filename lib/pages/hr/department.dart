@@ -298,7 +298,7 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
                     children: [
                       const MyTextFormField(
                         hintText: "----",
-                        spaceBettwenText: 10,
+                        spaceBetweenText: 10,
                         title: 'Name*',
                       ),
                       const SizedBox(height: 24),
@@ -306,7 +306,7 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
                         controller: _reasonController,
                         maxLines: 4,
                         hintText: '----',
-                        spaceBettwenText: 10,
+                        spaceBetweenText: 10,
                         title: 'Description',
                       ),
                     ],

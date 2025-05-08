@@ -71,7 +71,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                   children: [
                                     MyDropdown(
                                       hintText: '----',
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Project*',
                                       items: [],
                                     ),
@@ -85,7 +85,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     MyDropdown(
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       hintText: "----",
                                       title: 'Task Category*',
                                       items: [],
@@ -105,7 +105,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     MyTextFormField(
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       hintText: "---",
                                       title: 'Task Title',
                                     ),
@@ -119,7 +119,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                   children: [
                                     MyTextFormField(
                                       hintText: 'PJ short code',
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Short Code',
                                     ),
                                   ],
@@ -133,7 +133,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                             children: [
                               Expanded(
                                 child: MyTextFormField(
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   hintText: '12-10-2024',
                                   title: 'Start date*',
                                 ),
@@ -141,7 +141,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                               kSizedBoxWidth,
                               Expanded(
                                 child: MyTextFormField(
-                                  spaceBettwenText: 10,
+                                  spaceBetweenText: 10,
                                   hintText: "12-10-2024",
                                   title: 'Deadline(optional)*',
                                 ),
@@ -158,7 +158,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                     MyDropdown(
                                       hintText: "----",
                                       items: [],
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Staus*',
                                     ),
                                   ],
@@ -173,7 +173,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                     MyDropdown(
                                       hintText: "----",
                                       items: [],
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Priority*',
                                     ),
                                   ],
@@ -195,7 +195,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                     MyDropdown(
                                       hintText: "----",
                                       items: [],
-                                      spaceBettwenText: 10,
+                                      spaceBetweenText: 10,
                                       title: 'Employee/members*',
                                     ),
                                   ],
@@ -215,7 +215,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                               MyTextFormField(
                                 maxLines: 4,
                                 hintText: '----',
-                                spaceBettwenText: 10,
+                                spaceBetweenText: 10,
                                 title: 'Task Description/Note*',
                               ),
                             ],
@@ -293,7 +293,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               MyDropdown(
-                                                spaceBettwenText: 10,
+                                                spaceBetweenText: 10,
                                                 hintText: "----",
                                                 title: 'Dependent Task*',
                                                 items: [],
