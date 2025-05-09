@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -287,9 +288,26 @@ class ViewLeadsDialogState extends State<ViewLeadsDialog> {
                 color: AppColors.white,
               ),
               padding: const EdgeInsets.all(kDefaultSpaceBG),
-              child: const Row(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  MyText("Lead", size: 24, weight: 600),
+                  const MyText("Lead", size: 24, weight: 600),
+                  MyElevatedButton(
+                    icon: SvgPicture.asset(
+                      "assets/svg/add-circle.svg",
+                      colorFilter: const ColorFilter.mode(
+                          AppColors.white, BlendMode.srcIn),
+                    ),
+                    child: "Add Note",
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const AddNoteDialog();
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -313,10 +331,13 @@ class ViewLeadsDialogState extends State<ViewLeadsDialog> {
                               children: [
                                 const ClientInfoCard(),
                                 StatsCard(
-                                  title: 'Source',
-                                  value: 'Facebook',
+                                  title: 'Service',
+                                  value: 'Real Estate',
                                   icon: SvgPicture.asset(
-                                      "assets/svg/database.svg"),
+                                    "assets/svg/star-chart.svg",
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
                                 StatsCard(
                                   title: 'Prospective value',
@@ -353,7 +374,7 @@ class ViewLeadsDialogState extends State<ViewLeadsDialog> {
                           SizedBox(width: 16),
                           Expanded(
                             flex: 3,
-                            child: ProjectsCard(),
+                            child: DetailAndNotes(),
                           ),
                         ],
                       ),
@@ -574,42 +595,99 @@ class ProfileInfoCard extends StatelessWidget {
   }
 }
 
-class ProjectsCard extends StatelessWidget {
-  const ProjectsCard({super.key});
+class DetailAndNotes extends StatelessWidget {
+  const DetailAndNotes({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: AppColors.white,
-        border: Border.all(
-          color: AppColors.grey4,
-          width: 0.6,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: AppColors.white,
+            border: Border.all(
+              color: AppColors.grey4,
+              width: 0.6,
+            ),
+          ),
+          padding: const EdgeInsets.all(16.0),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MyText(
+                'Detail',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              kSizedBoxSM,
+              MyText(
+                'Detail bfndsn sdbnm,adn sdvbjnm,sdv bjsvdv,mnsa sbdndms,',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+                maxLines: 10,
+              ),
+            ],
+          ),
         ),
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MyText(
-            'Detail',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+        kSizedBox,
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: AppColors.white,
+            border: Border.all(
+              color: AppColors.grey4,
+              width: 0.6,
             ),
           ),
-          kSizedBoxSM,
-          MyText(
-            'Detail bfndsn sdbnm,adn sdvbjnm,sdv bjsvdv,mnsa sbdndms,',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-            ),
-            maxLines: 10,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const MyText(
+                'Notes',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              kSizedBoxSM,
+              ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                separatorBuilder: (_, __) => kSizedBox,
+                itemCount: 5,
+                itemBuilder: (context, index) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        child: MyText("${index + 1}"),
+                      ),
+                      const Expanded(
+                        child: MyText(
+                          'Detail bfndsn sdbnm,adn sdvbjnm,sdv bjsvdv,mnsa sbdndms,',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          maxLines: 10,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              )
+            ],
           ),
-        ],
-      ),
+        )
+      ],
     );
   }
 }
@@ -648,6 +726,115 @@ class InfoRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class AddNoteDialog extends StatefulWidget {
+  const AddNoteDialog({super.key});
+
+  @override
+  State<AddNoteDialog> createState() => _AddNoteDialogState();
+}
+
+class _AddNoteDialogState extends State<AddNoteDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 846, maxHeight: 600),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.grey4),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const MyText(
+                    'Add Note',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+
+            // Form fields
+            const Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              hintText: "Enter Note",
+                              spaceBetweenText: 10,
+                              maxLines: 7,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Action Buttons
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  MyOutlinedButton(
+                    textColor: AppColors.darkGrey1,
+                    borderColor: null,
+                    child: 'Cancel',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  MyElevatedButton(
+                    icon: SvgPicture.asset(
+                      "assets/svg/kite.svg",
+                      colorFilter: const ColorFilter.mode(
+                          AppColors.white, BlendMode.srcIn),
+                    ),
+                    child: 'Submit',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

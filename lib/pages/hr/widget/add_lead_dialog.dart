@@ -129,7 +129,27 @@ class _AddLeadDialogState extends State<AddLeadDialog> {
                       ),
                       SizedBox(height: 24),
 
-                      // Reason for absence
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyDropdown(
+                                  items: ["Real Estate"],
+                                  hintText: '----',
+                                  spaceBetweenText: 10,
+                                  title: 'Service',
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Spacer()
+                        ],
+                      ),
+                      SizedBox(height: 24),
+
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
