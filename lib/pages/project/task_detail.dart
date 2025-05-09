@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
+import 'package:bms_front_end/components/image/image_stack.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -19,9 +20,14 @@ class TaskDetail extends StatefulWidget {
 class _TaskDetailState extends State<TaskDetail> {
   @override
   Widget build(BuildContext context) {
+    // Get screen width to determine layout
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 900; // Threshold for layout change
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Header with search and actions
         Row(
           children: [
             Expanded(
@@ -81,7 +87,92 @@ class _TaskDetailState extends State<TaskDetail> {
           ],
         ),
         kSizedBox,
-        const TaskDetailBody(),
+
+        // Main content area - Responsive layout
+        isWideScreen
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Expanded(
+                    flex: 3,
+                    child: TaskDetailBody(),
+                  ),
+                  const SizedBox(width: 20), // Add spacing between columns
+                  Expanded(
+                    child: _buildTodayTasksSection(),
+                  )
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const TaskDetailBody(),
+                  const SizedBox(height: 20), // Add spacing between sections
+                  _buildTodayTasksSection(),
+                ],
+              ),
+      ],
+    );
+  }
+
+  // Extract Today's Tasks section to reuse in both layouts
+  Widget _buildTodayTasksSection() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.only(top: 3.3),
+          decoration: const BoxDecoration(
+            color: AppColors.orange,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(15),
+            ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            decoration: const BoxDecoration(
+              color: AppColors.grey6,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(15),
+              ),
+            ),
+            child: Row(
+              children: [
+                const MyText("Today's Tasks"),
+                const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: AppColors.lightBlue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const MyText("3"),
+                ),
+                const Spacer(),
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        kSizedBoxSM,
+        const ProjectCard(),
+        const ProjectCard(),
+        const ProjectCard(),
       ],
     );
   }
@@ -99,143 +190,152 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Stats Cards Row
-          SizedBox(
-            height: 150,
-            child: Row(
-              spacing: 15,
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: 'Task Completed',
-                    value: '08',
-                    trend: '10+ more',
-                    trendPeriod: 'from last week',
-                    lineColor: Colors.blue[700]!,
-                    fillColor: Colors.blue[100]!,
+    // Get screen width to determine card layout
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+    final isMediumScreen = screenWidth >= 600 && screenWidth < 900;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Stats Cards Row - Make responsive based on screen size
+        isSmallScreen
+            ? Column(
+                children: [
+                  _buildStatCard(index: 0),
+                  const SizedBox(height: 15),
+                  _buildStatCard(index: 1),
+                  const SizedBox(height: 15),
+                  _buildStatCard(index: 2),
+                ],
+              )
+            : isMediumScreen
+                ? Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: _buildStatCard(index: 0)),
+                          const SizedBox(width: 15),
+                          Expanded(child: _buildStatCard(index: 1)),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      _buildStatCard(index: 2),
+                    ],
+                  )
+                : SizedBox(
+                    height: 150,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _buildStatCard(index: 0)),
+                        const SizedBox(width: 15),
+                        Expanded(child: _buildStatCard(index: 1)),
+                        const SizedBox(width: 15),
+                        Expanded(child: _buildStatCard(index: 2)),
+                      ],
+                    ),
                   ),
+
+        const SizedBox(height: 24),
+
+        // Task Done Chart Section
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          decoration: BoxDecoration(
+              color: AppColors.white, borderRadius: BorderRadius.circular(15)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const MyText(
+                'Task Done',
+                color: AppColors.darkBlue,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-                Expanded(
-                  child: StatCard(
-                    title: 'New Task',
-                    value: '10',
-                    trend: '10+ more',
-                    trendPeriod: 'from last week',
-                    lineColor: Colors.blue[700]!,
-                    fillColor: Colors.blue[100]!,
+              ),
+              const SizedBox(height: 16),
+
+              // Time period tabs - Make responsive
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 24,
+                runSpacing: 16,
+                children: [
+                  TimeframeTab(
+                    title: 'Daily',
+                    isSelected: selectedTimeframe == 'Daily',
+                    onTap: () => setState(() => selectedTimeframe = 'Daily'),
                   ),
-                ),
-                Expanded(
-                  child: StatCard(
-                    title: 'Project Done',
-                    value: '10',
-                    trend: '08+ more',
-                    trendPeriod: 'from last week',
-                    lineColor: Colors.red[400]!,
-                    fillColor: Colors.red[100]!,
+                  TimeframeTab(
+                    title: 'Weekly',
+                    isSelected: selectedTimeframe == 'Weekly',
+                    onTap: () => setState(() => selectedTimeframe = 'Weekly'),
                   ),
-                ),
-              ],
-            ),
+                  TimeframeTab(
+                    title: 'Monthly',
+                    isSelected: selectedTimeframe == 'Monthly',
+                    onTap: () => setState(() => selectedTimeframe = 'Monthly'),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Main chart with responsive height
+              SizedBox(
+                height: isSmallScreen ? 250 : 300,
+                child: const TaskChart(),
+              ),
+            ],
           ),
+        ),
 
-          const SizedBox(height: 24),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
 
-          // Task Done Chart Section
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(15)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const MyText(
-                  'Task Done',
-                  color: AppColors.darkBlue,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
+  // Helper method to build stat cards with consistent data
+  Widget _buildStatCard({required int index}) {
+    final cardData = [
+      {
+        'title': 'Task Completed',
+        'value': '08',
+        'trend': '10+ more',
+        'trendPeriod': 'from last week',
+        'lineColor': Colors.blue[700]!,
+        'fillColor': Colors.blue[100]!,
+      },
+      {
+        'title': 'New Task',
+        'value': '10',
+        'trend': '10+ more',
+        'trendPeriod': 'from last week',
+        'lineColor': Colors.blue[700]!,
+        'fillColor': Colors.blue[100]!,
+      },
+      {
+        'title': 'Project Done',
+        'value': '10',
+        'trend': '08+ more',
+        'trendPeriod': 'from last week',
+        'lineColor': Colors.red[400]!,
+        'fillColor': Colors.red[100]!,
+      },
+    ];
 
-                // Time period tabs
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TimeframeTab(
-                      title: 'Daily',
-                      isSelected: selectedTimeframe == 'Daily',
-                      onTap: () => setState(() => selectedTimeframe = 'Daily'),
-                    ),
-                    const SizedBox(width: 24),
-                    TimeframeTab(
-                      title: 'Weekly',
-                      isSelected: selectedTimeframe == 'Weekly',
-                      onTap: () => setState(() => selectedTimeframe = 'Weekly'),
-                    ),
-                    const SizedBox(width: 24),
-                    TimeframeTab(
-                      title: 'Monthly',
-                      isSelected: selectedTimeframe == 'Monthly',
-                      onTap: () =>
-                          setState(() => selectedTimeframe = 'Monthly'),
-                    ),
-                  ],
-                ),
+    final data = cardData[index];
 
-                const SizedBox(height: 16),
-
-                // Main chart
-                const SizedBox(
-                  height: 300,
-                  child: TaskChart(),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Project Tasks Section
-          // const Column(
-          //   children: [
-          //     ProjectTaskCard(
-          //       title: 'Project X dashboard UI design',
-          //       status: 'Ongoing',
-          //       description:
-          //           'Dashboard UI design is a visually engaging and intuitively structured interface tailored to streamline project management.',
-          //       deadline: 'Deadline: 11th - 15th August 2023',
-          //       memberCount: 3,
-          //     ),
-          //     SizedBox(height: 16),
-          //     ProjectTaskCard(
-          //       title: 'Project X Product documentation',
-          //       status: 'TO DO',
-          //       description:
-          //           'Dashboard UI design is a visually engaging and intuitively structured interface tailored to streamline project management.',
-          //       deadline: 'Deadline: 11th - 15th August 2023',
-          //       memberCount: 3,
-          //     ),
-          //     SizedBox(height: 16),
-          //     ProjectTaskCard(
-          //       title: 'Project X dashboard UI design',
-          //       status: 'Ongoing',
-          //       description:
-          //           'Dashboard UI design is a visually engaging and intuitively structured interface tailored to streamline project management.',
-          //       deadline: 'Deadline: 11th - 15th August 2023',
-          //       memberCount: 3,
-          //     ),
-          //   ],
-          // ),
-        ],
-      ),
+    return StatCard(
+      title: data['title'] as String,
+      value: data['value'] as String,
+      trend: data['trend'] as String,
+      trendPeriod: data['trendPeriod'] as String,
+      lineColor: data['lineColor'] as Color,
+      fillColor: data['fillColor'] as Color,
     );
   }
 }
@@ -288,15 +388,16 @@ class StatCard extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: SvgPicture.asset("assets/svg/star-chart.svg")),
-              kSizedBoxWidthSM,
-              MyText(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+              const SizedBox(width: 10),
+              Expanded(
+                child: MyText(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
                 ),
               ),
-              const Spacer(),
               MyText(
                 value,
                 style: const TextStyle(
@@ -310,7 +411,6 @@ class StatCard extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 8),
           Row(
-            spacing: 10,
             children: [
               Expanded(
                 child: SizedBox(
@@ -321,6 +421,7 @@ class StatCard extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 10),
               SizedBox(
                 width: 100,
                 child: Column(
@@ -447,6 +548,10 @@ class TaskChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen width to adjust chart display
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+
     return LineChart(
       LineChartData(
         gridData: FlGridData(
@@ -472,7 +577,8 @@ class TaskChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval: 1,
+              interval:
+                  isSmallScreen ? 2 : 1, // Show fewer labels on small screens
               getTitlesWidget: (value, meta) {
                 const months = [
                   'May',
@@ -496,7 +602,7 @@ class TaskChart extends StatelessWidget {
                       months[index],
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 12,
+                        fontSize: isSmallScreen ? 10 : 12,
                       ),
                     ),
                   );
@@ -514,11 +620,11 @@ class TaskChart extends StatelessWidget {
                   value.toInt().toString(),
                   style: TextStyle(
                     color: Colors.grey[600],
-                    fontSize: 12,
+                    fontSize: isSmallScreen ? 10 : 12,
                   ),
                 );
               },
-              reservedSize: 40,
+              reservedSize: isSmallScreen ? 30 : 40,
             ),
           ),
         ),
@@ -552,7 +658,7 @@ class TaskChart extends StatelessWidget {
               show: true,
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
-                  radius: 4,
+                  radius: isSmallScreen ? 3 : 4,
                   color: Colors.white,
                   strokeWidth: 2,
                   strokeColor: Colors.blue[700]!,
@@ -561,10 +667,6 @@ class TaskChart extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue[200]!.withOpacity(0.4),
-              // gradientFrom: const Offset(0, 0),
-              // gradientTo: const Offset(0, 1),
-              // gradientColorStops: [0, 0.7, 1.0],
               gradient: LinearGradient(
                 colors: [
                   Colors.blue[300]!.withOpacity(0.4),
@@ -600,7 +702,7 @@ class TaskChart extends StatelessWidget {
               show: true,
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
-                  radius: 4,
+                  radius: isSmallScreen ? 3 : 4,
                   color: Colors.white,
                   strokeWidth: 2,
                   strokeColor: Colors.blue[400]!,
@@ -615,7 +717,6 @@ class TaskChart extends StatelessWidget {
         ],
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
-            // tooltipBgColor: Colors.white,
             tooltipRoundedRadius: 8,
             tooltipBorder: BorderSide(
               color: Colors.grey[300]!,
@@ -628,210 +729,158 @@ class TaskChart extends StatelessWidget {
   }
 }
 
-class ProjectTaskCard extends StatelessWidget {
-  final String title;
-  final String status;
-  final String description;
-  final String deadline;
-  final int memberCount;
-
-  const ProjectTaskCard({
-    super.key,
-    required this.title,
-    required this.status,
-    required this.description,
-    required this.deadline,
-    required this.memberCount,
-  });
+class ProjectCard extends StatelessWidget {
+  const ProjectCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isOngoing = status.toLowerCase() == 'ongoing';
-    final statusColor = isOngoing ? Colors.blue : Colors.orange;
+    // Get screen width for responsive layout
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmallScreen = screenWidth < 400;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: MyText(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+    return Card(
+      color: AppColors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title and status - Make responsive
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                const Expanded(
+                  child: MyText(
+                    'Project X dashboard UI design',
+                    maxLines: 2,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: statusColor.withOpacity(0.3),
-                    width: 1,
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MyText(
+                        'Ongoing',
+                        style: TextStyle(
+                            color: AppColors.blue.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Icon(
+                        Icons.arrow_drop_down_sharp,
+                        color: AppColors.blue.withValues(alpha: 0.8),
+                      ),
+                    ],
                   ),
                 ),
-                child: MyText(
-                  status,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: statusColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          MyText(
-            description,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                size: 16,
-                color: Colors.orange,
-              ),
-              const SizedBox(width: 4),
-              MyText(
-                deadline,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.orange,
-                  fontWeight: FontWeight.w500,
+            const SizedBox(height: 12),
+            const MyText(
+              'Dashboard UI design is a visually engaging and intuitively structured interface tailored to streamline project management',
+              maxLines: 10,
+              style: TextStyle(color: Colors.black87),
+            ),
+            const SizedBox(height: 12),
+            // Deadline - Uses Wrap for responsiveness
+            const Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Icon(Icons.access_time, color: Colors.orange, size: 20),
+                MyText(
+                  'Deadline: ',
+                  style: TextStyle(
+                      color: Colors.orange, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Team members avatars
-              SizedBox(
-                height: 32,
-                child: Stack(
-                  children: List.generate(
-                    memberCount,
-                    (index) => Positioned(
-                      left: index * 20.0,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
+                MyText(
+                  '11th - 15th August 2023',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Avatars and icons - Make responsive
+            isVerySmallScreen
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const ProfileIconsStack(
+                            imagesPath: [
+                              "assets/user1.jpg",
+                              "assets/user1.jpg",
+                            ],
                           ),
-                        ),
-                        child: Center(
-                          child: MyText(
-                            String.fromCharCode(65 + index),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                          kSizedBoxWidthSM,
+                          SizedBox(
+                            height: 28,
+                            width: 28,
+                            child: SvgPicture.asset(
+                              "assets/svg/add-circle.svg",
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.grey3, BlendMode.srcIn),
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Row(
+                        children: [
+                          Icon(Icons.attach_file, size: 18),
+                          SizedBox(width: 4),
+                          MyText('2'),
+                          SizedBox(width: 12),
+                          Icon(Icons.chat_bubble_outline, size: 18),
+                          SizedBox(width: 4),
+                          MyText('3'),
+                        ],
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      // Avatars
+                      const ProfileIconsStack(
+                        imagesPath: [
+                          "assets/user1.jpg",
+                          "assets/user1.jpg",
+                        ],
+                      ),
+                      kSizedBoxWidthSM,
+                      SizedBox(
+                        height: 28,
+                        width: 28,
+                        child: SvgPicture.asset(
+                          "assets/svg/add-circle.svg",
+                          colorFilter: const ColorFilter.mode(
+                              AppColors.grey3, BlendMode.srcIn),
                         ),
                       ),
-                    ),
-                  )..add(
-                      Positioned(
-                        left: memberCount * 20.0,
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.grey[300]!,
-                              width: 1,
-                            ),
-                          ),
-                          child: const Center(
-                            child: MyText(
-                              '+1',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ),
-              ),
-              // Action buttons
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.comment_outlined,
-                      size: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.attach_file,
-                      size: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                      const Spacer(),
+                      const Icon(Icons.attach_file, size: 18),
+                      const SizedBox(width: 4),
+                      const MyText('2'),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.chat_bubble_outline, size: 18),
+                      const SizedBox(width: 4),
+                      const MyText('3'),
+                    ],
+                  )
+          ],
+        ),
       ),
     );
   }
