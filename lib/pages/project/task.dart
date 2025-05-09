@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -7,6 +8,7 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 class TaskPage extends StatefulWidget {
@@ -30,51 +32,74 @@ class TaskPageState extends State<TaskPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText(
-          'Tasks',
-          style: AppText.black_500_32,
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-        const MyText(
-          'Tasks',
-          style: AppText.black_400_14,
-        ),
-        const SizedBox(
-          height: 17,
-        ),
-        Wrap(
-          runSpacing: kDefaultSpace,
-          spacing: kDefaultSpace,
+        Row(
           children: [
-            SizedBox(
-              width: 217,
-              height: 48,
-              child: MyTextFormField(
-                hintText: 'Search...',
-                leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
-                ),
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MyText(
+                        'Tasks',
+                        style: AppText.black_500_32,
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      MyText(
+                        'Tasks',
+                        style: AppText.black_400_14,
+                      ),
+                    ],
+                  ),
+                  Wrap(
+                    spacing: 15,
+                    runSpacing: 15,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        child: MyTextFormField(
+                          hintText: 'Search...',
+                          leading: Icon(
+                            Icons.search,
+                            color: AppColors.grey1.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      const SortBar(text: "Sort"),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: SvgPicture.asset(
+                          "assets/svg/notification.svg",
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.black,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      MyElevatedButton(
+                        icon: const Icon(
+                          Icons.add_circle_outline_rounded,
+                          color: AppColors.white,
+                        ),
+                        child: "Add Task",
+                        onTap: () {},
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
-            MyElevatedButton(
-                icon: const Icon(
-                  Icons.add_circle_outline_rounded,
-                  color: AppColors.white,
-                ),
-                child: 'Add Task',
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AlertDialog(
-                          contentPadding: EdgeInsets.all(0),
-                          content: null,
-                        );
-                      });
-                })
           ],
         ),
         kSizedBox,
