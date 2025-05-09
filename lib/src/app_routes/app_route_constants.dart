@@ -8,6 +8,7 @@ class RouteConstants {
   static const String projects = '/works/projects';
   static const String eachProjects = '/works/projects/detail';
   static const String tasks = '/works/tasks';
+  static const String contracts = '/works/contracts';
   static const String worksite = '/works/worksite';
   // hr
   static const String employees = '/hr/employees';

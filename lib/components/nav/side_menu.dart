@@ -125,7 +125,7 @@ class _SideMenuState extends State<SideMenu> {
           {
             'index': 12,
             'label': 'Contracts',
-            'route': null,
+            'route': RouteConstants.contracts,
           },
         ],
       },
