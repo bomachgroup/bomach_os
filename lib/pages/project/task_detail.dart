@@ -171,7 +171,9 @@ class _TaskDetailState extends State<TaskDetail> {
         ),
         kSizedBoxSM,
         const ProjectCard(),
+        kSizedBoxTiny,
         const ProjectCard(),
+        kSizedBoxTiny,
         const ProjectCard(),
       ],
     );
@@ -242,9 +244,20 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
 
         // Task Done Chart Section
         Container(
+          margin: const EdgeInsets.all(5),
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           decoration: BoxDecoration(
-              color: AppColors.white, borderRadius: BorderRadius.circular(15)),
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey..withValues(alpha: 0.01),
+                spreadRadius: 0.1,
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -361,14 +374,15 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.all(5),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
+            color: Colors.grey..withValues(alpha: 0.01),
+            spreadRadius: 0.1,
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -486,7 +500,7 @@ class MiniLineChart extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: fillColor.withOpacity(0.3),
+              color: fillColor..withValues(alpha: 0.3),
             ),
           ),
         ],
@@ -669,9 +683,9 @@ class TaskChart extends StatelessWidget {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  Colors.blue[300]!.withOpacity(0.4),
-                  Colors.blue[200]!.withOpacity(0.2),
-                  Colors.blue[100]!.withOpacity(0.1),
+                  Colors.blue[300]!.withValues(alpha: 0.4),
+                  Colors.blue[200]!..withValues(alpha: 0.2),
+                  Colors.blue[100]!..withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -711,7 +725,7 @@ class TaskChart extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue[100]!.withOpacity(0.3),
+              color: Colors.blue[100]!..withValues(alpha: 0.3),
             ),
           ),
         ],
@@ -722,6 +736,17 @@ class TaskChart extends StatelessWidget {
               color: Colors.grey[300]!,
               width: 1,
             ),
+            getTooltipItems: (touchedSpots) {
+              return touchedSpots.map((touchedSpot) {
+                return LineTooltipItem(
+                  '${touchedSpot.y.toInt()}',
+                  const TextStyle(
+                    color: Colors.white, // Text color inside the tooltip
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }).toList();
+            },
           ),
         ),
       ),
@@ -738,10 +763,20 @@ class ProjectCard extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isVerySmallScreen = screenWidth < 400;
 
-    return Card(
-      color: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 0,
+    return Container(
+      margin: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey..withValues(alpha: 0.03),
+            spreadRadius: 0.2,
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -852,31 +887,53 @@ class ProjectCard extends StatelessWidget {
                   )
                 : Row(
                     children: [
-                      // Avatars
-                      const ProfileIconsStack(
-                        imagesPath: [
-                          "assets/user1.jpg",
-                          "assets/user1.jpg",
-                        ],
-                      ),
-                      kSizedBoxWidthSM,
-                      SizedBox(
-                        height: 28,
-                        width: 28,
-                        child: SvgPicture.asset(
-                          "assets/svg/add-circle.svg",
-                          colorFilter: const ColorFilter.mode(
-                              AppColors.grey3, BlendMode.srcIn),
+                      Expanded(
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          children: [
+                            // Avatars
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const ProfileIconsStack(
+                                  imagesPath: [
+                                    "assets/user1.jpg",
+                                    "assets/user1.jpg",
+                                  ],
+                                ),
+                                kSizedBoxWidthTiny,
+                                SizedBox(
+                                  height: 28,
+                                  width: 28,
+                                  child: SvgPicture.asset(
+                                    "assets/svg/add-circle.svg",
+                                    colorFilter: const ColorFilter.mode(
+                                        AppColors.grey3, BlendMode.srcIn),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  height: 28,
+                                ),
+                                Icon(Icons.attach_file, size: 18),
+                                SizedBox(width: 4),
+                                MyText('2'),
+                                SizedBox(width: 12),
+                                Icon(Icons.chat_bubble_outline, size: 18),
+                                SizedBox(width: 4),
+                                MyText('3'),
+                              ],
+                            )
+                          ],
                         ),
                       ),
-                      const Spacer(),
-                      const Icon(Icons.attach_file, size: 18),
-                      const SizedBox(width: 4),
-                      const MyText('2'),
-                      const SizedBox(width: 12),
-                      const Icon(Icons.chat_bubble_outline, size: 18),
-                      const SizedBox(width: 4),
-                      const MyText('3'),
                     ],
                   )
           ],

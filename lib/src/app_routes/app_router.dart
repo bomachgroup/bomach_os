@@ -24,6 +24,7 @@ import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
 import 'package:bms_front_end/pages/services/service_order.dart';
+import 'package:bms_front_end/pages/services/services.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.landSurveyDetail: const LandSurveyDetailScreen(),
   RouteConstants.taskDetail: const TaskDetail(),
   RouteConstants.contracts: const ContractPage(),
+  RouteConstants.services: const ServicesPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

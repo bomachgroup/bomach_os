@@ -20,10 +20,11 @@ class RouteConstants {
   static const String meetings = '/hr/meetings';
   static const String department = '/hr/department';
   // services
-  static const String realEstate = '/service/real-estate';
-  static const String realEstateDetail = '/service/real-estate/detail';
-  static const String serviceOrder = '/service/service-order';
-  static const String landSurvey = '/service/land-survey';
-  static const String taskDetail = '/service/task/detail';
-  static const String landSurveyDetail = '/service/land-survey/detail';
+  static const String services = '/services';
+  static const String realEstate = '/services/real-estate';
+  static const String realEstateDetail = '/services/real-estate/detail';
+  static const String serviceOrder = '/services/service-order';
+  static const String landSurvey = '/services/land-survey';
+  static const String taskDetail = '/services/task/detail';
+  static const String landSurveyDetail = '/services/land-survey/detail';
 }

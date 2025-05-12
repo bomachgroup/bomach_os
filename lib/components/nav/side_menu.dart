@@ -164,6 +164,11 @@ class _SideMenuState extends State<SideMenu> {
             'label': 'Land Survey',
             'route': RouteConstants.landSurvey,
           },
+          {
+            'index': 16,
+            'label': 'Services',
+            'route': RouteConstants.services,
+          },
         ],
       },
       {
