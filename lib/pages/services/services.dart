@@ -4,10 +4,12 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/widget/add_service_dialog.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ServicesPage extends StatefulWidget {
   const ServicesPage({super.key});
@@ -172,8 +174,13 @@ class ServicesPageState extends State<ServicesPage> {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
         DataCell(
-          onTap: () {},
-          const MyText("Real Estate"),
+          onTap: () {
+            context.go(RouteConstants.serviceDetail);
+          },
+          const MyText(
+            "Real Estate",
+            isSelectable: false,
+          ),
         ),
         const DataCell(
           Column(

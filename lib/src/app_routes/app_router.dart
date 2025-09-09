@@ -5,6 +5,7 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
@@ -23,6 +24,7 @@ import 'package:bms_front_end/pages/services/land_survey.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
+import 'package:bms_front_end/pages/services/service_detail.dart';
 import 'package:bms_front_end/pages/services/service_order.dart';
 import 'package:bms_front_end/pages/services/services.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
@@ -54,6 +56,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.taskDetail: const TaskDetail(),
   RouteConstants.contracts: const ContractPage(),
   RouteConstants.services: const ServicesPage(),
+  RouteConstants.serviceDetail: const ServiceDetailScreen(),
+  RouteConstants.company: const CompanyProfileScreen(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route
