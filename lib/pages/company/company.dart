@@ -1,11 +1,13 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/company/widget/edit_company_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
-class CompanyProfileScreen extends StatelessWidget {
-  const CompanyProfileScreen({super.key});
+class CompanyProfilePage extends StatelessWidget {
+  const CompanyProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -117,18 +119,18 @@ class CompanyProfileScreen extends StatelessWidget {
                         color: Color(0xFF1A202C),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3B82F6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                    MyElevatedButton(
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: AppColors.white,
                       ),
-                      child: const Text(
-                        'Edit Profile',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: 'Edit Profile',
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const EditCompanyDialog(),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -136,6 +138,15 @@ class CompanyProfileScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Company Logo and Name
+                const Text(
+                  'Logo',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
                 Row(
                   children: [
                     Container(
@@ -146,15 +157,11 @@ class CompanyProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
-                      child: const Center(
-                        child: Text(
-                          'BOMACH\nGROUP OF COMPANY',
-                          style: TextStyle(
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFDC2626),
-                          ),
-                          textAlign: TextAlign.center,
+                      child: Center(
+                        child: Image.asset(
+                          "assets/logo/bomach.png",
+                          height: 80,
+                          width: 80,
                         ),
                       ),
                     ),

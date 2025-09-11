@@ -28,4 +28,5 @@ class RouteConstants {
   static const String landSurvey = '/services/land-survey';
   static const String taskDetail = '/services/task/detail';
   static const String landSurveyDetail = '/services/land-survey/detail';
+  static const String branch = '/company/branch';
 }

@@ -5,6 +5,7 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/pages/company/branch.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
@@ -35,7 +36,6 @@ import 'package:go_router/go_router.dart';
 /// Map of all dashboard screens to their routes for better maintainability
 final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.home: const DashboardScreen(),
-  RouteConstants.enugu: const BranchPage(),
   RouteConstants.employees: const EmployeeDatabase(),
   RouteConstants.addEmployees: const AddEmployesScreen(),
   RouteConstants.employeeProfile: const EmployeeProfile(),
@@ -57,7 +57,9 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.contracts: const ContractPage(),
   RouteConstants.services: const ServicesPage(),
   RouteConstants.serviceDetail: const ServiceDetailScreen(),
-  RouteConstants.company: const CompanyProfileScreen(),
+  RouteConstants.company: const CompanyProfilePage(),
+  RouteConstants.branch: const BranchListPage(),
+  RouteConstants.enugu: const BranchPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route
