@@ -12,7 +12,6 @@ class ViewBranchDialog extends StatefulWidget {
 }
 
 class _ViewBranchDialogState extends State<ViewBranchDialog> {
-  int employeeProfileSelectionStepperState = 0;
   @override
   Widget build(BuildContext context) {
     return Dialog(

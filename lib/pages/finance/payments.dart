@@ -4,6 +4,8 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/finance/widget/add_payment_dialog.dart';
+import 'package:bms_front_end/pages/finance/widget/view_payment_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -55,12 +57,12 @@ class PaymentsPageState extends State<PaymentsPage> {
                     ),
                     child: "New Payment",
                     onTap: () {
-                      // showDialog(
-                      //   context: context,
-                      //   builder: (context) {
-                      //     return const AddBranchDialog();
-                      //   },
-                      // );
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const AddPaymentDialog();
+                        },
+                      );
                     },
                   )
                 ],
@@ -190,14 +192,17 @@ class PaymentsPageState extends State<PaymentsPage> {
         ),
         DataCell(
           onTap: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (context) {
-            //     return const ViewBranchDialog();
-            //   },
-            // );
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const ViewPaymentDialog();
+              },
+            );
           },
-          const MyText("MTN Group"),
+          const MyText(
+            "MTN Group",
+            isSelectable: false,
+          ),
         ),
         const DataCell(
           MyText("24-05-2025"),
