@@ -203,6 +203,39 @@ class _SideMenuState extends State<SideMenu> {
         'isExpandable': false,
         'children': [],
       },
+      {
+        'index': 11,
+        'label': 'Finance & Accounting',
+        'iconPath': 'assets/svg/sidebar/joined-square.svg',
+        'isExpandable': true,
+        'children': [
+          {
+            'index': 17,
+            'label': 'Dashboard',
+            'route': RouteConstants.finance,
+          },
+          {
+            'index': 18,
+            'label': 'Invoice',
+            'route': RouteConstants.invoice,
+          },
+          {
+            'index': 19,
+            'label': 'Payments',
+            'route': RouteConstants.payment,
+          },
+          {
+            'index': 20,
+            'label': 'Expenses',
+            'route': RouteConstants.expense,
+          },
+          {
+            'index': 21,
+            'label': 'Vendor/Contributor',
+            'route': RouteConstants.contractPayment,
+          },
+        ],
+      },
     ];
   }
 
