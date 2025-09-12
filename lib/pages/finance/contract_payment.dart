@@ -5,6 +5,8 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/finance/widget/add_contract_payment_dialog.dart';
+import 'package:bms_front_end/pages/finance/widget/view_contract_payment_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -56,12 +58,12 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
                     ),
                     child: "New Payment",
                     onTap: () {
-                      // showDialog(
-                      //   context: context,
-                      //   builder: (context) {
-                      //     return const AddBranchDialog();
-                      //   },
-                      // );
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const AddContractPaymentDialog();
+                        },
+                      );
                     },
                   )
                 ],
@@ -175,24 +177,24 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
   List<DataRow> _createRows(BuildContext context) {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText(
+        DataCell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const ViewContractPaymentDialog();
+              },
+            );
+          },
+          const MyText(
             "MTN Group",
             size: 16,
             weight: 400,
             isSelectable: false,
           ),
         ),
-        DataCell(
-          onTap: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (context) {
-            //     return const ViewBranchDialog();
-            //   },
-            // );
-          },
-          const MyText("121500"),
+        const DataCell(
+          MyText("121500"),
         ),
         const DataCell(
           MyText("24-05-2025"),

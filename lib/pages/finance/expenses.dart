@@ -5,6 +5,8 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/finance/widget/add_expense_dialog.dart';
+import 'package:bms_front_end/pages/finance/widget/view_expense_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -56,12 +58,12 @@ class ExpensesPageState extends State<ExpensesPage> {
                     ),
                     child: "New Expense",
                     onTap: () {
-                      // showDialog(
-                      //   context: context,
-                      //   builder: (context) {
-                      //     return const AddBranchDialog();
-                      //   },
-                      // );
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const AddExpenseDialog();
+                        },
+                      );
                     },
                   )
                 ],
@@ -190,14 +192,17 @@ class ExpensesPageState extends State<ExpensesPage> {
         ),
         DataCell(
           onTap: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (context) {
-            //     return const ViewBranchDialog();
-            //   },
-            // );
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const ViewExpenseDialog();
+              },
+            );
           },
-          const MyText("Purchase of flight tickets"),
+          const MyText(
+            "Purchase of flight tickets",
+            isSelectable: false,
+          ),
         ),
         const DataCell(
           MyText("121500"),
