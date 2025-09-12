@@ -29,4 +29,10 @@ class RouteConstants {
   static const String taskDetail = '/services/task/detail';
   static const String landSurveyDetail = '/services/land-survey/detail';
   static const String branch = '/company/branch';
+  static const String finance = '/finance';
+  static const String invoice = '/finance/invoice';
+  static const String payment = '/finance/payment';
+  static const String expense = '/finance/expense';
+  static const String contractPayment = '/finance/contract-payment';
+  static const String budget = '/finance/budget';
 }

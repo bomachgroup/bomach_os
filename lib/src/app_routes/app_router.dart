@@ -11,6 +11,12 @@ import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
 import 'package:bms_front_end/pages/employees_database/employee_profile.dart';
+import 'package:bms_front_end/pages/finance/budget.dart';
+import 'package:bms_front_end/pages/finance/contract_payment.dart';
+import 'package:bms_front_end/pages/finance/expenses.dart';
+import 'package:bms_front_end/pages/finance/finance.dart';
+import 'package:bms_front_end/pages/finance/invoice.dart';
+import 'package:bms_front_end/pages/finance/payments.dart';
 import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/leads.dart';
 import 'package:bms_front_end/pages/hr/leaves.dart';
@@ -60,6 +66,12 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.company: const CompanyProfilePage(),
   RouteConstants.branch: const BranchListPage(),
   RouteConstants.enugu: const BranchPage(),
+  RouteConstants.finance: const FinancePage(),
+  RouteConstants.invoice: const InvoicePage(),
+  RouteConstants.payment: const PaymentsPage(),
+  RouteConstants.expense: const ExpensesPage(),
+  RouteConstants.contractPayment: const ContractPaymentPage(),
+  RouteConstants.budget: const BudgetPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route
