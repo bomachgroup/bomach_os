@@ -22,6 +22,7 @@ class MyTextFormField extends StatelessWidget {
   final void Function()? onTap;
   final int maxLines;
   final List<BoxShadow>? boxShadow;
+  final bool? readOnly;
 
   const MyTextFormField({
     super.key,
@@ -45,6 +46,7 @@ class MyTextFormField extends StatelessWidget {
     this.maxLines = 1,
     this.spaceBetweenText,
     this.boxShadow,
+    this.readOnly,
   });
 
   @override
@@ -84,7 +86,7 @@ class MyTextFormField extends StatelessWidget {
             height: height,
             child: TextFormField(
               maxLines: maxLines,
-              readOnly: onTap != null,
+              readOnly: readOnly ?? onTap != null,
               onTap: onTap,
               focusNode: focusNode,
               controller: controller,

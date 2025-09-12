@@ -386,7 +386,6 @@ class _ViewBranchDialogState extends State<ViewBranchDialog> {
                             Navigator.pop(context);
                           },
                         ),
-                        const SizedBox(width: 16),
                         MyElevatedButton(
                           child: 'Edit',
                           onTap: () {},
