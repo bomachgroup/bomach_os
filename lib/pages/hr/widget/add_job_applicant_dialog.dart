@@ -153,7 +153,6 @@ class _AddProgramDialogState extends State<AddJobApplicantDialog> {
                             ],
                           ),
                           SizedBox(height: 24),
-                          // TODO: add file upload
                           MyText(
                             "Upload Resume*",
                             style: TextStyle(
@@ -164,7 +163,6 @@ class _AddProgramDialogState extends State<AddJobApplicantDialog> {
                           ),
                           kSizedBoxSM,
                           UploadFile(),
-
                           SizedBox(height: 24),
                           MyText(
                             "Upload Cover Letter(Optional)",
@@ -176,7 +174,6 @@ class _AddProgramDialogState extends State<AddJobApplicantDialog> {
                           ),
                           kSizedBoxSM,
                           UploadFile(),
-
                           SizedBox(height: 24),
                           Row(
                             children: [
