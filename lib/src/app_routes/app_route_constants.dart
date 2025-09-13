@@ -3,6 +3,8 @@ class RouteConstants {
   static const String home = '/dashboard';
   static const String company = '/company';
   static const String enugu = '/company/enugu';
+  static const String branch = '/company/branch';
+
   // work
   static const String works = '/works';
   static const String projects = '/works/projects';
@@ -36,7 +38,6 @@ class RouteConstants {
   static const String landSurvey = '/services/land-survey';
   static const String taskDetail = '/services/task/detail';
   static const String landSurveyDetail = '/services/land-survey/detail';
-  static const String branch = '/company/branch';
   static const String finance = '/finance';
   static const String invoice = '/finance/invoice';
   static const String payment = '/finance/payment';

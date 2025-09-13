@@ -28,6 +28,8 @@ enum MainMenuItem {
 
 enum SubMenuItem {
   // Company sub-items
+  company,
+  branch,
   enugu,
   portHarcourt,
   abuja,
@@ -138,6 +140,16 @@ class _SideMenuState extends State<SideMenu> {
         iconPath: 'assets/svg/sidebar/person-plus.svg',
         isExpandable: true,
         children: [
+          SubMenuItemData(
+            id: SubMenuItem.company,
+            label: 'Profile',
+            route: RouteConstants.company,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.branch,
+            label: 'Branch',
+            route: RouteConstants.branch,
+          ),
           SubMenuItemData(
             id: SubMenuItem.enugu,
             label: 'Enugu',
