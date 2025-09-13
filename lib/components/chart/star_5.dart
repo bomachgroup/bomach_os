@@ -15,7 +15,7 @@ class Star5 extends StatelessWidget {
         return Icon(
           Icons.star,
           color: index < filledStars ? AppColors.orange : AppColors.grey4,
-          size: 35,
+          size: 30,
         );
       }),
     );

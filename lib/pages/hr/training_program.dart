@@ -5,7 +5,8 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/finance/widget/add_invoice_dialog.dart';
+import 'package:bms_front_end/pages/hr/widget/add_program_dialog.dart';
+import 'package:bms_front_end/pages/hr/widget/view_program_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -60,7 +61,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return const AddInvoiceDialog();
+                          return const AddProgramDialog();
                         },
                       );
                     },
@@ -176,27 +177,35 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
 
   List<DataRow> _createRows(BuildContext context) {
     return List.generate(10, (index) {
-      return const DataRow(cells: <DataCell>[
+      return DataRow(cells: <DataCell>[
         DataCell(
-          MyText(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const ViewProgramDialog();
+              },
+            );
+          },
+          const MyText(
             "Mindset Development",
             size: 16,
             weight: 400,
             isSelectable: false,
           ),
         ),
-        DataCell(
+        const DataCell(
           MyText(
             "July 2025",
           ),
         ),
-        DataCell(
+        const DataCell(
           MyText("29, July 2025"),
         ),
-        DataCell(
+        const DataCell(
           MyDropdown2(),
         ),
-        DataCell(
+        const DataCell(
           ThreeDotPop(),
         ),
       ]);
