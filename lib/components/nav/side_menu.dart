@@ -11,6 +11,94 @@ import 'package:flutter_expanded_tile/flutter_expanded_tile.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+// Enums for menu identification
+enum MainMenuItem {
+  dashboard,
+  company,
+  hr,
+  work,
+  calendar,
+  services,
+  notification,
+  settings,
+  help,
+  logout,
+  financeAccounting,
+}
+
+enum SubMenuItem {
+  // Company sub-items
+  enugu,
+  portHarcourt,
+  abuja,
+
+  // HR sub-items
+  employees,
+  leaves,
+  clients,
+  leads,
+  department,
+  // new
+  hrDashboad,
+  jobPost,
+  jobApplicants,
+  attendance,
+  leaveRequest,
+  performance,
+  payroll,
+  trainingProgram,
+
+  // Work sub-items
+  project,
+  worksite,
+  tasks,
+  contracts,
+
+  // Services sub-items
+  serviceOrder,
+  realEstate,
+  landSurvey,
+  servicesItem,
+
+  // Finance & Accounting sub-items
+  financeDashboard,
+  invoice,
+  payments,
+  expenses,
+  vendorContributor,
+}
+
+// Data classes for menu structure
+class MenuItem {
+  final MainMenuItem id;
+  final String label;
+  final String iconPath;
+  final String? route;
+  final bool isExpandable;
+  final List<SubMenuItemData> children;
+
+  const MenuItem({
+    required this.id,
+    required this.label,
+    required this.iconPath,
+    this.route,
+    required this.isExpandable,
+    this.children = const [],
+  });
+}
+
+class SubMenuItemData {
+  final SubMenuItem id;
+  final String label;
+  final String? route;
+
+  const SubMenuItemData({
+    required this.id,
+    required this.label,
+    this.route,
+  });
+}
+
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
 
@@ -19,10 +107,10 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
-  int selectedMenu = 0;
-  int selectedSubMenu = -1;
-  late final List<Map<String, dynamic>> menuItems;
-  late final Map<String, Map<String, dynamic>> routeToMenuMapping;
+  MainMenuItem? selectedMainMenu;
+  SubMenuItem? selectedSubMenu;
+  late final List<MenuItem> menuItems;
+  late final Map<String, MenuSelection> routeToMenuMapping;
 
   @override
   void initState() {
@@ -37,205 +125,225 @@ class _SideMenuState extends State<SideMenu> {
 
   void _initializeMenuItems() {
     menuItems = [
-      {
-        'index': 0,
-        'label': 'Dashboard',
-        'iconPath': 'assets/svg/sidebar/home.svg',
-        'route': RouteConstants.home,
-        'isExpandable': false,
-        'children': [],
-      },
-      {
-        'index': 1,
-        'label': 'Company',
-        'iconPath': 'assets/svg/sidebar/person-plus.svg',
-        'isExpandable': true,
-        'children': [
-          {
-            'index': 1,
-            'label': 'Enugu',
-            'route': RouteConstants.enugu,
-          },
-          {
-            'index': 2,
-            'label': 'Port Harcourt',
-            'route': null,
-          },
-          {
-            'index': 3,
-            'label': 'Abuja',
-            'route': null,
-          },
+      const MenuItem(
+        id: MainMenuItem.dashboard,
+        label: 'Dashboard',
+        iconPath: 'assets/svg/sidebar/home.svg',
+        route: RouteConstants.home,
+        isExpandable: false,
+      ),
+      const MenuItem(
+        id: MainMenuItem.company,
+        label: 'Company',
+        iconPath: 'assets/svg/sidebar/person-plus.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.enugu,
+            label: 'Enugu',
+            route: RouteConstants.enugu,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.portHarcourt,
+            label: 'Port Harcourt',
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.abuja,
+            label: 'Abuja',
+          ),
         ],
-      },
-      {
-        'index': 2,
-        'label': 'HR',
-        'iconPath': 'assets/svg/sidebar/people.svg',
-        'isExpandable': true,
-        'children': [
-          {
-            'index': 4,
-            'label': 'Employees',
-            'route': RouteConstants.employees,
-          },
-          {
-            'index': 5,
-            'label': 'Leaves',
-            'route': RouteConstants.leaves,
-          },
-          {
-            'index': 6,
-            'label': 'Clients',
-            'route': RouteConstants.clients,
-          },
-          {
-            'index': 7,
-            'label': 'Leads',
-            'route': RouteConstants.leads,
-          },
-          {
-            'index': 8,
-            'label': 'Department',
-            'route': RouteConstants.department,
-          },
+      ),
+      const MenuItem(
+        id: MainMenuItem.hr,
+        label: 'HR',
+        iconPath: 'assets/svg/sidebar/people.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.hrDashboad,
+            label: 'Dashboard',
+            route: RouteConstants.hr,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.jobPost,
+            label: 'Job Postings',
+            route: RouteConstants.jobPost,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.jobApplicants,
+            label: 'Applicants',
+            route: RouteConstants.jobApplicants,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.attendance,
+            label: 'Attendance',
+            route: RouteConstants.attendance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.leaveRequest,
+            label: 'Leave Request',
+            route: RouteConstants.leaveRequest,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.performance,
+            label: 'Performance',
+            route: RouteConstants.performanceReview,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.payroll,
+            label: 'Payroll',
+            route: RouteConstants.payroll,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.trainingProgram,
+            label: 'Training Program',
+            route: RouteConstants.trainingProgram,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employees,
+            label: 'Employees',
+            route: RouteConstants.employees,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.leaves,
+            label: 'Leaves',
+            route: RouteConstants.leaves,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.clients,
+            label: 'Clients',
+            route: RouteConstants.clients,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.leads,
+            label: 'Leads',
+            route: RouteConstants.leads,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.department,
+            label: 'Department',
+            route: RouteConstants.department,
+          ),
         ],
-      },
-      {
-        'index': 3,
-        'label': 'Work',
-        'iconPath': 'assets/svg/sidebar/joined-square.svg',
-        'isExpandable': true,
-        'children': [
-          {
-            'index': 9,
-            'label': 'Project',
-            'route': RouteConstants.projects,
-          },
-          {
-            'index': 10,
-            'label': 'Worksite',
-            'route': null,
-          },
-          {
-            'index': 11,
-            'label': 'Tasks',
-            'route': RouteConstants.tasks,
-          },
-          {
-            'index': 12,
-            'label': 'Contracts',
-            'route': RouteConstants.contracts,
-          },
+      ),
+      const MenuItem(
+        id: MainMenuItem.work,
+        label: 'Work',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.project,
+            label: 'Project',
+            route: RouteConstants.projects,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.worksite,
+            label: 'Worksite',
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.tasks,
+            label: 'Tasks',
+            route: RouteConstants.tasks,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.contracts,
+            label: 'Contracts',
+            route: RouteConstants.contracts,
+          ),
         ],
-      },
-      {
-        'index': 4,
-        'label': 'Finance',
-        'iconPath': 'assets/svg/sidebar/naira.svg',
-        'isExpandable': true,
-        'children': [],
-      },
-      {
-        'index': 5,
-        'label': 'Calendar',
-        'iconPath': 'assets/svg/sidebar/calendar.svg',
-        'isExpandable': true,
-        'children': [],
-      },
-      {
-        'index': 6,
-        'label': 'Services',
-        'iconPath': 'assets/svg/sidebar/calendar.svg',
-        'isExpandable': true,
-        'children': [
-          {
-            'index': 13,
-            'label': 'Service Order',
-            'route': RouteConstants.serviceOrder,
-          },
-          {
-            'index': 14,
-            'label': 'Real Estate',
-            'route': RouteConstants.realEstate,
-          },
-          {
-            'index': 15,
-            'label': 'Land Survey',
-            'route': RouteConstants.landSurvey,
-          },
-          {
-            'index': 16,
-            'label': 'Services',
-            'route': RouteConstants.services,
-          },
+      ),
+      const MenuItem(
+        id: MainMenuItem.financeAccounting,
+        label: 'Finance & Accounting',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.financeDashboard,
+            label: 'Dashboard',
+            route: RouteConstants.finance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.invoice,
+            label: 'Invoice',
+            route: RouteConstants.invoice,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.payments,
+            label: 'Payments',
+            route: RouteConstants.payment,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.expenses,
+            label: 'Expenses',
+            route: RouteConstants.expense,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.vendorContributor,
+            label: 'Vendor/Contributor',
+            route: RouteConstants.contractPayment,
+          ),
         ],
-      },
-      {
-        'index': 7,
-        'label': 'Notification',
-        'iconPath': 'assets/svg/sidebar/papar.svg',
-        'route': null,
-        'isExpandable': false,
-        'children': [],
-      },
-      {
-        'index': 8,
-        'label': 'Settings',
-        'iconPath': 'assets/svg/sidebar/settings.svg',
-        'route': null,
-        'isExpandable': false,
-        'children': [],
-      },
-      {
-        'index': 9,
-        'label': 'Help',
-        'iconPath': 'assets/svg/sidebar/help.svg',
-        'route': null,
-        'isExpandable': false,
-        'children': [],
-      },
-      {
-        'index': 10,
-        'label': 'Logout',
-        'iconPath': 'assets/svg/sidebar/logout.svg',
-        'route': null,
-        'isExpandable': false,
-        'children': [],
-      },
-      {
-        'index': 11,
-        'label': 'Finance & Accounting',
-        'iconPath': 'assets/svg/sidebar/joined-square.svg',
-        'isExpandable': true,
-        'children': [
-          {
-            'index': 17,
-            'label': 'Dashboard',
-            'route': RouteConstants.finance,
-          },
-          {
-            'index': 18,
-            'label': 'Invoice',
-            'route': RouteConstants.invoice,
-          },
-          {
-            'index': 19,
-            'label': 'Payments',
-            'route': RouteConstants.payment,
-          },
-          {
-            'index': 20,
-            'label': 'Expenses',
-            'route': RouteConstants.expense,
-          },
-          {
-            'index': 21,
-            'label': 'Vendor/Contributor',
-            'route': RouteConstants.contractPayment,
-          },
+      ),
+      const MenuItem(
+        id: MainMenuItem.calendar,
+        label: 'Calendar',
+        iconPath: 'assets/svg/sidebar/calendar.svg',
+        isExpandable: true,
+      ),
+      const MenuItem(
+        id: MainMenuItem.services,
+        label: 'Services',
+        iconPath: 'assets/svg/sidebar/calendar.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.serviceOrder,
+            label: 'Service Order',
+            route: RouteConstants.serviceOrder,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.realEstate,
+            label: 'Real Estate',
+            route: RouteConstants.realEstate,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.landSurvey,
+            label: 'Land Survey',
+            route: RouteConstants.landSurvey,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.servicesItem,
+            label: 'Services',
+            route: RouteConstants.services,
+          ),
         ],
-      },
+      ),
+      const MenuItem(
+        id: MainMenuItem.notification,
+        label: 'Notification',
+        iconPath: 'assets/svg/sidebar/papar.svg',
+        isExpandable: false,
+      ),
+      const MenuItem(
+        id: MainMenuItem.settings,
+        label: 'Settings',
+        iconPath: 'assets/svg/sidebar/settings.svg',
+        isExpandable: false,
+      ),
+      const MenuItem(
+        id: MainMenuItem.help,
+        label: 'Help',
+        iconPath: 'assets/svg/sidebar/help.svg',
+        isExpandable: false,
+      ),
+      const MenuItem(
+        id: MainMenuItem.logout,
+        label: 'Logout',
+        iconPath: 'assets/svg/sidebar/logout.svg',
+        isExpandable: false,
+      ),
     ];
   }
 
@@ -244,21 +352,21 @@ class _SideMenuState extends State<SideMenu> {
 
     // Process top-level routes
     for (var menuItem in menuItems) {
-      if (!menuItem['isExpandable'] && menuItem['route'] != null) {
-        routeToMenuMapping[menuItem['route']] = {
-          'menuIndex': menuItem['index'],
-          'subMenuIndex': -1,
-        };
+      if (!menuItem.isExpandable && menuItem.route != null) {
+        routeToMenuMapping[menuItem.route!] = MenuSelection(
+          mainMenuItem: menuItem.id,
+          subMenuItem: null,
+        );
       }
 
       // Process sub-menu routes
-      if (menuItem['isExpandable']) {
-        for (var subMenuItem in menuItem['children']) {
-          if (subMenuItem['route'] != null) {
-            routeToMenuMapping[subMenuItem['route']] = {
-              'menuIndex': menuItem['index'],
-              'subMenuIndex': subMenuItem['index'],
-            };
+      if (menuItem.isExpandable) {
+        for (var subMenuItem in menuItem.children) {
+          if (subMenuItem.route != null) {
+            routeToMenuMapping[subMenuItem.route!] = MenuSelection(
+              mainMenuItem: menuItem.id,
+              subMenuItem: subMenuItem.id,
+            );
           }
         }
       }
@@ -273,13 +381,13 @@ class _SideMenuState extends State<SideMenu> {
 
     // Find menu item for current route
     if (routeToMenuMapping.containsKey(currentRoute)) {
-      final mapping = routeToMenuMapping[currentRoute]!;
+      final selection = routeToMenuMapping[currentRoute]!;
       setState(() {
-        selectedMenu = mapping['menuIndex'];
-        selectedSubMenu = mapping['subMenuIndex'];
+        selectedMainMenu = selection.mainMenuItem;
+        selectedSubMenu = selection.subMenuItem;
       });
-      _saveMenuState(mapping['menuIndex'], mapping['subMenuIndex']);
-      log('Menu selection updated based on route: menu=$selectedMenu, subMenu=$selectedSubMenu');
+      _saveMenuState(selection.mainMenuItem, selection.subMenuItem);
+      log('Menu selection updated based on route: main=$selectedMainMenu, sub=$selectedSubMenu');
     } else {
       // If route is not found in mapping, load from preferences as fallback
       _loadMenuState();
@@ -287,63 +395,65 @@ class _SideMenuState extends State<SideMenu> {
   }
 
   void _loadMenuState() {
+    final mainMenuIndex = prefs.getInt('selectedMenu');
+    final subMenuIndex = prefs.getInt('selectedSubMenu');
+
     setState(() {
-      selectedMenu = prefs.getInt('selectedMenu') ?? 0;
-      selectedSubMenu = prefs.getInt('selectedSubMenu') ?? -1;
+      selectedMainMenu = mainMenuIndex != null
+          ? MainMenuItem.values[mainMenuIndex]
+          : MainMenuItem.dashboard;
+      selectedSubMenu = subMenuIndex != null && subMenuIndex >= 0
+          ? SubMenuItem.values[subMenuIndex]
+          : null;
     });
-    log('Menu state loaded from preferences: menu=$selectedMenu, subMenu=$selectedSubMenu');
+    log('Menu state loaded from preferences: main=$selectedMainMenu, sub=$selectedSubMenu');
   }
 
-  Future<void> _saveMenuState(int menu, int subMenu) async {
-    await prefs.setInt('selectedMenu', menu);
-    await prefs.setInt('selectedSubMenu', subMenu);
-    log('Menu state saved to preferences: menu=$menu, subMenu=$subMenu');
+  Future<void> _saveMenuState(
+      MainMenuItem mainMenu, SubMenuItem? subMenu) async {
+    await prefs.setInt('selectedMenu', mainMenu.index);
+    await prefs.setInt('selectedSubMenu', subMenu?.index ?? -1);
+    log('Menu state saved to preferences: main=$mainMenu, sub=$subMenu');
   }
 
-  void _navigate(String? route, int menuIndex, int subMenuIndex) {
+  void _navigate(
+      String? route, MainMenuItem mainMenuItem, SubMenuItem? subMenuItem) {
     if (route != null) {
       context.go(route);
     }
 
     setState(() {
-      selectedMenu = menuIndex;
-      selectedSubMenu = subMenuIndex;
+      selectedMainMenu = mainMenuItem;
+      selectedSubMenu = subMenuItem;
     });
 
-    _saveMenuState(menuIndex, subMenuIndex);
+    _saveMenuState(mainMenuItem, subMenuItem);
 
     if (!isLargeScreen(context)) {
       Navigator.of(context).pop();
     }
   }
 
-  Widget _buildMenuItem(Map<String, dynamic> menuItem) {
-    final int index = menuItem['index'];
-    final bool isExpandable = menuItem['isExpandable'];
-    final String label = menuItem['label'];
-    final String iconPath = menuItem['iconPath'];
-    final String? route = menuItem['route'];
-    final List<dynamic> children = menuItem['children'];
-
-    final isSelected = selectedMenu == index;
+  Widget _buildMenuItem(MenuItem menuItem) {
+    final bool isSelected = selectedMainMenu == menuItem.id;
 
     final icon = SvgPicture.asset(
-      iconPath,
+      menuItem.iconPath,
       colorFilter: ColorFilter.mode(
           isSelected ? AppColors.white : AppColors.black, BlendMode.srcIn),
     );
 
     final title = Text(
-      label,
+      menuItem.label,
       style: isSelected ? AppText.sideMWhite_400_14 : AppText.black_400_14,
     );
 
-    if (!isExpandable) {
+    if (!menuItem.isExpandable) {
       return NonExpandableSideBarItem(
         titleColor: isSelected ? AppColors.blue : Colors.transparent,
         icon: icon,
         title: title,
-        onTap: () => _navigate(route, index, -1),
+        onTap: () => _navigate(menuItem.route, menuItem.id, null),
       );
     }
 
@@ -354,32 +464,29 @@ class _SideMenuState extends State<SideMenu> {
       title: title,
       onTap: () {
         setState(() {
-          selectedMenu = index;
+          selectedMainMenu = menuItem.id;
         });
-        _saveMenuState(index, selectedSubMenu);
+        _saveMenuState(menuItem.id, selectedSubMenu);
       },
-      children: children.map<Widget>((subMenuItem) {
-        return _buildSubItem(subMenuItem);
+      children: menuItem.children.map<Widget>((subMenuItem) {
+        return _buildSubItem(subMenuItem, menuItem.id);
       }).toList(),
     );
   }
 
-  Widget _buildSubItem(Map<String, dynamic> subMenuItem) {
-    final int index = subMenuItem['index'];
-    final String label = subMenuItem['label'];
-    final String? route = subMenuItem['route'];
-
-    final isSelected = selectedSubMenu == index;
+  Widget _buildSubItem(
+      SubMenuItemData subMenuItem, MainMenuItem parentMenuItem) {
+    final isSelected = selectedSubMenu == subMenuItem.id;
 
     return SubSideBarItems(
       title: Text(
-        label,
+        subMenuItem.label,
         style: isSelected
             ? AppText.sideMBlueText_400_14
             : AppText.sideMText_300_14,
       ),
       isSelected: isSelected,
-      onTap: () => _navigate(route, selectedMenu, index),
+      onTap: () => _navigate(subMenuItem.route, parentMenuItem, subMenuItem.id),
     );
   }
 
@@ -405,6 +512,22 @@ class _SideMenuState extends State<SideMenu> {
         ],
       ),
     );
+  }
+}
+
+// Helper class for menu selection
+class MenuSelection {
+  final MainMenuItem mainMenuItem;
+  final SubMenuItem? subMenuItem;
+
+  const MenuSelection({
+    required this.mainMenuItem,
+    this.subMenuItem,
+  });
+
+  @override
+  String toString() {
+    return 'MenuSelection(main: $mainMenuItem, sub: $subMenuItem)';
   }
 }
 
