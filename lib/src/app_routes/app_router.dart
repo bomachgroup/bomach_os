@@ -17,10 +17,18 @@ import 'package:bms_front_end/pages/finance/expenses.dart';
 import 'package:bms_front_end/pages/finance/finance.dart';
 import 'package:bms_front_end/pages/finance/invoice.dart';
 import 'package:bms_front_end/pages/finance/payments.dart';
+import 'package:bms_front_end/pages/hr/attendance.dart';
 import 'package:bms_front_end/pages/hr/department.dart';
+import 'package:bms_front_end/pages/hr/hr.dart';
+import 'package:bms_front_end/pages/hr/job_applicants.dart';
+import 'package:bms_front_end/pages/hr/job_post.dart';
 import 'package:bms_front_end/pages/hr/leads.dart';
+import 'package:bms_front_end/pages/hr/leave_request.dart';
 import 'package:bms_front_end/pages/hr/leaves.dart';
 import 'package:bms_front_end/pages/hr/meetings.dart';
+import 'package:bms_front_end/pages/hr/payroll.dart';
+import 'package:bms_front_end/pages/hr/performance_review.dart';
+import 'package:bms_front_end/pages/hr/training_program.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
 import 'package:bms_front_end/pages/project/contract.dart';
 import 'package:bms_front_end/pages/project/each_project.dart';
@@ -72,6 +80,14 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.expense: const ExpensesPage(),
   RouteConstants.contractPayment: const ContractPaymentPage(),
   RouteConstants.budget: const BudgetPage(),
+  RouteConstants.hr: const HRPage(),
+  RouteConstants.jobPost: const JobPostPage(),
+  RouteConstants.jobApplicants: const JobApplicatantsPage(),
+  RouteConstants.attendance: const AttendancePage(),
+  RouteConstants.leaveRequest: const LeaveRequestPage(),
+  RouteConstants.payroll: const PayrollPage(),
+  RouteConstants.trainingProgram: const TrainingProgramPage(),
+  RouteConstants.performanceReview: const PerformanceReviewPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

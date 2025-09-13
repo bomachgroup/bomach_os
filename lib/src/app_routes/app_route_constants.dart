@@ -19,6 +19,14 @@ class RouteConstants {
   static const String leaves = '/hr/leaves';
   static const String meetings = '/hr/meetings';
   static const String department = '/hr/department';
+  static const String hr = '/hr';
+  static const String jobPost = '/hr/job-post';
+  static const String jobApplicants = '/hr/applicants';
+  static const String attendance = '/hr/attendance';
+  static const String payroll = '/hr/payroll';
+  static const String leaveRequest = '/hr/leave-request';
+  static const String trainingProgram = '/hr/training-program';
+  static const String performanceReview = '/hr/performance-review';
   // services
   static const String services = '/services';
   static const String serviceDetail = '/services/detail';
