@@ -31,6 +31,7 @@ class RouteConstants {
   static const String performanceReview = '/hr/performance-review';
   // services
   static const String services = '/services';
+  static const String servicesProperty = '/services-property';
   static const String serviceDetail = '/services/detail';
   static const String realEstate = '/services/real-estate';
   static const String realEstateDetail = '/services/real-estate/detail';

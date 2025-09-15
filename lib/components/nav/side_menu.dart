@@ -328,7 +328,7 @@ class _SideMenuState extends State<SideMenu> {
           SubMenuItemData(
             id: SubMenuItem.servicesItem,
             label: 'Services',
-            route: RouteConstants.services,
+            route: RouteConstants.servicesProperty,
           ),
         ],
       ),
