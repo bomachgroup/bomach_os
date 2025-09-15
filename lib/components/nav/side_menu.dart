@@ -57,6 +57,7 @@ enum SubMenuItem {
   contracts,
 
   // Services sub-items
+  servicesDashboard,
   serviceOrder,
   realEstate,
   landSurvey,
@@ -310,6 +311,11 @@ class _SideMenuState extends State<SideMenu> {
         iconPath: 'assets/svg/sidebar/calendar.svg',
         isExpandable: true,
         children: [
+          SubMenuItemData(
+            id: SubMenuItem.servicesDashboard,
+            label: 'Dashboard',
+            route: RouteConstants.services,
+          ),
           SubMenuItemData(
             id: SubMenuItem.serviceOrder,
             label: 'Service Order',

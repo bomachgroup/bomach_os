@@ -37,7 +37,7 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const MyText(
-                    'Create Service',
+                    'Create New Service',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -76,16 +76,20 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 16),
+                            ],
+                          ),
+                          SizedBox(height: 40),
+                          Row(
+                            children: [
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     MyDropdown(
+                                      items: [],
+                                      hintText: '---',
                                       spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      items: ["Active", "Pending"],
-                                      title: 'Status*',
+                                      title: 'Category*',
                                     ),
                                   ],
                                 ),
@@ -105,6 +109,53 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                             ],
                           ),
                           SizedBox(height: 40),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    MyTextFormField(
+                                      hintText: '---',
+                                      spaceBetweenText: 10,
+                                      title: 'Base Price(N)*',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    MyTextFormField(
+                                      spaceBetweenText: 10,
+                                      hintText: '---',
+                                      title: 'Duration',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 40),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    MyDropdown(
+                                      spaceBetweenText: 10,
+                                      hintText: "-----",
+                                      items: ["Active", "Pending"],
+                                      title: 'Status*',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

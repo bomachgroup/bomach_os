@@ -39,7 +39,7 @@ import 'package:bms_front_end/pages/services/land_survey.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
-import 'package:bms_front_end/pages/services/service_detail.dart';
+import 'package:bms_front_end/pages/services/land_survey_property_detail.dart';
 import 'package:bms_front_end/pages/services/service_order.dart';
 import 'package:bms_front_end/pages/services/services.dart';
 import 'package:bms_front_end/pages/services/services_property.dart';

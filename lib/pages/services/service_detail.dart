@@ -1,154 +1,181 @@
-import 'package:bms_front_end/components/button/sort_filter_bar2..dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/client/clients_database.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
-import '../../components/button/icon_button.dart';
-import '../../src/constants/colors.dart';
+class LandSurveyingWidget extends StatelessWidget {
+  const LandSurveyingWidget({super.key});
 
-class ServiceDetailScreen extends StatefulWidget {
-  const ServiceDetailScreen({super.key});
-
-  @override
-  State<ServiceDetailScreen> createState() => _ServiceDetailScreenState();
-}
-
-class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //header
-            const MyText(
-              "Services",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/plus.svg"),
-                  colorBackground: const Color(0xFF0055FF),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AddInvoiceDialog();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/note2.svg"),
-                  colorBackground: const Color(0xFF0055FF),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const InvoiceContent();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/notification.svg"),
-                  colorBackground: const Color(0xFF0055FF),
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
-        ),
-        //search
-        const SizedBox(
-          height: 20,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 15,
-                runSpacing: 15,
+        // Header Section
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top bar with back button and action buttons
+              Row(
                 children: [
-                  SizedBox(
-                    width: 200,
-                    child: MyTextFormField(
-                      hintText: "Search...",
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.arrow_back,
+                          color: Colors.black,
+                          size: 24,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Back',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SortFilterBar2(),
+                  const Spacer(),
+                  // Edit Button
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.edit, color: Colors.white, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          'Edit',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Delete Button
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.delete, color: Colors.white, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          'Delete',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Title and Created Date
+              const Text(
+                'Land Surveying',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Created 1/15/2024',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Content Section
+        Expanded(
+          child: Container(
+            color: Colors.white,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  _buildInfoRow('Service Name', 'Land Surveying'),
+                  _buildInfoRow('Category', 'Surveying'),
+                  _buildInfoRow(
+                    'Description',
+                    'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field.',
+                  ),
+                  _buildInfoRow('Base Price (NGN)', 'N 150,000.00'),
+                  _buildInfoRow('Duration', '2-3 Weeks'),
+                  _buildInfoRow('Status', 'Active'),
+                  _buildInfoRow('Created Date', '22th July 2025'),
                 ],
               ),
             ),
-          ],
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: MyText(
-            "Aso villa Estate",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
           ),
         ),
-        kSizedBox,
-        //body
-        Wrap(
-          alignment: WrapAlignment.start,
-          spacing: 20,
-          runSpacing: 20,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                "assets/image/image.png",
-                width: 413,
-                height: 341,
-                fit: BoxFit.cover,
-              ),
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                "assets/image/image.png",
-                width: 413,
-                height: 341,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ],
-        ),
-
-        kSizedBoxBG,
-        const MyText("Description", size: 24, weight: 500),
-        kSizedBox,
-
-        const MyText(
-            "A shvivdosv hivosfgp ovshogu vousvbov uovsbo vogvsibhxo ogousvou ovusbvoxd...",
-            size: 16,
-            weight: 400),
       ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[200]!,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

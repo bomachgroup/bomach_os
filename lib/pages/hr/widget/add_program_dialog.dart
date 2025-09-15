@@ -75,7 +75,6 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                                 ),
                               ),
                               SizedBox(width: 16),
-                              // End date
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
