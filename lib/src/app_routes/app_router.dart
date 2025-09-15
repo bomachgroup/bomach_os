@@ -89,7 +89,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.payroll: const PayrollPage(),
   RouteConstants.trainingProgram: const TrainingProgramPage(),
   RouteConstants.performanceReview: const PerformanceReviewPage(),
-  RouteConstants.services: const ServicesPage(),
+  RouteConstants.services: ServicesPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route
