@@ -30,12 +30,17 @@ import 'package:bms_front_end/pages/hr/payroll.dart';
 import 'package:bms_front_end/pages/hr/performance_review.dart';
 import 'package:bms_front_end/pages/hr/training_program.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
-import 'package:bms_front_end/pages/operations/operations.dart';
 import 'package:bms_front_end/pages/operations/contract.dart';
+import 'package:bms_front_end/pages/operations/contract_detail.dart';
 import 'package:bms_front_end/pages/operations/each_project.dart';
+import 'package:bms_front_end/pages/operations/operation_task_detail.dart';
+import 'package:bms_front_end/pages/operations/operations.dart';
+import 'package:bms_front_end/pages/operations/project_detail.dart';
 import 'package:bms_front_end/pages/operations/projects.dart';
 import 'package:bms_front_end/pages/operations/task.dart';
 import 'package:bms_front_end/pages/operations/task_detail.dart';
+import 'package:bms_front_end/pages/operations/timeline_detail.dart';
+import 'package:bms_front_end/pages/operations/worksite_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey_property_detail.dart';
@@ -92,6 +97,11 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.performanceReview: const PerformanceReviewPage(),
   RouteConstants.services: const ServicesPage(),
   RouteConstants.operations: const OperationsPage(),
+  RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
+  RouteConstants.operationsTaskDetail: const TaskDetailPage(),
+  RouteConstants.operationsWorksiteDetail: const WorksiteDetailPage(),
+  RouteConstants.operationsContractDetail: const ContractDetailPage(),
+  RouteConstants.operationsTimelineDetail: const TimelineDetailPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

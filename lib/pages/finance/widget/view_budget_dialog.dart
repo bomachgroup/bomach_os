@@ -20,7 +20,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
     super.dispose();
   }
 
-  Widget _buildDetailRow(String label, String value, {bool isBlue = false}) {
+  Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -40,9 +40,9 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
-                color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
+                color: Colors.black87,
                 fontWeight: FontWeight.w500,
               ),
             ),
