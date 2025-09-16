@@ -5,7 +5,7 @@ import 'package:bms_front_end/pages/employees_database/widget/add_note_dialog.da
 import 'package:bms_front_end/pages/employees_database/widget/assign_task_dialog.dart';
 import 'package:bms_front_end/pages/employees_database/widget/documents_table.dart';
 import 'package:bms_front_end/pages/employees_database/widget/report_files_table.dart';
-import 'package:bms_front_end/pages/project/widget/project_task_table.dart';
+import 'package:bms_front_end/pages/operations/widget/project_task_table.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
