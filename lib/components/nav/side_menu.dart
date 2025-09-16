@@ -51,6 +51,7 @@ enum SubMenuItem {
   trainingProgram,
 
   // Work sub-items
+  operations,
   project,
   worksite,
   tasks,
@@ -241,10 +242,15 @@ class _SideMenuState extends State<SideMenu> {
       ),
       const MenuItem(
         id: MainMenuItem.work,
-        label: 'Work',
+        label: 'Operations',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
         children: [
+          SubMenuItemData(
+            id: SubMenuItem.operations,
+            label: 'Operations',
+            route: RouteConstants.operations,
+          ),
           SubMenuItemData(
             id: SubMenuItem.project,
             label: 'Project',

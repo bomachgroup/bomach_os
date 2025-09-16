@@ -783,43 +783,6 @@ class StatsCard extends StatelessWidget {
   }
 }
 
-class _PrimaryTab extends StatelessWidget {
-  final String text;
-  const _PrimaryTab(this.text);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.blue,
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Text(text,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600)),
-    );
-  }
-}
-
-class _OutlineTab extends StatelessWidget {
-  final String text;
-  const _OutlineTab(this.text);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Text(text,
-          style: const TextStyle(
-              color: Colors.black45, fontWeight: FontWeight.w600)),
-    );
-  }
-}
-
 class ServiceCard extends StatelessWidget {
   final String title;
   final String category;
