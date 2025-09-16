@@ -73,10 +73,16 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                             child: MyTextFormField(
                               hintText: "----",
                               spaceBetweenText: 10,
-                              title: 'Location*',
+                              title: 'Site Name*',
                             ),
                           ),
                         ],
+                      ),
+                      SizedBox(height: 24),
+                      MyTextFormField(
+                        hintText: '----',
+                        spaceBetweenText: 10,
+                        title: 'Location*',
                       ),
                       SizedBox(height: 24),
                       MyTextFormField(

@@ -139,7 +139,18 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                                 ),
                               ),
                               SizedBox(width: 16),
-                              Spacer()
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    MyTextFormField(
+                                      hintText: "0",
+                                      spaceBetweenText: 10,
+                                      title: 'Estimated Hours',
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                           SizedBox(height: 24),

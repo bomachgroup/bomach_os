@@ -1,6 +1,11 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/operations/widget/add_contract_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/add_project_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/add_task_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/add_timeline_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/add_worksite_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -130,7 +135,14 @@ class _OperationsPageState extends State<OperationsPage> {
                       color: AppColors.white,
                     ),
                     child: "Add Project",
-                    onTap: () {},
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const AddProjectDialog();
+                        },
+                      );
+                    },
                   )
                 ],
               ),
@@ -318,7 +330,14 @@ class _OperationsPageState extends State<OperationsPage> {
                       const SizedBox(width: 12),
                       MyElevatedButton(
                         child: 'Add Task',
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AddTaskDialog();
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -437,7 +456,14 @@ class _OperationsPageState extends State<OperationsPage> {
                       const SizedBox(width: 12),
                       MyElevatedButton(
                         child: 'Add Worksite',
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AddWorksiteDialog();
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -557,7 +583,14 @@ class _OperationsPageState extends State<OperationsPage> {
                       const SizedBox(width: 12),
                       MyElevatedButton(
                         child: 'Add Contract',
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AddContractDialog();
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -658,7 +691,14 @@ class _OperationsPageState extends State<OperationsPage> {
                       const SizedBox(width: 12),
                       MyElevatedButton(
                         child: 'Add Timelines',
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AddTimelineDialog();
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
