@@ -1860,7 +1860,6 @@ class TimelineCard extends StatelessWidget {
                       Border.all(color: AppColors.black.withValues(alpha: 0.1)),
                 ),
                 padding: const EdgeInsets.all(5),
-                constraints: const BoxConstraints(),
                 child: const Icon(Icons.remove_red_eye_outlined),
               ),
               const SizedBox(width: 8),

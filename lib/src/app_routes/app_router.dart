@@ -30,6 +30,7 @@ import 'package:bms_front_end/pages/hr/payroll.dart';
 import 'package:bms_front_end/pages/hr/performance_review.dart';
 import 'package:bms_front_end/pages/hr/training_program.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
+import 'package:bms_front_end/pages/marketing/marketing.dart';
 import 'package:bms_front_end/pages/operations/contract.dart';
 import 'package:bms_front_end/pages/operations/contract_detail.dart';
 import 'package:bms_front_end/pages/operations/each_project.dart';
@@ -57,9 +58,12 @@ import 'package:go_router/go_router.dart';
 /// Map of all dashboard screens to their routes for better maintainability
 final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.home: const DashboardScreen(),
+  // hr
+  RouteConstants.hr: const HRPage(),
   RouteConstants.employees: const EmployeeDatabase(),
   RouteConstants.addEmployees: const AddEmployesScreen(),
   RouteConstants.employeeProfile: const EmployeeProfile(),
+
   RouteConstants.clients: const ClientsDatabasePage(),
   RouteConstants.projects: const ProjectsPage(),
   RouteConstants.eachProjects: const EachProjects(),
@@ -87,7 +91,6 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.expense: const ExpensesPage(),
   RouteConstants.contractPayment: const ContractPaymentPage(),
   RouteConstants.budget: const BudgetPage(),
-  RouteConstants.hr: const HRPage(),
   RouteConstants.jobPost: const JobPostPage(),
   RouteConstants.jobApplicants: const JobApplicatantsPage(),
   RouteConstants.attendance: const AttendancePage(),
@@ -96,12 +99,15 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.trainingProgram: const TrainingProgramPage(),
   RouteConstants.performanceReview: const PerformanceReviewPage(),
   RouteConstants.services: const ServicesPage(),
+  // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
   RouteConstants.operationsTaskDetail: const TaskDetailPage(),
   RouteConstants.operationsWorksiteDetail: const WorksiteDetailPage(),
   RouteConstants.operationsContractDetail: const ContractDetailPage(),
   RouteConstants.operationsTimelineDetail: const TimelineDetailPage(),
+  // marketing
+  RouteConstants.marketing: const MarketingPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

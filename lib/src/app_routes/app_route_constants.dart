@@ -4,6 +4,8 @@ class RouteConstants {
   static const String company = '/company';
   static const String enugu = '/company/enugu';
   static const String branch = '/company/branch';
+  // marketing
+  static const String marketing = '/marketing';
 
   // work
   static const String operations = '/operations';
