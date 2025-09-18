@@ -83,8 +83,8 @@ class _MarketingPageState extends State<MarketingPage> {
         // Tab Content
         if (_selectedTab == 0) _campaigns(),
         if (_selectedTab == 1) _leads(),
-        // if (_selectedTab == 2) _worksites(),
-        // if (_selectedTab == 3) _contracts(),
+        if (_selectedTab == 2) _content(),
+        if (_selectedTab == 3) _event(),
         // if (_selectedTab == 4) _timelines(),
       ],
     );
@@ -228,6 +228,148 @@ class _MarketingPageState extends State<MarketingPage> {
             return const LeadCard();
           },
         ),
+
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+  Widget _content() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Projects Header
+        Row(
+          children: [
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Content Management (2)',
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 8),
+                      Text('Create, schedule, and manage marketing content',
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.black54)),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        child: MyTextFormField(
+                          hintText: 'Search ...',
+                          leading: Icon(
+                            Icons.search,
+                            color: AppColors.grey1.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      MyElevatedButton(
+                        child: 'Add Content',
+                        onTap: () {
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (context) {
+                          //     return const AddTaskDialog();
+                          //   },
+                          // );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 3,
+          separatorBuilder: (_, __) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            return const ContentCard();
+          },
+        ),
+
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+  Widget _event() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Projects Header
+        Row(
+          children: [
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Marketing Analytics',
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 8),
+                      Text('Analyze marketing performance and insights',
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.black54)),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        child: MyTextFormField(
+                          hintText: 'Search ...',
+                          leading: Icon(
+                            Icons.search,
+                            color: AppColors.grey1.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      MyElevatedButton(
+                        child: 'Add Event',
+                        onTap: () {
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (context) {
+                          //     return const AddTaskDialog();
+                          //   },
+                          // );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+
+        const EventsCalendarWidget(),
 
         const SizedBox(height: 40),
       ],
@@ -742,6 +884,629 @@ class LeadCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ContentCard extends StatelessWidget {
+  const ContentCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Left icon
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE6FDF5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.photo_camera_outlined,
+                color: Color(0xFF10B981)),
+          ),
+          const SizedBox(width: 12),
+
+          // Center content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Row(
+                  spacing: 10,
+                  children: [
+                    const Text(
+                      "The Importance of Professional Land Surveying",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF111827),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    _tagChip("Published"),
+                    _tagChip("LinkedIn", color: AppColors.white),
+                  ],
+                ),
+                const SizedBox(height: 4),
+
+                const Text(
+                  "Blog Post",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 4),
+
+                Row(
+                  children: [
+                    _iconStat(Icons.visibility_outlined, "2340"),
+                    const SizedBox(width: 12),
+                    _iconStat(Icons.favorite_border, "124"),
+                    const SizedBox(width: 12),
+                    _iconStat(Icons.share_outlined, "18"),
+                    const SizedBox(width: 12),
+                    _iconStat(Icons.comment_outlined, "32"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Right side: Published date
+          // Right Side
+          Row(
+            spacing: 10,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Column(
+                children: [
+                  Text(
+                    'Published',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '1/28/2025',
+                    style: TextStyle(color: Colors.black45, fontSize: 12),
+                  ),
+                ],
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border:
+                      Border.all(color: AppColors.black.withValues(alpha: 0.1)),
+                ),
+                padding: const EdgeInsets.all(5),
+                child: const Icon(Icons.remove_red_eye_outlined),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _iconStat(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF6B7280)),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Color(0xFF6B7280),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _tagChip(String text, {Color color = const Color(0xFFF3F4F6)}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey4),
+        color: color,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 12,
+          color: Color(0xFF4B5563),
+        ),
+      ),
+    );
+  }
+}
+
+class EventsCalendarWidget extends StatelessWidget {
+  const EventsCalendarWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Statistics Cards Row - Make scrollable on small screens
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // If screen is too narrow, make it scrollable
+              if (constraints.maxWidth < 800) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 180,
+                        child: _buildStatCard(
+                          title: 'Total Events',
+                          value: '3',
+                          color: const Color(0xFF3B82F6),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 180,
+                        child: _buildStatCard(
+                          title: 'Confirmed',
+                          value: '1',
+                          color: const Color(0xFF10B981),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 180,
+                        child: _buildStatCard(
+                          title: 'Upcoming',
+                          value: '0',
+                          color: const Color(0xFFEF4444),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 180,
+                        child: _buildStatCard(
+                          title: 'Total Registrations',
+                          value: '443',
+                          color: const Color(0xFF8B5CF6),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                // Normal responsive layout for larger screens
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          title: 'Total Events',
+                          value: '3',
+                          color: const Color(0xFF3B82F6),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildStatCard(
+                          title: 'Confirmed',
+                          value: '1',
+                          color: const Color(0xFF10B981),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildStatCard(
+                          title: 'Upcoming',
+                          value: '0',
+                          color: const Color(0xFFEF4444),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildStatCard(
+                          title: 'Total Registrations',
+                          value: '443',
+                          color: const Color(0xFF8B5CF6),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 32),
+
+          // Calendar Section - Make scrollable
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Events Calendar',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Manage your marketing events and activities',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Table Container - Horizontal scroll for small screens
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Minimum width needed for the table to look good
+                    const double minTableWidth = 900;
+
+                    if (constraints.maxWidth < minTableWidth) {
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: minTableWidth,
+                          child: _buildTableContent(),
+                        ),
+                      );
+                    } else {
+                      return _buildTableContent();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableContent() {
+    return Column(
+      children: [
+        // Table Header
+        const Row(
+          children: [
+            Expanded(flex: 3, child: _TableHeader(text: 'Event')),
+            Expanded(flex: 2, child: _TableHeader(text: 'Type')),
+            Expanded(flex: 2, child: _TableHeader(text: 'Date')),
+            Expanded(flex: 2, child: _TableHeader(text: 'Status')),
+            Expanded(flex: 2, child: _TableHeader(text: 'Registrations')),
+            Expanded(flex: 2, child: _TableHeader(text: 'Actions')),
+          ],
+        ),
+        kSizedBox,
+        _buildDivider(),
+
+        // Table Rows
+        _buildTableRow(
+          event: 'Nigeria Construction & Real Estate Expo 2024',
+          location: 'Landmark Centre, Lagos',
+          type: 'Trade Show',
+          date: '15/04/2024',
+          status: 'Confirmed',
+          registrations: '156/200',
+          percentage: '78.0% full',
+          statusColor: AppColors.white,
+          statusBgColor: AppColors.black,
+        ),
+        _buildDivider(),
+        _buildTableRow(
+          event: 'Webinar: Future of Surveying Technology',
+          location: 'Online (Zoom)',
+          type: 'Webinar',
+          date: '20/02/2024',
+          status: 'Completed',
+          registrations: '287/500',
+          percentage: '57.4% full',
+          statusColor: AppColors.black,
+          statusBgColor: AppColors.grey5,
+        ),
+        _buildDivider(),
+        _buildTableRow(
+          event: 'University Engineering Career Fair',
+          location: 'University of Lagos',
+          type: 'Career Fair',
+          date: '10/05/2024',
+          status: 'Planning',
+          registrations: '0/100',
+          percentage: '0.0% full',
+          statusColor: AppColors.black,
+          statusBgColor: AppColors.white,
+          statusBorderColor: AppColors.grey4,
+          isLast: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF6B7280),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableRow({
+    required String event,
+    required String location,
+    required String type,
+    required String date,
+    required String status,
+    required String registrations,
+    required String percentage,
+    required Color statusColor,
+    required Color statusBgColor,
+    Color? statusBorderColor,
+    bool isLast = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        borderRadius: isLast
+            ? const BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              )
+            : null,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Event Column
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  event,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1F2937),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  location,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF6B7280),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+
+          // Type Column
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.grey4),
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.white,
+                    ),
+                    child: Text(
+                      type,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF374151),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Date Column
+          Expanded(
+            flex: 2,
+            child: Text(
+              date,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ),
+
+          // Status Column
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: statusBgColor,
+                      border:
+                          Border.all(color: statusBorderColor ?? statusBgColor),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      status,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: statusColor,
+                      ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Registrations Column
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  registrations,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  percentage,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Actions Column
+          Expanded(
+            flex: 2,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _buildActionButton(Icons.visibility_outlined),
+                const SizedBox(width: 8),
+                _buildActionButton(Icons.edit_outlined),
+                const SizedBox(width: 8),
+                _buildActionButton(Icons.calendar_month_outlined),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(IconData icon) {
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: Icon(
+        icon,
+        size: 16,
+        color: const Color(0xFF6B7280),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Divider(
+      height: 1,
+      thickness: 1,
+      color: Color(0xFFE5E7EB),
+    );
+  }
+}
+
+class _TableHeader extends StatelessWidget {
+  final String text;
+
+  const _TableHeader({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF374151),
+        letterSpacing: 0.5,
       ),
     );
   }

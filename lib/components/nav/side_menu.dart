@@ -17,6 +17,7 @@ enum MainMenuItem {
   company,
   hr,
   work,
+  marketing,
   calendar,
   services,
   notification,
@@ -49,6 +50,9 @@ enum SubMenuItem {
   performance,
   payroll,
   trainingProgram,
+
+  // Warketing sub-items
+  marketing,
 
   // Work sub-items
   operations,
@@ -269,6 +273,19 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.contracts,
             label: 'Contracts',
             route: RouteConstants.contracts,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.marketing,
+        label: 'Marketing',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.marketing,
+            label: 'Marketing',
+            route: RouteConstants.marketing,
           ),
         ],
       ),
