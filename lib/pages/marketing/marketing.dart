@@ -145,7 +145,7 @@ class _MarketingPageState extends State<MarketingPage> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                context.go(RouteConstants.marketingCampaignDetail);
+                context.push(RouteConstants.marketingCampaignDetail);
               },
               child: const CampaignCard(
                 title: "Q1 Land Survey Awareness",
@@ -236,7 +236,7 @@ class _MarketingPageState extends State<MarketingPage> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                context.go(RouteConstants.marketingLeadDetail);
+                context.push(RouteConstants.marketingLeadDetail);
               },
               child: const LeadCard(),
             );
@@ -316,7 +316,7 @@ class _MarketingPageState extends State<MarketingPage> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                context.go(RouteConstants.marketingSiteDetail);
+                context.push(RouteConstants.marketingSiteDetail);
               },
               child: const ContentCard(),
             );

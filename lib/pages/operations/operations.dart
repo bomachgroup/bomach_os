@@ -6,10 +6,12 @@ import 'package:bms_front_end/pages/operations/widget/add_project_dialog.dart';
 import 'package:bms_front_end/pages/operations/widget/add_task_dialog.dart';
 import 'package:bms_front_end/pages/operations/widget/add_timeline_dialog.dart';
 import 'package:bms_front_end/pages/operations/widget/add_worksite_dialog.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class OperationsPage extends StatefulWidget {
   const OperationsPage({super.key});
@@ -234,17 +236,22 @@ class _OperationsPageState extends State<OperationsPage> {
             children: projects
                 .map((project) => SizedBox(
                       width: cardWidth,
-                      child: ProjectCard(
-                        title: project['title']!,
-                        client: project['client']!,
-                        service: project['service']!,
-                        budget: project['budget']!,
-                        progress: project['progress']!,
-                        startDate: project['startDate']!,
-                        endDate: project['endDate']!,
-                        location: project['location']!,
-                        status: project['status']!,
-                        priority: project['priority']!,
+                      child: GestureDetector(
+                        onTap: () {
+                          context.push(RouteConstants.operationsProjectDetail);
+                        },
+                        child: ProjectCard(
+                          title: project['title']!,
+                          client: project['client']!,
+                          service: project['service']!,
+                          budget: project['budget']!,
+                          progress: project['progress']!,
+                          startDate: project['startDate']!,
+                          endDate: project['endDate']!,
+                          location: project['location']!,
+                          status: project['status']!,
+                          priority: project['priority']!,
+                        ),
                       ),
                     ))
                 .toList(),
@@ -356,14 +363,19 @@ class _OperationsPageState extends State<OperationsPage> {
           separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             final task = tasks[index];
-            return TaskCard(
-              title: task['title']!,
-              description: task['description']!,
-              dueDate: task['dueDate']!,
-              assignedTo: task['assignedTo']!,
-              estimatedHours: task['estimatedHours']!,
-              status: task['status']!,
-              priority: task['priority']!,
+            return GestureDetector(
+              onTap: () {
+                context.push(RouteConstants.operationsTaskDetail);
+              },
+              child: TaskCard(
+                title: task['title']!,
+                description: task['description']!,
+                dueDate: task['dueDate']!,
+                assignedTo: task['assignedTo']!,
+                estimatedHours: task['estimatedHours']!,
+                status: task['status']!,
+                priority: task['priority']!,
+              ),
             );
           },
         ),
@@ -496,11 +508,16 @@ class _OperationsPageState extends State<OperationsPage> {
             children: worksites
                 .map((worksite) => SizedBox(
                       width: cardWidth,
-                      child: WorksiteCard(
-                        title: worksite['title']!,
-                        location: worksite['location']!,
-                        description: worksite['description']!,
-                        status: worksite['status']!,
+                      child: GestureDetector(
+                        onTap: () {
+                          context.push(RouteConstants.operationsWorksiteDetail);
+                        },
+                        child: WorksiteCard(
+                          title: worksite['title']!,
+                          location: worksite['location']!,
+                          description: worksite['description']!,
+                          status: worksite['status']!,
+                        ),
                       ),
                     ))
                 .toList(),
@@ -512,7 +529,7 @@ class _OperationsPageState extends State<OperationsPage> {
   }
 
   Widget _contracts() {
-    final List<Map<String, dynamic>> tasks = [
+    final List<Map<String, dynamic>> contracts = [
       {
         'title': 'Federal Highways Consulting',
         'description': 'CON-2024-001',
@@ -605,18 +622,23 @@ class _OperationsPageState extends State<OperationsPage> {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: tasks.length,
+          itemCount: contracts.length,
           separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
-            final task = tasks[index];
-            return ContractCard(
-              title: task['title']!,
-              description: task['description']!,
-              startDate: task['startDate']!,
-              endDate: task['endDate']!,
-              value: task['value']!,
-              status: task['status']!,
-              position: task['position']!,
+            final contract = contracts[index];
+            return GestureDetector(
+              onTap: () {
+                context.push(RouteConstants.operationsContractDetail);
+              },
+              child: ContractCard(
+                title: contract['title']!,
+                description: contract['description']!,
+                startDate: contract['startDate']!,
+                endDate: contract['endDate']!,
+                value: contract['value']!,
+                status: contract['status']!,
+                position: contract['position']!,
+              ),
             );
           },
         ),
@@ -626,7 +648,7 @@ class _OperationsPageState extends State<OperationsPage> {
   }
 
   Widget _timelines() {
-    final List<Map<String, dynamic>> tasks = [
+    final List<Map<String, dynamic>> timelines = [
       {
         'title': 'Site Preparation',
         'description': 'Detailed topographic survey and mapping',
@@ -713,16 +735,21 @@ class _OperationsPageState extends State<OperationsPage> {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: tasks.length,
+          itemCount: timelines.length,
           separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
-            final task = tasks[index];
-            return TimelineCard(
-              title: task['title']!,
-              description: task['description']!,
-              endDate: task['endDate']!,
-              startDate: task['startDate']!,
-              status: task['status']!,
+            final item = timelines[index];
+            return GestureDetector(
+              onTap: () {
+                context.push(RouteConstants.operationsTimelineDetail);
+              },
+              child: TimelineCard(
+                title: item['title']!,
+                description: item['description']!,
+                endDate: item['endDate']!,
+                startDate: item['startDate']!,
+                status: item['status']!,
+              ),
             );
           },
         ),

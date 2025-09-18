@@ -6,6 +6,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class TimelineDetailPage extends StatefulWidget {
   const TimelineDetailPage({super.key});
@@ -40,17 +41,28 @@ class TimelineDetailPageState extends State<TimelineDetailPage> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SvgPicture.asset(
-                        "assets/svg/arrow-left.svg",
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.black,
-                          BlendMode.srcIn,
+                      InkWell(
+                        onTap: () {
+                          context.pop();
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              "assets/svg/arrow-left.svg",
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            kSizedBoxWidthSM,
+                            const MyText(
+                              'Back',
+                              style: AppText.black_500_20,
+                              isSelectable: false,
+                            ),
+                          ],
                         ),
-                      ),
-                      kSizedBoxWidthSM,
-                      const MyText(
-                        'Back',
-                        style: AppText.black_500_20,
                       ),
                       kSizedBoxWidth,
                       const Column(
