@@ -37,7 +37,7 @@ class _MarketingPageState extends State<MarketingPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MyText(
-                        'Operations',
+                        'Marketing',
                         style: AppText.black_500_32,
                       ),
                       MyText(
@@ -55,7 +55,7 @@ class _MarketingPageState extends State<MarketingPage> {
                       Icons.add_circle_outline_rounded,
                       color: AppColors.white,
                     ),
-                    child: "Add Project",
+                    child: "Add Campaign",
                     onTap: () {
                       showDialog(
                         context: context,
@@ -85,7 +85,7 @@ class _MarketingPageState extends State<MarketingPage> {
         if (_selectedTab == 1) _leads(),
         if (_selectedTab == 2) _content(),
         if (_selectedTab == 3) _event(),
-        // if (_selectedTab == 4) _timelines(),
+        if (_selectedTab == 4) _analytics(),
       ],
     );
   }
@@ -376,16 +376,79 @@ class _MarketingPageState extends State<MarketingPage> {
     );
   }
 
+  Widget _analytics() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Projects Header
+        Row(
+          children: [
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Marketing Analytics',
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 8),
+                      Text('Analyze marketing performance and insights',
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.black54)),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        child: MyTextFormField(
+                          hintText: 'Search ...',
+                          leading: Icon(
+                            Icons.search,
+                            color: AppColors.grey1.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      MyElevatedButton(
+                        child: 'Generate Report',
+                        onTap: () {
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (context) {
+                          //     return const AddTaskDialog();
+                          //   },
+                          // );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+
+        const AnalyticsDashboard(),
+
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
   Widget _buildTopStats(BuildContext context) {
     final List<Map<String, dynamic>> items = [
-      {'label': 'Active Projects', 'count': '452', 'icon': Icons.folder_open},
-      {
-        'label': 'Total Budget',
-        'count': '₦34,000,000.00',
-        'icon': Icons.account_balance_wallet
-      },
-      {'label': 'Total Tasks', 'count': '2', 'icon': Icons.task_alt},
-      {'label': 'Worksites', 'count': '4', 'icon': Icons.location_on},
+      {'label': 'Total Budget', 'count': '₦700,000.00', 'icon': Icons.person},
+      {'label': 'Amount Spent', 'count': '₦505,000.00', 'icon': Icons.person},
+      {'label': 'Total Lead', 'count': '5', 'icon': Icons.person},
+      {'label': 'Qualified Leads', 'count': '4', 'icon': Icons.person},
     ];
 
     return LayoutBuilder(
@@ -1508,6 +1571,293 @@ class _TableHeader extends StatelessWidget {
         color: Color(0xFF374151),
         letterSpacing: 0.5,
       ),
+    );
+  }
+}
+
+class AnalyticsDashboard extends StatelessWidget {
+  const AnalyticsDashboard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Top metrics row
+        Row(
+          children: [
+            Expanded(
+                child: _buildMetricCard('3', 'Active Reports', Colors.blue)),
+            const SizedBox(width: 16),
+            Expanded(
+                child: _buildMetricCard('266.7%', 'Avg ROI', Colors.green)),
+            const SizedBox(width: 16),
+            Expanded(
+                child: _buildMetricCard(
+                    '₦2,150,000.00', 'Total Revenue', Colors.orange)),
+            const SizedBox(width: 16),
+            Expanded(
+                child: _buildMetricCard(
+                    '₦465,000.00', 'Total Spent', Colors.purple)),
+          ],
+        ),
+        const SizedBox(height: 32),
+        // Bottom section
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Campaign Performance section
+            Expanded(
+              child: _buildCampaignPerformance(),
+            ),
+            const SizedBox(width: 32),
+            // Lead Generation Trends section
+            Expanded(
+              child: _buildLeadGenerationTrends(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricCard(String value, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF6B7280),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCampaignPerformance() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Campaign Performance',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF111827),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildCampaignItem(
+            'Q1 2024 Lead Generation',
+            'Email Marketing',
+            '567.0% ROI',
+            '85 leads',
+            Colors.green,
+          ),
+          const SizedBox(height: 16),
+          _buildCampaignItem(
+            'Brand Awareness - Social Media',
+            'Social Media',
+            '233.0% ROI',
+            '100 leads',
+            Colors.green,
+          ),
+          const SizedBox(height: 16),
+          _buildCampaignItem(
+            'Government Sector Outreach',
+            'Direct Mail',
+            '0.0% ROI',
+            '0 leads',
+            Colors.red,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCampaignItem(
+      String title, String channel, String roi, String leads, Color roiColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+              ),
+              Text(
+                roi,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: roiColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                channel,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF6B7280),
+                ),
+              ),
+              Text(
+                leads,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF6B7280),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeadGenerationTrends() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Lead Generation Trends',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF111827),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildTrendItem('Email Marketing', 85, Colors.blue, 0.85),
+          const SizedBox(height: 16),
+          _buildTrendItem('Social Media', 100, Colors.green, 1.0),
+          const SizedBox(height: 16),
+          _buildTrendItem('Direct Mail', 0, const Color(0xFFE5E7EB), 0.0),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrendItem(
+      String channel, int leads, Color color, double progress) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              channel,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF111827),
+              ),
+            ),
+            Row(
+              spacing: 10,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$leads leads',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                Container(
+                  height: 8,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE5E7EB),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: progress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ],
     );
   }
 }
