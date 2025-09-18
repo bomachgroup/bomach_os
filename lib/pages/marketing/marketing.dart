@@ -2,11 +2,15 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/operations/widget/add_project_dialog.dart';
+import 'package:bms_front_end/pages/marketing/widget/add_campaign_dialog.dart';
+import 'package:bms_front_end/pages/marketing/widget/add_content_dialog.dart';
+import 'package:bms_front_end/pages/marketing/widget/add_lead_dialog.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MarketingPage extends StatefulWidget {
   const MarketingPage({super.key});
@@ -60,7 +64,7 @@ class _MarketingPageState extends State<MarketingPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return const AddProjectDialog();
+                          return const AddCampaignDialog();
                         },
                       );
                     },
@@ -139,17 +143,22 @@ class _MarketingPageState extends State<MarketingPage> {
           itemCount: 3,
           separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
-            return const CampaignCard(
-              title: "Q1 Land Survey Awareness",
-              subtitle: "Property developers in Lagos",
-              status: "Active",
-              channel: "Social Media",
-              budgetUsed: 62.5,
-              impressions: 130000,
-              ctr: 2.6,
-              roi: 120,
-              spent: 145000,
-              total: 1200000,
+            return GestureDetector(
+              onTap: () {
+                context.go(RouteConstants.marketingCampaignDetail);
+              },
+              child: const CampaignCard(
+                title: "Q1 Land Survey Awareness",
+                subtitle: "Property developers in Lagos",
+                status: "Active",
+                channel: "Social Media",
+                budgetUsed: 62.5,
+                impressions: 130000,
+                ctr: 2.6,
+                roi: 120,
+                spent: 145000,
+                total: 1200000,
+              ),
             );
           },
         ),
@@ -202,12 +211,12 @@ class _MarketingPageState extends State<MarketingPage> {
                       MyElevatedButton(
                         child: 'Add Lead',
                         onTap: () {
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (context) {
-                          //     return const AddTaskDialog();
-                          //   },
-                          // );
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AddLeadDialog();
+                            },
+                          );
                         },
                       ),
                     ],
@@ -225,7 +234,12 @@ class _MarketingPageState extends State<MarketingPage> {
           itemCount: 3,
           separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
-            return const LeadCard();
+            return GestureDetector(
+              onTap: () {
+                context.go(RouteConstants.marketingLeadDetail);
+              },
+              child: const LeadCard(),
+            );
           },
         ),
 
@@ -277,12 +291,12 @@ class _MarketingPageState extends State<MarketingPage> {
                       MyElevatedButton(
                         child: 'Add Content',
                         onTap: () {
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (context) {
-                          //     return const AddTaskDialog();
-                          //   },
-                          // );
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AddContentDialog();
+                            },
+                          );
                         },
                       ),
                     ],
@@ -300,7 +314,12 @@ class _MarketingPageState extends State<MarketingPage> {
           itemCount: 3,
           separatorBuilder: (_, __) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
-            return const ContentCard();
+            return GestureDetector(
+              onTap: () {
+                context.go(RouteConstants.marketingSiteDetail);
+              },
+              child: const ContentCard(),
+            );
           },
         ),
 
@@ -561,17 +580,10 @@ class CampaignCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey7),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -760,17 +772,10 @@ class LeadCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey7),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         spacing: 10,
@@ -958,12 +963,11 @@ class ContentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.grey7),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1217,7 +1221,7 @@ class EventsCalendarWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
+              border: Border.all(color: AppColors.grey7),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1337,7 +1341,7 @@ class EventsCalendarWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.grey7),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1551,7 +1555,7 @@ class EventsCalendarWidget extends StatelessWidget {
     return const Divider(
       height: 1,
       thickness: 1,
-      color: Color(0xFFE5E7EB),
+      color: AppColors.grey7,
     );
   }
 }
@@ -1624,15 +1628,9 @@ class AnalyticsDashboard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey7),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1665,13 +1663,7 @@ class AnalyticsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: AppColors.grey7),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1719,7 +1711,7 @@ class AnalyticsDashboard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+        border: Border.all(color: AppColors.grey7, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1778,13 +1770,7 @@ class AnalyticsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: AppColors.grey7),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1798,11 +1784,11 @@ class AnalyticsDashboard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          _buildTrendItem('Email Marketing', 85, Colors.blue, 0.85),
+          _buildTrendItem('Email Marketing', 85, AppColors.blue, 0.85),
           const SizedBox(height: 16),
-          _buildTrendItem('Social Media', 100, Colors.green, 1.0),
+          _buildTrendItem('Social Media', 100, AppColors.green, 1.0),
           const SizedBox(height: 16),
-          _buildTrendItem('Direct Mail', 0, const Color(0xFFE5E7EB), 0.0),
+          _buildTrendItem('Direct Mail', 0, AppColors.grey7, 0.0),
         ],
       ),
     );
@@ -1839,7 +1825,7 @@ class AnalyticsDashboard extends StatelessWidget {
                   height: 8,
                   width: 80,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
+                    color: AppColors.grey7,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: FractionallySizedBox(

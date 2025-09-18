@@ -30,7 +30,10 @@ import 'package:bms_front_end/pages/hr/payroll.dart';
 import 'package:bms_front_end/pages/hr/performance_review.dart';
 import 'package:bms_front_end/pages/hr/training_program.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
+import 'package:bms_front_end/pages/marketing/campaign_detail.dart';
+import 'package:bms_front_end/pages/marketing/lead_detail.dart';
 import 'package:bms_front_end/pages/marketing/marketing.dart';
+import 'package:bms_front_end/pages/marketing/site_detail.dart';
 import 'package:bms_front_end/pages/operations/contract.dart';
 import 'package:bms_front_end/pages/operations/contract_detail.dart';
 import 'package:bms_front_end/pages/operations/each_project.dart';
@@ -108,6 +111,9 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.operationsTimelineDetail: const TimelineDetailPage(),
   // marketing
   RouteConstants.marketing: const MarketingPage(),
+  RouteConstants.marketingLeadDetail: const LeadDetailPage(),
+  RouteConstants.marketingCampaignDetail: const CampaignDetailPage(),
+  RouteConstants.marketingSiteDetail: const SiteDetailPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route
