@@ -25,6 +25,7 @@ enum MainMenuItem {
   help,
   logout,
   financeAccounting,
+  workspace,
 }
 
 enum SubMenuItem {
@@ -41,6 +42,7 @@ enum SubMenuItem {
   clients,
   leads,
   department,
+
   // new
   hrDashboad,
   jobPost,
@@ -74,6 +76,10 @@ enum SubMenuItem {
   payments,
   expenses,
   vendorContributor,
+
+  // Workspace
+  workspace,
+  workspaceDashboard
 }
 
 // Data classes for menu structure
@@ -358,6 +364,24 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.servicesItem,
             label: 'Services',
             route: RouteConstants.servicesProperty,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.workspace,
+        label: 'Workspace',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.workspace,
+            label: 'Overview',
+            route: RouteConstants.workspace,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.workspaceDashboard,
+            label: 'Dashboard',
+            route: RouteConstants.workspaceDashboard,
           ),
         ],
       ),

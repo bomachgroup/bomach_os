@@ -54,6 +54,8 @@ import 'package:bms_front_end/pages/services/service_order.dart';
 import 'package:bms_front_end/pages/services/services.dart';
 import 'package:bms_front_end/pages/services/services_property.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
+import 'package:bms_front_end/pages/workspace/workspace.dart';
+import 'package:bms_front_end/pages/workspace/workspace_dashboard.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -114,6 +116,9 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.marketingLeadDetail: const LeadDetailPage(),
   RouteConstants.marketingCampaignDetail: const CampaignDetailPage(),
   RouteConstants.marketingSiteDetail: const SiteDetailPage(),
+  // workspace
+  RouteConstants.workspace: const WorkspacePage(),
+  RouteConstants.workspaceDashboard: const WorkspaceDashboardPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route
