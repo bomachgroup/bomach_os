@@ -232,7 +232,7 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade300),
       ),
@@ -241,12 +241,12 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
         children: [
           const Text(
             "Meetings & Calls",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          Text(
+          const Text(
             "Schedule and manage team meetings",
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            style: TextStyle(fontSize: 14, color: Colors.black54),
           ),
           const SizedBox(height: 16),
           ...meetings.map((m) => MeetingCard(meeting: m)),
@@ -671,7 +671,7 @@ class MeetingCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade300),
       ),
