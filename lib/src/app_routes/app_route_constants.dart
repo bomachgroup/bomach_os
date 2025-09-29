@@ -59,4 +59,15 @@ class RouteConstants {
   // workspace
   static const String workspace = '/workspace';
   static const String workspaceDashboard = '/workspace-dashboard';
+  // Analytics
+  static const String analyticsOverview = '/analytics';
+  static const String analyticsRevenue = '/analytics/revenue';
+  static const String analyticsProjects = '/analytics/projects';
+  static const String analyticsPerformance = '/analytics/performance';
+
+  // Legal & Compliance
+  static const String legalContracts = '/legal/contracts';
+  static const String legalCompliance = '/Compliance';
+  static const String legalCases = '/legal/Cases';
+  static const String legalAudits = '/legal/Audits';
 }

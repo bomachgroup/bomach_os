@@ -1,0 +1,254 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/pages/legal/audits.dart';
+import 'package:flutter/material.dart';
+import '../../components/text/my_text.dart';
+import 'cases.dart';
+import 'compliance.dart';
+import 'contract.dart';
+import 'widgets/summary_card.dart';
+import 'widgets/tab_button.dart';
+
+enum DashboardTab { contracts, compliance, cases, audits }
+
+final Map<DashboardTab, List<SummaryItem>> dashboardSummaryData = {
+  DashboardTab.contracts: [
+    SummaryItem('Contracts', '2', Icons.description_outlined),
+    SummaryItem('Compliance', '2', Icons.check_circle_outline),
+    SummaryItem('Active', '2', Icons.local_activity_outlined),
+    SummaryItem(
+      'Contract Value',
+      '₦505,000.00',
+      Icons.money_outlined,
+    ),
+  ],
+  DashboardTab.compliance: [
+    SummaryItem('Total Policies', '2', Icons.gavel_outlined),
+    SummaryItem('Compliant', '2', Icons.verified_user_outlined),
+    SummaryItem('Review Due', '2', Icons.warning_amber),
+    SummaryItem(
+      'Overdue',
+      '2',
+      Icons.calendar_month_outlined,
+    ),
+  ],
+  DashboardTab.cases: [
+    SummaryItem('Total Cases', '2', Icons.people_outline),
+    SummaryItem('Active Cases', '2', Icons.people_outline),
+    SummaryItem('Settled Cases', '2', Icons.people_outline),
+    SummaryItem(
+      'Total Exposure',
+      '₦505,000.00',
+      Icons.money_off_csred_outlined,
+    ),
+  ],
+  DashboardTab.audits: [
+    SummaryItem('Total Audits', '2', Icons.people_outline),
+    SummaryItem('Completed', '2', Icons.people_outline),
+    SummaryItem('In Progress', '2', Icons.people_outline),
+    SummaryItem(
+      'Scheduled',
+      '₦505,000.00',
+      Icons.money_off_csred_outlined,
+    ),
+  ],
+};
+
+class LegalsPage extends StatefulWidget {
+  final int selectedIndex;
+  const LegalsPage({super.key, this.selectedIndex = 0});
+
+  @override
+  State<LegalsPage> createState() => _LegalsPageState();
+}
+
+class _LegalsPageState extends State<LegalsPage> {
+  final DashboardData _dashboardData = DashboardData();
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.selectedIndex;
+    _pageController = PageController(initialPage: _currentIndex);
+    _dashboardData.setActiveTab(DashboardTab.values[_currentIndex]);
+  }
+
+  @override
+  void didUpdateWidget(covariant LegalsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedIndex != _currentIndex) {
+      _currentIndex = widget.selectedIndex;
+      _pageController.jumpToPage(_currentIndex);
+      _dashboardData.setActiveTab(DashboardTab.values[_currentIndex]);
+    }
+  }
+
+  @override
+  void dispose() {
+    _dashboardData.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTabSelected(int index) {
+    setState(() {
+      _currentIndex = index;
+      _dashboardData.setActiveTab(DashboardTab.values[index]);
+      _pageController.jumpToPage(index);
+    });
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+      _dashboardData.setActiveTab(DashboardTab.values[index]);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        ///TODO: Consider changing the layout to 700 for mobile
+        final isMobile = constraints.maxWidth < 600;
+        final isTablet =
+            constraints.maxWidth < 1000 && constraints.maxWidth >= 600;
+        final double pageViewHeight = isMobile ? 600 : (isTablet ? 650 : 700);
+
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(isMobile ? 12 : 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: isMobile
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.center,
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MyText("Legal & Compliance",
+                            style: TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 4),
+                        MyText(
+                            "Manage contracts, compliance requirements, and legal documentation",
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black54)),
+                      ],
+                    ),
+                  ),
+                  if (!isMobile)
+                    MyElevatedButton(
+                      onTap: () {},
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      child: "New Contract",
+                    ),
+                ],
+              ),
+              if (isMobile)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0, bottom: 8),
+                  child: MyElevatedButton(
+                    onTap: () {},
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    child: "New Contract",
+                  ),
+                ),
+              const SizedBox(height: 24),
+              DynamicSummaryRow(dashboardData: _dashboardData),
+              const SizedBox(height: 24),
+              isMobile
+                  ? SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          PageButton(
+                            label: "Contracts",
+                            index: 0,
+                            isSelected: _currentIndex == 0,
+                            onTap: () => _onTabSelected(0),
+                          ),
+                          PageButton(
+                            label: "Compliance",
+                            index: 1,
+                            isSelected: _currentIndex == 1,
+                            onTap: () => _onTabSelected(1),
+                          ),
+                          PageButton(
+                            label: "Cases",
+                            index: 2,
+                            isSelected: _currentIndex == 2,
+                            onTap: () => _onTabSelected(2),
+                          ),
+                          PageButton(
+                            label: "Audits",
+                            index: 3,
+                            isSelected: _currentIndex == 3,
+                            onTap: () => _onTabSelected(3),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: PageButton(
+                            label: "Contracts",
+                            index: 0,
+                            isSelected: _currentIndex == 0,
+                            onTap: () => _onTabSelected(0),
+                          ),
+                        ),
+                        Expanded(
+                          child: PageButton(
+                            label: "Compliance",
+                            index: 1,
+                            isSelected: _currentIndex == 1,
+                            onTap: () => _onTabSelected(1),
+                          ),
+                        ),
+                        Expanded(
+                          child: PageButton(
+                            label: "Cases",
+                            index: 2,
+                            isSelected: _currentIndex == 2,
+                            onTap: () => _onTabSelected(2),
+                          ),
+                        ),
+                        Expanded(
+                          child: PageButton(
+                            label: "Audits",
+                            index: 3,
+                            isSelected: _currentIndex == 3,
+                            onTap: () => _onTabSelected(3),
+                          ),
+                        ),
+                      ],
+                    ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: pageViewHeight,
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  children: const [
+                    ContractsPageView(),
+                    CompliancePageView(),
+                    CasesPageView(),
+                    AuditsPageView()
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

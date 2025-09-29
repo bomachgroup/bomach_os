@@ -25,6 +25,9 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
             width: 300,
             child: SideMenu(),
           ),
+
+          // TODO: Find a non universal widget to attach to navigationshell 
+          // This will reduce future bugs and changes as projects builds more and becomes dynamic
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
