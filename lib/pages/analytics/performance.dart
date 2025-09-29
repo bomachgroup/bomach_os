@@ -1,13 +1,17 @@
+import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart' show AppText;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import '../../src/constants/spaces.dart';
+import 'overview.dart';
 import 'projects.dart';
 
 const Color kDarkBackground = Color(0xFF1E1E1E);
 const Color kCardBackground = Color(0xFFFFFFFF);
-const Color kGreenLine = Color(0xFF4CAF50); // Efficiency/Completion
-const Color kBlueLine = Color(0xFF2196F3); // Productivity/Projects
-const Color kOrangeLine = Color(0xFFFF9800); // Satisfaction
+const Color kGreenLine = Color(0xFF4CAF50);
+const Color kBlueLine = Color(0xFF2196F3);
+const Color kOrangeLine = Color(0xFFFF9800);
 
 const List<FlSpot> efficiencyData = [
   FlSpot(0, 80),
@@ -56,186 +60,137 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _Header(),
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth < 1100) {
-                      return Column(
-                        children: [
-                          _MetricCard(
-                              title: "Team Performance",
-                              child: _TeamPerformanceMetrics()),
-                          const SizedBox(height: 16),
-                          _MetricCard(
-                              title: "Client Metrics", child: _ClientMetrics()),
-                          const SizedBox(height: 16),
-                          _MetricCard(
-                              title: "Financial Health",
-                              child: _FinancialHealth()),
-                        ],
-                      );
-                    }
-                    return Row(
+    return LayoutBuilder(builder: (context, constraints) {
+      final isMobile = constraints.maxWidth < 700;
+
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        !isMobile
+            ? const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                            child: _MetricCard(
-                                title: "Team Performance",
-                                child: _TeamPerformanceMetrics())),
-                        const SizedBox(width: 16),
-                        Expanded(
-                            child: _MetricCard(
-                                title: "Client Metrics",
-                                child: _ClientMetrics())),
-                        const SizedBox(width: 16),
-                        Expanded(
-                            child: _MetricCard(
-                                title: "Financial Health",
-                                child: _FinancialHealth())),
+                        MyText(
+                          'Analytics',
+                          style: AppText.black_500_32,
+                        ),
+                        SizedBox(height: 4),
+                        MyText(
+                          'Business intelligence and performance metrics',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15,
+                          ),
+                        ),
                       ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-                _MetricCard(
-                  title: "Performance Trends",
-                  subtitle: "Key performance indicators over time",
-                  child: SizedBox(
-                    height: 280,
-                    child: _PerformanceTrendsChart(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth < 1100) {
-                      return Column(
-                        children: [
-                          _MetricCard(
-                              title: "Performance by Location",
-                              subtitle: "Regional performance comparison",
-                              child: SizedBox(
-                                  height: 280, child: _LocationBarChart())),
-                          const SizedBox(height: 16),
-                          const _MetricCard(
-                              title: "Performance Benchmarks",
-                              child: _Benchmarks()),
-                        ],
-                      );
-                    }
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: _MetricCard(
-                              title: "Performance by Location",
-                              subtitle: "Regional performance comparison",
-                              child: SizedBox(
-                                  height: 280, child: _LocationBarChart())),
-                        ),
-                        const SizedBox(width: 16),
-                        const Expanded(
-                          child: _MetricCard(
-                              title: "Performance Benchmarks",
-                              child: _Benchmarks()),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: kDarkBackground,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+                  AnalyticsActions(),
+                ],
+              )
+            : const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MyText(
+                    'Analytics',
+                    style: AppText.black_500_32,
+                  ),
+                  SizedBox(height: 4),
+                  MyText(
+                    'Business intelligence and performance metrics',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  AnalyticsActions(),
+                ],
+              ),
+        kSizedBox,
+        if (isMobile)
           Column(
+            children: [
+              _MetricCard(
+                  title: "Team Performance", child: _TeamPerformanceMetrics()),
+              const SizedBox(height: 16),
+              _MetricCard(title: "Client Metrics", child: _ClientMetrics()),
+              const SizedBox(height: 16),
+              _MetricCard(title: "Financial Health", child: _FinancialHealth()),
+            ],
+          ),
+        if (!isMobile)
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Analytics',
-                  style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-              Text('Business intelligence and performance metrics',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey)),
+              Expanded(
+                  child: _MetricCard(
+                      title: "Team Performance",
+                      child: _TeamPerformanceMetrics())),
+              const SizedBox(width: 16),
+              Expanded(
+                  child: _MetricCard(
+                      title: "Client Metrics", child: _ClientMetrics())),
+              const SizedBox(width: 16),
+              Expanded(
+                  child: _MetricCard(
+                      title: "Financial Health", child: _FinancialHealth())),
             ],
           ),
+        const SizedBox(height: 24),
+        _MetricCard(
+          title: "Performance Trends",
+          subtitle: "Key performance indicators over time",
+          child: SizedBox(
+            height: 280,
+            child: _PerformanceTrendsChart(),
+          ),
+        ),
+        const SizedBox(width: 16),
+        if (!isMobile)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _ActionButton(
-                  label: 'Last 30 days',
-                  icon: Icons.arrow_drop_down,
-                  isPrimary: true),
-              SizedBox(width: 8),
-              _ActionButton(label: 'Refresh', icon: Icons.refresh),
-              SizedBox(width: 8),
-              _ActionButton(label: 'Export PDF', icon: Icons.picture_as_pdf),
-              SizedBox(width: 8),
-              _ActionButton(label: 'Export Excel', icon: Icons.table_chart),
+              Expanded(
+                child: _MetricCard(
+                  title: "Performance by Location",
+                  subtitle: "Regional performance comparison",
+                  child: SizedBox(height: 280, child: _LocationBarChart()),
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: _MetricCard(
+                  title: "Performance Benchmarks",
+                  child: _Benchmarks(),
+                ),
+              ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool isPrimary;
-
-  const _ActionButton(
-      {required this.label, required this.icon, this.isPrimary = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isPrimary ? Colors.white : kDarkBackground,
-        border: Border.all(color: Colors.grey.shade600),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: isPrimary ? Colors.black : Colors.white),
-          const SizedBox(width: 4),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: isPrimary ? Colors.black : Colors.white)),
-        ],
-      ),
-    );
+        if (isMobile)
+          Column(
+            children: [
+              const SizedBox(height: 16),
+              _MetricCard(
+                title: "Performance by Location",
+                subtitle: "Regional performance comparison",
+                child: SizedBox(
+                  height: 220,
+                  child: _LocationBarChart(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const _MetricCard(
+                title: "Performance Benchmarks",
+                child: _Benchmarks(),
+              ),
+            ],
+          ),
+        const SizedBox(height: 24),
+      ]);
+    });
   }
 }
 
@@ -285,13 +240,13 @@ class _TeamPerformanceMetrics extends StatelessWidget {
       children: [
         _MetricRow(label: "Total Employees", value: "42"),
         _MetricRow(
-            label: "Productivity Score",
-            value: "87/100",
-            valueColor: kBlueLine),
+          label: "Productivity Score",
+          value: "87/100",
+        ),
         _MetricRow(
-            label: "Satisfaction Score",
-            value: "4.2/5",
-            valueColor: kOrangeLine),
+          label: "Satisfaction Score",
+          value: "4.2/5",
+        ),
       ],
     );
   }
@@ -306,7 +261,9 @@ class _ClientMetrics extends StatelessWidget {
         _MetricRow(label: "Total Clients", value: "84"),
         _MetricRow(label: "New This Month", value: "7"),
         _MetricRow(
-            label: "Retention Rate", value: "88.5%", valueColor: kGreenLine),
+          label: "Retention Rate",
+          value: "88.5%",
+        ),
       ],
     );
   }
@@ -318,8 +275,7 @@ class _FinancialHealth extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _MetricRow(
-            label: "Revenue Growth", value: "20.3%", valueColor: kGreenLine),
+        _MetricRow(label: "Revenue Growth", value: "20.3%"),
         _MetricRow(label: "Avg Project Value", value: "₦360,236.22"),
         _MetricRow(label: "Monthly Revenue", value: "₦3,850,000.00"),
       ],
@@ -330,9 +286,8 @@ class _FinancialHealth extends StatelessWidget {
 class _MetricRow extends StatelessWidget {
   final String label;
   final String value;
-  final Color? valueColor;
 
-  const _MetricRow({required this.label, required this.value, this.valueColor});
+  const _MetricRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -341,14 +296,16 @@ class _MetricRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: const TextStyle(fontSize: 14, color: Colors.black54)),
+          Expanded(
+            child: Text(label,
+                style: const TextStyle(fontSize: 14, color: Colors.black54)),
+          ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: valueColor ?? Colors.black,
+              color: Colors.black,
             ),
           ),
         ],
@@ -407,7 +364,7 @@ class _PerformanceTrendsChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: 25,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             strokeWidth: 1,
           ),
         ),
@@ -451,7 +408,6 @@ class _PerformanceTrendsChart extends StatelessWidget {
   }
 }
 
-// Custom Dot Painter to match the circle style in the image
 FlDotCirclePainter Function(
         dynamic spot, dynamic percent, dynamic bar, dynamic index)
     _getDotPainter(Color color) {
@@ -463,14 +419,11 @@ FlDotCirclePainter Function(
       );
 }
 
-// --- Location Bar Chart Widget ---
-
 class _LocationBarChart extends StatelessWidget {
   BarChartGroupData _makeGroup(int x, double completion, double projects) {
     return BarChartGroupData(
       x: x,
       barRods: [
-        // Completion (Green Bar)
         BarChartRodData(
           toY: completion,
           color: kGreenLine,
@@ -478,7 +431,6 @@ class _LocationBarChart extends StatelessWidget {
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(3), topRight: Radius.circular(3)),
         ),
-        // Projects (Blue Bar)
         BarChartRodData(
           toY: projects,
           color: kBlueLine,
@@ -533,7 +485,7 @@ class _LocationBarChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: 25,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             strokeWidth: 1,
           ),
         ),
@@ -548,43 +500,35 @@ class _LocationBarChart extends StatelessWidget {
   }
 }
 
-// --- Benchmarks Widget ---
-
 class _Benchmarks extends StatelessWidget {
   const _Benchmarks();
 
-  // Helper to build a benchmark comparison row
-  Widget _buildBenchmarkRow(
-      String label, String value, String industryValue, Color valueColor) {
+  Widget _buildBenchmarkRow(String label, double value, String industryValue) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(fontSize: 14, color: Colors.black54)),
-          const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$value vs $industryValue',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: valueColor)),
-              // Simple simulation of the progress bar/line in the image
-              Container(
-                width: 150,
-                height: 2,
-                color: Colors.grey.shade300,
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  width: 100, // Represents the length of the internal bar
-                  height: 2,
-                  color: valueColor,
-                ),
-              )
+              Expanded(
+                child: Text(label,
+                    style:
+                        const TextStyle(fontSize: 14, color: Colors.black54)),
+              ),
+              Text(
+                '${(value * 100).truncateToDouble()}% vs $industryValue',
+              ),
             ],
           ),
-          const Divider(height: 16, color: Colors.grey),
+          LinearProgressIndicator(
+            value: value,
+            minHeight: 8,
+            color: Colors.black,
+            backgroundColor: Colors.grey,
+            borderRadius: BorderRadius.circular(5),
+          ),
         ],
       ),
     );
@@ -599,193 +543,26 @@ class _Benchmarks extends StatelessWidget {
             style: TextStyle(fontSize: 14, color: Colors.grey)),
         const SizedBox(height: 12),
         _buildBenchmarkRow(
-            "Project Success Rate", "92.1%", "85% industry", kGreenLine),
-        _buildBenchmarkRow(
-            "Client Retention", "88.5%", "80% industry", kGreenLine),
-        _buildBenchmarkRow(
-            "Employee Productivity", "87%", "75% industry", kBlueLine),
-        _buildBenchmarkRow(
-            "Revenue Growth", "20.3%", "12% industry", kGreenLine),
-      ],
-    );
-  }
-}
-
-class RecentProjectsTable extends StatelessWidget {
-  const RecentProjectsTable({super.key});
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Completed':
-        return Colors.green;
-      case 'Active':
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _formatCurrency(double value) {
-    return '₦${value.toStringAsFixed(2).replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]},',
-        )}';
-  }
-
-  Widget _buildStatusChip(String status, bool isMobile) {
-    final color = _getStatusColor(status);
-    return Container(
-      padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 6 : 8, vertical: isMobile ? 2 : 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          color: color,
-          fontSize: isMobile ? 10 : 12,
-          fontWeight: FontWeight.bold,
+          "Project Success Rate",
+          0.921,
+          "85% industry",
         ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _buildProgressBar(int progress, Color primaryColor, bool isMobile) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: LinearProgressIndicator(
-            value: progress / 100,
-            backgroundColor: Colors.grey.shade200,
-            valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-            minHeight: isMobile ? 4 : 6,
-            borderRadius: BorderRadius.circular(3),
-          ),
+        _buildBenchmarkRow(
+          "Client Retention",
+          .885,
+          "80% industry",
         ),
-        const SizedBox(width: 8),
-        Text('$progress%', style: TextStyle(fontSize: isMobile ? 10 : 12)),
+        _buildBenchmarkRow(
+          "Employee Productivity",
+          .87,
+          "75% industry",
+        ),
+        _buildBenchmarkRow(
+          "Revenue Growth",
+          .203,
+          "12% industry",
+        ),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const Color cardColor = Color(0xFFFFFFFF);
-    const Color primaryPurple = Color(0xFF673AB7);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 700;
-        return Card(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Colors.grey.shade200),
-          ),
-          color: cardColor,
-          child: Padding(
-            padding: EdgeInsets.all(isMobile ? 10 : 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Recent Projects',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const Text('Latest project activities and status',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: isMobile ? 700 : 0),
-                    child: DataTable(
-                      columnSpacing: isMobile ? 16 : 30,
-                      dataRowMinHeight: isMobile ? 36 : 50,
-                      dataRowMaxHeight: isMobile ? 48 : 60,
-                      headingRowHeight: isMobile ? 32 : 40,
-                      border: TableBorder(
-                        verticalInside: BorderSide.none,
-                        horizontalInside:
-                            BorderSide(color: Colors.grey.shade300, width: 0.5),
-                        top:
-                            BorderSide(color: Colors.grey.shade300, width: 0.5),
-                      ),
-                      columns: [
-                        DataColumn(
-                            label: Text('Project',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: isMobile ? 12 : 14))),
-                        DataColumn(
-                            label: Text('Client',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: isMobile ? 12 : 14))),
-                        DataColumn(
-                            label: Text('Value',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: isMobile ? 12 : 14))),
-                        DataColumn(
-                            label: Text('Duration',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: isMobile ? 12 : 14))),
-                        DataColumn(
-                            label: Text('Status',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: isMobile ? 12 : 14))),
-                        DataColumn(
-                            label: Text('Progress',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: isMobile ? 12 : 14))),
-                      ],
-                      rows: recentProjects
-                          .map((proj) => DataRow(cells: [
-                                DataCell(Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(proj.id,
-                                        style: TextStyle(
-                                            fontSize: isMobile ? 10 : 12,
-                                            color: Colors.grey)),
-                                    Text(proj.name,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: isMobile ? 11 : 13)),
-                                  ],
-                                )),
-                                DataCell(Text(proj.client,
-                                    style: TextStyle(
-                                        fontSize: isMobile ? 11 : 13))),
-                                DataCell(Text(_formatCurrency(proj.value),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: isMobile ? 11 : 13))),
-                                DataCell(Text('${proj.duration} days',
-                                    style: TextStyle(
-                                        fontSize: isMobile ? 11 : 13))),
-                                DataCell(
-                                    _buildStatusChip(proj.status, isMobile)),
-                                DataCell(_buildProgressBar(
-                                    proj.progress, primaryPurple, isMobile)),
-                              ]))
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }
