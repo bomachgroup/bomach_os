@@ -1,6 +1,7 @@
 // Component imports
 import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/analytics/overview.dart';
 // Page imports
 import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
@@ -30,6 +31,7 @@ import 'package:bms_front_end/pages/hr/payroll.dart';
 import 'package:bms_front_end/pages/hr/performance_review.dart';
 import 'package:bms_front_end/pages/hr/training_program.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
+import 'package:bms_front_end/pages/legal/legal.dart';
 import 'package:bms_front_end/pages/marketing/campaign_detail.dart';
 import 'package:bms_front_end/pages/marketing/lead_detail.dart';
 import 'package:bms_front_end/pages/marketing/marketing.dart';
@@ -59,6 +61,10 @@ import 'package:bms_front_end/pages/workspace/workspace_dashboard.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../pages/analytics/performance.dart';
+import '../../pages/analytics/projects.dart';
+import '../../pages/analytics/revenue.dart';
 
 /// Map of all dashboard screens to their routes for better maintainability
 final Map<String, Widget> _dashboardRoutes = {
@@ -119,6 +125,16 @@ final Map<String, Widget> _dashboardRoutes = {
   // workspace
   RouteConstants.workspace: const WorkspacePage(),
   RouteConstants.workspaceDashboard: const WorkspaceDashboardPage(),
+  // analytics
+  RouteConstants.analyticsOverview: const AnalyticsOverviewPage(),
+  RouteConstants.analyticsRevenue: const RevenueAnalyticsPage(),
+  RouteConstants.analyticsProjects: const ProjectsAnalytics(),
+  RouteConstants.analyticsPerformance: const PerformanceAnalytics(),
+  // Legals and Compliance
+  RouteConstants.legalAudits: const LegalsPage(selectedIndex: 3),
+  RouteConstants.legalContracts: const LegalsPage(selectedIndex: 0),
+  RouteConstants.legalCompliance: const LegalsPage(selectedIndex: 1),
+  RouteConstants.legalCases: const LegalsPage(selectedIndex: 2),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

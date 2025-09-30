@@ -26,6 +26,8 @@ enum MainMenuItem {
   logout,
   financeAccounting,
   workspace,
+  analytics,
+  legalCompliance,
 }
 
 enum SubMenuItem {
@@ -79,7 +81,19 @@ enum SubMenuItem {
 
   // Workspace
   workspace,
-  workspaceDashboard
+  workspaceDashboard,
+
+  // Analytics
+  overview,
+  revenue,
+  projects,
+  analyticsPerformance,
+
+  // Legal & Compliance
+  legalContracts,
+  legalCompliance,
+  legalCases,
+  legalAudits,
 }
 
 // Data classes for menu structure
@@ -382,6 +396,62 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.workspaceDashboard,
             label: 'Dashboard',
             route: RouteConstants.workspaceDashboard,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.analytics,
+        label: 'Analytics & Insights',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.overview,
+            label: 'Overview',
+            route: RouteConstants.analyticsOverview,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.revenue,
+            label: 'Revenue',
+            route: RouteConstants.analyticsRevenue,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.projects,
+            label: 'Projects',
+            route: RouteConstants.analyticsProjects,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.analyticsPerformance,
+            label: 'Performance',
+            route: RouteConstants.analyticsPerformance,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.legalCompliance,
+        label: 'Legal & Compliance',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.legalContracts,
+            label: 'Contracts',
+            route: RouteConstants.legalContracts,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.legalCompliance,
+            label: 'Compliance',
+            route: RouteConstants.legalCompliance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.legalCases,
+            label: 'Cases',
+            route: RouteConstants.legalCases,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.legalAudits,
+            label: 'Audits',
+            route: RouteConstants.legalAudits,
           ),
         ],
       ),
