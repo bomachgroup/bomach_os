@@ -5,7 +5,6 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../../src/constants/spaces.dart';
 import 'overview.dart';
-import 'projects.dart';
 
 const Color kDarkBackground = Color(0xFF1E1E1E);
 const Color kCardBackground = Color(0xFFFFFFFF);

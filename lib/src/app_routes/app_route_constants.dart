@@ -70,4 +70,23 @@ class RouteConstants {
   static const String legalCompliance = '/Compliance';
   static const String legalCases = '/legal/Cases';
   static const String legalAudits = '/legal/Audits';
+
+  // Client Portal
+  static const String clientAccess = '/client/portal';
+  static const String communications = '/client/portal/communications';
+  static const String documentSharing = '/client/portal/documents&sharing';
+  static const String portalAnalytics = '/client/portal/analytics';
+
+  // Security
+  static const String securityCodes = '/security/codes';
+  static const String securityWorkflow = '/security/workflows';
+  static const String securityAlerts = '/security/alerts';
+  static const String securityLogs = '/security/logs';
+  static const String securityOverview = '/security/overview';
+
+  // CRM
+  static const String crmAnalytics = '/crm/analytics';
+  static const String crmClients = '/crm/clients';
+  static const String crmLeads = '/crm/leads';
+  static const String crmInteractions = '/crm/interactions';
 }

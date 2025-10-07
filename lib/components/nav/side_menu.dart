@@ -28,6 +28,9 @@ enum MainMenuItem {
   workspace,
   analytics,
   legalCompliance,
+  clientPortal,
+  security,
+  crm,
 }
 
 enum SubMenuItem {
@@ -94,6 +97,25 @@ enum SubMenuItem {
   legalCompliance,
   legalCases,
   legalAudits,
+
+  // Client Portal
+  clientAccess,
+  documentSharing,
+  communications,
+  portalAnalytics,
+
+  // Security
+  securityOverview,
+  securityCodes,
+  securityWorkflow,
+  securityAlerts,
+  securityLogs,
+
+  // CRM
+  crmClients,
+  crmLeads,
+  crmAnalytics,
+  crmInteractions,
 }
 
 // Data classes for menu structure
@@ -452,6 +474,95 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.legalAudits,
             label: 'Audits',
             route: RouteConstants.legalAudits,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.clientPortal,
+        label: 'Client Portal',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.clientAccess,
+            label: 'Client Access',
+            route: RouteConstants.clientAccess,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.documentSharing,
+            label: 'Document Sharing',
+            route: RouteConstants.documentSharing,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.communications,
+            label: 'Communications',
+            route: RouteConstants.communications,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.portalAnalytics,
+            label: 'Portal Analytics',
+            route: RouteConstants.portalAnalytics,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.security,
+        label: 'Security & Authorization',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.securityOverview,
+            label: 'Overview',
+            route: RouteConstants.securityOverview,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityCodes,
+            label: 'Security Codes',
+            route: RouteConstants.securityCodes,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityWorkflow,
+            label: 'Workflows',
+            route: RouteConstants.securityWorkflow,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityAlerts,
+            label: 'Security Alerts',
+            route: RouteConstants.securityAlerts,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.securityLogs,
+            label: 'Audit Logs',
+            route: RouteConstants.securityLogs,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.crm,
+        label: 'CRM',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.crmClients,
+            label: 'Clients',
+            route: RouteConstants.crmClients,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmLeads,
+            label: 'Leads',
+            route: RouteConstants.crmLeads,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmInteractions,
+            label: 'Interactions',
+            route: RouteConstants.crmInteractions,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmAnalytics,
+            label: 'Analytics',
+            route: RouteConstants.crmAnalytics,
           ),
         ],
       ),

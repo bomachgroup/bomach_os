@@ -89,7 +89,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
               children: summaryData.map((e) {
                 return SizedBox(
                   width: cardWidth,
-                  child: MetricCard(
+                  child: AnalyticsMetricCard(
                     title: e["title"] ?? '',
                     value: e["value"] ?? '',
                     subtitle: e['subtitle'] ?? '',

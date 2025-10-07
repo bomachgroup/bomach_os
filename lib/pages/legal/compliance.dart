@@ -7,9 +7,16 @@ import '../../components/input/my_textformfield.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import '../../src/constants/spaces.dart';
+import 'dialogs/add_compliance.dart';
 
 class CompliancePageView extends StatelessWidget {
   const CompliancePageView({super.key});
+  void addComplianceItem(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => const AddComplianceItemDialog(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +51,10 @@ class CompliancePageView extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           MyElevatedButton(
-                            child: 'Filter',
-                            onTap: () {},
+                            child: 'Add Compliance Item',
+                            onTap: () {
+                              addComplianceItem(context);
+                            },
                           ),
                         ],
                       ),
@@ -86,8 +95,10 @@ class CompliancePageView extends StatelessWidget {
                             ),
                             const SizedBox(width: 12),
                             MyElevatedButton(
-                              child: 'Filter',
-                              onTap: () {},
+                              child: 'Add Compliance Item',
+                              onTap: () {
+                                addComplianceItem(context);
+                              },
                             ),
                           ],
                         ),

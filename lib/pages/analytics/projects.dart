@@ -108,21 +108,21 @@ class ProjectBody extends StatelessWidget {
               isMobile
                   ? const Column(
                       children: [
-                        MetricCard(
+                        AnalyticsMetricCard(
                           title: 'Total Projects',
                           value: '127',
                           subtitle: 'All projects',
                           showtrend: false,
                         ),
                         SizedBox(height: 12),
-                        MetricCard(
+                        AnalyticsMetricCard(
                           title: 'Active Projects',
                           value: '23',
                           showtrend: false,
                           subtitle: 'Currently running',
                         ),
                         SizedBox(height: 12),
-                        MetricCard(
+                        AnalyticsMetricCard(
                           title: 'Completed',
                           value: '98',
                           showtrend: false,
@@ -130,7 +130,7 @@ class ProjectBody extends StatelessWidget {
                           color: Colors.green,
                         ),
                         SizedBox(height: 12),
-                        MetricCard(
+                        AnalyticsMetricCard(
                           title: 'Success Rate',
                           value: '92.1%',
                           showtrend: false,
@@ -142,7 +142,7 @@ class ProjectBody extends StatelessWidget {
                   : const Row(
                       children: [
                         Expanded(
-                          child: MetricCard(
+                          child: AnalyticsMetricCard(
                             title: 'Total Projects',
                             value: '127',
                             subtitle: 'All projects',
@@ -151,7 +151,7 @@ class ProjectBody extends StatelessWidget {
                         ),
                         SizedBox(width: 16),
                         Expanded(
-                          child: MetricCard(
+                          child: AnalyticsMetricCard(
                             title: 'Active Projects',
                             value: '23',
                             showtrend: false,
@@ -160,7 +160,7 @@ class ProjectBody extends StatelessWidget {
                         ),
                         SizedBox(width: 16),
                         Expanded(
-                          child: MetricCard(
+                          child: AnalyticsMetricCard(
                             title: 'Completed',
                             value: '98',
                             showtrend: false,
@@ -170,7 +170,7 @@ class ProjectBody extends StatelessWidget {
                         ),
                         SizedBox(width: 16),
                         Expanded(
-                          child: MetricCard(
+                          child: AnalyticsMetricCard(
                             title: 'Success Rate',
                             value: '92.1%',
                             showtrend: false,

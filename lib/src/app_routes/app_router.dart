@@ -6,8 +6,10 @@ import 'package:bms_front_end/pages/analytics/overview.dart';
 import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/pages/clients_portal/portal.dart';
 import 'package:bms_front_end/pages/company/branch.dart';
 import 'package:bms_front_end/pages/company/company.dart';
+import 'package:bms_front_end/pages/crm/crm.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
@@ -65,6 +67,10 @@ import 'package:go_router/go_router.dart';
 import '../../pages/analytics/performance.dart';
 import '../../pages/analytics/projects.dart';
 import '../../pages/analytics/revenue.dart';
+import '../../pages/crm/clients.dart';
+import '../../pages/crm/interactions.dart';
+import '../../pages/crm/lead.dart';
+import '../../pages/security/security.dart';
 
 /// Map of all dashboard screens to their routes for better maintainability
 final Map<String, Widget> _dashboardRoutes = {
@@ -135,6 +141,22 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.legalContracts: const LegalsPage(selectedIndex: 0),
   RouteConstants.legalCompliance: const LegalsPage(selectedIndex: 1),
   RouteConstants.legalCases: const LegalsPage(selectedIndex: 2),
+  // Client Portal
+  RouteConstants.clientAccess: const ClientsPortal(page: 0),
+  RouteConstants.communications: const ClientsPortal(page: 2),
+  RouteConstants.portalAnalytics: const ClientsPortal(page: 3),
+  RouteConstants.documentSharing: const ClientsPortal(page: 1),
+  // Security
+  RouteConstants.securityAlerts: const SecurityPage(page: 3),
+  RouteConstants.securityCodes: const SecurityPage(page: 1),
+  RouteConstants.securityLogs: const SecurityPage(page: 4),
+  RouteConstants.securityWorkflow: const SecurityPage(page: 2),
+  RouteConstants.securityOverview: const SecurityPage(page: 0),
+  // CRM
+  RouteConstants.crmClients: const CrmClientsPage(),
+  RouteConstants.crmLeads: const CrmLeadsPage(),
+  RouteConstants.crmInteractions: const InteractionsPage(),
+  RouteConstants.crmAnalytics: const CrmDashboardPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route

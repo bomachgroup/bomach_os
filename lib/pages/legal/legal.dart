@@ -5,6 +5,7 @@ import '../../components/text/my_text.dart';
 import 'cases.dart';
 import 'compliance.dart';
 import 'contract.dart';
+import 'dialogs/new_contract.dart';
 import 'widgets/summary_card.dart';
 import 'widgets/tab_button.dart';
 
@@ -117,7 +118,7 @@ class _LegalsPageState extends State<LegalsPage> {
         final double pageViewHeight = isMobile ? 600 : (isTablet ? 650 : 700);
 
         return SingleChildScrollView(
-          padding: EdgeInsets.all(isMobile ? 12 : 24),
+          padding: EdgeInsets.all(isMobile ? 12 : 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -144,7 +145,12 @@ class _LegalsPageState extends State<LegalsPage> {
                   ),
                   if (!isMobile)
                     MyElevatedButton(
-                      onTap: () {},
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const CreateNewContractDialog(),
+                        );
+                      },
                       icon: const Icon(Icons.add, color: Colors.white),
                       child: "New Contract",
                     ),
@@ -154,7 +160,12 @@ class _LegalsPageState extends State<LegalsPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 12.0, bottom: 8),
                   child: MyElevatedButton(
-                    onTap: () {},
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const CreateNewContractDialog(),
+                      );
+                    },
                     icon: const Icon(Icons.add, color: Colors.white),
                     child: "New Contract",
                   ),

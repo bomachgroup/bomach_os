@@ -1,20 +1,21 @@
-import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
-class MetricCard extends StatelessWidget {
+class AnalyticsMetricCard extends StatelessWidget {
   final String title;
   final String value;
   final String subtitle;
   final String? imgPath;
+  final IconData? icon;
   final Color? color;
   final bool isBearish;
   final bool showtrend;
 
-  const MetricCard({
+  const AnalyticsMetricCard({
     super.key,
     required this.title,
     required this.value,
     required this.subtitle,
+    this.icon,
     this.imgPath,
     this.color,
     this.isBearish = false,
@@ -29,13 +30,17 @@ class MetricCard extends StatelessWidget {
         final textTheme = Theme.of(context).textTheme;
 
         return Container(
-          constraints: const BoxConstraints(minWidth: 200, minHeight: 120),
+          constraints: const BoxConstraints(
+            minWidth: 200,
+            minHeight: 120,
+            maxHeight: 130,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               )
@@ -45,7 +50,6 @@ class MetricCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -70,12 +74,16 @@ class MetricCard extends StatelessWidget {
                         size: isWide ? 24 : 18,
                         color: color,
                       ),
-                    ),
+                    )
+                  else if (icon != null)
+                    Icon(
+                      icon,
+                      color: color,
+                      size: isWide ? 24 : 18,
+                    )
                 ],
               ),
-              const SizedBox(height: 6),
-
-              // Main value
+              const Spacer(),
               Text(
                 value,
                 style: textTheme.titleLarge?.copyWith(
@@ -84,8 +92,6 @@ class MetricCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-
-              // Trend row
               Row(
                 spacing: 4,
                 children: [
