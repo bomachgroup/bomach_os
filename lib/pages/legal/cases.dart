@@ -4,6 +4,8 @@ import '../../components/button/my_elevated_button.dart';
 import '../../components/input/my_textformfield.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
+import 'detailed_view.dart';
+import 'dialogs/legal_dialog.dart';
 
 class CasesPageView extends StatelessWidget {
   const CasesPageView({super.key});
@@ -44,8 +46,10 @@ class CasesPageView extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             MyElevatedButton(
-                              child: 'Filter',
-                              onTap: () {},
+                              child: 'Create Cases',
+                              onTap: () {
+                                CreateNewLegalCaseDialog.show(context);
+                              },
                             ),
                           ],
                         ),
@@ -87,8 +91,10 @@ class CasesPageView extends StatelessWidget {
                               ),
                               const SizedBox(width: 12),
                               MyElevatedButton(
-                                child: 'Filter',
-                                onTap: () {},
+                                child: 'Create Cases',
+                                onTap: () {
+                                  CreateNewLegalCaseDialog.show(context);
+                                },
                               ),
                             ],
                           ),
@@ -111,7 +117,7 @@ class CasesTable extends StatelessWidget {
 
   final ScrollController _scrollController = ScrollController();
 
-  DataRow _buildDataRow(CaseData data) {
+  DataRow _buildDataRow(CaseData data, BuildContext context) {
     Color statusColor;
     switch (data.status) {
       case 'In Progress':
@@ -202,7 +208,29 @@ class CasesTable extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  const Map<String, String> legalCaseDetails = {
+                    'Case Number': 'CASE-2024-001',
+                    'Case Title':
+                        'Bomach Engineering vs. Delta Construction Ltd – Professional Negligence Claim',
+                    'Case Type': 'Contract Dispute',
+                    'Status': 'In Progress',
+                    'Priority': 'High',
+                    'Description':
+                        'Complex boundary dispute arising from alleged survey inaccuracies in the Lekki Phase 2 development project. Client claims survey errors led to construction delays and significant financial losses.',
+                    'Assigned Manager': 'Legal Manager',
+                    'Created By': 'Legal Manager',
+                  };
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const DetailsViewPage(
+                          title:
+                              'Bomach Engineering vs. Delta Construction Ltd – Professional Negligence Claim',
+                          details: legalCaseDetails),
+                    ),
+                  );
+                },
                 icon: Icon(Icons.remove_red_eye_outlined,
                     color: Colors.black, size: isMobile ? 16 : 20),
                 label: Text("View",
@@ -299,7 +327,7 @@ class CasesTable extends StatelessWidget {
                     DataColumn(label: Text('Next Hearing')),
                     DataColumn(label: Text('Actions')),
                   ],
-                  rows: _cases.map(_buildDataRow).toList(),
+                  rows: _cases.map((e) => _buildDataRow(e, context)).toList(),
                   dataRowMinHeight: isMobile ? 36 : 48,
                   dataRowMaxHeight: isMobile ? 56 : 72,
                   headingRowHeight: isMobile ? 32 : 40,

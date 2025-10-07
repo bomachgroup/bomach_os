@@ -1,9 +1,12 @@
+import 'package:bms_front_end/pages/legal/detailed_view.dart'
+    show DetailsViewPage;
 import 'package:flutter/material.dart';
 
 import '../../components/button/my_elevated_button.dart';
 import '../../components/input/my_textformfield.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
+import 'dialogs/new_audit.dart';
 
 class AuditsPageView extends StatelessWidget {
   const AuditsPageView({super.key});
@@ -44,8 +47,10 @@ class AuditsPageView extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             MyElevatedButton(
-                              child: 'Filter',
-                              onTap: () {},
+                              child: 'Shedule Audit',
+                              onTap: () {
+                                CreateNewAuditDialog.show(context);
+                              },
                             ),
                           ],
                         ),
@@ -87,8 +92,10 @@ class AuditsPageView extends StatelessWidget {
                               ),
                               const SizedBox(width: 12),
                               MyElevatedButton(
-                                child: 'Filter',
-                                onTap: () {},
+                                child: 'Shedule Audit',
+                                onTap: () {
+                                  CreateNewAuditDialog.show(context);
+                                },
                               ),
                             ],
                           ),
@@ -109,7 +116,7 @@ class AuditsTable extends StatelessWidget {
   final bool isMobile;
   const AuditsTable({super.key, this.isMobile = false});
 
-  DataRow _buildDataRow(Map<String, String> data) {
+  DataRow _buildDataRow(Map<String, String> data, BuildContext context) {
     Color statusColor;
     switch (data['status']) {
       case 'Completed':
@@ -219,7 +226,29 @@ class AuditsTable extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  const Map<String, String> auditDetails = {
+                    'Audit Name':
+                        'Annual ISO 9001:2015 Quality Management System Audit',
+                    'Audit Type': 'Internal Quality Audit',
+                    'Audit Number': 'QMS-AUD-2024-001',
+                    'Status': 'Completed',
+                    'Risk Level': 'Medium',
+                    'Description':
+                        'Comprehensive internal audit of quality management systems across all departments to ensure continued ISO 9001:2015 compliance',
+                    'Assigned Manager': 'QMS Manager',
+                    'Created By': 'QMS Manager',
+                  };
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const DetailsViewPage(
+                          title:
+                              'Annual ISO 9001:2015 Quality Management System Audit',
+                          details: auditDetails),
+                    ),
+                  );
+                },
                 icon: Icon(Icons.remove_red_eye_outlined,
                     color: Colors.black, size: isMobile ? 16 : 20),
                 label: Text("View",
@@ -303,7 +332,7 @@ class AuditsTable extends StatelessWidget {
                     DataColumn(label: Text('Date')),
                     DataColumn(label: Text('Actions')),
                   ],
-                  rows: _audits.map(_buildDataRow).toList(),
+                  rows: _audits.map((e) => _buildDataRow(e, context)).toList(),
                   dataRowMinHeight: isMobile ? 36 : 48,
                   dataRowMaxHeight: isMobile ? 56 : 72,
                   headingRowHeight: isMobile ? 32 : 40,

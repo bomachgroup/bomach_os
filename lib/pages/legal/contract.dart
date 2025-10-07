@@ -5,6 +5,7 @@ import '../../components/input/my_textformfield.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import '../../src/constants/spaces.dart';
+import 'detailed_view.dart';
 import 'widgets/status_tag.dart';
 
 class ContractsPageView extends StatelessWidget {
@@ -120,158 +121,185 @@ class ContractsCard extends StatelessWidget {
       color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: isMobile
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const MyText(
-                    "Land Survey Services Agreement - ABC Construction",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  const Row(
-                    children: [
-                      StatusTag(text: "Active", color: Colors.black),
-                      SizedBox(width: 8),
-                      StatusTag(text: "Service Agreement", color: Colors.grey),
-                      SizedBox(width: 8),
-                      StatusTag(text: "High", color: Colors.red),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text("Contract No: CTR-2024-001"),
-                  const Text("Value: ₦2,500,000.00"),
-                  const Text("Parties: 1"),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Created: 17 Aug 2025  •  Lawyer: Legal Manager  •  Deliverables: 3",
-                    style: TextStyle(color: Colors.black54, fontSize: 12),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text("Effective: 1 Jan 2024"),
-                  const Text("Expires: 31 Dec 2024"),
-                  const Text("Payment Terms: Net 30 days"),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.remove_red_eye_outlined,
-                            color: Colors.black),
-                        label: const Text("View",
-                            style: TextStyle(color: Colors.black)),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.grey),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          const Map<String, String> contractData = {
+            'Contract Number': 'CTR-2024-001',
+            'Contract Name':
+                'Land Survey Services Agreement - Lagos State Government',
+            'Contract Type': 'Service Agreement',
+            'Status': 'Active',
+            'Priority': 'High',
+            'Assigned Lawyer': 'Senior Legal Counsel',
+            'Description': 'Not provided',
+          };
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const DetailsViewPage(
+                  title:
+                      'Land Survey Services Agreement - Lagos State Government',
+                  details: contractData),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: isMobile
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const MyText(
+                      "Land Survey Services Agreement - ABC Construction",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    const Row(
+                      children: [
+                        StatusTag(text: "Active", color: Colors.black),
+                        SizedBox(width: 8),
+                        StatusTag(
+                            text: "Service Agreement", color: Colors.grey),
+                        SizedBox(width: 8),
+                        StatusTag(text: "High", color: Colors.red),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text("Contract No: CTR-2024-001"),
+                    const Text("Value: ₦2,500,000.00"),
+                    const Text("Parties: 1"),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Created: 17 Aug 2025  •  Lawyer: Legal Manager  •  Deliverables: 3",
+                      style: TextStyle(color: Colors.black54, fontSize: 12),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text("Effective: 1 Jan 2024"),
+                    const Text("Expires: 31 Dec 2024"),
+                    const Text("Payment Terms: Net 30 days"),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.remove_red_eye_outlined,
+                              color: Colors.black),
+                          label: const Text("View",
+                              style: TextStyle(color: Colors.black)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.grey),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.edit_outlined,
-                            color: Colors.black),
-                        label: const Text("Edit",
-                            style: TextStyle(color: Colors.black)),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.grey),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.edit_outlined,
+                              color: Colors.black),
+                          label: const Text("Edit",
+                              style: TextStyle(color: Colors.black)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.grey),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            : Column(
-                children: [
-                  const Row(
-                    children: [
-                      MyText(
-                          "Land Survey Services Agreement - ABC Construction",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600)),
-                      SizedBox(width: 8),
-                      StatusTag(text: "Active", color: Colors.black),
-                      SizedBox(width: 8),
-                      StatusTag(text: "Service Agreement", color: Colors.grey),
-                      SizedBox(width: 8),
-                      StatusTag(text: "High", color: Colors.red),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Contract No: CTR-2024-001"),
-                            Text("Value: ₦2,500,000.00"),
-                            Text("Parties: 1"),
-                            SizedBox(height: 8),
-                            Text(
-                                "Created: 17 Aug 2025  •  Lawyer: Legal Manager  •  Deliverables: 3",
-                                style: TextStyle(
-                                    color: Colors.black54, fontSize: 12)),
-                          ],
+                      ],
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    const Row(
+                      children: [
+                        MyText(
+                            "Land Survey Services Agreement - ABC Construction",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600)),
+                        SizedBox(width: 8),
+                        StatusTag(text: "Active", color: Colors.black),
+                        SizedBox(width: 8),
+                        StatusTag(
+                            text: "Service Agreement", color: Colors.grey),
+                        SizedBox(width: 8),
+                        StatusTag(text: "High", color: Colors.red),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Contract No: CTR-2024-001"),
+                              Text("Value: ₦2,500,000.00"),
+                              Text("Parties: 1"),
+                              SizedBox(height: 8),
+                              Text(
+                                  "Created: 17 Aug 2025  •  Lawyer: Legal Manager  •  Deliverables: 3",
+                                  style: TextStyle(
+                                      color: Colors.black54, fontSize: 12)),
+                            ],
+                          ),
                         ),
-                      ),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text("Effective: 1 Jan 2024"),
-                            Text("Expires: 31 Dec 2024"),
-                            Text("Payment Terms: Net 30 days"),
-                            SizedBox(height: 12),
-                          ],
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text("Effective: 1 Jan 2024"),
+                              Text("Expires: 31 Dec 2024"),
+                              Text("Payment Terms: Net 30 days"),
+                              SizedBox(height: 12),
+                            ],
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: () {},
-                              icon: const Icon(Icons.remove_red_eye_outlined,
-                                  color: Colors.black),
-                              label: const Text("View",
-                                  style: TextStyle(color: Colors.black)),
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Colors.grey),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: () {},
+                                icon: const Icon(Icons.remove_red_eye_outlined,
+                                    color: Colors.black),
+                                label: const Text("View",
+                                    style: TextStyle(color: Colors.black)),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Colors.grey),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton.icon(
-                              onPressed: () {},
-                              icon: const Icon(Icons.edit_outlined,
-                                  color: Colors.black),
-                              label: const Text("Edit",
-                                  style: TextStyle(color: Colors.black)),
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Colors.grey),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: () {},
+                                icon: const Icon(Icons.edit_outlined,
+                                    color: Colors.black),
+                                label: const Text("Edit",
+                                    style: TextStyle(color: Colors.black)),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Colors.grey),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      ],
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }

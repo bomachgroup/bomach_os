@@ -84,7 +84,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
             children: [
               SizedBox(
                 width: cardWidth,
-                child: const MetricCard(
+                child: const AnalyticsMetricCard(
                   title: "Total Revenue",
                   value: "₦0.00",
                   subtitle: "0.0% vs avg",
@@ -94,7 +94,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
               ),
               SizedBox(
                 width: cardWidth,
-                child: const MetricCard(
+                child: const AnalyticsMetricCard(
                   title: "Active Projects",
                   value: "0",
                   subtitle: "-50% vs avg",
@@ -104,7 +104,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
               ),
               SizedBox(
                 width: cardWidth,
-                child: const MetricCard(
+                child: const AnalyticsMetricCard(
                   title: "Total Clients",
                   value: "0",
                   subtitle: "0.0% vs avg",
@@ -114,7 +114,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
               ),
               SizedBox(
                 width: cardWidth,
-                child: const MetricCard(
+                child: const AnalyticsMetricCard(
                   title: "Project Success Rate",
                   value: "0.0%",
                   subtitle: "-60% vs avg",
@@ -124,7 +124,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
               ),
               SizedBox(
                 width: cardWidth,
-                child: const MetricCard(
+                child: const AnalyticsMetricCard(
                   title: "Employee Productivity",
                   value: "78/100",
                   subtitle: "3.0% vs avg",
@@ -134,7 +134,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
               ),
               SizedBox(
                 width: cardWidth,
-                child: const MetricCard(
+                child: const AnalyticsMetricCard(
                   title: "Client Retention",
                   value: "85.0%",
                   subtitle: "-60% vs avg",
@@ -179,7 +179,7 @@ class AnalyticsActions extends StatelessWidget {
         // Considering 800 as breakpoint but 600 for now...
         // account for sidebar + horizontal padding
         final availableWidth = constraints.maxWidth - 300 - 64;
-        final isWide = availableWidth > 600; // breakpoint
+        final isWide = availableWidth > 600; 
 
         final dropdown = SizedBox(
           height: 40,
