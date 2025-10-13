@@ -4,6 +4,8 @@ class RouteConstants {
   static const String company = '/company';
   static const String enugu = '/company/enugu';
   static const String branch = '/company/branch';
+  static const String auditLog = '/company/audit-log';
+  static const String compliance = '/company/compliance';
   // marketing
   static const String marketing = '/marketing';
   static const String marketingLeadDetail = '/marketing/lead/detail';
@@ -40,6 +42,8 @@ class RouteConstants {
   static const String leaveRequest = '/hr/leave-request';
   static const String trainingProgram = '/hr/training-program';
   static const String performanceReview = '/hr/performance-review';
+  static const String associates = '/hr/associates';
+  static const String assets = '/hr/assets';
   // services
   static const String services = '/services';
   static const String servicesProperty = '/services-property';
@@ -89,4 +93,6 @@ class RouteConstants {
   static const String crmClients = '/crm/clients';
   static const String crmLeads = '/crm/leads';
   static const String crmInteractions = '/crm/interactions';
+  // Events
+  static const String events = '/events';
 }

@@ -19,6 +19,7 @@ enum MainMenuItem {
   work,
   marketing,
   calendar,
+  events,
   services,
   notification,
   settings,
@@ -37,6 +38,8 @@ enum SubMenuItem {
   // Company sub-items
   company,
   branch,
+  auditLog,
+  compliance,
   enugu,
   portHarcourt,
   abuja,
@@ -57,6 +60,8 @@ enum SubMenuItem {
   performance,
   payroll,
   trainingProgram,
+  associates,
+  assets,
 
   // Warketing sub-items
   marketing,
@@ -199,6 +204,16 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.branch,
           ),
           SubMenuItemData(
+            id: SubMenuItem.auditLog,
+            label: 'Audit Log',
+            route: RouteConstants.auditLog,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.compliance,
+            label: 'Compliance',
+            route: RouteConstants.compliance,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.enugu,
             label: 'Enugu',
             route: RouteConstants.enugu,
@@ -258,6 +273,16 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.trainingProgram,
             label: 'Training Program',
             route: RouteConstants.trainingProgram,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.associates,
+            label: 'Associates',
+            route: RouteConstants.associates,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.assets,
+            label: 'Assets',
+            route: RouteConstants.assets,
           ),
           SubMenuItemData(
             id: SubMenuItem.employees,
@@ -369,6 +394,13 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Calendar',
         iconPath: 'assets/svg/sidebar/calendar.svg',
         isExpandable: true,
+      ),
+      const MenuItem(
+        id: MainMenuItem.events,
+        label: 'Events',
+        iconPath: 'assets/svg/sidebar/calendar.svg',
+        route: RouteConstants.events,
+        isExpandable: false,
       ),
       const MenuItem(
         id: MainMenuItem.services,

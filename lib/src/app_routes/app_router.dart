@@ -7,8 +7,10 @@ import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/pages/clients_portal/portal.dart';
+import 'package:bms_front_end/pages/company/audit_log.dart';
 import 'package:bms_front_end/pages/company/branch.dart';
 import 'package:bms_front_end/pages/company/company.dart';
+import 'package:bms_front_end/pages/company/compliance.dart';
 import 'package:bms_front_end/pages/crm/crm.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
@@ -20,6 +22,8 @@ import 'package:bms_front_end/pages/finance/expenses.dart';
 import 'package:bms_front_end/pages/finance/finance.dart';
 import 'package:bms_front_end/pages/finance/invoice.dart';
 import 'package:bms_front_end/pages/finance/payments.dart';
+import 'package:bms_front_end/pages/hr/associates.dart';
+import 'package:bms_front_end/pages/hr/assets.dart';
 import 'package:bms_front_end/pages/hr/attendance.dart';
 import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/hr.dart';
@@ -70,6 +74,7 @@ import '../../pages/analytics/revenue.dart';
 import '../../pages/crm/clients.dart';
 import '../../pages/crm/interactions.dart';
 import '../../pages/crm/lead.dart';
+import '../../pages/events/events.dart';
 import '../../pages/security/security.dart';
 
 /// Map of all dashboard screens to their routes for better maintainability
@@ -101,6 +106,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.serviceDetail: const ServiceDetailScreen(),
   RouteConstants.company: const CompanyProfilePage(),
   RouteConstants.branch: const BranchListPage(),
+  RouteConstants.auditLog: const AuditLogPage(),
+  RouteConstants.compliance: const CompliancePage(),
   RouteConstants.enugu: const BranchPage(),
   RouteConstants.finance: const FinancePage(),
   RouteConstants.invoice: const InvoicePage(),
@@ -115,6 +122,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.payroll: const PayrollPage(),
   RouteConstants.trainingProgram: const TrainingProgramPage(),
   RouteConstants.performanceReview: const PerformanceReviewPage(),
+  RouteConstants.associates: const AssociatesPage(),
+  RouteConstants.assets: const AssetsPage(),
   RouteConstants.services: const ServicesPage(),
   // operations
   RouteConstants.operations: const OperationsPage(),
@@ -157,6 +166,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.crmLeads: const CrmLeadsPage(),
   RouteConstants.crmInteractions: const InteractionsPage(),
   RouteConstants.crmAnalytics: const CrmDashboardPage(),
+  // Events
+  RouteConstants.events: const EventsPage(),
 };
 
 /// Creates a branch for StatefulShellRoute with a single route
