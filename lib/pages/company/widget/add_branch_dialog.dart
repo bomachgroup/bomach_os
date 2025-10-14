@@ -217,6 +217,29 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                             ],
                           ),
                           SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    MyDropdown(
+                                      hintText: "----",
+                                      spaceBetweenText: 10,
+                                      items: [
+                                        "State head quarter",
+                                        "Regional head quarter",
+                                        "National head quarter",
+                                        "Continental regional head quarter"
+                                      ],
+                                      title: 'Branch Role',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 24),
                           MyText(
                             'Upload Branch File (optional)*',
                             style: TextStyle(

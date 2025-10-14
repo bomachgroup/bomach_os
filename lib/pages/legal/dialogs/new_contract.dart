@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -61,13 +62,14 @@ class CreateNewContractDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       _buildFormLabel('Type'),
-                      _buildDropdown(
-                        value: 'Service Agreement',
+                      MyDropdown(
+                        hintText: 'Service Agreement',
                         items: const [
                           'Service Agreement',
                           'Sales Contract',
                           'Maintenance Plan'
                         ],
+                        onChanged: (String? newValue) {},
                       ),
                     ],
                   ),
@@ -78,9 +80,10 @@ class CreateNewContractDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       _buildFormLabel('Priority'),
-                      _buildDropdown(
-                        value: 'Medium',
+                      MyDropdown(
+                        hintText: 'Medium',
                         items: const ['Critical', 'High', 'Medium', 'Low'],
+                        onChanged: (String? newValue) {},
                       ),
                     ],
                   ),
@@ -152,30 +155,6 @@ class CreateNewContractDialog extends StatelessWidget {
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
-
-  Widget _buildDropdown({required String value, required List<String> items}) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {},
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
     );
   }

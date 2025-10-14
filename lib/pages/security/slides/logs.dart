@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/pages/security/model.dart';
 import 'package:flutter/material.dart';
 
@@ -115,26 +116,12 @@ class SecurityLogs extends StatelessWidget {
               const SizedBox(width: 8),
               SizedBox(
                 width: 120,
-                child: DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF0F0F0),
-                  ),
-                  value: 'All Status',
-                  items: ['All Status', 'Success', 'Failure', 'Warning']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value, style: const TextStyle(fontSize: 14)),
-                    );
-                  }).toList(),
+                child: MyDropdown(
+                  hintText: 'All Status',
+                  items: const ['All Status', 'Success', 'Failure', 'Warning'],
                   onChanged: (String? newValue) {},
+                  fillColor: const Color(0xFFF0F0F0),
+                  height: 48,
                 ),
               ),
               const SizedBox(width: 8),

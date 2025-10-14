@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:flutter/material.dart';
 
 class CreateApprovalWorkflowDialog extends StatelessWidget {
@@ -73,9 +74,10 @@ class CreateApprovalWorkflowDialog extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         _buildLabel('Approver Role'),
-        _buildDropdownFormField(
-          initialValue: 'Manager',
-          items: ['Manager', 'Director', 'System Admin', 'Financial Officer'],
+        MyDropdown(
+          hintText: 'Manager',
+          items: const ['Manager', 'Director', 'System Admin', 'Financial Officer'],
+          onChanged: (String? newValue) {},
         ),
         const SizedBox(height: 24),
       ],
@@ -115,35 +117,6 @@ class CreateApprovalWorkflowDialog extends StatelessWidget {
         filled: true,
         fillColor: Colors.white,
       ),
-    );
-  }
-
-  Widget _buildDropdownFormField(
-      {required String initialValue, required List<String> items}) {
-    return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      value: initialValue,
-      isExpanded: true,
-      items: items.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {},
     );
   }
 

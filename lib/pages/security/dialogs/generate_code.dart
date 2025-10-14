@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:flutter/material.dart';
 
 class GenerateSecurityCodeDialog extends StatefulWidget {
@@ -65,10 +66,9 @@ class _GenerateSecurityCodeDialogState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel('Code Type'),
-        _buildDropdownFormField(
-          hint: 'Access Code',
-          value: _selectedCodeType,
-          items: ['Access Code', 'API Key', 'Two-Factor Token'],
+        MyDropdown(
+          hintText: 'Access Code',
+          items: const ['Access Code', 'API Key', 'Two-Factor Token'],
           onChanged: (val) => setState(() => _selectedCodeType = val),
         ),
         const SizedBox(height: 24),
@@ -79,18 +79,16 @@ class _GenerateSecurityCodeDialogState
         ),
         const SizedBox(height: 24),
         _buildLabel('Assigned To'),
-        _buildDropdownFormField(
-          hint: 'Select Person',
-          value: _selectedAssignedTo,
-          items: ['John Doe', 'Sarah Okwu', 'System Admin'],
+        MyDropdown(
+          hintText: 'Select Person',
+          items: const ['John Doe', 'Sarah Okwu', 'System Admin'],
           onChanged: (val) => setState(() => _selectedAssignedTo = val),
         ),
         const SizedBox(height: 24),
         _buildLabel('Expires in (days)'),
-        _buildDropdownFormField(
-          hint: '30 days',
-          value: _selectedExpiresIn,
-          items: ['7 days', '30 days', '90 days', 'Never'],
+        MyDropdown(
+          hintText: '30 days',
+          items: const ['7 days', '30 days', '90 days', 'Never'],
           onChanged: (val) => setState(() => _selectedExpiresIn = val),
         ),
         const SizedBox(height: 24),
@@ -106,40 +104,6 @@ class _GenerateSecurityCodeDialogState
         style: const TextStyle(
             fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87),
       ),
-    );
-  }
-
-  Widget _buildDropdownFormField({
-    required String hint,
-    required List<String> items,
-    required String? value,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      value: value,
-      hint: Text(hint),
-      isExpanded: true,
-      items: items.map<DropdownMenuItem<String>>((String val) {
-        return DropdownMenuItem<String>(
-          value: val,
-          child: Text(val),
-        );
-      }).toList(),
-      onChanged: onChanged,
     );
   }
 

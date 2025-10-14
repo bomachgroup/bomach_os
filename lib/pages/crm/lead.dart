@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../components/input/my_dropdown.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import 'dialogs/client_dialog.dart';
@@ -199,25 +200,11 @@ class LeadsTable extends StatelessWidget {
               const SizedBox(width: 16),
               SizedBox(
                 width: 150,
-                child: DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Color(0xFFF7F7F7),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  value: 'All Status',
-                  items: <String>['All Status', 'qualified', 'proposal', 'new']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                child: MyDropdown(
+                  hintText: 'All Status',
+                  items: const ['All Status', 'qualified', 'proposal', 'new'],
                   onChanged: (String? newValue) {},
+                  fillColor: const Color(0xFFF7F7F7),
                 ),
               ),
             ],

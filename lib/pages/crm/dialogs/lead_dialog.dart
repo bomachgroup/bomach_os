@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -102,21 +103,17 @@ class AddNewLeadDialog extends StatelessWidget {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Source'),
-                        _buildDropdown(
-                          value: 'Website',
-                          items: const [
-                            'Website',
-                            'Referral',
-                            'Cold Call',
-                            'Event',
-                            'Social Media'
-                          ],
-                        ),
+                    child: MyDropdown(
+                      title: 'Source',
+                      hintText: 'Select Source',
+                      items: const [
+                        'Website',
+                        'Referral',
+                        'Cold Call',
+                        'Event',
+                        'Social Media'
                       ],
+                      onChanged: (String? newValue) {},
                     ),
                   ),
                 ],
@@ -209,30 +206,6 @@ class AddNewLeadDialog extends StatelessWidget {
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
-
-  Widget _buildDropdown({required String value, required List<String> items}) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {},
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
     );
   }

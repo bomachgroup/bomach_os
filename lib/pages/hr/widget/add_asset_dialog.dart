@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -86,18 +87,10 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                   hintText: 'Asset Name',
                 ),
                 kSizedBoxSM,
-                DropdownButtonFormField<String>(
-                  value: selectedAssetType,
-                  decoration: const InputDecoration(
-                    labelText: 'Asset Type',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: assetTypes.map((type) {
-                    return DropdownMenuItem(
-                      value: type,
-                      child: MyText(type),
-                    );
-                  }).toList(),
+                MyDropdown(
+                  title: 'Asset Type',
+                  hintText: 'Select Asset Type',
+                  items: assetTypes,
                   onChanged: (value) {
                     setState(() {
                       selectedAssetType = value;
@@ -121,18 +114,10 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                   weight: 600,
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedBranch,
-                  decoration: const InputDecoration(
-                    labelText: 'Branch',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: branches.map((branch) {
-                    return DropdownMenuItem(
-                      value: branch,
-                      child: MyText(branch),
-                    );
-                  }).toList(),
+                MyDropdown(
+                  title: "Branch",
+                  hintText: "Branch",
+                  items: branches.map((branch) => branch).toList(),
                   onChanged: (value) {
                     setState(() {
                       selectedBranch = value;
@@ -184,18 +169,10 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                   weight: 600,
                 ),
                 const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: statuses.map((status) {
-                    return DropdownMenuItem(
-                      value: status,
-                      child: MyText(status),
-                    );
-                  }).toList(),
+                MyDropdown(
+                  title: 'Status',
+                  hintText: 'Select Status',
+                  items: statuses,
                   onChanged: (value) {
                     setState(() {
                       selectedStatus = value;
