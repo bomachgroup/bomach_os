@@ -79,6 +79,8 @@ enum SubMenuItem {
   realEstate,
   landSurvey,
   servicesItem,
+  landSurveyCalculator,
+  servicesCalculator,
 
   // Finance & Accounting sub-items
   financeDashboard,
@@ -432,6 +434,16 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.servicesItem,
             label: 'Services',
             route: RouteConstants.servicesProperty,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.landSurveyCalculator,
+            label: 'Land Survey Calculator',
+            route: RouteConstants.landSurveyCalculator,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.servicesCalculator,
+            label: 'Services Calculator',
+            route: RouteConstants.servicesCalculator,
           ),
         ],
       ),

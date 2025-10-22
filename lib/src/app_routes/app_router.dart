@@ -54,12 +54,14 @@ import 'package:bms_front_end/pages/operations/task_detail.dart';
 import 'package:bms_front_end/pages/operations/timeline_detail.dart';
 import 'package:bms_front_end/pages/operations/worksite_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey.dart';
+import 'package:bms_front_end/pages/services/land_survey_calculator.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey_property_detail.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
 import 'package:bms_front_end/pages/services/service_order.dart';
 import 'package:bms_front_end/pages/services/services.dart';
+import 'package:bms_front_end/pages/services/services_calculator.dart';
 import 'package:bms_front_end/pages/services/services_property.dart';
 import 'package:bms_front_end/pages/small_screen.dart';
 import 'package:bms_front_end/pages/workspace/workspace.dart';
@@ -125,6 +127,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.associates: const AssociatesPage(),
   RouteConstants.assets: const AssetsPage(),
   RouteConstants.services: const ServicesPage(),
+  RouteConstants.landSurveyCalculator: const LandSurveyCalculatorPage(),
+  RouteConstants.servicesCalculator: const ServicesCalculatorPage(),
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
