@@ -56,6 +56,9 @@ class RouteConstants {
   static const String landSurveyDetail = '/services/land-survey/detail';
   static const String landSurveyCalculator = '/services/land-survey-calculator';
   static const String servicesCalculator = '/services/services-calculator';
+  // Property Management
+  static const String propertyList = '/services/property';
+  static const String propertyDetail = '/services/property/detail';
   static const String finance = '/finance';
   static const String invoice = '/finance/invoice';
   static const String payment = '/finance/payment';

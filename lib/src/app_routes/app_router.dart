@@ -57,6 +57,8 @@ import 'package:bms_front_end/pages/services/land_survey.dart';
 import 'package:bms_front_end/pages/services/land_survey_calculator.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey_property_detail.dart';
+import 'package:bms_front_end/pages/services/property_detail.dart';
+import 'package:bms_front_end/pages/services/property_list.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
 import 'package:bms_front_end/pages/services/service_order.dart';
@@ -129,6 +131,9 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.services: const ServicesPage(),
   RouteConstants.landSurveyCalculator: const LandSurveyCalculatorPage(),
   RouteConstants.servicesCalculator: const ServicesCalculatorPage(),
+  // Property Management
+  RouteConstants.propertyList: const PropertyListPage(),
+  RouteConstants.propertyDetail: const PropertyDetailPage(),
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
