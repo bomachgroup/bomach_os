@@ -22,8 +22,8 @@ import 'package:bms_front_end/pages/finance/expenses.dart';
 import 'package:bms_front_end/pages/finance/finance.dart';
 import 'package:bms_front_end/pages/finance/invoice.dart';
 import 'package:bms_front_end/pages/finance/payments.dart';
-import 'package:bms_front_end/pages/hr/associates.dart';
 import 'package:bms_front_end/pages/hr/assets.dart';
+import 'package:bms_front_end/pages/hr/associates.dart';
 import 'package:bms_front_end/pages/hr/attendance.dart';
 import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/hr.dart';
@@ -53,15 +53,17 @@ import 'package:bms_front_end/pages/operations/task.dart';
 import 'package:bms_front_end/pages/operations/task_detail.dart';
 import 'package:bms_front_end/pages/operations/timeline_detail.dart';
 import 'package:bms_front_end/pages/operations/worksite_detail.dart';
+import 'package:bms_front_end/pages/services/clients.dart';
 import 'package:bms_front_end/pages/services/estate_detail_page.dart';
 import 'package:bms_front_end/pages/services/estate_management.dart';
 import 'package:bms_front_end/pages/services/estate_performance_page.dart';
 import 'package:bms_front_end/pages/services/land_survey.dart';
-import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/land_survey_calculator.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey_property_detail.dart';
+import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/property_detail.dart';
+import 'package:bms_front_end/pages/services/property_document_upload.dart';
 import 'package:bms_front_end/pages/services/property_list.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
@@ -140,8 +142,12 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.propertyDetail: const PropertyDetailPage(),
   // Estate Management
   RouteConstants.estateManagement: const EstateManagementPage(),
-  RouteConstants.estateDetail: Container(), // Placeholder, handled via state.extra
+  RouteConstants.estateDetail:
+      Container(), // Placeholder, handled via state.extra
   RouteConstants.estatePerformance: const EstatePerformancePage(),
+  RouteConstants.serviceClients: const ClientListPage(),
+  RouteConstants.serviceClientUpload: const LandDocumentUploadPage(),
+
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
