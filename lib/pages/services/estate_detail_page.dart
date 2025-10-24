@@ -54,9 +54,8 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
           price: 5000000 + (i * 500000),
           description:
               'Prime ${types[i % types.length].toLowerCase()} plot in excellent location',
-          buyerName: status == 'Sold' || status == 'Reserved'
-              ? 'Client $i'
-              : null,
+          buyerName:
+              status == 'Sold' || status == 'Reserved' ? 'Client $i' : null,
           buyerPhone: status == 'Sold' || status == 'Reserved'
               ? '+234 80X XXX XX${i.toString().padLeft(2, '0')}'
               : null,
@@ -187,6 +186,14 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                             },
                           );
                         },
+                      ),
+                      MyElevatedButton(
+                        icon: const Icon(
+                          Icons.add_circle_outline_rounded,
+                          color: AppColors.white,
+                        ),
+                        child: "Generate Invoice",
+                        onTap: () {},
                       )
                     ],
                   )
@@ -311,10 +318,12 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
               _buildInfoItem(
                   'Developer', widget.estate.developer, Icons.business),
               _buildInfoItem(
-                  'Total Area', '${widget.estate.totalArea.toStringAsFixed(0)} sqm', Icons.square_foot),
+                  'Total Area',
+                  '${widget.estate.totalArea.toStringAsFixed(0)} sqm',
+                  Icons.square_foot),
               if (widget.estate.contactPerson != null)
-                _buildInfoItem('Contact', widget.estate.contactPerson!,
-                    Icons.person),
+                _buildInfoItem(
+                    'Contact', widget.estate.contactPerson!, Icons.person),
               if (widget.estate.contactPhone != null)
                 _buildInfoItem(
                     'Phone', widget.estate.contactPhone!, Icons.phone),
@@ -365,8 +374,8 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       children: [
         _buildStatCard(
             'Total Plots', '${_plots.length}', Icons.grid_on, AppColors.blue),
-        _buildStatCard('Available', '$availablePlots', Icons.check_circle,
-            Colors.green),
+        _buildStatCard(
+            'Available', '$availablePlots', Icons.check_circle, Colors.green),
         _buildStatCard(
             'Reserved', '$reservedPlots', Icons.schedule, Colors.orange),
         _buildStatCard('Sold', '$soldPlots', Icons.done_all, Colors.purple),

@@ -72,6 +72,7 @@ enum SubMenuItem {
   worksite,
   tasks,
   contracts,
+  meetings,
 
   // Services sub-items
   servicesDashboard,
@@ -79,6 +80,9 @@ enum SubMenuItem {
   realEstate,
   landSurvey,
   servicesItem,
+  propertyManagement,
+  estateManagement,
+  estatePerformance,
   landSurveyCalculator,
   servicesCalculator,
 
@@ -87,6 +91,7 @@ enum SubMenuItem {
   invoice,
   payments,
   expenses,
+  budget,
   vendorContributor,
 
   // Workspace
@@ -343,6 +348,11 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Contracts',
             route: RouteConstants.contracts,
           ),
+          SubMenuItemData(
+            id: SubMenuItem.meetings,
+            label: 'Meetings',
+            route: RouteConstants.meetings,
+          ),
         ],
       ),
       const MenuItem(
@@ -383,6 +393,11 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.expenses,
             label: 'Expenses',
             route: RouteConstants.expense,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.budget,
+            label: 'Budget',
+            route: RouteConstants.budget,
           ),
           SubMenuItemData(
             id: SubMenuItem.vendorContributor,
@@ -434,6 +449,21 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.servicesItem,
             label: 'Services',
             route: RouteConstants.servicesProperty,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.propertyManagement,
+            label: 'Property Management',
+            route: RouteConstants.propertyList,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.estateManagement,
+            label: 'Estate Management',
+            route: RouteConstants.estateManagement,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.estatePerformance,
+            label: 'Estate Performance',
+            route: RouteConstants.estatePerformance,
           ),
           SubMenuItemData(
             id: SubMenuItem.landSurveyCalculator,

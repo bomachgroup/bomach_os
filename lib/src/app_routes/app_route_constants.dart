@@ -62,6 +62,7 @@ class RouteConstants {
   // Estate Management
   static const String estateManagement = '/services/estate-management';
   static const String estateDetail = '/services/estate/detail';
+  static const String estatePerformance = '/services/estate-performance';
   static const String finance = '/finance';
   static const String invoice = '/finance/invoice';
   static const String payment = '/finance/payment';

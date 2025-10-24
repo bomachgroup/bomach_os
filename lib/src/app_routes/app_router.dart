@@ -55,6 +55,7 @@ import 'package:bms_front_end/pages/operations/timeline_detail.dart';
 import 'package:bms_front_end/pages/operations/worksite_detail.dart';
 import 'package:bms_front_end/pages/services/estate_detail_page.dart';
 import 'package:bms_front_end/pages/services/estate_management.dart';
+import 'package:bms_front_end/pages/services/estate_performance_page.dart';
 import 'package:bms_front_end/pages/services/land_survey.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/land_survey_calculator.dart';
@@ -140,6 +141,7 @@ final Map<String, Widget> _dashboardRoutes = {
   // Estate Management
   RouteConstants.estateManagement: const EstateManagementPage(),
   RouteConstants.estateDetail: Container(), // Placeholder, handled via state.extra
+  RouteConstants.estatePerformance: const EstatePerformancePage(),
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
@@ -195,6 +197,10 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
           // Handle estate detail route with extra parameter
           if (path == RouteConstants.estateDetail && state.extra != null) {
             return EstateDetailPage(estate: state.extra as Estate);
+          }
+          // Handle estate performance route with extra parameter
+          if (path == RouteConstants.estatePerformance && state.extra != null) {
+            return EstatePerformancePage(estate: state.extra as Estate);
           }
           return screen;
         },
