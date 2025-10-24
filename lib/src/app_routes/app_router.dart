@@ -53,7 +53,10 @@ import 'package:bms_front_end/pages/operations/task.dart';
 import 'package:bms_front_end/pages/operations/task_detail.dart';
 import 'package:bms_front_end/pages/operations/timeline_detail.dart';
 import 'package:bms_front_end/pages/operations/worksite_detail.dart';
+import 'package:bms_front_end/pages/services/estate_detail_page.dart';
+import 'package:bms_front_end/pages/services/estate_management.dart';
 import 'package:bms_front_end/pages/services/land_survey.dart';
+import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/land_survey_calculator.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey_property_detail.dart';
@@ -134,6 +137,9 @@ final Map<String, Widget> _dashboardRoutes = {
   // Property Management
   RouteConstants.propertyList: const PropertyListPage(),
   RouteConstants.propertyDetail: const PropertyDetailPage(),
+  // Estate Management
+  RouteConstants.estateManagement: const EstateManagementPage(),
+  RouteConstants.estateDetail: Container(), // Placeholder, handled via state.extra
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
@@ -185,7 +191,13 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
     routes: [
       GoRoute(
         path: path,
-        builder: (context, state) => screen,
+        builder: (context, state) {
+          // Handle estate detail route with extra parameter
+          if (path == RouteConstants.estateDetail && state.extra != null) {
+            return EstateDetailPage(estate: state.extra as Estate);
+          }
+          return screen;
+        },
       ),
     ],
   );
