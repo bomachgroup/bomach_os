@@ -20,7 +20,6 @@ class PropertyListPage extends StatefulWidget {
 }
 
 class _PropertyListPageState extends State<PropertyListPage> {
-  bool _isGridView = true;
   String _selectedFilter = 'All';
 
   final List<Map<String, dynamic>> _properties = [
@@ -216,42 +215,12 @@ class _PropertyListPageState extends State<PropertyListPage> {
                 ],
               ),
             ),
-            kSizedBoxWidthSM,
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.grid_view,
-                    color: _isGridView ? AppColors.blue : AppColors.grey1,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isGridView = true;
-                    });
-                  },
-                  tooltip: 'Grid View',
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.view_list,
-                    color: !_isGridView ? AppColors.blue : AppColors.grey1,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isGridView = false;
-                    });
-                  },
-                  tooltip: 'List View',
-                ),
-              ],
-            ),
           ],
         ),
 
         kSizedBox,
 
-        // Property List/Grid
-        _isGridView ? _buildGridView() : _buildListView(),
+        _buildListView(),
       ],
     );
   }

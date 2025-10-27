@@ -76,6 +76,7 @@ enum SubMenuItem {
 
   // Services sub-items
   servicesDashboard,
+  serviceClients,
   serviceOrder,
   realEstate,
   landSurvey,
@@ -83,6 +84,7 @@ enum SubMenuItem {
   propertyManagement,
   estateManagement,
   estatePerformance,
+  paymentApproval,
   landSurveyCalculator,
   servicesCalculator,
 
@@ -431,6 +433,11 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.services,
           ),
           SubMenuItemData(
+            id: SubMenuItem.serviceClients,
+            label: 'Clients',
+            route: RouteConstants.serviceClients,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.serviceOrder,
             label: 'Service Order',
             route: RouteConstants.serviceOrder,
@@ -464,6 +471,11 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.estatePerformance,
             label: 'Estate Performance',
             route: RouteConstants.estatePerformance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.paymentApproval,
+            label: 'Payment Approval',
+            route: RouteConstants.paymentApproval,
           ),
           SubMenuItemData(
             id: SubMenuItem.landSurveyCalculator,

@@ -62,6 +62,7 @@ import 'package:bms_front_end/pages/services/land_survey_calculator.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
 import 'package:bms_front_end/pages/services/land_survey_property_detail.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
+import 'package:bms_front_end/pages/services/payment_approval.dart';
 import 'package:bms_front_end/pages/services/property_detail.dart';
 import 'package:bms_front_end/pages/services/property_document_upload.dart';
 import 'package:bms_front_end/pages/services/property_list.dart';
@@ -145,6 +146,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.estateDetail:
       Container(), // Placeholder, handled via state.extra
   RouteConstants.estatePerformance: const EstatePerformancePage(),
+  // Payment Approval
+  RouteConstants.paymentApproval: const PaymentApprovalPage(),
   RouteConstants.serviceClients: const ClientListPage(),
   RouteConstants.serviceClientUpload: const LandDocumentUploadPage(),
 

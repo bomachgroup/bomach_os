@@ -21,7 +21,6 @@ class EstateManagementPage extends StatefulWidget {
 }
 
 class _EstateManagementPageState extends State<EstateManagementPage> {
-  bool _isGridView = true;
   String _selectedFilter = 'All';
   String _searchQuery = '';
 
@@ -233,42 +232,12 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
                 ],
               ),
             ),
-            kSizedBoxWidthSM,
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.grid_view,
-                    color: _isGridView ? AppColors.blue : AppColors.grey1,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isGridView = true;
-                    });
-                  },
-                  tooltip: 'Grid View',
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.view_list,
-                    color: !_isGridView ? AppColors.blue : AppColors.grey1,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isGridView = false;
-                    });
-                  },
-                  tooltip: 'List View',
-                ),
-              ],
-            ),
           ],
         ),
 
         kSizedBox,
 
-        // Estate List/Grid
-        _isGridView ? _buildGridView() : _buildListView(),
+        _buildListView(),
       ],
     );
   }
@@ -284,13 +253,14 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _buildStatCard('Total Estates', '$totalEstates', Icons.domain,
-            AppColors.blue),
+        _buildStatCard(
+            'Total Estates', '$totalEstates', Icons.domain, AppColors.blue),
         _buildStatCard(
             'Total Plots', '$totalPlots', Icons.grid_on, Colors.purple),
-        _buildStatCard('Available Plots', '$availablePlots',
-            Icons.check_circle, Colors.green),
-        _buildStatCard('Sold Plots', '$soldPlots', Icons.done_all, Colors.orange),
+        _buildStatCard('Available Plots', '$availablePlots', Icons.check_circle,
+            Colors.green),
+        _buildStatCard(
+            'Sold Plots', '$soldPlots', Icons.done_all, Colors.orange),
       ],
     );
   }
