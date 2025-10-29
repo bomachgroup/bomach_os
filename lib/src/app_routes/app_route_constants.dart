@@ -62,6 +62,10 @@ class RouteConstants {
   // Service Client management
   static const String serviceClients = '/services/clients';
   static const String serviceClientUpload = '/services/clients/upload';
+  // Service Invoice Management
+  static const String generateInvoice = '/services/generate-invoice';
+  static const String serviceLeads = '/services/leads';
+  static const String serviceInvoices = '/services/invoices';
 
   // Estate Management
   static const String estateManagement = '/services/estate-management';

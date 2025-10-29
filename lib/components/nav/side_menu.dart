@@ -87,6 +87,9 @@ enum SubMenuItem {
   paymentApproval,
   landSurveyCalculator,
   servicesCalculator,
+  generateInvoice,
+  serviceLeads,
+  serviceInvoices,
 
   // Finance & Accounting sub-items
   financeDashboard,
@@ -486,6 +489,21 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.servicesCalculator,
             label: 'Services Calculator',
             route: RouteConstants.servicesCalculator,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.generateInvoice,
+            label: 'Generate Invoice',
+            route: RouteConstants.generateInvoice,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.serviceLeads,
+            label: 'Service Leads',
+            route: RouteConstants.serviceLeads,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.serviceInvoices,
+            label: 'Service Invoices',
+            route: RouteConstants.serviceInvoices,
           ),
         ],
       ),

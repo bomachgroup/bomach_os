@@ -57,6 +57,7 @@ import 'package:bms_front_end/pages/services/clients.dart';
 import 'package:bms_front_end/pages/services/estate_detail_page.dart';
 import 'package:bms_front_end/pages/services/estate_management.dart';
 import 'package:bms_front_end/pages/services/estate_performance_page.dart';
+import 'package:bms_front_end/pages/services/generate_invoice_page.dart';
 import 'package:bms_front_end/pages/services/land_survey.dart';
 import 'package:bms_front_end/pages/services/land_survey_calculator.dart';
 import 'package:bms_front_end/pages/services/land_survey_detail.dart';
@@ -69,6 +70,8 @@ import 'package:bms_front_end/pages/services/property_list.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
 import 'package:bms_front_end/pages/services/service_order.dart';
+import 'package:bms_front_end/pages/services/service_leads.dart';
+import 'package:bms_front_end/pages/services/service_invoices.dart';
 import 'package:bms_front_end/pages/services/services.dart';
 import 'package:bms_front_end/pages/services/services_calculator.dart';
 import 'package:bms_front_end/pages/services/services_property.dart';
@@ -150,6 +153,10 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.paymentApproval: const PaymentApprovalPage(),
   RouteConstants.serviceClients: const ClientListPage(),
   RouteConstants.serviceClientUpload: const LandDocumentUploadPage(),
+  // Service Invoice Management
+  RouteConstants.generateInvoice: const GenerateInvoicePage(),
+  RouteConstants.serviceLeads: const ServiceLeadsPage(),
+  RouteConstants.serviceInvoices: const ServiceInvoicesPage(),
 
   // operations
   RouteConstants.operations: const OperationsPage(),
