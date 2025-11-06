@@ -62,6 +62,7 @@ enum SubMenuItem {
   trainingProgram,
   associates,
   assets,
+  workReport,
 
   // Warketing sub-items
   marketing,
@@ -295,6 +296,11 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.assets,
             label: 'Assets',
             route: RouteConstants.assets,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.workReport,
+            label: 'Work Reports',
+            route: RouteConstants.workReport,
           ),
           SubMenuItemData(
             id: SubMenuItem.employees,

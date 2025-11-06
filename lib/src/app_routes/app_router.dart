@@ -36,6 +36,7 @@ import 'package:bms_front_end/pages/hr/meetings.dart';
 import 'package:bms_front_end/pages/hr/payroll.dart';
 import 'package:bms_front_end/pages/hr/performance_review.dart';
 import 'package:bms_front_end/pages/hr/training_program.dart';
+import 'package:bms_front_end/pages/hr/work_report.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
 import 'package:bms_front_end/pages/legal/legal.dart';
 import 'package:bms_front_end/pages/marketing/campaign_detail.dart';
@@ -138,6 +139,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.performanceReview: const PerformanceReviewPage(),
   RouteConstants.associates: const AssociatesPage(),
   RouteConstants.assets: const AssetsPage(),
+  RouteConstants.workReport: const WorkReportPage(),
   RouteConstants.services: const ServicesPage(),
   RouteConstants.landSurveyCalculator: const LandSurveyCalculatorPage(),
   RouteConstants.servicesCalculator: const ServicesCalculatorPage(),

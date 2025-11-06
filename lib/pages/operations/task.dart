@@ -3,6 +3,7 @@ import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/operations/widget/assign_task_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -20,6 +21,57 @@ class TaskPage extends StatefulWidget {
 
 class TaskPageState extends State<TaskPage> {
   final ScrollController _scrollController = ScrollController();
+  late List<Map<String, dynamic>> _tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSampleTasks();
+  }
+
+  void _initializeSampleTasks() {
+    _tasks = [
+      {
+        'code': '#1234567',
+        'title': 'Benji Express user login Interface',
+        'assignedTo': 'John Michael',
+        'startDate': '11/02/2024',
+        'dueDate': '11/02/2024',
+        'status': 'Undone',
+        'priority': 'High',
+        'estimatedHours': '40',
+        'description': 'Design and implement user login interface',
+      },
+      {
+        'code': '#1234568',
+        'title': 'API Integration',
+        'assignedTo': 'Sarah Johnson',
+        'startDate': '12/02/2024',
+        'dueDate': '19/02/2024',
+        'status': 'In Progress',
+        'priority': 'Medium',
+        'estimatedHours': '32',
+        'description': 'Integrate backend APIs',
+      },
+      {
+        'code': '#1234569',
+        'title': 'Database Optimization',
+        'assignedTo': 'Nicholas Chidera',
+        'startDate': '10/02/2024',
+        'dueDate': '15/02/2024',
+        'status': 'Completed',
+        'priority': 'Low',
+        'estimatedHours': '16',
+        'description': 'Optimize database queries',
+      },
+    ];
+  }
+
+  void _handleTaskAssignment(Map<String, dynamic> taskData) {
+    setState(() {
+      _tasks.insert(0, taskData);
+    });
+  }
 
   @override
   void dispose() {
@@ -93,7 +145,16 @@ class TaskPageState extends State<TaskPage> {
                           color: AppColors.white,
                         ),
                         child: "Add Task",
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AssignTaskDialog(
+                                onAssign: _handleTaskAssignment,
+                              );
+                            },
+                          );
+                        },
                       )
                     ],
                   )
@@ -179,17 +240,20 @@ class TaskPageState extends State<TaskPage> {
   }
 
   List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+    return _tasks.asMap().entries.map((entry) {
+      final task = entry.value;
       return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText("#1234567"),
+        DataCell(
+          MyText(
+            task['code'] ?? '#N/A',
+          ),
         ),
         DataCell(
           onTap: () {
             context.go(RouteConstants.taskDetail);
           },
-          const MyText(
-            "Benji Express user login Interface",
+          MyText(
+            task['title'] ?? 'Untitled Task',
             size: 16,
             weight: 400,
             isSelectable: false,
@@ -202,14 +266,27 @@ class TaskPageState extends State<TaskPage> {
             ),
             width: 36,
             height: 36,
-            child: Image.asset('assets/icons/profile-icon.png'),
+            child: CircleAvatar(
+              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+              child: MyText(
+                (task['assignedTo'] as String).isNotEmpty
+                    ? (task['assignedTo'] as String)[0].toUpperCase()
+                    : '?',
+                weight: 600,
+                color: AppColors.blue,
+              ),
+            ),
           ),
         ),
-        const DataCell(
-          MyText("11/02/2024"),
+        DataCell(
+          MyText(
+            task['startDate'] ?? '---',
+          ),
         ),
-        const DataCell(
-          MyText("11/02/2024"),
+        DataCell(
+          MyText(
+            task['dueDate'] ?? '---',
+          ),
         ),
         DataCell(
           Row(
@@ -217,17 +294,34 @@ class TaskPageState extends State<TaskPage> {
               Container(
                 height: 10,
                 width: 10,
-                decoration: const ShapeDecoration(
-                  color: AppColors.blue,
-                  shape: OvalBorder(),
+                decoration: ShapeDecoration(
+                  color: _getStatusColor(task['status'] ?? 'Undone'),
+                  shape: const OvalBorder(),
                 ),
               ),
               kSizedBoxWidthTiny,
-              const MyText("Undone"),
+              MyText(
+                task['status'] ?? 'Undone',
+              ),
             ],
           ),
         ),
       ]);
-    });
+    }).toList();
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return AppColors.green;
+      case 'in progress':
+        return AppColors.blue;
+      case 'pending':
+        return const Color(0xFFFFA500);
+      case 'undone':
+        return const Color(0xFF64748B);
+      default:
+        return AppColors.grey1;
+    }
   }
 }

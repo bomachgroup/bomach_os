@@ -1,7 +1,10 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/helper/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ViewAssetDialog extends StatelessWidget {
   final Map<String, dynamic> asset;
@@ -20,10 +23,6 @@ class ViewAssetDialog extends StatelessWidget {
       backgroundColor: Colors.white,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 700),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -229,28 +228,42 @@ class ViewAssetDialog extends StatelessWidget {
                         _buildDocumentChip('Manual.pdf', Icons.picture_as_pdf),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
 
-                    // Action Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton.icon(
-                          onPressed: () {
-                            // Handle edit
-                          },
-                          icon: const Icon(Icons.edit_outlined),
-                          label: const MyText('Edit'),
-                        ),
-                        const SizedBox(width: 12),
-                        TextButton.icon(
-                          onPressed: () {
-                            // Handle maintenance log
-                          },
-                          icon: const Icon(Icons.history),
-                          label: const MyText('Maintenance Log'),
-                        ),
-                      ],
+              // Action Buttons
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade300),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    MyOutlinedButton(
+                      textColor: AppColors.darkGrey1,
+                      borderColor: null,
+                      child: 'Maintenance Log',
+                      onTap: () {
+                        // Handle maintenance log
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    MyElevatedButton(
+                      icon: SvgPicture.asset(
+                        "assets/svg/edit-pencil.svg",
+                        colorFilter: const ColorFilter.mode(
+                            AppColors.white, BlendMode.srcIn),
+                      ),
+                      child: 'Edit',
+                      onTap: () {
+                        // Handle edit
+                      },
                     ),
                   ],
                 ),
