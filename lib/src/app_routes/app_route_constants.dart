@@ -1,5 +1,6 @@
 class RouteConstants {
   static const String login = '/login';
+  static const String biometric = '/biometric';
   static const String home = '/dashboard';
   static const String company = '/company';
   static const String enugu = '/company/enugu';
@@ -42,6 +43,7 @@ class RouteConstants {
   static const String leaveRequest = '/hr/leave-request';
   static const String trainingProgram = '/hr/training-program';
   static const String performanceReview = '/hr/performance-review';
+  static const String clockIn = '/hr/clock-in';
   static const String associates = '/hr/associates';
   static const String assets = '/hr/assets';
   static const String workReport = '/hr/work-report';
@@ -115,4 +117,11 @@ class RouteConstants {
   static const String crmInteractions = '/crm/interactions';
   // Events
   static const String events = '/events';
+
+  // Employee Module
+  static const String employee = '/employee';
+  static const String employeeDirectory = '/employee/directory';
+  static const String employeePerformance = '/employee/performance';
+  static const String employeeAttendance = '/employee/attendance';
+  static const String employeeTraining = '/employee/training';
 }

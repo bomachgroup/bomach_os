@@ -3,6 +3,7 @@ import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/analytics/overview.dart';
 // Page imports
+import 'package:bms_front_end/pages/auth/biometric.dart';
 import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
@@ -13,6 +14,11 @@ import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/pages/company/compliance.dart';
 import 'package:bms_front_end/pages/crm/crm.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
+import 'package:bms_front_end/pages/employee/employee.dart';
+import 'package:bms_front_end/pages/employee/employee_attendance.dart';
+import 'package:bms_front_end/pages/employee/employee_directory.dart';
+import 'package:bms_front_end/pages/employee/employee_performance.dart';
+import 'package:bms_front_end/pages/employee/employee_training.dart';
 import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
 import 'package:bms_front_end/pages/employees_database/employee_database.dart';
 import 'package:bms_front_end/pages/employees_database/employee_profile.dart';
@@ -25,6 +31,7 @@ import 'package:bms_front_end/pages/finance/payments.dart';
 import 'package:bms_front_end/pages/hr/assets.dart';
 import 'package:bms_front_end/pages/hr/associates.dart';
 import 'package:bms_front_end/pages/hr/attendance.dart';
+import 'package:bms_front_end/pages/hr/clock_in.dart';
 import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/hr.dart';
 import 'package:bms_front_end/pages/hr/job_applicants.dart';
@@ -100,6 +107,12 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.employees: const EmployeeDatabase(),
   RouteConstants.addEmployees: const AddEmployesScreen(),
   RouteConstants.employeeProfile: const EmployeeProfile(),
+  // Employee module
+  RouteConstants.employee: const EmployeePage(),
+  RouteConstants.employeeDirectory: const EmployeeDirectoryPage(),
+  RouteConstants.employeePerformance: const EmployeePerformancePage(),
+  RouteConstants.employeeAttendance: const EmployeeAttendancePage(),
+  RouteConstants.employeeTraining: const EmployeeTrainingPage(),
 
   RouteConstants.clients: const ClientsDatabasePage(),
   RouteConstants.projects: const ProjectsPage(),
@@ -133,6 +146,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.jobPost: const JobPostPage(),
   RouteConstants.jobApplicants: const JobApplicatantsPage(),
   RouteConstants.attendance: const AttendancePage(),
+  RouteConstants.clockIn: const ClockInScreen(),
   RouteConstants.leaveRequest: const LeaveRequestPage(),
   RouteConstants.payroll: const PayrollPage(),
   RouteConstants.trainingProgram: const TrainingProgramPage(),
@@ -235,6 +249,12 @@ final goRouter = GoRouter(
     GoRoute(
       path: RouteConstants.login,
       builder: (context, state) => const LoginScreen(),
+    ),
+
+    // Biometric login route (outside the dashboard shell)
+    GoRoute(
+      path: RouteConstants.biometric,
+      builder: (context, state) => const BiometricLoginScreen(),
     ),
 
     // Dashboard with indexed stack navigation

@@ -16,6 +16,7 @@ enum MainMenuItem {
   dashboard,
   company,
   hr,
+  employee,
   work,
   marketing,
   calendar,
@@ -46,6 +47,12 @@ enum SubMenuItem {
 
   // HR sub-items
   employees,
+
+  // Employee sub-items
+  employeeDirectory,
+  employeePerformance,
+  employeeAttendance,
+  employeeTraining,
   leaves,
   clients,
   leads,
@@ -56,6 +63,7 @@ enum SubMenuItem {
   jobPost,
   jobApplicants,
   attendance,
+  clockIn,
   leaveRequest,
   performance,
   payroll,
@@ -268,6 +276,11 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.attendance,
           ),
           SubMenuItemData(
+            id: SubMenuItem.clockIn,
+            label: 'Clock In',
+            route: RouteConstants.clockIn,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.leaveRequest,
             label: 'Leave Request',
             route: RouteConstants.leaveRequest,
@@ -326,6 +339,35 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.department,
             label: 'Department',
             route: RouteConstants.department,
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.employee,
+        label: 'Employee',
+        iconPath: 'assets/svg/sidebar/people.svg',
+        route: RouteConstants.employee,
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.employeeDirectory,
+            label: 'Directory',
+            route: RouteConstants.employeeDirectory,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employeePerformance,
+            label: 'Performance Reviews',
+            route: RouteConstants.employeePerformance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employeeAttendance,
+            label: 'Attendance',
+            route: RouteConstants.employeeAttendance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employeeTraining,
+            label: 'Training Programs',
+            route: RouteConstants.employeeTraining,
           ),
         ],
       ),

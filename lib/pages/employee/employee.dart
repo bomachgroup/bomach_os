@@ -1,0 +1,138 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+class EmployeePage extends StatefulWidget {
+  const EmployeePage({super.key});
+
+  @override
+  State<EmployeePage> createState() => _EmployeePageState();
+}
+
+class _EmployeePageState extends State<EmployeePage> {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyText(
+                  'Employee Management',
+                  style: AppText.black_600_32,
+                ),
+                SizedBox(height: 8),
+                MyText(
+                  'Manage and track employee information',
+                  style: AppText.black_600_14,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildModuleCard(
+                  context,
+                  title: 'Employee Directory',
+                  description: 'View and manage all employees',
+                  icon: Icons.people,
+                  onTap: () {
+                    context.go(RouteConstants.employeeDirectory);
+                  },
+                ),
+                _buildModuleCard(
+                  context,
+                  title: 'Performance Reviews',
+                  description: 'Track employee performance',
+                  icon: Icons.assessment,
+                  onTap: () {
+                    context.go(RouteConstants.employeePerformance);
+                  },
+                ),
+                _buildModuleCard(
+                  context,
+                  title: 'Attendance',
+                  description: 'Monitor attendance records',
+                  icon: Icons.calendar_today,
+                  onTap: () {
+                    context.go(RouteConstants.employeeAttendance);
+                  },
+                ),
+                _buildModuleCard(
+                  context,
+                  title: 'Training',
+                  description: 'Employee training programs',
+                  icon: Icons.school,
+                  onTap: () {
+                    context.go(RouteConstants.employeeTraining);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModuleCard(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxWidth: 280,
+        minWidth: 180,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.grey7),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 40, color: AppColors.blue),
+            const SizedBox(height: 16),
+            MyText(
+              title,
+              style: AppText.black_600_16,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 8),
+            MyText(
+              description,
+              style: AppText.black_400_14,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: MyElevatedButton(
+                child: 'Open',
+                onTap: onTap,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
