@@ -6,10 +6,23 @@ import 'package:bms_front_end/pages/operations/models/task_approval_models.dart'
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 
-/// Dialog for supervisors/managers to approve, reject, or request rework on tasks
+/// Result class for task approval
+class TaskApprovalResult {
+  final TaskApprovalAction action;
+  final String feedback;
+  final String? reworkNotes;
+  final DateTime approvedAt;
+
+  TaskApprovalResult({
+    required this.action,
+    required this.feedback,
+    this.reworkNotes,
+    required this.approvedAt,
+  });
+}
+
+/// Dialog for managers to approve, reject, or request rework on tasks
 class TaskApprovalDialog extends StatefulWidget {
   final Task task;
   final String? reviewerName;
@@ -32,7 +45,6 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
 
   TaskApprovalAction? _selectedAction;
   bool _isLoading = false;
-  int _rating = 0; // 1-5 star rating
 
   @override
   void initState() {
@@ -49,15 +61,9 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
   }
 
   void _handleApproval(TaskApprovalAction action) {
-    // Validate rating
-    if (_rating == 0) {
-      _showErrorMessage('Please provide a rating (1-5 stars)');
-      return;
-    }
-
     // Validate feedback
     if (_feedbackController.text.isEmpty) {
-      _showErrorMessage('Please provide feedback for this task');
+      _showErrorMessage('Please provide feedback');
       return;
     }
 
@@ -85,16 +91,19 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
         // Create updated task
         final updatedTask = widget.task.copyWith(
           status: newStatus,
-          approvedBy:
-              action == TaskApprovalAction.approve ? widget.reviewerName : null,
+          approvedBy: action == TaskApprovalAction.approve
+              ? widget.reviewerName ?? 'Manager'
+              : null,
           approvedAt:
               action == TaskApprovalAction.approve ? DateTime.now() : null,
-          rejectionReason: action == TaskApprovalAction.reject
-              ? _feedbackController.text
-              : null,
-          reworkNotes: action == TaskApprovalAction.requestRework
-              ? _reworkNotesController.text
-              : null,
+          rejectionReason:
+              action == TaskApprovalAction.reject
+                  ? _feedbackController.text
+                  : null,
+          reworkNotes:
+              action == TaskApprovalAction.requestRework
+                  ? _reworkNotesController.text
+                  : null,
         );
 
         widget.onApprovalComplete?.call(updatedTask);
@@ -108,19 +117,16 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
             ),
             backgroundColor: action == TaskApprovalAction.approve
                 ? AppColors.green
-                : action == TaskApprovalAction.reject
-                    ? AppColors.red
-                    : AppColors.orange,
+                : AppColors.orange,
           ),
         );
 
         Navigator.of(context).pop(TaskApprovalResult(
           action: action,
           feedback: _feedbackController.text,
-          reworkInstructions: action == TaskApprovalAction.requestRework
+          reworkNotes: action == TaskApprovalAction.requestRework
               ? _reworkNotesController.text
               : null,
-          rating: _rating,
           approvedAt: DateTime.now(),
         ));
       }
@@ -137,21 +143,6 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
         backgroundColor: AppColors.red,
       ),
     );
-  }
-
-  Color _getStatusColor(TaskStatus status) {
-    switch (status) {
-      case TaskStatus.pending:
-        return const Color(0xFF94A3B8);
-      case TaskStatus.inProgress:
-        return AppColors.blue;
-      case TaskStatus.completed:
-        return AppColors.green;
-      case TaskStatus.onHold:
-        return AppColors.orange;
-      case TaskStatus.rejected:
-        return AppColors.red;
-    }
   }
 
   @override
@@ -179,37 +170,20 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.green.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.task_alt_outlined,
-                          color: AppColors.green,
-                          size: 24,
-                        ),
+                      MyText(
+                        'Task Approval',
+                        style: AppText.black_500_20,
                       ),
-                      const SizedBox(width: 12),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Task Approval',
-                            style: AppText.black_500_20,
-                          ),
-                          SizedBox(height: 4),
-                          MyText(
-                            'Review and approve task completion',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF64748B),
-                            ),
-                          ),
-                        ],
+                      SizedBox(height: 4),
+                      MyText(
+                        'Review and approve task completion',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                        ),
                       ),
                     ],
                   ),
@@ -236,7 +210,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFFD5D5D5)),
+                          border: Border.all(color: const Color(0XFFD5D5D5)),
                           borderRadius: BorderRadius.circular(12),
                           color: Colors.grey.shade50,
                         ),
@@ -246,25 +220,22 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      MyText(
-                                        widget.task.code,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF64748B),
-                                        ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    MyText(
+                                      widget.task.code,
+                                      style: AppText.black_600_16,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    MyText(
+                                      widget.task.title,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF64748B),
                                       ),
-                                      const SizedBox(height: 4),
-                                      MyText(
-                                        widget.task.title,
-                                        style: AppText.black_600_16,
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
@@ -272,16 +243,15 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                                     vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: _getStatusColor(widget.task.status)
-                                        .withValues(alpha: 0.1),
+                                    color: AppColors.blue.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: MyText(
                                     widget.task.status.displayName,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: _getStatusColor(widget.task.status),
+                                      color: AppColors.blue,
                                     ),
                                   ),
                                 ),
@@ -291,22 +261,21 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildTaskInfoItem(
+                                _buildInfoItem(
                                   'Assigned To',
                                   widget.task.assignedTo,
                                 ),
-                                _buildTaskInfoItem(
+                                _buildInfoItem(
                                   'Priority',
                                   widget.task.priority.displayName,
                                 ),
-                                _buildTaskInfoItem(
+                                _buildInfoItem(
                                   'Due Date',
-                                  DateFormat('dd MMM yyyy')
-                                      .format(widget.task.dueDate),
+                                  '${widget.task.dueDate.day}/${widget.task.dueDate.month}/${widget.task.dueDate.year}',
                                 ),
-                                _buildTaskInfoItem(
+                                _buildInfoItem(
                                   'Est. Hours',
-                                  '${widget.task.estimatedHours.toStringAsFixed(1)} hrs',
+                                  '${widget.task.estimatedHours.toStringAsFixed(0)} hrs',
                                 ),
                               ],
                             ),
@@ -317,23 +286,22 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
 
                       // Task Description
                       const MyText(
-                        'Task Description',
+                        'Description',
                         style: AppText.black_600_14,
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFFD5D5D5)),
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey.shade50,
+                          border: Border.all(color: const Color(0XFFD5D5D5)),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: MyText(
                           widget.task.description,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: Colors.black,
+                            color: Color(0xFF475569),
+                            height: 1.5,
                           ),
                         ),
                       ),
@@ -342,89 +310,76 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       // Divider
                       const Divider(height: 32),
 
-                      // Approval Section
+                      // Review Actions Section
                       const MyText(
-                        'Task Approval',
+                        'Your Review',
                         style: AppText.black_600_16,
                       ),
                       const SizedBox(height: 16),
 
-                      // Action Selection
-                      _buildApprovalButton(
-                        label: 'Approve Task',
-                        icon: Icons.check_circle_outline,
-                        color: AppColors.green,
-                        action: TaskApprovalAction.approve,
-                        isSelected: _selectedAction == TaskApprovalAction.approve,
-                        onTap: () {
-                          setState(() {
-                            _selectedAction = TaskApprovalAction.approve;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      _buildApprovalButton(
-                        label: 'Request Rework',
-                        icon: Icons.edit_outlined,
-                        color: AppColors.orange,
-                        action: TaskApprovalAction.requestRework,
-                        isSelected:
-                            _selectedAction == TaskApprovalAction.requestRework,
-                        onTap: () {
-                          setState(() {
-                            _selectedAction = TaskApprovalAction.requestRework;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      _buildApprovalButton(
-                        label: 'Reject Task',
-                        icon: Icons.cancel_outlined,
-                        color: AppColors.red,
-                        action: TaskApprovalAction.reject,
-                        isSelected: _selectedAction == TaskApprovalAction.reject,
-                        onTap: () {
-                          setState(() {
-                            _selectedAction = TaskApprovalAction.reject;
-                          });
-                        },
+                      // Action Buttons
+                      Row(
+                        spacing: 12,
+                        children: [
+                          Expanded(
+                            child: _buildApprovalButton(
+                              'Approve',
+                              TaskApprovalAction.approve,
+                              AppColors.green,
+                              Icons.check_circle_outlined,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildApprovalButton(
+                              'Rework',
+                              TaskApprovalAction.requestRework,
+                              AppColors.orange,
+                              Icons.refresh,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildApprovalButton(
+                              'Reject',
+                              TaskApprovalAction.reject,
+                              AppColors.red,
+                              Icons.cancel_outlined,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 24),
 
-                      // Rating Section
+                      // Feedback Field
                       const MyText(
-                        'Rate This Task *',
-                        style: AppText.black_600_16,
+                        'Feedback *',
+                        style: AppText.black_600_14,
                       ),
-                      const SizedBox(height: 12),
-                      _buildRatingWidget(),
-                      const SizedBox(height: 24),
-
-                      // Feedback Section
+                      const SizedBox(height: 8),
                       MyTextFormField(
-                        title: 'Feedback *',
-                        hintText:
-                            'Provide your feedback or comments on this task...',
                         controller: _feedbackController,
-                        spaceBetweenText: 8,
-                        maxLines: 3,
+                        hintText: 'Enter your feedback...',
+                        maxLines: 4,
+                        onChanged: (value) => setState(() {}),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
 
-                      // Rework Notes (shown only when Rework is selected)
+                      // Rework Instructions (conditional)
                       if (_selectedAction == TaskApprovalAction.requestRework)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            MyTextFormField(
-                              title: 'Rework Instructions *',
-                              hintText:
-                                  'Specify what needs to be reworked and any additional details...',
-                              controller: _reworkNotesController,
-                              spaceBetweenText: 8,
-                              maxLines: 3,
+                            const MyText(
+                              'Rework Instructions *',
+                              style: AppText.black_600_14,
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
+                            MyTextFormField(
+                              controller: _reworkNotesController,
+                              hintText: 'Describe what needs to be reworked...',
+                              maxLines: 4,
+                              onChanged: (value) => setState(() {}),
+                            ),
+                            const SizedBox(height: 24),
                           ],
                         ),
 
@@ -432,37 +387,19 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          border: Border.all(color: Colors.blue.shade200),
+                          color: const Color(0xFFF0F9FF),
+                          border: Border.all(
+                            color: const Color(0xFF0EA5E9),
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.blue.shade700,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: MyText(
-                                _selectedAction == null
-                                    ? 'Select an approval action above'
-                                    : _selectedAction ==
-                                            TaskApprovalAction.approve
-                                        ? 'This task will be marked as completed'
-                                        : _selectedAction ==
-                                                TaskApprovalAction.requestRework
-                                            ? 'Task will be put on hold for rework'
-                                            : 'This task will be rejected',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF1E40AF),
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: MyText(
+                          _getInfoMessage(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF0369A1),
+                            height: 1.5,
+                          ),
                         ),
                       ),
                     ],
@@ -471,7 +408,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
               ),
             ),
 
-            // Action Buttons
+            // Footer
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
@@ -481,30 +418,18 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
+                spacing: 12,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
+                    onTap: () => Navigator.of(context).pop(),
                     child: 'Cancel',
-                    onTap: _isLoading
-                        ? null
-                        : () {
-                            Navigator.pop(context);
-                          },
                   ),
-                  const SizedBox(width: 16),
                   MyElevatedButton(
-                    icon: _isLoading
-                        ? null
-                        : SvgPicture.asset(
-                            "assets/svg/check.svg",
-                            colorFilter: const ColorFilter.mode(
-                                AppColors.white, BlendMode.srcIn),
-                          ),
-                    child: _isLoading ? 'Submitting...' : 'Submit Approval',
-                    onTap: _selectedAction == null || _isLoading
+                    onTap: _isLoading || _selectedAction == null
                         ? null
                         : () => _handleApproval(_selectedAction!),
+                    isLoading: _isLoading,
+                    child: 'Submit Approval',
                   ),
                 ],
               ),
@@ -515,69 +440,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
     );
   }
 
-  Widget _buildApprovalButton({
-    required String label,
-    required IconData icon,
-    required Color color,
-    required TaskApprovalAction action,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected ? color : const Color(0xFFD5D5D5),
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(10),
-          color: isSelected ? color.withValues(alpha: 0.05) : Colors.transparent,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: color,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: MyText(
-                label,
-                style: TextStyle(
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? color : const Color(0xFF64748B),
-                ),
-              ),
-            ),
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? color : const Color(0xFFD5D5D5),
-                  width: isSelected ? 2 : 1,
-                ),
-                color: isSelected ? color : Colors.transparent,
-              ),
-              child: isSelected
-                  ? const Icon(
-                      Icons.check,
-                      size: 12,
-                      color: Colors.white,
-                    )
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTaskInfoItem(String label, String value) {
+  Widget _buildInfoItem(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -585,7 +448,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
           label,
           style: const TextStyle(
             fontSize: 11,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             color: Color(0xFF64748B),
           ),
         ),
@@ -595,72 +458,69 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildRatingWidget() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: _rating == 0 ? const Color(0xFFD5D5D5) : AppColors.blue,
-          width: _rating == 0 ? 1 : 2,
-        ),
-        borderRadius: BorderRadius.circular(10),
-        color: _rating == 0 ? Colors.transparent : AppColors.blue.withValues(alpha: 0.05),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ...List.generate(
-            5,
-            (index) {
-              final starNumber = index + 1;
-              final isFilled = starNumber <= _rating;
-
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _rating = starNumber;
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Icon(
-                    isFilled ? Icons.star : Icons.star_outline,
-                    color: AppColors.orange,
-                    size: 32,
-                  ),
-                ),
-              );
-            },
+  Widget _buildApprovalButton(
+    String label,
+    TaskApprovalAction action,
+    Color color,
+    IconData icon,
+  ) {
+    final isSelected = _selectedAction == action;
+    return GestureDetector(
+      onTap: () => setState(() {
+        _selectedAction = _selectedAction == action ? null : action;
+        if (_selectedAction != TaskApprovalAction.requestRework) {
+          _reworkNotesController.clear();
+        }
+      }),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? color : const Color(0xFFE2E8F0),
+            width: isSelected ? 2 : 1,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: MyText(
-              _rating == 0
-                  ? 'Select a rating'
-                  : _rating == 1
-                      ? '⭐ Poor'
-                      : _rating == 2
-                          ? '⭐⭐ Fair'
-                          : _rating == 3
-                              ? '⭐⭐⭐ Good'
-                              : _rating == 4
-                                  ? '⭐⭐⭐⭐ Very Good'
-                                  : '⭐⭐⭐⭐⭐ Excellent',
+          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? color.withValues(alpha: 0.08) : Colors.transparent,
+        ),
+        child: Column(
+          spacing: 6,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? color : const Color(0xFF64748B),
+              size: 20,
+            ),
+            MyText(
+              label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: _rating == 0 ? const Color(0xFF64748B) : AppColors.orange,
+                color: isSelected ? color : const Color(0xFF64748B),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  String _getInfoMessage() {
+    switch (_selectedAction) {
+      case TaskApprovalAction.approve:
+        return 'This task will be marked as Completed. The employee will be notified of the approval.';
+      case TaskApprovalAction.reject:
+        return 'This task will be marked as Rejected. The employee will be asked to address the issues mentioned in your feedback.';
+      case TaskApprovalAction.requestRework:
+        return 'This task will be marked as On Hold. The employee will need to revise the task based on your instructions.';
+      case null:
+        return 'Select an action above (Approve, Reject, or Request Rework) to proceed.';
+    }
   }
 }
