@@ -326,16 +326,6 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.leaves,
           ),
           SubMenuItemData(
-            id: SubMenuItem.clients,
-            label: 'Clients',
-            route: RouteConstants.clients,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leads,
-            label: 'Leads',
-            route: RouteConstants.leads,
-          ),
-          SubMenuItemData(
             id: SubMenuItem.department,
             label: 'Department',
             route: RouteConstants.department,

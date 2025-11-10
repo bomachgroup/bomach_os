@@ -30,8 +30,6 @@ class RouteConstants {
   static const String employees = '/hr/employees';
   static const String addEmployees = '/hr/employees/add';
   static const String employeeProfile = '/hr/employees/profile';
-  static const String clients = '/hr/clients';
-  static const String leads = '/hr/leads';
   static const String leaves = '/hr/leaves';
   static const String meetings = '/hr/meetings';
   static const String department = '/hr/department';

@@ -1,10 +1,10 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/models/work_report_models.dart';
 import 'package:bms_front_end/pages/hr/widget/daily_work_report_dialog.dart';
+import 'package:bms_front_end/pages/hr/widget/work_report_review_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -160,6 +160,27 @@ class _WorkReportPageState extends State<WorkReportPage> {
     setState(() {
       _workReports.insert(0, report);
     });
+  }
+
+  void _handleWorkReportReview(int index, DailyWorkReport updatedReport) {
+    setState(() {
+      _workReports[index] = updatedReport;
+    });
+  }
+
+  void _openReviewDialog(BuildContext context, int index, DailyWorkReport report) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return WorkReportReviewDialog(
+          report: report,
+          reviewerName: 'Manager Account', // Should come from logged-in user
+          onReviewComplete: (updatedReport) {
+            _handleWorkReportReview(index, updatedReport);
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -416,7 +437,10 @@ class _WorkReportPageState extends State<WorkReportPage> {
   }
 
   List<DataRow> _createRows(BuildContext context, List<DailyWorkReport> reports) {
-    return reports.map((report) {
+    return reports.asMap().entries.map((entry) {
+      final index = entry.key;
+      final report = entry.value;
+
       return DataRow(cells: <DataCell>[
         DataCell(
           Column(
@@ -480,8 +504,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
             ),
           ),
         ),
-        const DataCell(
-          ThreeDotPop(),
+        DataCell(
+          _buildActionMenu(context, index, report),
         ),
       ]);
     }).toList();
@@ -515,5 +539,52 @@ class _WorkReportPageState extends State<WorkReportPage> {
       default:
         return '😐';
     }
+  }
+
+  Widget _buildActionMenu(
+      BuildContext context, int index, DailyWorkReport report) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      onSelected: (String result) {
+        if (result == 'view') {
+          _openReviewDialog(context, index, report);
+        } else if (result == 'edit') {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return DailyWorkReportDialog(
+                existingReport: report,
+                onSubmit: (updatedReport) {
+                  _handleWorkReportReview(index, updatedReport);
+                },
+              );
+            },
+          );
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'view',
+          child: Row(
+            children: [
+              Icon(Icons.fact_check_outlined, size: 18),
+              SizedBox(width: 8),
+              Text('Review Report'),
+            ],
+          ),
+        ),
+        if (report.status == 'Draft' || report.status == 'Rework Required')
+          const PopupMenuItem<String>(
+            value: 'edit',
+            child: Row(
+              children: [
+                Icon(Icons.edit_outlined, size: 18),
+                SizedBox(width: 8),
+                Text('Edit Report'),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 }

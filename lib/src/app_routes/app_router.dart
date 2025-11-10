@@ -6,7 +6,6 @@ import 'package:bms_front_end/pages/analytics/overview.dart';
 import 'package:bms_front_end/pages/auth/biometric.dart';
 import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
-import 'package:bms_front_end/pages/client/clients_database.dart';
 import 'package:bms_front_end/pages/clients_portal/portal.dart';
 import 'package:bms_front_end/pages/company/audit_log.dart';
 import 'package:bms_front_end/pages/company/branch.dart';
@@ -36,7 +35,6 @@ import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/hr.dart';
 import 'package:bms_front_end/pages/hr/job_applicants.dart';
 import 'package:bms_front_end/pages/hr/job_post.dart';
-import 'package:bms_front_end/pages/hr/leads.dart';
 import 'package:bms_front_end/pages/hr/leave_request.dart';
 import 'package:bms_front_end/pages/hr/leaves.dart';
 import 'package:bms_front_end/pages/hr/meetings.dart';
@@ -77,9 +75,9 @@ import 'package:bms_front_end/pages/services/property_document_upload.dart';
 import 'package:bms_front_end/pages/services/property_list.dart';
 import 'package:bms_front_end/pages/services/real_estate.dart';
 import 'package:bms_front_end/pages/services/real_estate_detail.dart';
-import 'package:bms_front_end/pages/services/service_order.dart';
-import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/service_invoices.dart';
+import 'package:bms_front_end/pages/services/service_leads.dart';
+import 'package:bms_front_end/pages/services/service_order.dart';
 import 'package:bms_front_end/pages/services/services.dart';
 import 'package:bms_front_end/pages/services/services_calculator.dart';
 import 'package:bms_front_end/pages/services/services_property.dart';
@@ -114,13 +112,11 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.employeeAttendance: const EmployeeAttendancePage(),
   RouteConstants.employeeTraining: const EmployeeTrainingPage(),
 
-  RouteConstants.clients: const ClientsDatabasePage(),
   RouteConstants.projects: const ProjectsPage(),
   RouteConstants.eachProjects: const EachProjects(),
   RouteConstants.worksite: const EmployeeProfile(),
   RouteConstants.tasks: const TaskPage(),
   RouteConstants.realEstate: const RealEstateScreen(),
-  RouteConstants.leads: const LeadsPage(),
   RouteConstants.leaves: const LeavesPage(),
   RouteConstants.meetings: const Meetings(),
   RouteConstants.department: const DepartmentPage(),
