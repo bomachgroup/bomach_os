@@ -4,6 +4,8 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/widget/assign_task_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/task_approval_dialog.dart';
+import 'package:bms_front_end/pages/operations/models/task_approval_models.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -21,7 +23,7 @@ class TaskPage extends StatefulWidget {
 
 class TaskPageState extends State<TaskPage> {
   final ScrollController _scrollController = ScrollController();
-  late List<Map<String, dynamic>> _tasks;
+  late List<Task> _tasks;
 
   @override
   void initState() {
@@ -31,46 +33,115 @@ class TaskPageState extends State<TaskPage> {
 
   void _initializeSampleTasks() {
     _tasks = [
-      {
-        'code': '#1234567',
-        'title': 'Benji Express user login Interface',
-        'assignedTo': 'John Michael',
-        'startDate': '11/02/2024',
-        'dueDate': '11/02/2024',
-        'status': 'Undone',
-        'priority': 'High',
-        'estimatedHours': '40',
-        'description': 'Design and implement user login interface',
-      },
-      {
-        'code': '#1234568',
-        'title': 'API Integration',
-        'assignedTo': 'Sarah Johnson',
-        'startDate': '12/02/2024',
-        'dueDate': '19/02/2024',
-        'status': 'In Progress',
-        'priority': 'Medium',
-        'estimatedHours': '32',
-        'description': 'Integrate backend APIs',
-      },
-      {
-        'code': '#1234569',
-        'title': 'Database Optimization',
-        'assignedTo': 'Nicholas Chidera',
-        'startDate': '10/02/2024',
-        'dueDate': '15/02/2024',
-        'status': 'Completed',
-        'priority': 'Low',
-        'estimatedHours': '16',
-        'description': 'Optimize database queries',
-      },
+      Task(
+        id: '1',
+        code: '#1234567',
+        title: 'Benji Express user login Interface',
+        description: 'Design and implement user login interface for the Benji Express platform',
+        assignedTo: 'John Michael',
+        assignedToId: 'emp001',
+        projectId: 'proj001',
+        startDate: DateTime(2024, 11, 2),
+        dueDate: DateTime(2024, 11, 15),
+        status: TaskStatus.inProgress,
+        priority: TaskPriority.high,
+        estimatedHours: 40,
+        attachments: [],
+      ),
+      Task(
+        id: '2',
+        code: '#1234568',
+        title: 'API Integration',
+        description: 'Integrate backend APIs with mobile application',
+        assignedTo: 'Sarah Johnson',
+        assignedToId: 'emp002',
+        projectId: 'proj001',
+        startDate: DateTime(2024, 12, 2),
+        dueDate: DateTime(2024, 12, 19),
+        status: TaskStatus.inProgress,
+        priority: TaskPriority.medium,
+        estimatedHours: 32,
+        attachments: [],
+      ),
+      Task(
+        id: '3',
+        code: '#1234569',
+        title: 'Database Optimization',
+        description: 'Optimize database queries for improved performance',
+        assignedTo: 'Nicholas Chidera',
+        assignedToId: 'emp003',
+        projectId: 'proj001',
+        startDate: DateTime(2024, 10, 2),
+        dueDate: DateTime(2024, 10, 15),
+        status: TaskStatus.completed,
+        priority: TaskPriority.low,
+        estimatedHours: 16,
+        attachments: [],
+      ),
     ];
   }
 
   void _handleTaskAssignment(Map<String, dynamic> taskData) {
     setState(() {
-      _tasks.insert(0, taskData);
+      _tasks.insert(0, Task(
+        id: DateTime.now().toString(),
+        code: taskData['code'] ?? '#N/A',
+        title: taskData['title'] ?? 'Untitled Task',
+        description: taskData['description'] ?? '',
+        assignedTo: taskData['assignedTo'] ?? 'Unassigned',
+        assignedToId: taskData['assignedToId'] ?? '',
+        projectId: taskData['projectId'] ?? '',
+        startDate: taskData['startDate'] ?? DateTime.now(),
+        dueDate: taskData['dueDate'] ?? DateTime.now(),
+        status: TaskStatus.pending,
+        priority: _parsePriority(taskData['priority'] ?? 'medium'),
+        estimatedHours: double.tryParse(taskData['estimatedHours'].toString()) ?? 0,
+        attachments: [],
+      ));
     });
+  }
+
+  void _handleTaskApproval(int index, Task updatedTask) {
+    setState(() {
+      _tasks[index] = updatedTask;
+    });
+    _showSuccessMessage('Task approved successfully!');
+  }
+
+  void _openApprovalDialog(BuildContext context, int index, Task task) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return TaskApprovalDialog(
+          task: task,
+          reviewerName: 'Manager Account',
+          onApprovalComplete: (updatedTask) {
+            _handleTaskApproval(index, updatedTask);
+          },
+        );
+      },
+    );
+  }
+
+  void _showSuccessMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: MyText(message),
+        backgroundColor: AppColors.green,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  TaskPriority _parsePriority(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return TaskPriority.high;
+      case 'low':
+        return TaskPriority.low;
+      default:
+        return TaskPriority.medium;
+    }
   }
 
   @override
@@ -241,11 +312,12 @@ class TaskPageState extends State<TaskPage> {
 
   List<DataRow> _createRows(BuildContext context) {
     return _tasks.asMap().entries.map((entry) {
+      final index = entry.key;
       final task = entry.value;
       return DataRow(cells: <DataCell>[
         DataCell(
           MyText(
-            task['code'] ?? '#N/A',
+            task.code,
           ),
         ),
         DataCell(
@@ -253,7 +325,7 @@ class TaskPageState extends State<TaskPage> {
             context.go(RouteConstants.taskDetail);
           },
           MyText(
-            task['title'] ?? 'Untitled Task',
+            task.title,
             size: 16,
             weight: 400,
             isSelectable: false,
@@ -269,8 +341,8 @@ class TaskPageState extends State<TaskPage> {
             child: CircleAvatar(
               backgroundColor: AppColors.blue.withValues(alpha: 0.1),
               child: MyText(
-                (task['assignedTo'] as String).isNotEmpty
-                    ? (task['assignedTo'] as String)[0].toUpperCase()
+                task.assignedTo.isNotEmpty
+                    ? task.assignedTo[0].toUpperCase()
                     : '?',
                 weight: 600,
                 color: AppColors.blue,
@@ -280,34 +352,78 @@ class TaskPageState extends State<TaskPage> {
         ),
         DataCell(
           MyText(
-            task['startDate'] ?? '---',
+            _formatDate(task.startDate),
           ),
         ),
         DataCell(
           MyText(
-            task['dueDate'] ?? '---',
+            _formatDate(task.dueDate),
           ),
         ),
         DataCell(
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                height: 10,
-                width: 10,
-                decoration: ShapeDecoration(
-                  color: _getStatusColor(task['status'] ?? 'Undone'),
-                  shape: const OvalBorder(),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      height: 10,
+                      width: 10,
+                      decoration: ShapeDecoration(
+                        color: _getStatusColor(task.status.displayName),
+                        shape: const OvalBorder(),
+                      ),
+                    ),
+                    kSizedBoxWidthTiny,
+                    MyText(
+                      task.status.displayName,
+                    ),
+                  ],
                 ),
               ),
-              kSizedBoxWidthTiny,
-              MyText(
-                task['status'] ?? 'Undone',
-              ),
+              _buildActionMenu(context, index, task),
             ],
           ),
         ),
       ]);
     }).toList();
+  }
+
+  Widget _buildActionMenu(BuildContext context, int index, Task task) {
+    return PopupMenuButton<String>(
+      onSelected: (String value) {
+        if (value == 'approve') {
+          _openApprovalDialog(context, index, task);
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'approve',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, size: 18, color: AppColors.green),
+              SizedBox(width: 8),
+              MyText('Approve Task'),
+            ],
+          ),
+        ),
+      ],
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFD5D5D5)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.more_vert, size: 18, color: AppColors.grey1),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   Color _getStatusColor(String status) {
