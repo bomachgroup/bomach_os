@@ -1,22 +1,31 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 
 class BiometricService {
   static final BiometricService _instance = BiometricService._internal();
-  late final LocalAuthentication _auth;
+  late final LocalAuthentication? _auth;
 
   factory BiometricService() {
     return _instance;
   }
 
   BiometricService._internal() {
-    _auth = LocalAuthentication();
+    // Only initialize LocalAuthentication on mobile platforms
+    if (!kIsWeb) {
+      _auth = LocalAuthentication();
+    } else {
+      _auth = null;
+    }
   }
 
   /// Check if device supports biometric authentication
   Future<bool> isBiometricAvailable() async {
     try {
-      return await _auth.canCheckBiometrics;
+      if (kIsWeb || _auth == null) {
+        return false;
+      }
+      return await _auth!.canCheckBiometrics;
     } catch (e) {
       debugPrint('Error checking biometric availability: $e');
       return false;
@@ -26,8 +35,11 @@ class BiometricService {
   /// Check if device has biometric enrolled
   Future<bool> hasBiometricEnrolled() async {
     try {
-      final isAvailable = await _auth.canCheckBiometrics;
-      final isDeviceSupported = await _auth.isDeviceSupported();
+      if (kIsWeb || _auth == null) {
+        return false;
+      }
+      final isAvailable = await _auth!.canCheckBiometrics;
+      final isDeviceSupported = await _auth!.isDeviceSupported();
       return isAvailable || isDeviceSupported;
     } catch (e) {
       debugPrint('Error checking biometric enrollment: $e');
@@ -38,7 +50,10 @@ class BiometricService {
   /// Get available biometric types
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
-      return await _auth.getAvailableBiometrics();
+      if (kIsWeb || _auth == null) {
+        return [];
+      }
+      return await _auth!.getAvailableBiometrics();
     } catch (e) {
       debugPrint('Error getting available biometrics: $e');
       return [];
@@ -53,13 +68,13 @@ class BiometricService {
     try {
       // Check if biometric is available
       final isBiometricAvailable = await this.isBiometricAvailable();
-      if (!isBiometricAvailable) {
+      if (!isBiometricAvailable || _auth == null) {
         debugPrint('Biometric authentication not available');
         return false;
       }
 
       // Perform authentication
-      final isAuthenticated = await _auth.authenticate(
+      final isAuthenticated = await _auth!.authenticate(
         localizedReason: reason,
         options: const AuthenticationOptions(
           stickyAuth: true,
@@ -81,7 +96,7 @@ class BiometricService {
     try {
       // Check if biometric is available
       final isBiometricAvailable = await this.isBiometricAvailable();
-      if (!isBiometricAvailable) {
+      if (!isBiometricAvailable || _auth == null) {
         return BiometricResult(
           isAuthenticated: false,
           errorMessage: 'Biometric authentication is not available on this device',
@@ -100,7 +115,7 @@ class BiometricService {
       }
 
       // Perform authentication
-      final isAuthenticated = await _auth.authenticate(
+      final isAuthenticated = await _auth!.authenticate(
         localizedReason: reason,
         options: const AuthenticationOptions(
           stickyAuth: true,
@@ -132,7 +147,9 @@ class BiometricService {
   /// Stop authentication
   Future<void> stopAuthentication() async {
     try {
-      await _auth.stopAuthentication();
+      if (_auth != null) {
+        await _auth!.stopAuthentication();
+      }
     } catch (e) {
       debugPrint('Error stopping authentication: $e');
     }
