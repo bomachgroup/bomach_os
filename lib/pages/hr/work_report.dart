@@ -129,7 +129,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
         ],
         hoursWorked: 6.0,
         mood: 'Frustrated',
-        challenges: 'Database query performance was harder to optimize than expected',
+        challenges:
+            'Database query performance was harder to optimize than expected',
         achievements: 'Reduced query time by 40%',
         nextDayPlan: 'Continue optimization on remaining queries',
         submitted: true,
@@ -168,7 +169,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
     });
   }
 
-  void _openReviewDialog(BuildContext context, int index, DailyWorkReport report) {
+  void _openReviewDialog(
+      BuildContext context, int index, DailyWorkReport report) {
     showDialog(
       context: context,
       builder: (context) {
@@ -193,9 +195,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
     List<DailyWorkReport> filtered = _workReports;
 
     if (_selectedStatus != 'All Status') {
-      filtered = filtered
-          .where((report) => report.status == _selectedStatus)
-          .toList();
+      filtered =
+          filtered.where((report) => report.status == _selectedStatus).toList();
     }
 
     if (_selectedEmployee != 'All Employees') {
@@ -436,7 +437,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context, List<DailyWorkReport> reports) {
+  List<DataRow> _createRows(
+      BuildContext context, List<DailyWorkReport> reports) {
     return reports.asMap().entries.map((entry) {
       final index = entry.key;
       final report = entry.value;
@@ -569,7 +571,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             children: [
               Icon(Icons.fact_check_outlined, size: 18),
               SizedBox(width: 8),
-              Text('Review Report'),
+              MyText('Review Report', isSelectable: false),
             ],
           ),
         ),

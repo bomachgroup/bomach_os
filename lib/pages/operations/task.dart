@@ -3,9 +3,9 @@ import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/operations/models/task_approval_models.dart';
 import 'package:bms_front_end/pages/operations/widget/assign_task_dialog.dart';
 import 'package:bms_front_end/pages/operations/widget/task_approval_dialog.dart';
-import 'package:bms_front_end/pages/operations/models/task_approval_models.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -37,7 +37,8 @@ class TaskPageState extends State<TaskPage> {
         id: '1',
         code: '#1234567',
         title: 'Benji Express user login Interface',
-        description: 'Design and implement user login interface for the Benji Express platform',
+        description:
+            'Design and implement user login interface for the Benji Express platform',
         assignedTo: 'John Michael',
         assignedToId: 'emp001',
         projectId: 'proj001',
@@ -83,21 +84,24 @@ class TaskPageState extends State<TaskPage> {
 
   void _handleTaskAssignment(Map<String, dynamic> taskData) {
     setState(() {
-      _tasks.insert(0, Task(
-        id: DateTime.now().toString(),
-        code: taskData['code'] ?? '#N/A',
-        title: taskData['title'] ?? 'Untitled Task',
-        description: taskData['description'] ?? '',
-        assignedTo: taskData['assignedTo'] ?? 'Unassigned',
-        assignedToId: taskData['assignedToId'] ?? '',
-        projectId: taskData['projectId'] ?? '',
-        startDate: taskData['startDate'] ?? DateTime.now(),
-        dueDate: taskData['dueDate'] ?? DateTime.now(),
-        status: TaskStatus.pending,
-        priority: _parsePriority(taskData['priority'] ?? 'medium'),
-        estimatedHours: double.tryParse(taskData['estimatedHours'].toString()) ?? 0,
-        attachments: [],
-      ));
+      _tasks.insert(
+          0,
+          Task(
+            id: DateTime.now().toString(),
+            code: taskData['code'] ?? '#N/A',
+            title: taskData['title'] ?? 'Untitled Task',
+            description: taskData['description'] ?? '',
+            assignedTo: taskData['assignedTo'] ?? 'Unassigned',
+            assignedToId: taskData['assignedToId'] ?? '',
+            projectId: taskData['projectId'] ?? '',
+            startDate: taskData['startDate'] ?? DateTime.now(),
+            dueDate: taskData['dueDate'] ?? DateTime.now(),
+            status: TaskStatus.pending,
+            priority: _parsePriority(taskData['priority'] ?? 'medium'),
+            estimatedHours:
+                double.tryParse(taskData['estimatedHours'].toString()) ?? 0,
+            attachments: [],
+          ));
     });
   }
 
@@ -393,19 +397,17 @@ class TaskPageState extends State<TaskPage> {
   Widget _buildActionMenu(BuildContext context, int index, Task task) {
     return PopupMenuButton<String>(
       onSelected: (String value) {
-        if (value == 'approve') {
+        if (value == 'review') {
           _openApprovalDialog(context, index, task);
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         const PopupMenuItem<String>(
-          value: 'approve',
+          value: 'review',
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.check_circle, size: 18, color: AppColors.green),
-              SizedBox(width: 8),
-              MyText('Approve Task'),
+              MyText('Review Task', isSelectable: false),
             ],
           ),
         ),

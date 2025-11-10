@@ -96,14 +96,12 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
               : null,
           approvedAt:
               action == TaskApprovalAction.approve ? DateTime.now() : null,
-          rejectionReason:
-              action == TaskApprovalAction.reject
-                  ? _feedbackController.text
-                  : null,
-          reworkNotes:
-              action == TaskApprovalAction.requestRework
-                  ? _reworkNotesController.text
-                  : null,
+          rejectionReason: action == TaskApprovalAction.reject
+              ? _feedbackController.text
+              : null,
+          reworkNotes: action == TaskApprovalAction.requestRework
+              ? _reworkNotesController.text
+              : null,
         );
 
         widget.onApprovalComplete?.call(updatedTask);
@@ -174,7 +172,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MyText(
-                        'Task Approval',
+                        'Task Review',
                         style: AppText.black_500_20,
                       ),
                       SizedBox(height: 4),
@@ -243,7 +241,8 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                                     vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.blue.withValues(alpha: 0.1),
+                                    color:
+                                        AppColors.blue.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: MyText(
@@ -487,7 +486,8 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected ? color.withValues(alpha: 0.08) : Colors.transparent,
+          color:
+              isSelected ? color.withValues(alpha: 0.08) : Colors.transparent,
         ),
         child: Column(
           spacing: 6,
