@@ -241,6 +241,11 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.compliance,
           ),
           SubMenuItemData(
+            id: SubMenuItem.branchPerformance,
+            label: 'Branch Performance',
+            route: RouteConstants.branchPerformanceAnalysis,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.enugu,
             label: 'Enugu',
             route: RouteConstants.enugu,
@@ -363,35 +368,35 @@ class _SideMenuState extends State<SideMenu> {
           ),
         ],
       ),
-      const MenuItem(
-        id: MainMenuItem.employee,
-        label: 'Employee',
-        iconPath: 'assets/svg/sidebar/people.svg',
-        route: RouteConstants.employee,
-        isExpandable: true,
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.employeeDirectory,
-            label: 'Directory',
-            route: RouteConstants.employeeDirectory,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.employeePerformance,
-            label: 'Performance Reviews',
-            route: RouteConstants.employeePerformance,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.employeeAttendance,
-            label: 'Attendance',
-            route: RouteConstants.employeeAttendance,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.employeeTraining,
-            label: 'Training Programs',
-            route: RouteConstants.employeeTraining,
-          ),
-        ],
-      ),
+      // const MenuItem(
+      //   id: MainMenuItem.employee,
+      //   label: 'Employee',
+      //   iconPath: 'assets/svg/sidebar/people.svg',
+      //   route: RouteConstants.employee,
+      //   isExpandable: true,
+      //   children: [
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeeDirectory,
+      //       label: 'Directory',
+      //       route: RouteConstants.employeeDirectory,
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeePerformance,
+      //       label: 'Performance Reviews',
+      //       route: RouteConstants.employeePerformance,
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeeAttendance,
+      //       label: 'Attendance',
+      //       route: RouteConstants.employeeAttendance,
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeeTraining,
+      //       label: 'Training Programs',
+      //       route: RouteConstants.employeeTraining,
+      //     ),
+      //   ],
+      // ),
       const MenuItem(
         id: MainMenuItem.work,
         label: 'Operations',

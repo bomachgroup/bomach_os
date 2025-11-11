@@ -1,5 +1,3 @@
-import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/analytics/models/branch_performance_models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -20,9 +18,8 @@ class _BranchPerformanceAnalysisPageState
     extends State<BranchPerformanceAnalysisPage> {
   final ScrollController _scrollController = ScrollController();
   late List<BranchPerformanceMetric> _branches;
-  late BranchPerformanceSummary _summary;
   late List<BranchRevenueTrend> _revenueTrends;
-  late List<BranchInsight> _keyInsights;
+  int _selectedBranchIndex = 0;
 
   @override
   void initState() {
@@ -106,6 +103,7 @@ class _BranchPerformanceAnalysisPageState
       ),
     ];
 
+    // Generate revenue trends for each branch
     _revenueTrends = [
       BranchRevenueTrend(month: 'Jan', revenue: 38000000, target: 35000000),
       BranchRevenueTrend(month: 'Feb', revenue: 41000000, target: 37000000),
@@ -114,67 +112,63 @@ class _BranchPerformanceAnalysisPageState
       BranchRevenueTrend(month: 'May', revenue: 46000000, target: 42000000),
       BranchRevenueTrend(month: 'Jun', revenue: 45000000, target: 40000000),
     ];
+  }
 
-    _keyInsights = [
+  List<BranchInsight> _generateBranchInsights() {
+    final selectedBranch = _branches[_selectedBranchIndex];
+    final achievement = selectedBranch.getRevenueAchievementPercentage();
+
+    return [
       BranchInsight(
         type: BranchInsightType.revenue,
-        title: 'Revenue Exceeds Target',
-        description: 'Lagos HQ generated 112% of quarterly revenue target',
-        recommendation: 'Continue current strategies and replicate in other branches',
-        priority: 'High',
-        icon: '📈',
+        title: 'Revenue Status',
+        description:
+            '${selectedBranch.branchName} generated ${achievement.toStringAsFixed(0)}% of revenue target',
+        recommendation: achievement >= 100
+            ? 'Maintain current performance'
+            : 'Implement growth strategies to reach target',
+        priority: achievement >= 100 ? 'High' : 'High',
+        icon: achievement >= 100 ? '📈' : '⚠️',
       ),
       BranchInsight(
         type: BranchInsightType.efficiency,
-        title: 'Operational Excellence',
-        description: 'Average operational efficiency across network is 91.5%',
-        recommendation: 'Share best practices from high-performing branches',
-        priority: 'Medium',
+        title: 'Operational Efficiency',
+        description:
+            'Operating at ${selectedBranch.operationalEfficiency.toStringAsFixed(0)}% efficiency',
+        recommendation: 'Continue optimizing processes',
+        priority: selectedBranch.operationalEfficiency >= 90 ? 'High' : 'Medium',
         icon: '⚙️',
       ),
       BranchInsight(
         type: BranchInsightType.performance,
-        title: 'Employee Productivity Peak',
-        description: 'Enugu office shows 85% productivity with training investments',
-        recommendation: 'Allocate more training resources to boost engagement',
-        priority: 'Medium',
+        title: 'Employee Productivity',
+        description:
+            '${selectedBranch.employeeProductivity.toStringAsFixed(0)}% productivity rate',
+        recommendation: 'Consider additional training programs',
+        priority: selectedBranch.employeeProductivity >= 90 ? 'High' : 'Medium',
         icon: '👥',
       ),
       BranchInsight(
         type: BranchInsightType.growth,
-        title: 'Customer Base Expansion',
-        description: 'Network gained 65 new customers this quarter',
-        recommendation: 'Scale successful customer acquisition strategies',
-        priority: 'High',
-        icon: '🎯',
+        title: 'Customer Satisfaction',
+        description:
+            '${selectedBranch.customerSatisfaction.toStringAsFixed(0)}% satisfaction from ${selectedBranch.customerCount} customers',
+        recommendation: 'Leverage customer feedback to improve service',
+        priority:
+            selectedBranch.customerSatisfaction >= 90 ? 'High' : 'Medium',
+        icon: '😊',
       ),
       BranchInsight(
-        type: BranchInsightType.risk,
-        title: 'Enugu Revenue Gap',
-        description: 'Enugu office revenue 11% below target',
-        recommendation: 'Investigate operational challenges and provide support',
-        priority: 'High',
-        icon: '⚠️',
+        type: BranchInsightType.growth,
+        title: 'Staff Retention',
+        description:
+            '${selectedBranch.employeeRetentionRate.toStringAsFixed(0)}% employee retention rate',
+        recommendation: 'Maintain positive workplace culture',
+        priority:
+            selectedBranch.employeeRetentionRate >= 90 ? 'High' : 'Medium',
+        icon: '🤝',
       ),
     ];
-
-    _summary = BranchPerformanceSummary(
-      totalBranches: _branches.length,
-      topPerformingBranchRank: 1,
-      topPerformingBranch: 'Lagos HQ',
-      allBranches: _branches,
-      averageRevenuePerBranch: _branches
-              .fold(0.0, (sum, b) => sum + b.revenueGenerated) /
-          _branches.length,
-      averageEmployeeProductivity: _branches
-              .fold(0.0, (sum, b) => sum + b.employeeProductivity) /
-          _branches.length,
-      averageCustomerSatisfaction: _branches
-              .fold(0.0, (sum, b) => sum + b.customerSatisfaction) /
-          _branches.length,
-      totalProjects: _branches.fold(0, (sum, b) => sum + b.projectsCompleted),
-      totalEmployees: _branches.fold(0, (sum, b) => sum + b.employeeCount),
-    );
   }
 
   @override
@@ -185,135 +179,125 @@ class _BranchPerformanceAnalysisPageState
 
   @override
   Widget build(BuildContext context) {
+    final selectedBranch = _branches[_selectedBranchIndex];
+    final keyInsights = _generateBranchInsights();
+
     return SingleChildScrollView(
       controller: _scrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          const Column(
+          // Header with Branch Selector
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(
+              const MyText(
                 'Branch Performance Analysis',
                 style: AppText.black_500_32,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               MyText(
-                'Comprehensive insights across all branch locations',
-                style: TextStyle(
+                'Performance insights for ${selectedBranch.branchName}',
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   color: Color(0xFF64748B),
                 ),
               ),
-            ],
-          ),
-          kSizedBox,
-
-          // Summary Cards
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _buildSummaryCard(
-                label: 'Total Revenue',
-                value:
-                    '₦${(_summary.averageRevenuePerBranch * _summary.totalBranches / 1000000).toStringAsFixed(1)}M',
-                subtitle: '${_branches.length} branches',
-                icon: Icons.trending_up,
-                color: AppColors.green,
-              ),
-              _buildSummaryCard(
-                label: 'Avg Efficiency',
-                value:
-                    '${((_summary.allBranches.fold(0.0, (sum, b) => sum + b.operationalEfficiency) / _summary.totalBranches)).toStringAsFixed(1)}%',
-                subtitle: 'All branches',
-                icon: Icons.speed,
-                color: AppColors.blue,
-              ),
-              _buildSummaryCard(
-                label: 'Customer Satisfaction',
-                value:
-                    '${_summary.averageCustomerSatisfaction.toStringAsFixed(1)}%',
-                subtitle: 'Network average',
-                icon: Icons.sentiment_satisfied,
-                color: AppColors.orange,
-              ),
-              _buildSummaryCard(
-                label: 'Total Employees',
-                value: _summary.totalEmployees.toString(),
-                subtitle: 'Active workforce',
-                icon: Icons.people,
-                color: const Color(0xFF8B5CF6),
-              ),
-            ],
-          ),
-          kSizedBox,
-
-          // Filters
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 15,
-                  runSpacing: 15,
-                  alignment: WrapAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      child: MyTextFormField(
-                        hintText: 'Search branches...',
-                        leading: Icon(
-                          Icons.search,
-                          color: AppColors.grey1.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ),
-                    const Wrap(
-                      spacing: 15,
-                      children: [
-                        SortBar(text: 'This Quarter'),
-                        SortBar(text: 'All Branches'),
-                      ],
-                    )
-                  ],
+              const SizedBox(height: 16),
+              // Branch Dropdown Selector
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.grey5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: DropdownButton<int>(
+                  value: _selectedBranchIndex,
+                  onChanged: (int? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedBranchIndex = newValue;
+                      });
+                    }
+                  },
+                  isExpanded: true,
+                  underline: const SizedBox(),
+                  items: _branches.asMap().entries.map((entry) {
+                    return DropdownMenuItem<int>(
+                      value: entry.key,
+                      child: MyText(entry.value.branchName),
+                    );
+                  }).toList(),
                 ),
               ),
             ],
           ),
           kSizedBox,
-          kSizedBoxSM,
 
-          // Key Insights Section
-          const MyText(
-            'Key Insights',
-            style: AppText.black_500_20,
-          ),
-          const SizedBox(height: 16),
+          // Summary Cards for Selected Branch
           Wrap(
             spacing: 16,
             runSpacing: 16,
-            children: _keyInsights
-                .map((insight) => _buildInsightCard(insight))
-                .toList(),
+            children: [
+              SizedBox(
+                width: 220,
+                child: _buildStatCard(
+                  'Revenue Generated',
+                  '₦${(selectedBranch.revenueGenerated / 1000000).toStringAsFixed(1)}M',
+                  Icons.trending_up_rounded,
+                  AppColors.green,
+                ),
+              ),
+              SizedBox(
+                width: 220,
+                child: _buildStatCard(
+                  'Operational Efficiency',
+                  '${selectedBranch.operationalEfficiency.toStringAsFixed(0)}%',
+                  Icons.speed,
+                  AppColors.blue,
+                ),
+              ),
+              SizedBox(
+                width: 220,
+                child: _buildStatCard(
+                  'Customer Satisfaction',
+                  '${selectedBranch.customerSatisfaction.toStringAsFixed(0)}%',
+                  Icons.sentiment_satisfied_rounded,
+                  AppColors.orange,
+                ),
+              ),
+              SizedBox(
+                width: 220,
+                child: _buildStatCard(
+                  'Total Employees',
+                  selectedBranch.employeeCount.toString(),
+                  Icons.people_rounded,
+                  AppColors.darkBlue2,
+                ),
+              ),
+            ],
+          ),
+          kSizedBox,
+
+          // Key Insights Section
+          _SectionCard(
+            title: 'Key Insights',
+            titleIcon: Icons.lightbulb_rounded,
+            child: Column(
+              children: keyInsights
+                  .map((insight) => _buildInsightItem(insight))
+                  .toList(),
+            ),
           ),
           kSizedBox,
 
           // Revenue Trend Chart
-          const MyText(
-            'Revenue Trend (6 Months)',
-            style: AppText.black_500_20,
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.grey5),
-              borderRadius: BorderRadius.circular(12),
-            ),
+          _SectionCard(
+            title: 'Revenue Trend (6 Months)',
+            titleIcon: Icons.show_chart_rounded,
             child: SizedBox(
-              height: 300,
+              height: 280,
               child: LineChart(
                 LineChartData(
                   gridData: const FlGridData(show: true),
@@ -358,6 +342,10 @@ class _BranchPerformanceAnalysisPageState
                       color: AppColors.blue,
                       barWidth: 3,
                       dotData: const FlDotData(show: true),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: AppColors.blue.withValues(alpha: 0.1),
+                      ),
                     ),
                     LineChartBarData(
                       spots: _revenueTrends
@@ -381,368 +369,311 @@ class _BranchPerformanceAnalysisPageState
           ),
           kSizedBox,
 
-          // Branch Comparison Table
-          const MyText(
-            'Branch Performance Comparison',
-            style: AppText.black_500_20,
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-              border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                dataRowMinHeight: 60,
-                dataRowMaxHeight: 60,
-                columnSpacing: 24,
-                horizontalMargin: 12,
-                columns: const [
-                  DataColumn(label: MyText('Branch')),
-                  DataColumn(label: MyText('Revenue')),
-                  DataColumn(label: MyText('Target')),
-                  DataColumn(label: MyText('Achievement')),
-                  DataColumn(label: MyText('Efficiency')),
-                  DataColumn(label: MyText('Satisfaction')),
-                  DataColumn(label: MyText('Rating')),
-                ],
-                rows: _branches.map((branch) {
-                  final achievement = branch.getRevenueAchievementPercentage();
-                  return DataRow(
-                    cells: [
-                      DataCell(
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            MyText(
-                              branch.branchName,
-                              style: AppText.black_500_16,
-                            ),
-                            MyText(
-                              branch.location,
-                              style: AppText.sideMText_300_14,
-                            ),
-                          ],
-                        ),
-                      ),
-                      DataCell(
-                        MyText(
-                          '₦${(branch.revenueGenerated / 1000000).toStringAsFixed(1)}M',
-                        ),
-                      ),
-                      DataCell(
-                        MyText(
-                          '₦${(branch.revenueTarget / 1000000).toStringAsFixed(1)}M',
-                        ),
-                      ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: achievement >= 100
-                                ? AppColors.green.withValues(alpha: 0.15)
-                                : AppColors.red.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: MyText(
-                            '${achievement.toStringAsFixed(1)}%',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: achievement >= 100
-                                  ? AppColors.green
-                                  : AppColors.red,
-                            ),
-                          ),
-                        ),
-                      ),
-                      DataCell(
-                        MyText(
-                          '${branch.operationalEfficiency.toStringAsFixed(1)}%',
-                        ),
-                      ),
-                      DataCell(
-                        MyText(
-                          '${branch.customerSatisfaction.toStringAsFixed(1)}%',
-                        ),
-                      ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: HexColor(branch.getPerformanceColor())
-                                .withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: MyText(
-                            branch.getPerformanceRating(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: HexColor(branch.getPerformanceColor()),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-          kSizedBox,
-
-          // Detailed Branch Cards
-          const MyText(
-            'Detailed Branch Analytics',
-            style: AppText.black_500_20,
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: _branches
-                .map((branch) => _buildDetailedBranchCard(branch))
-                .toList(),
-          ),
+          // Detailed Branch Metrics
+          _buildBranchCard(selectedBranch),
           kSizedBox,
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard({
-    required String label,
-    required String value,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              MyText(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.grey1,
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: MyText(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
-              ),
-              Icon(icon, color: color, size: 20),
-            ],
-          ),
-          const SizedBox(height: 12),
-          MyText(
-            value,
-            style: AppText.black_500_24,
-          ),
-          const SizedBox(height: 4),
-          MyText(
-            subtitle,
-            style: const TextStyle(fontSize: 11, color: AppColors.grey1),
-          ),
-        ],
+                Icon(icon, color: color, size: 22),
+              ],
+            ),
+            const SizedBox(height: 12),
+            MyText(
+              value,
+              style: AppText.black_500_24,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInsightCard(BranchInsight insight) {
+  Widget _buildInsightItem(BranchInsight insight) {
     final priorityColor = insight.priority == 'High'
         ? AppColors.red
         : insight.priority == 'Medium'
             ? AppColors.orange
             : AppColors.green;
 
-    return Container(
-      width: 300,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: priorityColor.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(12),
-        color: priorityColor.withValues(alpha: 0.05),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              MyText(
-                insight.icon,
-                style: const TextStyle(fontSize: 20),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: MyText(
-                  insight.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: priorityColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: MyText(
-                  insight.priority,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: priorityColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          MyText(
-            insight.description,
-            style: const TextStyle(fontSize: 12, color: AppColors.grey1),
-          ),
-          const SizedBox(height: 8),
-          MyText(
-            'Recommendation: ${insight.recommendation}',
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailedBranchCard(BranchPerformanceMetric branch) {
-    return Container(
-      width: 400,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MyText(
-                    branch.branchName,
-                    style: AppText.black_500_16,
-                  ),
-                  MyText(
-                    branch.location,
-                    style: const TextStyle(fontSize: 12, color: AppColors.grey1),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color:
-                      HexColor(branch.getPerformanceColor()).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: MyText(
-                  branch.getPerformanceRating(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: HexColor(branch.getPerformanceColor()),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildMetricRow('Revenue', '₦${(branch.revenueGenerated / 1000000).toStringAsFixed(1)}M',
-              '${branch.getRevenueAchievementPercentage().toStringAsFixed(1)}%'),
-          _buildMetricRow(
-              'Employees', branch.employeeCount.toString(), '${branch.employeeProductivity.toString()}%'),
-          _buildMetricRow('Projects', branch.projectsCompleted.toString(),
-              '${branch.activeProjects} active'),
-          _buildMetricRow('Satisfaction', '${branch.customerSatisfaction.toStringAsFixed(1)}%',
-              'from ${branch.customerCount} customers'),
-          _buildMetricRow('Efficiency', '${branch.operationalEfficiency.toStringAsFixed(1)}%',
-              'Operational'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMetricRow(String label, String value, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.grey5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                MyText(
+                  insight.icon,
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: MyText(
+                    insight.title,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: priorityColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: MyText(
+                    insight.priority,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: priorityColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            MyText(
+              insight.description,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+            ),
+            const SizedBox(height: 6),
+            MyText(
+              '→ ${insight.recommendation}',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1F2937),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBranchCard(BranchPerformanceMetric branch) {
+    final achievement = branch.getRevenueAchievementPercentage();
+    final rating = branch.getPerformanceRating();
+    final ratingColor = rating == 'Excellent'
+        ? AppColors.green
+        : rating == 'Good'
+            ? AppColors.blue
+            : rating == 'Satisfactory'
+                ? AppColors.orange
+                : AppColors.red;
+
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MyText(
+                        branch.branchName,
+                        style: AppText.black_500_16,
+                      ),
+                      const SizedBox(height: 4),
+                      MyText(
+                        branch.location,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: ratingColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: MyText(
+                    rating,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: ratingColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            _buildMetricRow(
+              'Revenue',
+              '₦${(branch.revenueGenerated / 1000000).toStringAsFixed(1)}M',
+              achievement >= 100
+                  ? '✓ ${achievement.toStringAsFixed(0)}%'
+                  : '✗ ${achievement.toStringAsFixed(0)}%',
+              achievement >= 100 ? AppColors.green : AppColors.red,
+            ),
+            const SizedBox(height: 10),
+            _buildMetricRow(
+              'Employees',
+              branch.employeeCount.toString(),
+              '${branch.employeeProductivity.toStringAsFixed(0)}% productivity',
+              AppColors.blue,
+            ),
+            const SizedBox(height: 10),
+            _buildMetricRow(
+              'Projects',
+              branch.projectsCompleted.toString(),
+              '${branch.activeProjects} active',
+              AppColors.orange,
+            ),
+            const SizedBox(height: 10),
+            _buildMetricRow(
+              'Customer Satisfaction',
+              '${branch.customerSatisfaction.toStringAsFixed(0)}%',
+              'from ${branch.customerCount} customers',
+              AppColors.secondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetricRow(
+    String label,
+    String mainValue,
+    String subValue,
+    Color accentColor,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 40,
+          decoration: BoxDecoration(
+            color: accentColor,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MyText(
                 label,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
+                  color: Color(0xFF64748B),
                   fontWeight: FontWeight.w500,
-                  color: AppColors.grey1,
                 ),
               ),
-              MyText(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: AppColors.grey2,
-                ),
+              const SizedBox(height: 2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  MyText(
+                    mainValue,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  MyText(
+                    subValue,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          MyText(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+        ),
+      ],
+    );
+  }
+}
+
+// Custom Section Card Widget
+class _SectionCard extends StatelessWidget {
+  final String title;
+  final IconData? titleIcon;
+  final Widget child;
+
+  const _SectionCard({
+    required this.title,
+    required this.child,
+    this.titleIcon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              spacing: 8,
+              children: [
+                if (titleIcon != null) Icon(titleIcon, size: 20),
+                MyText(
+                  title,
+                  style: AppText.black_500_16,
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            child,
+          ],
+        ),
       ),
     );
   }
-
-}
-
-// Helper function to convert hex color string to Color
-class HexColor extends Color {
-  static int _getColorFromHex(String hexColor) {
-    hexColor = hexColor.toUpperCase().replaceAll('#', '');
-    if (hexColor.length == 6) {
-      hexColor = 'FF$hexColor';
-    }
-    return int.parse(hexColor, radix: 16);
-  }
-
-  HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }
