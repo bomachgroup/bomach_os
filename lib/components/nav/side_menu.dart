@@ -73,6 +73,9 @@ enum SubMenuItem {
   workReport,
   monthlyScorecard,
   awardsRecognition,
+  performanceLeaderboard,
+  employeeEvaluation,
+  disciplinaryProcess,
 
   // Warketing sub-items
   marketing,
@@ -119,6 +122,7 @@ enum SubMenuItem {
   revenue,
   projects,
   analyticsPerformance,
+  branchPerformance,
 
   // Legal & Compliance
   legalContracts,
@@ -326,6 +330,21 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.awardsRecognition,
             label: 'Awards & Recognition',
             route: RouteConstants.awardsRecognition,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.performanceLeaderboard,
+            label: 'Performance Leaderboard',
+            route: RouteConstants.performanceLeaderboard,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employeeEvaluation,
+            label: 'Employee Evaluation',
+            route: RouteConstants.employeeEvaluation,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.disciplinaryProcess,
+            label: 'Disciplinary Process',
+            route: RouteConstants.disciplinaryProcess,
           ),
           SubMenuItemData(
             id: SubMenuItem.employees,
@@ -600,6 +619,11 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.analyticsPerformance,
             label: 'Performance',
             route: RouteConstants.analyticsPerformance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.branchPerformance,
+            label: 'Branch Performance',
+            route: RouteConstants.branchPerformanceAnalysis,
           ),
         ],
       ),

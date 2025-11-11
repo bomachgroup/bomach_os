@@ -47,6 +47,9 @@ class RouteConstants {
   static const String workReport = '/hr/work-report';
   static const String monthlyScorecard = '/hr/monthly-scorecard';
   static const String awardsRecognition = '/hr/awards-recognition';
+  static const String performanceLeaderboard = '/hr/performance-leaderboard';
+  static const String employeeEvaluation = '/hr/employee-evaluation';
+  static const String disciplinaryProcess = '/hr/disciplinary-process';
   // services
   static const String services = '/services';
   static const String servicesProperty = '/services-property';
@@ -90,6 +93,7 @@ class RouteConstants {
   static const String analyticsRevenue = '/analytics/revenue';
   static const String analyticsProjects = '/analytics/projects';
   static const String analyticsPerformance = '/analytics/performance';
+  static const String branchPerformanceAnalysis = '/analytics/branch-performance';
 
   // Legal & Compliance
   static const String legalContracts = '/legal/contracts';

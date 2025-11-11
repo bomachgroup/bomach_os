@@ -44,6 +44,9 @@ import 'package:bms_front_end/pages/hr/training_program.dart';
 import 'package:bms_front_end/pages/hr/work_report.dart';
 import 'package:bms_front_end/pages/hr/monthly_scorecard.dart';
 import 'package:bms_front_end/pages/hr/awards_recognition.dart';
+import 'package:bms_front_end/pages/hr/performance_leaderboard.dart';
+import 'package:bms_front_end/pages/hr/employee_evaluation.dart';
+import 'package:bms_front_end/pages/hr/disciplinary_process.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
 import 'package:bms_front_end/pages/legal/legal.dart';
 import 'package:bms_front_end/pages/marketing/campaign_detail.dart';
@@ -93,6 +96,7 @@ import 'package:go_router/go_router.dart';
 import '../../pages/analytics/performance.dart';
 import '../../pages/analytics/projects.dart';
 import '../../pages/analytics/revenue.dart';
+import '../../pages/analytics/branch_performance_analysis.dart';
 import '../../pages/crm/clients.dart';
 import '../../pages/crm/interactions.dart';
 import '../../pages/crm/lead.dart';
@@ -154,6 +158,9 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.workReport: const WorkReportPage(),
   RouteConstants.monthlyScorecard: const MonthlyScorecardPage(),
   RouteConstants.awardsRecognition: const AwardsRecognitionPage(),
+  RouteConstants.performanceLeaderboard: const PerformanceLeaderboardPage(),
+  RouteConstants.employeeEvaluation: const EmployeeEvaluationPage(),
+  RouteConstants.disciplinaryProcess: const DisciplinaryProcessPage(),
   RouteConstants.services: const ServicesPage(),
   RouteConstants.landSurveyCalculator: const LandSurveyCalculatorPage(),
   RouteConstants.servicesCalculator: const ServicesCalculatorPage(),
@@ -194,6 +201,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.analyticsRevenue: const RevenueAnalyticsPage(),
   RouteConstants.analyticsProjects: const ProjectsAnalytics(),
   RouteConstants.analyticsPerformance: const PerformanceAnalytics(),
+  RouteConstants.branchPerformanceAnalysis: const BranchPerformanceAnalysisPage(),
   // Legals and Compliance
   RouteConstants.legalAudits: const LegalsPage(selectedIndex: 3),
   RouteConstants.legalContracts: const LegalsPage(selectedIndex: 0),
