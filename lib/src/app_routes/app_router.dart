@@ -42,6 +42,8 @@ import 'package:bms_front_end/pages/hr/payroll.dart';
 import 'package:bms_front_end/pages/hr/performance_review.dart';
 import 'package:bms_front_end/pages/hr/training_program.dart';
 import 'package:bms_front_end/pages/hr/work_report.dart';
+import 'package:bms_front_end/pages/hr/monthly_scorecard.dart';
+import 'package:bms_front_end/pages/hr/awards_recognition.dart';
 import 'package:bms_front_end/pages/large_screen.dart';
 import 'package:bms_front_end/pages/legal/legal.dart';
 import 'package:bms_front_end/pages/marketing/campaign_detail.dart';
@@ -150,6 +152,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.associates: const AssociatesPage(),
   RouteConstants.assets: const AssetsPage(),
   RouteConstants.workReport: const WorkReportPage(),
+  RouteConstants.monthlyScorecard: const MonthlyScorecardPage(),
+  RouteConstants.awardsRecognition: const AwardsRecognitionPage(),
   RouteConstants.services: const ServicesPage(),
   RouteConstants.landSurveyCalculator: const LandSurveyCalculatorPage(),
   RouteConstants.servicesCalculator: const ServicesCalculatorPage(),

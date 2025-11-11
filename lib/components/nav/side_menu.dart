@@ -71,6 +71,8 @@ enum SubMenuItem {
   associates,
   assets,
   workReport,
+  monthlyScorecard,
+  awardsRecognition,
 
   // Warketing sub-items
   marketing,
@@ -314,6 +316,16 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.workReport,
             label: 'Work Reports',
             route: RouteConstants.workReport,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.monthlyScorecard,
+            label: 'Monthly Scorecard',
+            route: RouteConstants.monthlyScorecard,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.awardsRecognition,
+            label: 'Awards & Recognition',
+            route: RouteConstants.awardsRecognition,
           ),
           SubMenuItemData(
             id: SubMenuItem.employees,

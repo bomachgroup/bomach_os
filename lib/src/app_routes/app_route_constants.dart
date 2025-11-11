@@ -45,6 +45,8 @@ class RouteConstants {
   static const String associates = '/hr/associates';
   static const String assets = '/hr/assets';
   static const String workReport = '/hr/work-report';
+  static const String monthlyScorecard = '/hr/monthly-scorecard';
+  static const String awardsRecognition = '/hr/awards-recognition';
   // services
   static const String services = '/services';
   static const String servicesProperty = '/services-property';
