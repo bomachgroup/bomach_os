@@ -136,7 +136,8 @@ class _BranchPerformanceAnalysisPageState
         description:
             'Operating at ${selectedBranch.operationalEfficiency.toStringAsFixed(0)}% efficiency',
         recommendation: 'Continue optimizing processes',
-        priority: selectedBranch.operationalEfficiency >= 90 ? 'High' : 'Medium',
+        priority:
+            selectedBranch.operationalEfficiency >= 90 ? 'High' : 'Medium',
         icon: '⚙️',
       ),
       BranchInsight(
@@ -154,8 +155,7 @@ class _BranchPerformanceAnalysisPageState
         description:
             '${selectedBranch.customerSatisfaction.toStringAsFixed(0)}% satisfaction from ${selectedBranch.customerCount} customers',
         recommendation: 'Leverage customer feedback to improve service',
-        priority:
-            selectedBranch.customerSatisfaction >= 90 ? 'High' : 'Medium',
+        priority: selectedBranch.customerSatisfaction >= 90 ? 'High' : 'Medium',
         icon: '😊',
       ),
       BranchInsight(
@@ -377,8 +377,10 @@ class _BranchPerformanceAnalysisPageState
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String label, String value, IconData icon, Color color) {
     return Card(
+      color: AppColors.white,
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -448,7 +450,8 @@ class _BranchPerformanceAnalysisPageState
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: priorityColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -496,6 +499,7 @@ class _BranchPerformanceAnalysisPageState
                 : AppColors.red;
 
     return Card(
+      color: AppColors.white,
       elevation: 1,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -527,7 +531,8 @@ class _BranchPerformanceAnalysisPageState
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: ratingColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
@@ -651,6 +656,7 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: AppColors.white,
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: EdgeInsets.zero,
