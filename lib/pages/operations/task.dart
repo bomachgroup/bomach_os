@@ -3,6 +3,9 @@ import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/operations/models/task_approval_models.dart';
+import 'package:bms_front_end/pages/operations/widget/assign_task_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/task_approval_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -20,6 +23,130 @@ class TaskPage extends StatefulWidget {
 
 class TaskPageState extends State<TaskPage> {
   final ScrollController _scrollController = ScrollController();
+  late List<Task> _tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSampleTasks();
+  }
+
+  void _initializeSampleTasks() {
+    _tasks = [
+      Task(
+        id: '1',
+        code: '#1234567',
+        title: 'Benji Express user login Interface',
+        description:
+            'Design and implement user login interface for the Benji Express platform',
+        assignedTo: 'John Michael',
+        assignedToId: 'emp001',
+        projectId: 'proj001',
+        startDate: DateTime(2024, 11, 2),
+        dueDate: DateTime(2024, 11, 15),
+        status: TaskStatus.inProgress,
+        priority: TaskPriority.high,
+        estimatedHours: 40,
+        attachments: [],
+      ),
+      Task(
+        id: '2',
+        code: '#1234568',
+        title: 'API Integration',
+        description: 'Integrate backend APIs with mobile application',
+        assignedTo: 'Sarah Johnson',
+        assignedToId: 'emp002',
+        projectId: 'proj001',
+        startDate: DateTime(2024, 12, 2),
+        dueDate: DateTime(2024, 12, 19),
+        status: TaskStatus.inProgress,
+        priority: TaskPriority.medium,
+        estimatedHours: 32,
+        attachments: [],
+      ),
+      Task(
+        id: '3',
+        code: '#1234569',
+        title: 'Database Optimization',
+        description: 'Optimize database queries for improved performance',
+        assignedTo: 'Nicholas Chidera',
+        assignedToId: 'emp003',
+        projectId: 'proj001',
+        startDate: DateTime(2024, 10, 2),
+        dueDate: DateTime(2024, 10, 15),
+        status: TaskStatus.completed,
+        priority: TaskPriority.low,
+        estimatedHours: 16,
+        attachments: [],
+      ),
+    ];
+  }
+
+  void _handleTaskAssignment(Map<String, dynamic> taskData) {
+    setState(() {
+      _tasks.insert(
+          0,
+          Task(
+            id: DateTime.now().toString(),
+            code: taskData['code'] ?? '#N/A',
+            title: taskData['title'] ?? 'Untitled Task',
+            description: taskData['description'] ?? '',
+            assignedTo: taskData['assignedTo'] ?? 'Unassigned',
+            assignedToId: taskData['assignedToId'] ?? '',
+            projectId: taskData['projectId'] ?? '',
+            startDate: taskData['startDate'] ?? DateTime.now(),
+            dueDate: taskData['dueDate'] ?? DateTime.now(),
+            status: TaskStatus.pending,
+            priority: _parsePriority(taskData['priority'] ?? 'medium'),
+            estimatedHours:
+                double.tryParse(taskData['estimatedHours'].toString()) ?? 0,
+            attachments: [],
+          ));
+    });
+  }
+
+  void _handleTaskApproval(int index, Task updatedTask) {
+    setState(() {
+      _tasks[index] = updatedTask;
+    });
+    _showSuccessMessage('Task approved successfully!');
+  }
+
+  void _openApprovalDialog(BuildContext context, int index, Task task) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return TaskApprovalDialog(
+          task: task,
+          reviewerName: 'Manager Account',
+          onApprovalComplete: (updatedTask) {
+            _handleTaskApproval(index, updatedTask);
+          },
+        );
+      },
+    );
+  }
+
+  void _showSuccessMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: MyText(message),
+        backgroundColor: AppColors.green,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  TaskPriority _parsePriority(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return TaskPriority.high;
+      case 'low':
+        return TaskPriority.low;
+      default:
+        return TaskPriority.medium;
+    }
+  }
 
   @override
   void dispose() {
@@ -93,7 +220,16 @@ class TaskPageState extends State<TaskPage> {
                           color: AppColors.white,
                         ),
                         child: "Add Task",
-                        onTap: () {},
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AssignTaskDialog(
+                                onAssign: _handleTaskAssignment,
+                              );
+                            },
+                          );
+                        },
                       )
                     ],
                   )
@@ -179,17 +315,21 @@ class TaskPageState extends State<TaskPage> {
   }
 
   List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+    return _tasks.asMap().entries.map((entry) {
+      final index = entry.key;
+      final task = entry.value;
       return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText("#1234567"),
+        DataCell(
+          MyText(
+            task.code,
+          ),
         ),
         DataCell(
           onTap: () {
             context.go(RouteConstants.taskDetail);
           },
-          const MyText(
-            "Benji Express user login Interface",
+          MyText(
+            task.title,
             size: 16,
             weight: 400,
             isSelectable: false,
@@ -202,32 +342,104 @@ class TaskPageState extends State<TaskPage> {
             ),
             width: 36,
             height: 36,
-            child: Image.asset('assets/icons/profile-icon.png'),
+            child: CircleAvatar(
+              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+              child: MyText(
+                task.assignedTo.isNotEmpty
+                    ? task.assignedTo[0].toUpperCase()
+                    : '?',
+                weight: 600,
+                color: AppColors.blue,
+              ),
+            ),
           ),
         ),
-        const DataCell(
-          MyText("11/02/2024"),
+        DataCell(
+          MyText(
+            _formatDate(task.startDate),
+          ),
         ),
-        const DataCell(
-          MyText("11/02/2024"),
+        DataCell(
+          MyText(
+            _formatDate(task.dueDate),
+          ),
         ),
         DataCell(
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                height: 10,
-                width: 10,
-                decoration: const ShapeDecoration(
-                  color: AppColors.blue,
-                  shape: OvalBorder(),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      height: 10,
+                      width: 10,
+                      decoration: ShapeDecoration(
+                        color: _getStatusColor(task.status.displayName),
+                        shape: const OvalBorder(),
+                      ),
+                    ),
+                    kSizedBoxWidthTiny,
+                    MyText(
+                      task.status.displayName,
+                    ),
+                  ],
                 ),
               ),
-              kSizedBoxWidthTiny,
-              const MyText("Undone"),
+              _buildActionMenu(context, index, task),
             ],
           ),
         ),
       ]);
-    });
+    }).toList();
+  }
+
+  Widget _buildActionMenu(BuildContext context, int index, Task task) {
+    return PopupMenuButton<String>(
+      onSelected: (String value) {
+        if (value == 'review') {
+          _openApprovalDialog(context, index, task);
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'review',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MyText('Review Task', isSelectable: false),
+            ],
+          ),
+        ),
+      ],
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFD5D5D5)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.more_vert, size: 18, color: AppColors.grey1),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return AppColors.green;
+      case 'in progress':
+        return AppColors.blue;
+      case 'pending':
+        return const Color(0xFFFFA500);
+      case 'undone':
+        return const Color(0xFF64748B);
+      default:
+        return AppColors.grey1;
+    }
   }
 }

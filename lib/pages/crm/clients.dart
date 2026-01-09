@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../components/input/my_dropdown.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import 'dialogs/client_dialog.dart';
@@ -189,50 +190,23 @@ class ClientsTable extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Color(0xFFF7F7F7),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      value: 'All Status',
-                      items: <String>['All Status', 'active', 'inactive']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                    MyDropdown(
+                      hintText: 'All Status',
+                      items: const ['All Status', 'active', 'inactive'],
                       onChanged: (String? newValue) {},
+                      fillColor: const Color(0xFFF7F7F7),
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Color(0xFFF7F7F7),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      value: 'All Types',
-                      items: <String>[
+                    MyDropdown(
+                      hintText: 'All Types',
+                      items: const [
                         'All Types',
                         'Government',
                         'Corporate',
                         'Institution'
-                      ].map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                      ],
                       onChanged: (String? newValue) {},
+                      fillColor: const Color(0xFFF7F7F7),
                     ),
                   ],
                 );
@@ -258,54 +232,25 @@ class ClientsTable extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                     Flexible(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(4.0)),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Color(0xFFF7F7F7),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        value: 'All Status',
-                        items: <String>['All Status', 'active', 'inactive']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                      child: MyDropdown(
+                        hintText: 'All Status',
+                        items: const ['All Status', 'active', 'inactive'],
                         onChanged: (String? newValue) {},
+                        fillColor: const Color(0xFFF7F7F7),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Flexible(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(4.0)),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Color(0xFFF7F7F7),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        value: 'All Types',
-                        items: <String>[
+                      child: MyDropdown(
+                        hintText: 'All Types',
+                        items: const [
                           'All Types',
                           'Government',
                           'Corporate',
                           'Institution'
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                        ],
                         onChanged: (String? newValue) {},
+                        fillColor: const Color(0xFFF7F7F7),
                       ),
                     ),
                   ],

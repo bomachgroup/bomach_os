@@ -1,16 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_dropdown2.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/hr/widget/add_attendance_dialog.dart';
+import 'package:bms_front_end/pages/hr/models/attendance_models.dart';
+import 'package:bms_front_end/pages/hr/widget/clock_in_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/view_attendance_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -21,6 +22,53 @@ class AttendancePage extends StatefulWidget {
 
 class AttendancePageState extends State<AttendancePage> {
   final ScrollController _scrollController = ScrollController();
+  late List<AttendanceRecord> _attendanceRecords;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSampleData();
+  }
+
+  void _initializeSampleData() {
+    _attendanceRecords = [
+      AttendanceRecord(
+        employeeId: 'K997KD',
+        employeeName: 'John Michael',
+        employeeEmail: 'johnmichael5@gmail.com',
+        date: DateTime.now(),
+        checkInTime: DateTime.now().subtract(const Duration(hours: 2)),
+        checkOutTime: DateTime.now(),
+        status: 'Present',
+      ),
+      AttendanceRecord(
+        employeeId: 'E002',
+        employeeName: 'Sarah Johnson',
+        employeeEmail: 'sarah.johnson@gmail.com',
+        date: DateTime.now(),
+        checkInTime: DateTime.now().subtract(const Duration(hours: 3)),
+        checkOutTime: null,
+        status: 'Present',
+      ),
+    ];
+  }
+
+  void _handleClockIn(AttendanceRecord record) {
+    setState(() {
+      // Check if record already exists, if so update it
+      final existingIndex = _attendanceRecords.indexWhere(
+        (r) =>
+            r.employeeId == record.employeeId &&
+            r.date.day == record.date.day,
+      );
+
+      if (existingIndex >= 0) {
+        _attendanceRecords[existingIndex] = record;
+      } else {
+        _attendanceRecords.insert(0, record);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -53,15 +101,17 @@ class AttendancePageState extends State<AttendancePage> {
                   ),
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Icons.access_time,
                       color: AppColors.white,
                     ),
-                    child: "New Attendance",
+                    child: "Clock In",
                     onTap: () {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return const AddAttendanceDialog();
+                          return ClockInDialog(
+                            onClockIn: _handleClockIn,
+                          );
                         },
                       );
                     },
@@ -186,11 +236,11 @@ class AttendancePageState extends State<AttendancePage> {
   }
 
   List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+    return _attendanceRecords.map((record) {
       return DataRow(cells: <DataCell>[
-        const DataCell(
+        DataCell(
           MyText(
-            "K997KD",
+            record.employeeId,
             size: 16,
             weight: 400,
             isSelectable: false,
@@ -205,40 +255,86 @@ class AttendancePageState extends State<AttendancePage> {
               },
             );
           },
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyText(
-                "John Michael",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                record.employeeName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
                 isSelectable: false,
               ),
               MyText(
-                "Johnmichael5@gmail.com",
+                record.employeeEmail,
                 isSelectable: false,
               ),
             ],
           ),
         ),
-        const DataCell(
+        DataCell(
           MyText(
-            "08:15:13",
+            record.checkInTime != null
+                ? DateFormat('HH:mm:ss').format(record.checkInTime!)
+                : '---',
           ),
         ),
-        const DataCell(
-          MyText("20:15:13"),
+        DataCell(
+          MyText(
+            record.checkOutTime != null
+                ? DateFormat('HH:mm:ss').format(record.checkOutTime!)
+                : '---',
+          ),
         ),
-        const DataCell(
-          MyText("12-07-2025"),
+        DataCell(
+          MyText(
+            DateFormat('dd-MM-yyyy').format(record.date),
+          ),
         ),
-        const DataCell(
-          MyDropdown2(),
+        DataCell(
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 6,
+            ),
+            decoration: BoxDecoration(
+              color: _getStatusColor(record.status),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: MyText(
+              record.status,
+              style: const TextStyle(
+                color: AppColors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ),
         const DataCell(
           ThreeDotPop(),
         ),
       ]);
-    });
+    }).toList();
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'present':
+        return AppColors.green;
+      case 'absent':
+        return AppColors.red;
+      case 'late':
+        return const Color(0xFFFFA500);
+      case 'early leave':
+        return const Color(0xFFFF6B6B);
+      case 'on leave':
+        return const Color(0xFF9B59B6);
+      case 'half day':
+        return const Color(0xFF3498DB);
+      case 'remote':
+        return const Color(0xFF27AE60);
+      default:
+        return AppColors.grey1;
+    }
   }
 }

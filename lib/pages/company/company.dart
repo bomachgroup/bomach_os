@@ -109,28 +109,39 @@ class CompanyProfilePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Bomach Group of Companies',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A202C),
+                    Expanded(
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.start,
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          const Text(
+                            'Bomach Group of Companies',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1A202C),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                          MyElevatedButton(
+                            icon: const Icon(
+                              Icons.add_circle_outline_rounded,
+                              color: AppColors.white,
+                            ),
+                            child: 'Edit Profile',
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const EditCompanyDialog(),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ),
-                    MyElevatedButton(
-                      icon: const Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: AppColors.white,
-                      ),
-                      child: 'Edit Profile',
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const EditCompanyDialog(),
-                        );
-                      },
                     ),
                   ],
                 ),

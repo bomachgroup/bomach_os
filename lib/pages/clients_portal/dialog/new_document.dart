@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:flutter/material.dart';
 
 import '../../../src/constants/colors.dart';
@@ -198,26 +199,10 @@ class UploadDocumentDialog extends StatelessWidget {
   }
 
   Widget _buildDropdown({required String value, required List<String> items}) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
+    return MyDropdown(
+      hintText: value,
+      items: items,
       onChanged: (String? newValue) {},
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      ),
     );
   }
 }

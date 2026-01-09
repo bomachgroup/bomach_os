@@ -1,9 +1,11 @@
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyTextFormField extends StatelessWidget {
   final TextEditingController? controller;
+  final String? initialValue;
   final FormFieldValidator<String>? validator;
   final Function(String?)? onSaved, onChanged;
   final TextInputAction? textInputAction;
@@ -23,31 +25,33 @@ class MyTextFormField extends StatelessWidget {
   final int maxLines;
   final List<BoxShadow>? boxShadow;
   final bool? readOnly;
+  final List<TextInputFormatter>? inputFormatters;
 
-  const MyTextFormField({
-    super.key,
-    this.controller,
-    this.validator,
-    this.onSaved,
-    this.onChanged,
-    this.textInputAction,
-    this.focusNode,
-    this.hintText = "Type",
-    this.leading,
-    this.trailing,
-    this.height,
-    this.fillColor,
-    this.textColor,
-    this.borderRadius,
-    this.textAlign = TextAlign.start,
-    this.keyboardType = TextInputType.text,
-    this.title,
-    this.onTap,
-    this.maxLines = 1,
-    this.spaceBetweenText,
-    this.boxShadow,
-    this.readOnly,
-  });
+  const MyTextFormField(
+      {super.key,
+      this.controller,
+      this.initialValue,
+      this.validator,
+      this.onSaved,
+      this.onChanged,
+      this.textInputAction,
+      this.focusNode,
+      this.hintText = "Type",
+      this.leading,
+      this.trailing,
+      this.height,
+      this.fillColor,
+      this.textColor,
+      this.borderRadius,
+      this.textAlign = TextAlign.start,
+      this.keyboardType = TextInputType.text,
+      this.title,
+      this.onTap,
+      this.maxLines = 1,
+      this.spaceBetweenText,
+      this.boxShadow,
+      this.readOnly,
+      this.inputFormatters});
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +89,13 @@ class MyTextFormField extends StatelessWidget {
           SizedBox(
             height: height,
             child: TextFormField(
+              inputFormatters: inputFormatters,
+              initialValue: controller != null ? null : initialValue,
+              controller: controller,
               maxLines: maxLines,
               readOnly: readOnly ?? onTap != null,
               onTap: onTap,
               focusNode: focusNode,
-              controller: controller,
               validator: validator,
               onSaved: onSaved,
               onChanged: onChanged,

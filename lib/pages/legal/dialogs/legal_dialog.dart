@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -45,12 +46,16 @@ class CreateNewLegalCaseDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         _buildFormLabel('Case Type'),
-                        _buildDropdown(value: 'Legal', items: const [
-                          'Legal',
-                          'Civil',
-                          'Criminal',
-                          'Regulatory'
-                        ]),
+                        MyDropdown(
+                          hintText: 'Legal',
+                          items: const [
+                            'Legal',
+                            'Civil',
+                            'Criminal',
+                            'Regulatory'
+                          ],
+                          onChanged: (String? newValue) {},
+                        ),
                       ],
                     ),
                   ),
@@ -60,9 +65,11 @@ class CreateNewLegalCaseDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         _buildFormLabel('Priority'),
-                        _buildDropdown(
-                            value: 'Medium',
-                            items: const ['Critical', 'High', 'Medium', 'Low']),
+                        MyDropdown(
+                          hintText: 'Medium',
+                          items: const ['Critical', 'High', 'Medium', 'Low'],
+                          onChanged: (String? newValue) {},
+                        ),
                       ],
                     ),
                   ),
@@ -95,9 +102,11 @@ class CreateNewLegalCaseDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _buildFormLabel('Status'),
-              _buildDropdown(
-                  value: 'Open',
-                  items: const ['Open', 'Pending', 'Closed', 'Archived']),
+              MyDropdown(
+                hintText: 'Open',
+                items: const ['Open', 'Pending', 'Closed', 'Archived'],
+                onChanged: (String? newValue) {},
+              ),
               const SizedBox(height: 16),
               _buildFormLabel('Case Description'),
               _buildMultiLineTextInput(hint: ''),
@@ -173,24 +182,4 @@ class CreateNewLegalCaseDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildDropdown({required String value, required List<String> items}) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(value: item, child: Text(item));
-      }).toList(),
-      onChanged: (String? newValue) {},
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      ),
-    );
-  }
 }

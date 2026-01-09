@@ -4,6 +4,9 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/widget/add_invoice_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/add_service_dialog.dart';
+import 'package:bms_front_end/pages/services/service_leads.dart';
+import 'package:bms_front_end/pages/services/service_invoices.dart';
+import 'package:bms_front_end/pages/services/generate_invoice_page.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -89,6 +92,9 @@ class _ServicesPageState extends State<ServicesPage> {
         if (_selectedTab == 1) _quotes(),
         if (_selectedTab == 2) _orders(),
         if (_selectedTab == 3) _billing(),
+        if (_selectedTab == 4) const GenerateInvoicePage(),
+        if (_selectedTab == 5) const ServiceLeadsPage(),
+        if (_selectedTab == 6) const ServiceInvoicesPage(),
 
         // _catalog(),
         // _quotes(),
@@ -450,6 +456,9 @@ class _ServicesPageState extends State<ServicesPage> {
       'Quotes (12)',
       'Orders (6)',
       'Billing (5)',
+      'Generate Invoice',
+      'Service Leads (4)',
+      'Service Invoices (3)',
     ];
 
     return SingleChildScrollView(

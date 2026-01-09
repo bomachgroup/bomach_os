@@ -1,3 +1,4 @@
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -95,39 +96,31 @@ class AddNewClientDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Client Type'),
-                        _buildDropdown(
-                          value: 'Individual',
-                          items: const [
-                            'Individual',
-                            'Corporate',
-                            'Government',
-                            'Institution'
-                          ],
-                        ),
+                    child: MyDropdown(
+                      title: 'Client Type',
+                      hintText: 'Select Client Type',
+                      items: const [
+                        'Individual',
+                        'Corporate',
+                        'Government',
+                        'Institution'
                       ],
+                      onChanged: (String? newValue) {},
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Industry'),
-                        _buildDropdown(
-                          value: 'Real Estate',
-                          items: const [
-                            'Real Estate',
-                            'Construction',
-                            'Oil & Gas',
-                            'Education',
-                            'Other'
-                          ],
-                        ),
+                    child: MyDropdown(
+                      title: 'Industry',
+                      hintText: 'Select Industry',
+                      items: const [
+                        'Real Estate',
+                        'Construction',
+                        'Oil & Gas',
+                        'Education',
+                        'Other'
                       ],
+                      onChanged: (String? newValue) {},
                     ),
                   ),
                 ],
@@ -217,30 +210,6 @@ class AddNewClientDialog extends StatelessWidget {
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
-
-  Widget _buildDropdown({required String value, required List<String> items}) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {},
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
     );
   }

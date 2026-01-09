@@ -119,14 +119,27 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(
                   height: 5,
                 ),
-                const Row(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    MyText(
+                    const MyText(
                       "Forgot password?",
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w300),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        context.go(RouteConstants.biometric);
+                      },
+                      child: const MyText(
+                        "Use Biometric",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300),
+                      ),
                     ),
                   ],
                 )

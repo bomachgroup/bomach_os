@@ -16,9 +16,11 @@ enum MainMenuItem {
   dashboard,
   company,
   hr,
+  employee,
   work,
   marketing,
   calendar,
+  events,
   services,
   notification,
   settings,
@@ -37,12 +39,20 @@ enum SubMenuItem {
   // Company sub-items
   company,
   branch,
+  auditLog,
+  compliance,
   enugu,
   portHarcourt,
   abuja,
 
   // HR sub-items
   employees,
+
+  // Employee sub-items
+  employeeDirectory,
+  employeePerformance,
+  employeeAttendance,
+  employeeTraining,
   leaves,
   clients,
   leads,
@@ -53,10 +63,19 @@ enum SubMenuItem {
   jobPost,
   jobApplicants,
   attendance,
+  clockIn,
   leaveRequest,
   performance,
   payroll,
   trainingProgram,
+  associates,
+  assets,
+  workReport,
+  monthlyScorecard,
+  awardsRecognition,
+  performanceLeaderboard,
+  employeeEvaluation,
+  disciplinaryProcess,
 
   // Warketing sub-items
   marketing,
@@ -67,19 +86,31 @@ enum SubMenuItem {
   worksite,
   tasks,
   contracts,
+  meetings,
 
   // Services sub-items
   servicesDashboard,
+  serviceClients,
   serviceOrder,
   realEstate,
   landSurvey,
   servicesItem,
+  propertyManagement,
+  estateManagement,
+  estatePerformance,
+  paymentApproval,
+  landSurveyCalculator,
+  servicesCalculator,
+  generateInvoice,
+  serviceLeads,
+  serviceInvoices,
 
   // Finance & Accounting sub-items
   financeDashboard,
   invoice,
   payments,
   expenses,
+  budget,
   vendorContributor,
 
   // Workspace
@@ -91,6 +122,7 @@ enum SubMenuItem {
   revenue,
   projects,
   analyticsPerformance,
+  branchPerformance,
 
   // Legal & Compliance
   legalContracts,
@@ -199,6 +231,21 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.branch,
           ),
           SubMenuItemData(
+            id: SubMenuItem.auditLog,
+            label: 'Audit Log',
+            route: RouteConstants.auditLog,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.compliance,
+            label: 'Compliance',
+            route: RouteConstants.compliance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.branchPerformance,
+            label: 'Branch Performance',
+            route: RouteConstants.branchPerformanceAnalysis,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.enugu,
             label: 'Enugu',
             route: RouteConstants.enugu,
@@ -240,6 +287,11 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.attendance,
           ),
           SubMenuItemData(
+            id: SubMenuItem.clockIn,
+            label: 'Clock In',
+            route: RouteConstants.clockIn,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.leaveRequest,
             label: 'Leave Request',
             route: RouteConstants.leaveRequest,
@@ -260,6 +312,46 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.trainingProgram,
           ),
           SubMenuItemData(
+            id: SubMenuItem.associates,
+            label: 'Associates',
+            route: RouteConstants.associates,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.assets,
+            label: 'Assets',
+            route: RouteConstants.assets,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.workReport,
+            label: 'Work Reports',
+            route: RouteConstants.workReport,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.monthlyScorecard,
+            label: 'Monthly Scorecard',
+            route: RouteConstants.monthlyScorecard,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.awardsRecognition,
+            label: 'Awards & Recognition',
+            route: RouteConstants.awardsRecognition,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.performanceLeaderboard,
+            label: 'Performance Leaderboard',
+            route: RouteConstants.performanceLeaderboard,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employeeEvaluation,
+            label: 'Employee Evaluation',
+            route: RouteConstants.employeeEvaluation,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.disciplinaryProcess,
+            label: 'Disciplinary Process',
+            route: RouteConstants.disciplinaryProcess,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.employees,
             label: 'Employees',
             route: RouteConstants.employees,
@@ -270,22 +362,41 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.leaves,
           ),
           SubMenuItemData(
-            id: SubMenuItem.clients,
-            label: 'Clients',
-            route: RouteConstants.clients,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leads,
-            label: 'Leads',
-            route: RouteConstants.leads,
-          ),
-          SubMenuItemData(
             id: SubMenuItem.department,
             label: 'Department',
             route: RouteConstants.department,
           ),
         ],
       ),
+      // const MenuItem(
+      //   id: MainMenuItem.employee,
+      //   label: 'Employee',
+      //   iconPath: 'assets/svg/sidebar/people.svg',
+      //   route: RouteConstants.employee,
+      //   isExpandable: true,
+      //   children: [
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeeDirectory,
+      //       label: 'Directory',
+      //       route: RouteConstants.employeeDirectory,
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeePerformance,
+      //       label: 'Performance Reviews',
+      //       route: RouteConstants.employeePerformance,
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeeAttendance,
+      //       label: 'Attendance',
+      //       route: RouteConstants.employeeAttendance,
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.employeeTraining,
+      //       label: 'Training Programs',
+      //       route: RouteConstants.employeeTraining,
+      //     ),
+      //   ],
+      // ),
       const MenuItem(
         id: MainMenuItem.work,
         label: 'Operations',
@@ -315,6 +426,11 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.contracts,
             label: 'Contracts',
             route: RouteConstants.contracts,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.meetings,
+            label: 'Meetings',
+            route: RouteConstants.meetings,
           ),
         ],
       ),
@@ -358,6 +474,11 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.expense,
           ),
           SubMenuItemData(
+            id: SubMenuItem.budget,
+            label: 'Budget',
+            route: RouteConstants.budget,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.vendorContributor,
             label: 'Vendor/Contributor',
             route: RouteConstants.contractPayment,
@@ -371,6 +492,13 @@ class _SideMenuState extends State<SideMenu> {
         isExpandable: true,
       ),
       const MenuItem(
+        id: MainMenuItem.events,
+        label: 'Events',
+        iconPath: 'assets/svg/sidebar/calendar.svg',
+        route: RouteConstants.events,
+        isExpandable: false,
+      ),
+      const MenuItem(
         id: MainMenuItem.services,
         label: 'Services',
         iconPath: 'assets/svg/sidebar/calendar.svg',
@@ -380,6 +508,11 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.servicesDashboard,
             label: 'Dashboard',
             route: RouteConstants.services,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.serviceClients,
+            label: 'Clients',
+            route: RouteConstants.serviceClients,
           ),
           SubMenuItemData(
             id: SubMenuItem.serviceOrder,
@@ -400,6 +533,51 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.servicesItem,
             label: 'Services',
             route: RouteConstants.servicesProperty,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.propertyManagement,
+            label: 'Property Management',
+            route: RouteConstants.propertyList,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.estateManagement,
+            label: 'Estate Management',
+            route: RouteConstants.estateManagement,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.estatePerformance,
+            label: 'Estate Performance',
+            route: RouteConstants.estatePerformance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.paymentApproval,
+            label: 'Payment Approval',
+            route: RouteConstants.paymentApproval,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.landSurveyCalculator,
+            label: 'Land Survey Calculator',
+            route: RouteConstants.landSurveyCalculator,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.servicesCalculator,
+            label: 'Services Calculator',
+            route: RouteConstants.servicesCalculator,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.generateInvoice,
+            label: 'Generate Invoice',
+            route: RouteConstants.generateInvoice,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.serviceLeads,
+            label: 'Service Leads',
+            route: RouteConstants.serviceLeads,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.serviceInvoices,
+            label: 'Service Invoices',
+            route: RouteConstants.serviceInvoices,
           ),
         ],
       ),
@@ -446,6 +624,11 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.analyticsPerformance,
             label: 'Performance',
             route: RouteConstants.analyticsPerformance,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.branchPerformance,
+            label: 'Branch Performance',
+            route: RouteConstants.branchPerformanceAnalysis,
           ),
         ],
       ),
