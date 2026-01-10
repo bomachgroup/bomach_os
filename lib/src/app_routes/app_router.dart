@@ -91,17 +91,20 @@ import 'package:bms_front_end/pages/workspace/workspace.dart';
 import 'package:bms_front_end/pages/workspace/workspace_dashboard.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../pages/analytics/performance.dart';
 import '../../pages/analytics/projects.dart';
 import '../../pages/analytics/revenue.dart';
 import '../../pages/analytics/branch_performance_analysis.dart';
+import '../../pages/auth/controller.dart';
 import '../../pages/crm/clients.dart';
 import '../../pages/crm/interactions.dart';
 import '../../pages/crm/lead.dart';
 import '../../pages/events/events.dart';
 import '../../pages/security/security.dart';
+import 'refresh_route.dart';
 
 /// Map of all dashboard screens to their routes for better maintainability
 final Map<String, Widget> _dashboardRoutes = {
@@ -201,7 +204,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.analyticsRevenue: const RevenueAnalyticsPage(),
   RouteConstants.analyticsProjects: const ProjectsAnalytics(),
   RouteConstants.analyticsPerformance: const PerformanceAnalytics(),
-  RouteConstants.branchPerformanceAnalysis: const BranchPerformanceAnalysisPage(),
+  RouteConstants.branchPerformanceAnalysis:
+      const BranchPerformanceAnalysisPage(),
   // Legals and Compliance
   RouteConstants.legalAudits: const LegalsPage(selectedIndex: 3),
   RouteConstants.legalContracts: const LegalsPage(selectedIndex: 0),
@@ -250,8 +254,30 @@ StatefulShellBranch _createBranch(String path, Widget screen) {
 }
 
 /// Main router configuration
+final AuthController authController = Get.find<AuthController>();
 final goRouter = GoRouter(
-  initialLocation: RouteConstants.home,
+  initialLocation: RouteConstants.login,
+  debugLogDiagnostics: true,
+  refreshListenable: GoRouterRefreshStream(authController.currentUser.stream),
+  redirect: (BuildContext context, GoRouterState state) {
+    final bool isLoggedIn = authController.currentUser.value != null;
+    final String location = state.matchedLocation;
+
+    final bool isLoginRoute = location == RouteConstants.login;
+
+    // Not logged in? Go to Login
+    if (!isLoggedIn && !isLoginRoute) {
+      return RouteConstants.login;
+    }
+
+    // Logged in and trying to go to Login? Go to Home
+    if (isLoggedIn && isLoginRoute) {
+      return RouteConstants.home;
+    }
+
+    // Let them go where they want
+    return null;
+  },
   routes: [
     // Login route (outside the dashboard shell)
     GoRoute(

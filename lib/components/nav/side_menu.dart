@@ -801,7 +801,7 @@ class _SideMenuState extends State<SideMenu> {
       }
     }
 
-    log('Route Mapping Initialized: $routeToMenuMapping');
+    // log('Route Mapping Initialized: $routeToMenuMapping');
   }
 
   void _updateSelectionBasedOnCurrentRoute() {

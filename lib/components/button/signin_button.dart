@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SigninButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  const SigninButton({super.key, required this.onPressed});
+  final VoidCallback? onPressed;
+  const SigninButton({super.key, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
