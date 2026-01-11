@@ -90,12 +90,19 @@ class AuthService {
   }
 
   // GET CURRENT USER
-  Future<User> getCurrentUser({required String accessToken}) async {
+  Future<User> getCurrentUser(
+      {required String accessToken, required int userId}) async {
     try {
+      // Use the specific employee endpoint instead of /auth/me
       final response = await _dio.get(
-        '/api/v1/auth/me',
+        '/api/v1/employees/employees/$userId',
         options: _authOptions(accessToken),
       );
+
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        throw AuthException(message: 'Server returned invalid user data');
+      }
+
       return User.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);

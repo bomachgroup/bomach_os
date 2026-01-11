@@ -82,40 +82,57 @@ class AuthController extends GetxController {
       ),
     );
   }
-Future<void> login(BuildContext context) async {
+
+  Future<void> login(BuildContext context) async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      _showSnackBar(context, 'Please enter both User ID and PIN', isError: true);
+      _showSnackBar(context, 'Please enter both User ID and PIN',
+          isError: true);
       return;
     }
 
     FocusManager.instance.primaryFocus?.unfocus();
-    isLoading.value = true; 
+    isLoading.value = true;
 
     try {
       final response = await _authService.login(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
-      
+
       await _storage.write(key: 'access_token', value: response.accessToken);
       await _storage.write(key: 'refresh_token', value: response.refreshToken);
+      await _storage.write(key: 'user_id', value: response.userId.toString());
 
       // Updating currentUser.value will trigger GoRouter to redirect automatically!
-      final user = await _authService.getCurrentUser(accessToken: response.accessToken);
-      currentUser.value = user;
+      await _fetchUserProfile(
+        response.accessToken,
+        response.userId,
+      );
 
       if (context.mounted) {
         _showSnackBar(context, 'Login Successful');
       }
-
     } on AuthException catch (e) {
       if (context.mounted) _showDialog(context, "Error", e.message);
     } catch (e) {
       if (context.mounted) {
-         _showDialog(context, "Connection Error", "Please check your internet connection.");
+        _showDialog(context, "Connection Error",
+            "Please check your internet connection.");
       }
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _fetchUserProfile(String token, int userId) async {
+    try {
+      // Pass the userId to the service
+      final user =
+          await _authService.getCurrentUser(accessToken: token, userId: userId);
+      currentUser.value = user;
+    } catch (e) {
+      log("Fetch Profile Failed: $e");
+      throw AuthException(message: 'Could not find user');
     }
   }
 
@@ -183,15 +200,19 @@ Future<void> login(BuildContext context) async {
     }
   }
 
-
- Future<void> checkAuthStatus() async {
+  Future<void> checkAuthStatus() async {
     try {
       final token = await _storage.read(key: 'access_token');
-      if (token != null) {
+      final userIdString = await _storage.read(key: 'user_id');
+
+      if (token != null && userIdString != null) {
         final isValid = await _authService.verifyToken(accessToken: token);
         if (isValid) {
-          final user = await _authService.getCurrentUser(accessToken: token);
-          currentUser.value = user; 
+          final userId = int.parse(userIdString);
+
+          final user = await _authService.getCurrentUser(
+              accessToken: token, userId: userId);
+          currentUser.value = user;
         } else {
           await logout();
         }

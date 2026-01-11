@@ -5,12 +5,17 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'controller.dart';
 
 class CompanyProfilePage extends StatelessWidget {
   const CompanyProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final CompanyController controller = Get.put(CompanyController());
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -20,315 +25,324 @@ class CompanyProfilePage extends StatelessWidget {
         ),
         kSizedBox,
 
-        // Stats Cards Row
-        const Row(
-          children: [
-            Expanded(
-              child: StatsCard(
-                number: '452',
-                label: 'Assets',
-                subtitle: '2 new assets added!',
-                icon: Icons.people_outline,
-                subtitleColor: Colors.green,
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: StatsCard(
-                number: '20',
-                label: 'Active Branches',
-                subtitle: '2 new Branches added!',
-                icon: Icons.account_tree_outlined,
-                subtitleColor: Colors.green,
-              ),
-            ),
-          ],
-        ),
+        // const Row(
+        //   children: [
+        //     Expanded(
+        //       child: StatsCard(
+        //         number: '452',
+        //         label: 'Assets',
+        //         subtitle: '2 new assets added!',
+        //         icon: Icons.people_outline,
+        //         subtitleColor: Colors.green,
+        //       ),
+        //     ),
+        //     SizedBox(width: 16),
+        //     Expanded(
+        //       child: StatsCard(
+        //         number: '20',
+        //         label: 'Active Branches',
+        //         subtitle: '2 new Branches added!',
+        //         icon: Icons.account_tree_outlined,
+        //         subtitleColor: Colors.green,
+        //       ),
+        //     ),
+        //   ],
+        // ),
 
-        const SizedBox(height: 24),
+        // const SizedBox(height: 24),
 
-        // Recent Activity Card
-        Card(
-          color: AppColors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recent Activity',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A202C),
+        // Card(
+        //   color: AppColors.white,
+        //   elevation: 2,
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.circular(12),
+        //   ),
+        //   child: const Padding(
+        //     padding: EdgeInsets.all(20),
+        //     child: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         Text(
+        //           'Recent Activity',
+        //           style: TextStyle(
+        //             fontSize: 18,
+        //             fontWeight: FontWeight.w600,
+        //             color: Color(0xFF1A202C),
+        //           ),
+        //         ),
+        //         SizedBox(height: 16),
+        //         ActivityItem(
+        //           name: 'Karen',
+        //           action: 'leave some comments on',
+        //           target: 'Konsep Ilustrasi',
+        //           date: 'Aug 10',
+        //           color: Colors.green,
+        //         ),
+        //         // ... you can add more items here
+        //       ],
+        //     ),
+        //   ),
+        // ),
+
+        // const SizedBox(height: 24),
+
+        Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40.0),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          if (controller.hasError.value ||
+              controller.companySettings.value == null) {
+            return Center(
+              child: Column(
+                children: [
+                  const Text("Failed to load company profile"),
+                  TextButton(
+                      onPressed: controller.fetchCompanyProfile,
+                      child: const Text("Retry"))
+                ],
+              ),
+            );
+          }
+
+          final data = controller.companySettings.value!;
+
+          return Card(
+            color: AppColors.white,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.start,
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            Text(
+                              data.companyName, // DYNAMIC
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1A202C),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                            MyElevatedButton(
+                              icon: const Icon(
+                                Icons.add_circle_outline_rounded,
+                                color: AppColors.white,
+                              ),
+                              child: 'Edit Profile',
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      const EditCompanyDialog(),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: 16),
-                ActivityItem(
-                  name: 'Karen',
-                  action: 'leave some comments on',
-                  target: 'Konsep Ilustrasi',
-                  date: 'Aug 10',
-                  color: Colors.green,
-                ),
-                ActivityItem(
-                  name: 'Karen',
-                  action: 'change project info on',
-                  target: 'Project Homepage',
-                  date: 'Aug 10',
-                  color: Colors.blue,
-                ),
-                ActivityItem(
-                  name: 'Andrea',
-                  action: 'change the due date of',
-                  target: 'Project Homepage',
-                  date: 'Aug 10',
-                  color: Colors.orange,
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Company Details Card
-        Card(
-          color: AppColors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        crossAxisAlignment: WrapCrossAlignment.start,
-                        spacing: 10,
-                        runSpacing: 10,
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Logo',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Center(
+                          // Check if logo URL exists, else show asset
+                          child: data.companyLogo != null &&
+                                  data.companyLogo!.isNotEmpty
+                              ? Image.network(
+                                  data.companyLogo!,
+                                  height: 80,
+                                  width: 80,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset("assets/logo/bomach.png",
+                                          height: 80),
+                                )
+                              : Image.asset(
+                                  "assets/logo/bomach.png",
+                                  height: 80,
+                                  width: 80,
+                                ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Bomach Group of Companies',
+                            'Company Name',
                             style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                          Text(
+                            data.companyName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFF1A202C),
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                          ),
-                          MyElevatedButton(
-                            icon: const Icon(
-                              Icons.add_circle_outline_rounded,
-                              color: AppColors.white,
-                            ),
-                            child: 'Edit Profile',
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => const EditCompanyDialog(),
-                              );
-                            },
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Company Logo and Name
-                const Text(
-                  'Logo',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF64748B),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 10),
-
-                Row(
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: Center(
-                        child: Image.asset(
-                          "assets/logo/bomach.png",
-                          height: 80,
-                          width: 80,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Company Name',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                        Text(
-                          'Bomach Group of Companies',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF1A202C),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Company Details
-                const CompanyDetailItem(
-                  label: 'Company Email',
-                  value: 'Bomachgroups@gmail.com',
-                ),
-
-                const CompanyDetailItem(
-                  label: 'Company Phone',
-                  value: '+2348123467890',
-                ),
-
-                const CompanyDetailItem(
-                  label: 'Company Addresses',
-                  value:
-                      'This is a mock representation of the first Branch address\nThis is a mock representation of the first Branch address\nThis is a mock representation of the first Branch address',
-                ),
-
-                const CompanyDetailItem(
-                  label: 'RC Number',
-                  value: 'JFL488L03LHFR',
-                ),
-
-                // Color Codes Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Primary Color Code',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF64748B),
+                  const SizedBox(height: 24),
+                  CompanyDetailItem(
+                    label: 'Company Email',
+                    value: data.companyEmail,
+                  ),
+                  CompanyDetailItem(
+                    label: 'Company Phone',
+                    value: data.companyPhone,
+                  ),
+                  CompanyDetailItem(
+                    label: 'Company Addresses',
+                    value: data.companyAddresses,
+                  ),
+                  CompanyDetailItem(
+                    label: 'RC Number',
+                    value: data.rcNumber,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Primary Color Code',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF64748B),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFDC2626),
-                                  borderRadius: BorderRadius.circular(2),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    // Use Controller helper to parse hex
+                                    color: controller
+                                        .getColorFromHex(data.primaryColorCode),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                '#FE0000',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF1A202C),
+                                const SizedBox(width: 8),
+                                Text(
+                                  data.primaryColorCode,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF1A202C),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Secondary Color Code',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF64748B),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF1E3A8A),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Secondary Color Code',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF64748B),
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                '#3E4094',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF1A202C),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    // Use Controller helper to parse hex
+                                    color: controller.getColorFromHex(
+                                        data.secondaryColorCode),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                                const SizedBox(width: 8),
+                                Text(
+                                  data.secondaryColorCode,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF1A202C),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                // Currency and Language Row
-                const Row(
-                  children: [
-                    Expanded(
-                      child: CompanyDetailItem(
-                        label: 'Default Currency',
-                        value: 'NGN Naira',
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CompanyDetailItem(
+                          label: 'Default Currency',
+                          value: data.defaultCurrency,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: CompanyDetailItem(
-                        label: 'Language Preference',
-                        value: 'English UK',
+                      Expanded(
+                        child: CompanyDetailItem(
+                          label: 'Language Preference',
+                          value: data.languagePreference,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-
-                const CompanyDetailItem(
-                  label: 'Business Rules',
-                  value:
-                      'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field.',
-                ),
-              ],
+                    ],
+                  ),
+                  CompanyDetailItem(
+                    label: 'Business Rules',
+                    value: data.businessRules,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
