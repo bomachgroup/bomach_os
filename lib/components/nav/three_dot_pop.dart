@@ -5,12 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 class ThreeDotPop extends StatefulWidget {
   final void Function()? onTapView;
   final void Function()? onTapEdit;
-  final void Function()? onTapDelete;
+  // final void Function()? onTapDelete;
   const ThreeDotPop({
     super.key,
     this.onTapView,
     this.onTapEdit,
-    this.onTapDelete,
+    // this.onTapDelete,
   });
 
   @override
@@ -86,16 +86,16 @@ class _ThreeDotPopState extends State<ThreeDotPop> {
                       }
                     },
                   ),
-                  _buildMenuItem(
-                    svgPath: "assets/svg/trash-can.svg",
-                    title: 'Delete',
-                    onTap: () {
-                      _removeOverlay();
-                      if (widget.onTapDelete != null) {
-                        widget.onTapDelete!();
-                      }
-                    },
-                  ),
+                  // _buildMenuItem(
+                  //   svgPath: "assets/svg/trash-can.svg",
+                  //   title: 'Delete',
+                  //   onTap: () {
+                  //     _removeOverlay();
+                  //     if (widget.onTapDelete != null) {
+                  //       widget.onTapDelete!();
+                  //     }
+                  //   },
+                  // ),
                 ],
               ),
             ),

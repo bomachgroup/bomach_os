@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
-import '../controller.dart';
+import '../controllers/company_controller.dart';
 
 class EditCompanyDialog extends StatefulWidget {
   const EditCompanyDialog({super.key});
@@ -49,10 +49,12 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
     sloganCtrl = TextEditingController(text: data.companySlogan);
     rulesCtrl = TextEditingController(text: data.businessRules);
 
-    if (data.defaultCurrency.isNotEmpty)
+    if (data.defaultCurrency.isNotEmpty) {
       selectedCurrency = data.defaultCurrency;
-    if (data.languagePreference.isNotEmpty)
+    }
+    if (data.languagePreference.isNotEmpty) {
       selectedLanguage = data.languagePreference;
+    }
   }
 
   @override
@@ -225,9 +227,10 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                                           spaceBetweenText: 10,
                                           title: 'Default Currency',
                                           onChanged: (val) {
-                                            if (val != null)
+                                            if (val != null) {
                                               setState(
                                                   () => selectedCurrency = val);
+                                            }
                                           },
                                         ),
                                       ],
@@ -249,9 +252,10 @@ class _EditCompanyDialogState extends State<EditCompanyDialog> {
                                           spaceBetweenText: 10,
                                           title: 'Language Preference',
                                           onChanged: (val) {
-                                            if (val != null)
+                                            if (val != null) {
                                               setState(
                                                   () => selectedLanguage = val);
+                                            }
                                           },
                                         ),
                                       ],

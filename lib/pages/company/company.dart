@@ -7,7 +7,7 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'controller.dart';
+import 'controllers/company_controller.dart';
 
 class CompanyProfilePage extends StatelessWidget {
   const CompanyProfilePage({super.key});
@@ -78,7 +78,6 @@ class CompanyProfilePage extends StatelessWidget {
         //           date: 'Aug 10',
         //           color: Colors.green,
         //         ),
-        //         // ... you can add more items here
         //       ],
         //     ),
         //   ),

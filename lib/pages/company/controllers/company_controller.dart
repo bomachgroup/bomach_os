@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../src/model/company_model.dart';
-import '../../src/services/company_service.dart';
+import '../../../src/model/company_model.dart';
+import '../../../src/services/company_service.dart';
 
 class CompanyController extends GetxController {
   final CompanyService _companyService =

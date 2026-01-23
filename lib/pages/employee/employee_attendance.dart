@@ -32,6 +32,7 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
                   'Monitor and manage employee attendance records',
                   style: AppText.black_600_14,
                 ),
+
               ],
             ),
           ),
@@ -48,12 +49,15 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+
                     Icon(
                       Icons.calendar_today_outlined,
                       size: 48,
                       color: AppColors.grey4,
                     ),
+
                     SizedBox(height: 16),
+
                     MyText(
                       'No attendance records found',
                       style: AppText.black_400_14,
