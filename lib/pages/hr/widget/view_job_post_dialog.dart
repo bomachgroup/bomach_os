@@ -1,22 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controller/jobposting_control.dart';
+import '../models/job_posting.dart';
+import 'add_job_post_dialog.dart';
 
-class ViewJobPostDialog extends StatefulWidget {
-  const ViewJobPostDialog({super.key});
-
-  @override
-  State<ViewJobPostDialog> createState() => _ViewJobPostDialogState();
-}
-
-class _ViewJobPostDialogState extends State<ViewJobPostDialog> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+class ViewJobPostDialog extends StatelessWidget {
+  final JobPosting job;
+  const ViewJobPostDialog({super.key, required this.job});
 
   Widget _buildDetailRow(String label, String value, {bool isBlue = false}) {
     return Padding(
@@ -52,6 +44,8 @@ class _ViewJobPostDialogState extends State<ViewJobPostDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final JobPostController controller = Get.find<JobPostController>();
+
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       shape: RoundedRectangleBorder(
@@ -59,16 +53,13 @@ class _ViewJobPostDialogState extends State<ViewJobPostDialog> {
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 846),
-
-        // width: MediaQuery.of(context).size.width * 0.9,
-        // height: MediaQuery.of(context).size.height * 0.85,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: [
-            // Header
+            // --- HEADER ---
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
@@ -106,42 +97,29 @@ class _ViewJobPostDialogState extends State<ViewJobPostDialog> {
 
             const Divider(height: 1, color: Color(0xFFE5E5E5)),
 
-            // Scrollable Content
+            // --- CONTENT ---
             Expanded(
-              child: Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailRow('Job Title', 'Operational Manager'),
-                      _buildDetailRow('Department', 'Operations'),
-                      _buildDetailRow('State', 'Enugu'),
-                      _buildDetailRow('L.G.A', 'Enugu south'),
-                      _buildDetailRow('Office Address',
-                          'gfvdcisvyif viyfgdsykgogl fyifds9yifvy viyfdsykfgovldsg fy9ivsyvog higvysidyobu ihbsfbvyou hivscy9bvxog isziyvkg 8 isvxyiy9ikx y8svicxb8yh9b y8svcyfgz9c7ioh y8vsiby9gox '),
-                      _buildDetailRow('Branch ID', '#SSC23'),
-                      _buildDetailRow('Job Type', 'Full Time'),
-                      _buildDetailRow('Salary Range', '150,000 - 250,000'),
-                      _buildDetailRow('Description',
-                          'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. '),
-                      _buildDetailRow('Responsibilities',
-                          'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. '),
-                      _buildDetailRow('Requirements',
-                          'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. '),
-                      _buildDetailRow(
-                          'Application Deadline', '12th July 2021 : 20:15:13'),
-                      _buildDetailRow('Status', 'Open'),
-
-                      const SizedBox(height: 100), // Space for bottom buttons
-                    ],
-                  ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDetailRow('Job Title', job.title),
+                    _buildDetailRow('Department', job.departmentId),
+                    _buildDetailRow('Branch ID', job.branchId),
+                    _buildDetailRow('Job Type', job.jobType),
+                    _buildDetailRow('Salary Range', "${job.salaryRangeMin} - ${job.salaryRangeMax}"),
+                    _buildDetailRow('Description', job.description),
+                    _buildDetailRow('Requirements', job.requirements ?? 'N/A'),
+                    _buildDetailRow('Status', job.status, isBlue: true),
+                    
+                    const SizedBox(height: 100),
+                  ],
                 ),
               ),
             ),
+
+            // --- FOOTER BUTTONS ---
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
@@ -150,26 +128,27 @@ class _ViewJobPostDialogState extends State<ViewJobPostDialog> {
                 ),
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Wrap(
-                      spacing: 15,
-                      runSpacing: 15,
-                      alignment: WrapAlignment.end,
-                      children: [
-                        MyElevatedButton(
-                          bgColor: AppColors.red,
-                          child: 'Delete',
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        MyElevatedButton(
-                          child: 'Edit',
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
+                  Obx(() => MyElevatedButton(
+                    bgColor: AppColors.red,
+                    child: controller.isLoading.value ? 'Deleting...' : 'Delete',
+                    onTap: controller.isLoading.value 
+                      ? () {}
+                      : () {
+                          controller.deleteJobPosting(context, job.id);
+                        },
+                  )),
+                  const SizedBox(width: 15),
+                  MyElevatedButton(
+                    child: 'Edit',
+                    onTap: () {
+                      Navigator.pop(context); // Close view dialog
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddJobPostDialog(job: job), 
+                      );
+                    },
                   ),
                 ],
               ),

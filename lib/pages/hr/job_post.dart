@@ -5,12 +5,16 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/hr/controller/jobposting_control.dart';
 import 'package:bms_front_end/pages/hr/widget/add_job_post_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/view_job_post_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'models/job_posting.dart';
 
 class JobPostPage extends StatefulWidget {
   const JobPostPage({super.key});
@@ -21,6 +25,16 @@ class JobPostPage extends StatefulWidget {
 
 class JobPostPageState extends State<JobPostPage> {
   final ScrollController _scrollController = ScrollController();
+  
+  final JobPostController controller = Get.put(JobPostController());
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchJobPostings(context);
+    });
+  }
 
   @override
   void dispose() {
@@ -33,6 +47,7 @@ class JobPostPageState extends State<JobPostPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // --- HEADER ---
         Row(
           children: [
             Expanded(
@@ -58,10 +73,11 @@ class JobPostPageState extends State<JobPostPage> {
                     ),
                     child: "New Job Post",
                     onTap: () {
+                      controller.clearForm();
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return const AddJobPostDialog();
+                          return const AddJobPostDialog(); // No job passed = Create Mode
                         },
                       );
                     },
@@ -72,6 +88,8 @@ class JobPostPageState extends State<JobPostPage> {
           ],
         ),
         kSizedBox,
+
+        // --- SEARCH & SORT ---
         Row(
           children: [
             Expanded(
@@ -86,8 +104,10 @@ class JobPostPageState extends State<JobPostPage> {
                       hintText: 'Search for Job Postings...',
                       leading: Icon(
                         Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        color: AppColors.grey1.withOpacity(0.5),
                       ),
+                      // TODO: trigger search in controller
+                      // onChanged: (val) => controller.fetchJobPostings(context, search: val), 
                     ),
                   ),
                   const Row(
@@ -105,6 +125,8 @@ class JobPostPageState extends State<JobPostPage> {
         ),
         kSizedBox,
         kSizedBoxSM,
+
+        // --- DATA TABLE ---
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
@@ -122,17 +144,33 @@ class JobPostPageState extends State<JobPostPage> {
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
+                      minWidth: MediaQuery.of(context).size.width * 0.7,
                     ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
-                    ),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Padding(
+                          padding: EdgeInsets.all(40.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      if (controller.jobList.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.all(40.0),
+                          child: Center(child: MyText("No job postings found.")),
+                        );
+                      }
+
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.jobList),
+                        showBottomBorder: true,
+                      );
+                    }),
                   ),
                 ),
               ),
@@ -146,85 +184,69 @@ class JobPostPageState extends State<JobPostPage> {
 
   List<DataColumn> _createColumns() {
     return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Job Title",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Department",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Location",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Job Type",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Applicants",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+      const DataColumn(label: MyText("Job Title")),
+      const DataColumn(label: MyText("Department")),
+      const DataColumn(label: MyText("Branch")),
+      const DataColumn(label: MyText("Job Type")),
+      const DataColumn(label: MyText("Status")),
+      const DataColumn(label: MyText("Salary")),
+      const DataColumn(label: MyText("Action")),
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+  List<DataRow> _createRows(BuildContext context, List<JobPosting> jobs) {
+    return jobs.map((job) {
       return DataRow(cells: <DataCell>[
-        const DataCell(
+        DataCell(
           MyText(
-            "Operational Manager",
+            job.title,
             size: 16,
             weight: 400,
             isSelectable: false,
           ),
         ),
         DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const ViewJobPostDialog();
-              },
-            );
-          },
-          const MyText(
-            "Operations",
-            isSelectable: false,
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return ViewJobPostDialog(job: job);
+                },
+              );
+            },
+            child: MyText(
+              job.departmentId, 
+              isSelectable: false,
+            ),
+          ),
+        ),
+        DataCell(
+          MyText(job.branchId),
+        ),
+        DataCell(
+          MyText(job.jobType, size: 14, weight: 300),
+        ),
+        const DataCell(
+          MyDropdown2(
+            // TODO: modify MyDropdown2 to accept an initial value and onChange
+            // initialValue: job.status,
+            // onChanged: (val) => controller.updateJobStatus(context, job.id, val),
+          ),
+        ),
+        DataCell(
+          MyText(
+            "${job.salaryRangeMin} - ${job.salaryRangeMax}", 
+            size: 14, 
+            weight: 300
           ),
         ),
         const DataCell(
-          MyText("Enugu"),
-        ),
-        const DataCell(
-          MyText("Full-Time", size: 14, weight: 300),
-        ),
-        const DataCell(
-          MyDropdown2(),
-        ),
-        const DataCell(
-          MyText("510", size: 14, weight: 300),
-        ),
-        const DataCell(
-          ThreeDotPop(),
+          ThreeDotPop(
+            //TODO: Bind actions here if your ThreeDotPop supports callbacks
+          ),
         ),
       ]);
-    });
+    }).toList();
   }
 }

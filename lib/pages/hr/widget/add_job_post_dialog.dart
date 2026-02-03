@@ -6,15 +6,32 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+
+import '../controller/jobposting_control.dart';
+import '../models/job_posting.dart';
 
 class AddJobPostDialog extends StatefulWidget {
-  const AddJobPostDialog({super.key});
+  final JobPosting? job; // Null for Create, Present for Edit
+  const AddJobPostDialog({super.key, this.job});
 
   @override
   State<AddJobPostDialog> createState() => _AddJobPostDialogState();
 }
 
 class _AddJobPostDialogState extends State<AddJobPostDialog> {
+  final JobPostController controller = Get.find<JobPostController>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.job != null) {
+      controller.populateForm(widget.job!);
+    } else {
+      controller.clearForm();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -28,15 +45,15 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
+            // --- HEADER ---
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'New Job Posting',
-                    style: TextStyle(
+                  MyText(
+                    widget.job == null ? 'New Job Posting' : 'Edit Job Posting',
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -49,225 +66,108 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
               ),
             ),
 
-            // Form fields
-            const Expanded(
+            // --- FORM FIELDS ---
+            Expanded(
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '---',
-                                      spaceBetweenText: 10,
-                                      title: 'Job Title*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              // End date
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      hintText: "----",
-                                      title: 'Department',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: controller.titleController,
+                              hintText: 'e.g. Operations Manager',
+                              spaceBetweenText: 10,
+                              title: 'Job Title*',
+                            ),
                           ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      title: 'State*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      hintText: '----',
-                                      spaceBetweenText: 10,
-                                      title: 'L.G.A*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      title: 'Office Address*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      hintText: '----',
-                                      spaceBetweenText: 10,
-                                      title: 'Branch ID',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      title: 'Job Type',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '----',
-                                      spaceBetweenText: 10,
-                                      title: 'Salary Range',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  hintText:
-                                      "This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. ",
-                                  spaceBetweenText: 10,
-                                  maxLines: 5,
-                                  title: 'Description',
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  hintText:
-                                      "This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. ",
-                                  spaceBetweenText: 10,
-                                  maxLines: 5,
-                                  title: 'Responsibilities',
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  hintText:
-                                      "This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. ",
-                                  spaceBetweenText: 10,
-                                  maxLines: 5,
-                                  title: 'Requirements',
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '----',
-                                      spaceBetweenText: 10,
-                                      title: 'Application Deadline',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      title: 'Status',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: controller.departmentController,
+                              hintText: 'e.g. Dept001',
+                              spaceBetweenText: 10,
+                              title: 'Department ID*',
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 24),
+                      
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: controller.branchController,
+                              hintText: 'e.g. Branch02',
+                              spaceBetweenText: 10,
+                              title: 'Branch ID*',
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Obx(() => MyDropdown(
+                              items: const ['Full Time', 'Part Time', 'Contract'],
+                              spaceBetweenText: 10,
+                              hintText: controller.selectedJobType.value,
+                              title: 'Job Type',
+                              // TODO: Ensure MyDropdown supports onChanged or similar callback
+                              // onChanged: (val) => controller.selectedJobType.value = val,
+                            )),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Salary Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: controller.minSalaryController,
+                              hintText: '0.00',
+                              spaceBetweenText: 10,
+                              title: 'Min Salary',
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: controller.maxSalaryController,
+                              hintText: '0.00',
+                              spaceBetweenText: 10,
+                              title: 'Max Salary',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      MyTextFormField(
+                        controller: controller.descriptionController,
+                        hintText: "Enter job description...",
+                        spaceBetweenText: 10,
+                        maxLines: 5,
+                        title: 'Description',
+                      ),
+                      const SizedBox(height: 24),
+
+                      MyTextFormField(
+                        controller: controller.requirementsController,
+                        hintText: "Enter requirements...",
+                        spaceBetweenText: 10,
+                        maxLines: 5,
+                        title: 'Requirements',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
 
-            // Action Buttons
+            // --- ACTION BUTTONS ---
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
@@ -287,15 +187,44 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                     },
                   ),
                   const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
+                  Obx(() => MyElevatedButton(
+                    icon: controller.isSaving.value 
+                        ? const SizedBox(
+                            width: 16, 
+                            height: 16, 
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                          )
+                        : SvgPicture.asset(
+                            "assets/svg/check.svg",
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.white, BlendMode.srcIn),
+                          ),
+                    child: controller.isSaving.value ? 'Saving...' : 'Save',
+                    onTap: controller.isSaving.value 
+                      ? () {} // Disable if saving
+                      : () {
+                          // Construct object from form data
+                          final posting = JobPosting(
+                            id: widget.job?.id ?? '', 
+                            title: controller.titleController.text,
+                            description: controller.descriptionController.text,
+                            branchId: controller.branchController.text,
+                            departmentId: controller.departmentController.text,
+                            jobType: controller.selectedJobType.value,
+                            status: controller.selectedStatus.value,
+                            isActive: true,
+                            salaryRangeMin: double.tryParse(controller.minSalaryController.text),
+                            salaryRangeMax: double.tryParse(controller.maxSalaryController.text),
+                            requirements: controller.requirementsController.text,
+                          );
+
+                          if (widget.job == null) {
+                            controller.createJobPosting(context, posting);
+                          } else {
+                            controller.updateJobPosting(context, widget.job!.id, posting);
+                          }
+                        },
+                  )),
                 ],
               ),
             ),

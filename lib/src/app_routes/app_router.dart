@@ -33,7 +33,7 @@ import 'package:bms_front_end/pages/hr/attendance.dart';
 import 'package:bms_front_end/pages/hr/clock_in.dart';
 import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/hr.dart';
-import 'package:bms_front_end/pages/hr/job_applicants.dart';
+import 'package:bms_front_end/pages/hr/applicants.dart';
 import 'package:bms_front_end/pages/hr/job_post.dart';
 import 'package:bms_front_end/pages/hr/leave_request.dart';
 import 'package:bms_front_end/pages/hr/leaves.dart';
