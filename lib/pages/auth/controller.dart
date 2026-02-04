@@ -78,7 +78,6 @@ class AuthController extends GetxController {
     );
   }
 
-  // --- LOGIN ---
   Future<void> login(BuildContext context) async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       _showSnackBar(context, 'Please enter both User ID and PIN',
@@ -116,7 +115,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // --- FETCH USER PROFILE ---
   Future<void> _fetchUserProfile(String token, int userId) async {
     try {
       final user =
@@ -124,13 +122,10 @@ class AuthController extends GetxController {
       currentUser.value = user;
     } catch (e) {
       log("Fetch Profile Failed: $e");
-      // If fetching profile fails (e.g. 401), we might want to trigger logout or refresh here too
-      // But usually checkAuthStatus handles the initial load.
       throw AuthException(message: 'Could not find user');
     }
   }
 
-  // --- LOGOUT ---
   Future<void> logout() async {
     try {
       final token = await _storage.read(key: 'access_token');
@@ -147,7 +142,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // --- FORGOT / RESET PASSWORD ---
   Future<void> forgotPassword(BuildContext context, String email) async {
     if (email.isEmpty) {
       _showSnackBar(context, 'Please enter your email', isError: true);
@@ -186,31 +180,25 @@ class AuthController extends GetxController {
     }
   }
 
-  // --- CHECK AUTH STATUS (UPDATED) ---
   Future<void> checkAuthStatus() async {
     try {
       final accessToken = await _storage.read(key: 'access_token');
       final refreshToken = await _storage.read(key: 'refresh_token');
       final userIdString = await _storage.read(key: 'user_id');
 
-      // 1. Basic Check: Do we have data?
       if (accessToken != null && userIdString != null) {
         final userId = int.parse(userIdString);
 
-        // 2. Verify Access Token
         final isValid =
             await _authService.verifyToken(accessToken: accessToken);
 
         if (isValid) {
-          // Token is good, fetch user
           await _fetchUserProfile(accessToken, userId);
         } else {
-          // 3. Token Expired/Invalid: Try Refresh
           if (refreshToken != null) {
             log("Access token expired. Attempting refresh...");
             await _tryTokenRefresh(refreshToken, userId);
           } else {
-            // No refresh token available
             await logout();
           }
         }
