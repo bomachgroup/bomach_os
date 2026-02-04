@@ -110,7 +110,7 @@ class AuthService {
   }
 
   // REFRESH TOKEN
-  Future<Map<String, dynamic>> refreshToken(
+  Future<String> refreshToken(
       {required String refreshToken}) async {
     try {
       final response = await _dio.post(
@@ -119,7 +119,7 @@ class AuthService {
           'refresh_token': refreshToken,
         },
       );
-      return response.data;
+      return response.data['access_token'];
     } on DioException catch (e) {
       throw _handleError(e);
     }

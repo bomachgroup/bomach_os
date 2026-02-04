@@ -25,9 +25,6 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Check auth immediately when the controller is created.
-    // This is neccessary to avoid navigation without authentication.
-    // TODO: Display a loading screen while checking auth initially.
     checkAuthStatus();
   }
 
@@ -47,7 +44,6 @@ class AuthController extends GetxController {
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
     if (!context.mounted) return;
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -60,7 +56,6 @@ class AuthController extends GetxController {
   void _showDialog(BuildContext context, String title, String message,
       {VoidCallback? onConfirm, String confirmText = "OK"}) {
     if (!context.mounted) return;
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -83,6 +78,7 @@ class AuthController extends GetxController {
     );
   }
 
+  // --- LOGIN ---
   Future<void> login(BuildContext context) async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       _showSnackBar(context, 'Please enter both User ID and PIN',
@@ -103,11 +99,7 @@ class AuthController extends GetxController {
       await _storage.write(key: 'refresh_token', value: response.refreshToken);
       await _storage.write(key: 'user_id', value: response.userId.toString());
 
-      // Updating currentUser.value will trigger GoRouter to redirect automatically!
-      await _fetchUserProfile(
-        response.accessToken,
-        response.userId,
-      );
+      await _fetchUserProfile(response.accessToken, response.userId);
 
       if (context.mounted) {
         _showSnackBar(context, 'Login Successful');
@@ -124,18 +116,21 @@ class AuthController extends GetxController {
     }
   }
 
+  // --- FETCH USER PROFILE ---
   Future<void> _fetchUserProfile(String token, int userId) async {
     try {
-      // Pass the userId to the service
       final user =
           await _authService.getCurrentUser(accessToken: token, userId: userId);
       currentUser.value = user;
     } catch (e) {
       log("Fetch Profile Failed: $e");
+      // If fetching profile fails (e.g. 401), we might want to trigger logout or refresh here too
+      // But usually checkAuthStatus handles the initial load.
       throw AuthException(message: 'Could not find user');
     }
   }
 
+  // --- LOGOUT ---
   Future<void> logout() async {
     try {
       final token = await _storage.read(key: 'access_token');
@@ -152,21 +147,17 @@ class AuthController extends GetxController {
     }
   }
 
+  // --- FORGOT / RESET PASSWORD ---
   Future<void> forgotPassword(BuildContext context, String email) async {
     if (email.isEmpty) {
       _showSnackBar(context, 'Please enter your email', isError: true);
       return;
     }
-
     try {
       isLoading.value = true;
       final message = await _authService.forgotPassword(email: email);
-
       if (context.mounted) {
-        _showDialog(context, "Check your Email", message, onConfirm: () {
-          // TODO: Build route
-          // context.push(RouteConstants.resetPassword);
-        });
+        _showDialog(context, "Check your Email", message);
       }
     } on AuthException catch (e) {
       if (context.mounted) _showDialog(context, "Error", e.message);
@@ -183,15 +174,10 @@ class AuthController extends GetxController {
         code: resetCodeController.text.trim(),
         newPassword: newPasswordController.text,
       );
-
       if (context.mounted) {
-        _showDialog(
-          context,
-          "Success",
-          message,
-          confirmText: "Login Now",
-          onConfirm: () => context.go(RouteConstants.login),
-        );
+        _showDialog(context, "Success", message,
+            confirmText: "Login Now",
+            onConfirm: () => context.go(RouteConstants.login));
       }
     } on AuthException catch (e) {
       if (context.mounted) _showDialog(context, "Error", e.message);
@@ -200,26 +186,57 @@ class AuthController extends GetxController {
     }
   }
 
+  // --- CHECK AUTH STATUS (UPDATED) ---
   Future<void> checkAuthStatus() async {
     try {
-      final token = await _storage.read(key: 'access_token');
+      final accessToken = await _storage.read(key: 'access_token');
+      final refreshToken = await _storage.read(key: 'refresh_token');
       final userIdString = await _storage.read(key: 'user_id');
 
-      if (token != null && userIdString != null) {
-        final isValid = await _authService.verifyToken(accessToken: token);
-        if (isValid) {
-          final userId = int.parse(userIdString);
+      // 1. Basic Check: Do we have data?
+      if (accessToken != null && userIdString != null) {
+        final userId = int.parse(userIdString);
 
-          final user = await _authService.getCurrentUser(
-              accessToken: token, userId: userId);
-          currentUser.value = user;
+        // 2. Verify Access Token
+        final isValid =
+            await _authService.verifyToken(accessToken: accessToken);
+
+        if (isValid) {
+          // Token is good, fetch user
+          await _fetchUserProfile(accessToken, userId);
         } else {
-          await logout();
+          // 3. Token Expired/Invalid: Try Refresh
+          if (refreshToken != null) {
+            log("Access token expired. Attempting refresh...");
+            await _tryTokenRefresh(refreshToken, userId);
+          } else {
+            // No refresh token available
+            await logout();
+          }
         }
       } else {
         await logout();
       }
     } catch (e) {
+      log("Auth check error: $e");
+      await logout();
+    }
+  }
+
+  Future<void> _tryTokenRefresh(String refreshToken, int userId) async {
+    try {
+      final accessToken =
+          await _authService.refreshToken(refreshToken: refreshToken);
+
+      if (accessToken.isNotEmpty) {
+        await _storage.write(key: 'access_token', value: accessToken);
+      }
+
+      log("Token refreshed successfully.");
+
+      await _fetchUserProfile(accessToken, userId);
+    } catch (e) {
+      log("Token refresh failed: $e");
       await logout();
     }
   }
