@@ -23,6 +23,8 @@ class MyTextFormField extends StatelessWidget {
   final String? title;
   final void Function()? onTap;
   final int maxLines;
+  final int? maxLength;
+
   final List<BoxShadow>? boxShadow;
   final bool? readOnly;
   final List<TextInputFormatter>? inputFormatters;
@@ -48,10 +50,12 @@ class MyTextFormField extends StatelessWidget {
       this.title,
       this.onTap,
       this.maxLines = 1,
+      this.maxLength,
       this.spaceBetweenText,
       this.boxShadow,
       this.readOnly,
-      this.inputFormatters});
+      this.inputFormatters,
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +99,8 @@ class MyTextFormField extends StatelessWidget {
               maxLines: maxLines,
               readOnly: readOnly ?? onTap != null,
               onTap: onTap,
+              maxLength: maxLength,
+              keyboardType: keyboardType,
               focusNode: focusNode,
               validator: validator,
               onSaved: onSaved,
@@ -104,7 +110,6 @@ class MyTextFormField extends StatelessWidget {
               cursorColor: Colors.black,
               autocorrect: true,
               enableSuggestions: true,
-              keyboardType: keyboardType,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 16,

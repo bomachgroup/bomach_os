@@ -30,6 +30,9 @@ dependencies:
   image_picker: ^1.2.0
   intl: ^0.20.2
   local_auth: ^2.3.0
+  get:
+  dio:
+  flutter_secure_storage:
 
 dev_dependencies:
   flutter_test:

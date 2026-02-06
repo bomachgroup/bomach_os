@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'pages/auth/controller.dart';
 
 late SharedPreferences prefs;
 
@@ -17,6 +20,8 @@ void main() async {
   // );
 
   prefs = await SharedPreferences.getInstance();
+  // Initialize AuthController globally
+  Get.put(AuthController());
 
   runApp(const MyApp());
 }
@@ -28,7 +33,7 @@ class MyApp extends StatelessWidget {
     return MediaQuery(
       data: MediaQuery.of(context)
           .copyWith(textScaler: const TextScaler.linear(1.0)),
-      child: MaterialApp.router(
+      child: GetMaterialApp.router(
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
@@ -50,7 +55,9 @@ class MyApp extends StatelessWidget {
             selectionHandleColor: AppColors.blue,
           ),
         ),
-        routerConfig: goRouter,
+        routerDelegate: goRouter.routerDelegate,
+        routeInformationParser: goRouter.routeInformationParser,
+        routeInformationProvider: goRouter.routeInformationProvider,
       ),
     );
   }
