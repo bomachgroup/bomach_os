@@ -1,111 +1,123 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/hr/models/disciplinary_process_models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
+import '../controller/disciplinary_controller.dart';
+import '../models/disciplinary_cases_model.dart';
 
 class AddDisciplinaryCaseDialog extends StatefulWidget {
-  final Function(DisciplinaryCaseRecord) onSubmit;
+  final String token;
+  final DisciplinaryCase? caseToEdit;
 
   const AddDisciplinaryCaseDialog({
     super.key,
-    required this.onSubmit,
+    required this.token,
+    this.caseToEdit,
   });
 
   @override
-  State<AddDisciplinaryCaseDialog> createState() =>
-      _AddDisciplinaryCaseDialogState();
+  State<AddDisciplinaryCaseDialog> createState() => _AddDisciplinaryCaseDialogState();
 }
 
 class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
   final _formKey = GlobalKey<FormState>();
-  String? _selectedEmployeeId;
+  final DisciplinaryController controller = Get.find();
+
+  late TextEditingController _employeeIdController;
+  late TextEditingController _violationTitleController;
+  late TextEditingController _violationDescController;
+  late TextEditingController _investigationController;
+  late TextEditingController _severanceController;
+  late TextEditingController _violationTypeController;
+
   String? _selectedActionType;
   String? _selectedViolationCategory;
-  final TextEditingController _violationController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _investigationController =
-      TextEditingController();
-  DateTime? _dateOfViolation;
+  DateTime? _actionDate;
   bool _severancePaymentDue = false;
-  final TextEditingController _severanceController = TextEditingController();
 
-  final List<Map<String, dynamic>> _employees = [
-    {
-      'id': 'E001',
-      'name': 'James Smith',
-      'email': 'james.smith@company.com',
-      'department': 'Operations',
-      'position': 'Operations Manager',
-      'branch': 'Lagos'
-    },
-    {
-      'id': 'E002',
-      'name': 'Patricia Evans',
-      'email': 'patricia.evans@company.com',
-      'department': 'Finance',
-      'position': 'Finance Officer',
-      'branch': 'Enugu'
-    },
-    {
-      'id': 'E003',
-      'name': 'Robert Johnson',
-      'email': 'robert.johnson@company.com',
-      'department': 'Sales',
-      'position': 'Sales Manager',
-      'branch': 'Lagos'
-    },
+  final List<String> _actionTypes = [
+    'Verbal Warning',
+    'Written Warning',
+    'Final Warning',
+    'Suspension',
+    'Termination',
+    'Dismissal'
+  ];
+
+  final List<String> _categories = [
+    'Misconduct',
+    'Performance',
+    'Attendance',
+    'Gross Misconduct',
+    'Other'
   ];
 
   @override
+  void initState() {
+    super.initState();
+    final c = widget.caseToEdit;
+    _employeeIdController = TextEditingController(text: c?.employeeId ?? '');
+    _violationTitleController = TextEditingController(text: c?.violationTitle ?? '');
+    _violationDescController = TextEditingController(text: c?.violationDescription ?? '');
+    _investigationController = TextEditingController(text: c?.investigationDetails ?? '');
+    _severanceController = TextEditingController(text: c?.severanceAmount?.toString() ?? '');
+    _violationTypeController = TextEditingController(text: c?.violationType ?? '');
+    
+    _selectedActionType = c?.actionType;
+    _selectedViolationCategory = c?.violationCategory;
+    _actionDate = c?.actionDate ?? DateTime.now();
+    _severancePaymentDue = c?.severancePaymentDue ?? false;
+  }
+
+  @override
   void dispose() {
-    _violationController.dispose();
-    _descriptionController.dispose();
+    _employeeIdController.dispose();
+    _violationTitleController.dispose();
+    _violationDescController.dispose();
     _investigationController.dispose();
     _severanceController.dispose();
+    _violationTypeController.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate() &&
-        _selectedEmployeeId != null &&
-        _selectedActionType != null &&
-        _dateOfViolation != null) {
-      final employee = _employees.firstWhere(
-        (e) => e['id'] == _selectedEmployeeId,
-      );
-
-      final actionTypeEnum =
-          DisciplinaryActionType.values.firstWhere((t) => t.name == _selectedActionType);
-
-      final newCase = DisciplinaryCaseRecord(
-        caseId: 'DC${DateTime.now().millisecond}',
-        employeeId: employee['id'],
-        employeeName: employee['name'],
-        employeeEmail: employee['email'],
-        department: employee['department'],
-        position: employee['position'],
-        branch: employee['branch'],
-        actionType: actionTypeEnum,
-        violation: _violationController.text,
-        description: _descriptionController.text,
-        dateOfViolation: _dateOfViolation!,
-        dateInitiated: DateTime.now(),
-        status: 'Pending',
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      
+      final newCase = DisciplinaryCase(
+        id: widget.caseToEdit?.id ?? '',
+        employeeId: _employeeIdController.text,
+        violationType: _violationTypeController.text,
+        violationCategory: _selectedViolationCategory ?? 'Other',
+        violationTitle: _violationTitleController.text,
+        violationDescription: _violationDescController.text,
+        actionDate: _actionDate,
+        actionType: _selectedActionType ?? 'Verbal Warning',
+        investigationDetails: _investigationController.text,
         severancePaymentDue: _severancePaymentDue,
-        severanceAmount: _severancePaymentDue
-            ? double.tryParse(_severanceController.text)
-            : null,
-        investigationDetails: _investigationController.text.isNotEmpty
-            ? _investigationController.text
-            : null,
-        appealFiled: false,
+        severanceAmount: double.tryParse(_severanceController.text) ?? 0.0,
       );
 
-      widget.onSubmit(newCase);
-      Navigator.of(context).pop();
+      bool success;
+      if (widget.caseToEdit != null) {
+        success = await controller.updateCase(widget.token, widget.caseToEdit!.id, newCase);
+      } else {
+        success = await controller.createCase(widget.token, newCase);
+      }
+
+      if (!mounted) return;
+      if (success) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Case saved"), backgroundColor: Colors.green));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to save"), backgroundColor: Colors.red));
+      }
     }
   }
 
@@ -113,399 +125,122 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+        constraints: const BoxConstraints(maxWidth: 800),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'New Disciplinary Case',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                  MyText(widget.caseToEdit == null ? 'New Disciplinary Case' : 'Edit Case', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                 ],
               ),
             ),
-            // Form fields
+            const Divider(height: 1),
+            
+          
             Expanded(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
                 child: Form(
                   key: _formKey,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Employee Selection
-                        const MyText(
-                          'Employee Information',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MyTextFormField(
+                        title: 'Employee ID', 
+                        controller: _employeeIdController,
+                        hintText: 'Enter Employee ID',
+                      ),
+                      kSizedBox,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyDropdown(
+                              title: 'Action Type',
+                              items: _actionTypes,
+                              hintText: _selectedActionType ?? 'Select Action',
+                              onChanged: (val) => setState(() => _selectedActionType = val),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const MyText(
-                                    'Employee ID',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  DropdownButtonFormField<String>(
-                                    decoration: InputDecoration(
-                                      hintText: 'Select Employee',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                    ),
-                                    value: _selectedEmployeeId,
-                                    items: _employees
-                                        .map((emp) => DropdownMenuItem<String>(
-                                              value: emp['id'] as String,
-                                              child: MyText(emp['id'] as String),
-                                            ))
-                                        .toList(),
-                                    onChanged: (value) {
-                                      setState(() => _selectedEmployeeId = value);
-                                    },
-                                    validator: (value) => value == null
-                                        ? 'Please select an employee'
-                                        : null,
-                                  ),
-                                ],
-                              ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyDropdown(
+                              title: 'Category',
+                              items: _categories,
+                              hintText: _selectedViolationCategory ?? 'Select Category',
+                              onChanged: (val) => setState(() => _selectedViolationCategory = val),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const MyText(
-                                    'Employee Name',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: const Color(0xFFD5D5D5),
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: MyText(
-                                      _selectedEmployeeId != null
-                                          ? _employees
-                                              .firstWhere(
-                                                (e) =>
-                                                    e['id'] ==
-                                                    _selectedEmployeeId,
-                                              )['name']
-                                          : 'Select Employee First',
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Violation Information
-                        const MyText(
-                          'Violation Information',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const MyText(
-                                    'Action Type',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  DropdownButtonFormField<String>(
-                                    decoration: InputDecoration(
-                                      hintText: 'Select Action',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                    ),
-                                    value: _selectedActionType,
-                                    items: DisciplinaryActionType.values
-                                        .map((action) => DropdownMenuItem(
-                                              value: action.name,
-                                              child: MyText(action.displayName),
-                                            ))
-                                        .toList(),
-                                    onChanged: (value) {
-                                      setState(
-                                        () => _selectedActionType = value,
-                                      );
-                                    },
-                                    validator: (value) => value == null
-                                        ? 'Please select an action type'
-                                        : null,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const MyText(
-                                    'Violation Category',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  DropdownButtonFormField<String>(
-                                    decoration: InputDecoration(
-                                      hintText: 'Select Category',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                    ),
-                                    value: _selectedViolationCategory,
-                                    items: ViolationCategory.values
-                                        .map((category) => DropdownMenuItem(
-                                              value: category.name,
-                                              child:
-                                                  MyText(category.displayName),
-                                            ))
-                                        .toList(),
-                                    onChanged: (value) {
-                                      setState(
-                                        () => _selectedViolationCategory = value,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const MyText(
-                                    'Date of Violation',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final DateTime? picked =
-                                          await showDatePicker(
-                                        context: context,
-                                        initialDate:
-                                            _dateOfViolation ?? DateTime.now(),
-                                        firstDate:
-                                            DateTime(DateTime.now().year - 1),
-                                        lastDate: DateTime.now(),
-                                      );
-                                      if (picked != null) {
-                                        setState(() =>
-                                            _dateOfViolation = picked);
-                                      }
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: const Color(0xFFD5D5D5),
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          MyText(
-                                            _dateOfViolation != null
-                                                ? '${_dateOfViolation!.day}/${_dateOfViolation!.month}/${_dateOfViolation!.year}'
-                                                : 'Select Date',
-                                          ),
-                                          const Icon(Icons.calendar_today,
-                                              size: 18),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Violation Details
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const MyText(
-                              'Violation Details',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            MyTextFormField(
-                              hintText: 'Violation Title',
-                              controller: _violationController,
-                              validator: (value) => value == null ||
-                                      value.isEmpty
-                                  ? 'Please enter violation title'
-                                  : null,
-                            ),
-                            const SizedBox(height: 12),
-                            MyTextFormField(
-                              hintText: 'Description',
-                              controller: _descriptionController,
-                              maxLines: 3,
-                              validator: (value) => value == null ||
-                                      value.isEmpty
-                                  ? 'Please enter description'
-                                  : null,
-                            ),
-                            const SizedBox(height: 12),
-                            MyTextFormField(
-                              hintText:
-                                  'Investigation Details (Optional)',
-                              controller: _investigationController,
-                              maxLines: 2,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Severance Payment
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _severancePaymentDue,
-                              onChanged: (value) {
-                                setState(
-                                  () =>
-                                      _severancePaymentDue =
-                                          value ?? false,
-                                );
-                              },
-                            ),
-                            const MyText(
-                              'Severance Payment Due',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        if (_severancePaymentDue) ...[
-                          const SizedBox(height: 12),
-                          MyTextFormField(
-                            hintText: 'Severance Amount',
-                            controller: _severanceController,
-                            keyboardType: TextInputType.number,
                           ),
                         ],
-                      ],
-                    ),
+                      ),
+                      kSizedBox,
+                      MyTextFormField(title: 'Violation Title', controller: _violationTitleController),
+                      kSizedBox,
+                      MyTextFormField(title: 'Violation Type', controller: _violationTypeController, hintText: 'e.g. Lateness'),
+                      kSizedBox,
+                      MyTextFormField(title: 'Description', controller: _violationDescController, maxLines: 3),
+                      kSizedBox,
+                      MyTextFormField(title: 'Investigation Details', controller: _investigationController, maxLines: 3),
+                      kSizedBox,
+                      
+                      const MyText('Action Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context, 
+                            initialDate: _actionDate ?? DateTime.now(),
+                            firstDate: DateTime(2000), 
+                            lastDate: DateTime(2100)
+                          );
+                          if(picked != null) setState(() => _actionDate = picked);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(_actionDate != null ? DateFormat('yyyy-MM-dd').format(_actionDate!) : 'Select Date'),
+                        ),
+                      ),
+                      
+                      kSizedBox,
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _severancePaymentDue,
+                            onChanged: (val) => setState(() => _severancePaymentDue = val ?? false),
+                          ),
+                          const MyText('Severance Payment Due?'),
+                        ],
+                      ),
+                      if (_severancePaymentDue)
+                        MyTextFormField(title: 'Severance Amount', controller: _severanceController),
+                    ],
                   ),
                 ),
               ),
             ),
-            // Footer
+
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: AppColors.grey5,
-                  ),
-                ),
-              ),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                spacing: 12,
                 children: [
-                  MyOutlinedButton(
-                    child: 'Cancel',
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                  MyElevatedButton(
-                    child: 'Create Case',
-                    onTap: _submitForm,
-                  ),
+                  MyOutlinedButton(child: 'Cancel', onTap: () => Navigator.pop(context), textColor: Colors.grey),
+                  const SizedBox(width: 16),
+                  Obx(() => MyElevatedButton(
+                    child: controller.isSaving.value ? 'Saving...' : 'Save Case',
+                    onTap: controller.isSaving.value ? () {} : _submitForm,
+                  )),
                 ],
               ),
             ),

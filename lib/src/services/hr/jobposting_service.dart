@@ -20,7 +20,7 @@ class JobPostingService {
               },
             )) {
     _dio.interceptors.add(LogInterceptor(
-      request: true, 
+      request: true,
       requestHeader: true,
       responseBody: true,
       responseHeader: false,
@@ -33,7 +33,7 @@ class JobPostingService {
     });
   }
 
-  Future<List<JobPosting>> getJobPostings(
+  Future<({List<JobPosting> list, int count})> getJobPostings(
     String token, {
     String? search,
     String? branchId,
@@ -60,8 +60,19 @@ class JobPostingService {
         options: _authOptions(token),
       );
 
-      final List<dynamic> data = response.data;
-      return data.map((json) => JobPosting.fromJson(json)).toList();
+      final dynamic data = response.data;
+      List<dynamic> list = [];
+
+      if (data is Map<String, dynamic> && data.containsKey('items')) {
+        list = data['items'];
+      } else if (data is List) {
+        list = data;
+      }
+
+      return (
+        list: list.map((json) => JobPosting.fromJson(json)).toList(),
+        count: (data['count'] as int?) ?? 0
+      );
     } catch (e) {
       throw _handleError(e);
     }

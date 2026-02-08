@@ -5,9 +5,8 @@ import '../model/branch_model.dart';
 
 class BranchService {
   final Dio _dio;
-
+ static const baseUrl = "https://bomachauth.bgbot.app";
   BranchService({
-    required String baseUrl,
     Dio? dioOverride,
   }) : _dio = dioOverride ??
             Dio(BaseOptions(

@@ -25,6 +25,10 @@ class ApplicantController extends GetxController {
   final linkedinController = TextEditingController();
   final portfolioController = TextEditingController();
   final coverLetterController = TextEditingController();
+  final notesController = TextEditingController();
+
+  var selectedStage = 'Applied'.obs;
+  var selectedStatus = 'New'.obs;
 
   var formStage = 'Applied'.obs;
   var formStatus = 'New'.obs;
@@ -50,11 +54,17 @@ class ApplicantController extends GetxController {
         status: status,
       );
 
-      applicantList.assignAll(result);
+      applicantList.assignAll(result.items);
     } catch (e) {
       log("Fetch Applicants Error: $e");
       if (context.mounted) {
-        _showSnackBar(context, "Failed to load applicants: $e", isError: true);
+        if (e.toString().contains('404')) {
+          _showDialog(context, "Not Found (404)",
+              "The request returned 404. Check the API endpoint/path and request parameters (stage/status). If you're filtering, try removing filters to verify.");
+        } else {
+          _showSnackBar(context, "Failed to load applicants: $e",
+              isError: true);
+        }
       }
     } finally {
       isLoading.value = false;
@@ -63,6 +73,15 @@ class ApplicantController extends GetxController {
 
   Future<void> createApplicant(BuildContext context) async {
     try {
+      // Basic client-side validation to prevent malformed requests
+      if (jobIdController.text.trim().isEmpty) {
+        if (context.mounted) {
+          _showDialog(
+              context, "Validation Failed", "Job Posting ID is required.");
+        }
+        return;
+      }
+
       isSaving.value = true;
 
       final token = await _getToken(context);
@@ -77,9 +96,9 @@ class ApplicantController extends GetxController {
         phone: phoneController.text,
         linkedinUrl: linkedinController.text,
         portfolioUrl: portfolioController.text,
-        coverLetter: coverLetterController.text,
-        stage: formStage.value,
-        status: formStatus.value,
+        coverLetter: notesController.text,
+        stage: selectedStage.value,
+        status: selectedStatus.value,
         rating: 0,
       );
 
@@ -95,7 +114,12 @@ class ApplicantController extends GetxController {
     } catch (e) {
       log("Create Applicant Error: $e");
       if (context.mounted) {
-        _showDialog(context, "Creation Failed", e.toString());
+        if (e.toString().contains('404')) {
+          _showDialog(context, "Not Found (404)",
+              "Creation returned 404. Verify the API create endpoint and that the jobPostingId exists on the server. Check request payload and server routes.");
+        } else {
+          _showDialog(context, "Creation Failed", e.toString());
+        }
       }
     } finally {
       isSaving.value = false;
@@ -104,6 +128,14 @@ class ApplicantController extends GetxController {
 
   Future<void> updateApplicant(BuildContext context, String id) async {
     try {
+      if (jobIdController.text.trim().isEmpty) {
+        if (context.mounted) {
+          _showDialog(
+              context, "Validation Failed", "Job Posting ID is required.");
+        }
+        return;
+      }
+
       isSaving.value = true;
 
       final token = await _getToken(context);
@@ -118,9 +150,9 @@ class ApplicantController extends GetxController {
         phone: phoneController.text,
         linkedinUrl: linkedinController.text,
         portfolioUrl: portfolioController.text,
-        coverLetter: coverLetterController.text,
-        stage: formStage.value,
-        status: formStatus.value,
+        coverLetter: notesController.text,
+        stage: selectedStage.value,
+        status: selectedStatus.value,
         rating: 0,
       );
 
@@ -136,7 +168,12 @@ class ApplicantController extends GetxController {
     } catch (e) {
       log("Update Applicant Error: $e");
       if (context.mounted) {
-        _showDialog(context, "Update Failed", e.toString());
+        if (e.toString().contains('404')) {
+          _showDialog(context, "Not Found (404)",
+              "Update returned 404. Confirm the applicant id exists and the update endpoint path is correct on the server.");
+        } else {
+          _showDialog(context, "Update Failed", e.toString());
+        }
       }
     } finally {
       isSaving.value = false;
@@ -224,8 +261,11 @@ class ApplicantController extends GetxController {
     linkedinController.clear();
     portfolioController.clear();
     coverLetterController.clear();
+    notesController.clear();
     formStage.value = 'Applied';
     formStatus.value = 'New';
+    selectedStage.value = 'Applied';
+    selectedStatus.value = 'New';
   }
 
   void populateForm(Applicant applicant) {
@@ -237,7 +277,18 @@ class ApplicantController extends GetxController {
     linkedinController.text = applicant.linkedinUrl ?? '';
     portfolioController.text = applicant.portfolioUrl ?? '';
     coverLetterController.text = applicant.coverLetter ?? '';
+    notesController.text = applicant.coverLetter ?? '';
     formStage.value = applicant.stage;
     formStatus.value = applicant.status;
+    selectedStage.value = applicant.stage;
+    selectedStatus.value = applicant.status;
+  }
+
+  Future<void> saveApplicant(BuildContext context, {String? id}) async {
+    if (id == null) {
+      await createApplicant(context);
+    } else {
+      await updateApplicant(context, id);
+    }
   }
 }

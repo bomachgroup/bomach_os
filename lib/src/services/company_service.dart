@@ -5,9 +5,8 @@ import '../model/company_model.dart';
 
 class CompanyService {
   final Dio _dio;
-
+  static const baseUrl = "https://bomachauth.bgbot.app";
   CompanyService({
-    required String baseUrl,
     Dio? dioOverride,
   }) : _dio = dioOverride ??
             Dio(BaseOptions(

@@ -9,7 +9,7 @@ import '../../../src/services/branch_service.dart';
 
 class BranchController extends GetxController {
   final BranchService _branchService =
-      BranchService(baseUrl: 'https://bomach-backend.onrender.com');
+      BranchService();
   final _storage = const FlutterSecureStorage();
 
   var isLoadingList = true.obs;

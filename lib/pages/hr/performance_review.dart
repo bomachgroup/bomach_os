@@ -11,6 +11,10 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'controller/performance_review_controller.dart';
+import 'models/performance_review.dart';
 
 class PerformanceReviewPage extends StatefulWidget {
   const PerformanceReviewPage({super.key});
@@ -21,6 +25,8 @@ class PerformanceReviewPage extends StatefulWidget {
 
 class PerformanceReviewPageState extends State<PerformanceReviewPage> {
   final ScrollController _scrollController = ScrollController();
+  final PerformanceReviewController controller =
+      Get.put(PerformanceReviewController());
 
   @override
   void dispose() {
@@ -122,21 +128,40 @@ class PerformanceReviewPageState extends State<PerformanceReviewPage> {
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
+                      minWidth: MediaQuery.of(context).size.width * 0.8,
                     ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
-                    ),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ));
+                      }
+
+                      if (controller.performanceReviews.isEmpty) {
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text("No reviews found."),
+                        ));
+                      }
+
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows:
+                            _createRows(context, controller.performanceReviews),
+                        showBottomBorder: true,
+                      );
+                    }),
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const MyPaginator(),
             ],
           ),
         ),
@@ -146,86 +171,51 @@ class PerformanceReviewPageState extends State<PerformanceReviewPage> {
 
   List<DataColumn> _createColumns() {
     return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Employee ID",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Name & Email",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Review Period",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Date",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Overall Rating",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+      const DataColumn(label: MyText("Employee ID")),
+      const DataColumn(label: MyText("Name & Email")),
+      const DataColumn(label: MyText("Review Period")),
+      const DataColumn(label: MyText("Date")),
+      const DataColumn(label: MyText("Overall Rating")),
+      const DataColumn(label: MyText("Action")),
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+  List<DataRow> _createRows(
+      BuildContext context, List<PerformanceReview> reviews) {
+    return reviews.map((review) {
       return DataRow(cells: <DataCell>[
         DataCell(
           onTap: () {
             showDialog(
               context: context,
-              builder: (context) {
-                return const ViewPerformanceReviewDialog();
-              },
+              builder: (context) => ViewPerformanceReviewDialog(review: review),
             );
           },
-          const MyText(
-            "K997KD",
+          MyText(
+            review.employeeId,
             size: 16,
             weight: 400,
             isSelectable: false,
           ),
         ),
-        const DataCell(
+        DataCell(
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyText(
-                "John Michael",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                review.employeeId,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              MyText("Johnmichael5@gmail.com"),
             ],
           ),
         ),
-        const DataCell(
-          MyText(
-            "Q1 2025",
-            isSelectable: false,
-          ),
-        ),
-        const DataCell(
-          MyText("12-10-2025", size: 14, weight: 300),
-        ),
-        const DataCell(
-          Star5(),
-        ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
+        DataCell(MyText(review.reviewPeriod, isSelectable: false)),
+        DataCell(MyText(review.reviewDate?.toIso8601String() ?? '',
+            size: 14, weight: 300)),
+        const DataCell(Star5()),
+        const DataCell(ThreeDotPop()),
       ]);
-    });
+    }).toList();
   }
 }

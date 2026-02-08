@@ -5,15 +5,15 @@ class Applicant {
   final String lastName;
   final String email;
   final String phone;
+  final String? linkedinUrl;
+  final String? portfolioUrl;
   final String? resumeUrl;
   final String? coverLetter;
-  final String? portfolioUrl;
-  final String? linkedinUrl;
-  final String stage; // e.g., 'applied', 'interview'
-  final String status; // e.g., 'active', 'rejected'
-  final int rating;
-  final DateTime? appliedAt;
-  final DateTime? updatedAt;
+  final String? notes;
+  final String status;
+  final String stage;
+  final double rating;
+  final DateTime? createdAt;
 
   Applicant({
     required this.id,
@@ -22,51 +22,65 @@ class Applicant {
     required this.lastName,
     required this.email,
     required this.phone,
+    this.linkedinUrl,
+    this.portfolioUrl,
     this.resumeUrl,
     this.coverLetter,
-    this.portfolioUrl,
-    this.linkedinUrl,
-    required this.stage,
+    this.notes,
     required this.status,
-    required this.rating,
-    this.appliedAt,
-    this.updatedAt,
+    required this.stage,
+    this.rating = 0.0,
+    this.createdAt,
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
+    String parseJobId(dynamic val) {
+      if (val is int) return val.toString();
+      if (val is String) return val;
+      if (val is Map && val.containsKey('id')) return val['id'].toString();
+      return '';
+    }
+
+    double parseRating(dynamic val) {
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val) ?? 0.0;
+      return 0.0;
+    }
+
     return Applicant(
-      id: json['id'] ?? '',
-      jobPostingId: json['job_posting_id'] ?? '',
+      id: json['id']?.toString() ?? '',
+      jobPostingId: parseJobId(json['job_posting_id'] ?? json['job_posting']),
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
-      resumeUrl: json['resume_url'],
-      coverLetter: json['cover_letter'],
-      portfolioUrl: json['portfolio_url'],
       linkedinUrl: json['linkedin_url'],
-      stage: json['stage'] ?? 'applied',
-      status: json['status'] ?? 'active',
-      rating: json['rating'] ?? 0,
-      appliedAt: json['applied_at'] != null ? DateTime.tryParse(json['applied_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      portfolioUrl: json['portolio_url'] ?? json['portfolio_url'],
+      resumeUrl: json['resume'],
+      coverLetter: json['cover_letter'],
+      notes: json['notes'],
+      status: json['status'] ?? 'new',
+      stage: json['stage'] ?? '',
+      rating: parseRating(json['rating']),
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'job_posting_id': jobPostingId,
+      'job_posting_id': int.tryParse(jobPostingId) ?? 0,
       'first_name': firstName,
       'last_name': lastName,
       'email': email,
       'phone': phone,
-      'resume_url': resumeUrl,
-      'cover_letter': coverLetter,
-      'portfolio_url': portfolioUrl,
       'linkedin_url': linkedinUrl,
-      'stage': stage,
+      'portolio_url': portfolioUrl,
+      'resume': resumeUrl,
+      'cover_letter': coverLetter,
+      'notes': notes,
       'status': status,
-      'rating': rating,
     };
   }
 }

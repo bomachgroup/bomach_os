@@ -1,428 +1,161 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/hr/models/disciplinary_process_models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
-class AppealDisciplinaryCaseDialog extends StatefulWidget {
-  final DisciplinaryCaseRecord caseRecord;
-  final Function(DisciplinaryCaseRecord) onSubmit;
+import '../controller/disciplinary_controller.dart';
+import '../models/disciplinary_cases_model.dart';
+import 'add_disciplinary_case_dialog.dart';
 
-  const AppealDisciplinaryCaseDialog({
+class ViewDisciplinaryCaseDialog extends StatelessWidget {
+  final DisciplinaryCase kase;
+  final String token;
+
+  const ViewDisciplinaryCaseDialog({
     super.key,
-    required this.caseRecord,
-    required this.onSubmit,
+    required this.kase,
+    required this.token,
   });
 
   @override
-  State<AppealDisciplinaryCaseDialog> createState() =>
-      _AppealDisciplinaryCaseDialogState();
-}
-
-class _AppealDisciplinaryCaseDialogState
-    extends State<AppealDisciplinaryCaseDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _appealReasonController =
-      TextEditingController();
-  final TextEditingController _additionalDetailsController =
-      TextEditingController();
-  final TextEditingController _evidenceController = TextEditingController();
-  String? _selectedAppealGrounds;
-
-  final List<String> _appealGrounds = [
-    'Procedural Irregularity',
-    'Insufficient Evidence',
-    'Disproportionate Punishment',
-    'Mitigating Circumstances',
-    'Factual Error',
-    'New Evidence',
-    'Discrimination',
-    'Other',
-  ];
-
-  @override
-  void dispose() {
-    _appealReasonController.dispose();
-    _additionalDetailsController.dispose();
-    _evidenceController.dispose();
-    super.dispose();
-  }
-
-  void _submitAppeal() {
-    if (_formKey.currentState!.validate() &&
-        _selectedAppealGrounds != null) {
-      final updatedCase = DisciplinaryCaseRecord(
-        caseId: widget.caseRecord.caseId,
-        employeeId: widget.caseRecord.employeeId,
-        employeeName: widget.caseRecord.employeeName,
-        employeeEmail: widget.caseRecord.employeeEmail,
-        department: widget.caseRecord.department,
-        position: widget.caseRecord.position,
-        branch: widget.caseRecord.branch,
-        actionType: widget.caseRecord.actionType,
-        violation: widget.caseRecord.violation,
-        description: widget.caseRecord.description,
-        dateOfViolation: widget.caseRecord.dateOfViolation,
-        dateInitiated: widget.caseRecord.dateInitiated,
-        effectiveDate: widget.caseRecord.effectiveDate,
-        status: 'Appealed',
-        suspensionStartDate: widget.caseRecord.suspensionStartDate,
-        suspensionEndDate: widget.caseRecord.suspensionEndDate,
-        suspensionDays: widget.caseRecord.suspensionDays,
-        terminationReason: widget.caseRecord.terminationReason,
-        severancePaymentDue: widget.caseRecord.severancePaymentDue,
-        severanceAmount: widget.caseRecord.severanceAmount,
-        investigationDetails: widget.caseRecord.investigationDetails,
-        investigatedBy: widget.caseRecord.investigatedBy,
-        approvedBy: widget.caseRecord.approvedBy,
-        approvalDate: widget.caseRecord.approvalDate,
-        employeeStatement: widget.caseRecord.employeeStatement,
-        witnessStatements: widget.caseRecord.witnessStatements,
-        appealFiled: true,
-        appealReason: _appealReasonController.text,
-        appealStatus: 'Pending',
-      );
-
-      widget.onSubmit(updatedCase);
-      Navigator.of(context).pop();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: MyText('Appeal submitted successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final DisciplinaryController controller = Get.find();
+
     return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.white,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText(
-                    'Appeal Disciplinary Case',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Case Information Section
-                        const MyText(
-                          'Case Information',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.greyBg,
-                            border: Border.all(color: AppColors.grey5),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const MyText(
-                                    'Case ID:',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.grey1,
-                                    ),
-                                  ),
-                                  MyText(
-                                    widget.caseRecord.caseId,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const MyText(
-                                    'Violation:',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.grey1,
-                                    ),
-                                  ),
-                                  MyText(
-                                    widget.caseRecord.violation,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const MyText(
-                                    'Action Type:',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.grey1,
-                                    ),
-                                  ),
-                                  MyText(
-                                    widget.caseRecord.actionType.displayName,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const MyText(
-                                    'Current Status:',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.grey1,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: widget.caseRecord.status ==
-                                              'Completed'
-                                          ? AppColors.red.withValues(alpha: 0.15)
-                                          : AppColors.green
-                                              .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: MyText(
-                                      widget.caseRecord.status,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: widget.caseRecord.status ==
-                                                'Completed'
-                                            ? AppColors.red
-                                            : AppColors.green,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Appeal Grounds Section
-                        const MyText(
-                          'Appeal Grounds',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const MyText(
-                          'Select the primary reason for your appeal',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.grey1,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            hintText: 'Select appeal grounds',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                          ),
-                          value: _selectedAppealGrounds,
-                          items: _appealGrounds
-                              .map((ground) => DropdownMenuItem<String>(
-                                    value: ground,
-                                    child: MyText(ground),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() => _selectedAppealGrounds = value);
-                          },
-                          validator: (value) =>
-                              value == null ? 'Please select appeal grounds' : null,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Appeal Details Section
-                        const MyText(
-                          'Appeal Details',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        MyTextFormField(
-                          hintText: 'Primary reason for appeal',
-                          controller: _appealReasonController,
-                          maxLines: 3,
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'Please provide your appeal reason'
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-                        MyTextFormField(
-                          hintText:
-                              'Additional details or supporting information',
-                          controller: _additionalDetailsController,
-                          maxLines: 3,
-                        ),
-                        const SizedBox(height: 16),
-                        MyTextFormField(
-                          hintText:
-                              'Evidence or documentation (describe any attachments)',
-                          controller: _evidenceController,
-                          maxLines: 3,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Important Notice
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.orange.withValues(alpha: 0.1),
-                            border: Border.all(color: AppColors.orange),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              MyText(
-                                'Important Notice',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.orange,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              MyText(
-                                'By submitting this appeal, you acknowledge that all information provided is true and accurate. False or misleading statements may result in further disciplinary action. Your appeal will be reviewed by the appropriate management and a decision will be communicated within 7 business days.',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.grey1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Checkbox for acknowledgment
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: true,
-                              onChanged: (value) {},
-                              side: const BorderSide(
-                                color: AppColors.grey3,
-                              ),
-                            ),
-                            const Expanded(
-                              child: MyText(
-                                'I acknowledge that the information provided is true and accurate',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+        constraints: const BoxConstraints(maxWidth: 700),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const MyText('Case Details', size: 20, weight: 600),
+                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  ],
                 ),
               ),
-            ),
-            // Footer
-            const Divider(height: 1),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                spacing: 12,
-                children: [
-                  MyOutlinedButton(
-                    child: 'Cancel',
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                  MyElevatedButton(
-                    child: 'Submit Appeal',
-                    onTap: _submitAppeal,
-                  ),
-                ],
+
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    _buildRow('Employee ID', kase.employeeId),
+                    _buildRow('Violation Title', kase.violationTitle),
+                    _buildRow('Category', kase.violationCategory),
+                    _buildRow('Action Type', kase.actionType, isHighlight: true),
+                    _buildRow('Action Date', kase.actionDate != null ? DateFormat('yyyy-MM-dd').format(kase.actionDate!) : '-'),
+                    const SizedBox(height: 16),
+                    _buildSection('Description', kase.violationDescription),
+                    _buildSection('Investigation Details', kase.investigationDetails ?? 'None provided'),
+                    if (kase.severancePaymentDue)
+                      _buildRow('Severance Amount', kase.severanceAmount?.toStringAsFixed(2) ?? '0.00'),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade300))),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    MyOutlinedButton(
+                      textColor: AppColors.red,
+                      child: 'Delete',
+                      onTap: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: const Text('Delete Case'),
+                            content: const Text('Are you sure you want to delete this case?'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('No')),
+                              TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Yes')),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true) {
+                          await controller.deleteCase(token, kase.id);
+                          if (context.mounted) Navigator.pop(context);
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    MyElevatedButton(
+                      child: 'Edit',
+                      onTap: () {
+                        Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder: (c) => AddDisciplinaryCaseDialog(token: token, caseToEdit: kase),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRow(String label, String value, {bool isHighlight = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 150,
+            child: MyText(label, color: Colors.grey.shade600, size: 14),
+          ),
+          Expanded(
+            child: MyText(
+              value,
+              size: 14,
+              color: isHighlight ? AppColors.blue : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection(String title, String content) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MyText(title, size: 14),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: MyText(content, size: 14),
+          ),
+        ],
       ),
     );
   }

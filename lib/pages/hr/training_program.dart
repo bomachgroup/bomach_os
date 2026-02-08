@@ -1,6 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_dropdown2.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
@@ -11,6 +10,12 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; 
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
+import '../../../pages/hr/models/training_program_model.dart';
+import 'controller/training_program_controller.dart'; 
 
 class TrainingProgramPage extends StatefulWidget {
   const TrainingProgramPage({super.key});
@@ -21,6 +26,28 @@ class TrainingProgramPage extends StatefulWidget {
 
 class TrainingProgramPageState extends State<TrainingProgramPage> {
   final ScrollController _scrollController = ScrollController();
+  final TrainingProgramController controller = Get.put(TrainingProgramController());
+  final _storage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final token = await _getToken(context);
+    if (token != null) {
+      controller.fetchPrograms(token);
+    }
+  }
+
+  Future<String?> _getToken(BuildContext context) async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
+    return token.replaceAll('"', '').trim();
+  }
 
   @override
   void dispose() {
@@ -45,25 +72,20 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
-                        'Training Program',
-                        style: AppText.black_500_32,
-                      ),
+                      MyText('Training Program', style: AppText.black_500_32),
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
+                    icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.white),
                     child: "New Training Program",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AddProgramDialog();
-                        },
-                      );
+                    onTap: () async {
+                      final token = await _getToken(context);
+                      if (token != null && context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AddProgramDialog(token: token),
+                        );
+                      }
                     },
                   )
                 ],
@@ -84,17 +106,16 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                     width: 250,
                     child: MyTextFormField(
                       hintText: 'Search by name',
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
+                      leading: Icon(Icons.search, color: AppColors.grey1.withValues(alpha: 0.5)),
                     ),
                   ),
                   const Row(
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All States"),
+                      SortBar(text: "Refresh",
+                      // onTap: _loadData,
+                      ), 
                       SortBar(text: "Status"),
                     ],
                   )
@@ -121,18 +142,24 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                   controller: _scrollController,
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
-                    ),
+                    constraints: BoxConstraints(minWidth: bodySpace(context)),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+                      }
+                      if (controller.programList.isEmpty) {
+                        return const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("No programs found.")));
+                      }
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.programList),
+                        showBottomBorder: true,
+                      );
+                    }),
                   ),
                 ),
               ),
@@ -145,70 +172,46 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
   }
 
   List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Program Name",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Start Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "End Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+    return const [
+      DataColumn(label: MyText("Program Name")),
+      DataColumn(label: MyText("Provider")),
+      DataColumn(label: MyText("Start Date")),
+      DataColumn(label: MyText("End Date")),
+      DataColumn(label: MyText("Status")),
+      DataColumn(label: MyText("Action")),
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+  List<DataRow> _createRows(BuildContext context, List<TrainingProgram> items) {
+    return items.map((program) {
       return DataRow(cells: <DataCell>[
         DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const ViewProgramDialog();
-              },
-            );
+          MyText(program.programName, size: 16, weight: 400, isSelectable: false),
+          onTap: () async {
+            final token = await _getToken(context);
+            if (token != null && context.mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => ViewProgramDialog(program: program, token: token),
+              );
+            }
           },
-          const MyText(
-            "Mindset Development",
-            size: 16,
-            weight: 400,
-            isSelectable: false,
-          ),
         ),
-        const DataCell(
-          MyText(
-            "July 2025",
-          ),
+        DataCell(MyText(program.provider)),
+        DataCell(MyText(program.startDate != null ? DateFormat('yyyy-MM-dd').format(program.startDate!) : '-')),
+        DataCell(MyText(program.endDate != null ? DateFormat('yyyy-MM-dd').format(program.endDate!) : '-')),
+        DataCell(
+           Container(
+             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+             decoration: BoxDecoration(
+               color: Colors.blue.withOpacity(0.1), 
+               borderRadius: BorderRadius.circular(4)
+             ),
+             child: MyText(program.status, color: Colors.blue),
+           )
         ),
-        const DataCell(
-          MyText("29, July 2025"),
-        ),
-        const DataCell(
-          MyDropdown2(),
-        ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
+        const DataCell(ThreeDotPop()),
       ]);
-    });
+    }).toList();
   }
 }

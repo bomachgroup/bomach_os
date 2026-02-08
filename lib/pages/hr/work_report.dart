@@ -2,14 +2,18 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/hr/models/work_report_models.dart';
 import 'package:bms_front_end/pages/hr/widget/daily_work_report_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/work_report_review_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
+import 'controller/work_report_controller.dart';
+import 'models/work_report_model.dart';
 
 class WorkReportPage extends StatefulWidget {
   const WorkReportPage({super.key});
@@ -20,169 +24,27 @@ class WorkReportPage extends StatefulWidget {
 
 class _WorkReportPageState extends State<WorkReportPage> {
   final ScrollController _scrollController = ScrollController();
-  late List<DailyWorkReport> _workReports;
-  String _selectedStatus = 'All Status';
-  String _selectedEmployee = 'All Employees';
+  final WorkReportController controller = Get.put(WorkReportController());
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    _initializeSampleReports();
+    _loadData();
   }
 
-  void _initializeSampleReports() {
-    _workReports = [
-      DailyWorkReport(
-        id: 'WR001',
-        employeeId: 'K997KD',
-        employeeName: 'John Michael',
-        employeeEmail: 'johnmichael5@gmail.com',
-        reportDate: DateTime.now(),
-        activities: [
-          WorkActivity(
-            id: 'WA001',
-            taskTitle: 'Dashboard UI Implementation',
-            description: 'Designed and implemented the main dashboard layout',
-            taskCategory: 'Development',
-            hoursSpent: 5.0,
-            completed: true,
-          ),
-          WorkActivity(
-            id: 'WA002',
-            taskTitle: 'Code Review',
-            description: 'Reviewed pull requests from the team',
-            taskCategory: 'Code Review',
-            hoursSpent: 2.0,
-            completed: true,
-          ),
-        ],
-        hoursWorked: 7.0,
-        mood: 'Happy',
-        challenges:
-            'Had some difficulty with responsive design on mobile screens',
-        achievements: 'Completed dashboard implementation ahead of schedule',
-        nextDayPlan: 'Fix responsive issues and start on profile page',
-        submitted: true,
-        submittedAt: DateTime.now(),
-        approvedBy: 'Sarah Johnson',
-        approvedAt: DateTime.now(),
-        status: 'Approved',
-      ),
-      DailyWorkReport(
-        id: 'WR002',
-        employeeId: 'E002',
-        employeeName: 'Sarah Johnson',
-        employeeEmail: 'sarah.johnson@gmail.com',
-        reportDate: DateTime.now().subtract(const Duration(days: 1)),
-        activities: [
-          WorkActivity(
-            id: 'WA003',
-            taskTitle: 'API Integration',
-            description: 'Integrated payment gateway API',
-            taskCategory: 'Development',
-            hoursSpent: 4.0,
-            completed: true,
-          ),
-          WorkActivity(
-            id: 'WA004',
-            taskTitle: 'Testing Integration',
-            description: 'Tested API endpoints for edge cases',
-            taskCategory: 'Testing',
-            hoursSpent: 3.0,
-            completed: true,
-          ),
-          WorkActivity(
-            id: 'WA005',
-            taskTitle: 'Documentation',
-            description: 'Documented API integration steps',
-            taskCategory: 'Documentation',
-            hoursSpent: 1.5,
-            completed: true,
-          ),
-        ],
-        hoursWorked: 8.5,
-        mood: 'Neutral',
-        challenges: 'API had rate limiting issues during testing',
-        achievements: 'Successfully integrated payment gateway',
-        nextDayPlan: 'Deploy payment integration to staging',
-        submitted: true,
-        submittedAt: DateTime.now().subtract(const Duration(days: 1)),
-        approvedBy: null,
-        approvedAt: null,
-        status: 'Submitted',
-      ),
-      DailyWorkReport(
-        id: 'WR003',
-        employeeId: 'E003',
-        employeeName: 'Nicholas Chidera',
-        employeeEmail: 'nicholas.chidera@gmail.com',
-        reportDate: DateTime.now().subtract(const Duration(days: 2)),
-        activities: [
-          WorkActivity(
-            id: 'WA006',
-            taskTitle: 'Database Optimization',
-            description: 'Optimized slow database queries',
-            taskCategory: 'Development',
-            hoursSpent: 6.0,
-            completed: true,
-          ),
-        ],
-        hoursWorked: 6.0,
-        mood: 'Frustrated',
-        challenges:
-            'Database query performance was harder to optimize than expected',
-        achievements: 'Reduced query time by 40%',
-        nextDayPlan: 'Continue optimization on remaining queries',
-        submitted: true,
-        submittedAt: DateTime.now().subtract(const Duration(days: 2)),
-        approvedBy: null,
-        approvedAt: null,
-        status: 'Submitted',
-      ),
-      DailyWorkReport(
-        id: 'WR004',
-        employeeId: 'K997KD',
-        employeeName: 'John Michael',
-        employeeEmail: 'johnmichael5@gmail.com',
-        reportDate: DateTime.now().subtract(const Duration(days: 3)),
-        activities: [],
-        hoursWorked: 0.0,
-        mood: 'Neutral',
-        challenges: '',
-        achievements: '',
-        nextDayPlan: '',
-        submitted: false,
-        status: 'Draft',
-      ),
-    ];
+  Future<void> _loadData() async {
+    final token = await _getToken(context);
+    if (token != null) {
+      controller.fetchReports(token);
+    }
   }
 
-  void _handleWorkReportSubmit(DailyWorkReport report) {
-    setState(() {
-      _workReports.insert(0, report);
-    });
-  }
-
-  void _handleWorkReportReview(int index, DailyWorkReport updatedReport) {
-    setState(() {
-      _workReports[index] = updatedReport;
-    });
-  }
-
-  void _openReviewDialog(
-      BuildContext context, int index, DailyWorkReport report) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return WorkReportReviewDialog(
-          report: report,
-          reviewerName: 'Manager Account', // Should come from logged-in user
-          onReviewComplete: (updatedReport) {
-            _handleWorkReportReview(index, updatedReport);
-          },
-        );
-      },
-    );
+  Future<String?> _getToken(BuildContext context) async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
+    return token.replaceAll('"', '').trim();
   }
 
   @override
@@ -191,27 +53,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
     super.dispose();
   }
 
-  List<DailyWorkReport> _getFilteredReports() {
-    List<DailyWorkReport> filtered = _workReports;
-
-    if (_selectedStatus != 'All Status') {
-      filtered =
-          filtered.where((report) => report.status == _selectedStatus).toList();
-    }
-
-    if (_selectedEmployee != 'All Employees') {
-      filtered = filtered
-          .where((report) => report.employeeName == _selectedEmployee)
-          .toList();
-    }
-
-    return filtered;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final filteredReports = _getFilteredReports();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -246,15 +89,16 @@ class _WorkReportPageState extends State<WorkReportPage> {
                       color: AppColors.white,
                     ),
                     child: "Submit Report",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return DailyWorkReportDialog(
-                            onSubmit: _handleWorkReportSubmit,
-                          );
-                        },
-                      );
+                    onTap: () async {
+                      final token = await _getToken(context);
+                      if (token != null && context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return DailyWorkReportDialog(token: token);
+                          },
+                        );
+                      }
                     },
                   )
                 ],
@@ -274,7 +118,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
                   SizedBox(
                     width: 250,
                     child: MyTextFormField(
-                      hintText: 'Search by employee name...',
+                      hintText: 'Search...',
                       leading: Icon(
                         Icons.search,
                         color: AppColors.grey1.withValues(alpha: 0.5),
@@ -285,8 +129,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildStatusFilter(),
-                      _buildEmployeeFilter(),
+                       IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
                     ],
                   )
                 ],
@@ -315,15 +158,23 @@ class _WorkReportPageState extends State<WorkReportPage> {
                     constraints: BoxConstraints(
                       minWidth: bodySpace(context),
                     ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context, filteredReports),
-                      showBottomBorder: true,
-                    ),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+                      }
+                      if (controller.workReports.isEmpty) {
+                         return const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("No reports found.")));
+                      }
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.workReports),
+                        showBottomBorder: true,
+                      );
+                    }),
                   ),
                 ),
               ),
@@ -335,144 +186,36 @@ class _WorkReportPageState extends State<WorkReportPage> {
     );
   }
 
-  Widget _buildStatusFilter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFD5D5D5)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        value: _selectedStatus,
-        underline: const SizedBox(),
-        items: <String>[
-          'All Status',
-          'Draft',
-          'Submitted',
-          'Approved',
-          'Rejected'
-        ].map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: MyText(value),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-          setState(() {
-            _selectedStatus = newValue ?? 'All Status';
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _buildEmployeeFilter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFD5D5D5)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        value: _selectedEmployee,
-        underline: const SizedBox(),
-        items: <String>[
-          'All Employees',
-          'John Michael',
-          'Sarah Johnson',
-          'Nicholas Chidera'
-        ].map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: MyText(value),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-          setState(() {
-            _selectedEmployee = newValue ?? 'All Employees';
-          });
-        },
-      ),
-    );
-  }
-
   List<DataColumn> _createColumns() {
     return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Employee",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Hours Worked",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Mood",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Activities",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+      const DataColumn(label: MyText("Employee ID")),
+      const DataColumn(label: MyText("Date")),
+      const DataColumn(label: MyText("Hours")),
+      const DataColumn(label: MyText("Mood")),
+      const DataColumn(label: MyText("Challenges")),
+      const DataColumn(label: MyText("Status")),
+      const DataColumn(label: MyText("Action")),
     ];
   }
 
-  List<DataRow> _createRows(
-      BuildContext context, List<DailyWorkReport> reports) {
-    return reports.asMap().entries.map((entry) {
-      final index = entry.key;
-      final report = entry.value;
-
+  List<DataRow> _createRows(BuildContext context, List<WorkReport> reports) {
+    return reports.map((report) {
       return DataRow(cells: <DataCell>[
         DataCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              MyText(
-                report.employeeName,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                isSelectable: false,
-              ),
-              MyText(
-                report.employeeEmail,
-                size: 12,
-                color: const Color(0xFF64748B),
-                isSelectable: false,
-              ),
-            ],
-          ),
-        ),
-        DataCell(
           MyText(
-            DateFormat('dd MMM yyyy').format(report.reportDate),
-          ),
-        ),
-        DataCell(
-          MyText(
-            '${report.hoursWorked.toStringAsFixed(1)} hrs',
+            report.employeeId,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
+        ),
+        DataCell(
+          MyText(
+             report.day != null 
+                ? DateFormat('dd MMM yyyy').format(report.day!) 
+                : '-',
+          ),
+        ),
+        DataCell(
+          MyText('${report.hoursWorked.toStringAsFixed(1)} hrs'),
         ),
         DataCell(
           MyText(
@@ -481,17 +224,17 @@ class _WorkReportPageState extends State<WorkReportPage> {
           ),
         ),
         DataCell(
-          MyText(
-            '${report.activities.length} activities',
-            style: const TextStyle(color: Color(0xFF64748B)),
+          SizedBox(
+            width: 150,
+            child: MyText(
+              report.challenges ?? '-',
+              maxLines: 1,
+            ),
           ),
         ),
         DataCell(
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: _getStatusColor(report.status),
               borderRadius: BorderRadius.circular(6),
@@ -507,7 +250,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
           ),
         ),
         DataCell(
-          _buildActionMenu(context, index, report),
+           _buildActionMenu(context, report),
         ),
       ]);
     }).toList();
@@ -515,53 +258,49 @@ class _WorkReportPageState extends State<WorkReportPage> {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'approved':
-        return AppColors.green;
-      case 'submitted':
-        return AppColors.blue;
-      case 'draft':
-        return const Color(0xFF64748B);
-      case 'rejected':
-        return AppColors.red;
-      default:
-        return AppColors.grey1;
+      case 'approved': return AppColors.green;
+      case 'submitted': return AppColors.blue;
+      case 'draft': return const Color(0xFF64748B);
+      case 'rejected': return AppColors.red;
+      default: return AppColors.grey1;
     }
   }
 
   String _getMoodEmoji(String mood) {
     switch (mood.toLowerCase()) {
-      case 'happy':
-        return '😊';
-      case 'neutral':
-        return '😐';
-      case 'tired':
-        return '😴';
-      case 'frustrated':
-        return '😞';
-      default:
-        return '😐';
+      case 'happy': return '😊';
+      case 'neutral': return '😐';
+      case 'tired': return '😴';
+      case 'frustrated': return '😞';
+      default: return '😐';
     }
   }
 
-  Widget _buildActionMenu(
-      BuildContext context, int index, DailyWorkReport report) {
+  Widget _buildActionMenu(BuildContext context, WorkReport report) {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
-      onSelected: (String result) {
+      onSelected: (String result) async {
+        final token = await _getToken(context);
+        if (token == null || !context.mounted) return;
+
         if (result == 'view') {
-          _openReviewDialog(context, index, report);
-        } else if (result == 'edit') {
           showDialog(
             context: context,
-            builder: (context) {
-              return DailyWorkReportDialog(
-                existingReport: report,
-                onSubmit: (updatedReport) {
-                  _handleWorkReportReview(index, updatedReport);
-                },
-              );
-            },
+            builder: (context) => WorkReportReviewDialog(
+              report: report, 
+              token: token
+            ),
           );
+        } else if (result == 'edit') {
+           showDialog(
+            context: context,
+            builder: (context) => DailyWorkReportDialog(
+              existingReport: report,
+              token: token,
+            ),
+          );
+        } else if (result == 'delete') {
+            await controller.deleteReport(token, report.id);
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -571,21 +310,30 @@ class _WorkReportPageState extends State<WorkReportPage> {
             children: [
               Icon(Icons.fact_check_outlined, size: 18),
               SizedBox(width: 8),
-              MyText('Review Report', isSelectable: false),
+              MyText('Review / View', isSelectable: false),
             ],
           ),
         ),
-        if (report.status == 'Draft' || report.status == 'Rework Required')
-          const PopupMenuItem<String>(
-            value: 'edit',
-            child: Row(
-              children: [
-                Icon(Icons.edit_outlined, size: 18),
-                SizedBox(width: 8),
-                Text('Edit Report'),
-              ],
-            ),
+        const PopupMenuItem<String>(
+          value: 'edit',
+          child: Row(
+            children: [
+              Icon(Icons.edit_outlined, size: 18),
+              SizedBox(width: 8),
+              Text('Edit Report'),
+            ],
           ),
+        ),
+        const PopupMenuItem<String>(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline, size: 18, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Delete', style: TextStyle(color: Colors.red)),
+            ],
+          ),
+        ),
       ],
     );
   }

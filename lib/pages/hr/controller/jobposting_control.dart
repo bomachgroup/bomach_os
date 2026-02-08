@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 
 import '../../../src/services/hr/jobposting_service.dart';
 import '../models/job_posting.dart';
-
-
 
 class JobPostController extends GetxController {
   final JobPostingService _jobService = JobPostingService();
@@ -15,208 +15,202 @@ class JobPostController extends GetxController {
   var isLoading = false.obs;
   var isSaving = false.obs;
   var jobList = <JobPosting>[].obs;
-  var jobSummary = {}.obs;
+  var totalCount = 0.obs;
 
   final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
   final departmentController = TextEditingController();
   final branchController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final requirementsController = TextEditingController();
+
+  final responsibilitiesController = TextEditingController();
+  final deadlineController = TextEditingController();
+
   final minSalaryController = TextEditingController();
   final maxSalaryController = TextEditingController();
-  final requirementsController = TextEditingController();
-  var selectedStatus = 'published'.obs;
+
+  DateTime? selectedDeadline;
+
+  var selectedStatus = 'Draft'.obs;
   var selectedJobType = 'Full Time'.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+  }
 
-
-  Future<void> fetchJobPostings(BuildContext context, {bool refresh = false}) async {
+  Future<void> fetchJobPostings(BuildContext context,
+      {bool refresh = false}) async {
     try {
       if (!refresh) isLoading.value = true;
-      
       final token = await _getToken(context);
       if (token == null) return;
 
       final result = await _jobService.getJobPostings(token);
-      jobList.assignAll(result);
-
+      jobList.assignAll(result.list);
+      totalCount.value = result.count;
     } catch (e) {
       log("Fetch Error: $e");
-      if (context.mounted) {
-        _showSnackBar(context, "Failed to load jobs: $e", isError: true);
-      }
     } finally {
       isLoading.value = false;
     }
   }
 
-
-  Future<void> createJobPosting(BuildContext context, JobPosting posting) async {
+  Future<void> saveJob(BuildContext context, {String? id}) async {
     try {
       isSaving.value = true;
-      
-      final token = await _getToken(context);
-      if (token == null) return;
 
-      await _jobService.createJobPosting(token, posting);
-
-      await fetchJobPostings(context, refresh: true);
-
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        _showSnackBar(context, "Job Posting created successfully");
+      String salaryString = "Negotiable";
+      if (minSalaryController.text.isNotEmpty ||
+          maxSalaryController.text.isNotEmpty) {
+        final min = minSalaryController.text.replaceAll(',', '').trim();
+        final max = maxSalaryController.text.replaceAll(',', '').trim();
+        salaryString = "$min - $max";
       }
-      
-      clearForm(); 
 
-    } catch (e) {
-      log("Create Error: $e");
-      if (context.mounted) {
-        _showDialog(context, "Creation Failed", e.toString());
-      }
-    } finally {
-      isSaving.value = false;
-    }
-  }
+      final DateTime deadlineDate =
+          selectedDeadline ?? DateTime.now().add(const Duration(days: 30));
 
+      final apiJobType =
+          selectedJobType.value.toLowerCase().replaceAll(' ', '_');
+      final apiStatus = selectedStatus.value.toLowerCase();
 
-  Future<JobPosting?> getJobPostingById(BuildContext context, String id) async {
-    try {
-      isLoading.value = true;
-
-      final token = await _getToken(context);
-      if (token == null) return null;
-
-      return await _jobService.getJobPostingById(token, id);
-
-    } catch (e) {
-      log("Get ID Error: $e");
-      if (context.mounted) {
-        _showSnackBar(context, "Failed to fetch details: $e", isError: true);
-      }
-      return null;
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-
-  Future<void> updateJobPosting(BuildContext context, String id, JobPosting posting) async {
-    try {
-      isSaving.value = true;
+      final posting = JobPosting(
+        id: id ?? '',
+        title: titleController.text.trim(),
+        departmentId: departmentController.text.trim(),
+        branchId: branchController.text.trim(),
+        jobType: apiJobType,
+        status: apiStatus,
+        description: descriptionController.text.trim(),
+        requirements: requirementsController.text.trim(),
+        responsibilities: responsibilitiesController.text.trim(),
+        salaryRange: salaryString,
+        deadline: deadlineDate,
+        isActive: true,
+      );
 
       final token = await _getToken(context);
       if (token == null) return;
 
-      await _jobService.updateJobPosting(token, id, posting);
+      if (id == null) {
+        await _jobService.createJobPosting(token, posting);
+        if (context.mounted) {
+          _showSnackBar(context, "Job Posted Successfully");
+          Navigator.pop(context);
+        }
+      } else {
+        await _jobService.updateJobPosting(token, id, posting);
+        if (context.mounted) {
+          _showSnackBar(context, "Job Updated Successfully");
+          Navigator.pop(context);
+        }
+      }
 
       await fetchJobPostings(context, refresh: true);
-
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        _showSnackBar(context, "Job Posting updated successfully");
-      }
-      
       clearForm();
-
     } catch (e) {
-      log("Update Error: $e");
-      if (context.mounted) {
-        _showDialog(context, "Update Failed", e.toString());
+      log("Save Job Error: $e");
+      if (e is DioException && e.response?.data != null) {
+        log("Server Response: ${e.response?.data}");
+        if (context.mounted) {
+          final msg = e.response?.data['detail'] ?? "Check your inputs.";
+          _showDialog(context, "Submission Failed", "Server says: $msg");
+        }
       }
     } finally {
       isSaving.value = false;
     }
   }
 
-
-  Future<void> deleteJobPosting(BuildContext context, String id) async {
+  Future<void> deleteJob(BuildContext context, String id) async {
     try {
-      if (context.mounted) Navigator.of(context).pop();
-      
-      isLoading.value = true; 
-
+      isSaving.value = true;
       final token = await _getToken(context);
       if (token == null) return;
 
       await _jobService.deleteJobPosting(token, id);
-
-      jobList.removeWhere((job) => job.id == id);
-      
       if (context.mounted) {
-        _showSnackBar(context, "Job Posting deleted successfully");
+        _showSnackBar(context, "Job Deleted Successfully");
+        Navigator.pop(context);
       }
-
+      await fetchJobPostings(context, refresh: true);
     } catch (e) {
-      log("Delete Error: $e");
-      if (context.mounted) {
-        _showSnackBar(context, "Failed to delete: $e", isError: true);
+      log("Delete Job Error: $e");
+      if (e is DioException && e.response?.data != null) {
+        if (context.mounted) {
+          final msg = e.response?.data['detail'] ?? "Failed to delete job.";
+          _showDialog(context, "Deletion Failed", "Server says: $msg");
+        }
       }
     } finally {
-      isLoading.value = false;
+      isSaving.value = false;
     }
   }
 
+  void clearForm() {
+    titleController.clear();
+    departmentController.clear();
+    branchController.clear();
+    descriptionController.clear();
+    requirementsController.clear();
+    responsibilitiesController.clear();
+    deadlineController.clear();
+    minSalaryController.clear();
+    maxSalaryController.clear();
 
-  Future<void> updateJobStatus(BuildContext context, String id, String status) async {
-    try {
-      final token = await _getToken(context);
-      if (token == null) return;
-
-      await _jobService.updateJobPostingStatus(token, id, status);
-      
-      int index = jobList.indexWhere((j) => j.id == id);
-      if (index != -1) {
-
-        await fetchJobPostings(context, refresh: true);
-      }
-
-      if (context.mounted) {
-        _showSnackBar(context, "Status updated to $status");
-      }
-
-    } catch (e) {
-      log("Status Update Error: $e");
-      if (context.mounted) {
-        _showSnackBar(context, "Failed to update status: $e", isError: true);
-      }
-    }
+    selectedDeadline = null;
+    selectedStatus.value = 'Draft';
+    selectedJobType.value = 'Full Time';
   }
 
+  void populateForm(JobPosting job) {
+    titleController.text = job.title;
+    departmentController.text = job.departmentId;
+    branchController.text = job.branchId;
+    descriptionController.text = job.description;
+    requirementsController.text = job.requirements;
 
-  Future<void> getSummary(BuildContext context) async {
-    try {
-      final token = await _getToken(context);
-      if (token == null) return;
+    responsibilitiesController.text = job.responsibilities;
 
-      final data = await _jobService.getJobPostingsSummary(token);
-      if (data is Map) {
-         jobSummary.assignAll(Map<String, dynamic>.from(data));
+    if (job.salaryRange.contains('-')) {
+      final parts = job.salaryRange.split('-');
+      if (parts.length >= 2) {
+        minSalaryController.text = parts[0].trim();
+        maxSalaryController.text = parts[1].trim();
       }
-
-    } catch (e) {
-      log("Summary Error: $e");
+    } else {
+      minSalaryController.text = job.salaryRange;
     }
+
+    selectedDeadline = job.deadline;
+    if (job.deadline != null) {
+      deadlineController.text = DateFormat('yyyy-MM-dd').format(job.deadline!);
+    }
+
+    selectedStatus.value = _capitalize(job.status);
+    selectedJobType.value = _capitalize(job.jobType.replaceAll('_', ' '));
   }
 
-
-  /// Retrieves token and handles UI error if missing
   Future<String?> _getToken(BuildContext context) async {
-    final token = await _storage.read(key: 'access_token');
+    String? token = await _storage.read(key: 'access_token');
     if (token == null) {
       if (context.mounted) {
-        _showSnackBar(context, "Authentication Error: Please login again", isError: true);
+        _showSnackBar(context, "Session expired. Please login again.",
+            isError: true);
       }
       return null;
     }
-    return token;
+    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
+    return token.replaceAll('"', '').trim();
   }
 
-  void _showSnackBar(BuildContext context, String message, {bool isError = false}) {
+  void _showSnackBar(BuildContext context, String message,
+      {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: isError ? Colors.red : Colors.green,
-        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -229,35 +223,14 @@ class JobPostController extends GetxController {
         content: Text(content),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text("OK"),
-          )
+              onPressed: () => Navigator.pop(ctx), child: const Text("OK"))
         ],
       ),
     );
   }
 
-  void clearForm() {
-    titleController.clear();
-    descriptionController.clear();
-    departmentController.clear();
-    branchController.clear();
-    minSalaryController.clear();
-    maxSalaryController.clear();
-    requirementsController.clear();
-    selectedStatus.value = 'published';
-    selectedJobType.value = 'Full Time';
-  }
-
-  void populateForm(JobPosting job) {
-    titleController.text = job.title;
-    descriptionController.text = job.description;
-    departmentController.text = job.departmentId;
-    branchController.text = job.branchId;
-    minSalaryController.text = job.salaryRangeMin?.toString() ?? '';
-    maxSalaryController.text = job.salaryRangeMax?.toString() ?? '';
-    requirementsController.text = job.requirements ?? '';
-    selectedStatus.value = job.status;
-    selectedJobType.value = job.jobType;
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
   }
 }

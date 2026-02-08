@@ -18,7 +18,14 @@ class PayrollService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            ));
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
 
   Options _authOptions(String token) {
     return Options(headers: {

@@ -2,13 +2,13 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 
-import '../../src/model/user_model.dart';
+import '../model/user_model.dart';
 
 class AuthService {
   final Dio _dio;
 
   AuthService({
-    String baseUrl = 'https://bomach-backend.onrender.com',
+    String baseUrl = 'https://bomachauth.bgbot.app',
     Dio? dioOverride,
   }) : _dio = dioOverride ??
             Dio(BaseOptions(
@@ -110,8 +110,7 @@ class AuthService {
   }
 
   // REFRESH TOKEN
-  Future<String> refreshToken(
-      {required String refreshToken}) async {
+  Future<String> refreshToken({required String refreshToken}) async {
     try {
       final response = await _dio.post(
         '/api/v1/auth/refresh',
@@ -134,7 +133,14 @@ class AuthService {
       );
 
       final data = response.data;
-      return data['valid'] == true;
+      // Accepts bool, int, or string for 'valid'
+      final valid = data['valid'];
+      if (valid is bool) return valid;
+      if (valid is int) return valid == 1;
+      if (valid is String) {
+        return valid.toLowerCase() == 'true' || valid == '1';
+      }
+      return false;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         return false;

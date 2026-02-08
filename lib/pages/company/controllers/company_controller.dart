@@ -8,8 +8,7 @@ import '../../../src/model/company_model.dart';
 import '../../../src/services/company_service.dart';
 
 class CompanyController extends GetxController {
-  final CompanyService _companyService =
-      CompanyService(baseUrl: 'https://bomach-backend.onrender.com');
+  final CompanyService _companyService = CompanyService();
   final _storage = const FlutterSecureStorage();
 
   var isLoading = true.obs;
