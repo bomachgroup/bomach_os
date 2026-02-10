@@ -1,0 +1,30 @@
+In this file /Users/developer/bomach_os/lib/pages/services/services.dart integrate this endpoint and make sure to be consistent with the way other endpoints are integrated
+
+curl -X 'GET' \
+  'https://bomachservice.bgbot.app/api/v1/services?limit=100&offset=0' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcwNzg2MjI3LCJpYXQiOjE3NzA3MjYyMjcsImp0aSI6ImVhOWRkZDY3LTFhYjQtNDQ1Mi04N2ZlLTVkNzlkOTljYjg5OSJ9.Ch74kQejOEn4AA8gLzisV4vUdZogN6MMovr4EOvXfEc'
+
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Survery",
+      "category": {
+        "id": 2,
+        "name": "surveying",
+        "description": "",
+        "created_at": "2026-02-09T07:57:26.623Z",
+        "updated_at": "2026-02-09T07:57:26.623Z"
+      },
+      "description": "string",
+      "base_price": "1000.00",
+      "delivery_time": "3 weeks",
+      "status": "active",
+      "created_at": "2026-02-09T07:58:42.474Z",
+      "updated_at": "2026-02-09T07:58:42.474Z",
+      "created_by": "2"
+    }
+  ],
+  "count": 1
+}

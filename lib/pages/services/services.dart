@@ -7,10 +7,12 @@ import 'package:bms_front_end/pages/services/widget/add_service_dialog.dart';
 import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/service_invoices.dart';
 import 'package:bms_front_end/pages/services/generate_invoice_page.dart';
+import 'package:bms_front_end/pages/services/controller/service_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ServicesPage extends StatefulWidget {
   const ServicesPage({super.key});
@@ -21,18 +23,23 @@ class ServicesPage extends StatefulWidget {
 
 class _ServicesPageState extends State<ServicesPage> {
   int _selectedTab = 0;
+  final ServiceController _controller = Get.put(ServiceController());
+  final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, String>> services = List.generate(
-    6,
-    (i) => {
-      'title': 'Geotechnical Investigation',
-      'category': 'Engineering',
-      'desc':
-          'Soil analysis and foundation engineering services for construction and infrastructure projects.',
-      'price': 'N300,000.00',
-      'duration': '3-5 weeks',
-    },
-  );
+  void _onSearch(String? query) {
+    if (query != null && query.isNotEmpty) {
+      _controller.fetchServices(search: query);
+    } else {
+      _controller.fetchServices();
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -105,97 +112,144 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   Widget _catalog() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title + subtitle
-                      Text('Service Catalog',
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 8),
-                      Text('Manage your service offerings and pricing',
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        width: 250,
-                        child: MyTextFormField(
-                          hintText: 'Search for services...',
-                          leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+    return Obx(() {
+      if (_controller.isLoading.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(40.0),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      if (_controller.errorMessage.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _controller.errorMessage.value,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                MyElevatedButton(
+                  child: 'Retry',
+                  onTap: () => _controller.fetchServices(),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title + subtitle
+                        Text('Service Catalog',
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.w600)),
+                        SizedBox(height: 8),
+                        Text('Manage your service offerings and pricing',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black54)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: 250,
+                          child: MyTextFormField(
+                            controller: _searchController,
+                            hintText: 'Search for services...',
+                            leading: Icon(
+                              Icons.search,
+                              color: AppColors.grey1.withValues(alpha: 0.5),
+                            ),
+                            onChanged: _onSearch,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      MyElevatedButton(
-                        child: 'Filter',
-                        onTap: () {},
-                      ),
-                    ],
-                  )
-                ],
+                        const SizedBox(width: 12),
+                        MyElevatedButton(
+                          child: 'Filter',
+                          onTap: () {},
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
 
-        const SizedBox(height: 18),
+          const SizedBox(height: 18),
 
-        // Grid of cards
-        LayoutBuilder(builder: (context, constraints) {
-          // determine columns from available width
-          double maxWidth = constraints.maxWidth;
-          int columns = 1;
-          if (maxWidth > 1200)
-            columns = 3;
-          else if (maxWidth > 900)
-            columns = 3;
-          else if (maxWidth > 700)
-            columns = 2;
+          // Grid of cards
+          if (_controller.services.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(40.0),
+              child: Center(
+                child: Text(
+                  'No services available',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+              ),
+            )
           else
-            columns = 1;
+            LayoutBuilder(builder: (context, constraints) {
+              // determine columns from available width
+              double maxWidth = constraints.maxWidth;
+              int columns = 1;
+              if (maxWidth > 1200)
+                columns = 3;
+              else if (maxWidth > 900)
+                columns = 3;
+              else if (maxWidth > 700)
+                columns = 2;
+              else
+                columns = 1;
 
-          double spacing = 18;
-          double cardWidth = (maxWidth - (columns - 1) * spacing) / columns;
+              double spacing = 18;
+              double cardWidth = (maxWidth - (columns - 1) * spacing) / columns;
 
-          return Wrap(
-            runSpacing: spacing,
-            spacing: spacing,
-            children: services
-                .map((s) => SizedBox(
-                      width: cardWidth,
-                      child: ServiceCard(
-                        title: s['title']!,
-                        category: s['category']!,
-                        description: s['desc']!,
-                        price: s['price']!,
-                        duration: s['duration']!,
-                      ),
-                    ))
-                .toList(),
-          );
-        }),
+              return Wrap(
+                runSpacing: spacing,
+                spacing: spacing,
+                children: _controller.services
+                    .map((service) => SizedBox(
+                          width: cardWidth,
+                          child: ServiceCard(
+                            title: service.name,
+                            category: service.category.name,
+                            description: service.description,
+                            price: '₦${service.basePrice}',
+                            duration: service.deliveryTime,
+                          ),
+                        ))
+                    .toList(),
+              );
+            }),
 
-        const SizedBox(height: 40)
-      ],
-    );
+          const SizedBox(height: 40)
+        ],
+      );
+    });
   }
 
   Widget _quotes() {
@@ -415,85 +469,91 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   Widget _buildTopStats(BuildContext context) {
-    final items = [
-      {'label': 'Services', 'count': '452'},
-      {'label': 'Orders', 'count': '452'},
-      {'label': 'Quotes', 'count': '452'},
-      {'label': 'Invoices', 'count': '452'},
-    ];
+    return Obx(() {
+      final items = [
+        {'label': 'Services', 'count': _controller.services.length.toString()},
+        {'label': 'Orders', 'count': '452'},
+        {'label': 'Quotes', 'count': '452'},
+        {'label': 'Invoices', 'count': '452'},
+      ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        double width = constraints.maxWidth;
-        // show 4 cards in a row on wide screens, otherwise stack
-        if (width > 900) {
-          return Row(
-            spacing: 18,
-            children: items
-                .map((it) => Expanded(
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          double width = constraints.maxWidth;
+          // show 4 cards in a row on wide screens, otherwise stack
+          if (width > 900) {
+            return Row(
+              spacing: 18,
+              children: items
+                  .map((it) => Expanded(
+                        child:
+                            StatsCard(label: it['label']!, count: it['count']!),
+                      ))
+                  .toList(),
+            );
+          } else {
+            return Wrap(
+              spacing: 18,
+              runSpacing: 18,
+              children: items
+                  .map((it) => Expanded(
                       child:
-                          StatsCard(label: it['label']!, count: it['count']!),
-                    ))
-                .toList(),
-          );
-        } else {
-          return Wrap(
-            spacing: 18,
-            runSpacing: 18,
-            children: items
-                .map((it) => Expanded(
-                    child: StatsCard(label: it['label']!, count: it['count']!)))
-                .toList(),
-          );
-        }
-      },
-    );
+                          StatsCard(label: it['label']!, count: it['count']!)))
+                  .toList(),
+            );
+          }
+        },
+      );
+    });
   }
 
   Widget _buildTabs(BuildContext context, void Function(int) onTap) {
-    final tabs = [
-      'Service Catalog (8)',
-      'Quotes (12)',
-      'Orders (6)',
-      'Billing (5)',
-      'Generate Invoice',
-      'Service Leads (4)',
-      'Service Invoices (3)',
-    ];
+    return Obx(() {
+      final tabs = [
+        'Service Catalog (${_controller.services.length})',
+        'Quotes (12)',
+        'Orders (6)',
+        'Billing (5)',
+        'Generate Invoice',
+        'Service Leads (4)',
+        'Service Invoices (3)',
+      ];
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(tabs.length, (index) {
-          final isActive = _selectedTab == index;
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () => onTap(index),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? AppColors.blue
-                      : AppColors.white.withValues(alpha: 0.90),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                      color: isActive ? AppColors.blue : AppColors.grey4),
-                ),
-                child: Text(
-                  tabs[index],
-                  style: TextStyle(
-                    color: isActive ? Colors.white : Colors.black87,
-                    fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(tabs.length, (index) {
+            final isActive = _selectedTab == index;
+            return Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: GestureDetector(
+                onTap: () => onTap(index),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? AppColors.blue
+                        : AppColors.white.withValues(alpha: 0.90),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                        color: isActive ? AppColors.blue : AppColors.grey4),
+                  ),
+                  child: Text(
+                    tabs[index],
+                    style: TextStyle(
+                      color: isActive ? Colors.white : Colors.black87,
+                      fontWeight:
+                          isActive ? FontWeight.w600 : FontWeight.normal,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }),
-      ),
-    );
+            );
+          }),
+        ),
+      );
+    });
   }
 }
 
