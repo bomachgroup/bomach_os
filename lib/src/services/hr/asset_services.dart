@@ -18,14 +18,20 @@ class AssetService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            ));
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
 
   Options _authOptions(String token) {
     return Options(headers: {
       'Authorization': 'Bearer $token',
     });
   }
-
 
   Future<List<Asset>> getAssets(
     String token, {
@@ -51,9 +57,8 @@ class AssetService {
       );
 
       final data = response.data;
-      final List<dynamic> list = (data is Map && data.containsKey('items')) 
-          ? data['items'] 
-          : data;
+      final List<dynamic> list =
+          (data is Map && data.containsKey('items')) ? data['items'] : data;
 
       return list.map((json) => Asset.fromJson(json)).toList();
     } catch (e) {
@@ -61,7 +66,6 @@ class AssetService {
     }
   }
 
- 
   Future<Asset> createAsset(String token, Asset asset) async {
     try {
       final response = await _dio.post(
@@ -74,7 +78,6 @@ class AssetService {
       throw _handleError(e);
     }
   }
-
 
   Future<Asset> getAssetById(String token, String assetId) async {
     try {
@@ -112,11 +115,11 @@ class AssetService {
     }
   }
 
-
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final errorMessage = error.response?.data?['message'] ?? error.message;
-      return Exception('API Error: ${error.response?.statusCode} - $errorMessage');
+      return Exception(
+          'API Error: ${error.response?.statusCode} - $errorMessage');
     }
     return Exception('Unexpected error: $error');
   }

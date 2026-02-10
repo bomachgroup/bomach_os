@@ -1,6 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_dropdown2.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
@@ -11,6 +10,11 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; 
+import 'package:intl/intl.dart';
+
+import 'controller/pay_roll_controller.dart';
+import 'models/payroll_model.dart'; 
 
 class PayrollPage extends StatefulWidget {
   const PayrollPage({super.key});
@@ -21,6 +25,7 @@ class PayrollPage extends StatefulWidget {
 
 class PayrollPageState extends State<PayrollPage> {
   final ScrollController _scrollController = ScrollController();
+  final PayrollController controller = Get.put(PayrollController());
 
   @override
   void dispose() {
@@ -83,7 +88,7 @@ class PayrollPageState extends State<PayrollPage> {
                   SizedBox(
                     width: 250,
                     child: MyTextFormField(
-                      hintText: 'Search by name',
+                      hintText: 'Search...', 
                       leading: Icon(
                         Icons.search,
                         color: AppColors.grey1.withValues(alpha: 0.5),
@@ -94,7 +99,9 @@ class PayrollPageState extends State<PayrollPage> {
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All States"),
+                      SortBar(text: "All States", 
+                      // onTap: controller.fetchPayrolls
+                      ), // Acts as refresh
                       SortBar(text: "Status"),
                     ],
                   )
@@ -124,15 +131,35 @@ class PayrollPageState extends State<PayrollPage> {
                     constraints: BoxConstraints(
                       minWidth: bodySpace(context),
                     ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
-                    ),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ));
+                      }
+                      
+                      if (controller.errorMessage.isNotEmpty) {
+                        return Center(child: Text(controller.errorMessage.value));
+                      }
+
+                      if (controller.payrollList.isEmpty) {
+                        return const Center(child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text("No payroll records found."),
+                        ));
+                      }
+
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.payrollList),
+                        showBottomBorder: true,
+                      );
+                    }),
                   ),
                 ),
               ),
@@ -146,99 +173,59 @@ class PayrollPageState extends State<PayrollPage> {
 
   List<DataColumn> _createColumns() {
     return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Employee ID",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Name & Email",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Period",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Disbursement Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Net Salary",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+      const DataColumn(label: MyText("Employee ID")),
+      const DataColumn(label: MyText("Period")),
+      const DataColumn(label: MyText("Disbursement Date")),
+      const DataColumn(label: MyText("Gross Salary")),
+      const DataColumn(label: MyText("Net Salary")),
+      const DataColumn(label: MyText("Status")),
+      const DataColumn(label: MyText("Action")),
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+  List<DataRow> _createRows(BuildContext context, List<Payroll> items) {
+    return items.map((payroll) {
       return DataRow(cells: <DataCell>[
-        const DataCell(
+        DataCell(
           MyText(
-            "K997KD",
+            payroll.employeeId,
             size: 16,
             weight: 400,
             isSelectable: false,
           ),
-        ),
-        DataCell(
           onTap: () {
-            showDialog(
+             showDialog(
               context: context,
-              builder: (context) {
-                return const ViewPayrollDialog();
-              },
+              builder: (context) => ViewPayrollDialog(payroll: payroll),
             );
           },
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              MyText(
-                "John Michael",
-                style: TextStyle(fontWeight: FontWeight.bold),
-                isSelectable: false,
-              ),
-              MyText(
-                "Johnmichael5@gmail.com",
-                isSelectable: false,
-              ),
-            ],
+        ),
+        DataCell(MyText(payroll.payrollPeriod)),
+        DataCell(MyText(payroll.disbursementDate != null 
+          ? DateFormat('yyyy-MM-dd').format(payroll.disbursementDate!) 
+          : '-')),
+        DataCell(MyText(payroll.grossSalary.toStringAsFixed(2))),
+        DataCell(MyText(payroll.netSalary.toStringAsFixed(2))),
+        DataCell(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: payroll.status == 'paid' ? Colors.green.shade100 : Colors.orange.shade100,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              payroll.status, 
+              style: TextStyle(
+                color: payroll.status == 'paid' ? Colors.green : Colors.orange
+              )
+            ),
+          )
+        ),
+        const DataCell(
+          ThreeDotPop(
           ),
-        ),
-        const DataCell(
-          MyText(
-            "July 2025",
-          ),
-        ),
-        const DataCell(
-          MyText("29, July 2025"),
-        ),
-        const DataCell(
-          MyText("132,500"),
-        ),
-        const DataCell(
-          MyDropdown2(),
-        ),
-        const DataCell(
-          ThreeDotPop(),
         ),
       ]);
-    });
+    }).toList();
   }
 }

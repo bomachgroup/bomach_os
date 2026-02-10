@@ -9,8 +9,13 @@ import 'package:bms_front_end/pages/hr/widget/view_asset_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
+import 'controller/assets_controller.dart';
+import 'models/assets_model.dart';
 
 class AssetsPage extends StatefulWidget {
   const AssetsPage({super.key});
@@ -21,7 +26,28 @@ class AssetsPage extends StatefulWidget {
 
 class _AssetsPageState extends State<AssetsPage> {
   final ScrollController _scrollController = ScrollController();
-  String selectedBranch = 'All Branches';
+  final AssetController controller = Get.put(AssetController());
+  final _storage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final token = await _getToken(context);
+    if (token != null) {
+      controller.fetchAssets(token);
+    }
+  }
+
+  Future<String?> _getToken(BuildContext context) async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
+    return token.replaceAll('"', '').trim();
+  }
 
   @override
   void dispose() {
@@ -65,13 +91,16 @@ class _AssetsPageState extends State<AssetsPage> {
                       color: AppColors.white,
                     ),
                     child: "New Asset",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AddAssetDialog();
-                        },
-                      );
+                    onTap: () async {
+                      final token = await _getToken(context);
+                      if (token != null && context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AddAssetDialog(token: token);
+                          },
+                        );
+                      }
                     },
                   )
                 ],
@@ -91,7 +120,7 @@ class _AssetsPageState extends State<AssetsPage> {
                   SizedBox(
                     width: 250,
                     child: MyTextFormField(
-                      hintText: 'Search by asset name, ID, type...',
+                      hintText: 'Search by asset name...',
                       leading: Icon(
                         Icons.search,
                         color: AppColors.grey1.withValues(alpha: 0.5),
@@ -102,7 +131,10 @@ class _AssetsPageState extends State<AssetsPage> {
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All Branches"),
+                      SortBar(
+                        text: "Refresh",
+                        //  onTap: _loadData
+                      ),
                       SortBar(text: "Asset Type"),
                       SortBar(text: "Status"),
                     ],
@@ -133,15 +165,30 @@ class _AssetsPageState extends State<AssetsPage> {
                     constraints: BoxConstraints(
                       minWidth: bodySpace(context),
                     ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
-                    ),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(
+                            child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: CircularProgressIndicator()));
+                      }
+                      if (controller.assetList.isEmpty) {
+                        return const Center(
+                            child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Text("No assets found.")));
+                      }
+
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.assetList),
+                        showBottomBorder: true,
+                      );
+                    }),
                   ),
                 ),
               ),
@@ -155,191 +202,43 @@ class _AssetsPageState extends State<AssetsPage> {
 
   List<DataColumn> _createColumns() {
     return const [
-      DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Asset ID",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Asset Name",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Type",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Branch",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Assigned To",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Purchase Date",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Value",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+      DataColumn(label: MyText("Asset ID")),
+      DataColumn(label: MyText("Asset Name")),
+      DataColumn(label: MyText("Type")),
+      DataColumn(label: MyText("Branch")),
+      DataColumn(label: MyText("Assigned ID")), // Model only has ID
+      DataColumn(label: MyText("Purchase Date")),
+      DataColumn(label: MyText("Value")),
+      DataColumn(label: MyText("Status")),
+      DataColumn(label: MyText("Action")),
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    // Mock assets data organized by branch
-    final List<Map<String, dynamic>> assets = [
-      {
-        'id': 'AST-001',
-        'name': 'Dell Latitude 5520',
-        'type': 'Laptop',
-        'branch': 'Enugu Branch',
-        'assignedTo': 'John Doe',
-        'assignedEmail': 'john.doe@bomach.com',
-        'purchaseDate': 'Jan 15, 2024',
-        'value': '₦850,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-002',
-        'name': 'HP LaserJet Pro',
-        'type': 'Printer',
-        'branch': 'Enugu Branch',
-        'assignedTo': 'IT Department',
-        'assignedEmail': 'it@bomach.com',
-        'purchaseDate': 'Feb 20, 2024',
-        'value': '₦450,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-003',
-        'name': 'Toyota Hilux',
-        'type': 'Vehicle',
-        'branch': 'Lagos Branch',
-        'assignedTo': 'Operations Team',
-        'assignedEmail': 'operations@bomach.com',
-        'purchaseDate': 'Mar 10, 2023',
-        'value': '₦18,500,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-004',
-        'name': 'Conference Table',
-        'type': 'Furniture',
-        'branch': 'Lagos Branch',
-        'assignedTo': 'Meeting Room A',
-        'assignedEmail': 'facilities@bomach.com',
-        'purchaseDate': 'May 05, 2023',
-        'value': '₦320,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-005',
-        'name': 'MacBook Pro 16"',
-        'type': 'Laptop',
-        'branch': 'Abuja Branch',
-        'assignedTo': 'Sarah Johnson',
-        'assignedEmail': 'sarah.j@bomach.com',
-        'purchaseDate': 'Jun 12, 2024',
-        'value': '₦1,450,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-006',
-        'name': 'Air Conditioner',
-        'type': 'Equipment',
-        'branch': 'Enugu Branch',
-        'assignedTo': 'Main Office',
-        'assignedEmail': 'facilities@bomach.com',
-        'purchaseDate': 'Jul 08, 2023',
-        'value': '₦550,000',
-        'status': 'maintenance',
-      },
-      {
-        'id': 'AST-007',
-        'name': 'Office Desk',
-        'type': 'Furniture',
-        'branch': 'Abuja Branch',
-        'assignedTo': 'Michael Brown',
-        'assignedEmail': 'michael.b@bomach.com',
-        'purchaseDate': 'Aug 22, 2023',
-        'value': '₦95,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-008',
-        'name': 'Canon EOS Camera',
-        'type': 'Equipment',
-        'branch': 'Lagos Branch',
-        'assignedTo': 'Marketing Team',
-        'assignedEmail': 'marketing@bomach.com',
-        'purchaseDate': 'Sep 15, 2024',
-        'value': '₦680,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-009',
-        'name': 'Generator 10KVA',
-        'type': 'Equipment',
-        'branch': 'Enugu Branch',
-        'assignedTo': 'Building Maintenance',
-        'assignedEmail': 'maintenance@bomach.com',
-        'purchaseDate': 'Oct 03, 2022',
-        'value': '₦1,200,000',
-        'status': 'in-use',
-      },
-      {
-        'id': 'AST-010',
-        'name': 'Server Rack',
-        'type': 'IT Equipment',
-        'branch': 'Lagos Branch',
-        'assignedTo': 'Data Center',
-        'assignedEmail': 'it@bomach.com',
-        'purchaseDate': 'Nov 18, 2023',
-        'value': '₦2,850,000',
-        'status': 'in-use',
-      },
-    ];
-
+  List<DataRow> _createRows(BuildContext context, List<Asset> assets) {
     return assets.map((asset) {
       return DataRow(cells: <DataCell>[
         DataCell(
           MyText(
-            asset['id'],
+            asset.id,
             size: 14,
             weight: 500,
             isSelectable: false,
           ),
         ),
         DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return ViewAssetDialog(asset: asset);
-              },
-            );
+          onTap: () async {
+            final token = await _getToken(context);
+            if (token != null && context.mounted) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return ViewAssetDialog(asset: asset, token: token);
+                },
+              );
+            }
           },
           MyText(
-            asset['name'],
+            asset.name,
             size: 14,
             weight: 500,
             color: AppColors.blue,
@@ -350,130 +249,73 @@ class _AssetsPageState extends State<AssetsPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: _getTypeColor(asset['type']).withValues(alpha: 0.1),
+              color: _getTypeColor(asset.assetType).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
                 width: 0.6,
-                color: _getTypeColor(asset['type']),
+                color: _getTypeColor(asset.assetType),
               ),
             ),
             child: MyText(
-              asset['type'],
+              asset.assetType,
               size: 12,
               weight: 500,
-              color: _getTypeColor(asset['type']),
+              color: _getTypeColor(asset.assetType),
             ),
           ),
         ),
         DataCell(
           Row(
             children: [
-              const Icon(
-                Icons.location_on_outlined,
-                size: 16,
-                color: AppColors.blue,
-              ),
+              const Icon(Icons.location_on_outlined,
+                  size: 16, color: AppColors.blue),
               const SizedBox(width: 6),
-              MyText(
-                asset['branch'],
-                size: 14,
-                weight: 400,
-              ),
-            ],
-          ),
-        ),
-        DataCell(
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                width: 36,
-                height: 36,
-                child: Center(
-                  child: MyText(
-                    asset['assignedTo'][0],
-                    size: 16,
-                    weight: 600,
-                    color: AppColors.blue,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  MyText(
-                    asset['assignedTo'],
-                    size: 14,
-                    weight: 400,
-                    isSelectable: false,
-                  ),
-                  MyText(
-                    asset['assignedEmail'],
-                    size: 12,
-                    weight: 300,
-                    color: const Color(0xFF64748B),
-                  ),
-                ],
-              ),
+              MyText(asset.branch, size: 14, weight: 400),
             ],
           ),
         ),
         DataCell(
           MyText(
-            asset['purchaseDate'],
+            asset.assignedToId ?? 'Unassigned',
+            size: 14,
+            weight: 400,
+            color: asset.assignedToId == null ? Colors.grey : Colors.black,
+          ),
+        ),
+        DataCell(
+          MyText(
+            asset.purchaseDate != null
+                ? DateFormat('yyyy-MM-dd').format(asset.purchaseDate!)
+                : '-',
             size: 14,
             weight: 400,
           ),
         ),
         DataCell(
           MyText(
-            asset['value'],
+            asset.value.toStringAsFixed(2),
             size: 14,
             weight: 600,
             color: Colors.green,
           ),
         ),
         DataCell(
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 0.6,
-                        color: getRandomColorFromList(asset['status']),
-                      ),
-                      color: getRandomColorFromList(asset['status'])
-                          .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: MyText(
-                      asset['status'] == 'in-use'
-                          ? 'In Use'
-                          : asset['status'] == 'maintenance'
-                              ? 'Maintenance'
-                              : 'Available',
-                      size: 12,
-                      weight: 500,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              border:
+                  Border.all(width: 0.6, color: _getStatusColor(asset.status)),
+              color: _getStatusColor(asset.status).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: MyText(
+              asset.status.toUpperCase(),
+              size: 12,
+              weight: 500,
+            ),
           ),
         ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
+        const DataCell(ThreeDotPop()),
       ]);
     }).toList();
   }
@@ -488,10 +330,21 @@ class _AssetsPageState extends State<AssetsPage> {
         return Colors.orange;
       case 'equipment':
         return Colors.green;
-      case 'it equipment':
-        return Colors.indigo;
       case 'printer':
         return Colors.teal;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return Colors.green;
+      case 'in-use':
+        return Colors.blue;
+      case 'maintenance':
+        return Colors.orange;
       default:
         return Colors.grey;
     }

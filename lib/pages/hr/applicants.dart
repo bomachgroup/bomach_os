@@ -50,7 +50,6 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --- HEADER ---
         Row(
           children: [
             Expanded(
@@ -88,7 +87,7 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return const AddJobApplicantDialog(); // Create Mode
+                          return const AddJobApplicantDialog(); 
                         },
                       );
                     },
@@ -100,7 +99,6 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
         ),
         kSizedBox,
 
-        // --- FILTERS ---
         Row(
           children: [
             Expanded(
@@ -117,7 +115,6 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
                         Icons.search,
                         color: AppColors.grey1.withOpacity(0.5),
                       ),
-                      // Optional: Bind search to controller logic
                     ),
                   ),
                   Wrap(
@@ -138,7 +135,7 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
                           ],
                           onChanged: (value) {
                              controller.selectedStageFilter.value = value;
-                             controller.fetchApplicants(context); // Refresh
+                             controller.fetchApplicants(context); 
                           },
                           height: 45,
                         ),
@@ -157,7 +154,7 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
                           ],
                           onChanged: (value) {
                              controller.selectedStatusFilter.value = value;
-                             controller.fetchApplicants(context); // Refresh
+                             controller.fetchApplicants(context); 
                           },
                           height: 45,
                         ),
@@ -172,7 +169,6 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
         kSizedBox,
         kSizedBoxSM,
 
-        // --- DATA TABLE ---
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
@@ -192,7 +188,7 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
                     constraints: BoxConstraints(
                       minWidth: bodySpace(context),
                     ),
-                    // Use Obx to listen to controller data
+
                     child: Obx(() {
                       if (controller.isLoading.value) {
                         return const Padding(
@@ -232,7 +228,7 @@ class JobApplicatantsPageState extends State<JobApplicatantsPage> {
   List<DataColumn> _createColumns() {
     return const [
       DataColumn(label: MyText("Applicant", weight: 600)),
-      DataColumn(label: MyText("Job ID", weight: 600)), // Changed Title to ID for table width
+      DataColumn(label: MyText("Job ID", weight: 600)), 
       DataColumn(label: MyText("Phone", weight: 600)),
       DataColumn(label: MyText("Rating", weight: 600)),
       DataColumn(label: MyText("Stage", weight: 600)),

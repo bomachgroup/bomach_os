@@ -6,15 +6,32 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+
+import '../controller/leave_request_controller.dart';
+import '../models/leave_request_model.dart';
 
 class AddLeaveRequestDialog extends StatefulWidget {
-  const AddLeaveRequestDialog({super.key});
+  final LeaveRequest? request;
+  const AddLeaveRequestDialog({super.key, this.request});
 
   @override
   State<AddLeaveRequestDialog> createState() => _AddLeaveRequestDialogState();
 }
 
 class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
+  final LeaveRequestController _ctrl = Get.find<LeaveRequestController>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.request != null) {
+      _ctrl.populateForm(widget.request!);
+    } else {
+      _ctrl.clearForm();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -28,15 +45,16 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'New Leave Request',
-                    style: TextStyle(
+                  MyText(
+                    widget.request == null
+                        ? 'New Leave Request'
+                        : 'Edit Leave Request',
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -48,117 +66,107 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                 ],
               ),
             ),
-
-            // Form fields
-            const Expanded(
+            Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
                     Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '---',
-                                      spaceBetweenText: 10,
-                                      title: 'Employee ID',
-                                    ),
-                                  ],
+                                child: MyTextFormField(
+                                  controller: _ctrl.employeeIdController,
+                                  hintText: 'Enter ID',
+                                  spaceBetweenText: 10,
+                                  title: 'Employee ID',
                                 ),
                               ),
-                              SizedBox(width: 16),
-                              // End date
+                              const SizedBox(width: 16),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      spaceBetweenText: 10,
-                                      hintText: "----",
-                                      title: 'Employee Name',
-                                    ),
-                                  ],
+                                child: MyTextFormField(
+                                  controller: _ctrl.employeeNameController,
+                                  spaceBetweenText: 10,
+                                  hintText: "Enter Name",
+                                  title: 'Employee Name',
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           Row(
                             children: [
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    MyDropdown(
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      title: 'Leave Type',
-                                    ),
+                                    Obx(() => MyDropdown(
+                                          items: _ctrl.leaveTypes,
+                                          hintText:
+                                              _ctrl.selectedLeaveType.value,
+                                          spaceBetweenText: 10,
+                                          title: 'Leave Type',
+                                        )),
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '----',
-                                      spaceBetweenText: 10,
-                                      title: 'Start Date',
-                                    ),
-                                  ],
+                                child: MyTextFormField(
+                                  controller: _ctrl.startDateController,
+                                  hintText: 'Select Date',
+                                  spaceBetweenText: 10,
+                                  title: 'Start Date',
+                                  readOnly: true,
+                                  onTap: () => _ctrl.pickDate(context, true),
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      title: 'End Date',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      hintText: '----',
-                                      spaceBetweenText: 10,
-                                      title: 'Status',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           Row(
                             children: [
                               Expanded(
                                 child: MyTextFormField(
-                                  hintText:
-                                      "This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. ",
+                                  controller: _ctrl.endDateController,
+                                  hintText: 'Select Date',
+                                  spaceBetweenText: 10,
+                                  title: 'End Date',
+                                  readOnly: true,
+                                  onTap: () => _ctrl.pickDate(context, false),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Obx(() => MyDropdown(
+                                          items: _ctrl.statusOptions,
+                                          // value: _ctrl.selectedStatus.value,
+                                          onChanged: (val) => _ctrl
+                                              .selectedStatus.value = val ?? '',
+
+                                          hintText: _ctrl.selectedStatus.value,
+                                          spaceBetweenText: 10,
+                                          title: 'Status',
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: MyTextFormField(
+                                  controller: _ctrl.reasonController,
+                                  hintText: "Enter reason",
                                   spaceBetweenText: 10,
                                   maxLines: 5,
                                   title: 'Reason',
@@ -166,46 +174,38 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      hintText: '----',
-                                      spaceBetweenText: 10,
-                                      title: 'Approver ID',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      title: 'Approval Date',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           Row(
                             children: [
                               Expanded(
                                 child: MyTextFormField(
-                                  hintText:
-                                      "This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. ",
+                                  controller: _ctrl.approverIdController,
+                                  hintText: 'Approver ID',
                                   spaceBetweenText: 10,
-                                  maxLines: 5,
+                                  title: 'Approver ID',
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              const Expanded(
+                                child: MyTextFormField(
+                                  hintText: "Auto-generated",
+                                  readOnly: true,
+                                  spaceBetweenText: 10,
+                                  title: 'Approval Date',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: MyTextFormField(
+                                  controller: _ctrl.rejectionReasonController,
+                                  hintText:
+                                      "Enter rejection reason if applicable",
+                                  spaceBetweenText: 10,
+                                  maxLines: 3,
                                   title: 'Rejection Reason',
                                 ),
                               ),
@@ -218,8 +218,6 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                 ),
               ),
             ),
-
-            // Action Buttons
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
@@ -234,20 +232,28 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                     textColor: AppColors.darkGrey1,
                     borderColor: null,
                     child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: _ctrl.isSaving.value
+                        ? null
+                        : () {
+                            _ctrl.clearForm();
+                            Navigator.pop(context);
+                          },
                   ),
                   const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
+                  Obx(() => MyElevatedButton(
+                        icon: _ctrl.isSaving.value
+                            ? null
+                            : SvgPicture.asset(
+                                "assets/svg/check.svg",
+                                colorFilter: const ColorFilter.mode(
+                                    AppColors.white, BlendMode.srcIn),
+                              ),
+                        child: _ctrl.isSaving.value ? 'Saving...' : 'Save',
+                        onTap: _ctrl.isSaving.value
+                            ? null
+                            : () => _ctrl.saveLeaveRequest(context,
+                                id: widget.request?.id),
+                      )),
                 ],
               ),
             ),

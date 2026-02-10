@@ -11,6 +11,9 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'controller/leave_request_controller.dart';
+import 'models/leave_request_model.dart';
 
 class LeaveRequestPage extends StatefulWidget {
   const LeaveRequestPage({super.key});
@@ -21,6 +24,15 @@ class LeaveRequestPage extends StatefulWidget {
 
 class LeaveRequestPageState extends State<LeaveRequestPage> {
   final ScrollController _scrollController = ScrollController();
+  final LeaveRequestController _ctrl = Get.put(LeaveRequestController());
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ctrl.fetchLeaveRequests(context);
+    });
+  }
 
   @override
   void dispose() {
@@ -111,34 +123,104 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
+          child: Obx(() {
+            if (_ctrl.isLoading.value) {
+              return const SizedBox(
+                height: 400,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            if (_ctrl.hasError.value) {
+              return SizedBox(
+                height: 400,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: AppColors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      MyText(
+                        _ctrl.errorMessage.value,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      MyElevatedButton(
+                        child: 'Retry',
+                        onTap: () {
+                          _ctrl.fetchLeaveRequests(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            if (_ctrl.leaveList.isEmpty) {
+              return const SizedBox(
+                height: 400,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.inbox_outlined,
+                        size: 64,
+                        color: Color(0xFFBDBDBD),
+                      ),
+                      SizedBox(height: 16),
+                      MyText(
+                        'No leave requests found',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                Scrollbar(
                   controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: bodySpace(context),
+                      ),
+                      child: DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, _ctrl.leaveList),
+                        showBottomBorder: true,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const MyPaginator(),
-            ],
-          ),
+                // const MyPaginator(),
+              ],
+            );
+          }),
         ),
       ],
     );
@@ -185,12 +267,12 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
+  List<DataRow> _createRows(BuildContext context, List<LeaveRequest> items) {
+    return items.map((r) {
       return DataRow(cells: <DataCell>[
-        const DataCell(
+        DataCell(
           MyText(
-            "K997KD",
+            r.employeeId,
             size: 16,
             weight: 400,
             isSelectable: false,
@@ -201,44 +283,57 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             showDialog(
               context: context,
               builder: (context) {
-                return const ViewLeaveRequestDialog();
+                return ViewLeaveRequestDialog(request: r);
               },
             );
           },
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               MyText(
-                "John Michael",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                r.employeeId,
+                style: const TextStyle(fontWeight: FontWeight.bold),
                 isSelectable: false,
               ),
               MyText(
-                "Johnmichael5@gmail.com",
+                r.createdAt != null
+                    ? r.createdAt!.toIso8601String().split('T').first
+                    : '',
                 isSelectable: false,
               ),
             ],
           ),
         ),
-        const DataCell(
+        DataCell(
           MyText(
-            "12-07-2025",
+            r.startDate != null
+                ? r.startDate!.toIso8601String().split('T').first
+                : '',
           ),
         ),
-        const DataCell(
-          MyText("12-07-2025"),
+        DataCell(
+          MyText(r.endDate != null
+              ? r.endDate!.toIso8601String().split('T').first
+              : ''),
         ),
-        const DataCell(
-          MyText("Sick Leave"),
+        DataCell(
+          MyText(r.leaveType),
         ),
         const DataCell(
           MyDropdown2(),
         ),
-        const DataCell(
-          ThreeDotPop(),
+        DataCell(
+          ThreeDotPop(
+            onTapEdit: () {
+              _ctrl.populateForm(r);
+              showDialog(
+                  context: context,
+                  builder: (_) => AddLeaveRequestDialog(request: r));
+            },
+          ),
         ),
       ]);
-    });
+    }).toList();
   }
 }

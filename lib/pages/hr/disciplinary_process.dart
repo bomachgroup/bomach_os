@@ -2,167 +2,50 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/hr/models/disciplinary_process_models.dart';
-import 'package:bms_front_end/pages/hr/widget/add_disciplinary_case_dialog.dart';
-import 'package:bms_front_end/pages/hr/widget/appeal_disciplinary_case_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
+import 'controller/disciplinary_controller.dart';
+import 'models/disciplinary_cases_model.dart';
+import 'widget/add_disciplinary_case_dialog.dart';
+import 'widget/appeal_disciplinary_case_dialog.dart';
 
 class DisciplinaryProcessPage extends StatefulWidget {
   const DisciplinaryProcessPage({super.key});
 
   @override
-  State<DisciplinaryProcessPage> createState() => _DisciplinaryProcessPageState();
+  State<DisciplinaryProcessPage> createState() =>
+      _DisciplinaryProcessPageState();
 }
 
 class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
   final ScrollController _scrollController = ScrollController();
-  late List<DisciplinaryCaseRecord> _cases;
-  String _selectedStatus = 'All Status';
+  final DisciplinaryController controller = Get.put(DisciplinaryController());
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    _initializeSampleData();
+    _loadData();
   }
 
-  void _initializeSampleData() {
-    _cases = [
-      DisciplinaryCaseRecord(
-        caseId: 'DC001',
-        employeeId: 'E001',
-        employeeName: 'James Smith',
-        employeeEmail: 'james.smith@company.com',
-        department: 'Operations',
-        position: 'Operations Manager',
-        branch: 'Lagos',
-        actionType: DisciplinaryActionType.suspension,
-        violation: 'Unauthorized Absence',
-        description: 'Employee was absent for 3 consecutive days without prior notice or communication',
-        dateOfViolation: DateTime.now().subtract(const Duration(days: 10)),
-        dateInitiated: DateTime.now().subtract(const Duration(days: 8)),
-        effectiveDate: DateTime.now().subtract(const Duration(days: 5)),
-        status: 'Approved',
-        suspensionStartDate: DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
-        suspensionEndDate: DateTime.now().add(const Duration(days: 2)).toIso8601String(),
-        suspensionDays: 10,
-        severancePaymentDue: false,
-        appealFiled: false,
-        investigatedBy: 'Margaret Johnson',
-        approvedBy: 'Chief HR Officer',
-        approvalDate: DateTime.now().subtract(const Duration(days: 5)),
-      ),
-      DisciplinaryCaseRecord(
-        caseId: 'DC002',
-        employeeId: 'E002',
-        employeeName: 'Patricia Evans',
-        employeeEmail: 'patricia.evans@company.com',
-        department: 'Finance',
-        position: 'Finance Officer',
-        branch: 'Enugu',
-        actionType: DisciplinaryActionType.writtenWarning,
-        violation: 'Breach of Confidentiality',
-        description: 'Disclosed confidential financial information in a public forum',
-        dateOfViolation: DateTime.now().subtract(const Duration(days: 15)),
-        dateInitiated: DateTime.now().subtract(const Duration(days: 12)),
-        effectiveDate: DateTime.now().subtract(const Duration(days: 10)),
-        status: 'Completed',
-        severancePaymentDue: false,
-        appealFiled: false,
-        investigatedBy: 'David Brown',
-        approvedBy: 'Finance Director',
-        approvalDate: DateTime.now().subtract(const Duration(days: 10)),
-      ),
-      DisciplinaryCaseRecord(
-        caseId: 'DC003',
-        employeeId: 'E003',
-        employeeName: 'Robert Johnson',
-        employeeEmail: 'robert.johnson@company.com',
-        department: 'Sales',
-        position: 'Sales Manager',
-        branch: 'Lagos',
-        actionType: DisciplinaryActionType.termination,
-        violation: 'Gross Misconduct & Insubordination',
-        description: 'Repeated insubordination towards management and involvement in company asset theft',
-        dateOfViolation: DateTime.now().subtract(const Duration(days: 20)),
-        dateInitiated: DateTime.now().subtract(const Duration(days: 18)),
-        effectiveDate: DateTime.now().subtract(const Duration(days: 5)),
-        status: 'Completed',
-        terminationReason: 'Gross misconduct - theft and insubordination',
-        severancePaymentDue: true,
-        severanceAmount: 250000.0,
-        investigatedBy: 'Sarah Mitchell',
-        approvedBy: 'Managing Director',
-        approvalDate: DateTime.now().subtract(const Duration(days: 5)),
-        appealFiled: true,
-        appealReason: 'Wrongful termination - insufficient evidence',
-        appealStatus: 'Pending',
-      ),
-      DisciplinaryCaseRecord(
-        caseId: 'DC004',
-        employeeId: 'E004',
-        employeeName: 'Angela Davis',
-        employeeEmail: 'angela.davis@company.com',
-        department: 'HR',
-        position: 'HR Specialist',
-        branch: 'Abuja',
-        actionType: DisciplinaryActionType.verbalWarning,
-        violation: 'Attendance Issue',
-        description: 'Repeated late arrivals to office without valid reason (3 times in a month)',
-        dateOfViolation: DateTime.now().subtract(const Duration(days: 5)),
-        dateInitiated: DateTime.now().subtract(const Duration(days: 3)),
-        status: 'In Progress',
-        severancePaymentDue: false,
-        appealFiled: false,
-        investigatedBy: 'Michael Chen',
-      ),
-      DisciplinaryCaseRecord(
-        caseId: 'DC005',
-        employeeId: 'E005',
-        employeeName: 'Christopher Lopez',
-        employeeEmail: 'christopher.lopez@company.com',
-        department: 'IT',
-        position: 'Systems Administrator',
-        branch: 'Lagos',
-        actionType: DisciplinaryActionType.finalWarning,
-        violation: 'Performance & Conduct',
-        description: 'Continued poor performance despite previous warnings and unsafe system practices',
-        dateOfViolation: DateTime.now().subtract(const Duration(days: 8)),
-        dateInitiated: DateTime.now().subtract(const Duration(days: 6)),
-        effectiveDate: DateTime.now().subtract(const Duration(days: 3)),
-        status: 'Approved',
-        severancePaymentDue: false,
-        appealFiled: false,
-        investigatedBy: 'Emily Rodriguez',
-        approvedBy: 'IT Director',
-        approvalDate: DateTime.now().subtract(const Duration(days: 3)),
-      ),
-    ];
-  }
-
-  void _handleCaseSubmit(DisciplinaryCaseRecord newCase) {
-    setState(() {
-      _cases.insert(0, newCase);
-    });
-  }
-
-  void _handleAppealSubmit(DisciplinaryCaseRecord appealedCase) {
-    setState(() {
-      final index = _cases.indexWhere((c) => c.caseId == appealedCase.caseId);
-      if (index != -1) {
-        _cases[index] = appealedCase;
-      }
-    });
-  }
-
-  List<DisciplinaryCaseRecord> _getFilteredCases() {
-    if (_selectedStatus == 'All Status') {
-      return _cases;
+  Future<void> _loadData() async {
+    final token = await _getToken(context);
+    if (token != null) {
+      controller.fetchCases(token);
     }
-    return _cases.where((caseRecord) => caseRecord.status == _selectedStatus).toList();
+  }
+
+  Future<String?> _getToken(BuildContext context) async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
+    return token.replaceAll('"', '').trim();
   }
 
   @override
@@ -173,12 +56,9 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredCases = _getFilteredCases();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header
         Row(
           children: [
             Expanded(
@@ -197,7 +77,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                       ),
                       SizedBox(height: 8),
                       MyText(
-                        'Track and manage disciplinary cases and actions',
+                        'Track and manage disciplinary cases',
                         size: 14,
                         weight: 400,
                         color: Color(0xFF64748B),
@@ -210,15 +90,16 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                       color: AppColors.white,
                     ),
                     child: "New Case",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AddDisciplinaryCaseDialog(
-                            onSubmit: _handleCaseSubmit,
-                          );
-                        },
-                      );
+                    onTap: () async {
+                      final token = await _getToken(context);
+                      if (token != null && context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AddDisciplinaryCaseDialog(token: token);
+                          },
+                        );
+                      }
                     },
                   )
                 ],
@@ -227,8 +108,6 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
           ],
         ),
         kSizedBox,
-
-        // Search and Filters
         Row(
           children: [
             Expanded(
@@ -240,14 +119,18 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                   SizedBox(
                     width: 250,
                     child: MyTextFormField(
-                      hintText: 'Search by name or case ID...',
+                      hintText: 'Search cases...',
                       leading: Icon(
                         Icons.search,
                         color: AppColors.grey1.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
-                  _buildStatusFilter(),
+                  IconButton(
+                    onPressed: _loadData,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: "Refresh",
+                  ),
                 ],
               ),
             ),
@@ -255,8 +138,6 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
         ),
         kSizedBox,
         kSizedBoxSM,
-
-        // Data Table
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
@@ -276,15 +157,33 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                     constraints: BoxConstraints(
                       minWidth: MediaQuery.of(context).size.width - 100,
                     ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context, filteredCases),
-                      showBottomBorder: true,
-                    ),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ));
+                      }
+
+                      if (controller.caseList.isEmpty) {
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text("No disciplinary cases found."),
+                        ));
+                      }
+
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.caseList),
+                        showBottomBorder: true,
+                      );
+                    }),
                   ),
                 ),
               ),
@@ -296,200 +195,93 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
     );
   }
 
-  Widget _buildStatusFilter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFD5D5D5)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        value: _selectedStatus,
-        underline: const SizedBox(),
-        items: <String>[
-          'All Status',
-          'Pending',
-          'In Progress',
-          'Approved',
-          'Completed',
-          'Appealed'
-        ].map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: MyText(value),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-          setState(() {
-            _selectedStatus = newValue ?? 'All Status';
-          });
-        },
-      ),
-    );
-  }
-
   List<DataColumn> _createColumns() {
     return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText('Employee'),
-      ),
-      const DataColumn(
-        label: MyText('Department'),
-      ),
-      const DataColumn(
-        label: MyText('Action Type'),
-      ),
-      const DataColumn(
-        label: MyText('Violation'),
-      ),
-      const DataColumn(
-        label: MyText('Date'),
-      ),
-      const DataColumn(
-        label: MyText('Status'),
-      ),
-      const DataColumn(
-        label: MyText('Action'),
-      ),
+      const DataColumn(label: MyText('Employee ID')),
+      const DataColumn(label: MyText('Action Type')),
+      const DataColumn(label: MyText('Category')),
+      const DataColumn(label: MyText('Violation Title')),
+      const DataColumn(label: MyText('Date')),
+      const DataColumn(label: MyText('Actions')),
     ];
   }
 
   List<DataRow> _createRows(
-      BuildContext context, List<DisciplinaryCaseRecord> cases) {
-    return cases.asMap().entries.map((entry) {
-      final caseRecord = entry.value;
-
+      BuildContext context, List<DisciplinaryCase> cases) {
+    return cases.map((kase) {
       return DataRow(
         cells: <DataCell>[
           DataCell(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                MyText(
-                  caseRecord.employeeName,
-                  style: AppText.black_500_16,
-                ),
-                MyText(
-                  caseRecord.employeeEmail,
-                  style: AppText.sideMText_300_14,
-                ),
-              ],
-            ),
-          ),
-          DataCell(
-            MyText(caseRecord.department),
-          ),
-          DataCell(
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: HexColor(caseRecord.actionType.color)
-                    .withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: MyText(
-                caseRecord.actionType.displayName,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: HexColor(caseRecord.actionType.color),
-                ),
-              ),
-            ),
-          ),
-          DataCell(
             MyText(
-              caseRecord.violation,
-              style: AppText.sideMText_300_14,
-            ),
-          ),
-          DataCell(
-            MyText(
-              DateFormat('dd MMM yyyy').format(caseRecord.dateOfViolation),
-              style: AppText.sideMText_300_14,
+              kase.employeeId,
+              style: AppText.black_500_16,
             ),
           ),
           DataCell(
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color:
-                    HexColor(caseRecord.getStatusColor()).withValues(alpha: 0.15),
+                color: _getActionColor(kase.actionType).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: MyText(
-                caseRecord.status,
+                kase.actionType,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: HexColor(caseRecord.getStatusColor()),
+                  color: _getActionColor(kase.actionType),
                 ),
               ),
             ),
           ),
           DataCell(
-            Row(
-              spacing: 8,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: MyText('View ${caseRecord.caseId} details'),
-                      ),
-                    );
-                  },
-                  child: const Icon(Icons.visibility, size: 20, color: AppColors.blue),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: MyText('Edit ${caseRecord.caseId}'),
-                      ),
-                    );
-                  },
-                  child: const Icon(Icons.edit, size: 20, color: AppColors.grey1),
-                ),
-                if (!caseRecord.appealFiled && caseRecord.status == 'Completed')
-                  Tooltip(
-                    message: 'Appeal Case',
-                    child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AppealDisciplinaryCaseDialog(
-                              caseRecord: caseRecord,
-                              onSubmit: _handleAppealSubmit,
-                            );
-                          },
-                        );
-                      },
-                      child: const Icon(Icons.info_outline,
-                          size: 20, color: AppColors.red),
-                    ),
-                  ),
-              ],
+            MyText(kase.violationCategory),
+          ),
+          DataCell(
+            MyText(
+              kase.violationTitle,
+              style: AppText.sideMText_300_14,
+            ),
+          ),
+          DataCell(
+            MyText(
+              kase.actionDate != null
+                  ? DateFormat('dd MMM yyyy').format(kase.actionDate!)
+                  : '-',
+              style: AppText.sideMText_300_14,
+            ),
+          ),
+          DataCell(
+            GestureDetector(
+              onTap: () async {
+                final token = await _getToken(context);
+                if (token != null && context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return ViewDisciplinaryCaseDialog(
+                        kase: kase,
+                        token: token,
+                      );
+                    },
+                  );
+                }
+              },
+              child:
+                  const Icon(Icons.visibility, size: 20, color: AppColors.blue),
             ),
           ),
         ],
       );
     }).toList();
   }
-}
 
-// Helper function to convert hex color string to Color
-class HexColor extends Color {
-  static int _getColorFromHex(String hexColor) {
-    hexColor = hexColor.toUpperCase().replaceAll('#', '');
-    if (hexColor.length == 6) {
-      hexColor = 'FF$hexColor';
-    }
-    return int.parse(hexColor, radix: 16);
+  Color _getActionColor(String actionType) {
+    final type = actionType.toLowerCase();
+    if (type.contains('termination') || type.contains('dismissal'))
+      return AppColors.red;
+    if (type.contains('suspension')) return Colors.orange;
+    if (type.contains('warning')) return Colors.blue;
+    return AppColors.grey1;
   }
-
-  HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }

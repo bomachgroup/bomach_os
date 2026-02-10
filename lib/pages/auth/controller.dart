@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../src/app_routes/app_route_constants.dart';
 import '../../src/model/user_model.dart';
-import 'service.dart';
+import '../../src/services/auth_service.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();

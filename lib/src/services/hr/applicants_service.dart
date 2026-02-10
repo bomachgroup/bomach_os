@@ -18,7 +18,14 @@ class ApplicantService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            ));
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
 
   Options _authOptions(String token) {
     return Options(headers: {
@@ -26,12 +33,12 @@ class ApplicantService {
     });
   }
 
-  Future<List<Applicant>> getApplicants(
+  Future<({List<Applicant> items, int count})> getApplicants(
     String token, {
     String? search,
-    String? jobPostingId,
-    String? stage,
     String? status,
+    String? stage,
+    String? jobId,
     int limit = 100,
     int offset = 0,
   }) async {
@@ -40,17 +47,31 @@ class ApplicantService {
         '/applicants/',
         queryParameters: {
           if (search != null) 'search': search,
-          if (jobPostingId != null) 'job_posting_id': jobPostingId,
-          if (stage != null) 'stage': stage,
           if (status != null) 'status': status,
+          if (stage != null) 'stage': stage,
+          if (jobId != null) 'job_posting_id': jobId,
           'limit': limit,
           'offset': offset,
         },
         options: _authOptions(token),
       );
 
-      final List<dynamic> data = response.data;
-      return data.map((json) => Applicant.fromJson(json)).toList();
+      final dynamic data = response.data;
+      List<dynamic> list = [];
+      int count = 0;
+
+      if (data is Map<String, dynamic>) {
+        if (data.containsKey('items')) list = data['items'];
+        if (data.containsKey('count')) {
+          count = data['count'] is int ? data['count'] : 0;
+        }
+      } else if (data is List) {
+        list = data;
+        count = list.length;
+      }
+
+      final items = list.map((json) => Applicant.fromJson(json)).toList();
+      return (items: items, count: count);
     } catch (e) {
       throw _handleError(e);
     }

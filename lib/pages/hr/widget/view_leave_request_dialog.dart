@@ -1,10 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../controller/leave_request_controller.dart';
+import '../models/leave_request_model.dart';
+import 'add_leave_request_dialog.dart';
 
 class ViewLeaveRequestDialog extends StatefulWidget {
-  const ViewLeaveRequestDialog({super.key});
+  final LeaveRequest request;
+  const ViewLeaveRequestDialog({super.key, required this.request});
 
   @override
   State<ViewLeaveRequestDialog> createState() => _ViewLeaveRequestDialogState();
@@ -12,6 +17,7 @@ class ViewLeaveRequestDialog extends StatefulWidget {
 
 class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
   final ScrollController _scrollController = ScrollController();
+  final LeaveRequestController _ctrl = Get.find<LeaveRequestController>();
 
   @override
   void dispose() {
@@ -53,6 +59,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final r = widget.request;
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       shape: RoundedRectangleBorder(
@@ -60,9 +67,6 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 846),
-
-        // width: MediaQuery.of(context).size.width * 0.9,
-        // height: MediaQuery.of(context).size.height * 0.85,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -118,68 +122,31 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDetailRow('Employee ID', 'K997KD'),
-                      _buildDetailRow('Employee Name', 'John Michael'),
-                      _buildDetailRow('Leave Type', 'Sick Leave'),
-                      _buildDetailRow('Start Date', '15, July 2025'),
-                      _buildDetailRow('End Date', '15, July 2025'),
-                      _buildDetailRow('Status', 'Pending'),
-
-                      _buildDetailRow('Reason',
-                          'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. '),
-
-                      _buildDetailRow('', 'All Employees'),
-
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 200,
-                            child: MyText(
-                              "Approver ID",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  width: 36,
-                                  height: 36,
-                                  child: Image.asset(
-                                      'assets/icons/profile-icon.png'),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyText(
-                                      "Darlene Robertson",
-                                      size: 16,
-                                      weight: 400,
-                                      isSelectable: false,
-                                    ),
-                                    MyText("Jenny group of company",
-                                        size: 14, weight: 300)
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      _buildDetailRow('Rejection Reason',
-                          'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. '),
+                      _buildDetailRow('Employee ID', r.employeeId),
+                      _buildDetailRow('Leave Type', r.leaveType),
+                      _buildDetailRow(
+                          'Start Date',
+                          r.startDate != null
+                              ? r.startDate!.toIso8601String().split('T').first
+                              : ''),
+                      _buildDetailRow(
+                          'End Date',
+                          r.endDate != null
+                              ? r.endDate!.toIso8601String().split('T').first
+                              : ''),
+                      _buildDetailRow('Status', r.status ?? ''),
+                      _buildDetailRow('Reason', r.reason ?? ''),
+                      _buildDetailRow('Approver ID', r.approverId ?? ''),
+                      _buildDetailRow(
+                          'Approval Date',
+                          r.approvalDate != null
+                              ? r.approvalDate!
+                                  .toIso8601String()
+                                  .split('T')
+                                  .first
+                              : ''),
+                      _buildDetailRow(
+                          'Rejection Reason', r.rejectionReason ?? ''),
 
                       const SizedBox(height: 100), // Space for bottom buttons
                     ],
@@ -194,33 +161,68 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                   top: BorderSide(color: Colors.grey.shade300),
                 ),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Wrap(
-                      spacing: 15,
-                      runSpacing: 15,
-                      alignment: WrapAlignment.end,
-                      children: [
-                        MyElevatedButton(
-                          bgColor: AppColors.red,
-                          child: 'Delete',
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        MyElevatedButton(
-                          child: 'Edit',
-                          onTap: () {},
-                        ),
-                      ],
+              child: Obx(() {
+                if (_ctrl.isLoading.value) {
+                  return const SizedBox(
+                    height: 50,
+                    child: Center(
+                      child: CircularProgressIndicator(),
                     ),
-                  ),
-                ],
-              ),
+                  );
+                }
+                return Row(
+                  children: [
+                    MyElevatedButton(
+                      bgColor: AppColors.red,
+                      child: 'Delete',
+                      onTap: () {
+                        _showDeleteConfirmation(context);
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    MyElevatedButton(
+                      child: 'Edit',
+                      onTap: () {
+                        _ctrl.populateForm(r);
+                        showDialog(
+                          context: context,
+                          builder: (_) => AddLeaveRequestDialog(request: r),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              }),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Leave Request'),
+        content: const Text(
+            'Are you sure you want to delete this leave request? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _ctrl.deleteRequest(context, widget.request.id);
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.red),
+            ),
+          ),
+        ],
       ),
     );
   }

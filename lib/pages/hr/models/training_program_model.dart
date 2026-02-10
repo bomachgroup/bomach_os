@@ -5,7 +5,7 @@ class TrainingProgram {
   final String description;
   final DateTime? startDate;
   final DateTime? endDate;
-  final double cost;
+  final int cost;
   final String targetAudience; // e.g., "Managers", "All Staff"
   final int durationDays;
   final String status; // e.g., "scheduled", "completed"
@@ -30,11 +30,10 @@ class TrainingProgram {
   });
 
   factory TrainingProgram.fromJson(Map<String, dynamic> json) {
-    // Helper to safely parse doubles
-    double parseDouble(dynamic value) {
-      if (value == null) return 0.0;
-      if (value is num) return value.toDouble();
-      return double.tryParse(value.toString()) ?? 0.0;
+    int parseDouble(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value.toInt();
+      return int.tryParse(value.toString()) ?? 0;
     }
 
     return TrainingProgram(
@@ -42,17 +41,24 @@ class TrainingProgram {
       programName: json['program_name'] ?? '',
       provider: json['provider'] ?? '',
       description: json['description'] ?? '',
-      startDate: json['start_date'] != null ? DateTime.tryParse(json['start_date']) : null,
-      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date']) : null,
+      startDate: json['start_date'] != null
+          ? DateTime.tryParse(json['start_date'])
+          : null,
+      endDate:
+          json['end_date'] != null ? DateTime.tryParse(json['end_date']) : null,
       cost: parseDouble(json['cost']),
       targetAudience: json['target_audience'] ?? '',
-      durationDays: json['duration_days'] is int 
-          ? json['duration_days'] 
+      durationDays: json['duration_days'] is int
+          ? json['duration_days']
           : int.tryParse(json['duration_days']?.toString() ?? '0') ?? 0,
       status: json['status'] ?? 'scheduled',
       isMandatory: json['is_mandatory'] ?? false,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
     );
   }
 
@@ -67,7 +73,7 @@ class TrainingProgram {
       'target_audience': targetAudience,
       'duration_days': durationDays,
       'status': status,
-      'is_mandatory': isMandatory,
+      // 'is_mandatory': isMandatory,
     };
   }
 }

@@ -1,5 +1,5 @@
-import 'package:bms_front_end/pages/hr/models/awards_model.dart';
 import 'package:dio/dio.dart';
+import '../../../pages/hr/models/awards_model.dart';
 
 class AwardService {
   final Dio _dio;
@@ -17,7 +17,14 @@ class AwardService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            ));
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
 
   Options _authOptions(String token) {
     return Options(headers: {
@@ -103,7 +110,18 @@ class AwardService {
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ?? error.message;
+      String errorMessage = error.message ?? 'Unknown API error';
+
+      if (error.response?.data != null) {
+        final data = error.response!.data;
+
+        if (data is Map<String, dynamic>) {
+          errorMessage = data['message'] ?? errorMessage;
+        } else if (data is String) {
+          errorMessage = data;
+        }
+      }
+
       return Exception(
           'API Error: ${error.response?.statusCode} - $errorMessage');
     }

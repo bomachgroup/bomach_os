@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'applicants_service.dart';
 import 'asset_services.dart';
 import 'awards_service.dart';
-import 'disciplinary_cases_model.dart';
+import 'disciplinary_cases_services.dart';
 import 'jobposting_service.dart';
 import 'leave_request_services.dart';
 import 'payroll_service.dart';

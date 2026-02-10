@@ -18,7 +18,14 @@ class LeaveRequestService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            ));
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
 
   Options _authOptions(String token) {
     return Options(headers: {
@@ -26,7 +33,7 @@ class LeaveRequestService {
     });
   }
 
-  Future<List<LeaveRequest>> getLeaveRequests(
+  Future<({List<LeaveRequest> items, int count})> getLeaveRequests(
     String token, {
     String? search,
     String? employeeId,
@@ -58,7 +65,10 @@ class LeaveRequestService {
       final List<dynamic> list =
           (data is Map && data.containsKey('items')) ? data['items'] : data;
 
-      return list.map((json) => LeaveRequest.fromJson(json)).toList();
+      return (
+        items: list.map((json) => LeaveRequest.fromJson(json)).toList(),
+        count: (data['count'] as int?) ?? 0
+      );
     } catch (e) {
       throw _handleError(e);
     }

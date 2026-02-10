@@ -1,5 +1,5 @@
 class PerformanceReview {
-  final String id;
+  final String? id;
   final String employeeId;
   final String reviewerId;
   final DateTime? reviewDate;
@@ -13,7 +13,7 @@ class PerformanceReview {
   final DateTime? updatedAt;
 
   PerformanceReview({
-    required this.id,
+    this.id,
     required this.employeeId,
     required this.reviewerId,
     this.reviewDate,
@@ -29,7 +29,7 @@ class PerformanceReview {
 
   factory PerformanceReview.fromJson(Map<String, dynamic> json) {
     return PerformanceReview(
-      id: json['id']?.toString() ?? '',
+      id: json['id']?.toString(),
       employeeId: json['employee_id']?.toString() ?? '',
       reviewerId: json['reviewer_id']?.toString() ?? '',
       reviewDate: json['review_date'] != null
