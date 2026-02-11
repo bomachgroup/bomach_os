@@ -7,12 +7,14 @@ import 'package:bms_front_end/pages/services/generate_invoice_page.dart';
 import 'package:bms_front_end/pages/services/service_invoices.dart';
 import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/widget/add_invoice_dialog.dart';
-import 'package:bms_front_end/pages/services/widget/add_service_dialog.dart';
+import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import './models/service_model.dart';
 
 class ServicesPage extends StatefulWidget {
   const ServicesPage({super.key});
@@ -80,7 +82,7 @@ class _ServicesPageState extends State<ServicesPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return const AddServiceDialog();
+                          return const ServiceFormDialog();
                         },
                       );
                     },
@@ -113,15 +115,6 @@ class _ServicesPageState extends State<ServicesPage> {
 
   Widget _catalog() {
     return Obx(() {
-      if (_controller.isLoading.value) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(40.0),
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }
-
       if (_controller.errorMessage.isNotEmpty) {
         return Center(
           child: Padding(
@@ -182,13 +175,14 @@ class _ServicesPageState extends State<ServicesPage> {
                               Icons.search,
                               color: AppColors.grey1.withValues(alpha: 0.5),
                             ),
-                            onChanged: _onSearch,
                           ),
                         ),
                         const SizedBox(width: 12),
                         MyElevatedButton(
                           child: 'Filter',
-                          onTap: () {},
+                          onTap: () => _onSearch(
+                            _searchController.text.trim(),
+                          ),
                         ),
                       ],
                     )
@@ -197,11 +191,15 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             ],
           ),
-
           const SizedBox(height: 18),
-
-          // Grid of cards
-          if (_controller.services.isEmpty)
+          if (_controller.isLoading.value)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_controller.services.isEmpty)
             const Padding(
               padding: EdgeInsets.all(40.0),
               child: Center(
@@ -244,13 +242,14 @@ class _ServicesPageState extends State<ServicesPage> {
                               description: service.description,
                               price: '₦${service.basePrice}',
                               duration: service.deliveryTime,
+                              status: service.status,
+                              service: service,
                             ),
                           ))
                       .toList(),
                 );
               }),
             ),
-
           const SizedBox(height: 40)
         ],
       );
@@ -863,6 +862,8 @@ class ServiceCard extends StatelessWidget {
   final String description;
   final String price;
   final String duration;
+  final String status;
+  final Service service;
 
   const ServiceCard({
     super.key,
@@ -871,6 +872,8 @@ class ServiceCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.duration,
+    required this.status,
+    required this.service,
   });
 
   @override
@@ -902,8 +905,8 @@ class ServiceCard extends StatelessWidget {
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text('Active',
-                    style: TextStyle(color: Colors.white, fontSize: 12)),
+                child: Text(status.capitalizeFirst ?? "",
+                    style: const TextStyle(color: Colors.white, fontSize: 12)),
               )
             ],
           ),
@@ -915,7 +918,7 @@ class ServiceCard extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade300),
               color: Colors.white,
             ),
-            child: Text(category,
+            child: Text(category.replaceFirst("_", " ").capitalizeFirst ?? "",
                 style: const TextStyle(fontSize: 12, color: Colors.black54)),
           ),
           const SizedBox(height: 12),
@@ -954,7 +957,14 @@ class ServiceCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return ServiceFormDialog(service: service);
+                      },
+                    );
+                  },
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit'),
                   style: OutlinedButton.styleFrom(

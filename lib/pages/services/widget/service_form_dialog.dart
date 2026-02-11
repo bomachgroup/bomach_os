@@ -12,14 +12,19 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../controller/service_controller.dart';
 import '../models/service_model.dart';
 
-class AddServiceDialog extends StatefulWidget {
-  const AddServiceDialog({super.key});
+class ServiceFormDialog extends StatefulWidget {
+  final Service? service; // If provided, dialog is in edit mode
+
+  const ServiceFormDialog({
+    super.key,
+    this.service,
+  });
 
   @override
-  State<AddServiceDialog> createState() => _AddServiceDialogState();
+  State<ServiceFormDialog> createState() => _ServiceFormDialogState();
 }
 
-class _AddServiceDialogState extends State<AddServiceDialog> {
+class _ServiceFormDialogState extends State<ServiceFormDialog> {
   final _formKey = GlobalKey<FormState>();
   final _storage = const FlutterSecureStorage();
 
@@ -29,13 +34,40 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
   final _basePriceController = TextEditingController();
   final _deliveryTimeController = TextEditingController();
   final _categoryController = TextEditingController();
-  final _statusController = TextEditingController(text: 'Active');
+  final _statusController = TextEditingController();
 
   // Selected values
   int? _selectedCategoryId;
   String _selectedStatus = 'active';
 
   bool _isSubmitting = false;
+  bool get _isEditMode => widget.service != null;
+
+  @override
+  void initState() {
+    super.initState();
+    // Prefill form if editing
+    if (_isEditMode) {
+      _prefillForm();
+    } else {
+      _statusController.text = 'Active';
+    }
+  }
+
+  void _prefillForm() {
+    final service = widget.service!;
+
+    _nameController.text = service.name;
+    _descriptionController.text = service.description;
+    _basePriceController.text = service.basePrice;
+    _deliveryTimeController.text = service.deliveryTime;
+    _selectedCategoryId = service.category.id;
+    _selectedStatus = service.status;
+
+    // Format category and status for display
+    _categoryController.text = _formatCategoryName(service.category.name);
+    _statusController.text = _formatStatusName(service.status);
+  }
 
   @override
   void dispose() {
@@ -74,7 +106,7 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
 
       // Create service object
       final service = Service(
-        id: 0, // Will be set by backend
+        id: _isEditMode ? widget.service!.id : 0,
         name: _nameController.text.trim(),
         category: ServiceCategory(
           id: _selectedCategoryId!,
@@ -88,13 +120,26 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
         createdBy: userId,
       );
 
-      final success = await controller.createService(service);
+      final bool success;
+      if (_isEditMode) {
+        success = await controller.updateService(widget.service!.id, service);
+      } else {
+        success = await controller.createService(service);
+      }
 
       if (success && mounted) {
         Navigator.of(context).pop();
-        _showSuccessSnackbar('Service created successfully');
+        _showSuccessSnackbar(
+          _isEditMode
+            ? 'Service updated successfully'
+            : 'Service created successfully'
+        );
       } else if (mounted) {
-        _showErrorSnackbar('Failed to create service. Please try again.');
+        _showErrorSnackbar(
+          _isEditMode
+            ? 'Failed to update service. Please try again.'
+            : 'Failed to create service. Please try again.'
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -127,6 +172,21 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
     );
   }
 
+  /// Format category name for display
+  /// Replaces underscores with spaces and capitalizes first letter
+  String _formatCategoryName(String name) {
+    if (name.isEmpty) return name;
+    final withSpaces = name.replaceAll('_', ' ');
+    return withSpaces[0].toUpperCase() + withSpaces.substring(1);
+  }
+
+  /// Format status name for display
+  /// Capitalizes first letter
+  String _formatStatusName(String status) {
+    if (status.isEmpty) return status;
+    return status[0].toUpperCase() + status.substring(1);
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ServiceController>();
@@ -150,9 +210,9 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const MyText(
-                      'Create New Service',
-                      style: TextStyle(
+                    MyText(
+                      _isEditMode ? 'Edit Service' : 'Create New Service',
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -211,8 +271,9 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                             );
                           }
 
+                          // Format category names for display
                           final categoryItems = controller.categories
-                              .map((cat) => cat.name)
+                              .map((cat) => _formatCategoryName(cat.name))
                               .toList();
 
                           return MyDropdown(
@@ -223,8 +284,9 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                             title: 'Category*',
                             onChanged: (value) {
                               if (value != null) {
+                                // Find the category by matching formatted name
                                 final selectedCategory = controller.categories
-                                    .firstWhere((cat) => cat.name == value);
+                                    .firstWhere((cat) => _formatCategoryName(cat.name) == value);
                                 setState(() {
                                   _selectedCategoryId = selectedCategory.id;
                                 });
@@ -344,7 +406,7 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
                               colorFilter: const ColorFilter.mode(
                                   AppColors.white, BlendMode.srcIn),
                             ),
-                            child: 'Save',
+                            child: _isEditMode ? 'Update' : 'Save',
                             onTap: _handleSubmit,
                           ),
                   ],
