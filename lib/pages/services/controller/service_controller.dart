@@ -12,7 +12,9 @@ class ServiceController extends GetxController {
 
   var isLoading = false.obs;
   var isSaving = false.obs;
+  var isLoadingCategories = false.obs;
   var services = <Service>[].obs;
+  var categories = <ServiceCategory>[].obs;
   var errorMessage = ''.obs;
 
   int limit = 100;
@@ -22,6 +24,7 @@ class ServiceController extends GetxController {
   void onInit() {
     super.onInit();
     fetchServices();
+    fetchCategories();
   }
 
   Future<void> fetchServices(
@@ -131,6 +134,26 @@ class ServiceController extends GetxController {
       log("Delete Error: $e");
       await fetchServices();
       return false;
+    }
+  }
+
+  Future<void> fetchCategories() async {
+    try {
+      isLoadingCategories(true);
+
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) {
+        errorMessage('Authentication token not found');
+        return;
+      }
+
+      final result = await _service.getCategories(token);
+      categories.assignAll(result);
+    } catch (e) {
+      errorMessage('Failed to load categories: $e');
+      log("Fetch Categories Error: $e");
+    } finally {
+      isLoadingCategories(false);
     }
   }
 }

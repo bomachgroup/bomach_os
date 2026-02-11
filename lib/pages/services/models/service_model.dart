@@ -89,7 +89,21 @@ class Service {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'category': category.toJson(),
+      'category_id': category.id,
+      'description': description,
+      'base_price': basePrice,
+      'delivery_time': deliveryTime,
+      'status': status,
+      'created_by': createdBy,
+    };
+  }
+
+  /// Create a Service instance for API submission
+  /// Used when creating a new service with just the category ID
+  Map<String, dynamic> toCreateJson() {
+    return {
+      'name': name,
+      'category_id': category.id,
       'description': description,
       'base_price': basePrice,
       'delivery_time': deliveryTime,

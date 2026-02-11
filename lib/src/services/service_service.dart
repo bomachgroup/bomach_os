@@ -114,6 +114,31 @@ class ServiceService {
     }
   }
 
+  Future<List<ServiceCategory>> getCategories(
+    String token, {
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/categories',
+        queryParameters: {
+          'limit': limit,
+          'offset': offset,
+        },
+        options: _authOptions(token),
+      );
+
+      final data = response.data;
+      final List<dynamic> list =
+          (data is Map && data.containsKey('items')) ? data['items'] : data;
+
+      return list.map((json) => ServiceCategory.fromJson(json)).toList();
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final errorMessage = error.response?.data?['message'] ?? error.message;

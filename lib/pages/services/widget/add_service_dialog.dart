@@ -2,12 +2,15 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../controller/service_controller.dart';
+import '../models/service_model.dart';
 
 class AddServiceDialog extends StatefulWidget {
   const AddServiceDialog({super.key});
@@ -17,8 +20,117 @@ class AddServiceDialog extends StatefulWidget {
 }
 
 class _AddServiceDialogState extends State<AddServiceDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _storage = const FlutterSecureStorage();
+
+  // Form controllers
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _basePriceController = TextEditingController();
+  final _deliveryTimeController = TextEditingController();
+  final _categoryController = TextEditingController();
+  final _statusController = TextEditingController(text: 'Active');
+
+  // Selected values
+  int? _selectedCategoryId;
+  String _selectedStatus = 'active';
+
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _basePriceController.dispose();
+    _deliveryTimeController.dispose();
+    _categoryController.dispose();
+    _statusController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_selectedCategoryId == null) {
+      _showErrorSnackbar('Please select a category');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      // Get user ID from secure storage
+      final userId = await _storage.read(key: 'user_id');
+      if (userId == null) {
+        _showErrorSnackbar('User ID not found. Please login again.');
+        return;
+      }
+
+      final controller = Get.find<ServiceController>();
+
+      // Create service object
+      final service = Service(
+        id: 0, // Will be set by backend
+        name: _nameController.text.trim(),
+        category: ServiceCategory(
+          id: _selectedCategoryId!,
+          name: '', // Will be populated by backend
+          description: '',
+        ),
+        description: _descriptionController.text.trim(),
+        basePrice: _basePriceController.text.trim(),
+        deliveryTime: _deliveryTimeController.text.trim(),
+        status: _selectedStatus,
+        createdBy: userId,
+      );
+
+      final success = await controller.createService(service);
+
+      if (success && mounted) {
+        Navigator.of(context).pop();
+        _showSuccessSnackbar('Service created successfully');
+      } else if (mounted) {
+        _showErrorSnackbar('Failed to create service. Please try again.');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackbar('Error: ${e.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<ServiceController>();
+
     return Dialog(
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
@@ -26,216 +138,220 @@ class _AddServiceDialogState extends State<AddServiceDialog> {
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText(
-                    'Create New Service',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form fields
-            const Expanded(
-              child: SingleChildScrollView(
-                child: Column(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '---',
-                                      spaceBetweenText: 10,
-                                      title: 'Service Name',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 40),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      items: [],
-                                      hintText: '---',
-                                      spaceBetweenText: 10,
-                                      title: 'Category*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              MyTextFormField(
-                                maxLines: 4,
-                                hintText: '----',
-                                spaceBetweenText: 10,
-                                title: 'Description',
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 40),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '---',
-                                      spaceBetweenText: 10,
-                                      title: 'Base Price(N)*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      spaceBetweenText: 10,
-                                      hintText: '---',
-                                      title: 'Duration',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 40),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      spaceBetweenText: 10,
-                                      hintText: "-----",
-                                      items: ["Active", "Pending"],
-                                      title: 'Status*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    const MyText(
+                      'Create New Service',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Divider(
-                      color: AppColors.card,
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          kSizedBoxSM,
-                          Row(
-                            children: [
-                              Flexible(
-                                child: MyText(
-                                  'Optional',
-                                  size: 32,
-                                  weight: 600,
-                                ),
-                              ),
-                              kSizedBoxWidthSM,
-                              Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                size: 28,
-                              )
-                            ],
-                          ),
-                          kSizedBox,
-                          MyText(
-                            'Upload File',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          UploadFile(),
-                        ],
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: _isSubmitting
+                          ? null
+                          : () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
               ),
-            ),
 
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
+              // Form fields
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Service Name
+                        MyTextFormField(
+                          controller: _nameController,
+                          hintText: 'Enter service name',
+                          spaceBetweenText: 10,
+                          title: 'Service Name*',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Service name is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Category
+                        Obx(() {
+                          if (controller.isLoadingCategories.value) {
+                            return const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyText(
+                                  'Category*',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ],
+                            );
+                          }
+
+                          final categoryItems = controller.categories
+                              .map((cat) => cat.name)
+                              .toList();
+
+                          return MyDropdown(
+                            controller: _categoryController,
+                            items: categoryItems,
+                            hintText: 'Select category',
+                            spaceBetweenText: 10,
+                            title: 'Category*',
+                            onChanged: (value) {
+                              if (value != null) {
+                                final selectedCategory = controller.categories
+                                    .firstWhere((cat) => cat.name == value);
+                                setState(() {
+                                  _selectedCategoryId = selectedCategory.id;
+                                });
+                              }
+                            },
+                          );
+                        }),
+                        const SizedBox(height: 24),
+
+                        // Description
+                        MyTextFormField(
+                          controller: _descriptionController,
+                          maxLines: 4,
+                          hintText: 'Enter service description',
+                          spaceBetweenText: 10,
+                          title: 'Description*',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Description is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Base Price and Delivery Time
+                        Row(
+                          children: [
+                            Expanded(
+                              child: MyTextFormField(
+                                controller: _basePriceController,
+                                hintText: 'e.g., 10000',
+                                spaceBetweenText: 10,
+                                title: 'Base Price (₦)*',
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Base price is required';
+                                  }
+                                  if (double.tryParse(value) == null) {
+                                    return 'Enter a valid number';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: MyTextFormField(
+                                controller: _deliveryTimeController,
+                                spaceBetweenText: 10,
+                                hintText: 'e.g., 7 days',
+                                title: 'Delivery Time*',
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Delivery time is required';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Status
+                        MyDropdown(
+                          controller: _statusController,
+                          spaceBetweenText: 10,
+                          hintText: "Select status",
+                          items: const ["Active", "Inactive", "Draft"],
+                          title: 'Status*',
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedStatus = value?.toLowerCase() ?? 'active';
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+
+              // Action Buttons
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade300),
                   ),
-                  const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    MyOutlinedButton(
+                      textColor: AppColors.darkGrey1,
+                      borderColor: null,
+                      child: 'Cancel',
+                      onTap: _isSubmitting
+                          ? null
+                          : () {
+                              Navigator.pop(context);
+                            },
                     ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
-                ],
+                    const SizedBox(width: 16),
+                    _isSubmitting
+                        ? const SizedBox(
+                            width: 120,
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : MyElevatedButton(
+                            icon: SvgPicture.asset(
+                              "assets/svg/check.svg",
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.white, BlendMode.srcIn),
+                            ),
+                            child: 'Save',
+                            onTap: _handleSubmit,
+                          ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
