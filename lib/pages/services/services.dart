@@ -2,12 +2,12 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/services/controller/service_controller.dart';
+import 'package:bms_front_end/pages/services/generate_invoice_page.dart';
+import 'package:bms_front_end/pages/services/service_invoices.dart';
+import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/widget/add_invoice_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/add_service_dialog.dart';
-import 'package:bms_front_end/pages/services/service_leads.dart';
-import 'package:bms_front_end/pages/services/service_invoices.dart';
-import 'package:bms_front_end/pages/services/generate_invoice_page.dart';
-import 'package:bms_front_end/pages/services/controller/service_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -212,39 +212,44 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             )
           else
-            LayoutBuilder(builder: (context, constraints) {
-              // determine columns from available width
-              double maxWidth = constraints.maxWidth;
-              int columns = 1;
-              if (maxWidth > 1200)
-                columns = 3;
-              else if (maxWidth > 900)
-                columns = 3;
-              else if (maxWidth > 700)
-                columns = 2;
-              else
-                columns = 1;
+            Align(
+              alignment: Alignment.centerLeft,
+              child: LayoutBuilder(builder: (context, constraints) {
+                // determine columns from available width
+                double maxWidth = constraints.maxWidth;
+                int columns = 1;
+                if (maxWidth > 1200)
+                  columns = 3;
+                else if (maxWidth > 900)
+                  columns = 3;
+                else if (maxWidth > 700)
+                  columns = 2;
+                else
+                  columns = 1;
 
-              double spacing = 18;
-              double cardWidth = (maxWidth - (columns - 1) * spacing) / columns;
+                double spacing = 18;
+                double cardWidth =
+                    (maxWidth - (columns - 1) * spacing) / columns;
 
-              return Wrap(
-                runSpacing: spacing,
-                spacing: spacing,
-                children: _controller.services
-                    .map((service) => SizedBox(
-                          width: cardWidth,
-                          child: ServiceCard(
-                            title: service.name,
-                            category: service.category.name,
-                            description: service.description,
-                            price: '₦${service.basePrice}',
-                            duration: service.deliveryTime,
-                          ),
-                        ))
-                    .toList(),
-              );
-            }),
+                return Wrap(
+                  alignment: WrapAlignment.start,
+                  runSpacing: spacing,
+                  spacing: spacing,
+                  children: _controller.services
+                      .map((service) => SizedBox(
+                            width: cardWidth,
+                            child: ServiceCard(
+                              title: service.name,
+                              category: service.category.name,
+                              description: service.description,
+                              price: '₦${service.basePrice}',
+                              duration: service.deliveryTime,
+                            ),
+                          ))
+                      .toList(),
+                );
+              }),
+            ),
 
           const SizedBox(height: 40)
         ],
@@ -570,7 +575,7 @@ class InvoiceCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),
