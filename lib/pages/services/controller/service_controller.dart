@@ -13,8 +13,10 @@ class ServiceController extends GetxController {
   var isLoading = false.obs;
   var isSaving = false.obs;
   var isLoadingCategories = false.obs;
+  var isLoadingQuotes = false.obs;
   var services = <Service>[].obs;
   var categories = <ServiceCategory>[].obs;
+  var quotes = <Quote>[].obs;
   var errorMessage = ''.obs;
 
   int limit = 100;
@@ -25,6 +27,7 @@ class ServiceController extends GetxController {
     super.onInit();
     fetchServices();
     fetchCategories();
+    fetchQuotes();
   }
 
   Future<void> fetchServices(
@@ -154,6 +157,32 @@ class ServiceController extends GetxController {
       log("Fetch Categories Error: $e");
     } finally {
       isLoadingCategories(false);
+    }
+  }
+
+  Future<void> fetchQuotes({String? status}) async {
+    try {
+      isLoadingQuotes(true);
+      errorMessage('');
+
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) {
+        errorMessage('Authentication token not found');
+        return;
+      }
+
+      final result = await _service.getQuotes(
+        token,
+        status: status,
+        limit: limit,
+        offset: offset,
+      );
+      quotes.assignAll(result);
+    } catch (e) {
+      errorMessage('Failed to load quotes: $e');
+      log("Fetch Quotes Error: $e");
+    } finally {
+      isLoadingQuotes(false);
     }
   }
 }

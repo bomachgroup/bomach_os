@@ -257,77 +257,78 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   Widget _quotes() {
-    final List<Map<String, dynamic>> quotes = [
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['Accepted'],
-      },
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['Sent'],
-      },
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['Accepted'],
-      },
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['Sent'],
-      },
-    ];
+    return Obx(() {
+      if (_controller.errorMessage.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _controller.errorMessage.value,
+                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => _controller.fetchQuotes(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Quotes Management',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
-        const Text('Track and manage service quotes',
-            style: TextStyle(fontSize: 14, color: Colors.black54)),
-        const SizedBox(height: 24),
-        ListView.separated(
-          shrinkWrap: true,
-          itemCount: quotes.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            final quote = quotes[index];
-            return QuoteCard(
-              company: quote['company']!,
-              service: quote['service']!,
-              email: quote['email']!,
-              validUntil: quote['valid']!,
-              description: quote['description']!,
-              price: quote['price']!,
-              statuses: quote['statuses']!,
-            );
-          },
-        ),
-      ],
-    );
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Quotes Management',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          const Text('Track and manage service quotes',
+              style: TextStyle(fontSize: 14, color: Colors.black54)),
+          const SizedBox(height: 24),
+          if (_controller.isLoadingQuotes.value)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_controller.quotes.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(40.0),
+              child: Center(
+                child: Text(
+                  'No quotes available',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _controller.quotes.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final quote = _controller.quotes[index];
+                return QuoteCard(
+                  company: 'Client ID: ${quote.clientId}',
+                  service: quote.service.name,
+                  email: quote.quoteNumber,
+                  validUntil: quote.validUntil,
+                  description: quote.description,
+                  price: '₦${quote.amount}',
+                  statuses: [quote.status.capitalizeFirst ?? quote.status],
+                );
+              },
+            ),
+        ],
+      );
+    });
   }
 
   Widget _orders() {
