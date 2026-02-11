@@ -1,16 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/cards/real_estate_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/widget/add_property_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+
+import 'models/property_model.dart';
 
 class PropertyListPage extends StatefulWidget {
   const PropertyListPage({super.key});
@@ -20,110 +21,72 @@ class PropertyListPage extends StatefulWidget {
 }
 
 class _PropertyListPageState extends State<PropertyListPage> {
-  String _selectedFilter = 'All';
+  final TextEditingController _searchController = TextEditingController();
+  final PropertyController _controller = Get.put(PropertyController());
 
-  final List<Map<String, dynamic>> _properties = [
-    {
-      'name': 'Aso Villa Estate',
-      'type': 'Residential',
-      'category': 'For Sale',
-      'location': 'Asokoro, Abuja',
-      'price': '₦45,000,000',
-      'size': '500 sqm',
-      'bedrooms': 5,
-      'bathrooms': 4,
-      'parking': 3,
-      'status': 'Available',
-      'description':
-          'Luxury 5-bedroom duplex in prestigious Aso Villa Estate with modern amenities and 24/7 security.',
-      'image': 'assets/image/man-demo.png',
-    },
-    {
-      'name': 'Fortress City Estate',
-      'type': 'Residential',
-      'category': 'For Sale',
-      'location': 'Centenary City, Enugu',
-      'price': '₦28,500,000',
-      'size': '400 sqm',
-      'bedrooms': 4,
-      'bathrooms': 3,
-      'parking': 2,
-      'status': 'Available',
-      'description':
-          'Beautiful 4-bedroom detached house in serene environment with excellent infrastructure.',
-      'image': 'assets/image/man-demo.png',
-    },
-    {
-      'name': 'Bethel City Estate',
-      'type': 'Residential',
-      'category': 'For Rent',
-      'location': 'Independence Layout, Enugu',
-      'price': '₦2,500,000/year',
-      'size': '350 sqm',
-      'bedrooms': 4,
-      'bathrooms': 3,
-      'parking': 2,
-      'status': 'Reserved',
-      'description':
-          'Spacious 4-bedroom duplex available for rent in prime location with modern facilities.',
-      'image': 'assets/image/man-demo.png',
-    },
-    {
-      'name': 'Diamond Heights',
-      'type': 'Commercial',
-      'category': 'For Lease',
-      'location': 'Ogui Road, Enugu',
-      'price': '₦5,000,000/year',
-      'size': '800 sqm',
-      'bedrooms': 0,
-      'bathrooms': 6,
-      'parking': 10,
-      'status': 'Available',
-      'description':
-          'Prime commercial property suitable for office space, shops, or mixed-use development.',
-      'image': 'assets/image/man-demo.png',
-    },
-    {
-      'name': 'Victoria Gardens',
-      'type': 'Land',
-      'category': 'For Sale',
-      'location': 'Trans-Ekulu, Enugu',
-      'price': '₦12,000,000',
-      'size': '600 sqm',
-      'bedrooms': 0,
-      'bathrooms': 0,
-      'parking': 0,
-      'status': 'Available',
-      'description':
-          'Fenced plot of land with C of O in rapidly developing area, perfect for development.',
-      'image': 'assets/image/man-demo.png',
-    },
-    {
-      'name': 'Royal Palm Apartments',
-      'type': 'Residential',
-      'category': 'For Sale',
-      'location': 'GRA, Enugu',
-      'price': '₦65,000,000',
-      'size': '750 sqm',
-      'bedrooms': 6,
-      'bathrooms': 5,
-      'parking': 4,
-      'status': 'Under Construction',
-      'description':
-          'Luxury 6-bedroom mansion with swimming pool, gym, and smart home features.',
-      'image': 'assets/image/man-demo.png',
-    },
-  ];
+  // Filter selections
+  String _selectedCategory = 'All';
+  String _selectedStatus = 'All';
+  String _selectedType = 'All';
 
-  List<Map<String, dynamic>> get _filteredProperties {
-    if (_selectedFilter == 'All') return _properties;
-    return _properties
-        .where((prop) =>
-            prop['category'] == _selectedFilter ||
-            prop['type'] == _selectedFilter ||
-            prop['status'] == _selectedFilter)
-        .toList();
+  static const Map<String, String?> _categoryFilters = {
+    'All': null,
+    'For Sale': 'sale',
+    'For Rent': 'rent',
+    'For Lease': 'lease',
+  };
+
+  static const Map<String, String?> _statusFilters = {
+    'All': null,
+    'Available': 'available',
+    'Sold': 'sold',
+    'Rented': 'rented',
+    'Reserved': 'reserved',
+    'Pending': 'pending',
+    'Off Market': 'off_market',
+  };
+
+  static const Map<String, String?> _typeFilters = {
+    'All': null,
+    'Residential': 'residential',
+    'Commercial': 'commercial',
+    'Industrial': 'industrial',
+    'Land': 'land',
+  };
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
+
+  void _applyFilters() {
+    _controller.currentPage.value = 1;
+    _controller.fetchProperties(
+      search: _searchController.text.trim().isEmpty
+          ? null
+          : _searchController.text.trim(),
+      status: _statusFilters[_selectedStatus],
+      category: _categoryFilters[_selectedCategory],
+      propertyType: _typeFilters[_selectedType],
+    );
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _selectedCategory = 'All';
+      _selectedStatus = 'All';
+      _selectedType = 'All';
+      _searchController.clear();
+    });
+    _controller.clearFilters();
+  }
+
+  bool get _hasActiveFilters =>
+      _selectedCategory != 'All' ||
+      _selectedStatus != 'All' ||
+      _selectedType != 'All' ||
+      _searchController.text.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +124,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                       SizedBox(
                         width: 200,
                         child: MyTextFormField(
+                          controller: _searchController,
                           hintText: 'Search properties...',
                           leading: Icon(
                             Icons.search,
@@ -168,7 +132,10 @@ class _PropertyListPageState extends State<PropertyListPage> {
                           ),
                         ),
                       ),
-                      const SortBar(text: "Sort"),
+                      MyElevatedButton(
+                        child: 'Search',
+                        onTap: _applyFilters,
+                      ),
                       MyElevatedButton(
                         icon: const Icon(
                           Icons.add_circle_outline_rounded,
@@ -198,20 +165,100 @@ class _PropertyListPageState extends State<PropertyListPage> {
 
         kSizedBox,
 
-        // Filter and View Toggle
+        // Category Filter Chips
+        const MyText(
+          'Category',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.grey1,
+          ),
+        ),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: Wrap(
                 spacing: 10,
                 runSpacing: 10,
+                children: _categoryFilters.keys
+                    .map((label) => _buildFilterChip(
+                          label,
+                          isSelected: _selectedCategory == label,
+                          onTap: () {
+                            setState(() => _selectedCategory = label);
+                            _applyFilters();
+                          },
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
+
+        kSizedBoxSM,
+
+        // Status & Property Type Filters
+        Row(
+          children: [
+            Expanded(
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  _buildFilterChip('All'),
-                  _buildFilterChip('For Sale'),
-                  _buildFilterChip('For Rent'),
-                  _buildFilterChip('For Lease'),
-                  _buildFilterChip('Available'),
-                  _buildFilterChip('Reserved'),
+                  // Status Dropdown
+                  _buildDropdownFilter(
+                    label: 'Status',
+                    value: _selectedStatus,
+                    items: _statusFilters.keys.toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedStatus = value);
+                        _applyFilters();
+                      }
+                    },
+                  ),
+                  // Property Type Dropdown
+                  _buildDropdownFilter(
+                    label: 'Property Type',
+                    value: _selectedType,
+                    items: _typeFilters.keys.toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedType = value);
+                        _applyFilters();
+                      }
+                    },
+                  ),
+                  // Clear Filters
+                  if (_hasActiveFilters)
+                    GestureDetector(
+                      onTap: _clearAllFilters,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.clear, size: 16, color: Colors.red),
+                            SizedBox(width: 4),
+                            Text(
+                              'Clear Filters',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -220,35 +267,86 @@ class _PropertyListPageState extends State<PropertyListPage> {
 
         kSizedBox,
 
-        _buildListView(),
+        // Property List
+        _buildPropertyList(),
       ],
     );
   }
 
-  Widget _buildStatsCards() {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        _buildStatCard('Total Properties', '${_properties.length}',
-            Icons.home_work, AppColors.blue),
-        _buildStatCard(
-            'Available',
-            '${_properties.where((p) => p['status'] == 'Available').length}',
-            Icons.check_circle,
-            Colors.green),
-        _buildStatCard(
-            'Reserved',
-            '${_properties.where((p) => p['status'] == 'Reserved').length}',
-            Icons.schedule,
-            Colors.orange),
-        _buildStatCard(
-            'Sold/Rented',
-            '${_properties.where((p) => p['status'] == 'Sold').length}',
-            Icons.done_all,
-            Colors.purple),
-      ],
+  Widget _buildDropdownFilter({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.grey4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$label: ',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: AppColors.grey1,
+            ),
+          ),
+          DropdownButton<String>(
+            value: value,
+            underline: const SizedBox(),
+            isDense: true,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+            items: items
+                .map((item) => DropdownMenuItem(
+                      value: item,
+                      child: Text(item),
+                    ))
+                .toList(),
+            onChanged: onChanged,
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget _buildStatsCards() {
+    return Obx(() {
+      final props = _controller.properties;
+      final available =
+          props.where((p) => p.status.toLowerCase() == 'available').length;
+      final reserved =
+          props.where((p) => p.status.toLowerCase() == 'reserved').length;
+      final soldOrRented = props
+          .where((p) =>
+              p.status.toLowerCase() == 'sold' ||
+              p.status.toLowerCase() == 'rented')
+          .length;
+
+      return Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: [
+          _buildStatCard('Total Properties', '${props.length}', Icons.home_work,
+              AppColors.blue),
+          _buildStatCard(
+              'Available', '$available', Icons.check_circle, Colors.green),
+          _buildStatCard(
+              'Reserved', '$reserved', Icons.schedule, Colors.orange),
+          _buildStatCard(
+              'Sold/Rented', '$soldOrRented', Icons.done_all, Colors.purple),
+        ],
+      );
+    });
   }
 
   Widget _buildStatCard(
@@ -297,14 +395,10 @@ class _PropertyListPageState extends State<PropertyListPage> {
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilter == label;
+  Widget _buildFilterChip(String label,
+      {required bool isSelected, required VoidCallback onTap}) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = label;
-        });
-      },
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -316,6 +410,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
         ),
         child: MyText(
           label,
+          isSelectable: false,
           style: TextStyle(
             color: isSelected ? AppColors.white : AppColors.grey1,
             fontSize: 14,
@@ -326,52 +421,164 @@ class _PropertyListPageState extends State<PropertyListPage> {
     );
   }
 
-  Widget _buildGridView() {
-    return GridView.count(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      childAspectRatio: isLargeScreen(context)
-          ? 0.86
-          : isMediumScreen(context)
-              ? 0.86
-              : 0.75,
-      shrinkWrap: true,
-      crossAxisCount: isLargeScreen(context)
-          ? 3
-          : isMediumScreen(context)
-              ? 2
-              : 1,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      children: _filteredProperties.map((property) {
-        return RealEstateCard(
-          image: property['image'],
-          title: property['name'],
-          details: property['description'],
-          buttonText: "View Details",
-          onTap: () {
-            context.go(RouteConstants.propertyDetail);
-          },
+  Widget _buildPropertyList() {
+    return Obx(() {
+      if (_controller.errorMessage.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _controller.errorMessage.value,
+                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => _controller.fetchProperties(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
         );
-      }).toList(),
-    );
+      }
+
+      if (_controller.isLoading.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(40.0),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      if (_controller.properties.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'No properties found',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                if (_hasActiveFilters) ...[
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: _clearAllFilters,
+                    child: const Text('Clear Filters'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _controller.properties.length,
+            separatorBuilder: (context, index) => kSizedBoxSM,
+            itemBuilder: (context, index) {
+              final property = _controller.properties[index];
+              return _buildPropertyListItem(property);
+            },
+          ),
+          const SizedBox(height: 24),
+          // Pagination Controls
+          Obx(() {
+            final currentPage = _controller.currentPage.value;
+            final hasNextPage =
+                _controller.properties.length >= _controller.limit;
+
+            final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+            int endPage = totalPages.clamp(1, totalPages);
+            int startPage = (endPage - 4).clamp(1, endPage);
+
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed:
+                      currentPage > 1 ? () => _controller.previousPage() : null,
+                  icon: const Icon(Icons.chevron_left),
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        currentPage > 1 ? AppColors.blue : Colors.grey[300],
+                    foregroundColor:
+                        currentPage > 1 ? Colors.white : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ...List.generate(
+                  endPage - startPage + 1,
+                  (index) {
+                    final pageNumber = startPage + index;
+                    final isCurrentPage = pageNumber == currentPage;
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: InkWell(
+                        onTap: () => _controller.goToPage(pageNumber),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color:
+                                isCurrentPage ? AppColors.blue : Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isCurrentPage
+                                  ? AppColors.blue
+                                  : Colors.grey[300]!,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '$pageNumber',
+                            style: TextStyle(
+                              color:
+                                  isCurrentPage ? Colors.white : Colors.black87,
+                              fontWeight: isCurrentPage
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 16),
+                IconButton(
+                  onPressed: hasNextPage ? () => _controller.nextPage() : null,
+                  icon: const Icon(Icons.chevron_right),
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        hasNextPage ? AppColors.blue : Colors.grey[300],
+                    foregroundColor:
+                        hasNextPage ? Colors.white : Colors.grey[600],
+                  ),
+                ),
+              ],
+            );
+          }),
+          const SizedBox(height: 40),
+        ],
+      );
+    });
   }
 
-  Widget _buildListView() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _filteredProperties.length,
-      separatorBuilder: (context, index) => kSizedBoxSM,
-      itemBuilder: (context, index) {
-        final property = _filteredProperties[index];
-        return _buildPropertyListItem(property);
-      },
-    );
-  }
-
-  Widget _buildPropertyListItem(Map<String, dynamic> property) {
-    final statusColor = _getStatusColor(property['status']);
+  Widget _buildPropertyListItem(Property property) {
+    final statusColor = _getStatusColor(property.status);
+    final hasImage = property.images.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -389,6 +596,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
       ),
       child: InkWell(
         onTap: () {
+          _controller.selectedProperty.value = property;
           context.go(RouteConstants.propertyDetail);
         },
         child: Row(
@@ -397,12 +605,16 @@ class _PropertyListPageState extends State<PropertyListPage> {
             // Property Image
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                property['image'],
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-              ),
+              child: hasImage
+                  ? Image.network(
+                      property.images.first,
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          _buildPlaceholderImage(),
+                    )
+                  : _buildPlaceholderImage(),
             ),
             kSizedBoxWidthSM,
             // Property Details
@@ -415,7 +627,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                     children: [
                       Expanded(
                         child: MyText(
-                          property['name'],
+                          property.name,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -430,7 +642,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: MyText(
-                          property['status'],
+                          property.formattedStatus,
                           style: TextStyle(
                             color: statusColor,
                             fontSize: 12,
@@ -446,11 +658,13 @@ class _PropertyListPageState extends State<PropertyListPage> {
                       const Icon(Icons.location_on,
                           size: 16, color: AppColors.grey1),
                       const SizedBox(width: 4),
-                      MyText(
-                        property['location'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.grey1,
+                      Expanded(
+                        child: MyText(
+                          property.location,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.grey1,
+                          ),
                         ),
                       ),
                     ],
@@ -459,13 +673,13 @@ class _PropertyListPageState extends State<PropertyListPage> {
                   Row(
                     children: [
                       _buildPropertyInfo(
-                          Icons.bed, '${property['bedrooms']} beds'),
+                          Icons.bed, '${property.bedrooms} beds'),
                       kSizedBoxWidthSM,
                       _buildPropertyInfo(
-                          Icons.bathtub, '${property['bathrooms']} baths'),
+                          Icons.bathtub, '${property.bathrooms} baths'),
                       kSizedBoxWidthSM,
                       _buildPropertyInfo(
-                          Icons.square_foot, '${property['size']}'),
+                          Icons.square_foot, '${property.size} sqm'),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -473,28 +687,50 @@ class _PropertyListPageState extends State<PropertyListPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       MyText(
-                        property['price'],
+                        property.formattedPrice,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: AppColors.blue,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: MyText(
-                          property['category'],
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.blue,
-                            fontWeight: FontWeight.w500,
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.blue.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: MyText(
+                              property.formattedCategory,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.blue,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (property.propertyType.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: MyText(
+                                property.formattedType,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.purple,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -503,6 +739,22 @@ class _PropertyListPageState extends State<PropertyListPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        color: AppColors.blue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Icon(
+        Icons.home_work,
+        size: 40,
+        color: AppColors.blue,
       ),
     );
   }
@@ -524,18 +776,20 @@ class _PropertyListPageState extends State<PropertyListPage> {
   }
 
   Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Available':
+    switch (status.toLowerCase()) {
+      case 'available':
         return Colors.green;
-      case 'Reserved':
+      case 'reserved':
         return Colors.orange;
-      case 'Sold':
-      case 'Rented':
+      case 'sold':
+      case 'rented':
         return Colors.purple;
-      case 'Under Construction':
+      case 'under_construction':
         return Colors.blue;
-      case 'Pending':
+      case 'pending':
         return Colors.amber;
+      case 'off_market':
+        return Colors.grey;
       default:
         return AppColors.grey1;
     }

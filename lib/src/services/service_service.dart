@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../pages/services/models/property_model.dart';
 import '../../pages/services/models/service_model.dart';
 
 class ServiceService {
@@ -190,6 +191,80 @@ class ServiceService {
           (data is Map && data.containsKey('items')) ? data['items'] : data;
 
       return list.map((json) => Order.fromJson(json)).toList();
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // PROPERTIES
+  Future<List<Property>> getProperties(
+    String token, {
+    String? search,
+    String? status,
+    String? propertyType,
+    String? category,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/properties',
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (status != null) 'status': status,
+          if (propertyType != null) 'property_type': propertyType,
+          if (category != null) 'category': category,
+          'limit': limit,
+          'offset': offset,
+        },
+        options: _authOptions(token),
+      );
+
+      final data = response.data;
+      final List<dynamic> list =
+          (data is Map && data.containsKey('items')) ? data['items'] : data;
+
+      return list.map((json) => Property.fromJson(json)).toList();
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Property> getPropertyById(String token, int propertyId) async {
+    try {
+      final response = await _dio.get(
+        '/properties/$propertyId',
+        options: _authOptions(token),
+      );
+      return Property.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Property> createProperty(
+      String token, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        '/properties',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Property.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Property> updateProperty(
+      String token, int propertyId, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(
+        '/properties/$propertyId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Property.fromJson(response.data);
     } catch (e) {
       throw _handleError(e);
     }

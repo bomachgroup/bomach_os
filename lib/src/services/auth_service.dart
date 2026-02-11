@@ -355,6 +355,30 @@ class AuthService {
       throw _handleError(e);
     }
   }
+
+  // FILE UPLOAD
+  Future<String> uploadFile(String token, List<int> fileBytes, String fileName) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(fileBytes, filename: fileName),
+      });
+
+      final response = await _dio.post(
+        '/api/v1/others/upload-file',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      return response.data['url'] as String;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
 }
 
 class LoginResponse {
