@@ -276,7 +276,7 @@ class ServiceController extends GetxController {
     }
   }
 
-  Future<bool> createOrder(Map<String, dynamic> data) async {
+  Future<Order?> createOrder(Map<String, dynamic> data) async {
     try {
       isSaving(true);
       errorMessage('');
@@ -284,16 +284,16 @@ class ServiceController extends GetxController {
       final token = await _storage.read(key: 'access_token');
       if (token == null) {
         errorMessage('Authentication token not found');
-        return false;
+        return null;
       }
 
-      await _service.createOrder(token, data);
+      final order = await _service.createOrder(token, data);
       await fetchOrders();
-      return true;
+      return order;
     } catch (e) {
       errorMessage('Failed to create order: $e');
       log("Create Order Error: $e");
-      return false;
+      return null;
     } finally {
       isSaving(false);
     }

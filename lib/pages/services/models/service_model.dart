@@ -191,6 +191,7 @@ class Order {
   final DateTime? updatedAt;
   final String createdBy;
   final String? assignedTo;
+  final String? paymentLink;
 
   Order({
     required this.id,
@@ -207,6 +208,7 @@ class Order {
     this.updatedAt,
     required this.createdBy,
     this.assignedTo,
+    this.paymentLink,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -231,6 +233,7 @@ class Order {
           : null,
       createdBy: json['created_by']?.toString() ?? '',
       assignedTo: json['assigned_to']?.toString(),
+      paymentLink: json['payment_link']?.toString(),
     );
   }
 

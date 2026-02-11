@@ -13,6 +13,7 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import './models/service_model.dart';
@@ -257,7 +258,8 @@ class _ServicesPageState extends State<ServicesPage> {
           if (_controller.services.isNotEmpty)
             Obx(() {
               final currentPage = _controller.currentPage.value;
-              final hasNextPage = _controller.services.length >= _controller.limit;
+              final hasNextPage =
+                  _controller.services.length >= _controller.limit;
 
               // Calculate page range to show
               final totalPages = hasNextPage ? currentPage + 1 : currentPage;
@@ -278,12 +280,10 @@ class _ServicesPageState extends State<ServicesPage> {
                         : null,
                     icon: const Icon(Icons.chevron_left),
                     style: IconButton.styleFrom(
-                      backgroundColor: currentPage > 1
-                          ? AppColors.blue
-                          : Colors.grey[300],
-                      foregroundColor: currentPage > 1
-                          ? Colors.white
-                          : Colors.grey[600],
+                      backgroundColor:
+                          currentPage > 1 ? AppColors.blue : Colors.grey[300],
+                      foregroundColor:
+                          currentPage > 1 ? Colors.white : Colors.grey[600],
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -307,9 +307,8 @@ class _ServicesPageState extends State<ServicesPage> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: isCurrentPage
-                                  ? AppColors.blue
-                                  : Colors.white,
+                              color:
+                                  isCurrentPage ? AppColors.blue : Colors.white,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: isCurrentPage
@@ -346,12 +345,10 @@ class _ServicesPageState extends State<ServicesPage> {
                         : null,
                     icon: const Icon(Icons.chevron_right),
                     style: IconButton.styleFrom(
-                      backgroundColor: hasNextPage
-                          ? AppColors.blue
-                          : Colors.grey[300],
-                      foregroundColor: hasNextPage
-                          ? Colors.white
-                          : Colors.grey[600],
+                      backgroundColor:
+                          hasNextPage ? AppColors.blue : Colors.grey[300],
+                      foregroundColor:
+                          hasNextPage ? Colors.white : Colors.grey[600],
                     ),
                   ),
                 ],
@@ -408,8 +405,8 @@ class _ServicesPageState extends State<ServicesPage> {
                                 fontSize: 22, fontWeight: FontWeight.w600)),
                         SizedBox(height: 8),
                         Text('Track and manage service quotes',
-                            style: TextStyle(
-                                fontSize: 14, color: Colors.black54)),
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black54)),
                       ],
                     ),
                     MyElevatedButton(
@@ -475,9 +472,11 @@ class _ServicesPageState extends State<ServicesPage> {
                 // Pagination Controls
                 Obx(() {
                   final currentPage = _controller.currentQuotePage.value;
-                  final hasNextPage = _controller.quotes.length >= _controller.limit;
+                  final hasNextPage =
+                      _controller.quotes.length >= _controller.limit;
 
-                  final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+                  final totalPages =
+                      hasNextPage ? currentPage + 1 : currentPage;
                   int endPage = totalPages.clamp(1, totalPages);
                   int startPage = (endPage - 4).clamp(1, endPage);
 
@@ -493,9 +492,8 @@ class _ServicesPageState extends State<ServicesPage> {
                           backgroundColor: currentPage > 1
                               ? AppColors.blue
                               : Colors.grey[300],
-                          foregroundColor: currentPage > 1
-                              ? Colors.white
-                              : Colors.grey[600],
+                          foregroundColor:
+                              currentPage > 1 ? Colors.white : Colors.grey[600],
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -508,7 +506,8 @@ class _ServicesPageState extends State<ServicesPage> {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: InkWell(
-                              onTap: () => _controller.goToQuotePage(pageNumber),
+                              onTap: () =>
+                                  _controller.goToQuotePage(pageNumber),
                               child: Container(
                                 width: 40,
                                 height: 40,
@@ -547,12 +546,10 @@ class _ServicesPageState extends State<ServicesPage> {
                             : null,
                         icon: const Icon(Icons.chevron_right),
                         style: IconButton.styleFrom(
-                          backgroundColor: hasNextPage
-                              ? AppColors.blue
-                              : Colors.grey[300],
-                          foregroundColor: hasNextPage
-                              ? Colors.white
-                              : Colors.grey[600],
+                          backgroundColor:
+                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                          foregroundColor:
+                              hasNextPage ? Colors.white : Colors.grey[600],
                         ),
                       ),
                     ],
@@ -610,8 +607,8 @@ class _ServicesPageState extends State<ServicesPage> {
                                 fontSize: 22, fontWeight: FontWeight.w600)),
                         SizedBox(height: 8),
                         Text('Track active and completed service orders',
-                            style: TextStyle(
-                                fontSize: 14, color: Colors.black54)),
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black54)),
                       ],
                     ),
                     MyElevatedButton(
@@ -671,8 +668,10 @@ class _ServicesPageState extends State<ServicesPage> {
                       price: '₦${order.amount}',
                       statuses: [
                         order.orderStatus.capitalizeFirst ?? order.orderStatus,
-                        order.paymentStatus.capitalizeFirst ?? order.paymentStatus,
+                        order.paymentStatus.capitalizeFirst ??
+                            order.paymentStatus,
                       ],
+                      paymentLink: order.paymentLink,
                     );
                   },
                 ),
@@ -680,9 +679,11 @@ class _ServicesPageState extends State<ServicesPage> {
                 // Pagination Controls
                 Obx(() {
                   final currentPage = _controller.currentOrderPage.value;
-                  final hasNextPage = _controller.orders.length >= _controller.limit;
+                  final hasNextPage =
+                      _controller.orders.length >= _controller.limit;
 
-                  final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+                  final totalPages =
+                      hasNextPage ? currentPage + 1 : currentPage;
                   int endPage = totalPages.clamp(1, totalPages);
                   int startPage = (endPage - 4).clamp(1, endPage);
 
@@ -698,9 +699,8 @@ class _ServicesPageState extends State<ServicesPage> {
                           backgroundColor: currentPage > 1
                               ? AppColors.blue
                               : Colors.grey[300],
-                          foregroundColor: currentPage > 1
-                              ? Colors.white
-                              : Colors.grey[600],
+                          foregroundColor:
+                              currentPage > 1 ? Colors.white : Colors.grey[600],
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -713,7 +713,8 @@ class _ServicesPageState extends State<ServicesPage> {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: InkWell(
-                              onTap: () => _controller.goToOrderPage(pageNumber),
+                              onTap: () =>
+                                  _controller.goToOrderPage(pageNumber),
                               child: Container(
                                 width: 40,
                                 height: 40,
@@ -752,12 +753,10 @@ class _ServicesPageState extends State<ServicesPage> {
                             : null,
                         icon: const Icon(Icons.chevron_right),
                         style: IconButton.styleFrom(
-                          backgroundColor: hasNextPage
-                              ? AppColors.blue
-                              : Colors.grey[300],
-                          foregroundColor: hasNextPage
-                              ? Colors.white
-                              : Colors.grey[600],
+                          backgroundColor:
+                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                          foregroundColor:
+                              hasNextPage ? Colors.white : Colors.grey[600],
                         ),
                       ),
                     ],
@@ -1069,6 +1068,7 @@ class QuoteCard extends StatelessWidget {
   final String description;
   final String price;
   final List<String> statuses;
+  final String? paymentLink;
 
   const QuoteCard({
     super.key,
@@ -1079,6 +1079,7 @@ class QuoteCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.statuses,
+    this.paymentLink,
   });
 
   @override
@@ -1175,6 +1176,29 @@ class QuoteCard extends StatelessWidget {
                     )
                     .toList(),
               ),
+              if (paymentLink != null && paymentLink!.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: paymentLink!));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Payment link copied to clipboard'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.copy, size: 16),
+                  label: const Text('Copy Payment Link'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.blue,
+                    side: const BorderSide(color: AppColors.blue),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
             ],
           ),
         ],
@@ -1307,7 +1331,14 @@ class ServiceCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return ServiceFormDialog(service: service);
+                      },
+                    );
+                  },
                   icon: const Icon(Icons.remove_red_eye),
                   label: const Text('View'),
                   style: OutlinedButton.styleFrom(

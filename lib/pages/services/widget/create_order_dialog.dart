@@ -31,8 +31,8 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
   final _orderStatusController = TextEditingController();
-  final _paymentStatusController = TextEditingController();
-  final _assignedToController = TextEditingController();
+  // final _paymentStatusController = TextEditingController();
+  // final _assignedToController = TextEditingController();
   final _clientSearchController = TextEditingController();
   final _quoteSearchController = TextEditingController();
 
@@ -57,7 +57,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
 
   // Statuses
   String _selectedOrderStatus = 'pending';
-  String _selectedPaymentStatus = 'unpaid';
+  // final String _selectedPaymentStatus = 'unpaid';
 
   bool _isSubmitting = false;
 
@@ -65,7 +65,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   void initState() {
     super.initState();
     _orderStatusController.text = 'Pending';
-    _paymentStatusController.text = 'Unpaid';
+    // _paymentStatusController.text = 'Unpaid';
     _loadClients();
   }
 
@@ -74,8 +74,8 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     _descriptionController.dispose();
     _amountController.dispose();
     _orderStatusController.dispose();
-    _paymentStatusController.dispose();
-    _assignedToController.dispose();
+    // _paymentStatusController.dispose();
+    // _assignedToController.dispose();
     _clientSearchController.dispose();
     _quoteSearchController.dispose();
     _serviceController.dispose();
@@ -135,15 +135,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
       } else {
         _filteredQuotes = controller.quotes
             .where((quote) =>
-                quote.quoteNumber
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
+                quote.quoteNumber.toLowerCase().contains(query.toLowerCase()) ||
                 quote.service.name
                     .toLowerCase()
                     .contains(query.toLowerCase()) ||
-                quote.description
-                    .toLowerCase()
-                    .contains(query.toLowerCase()))
+                quote.description.toLowerCase().contains(query.toLowerCase()))
             .toList();
       }
       _showQuoteDropdown = true;
@@ -211,22 +207,19 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
         'description': _descriptionController.text.trim(),
         'amount': double.parse(_amountController.text.trim()),
         'order_status': _selectedOrderStatus,
-        'payment_status': _selectedPaymentStatus,
+        // 'payment_status': _selectedPaymentStatus,
         'valid_until': DateFormat('yyyy-MM-dd').format(_validUntil!),
         'created_by': userId,
+        'assigned_to': userId,
       };
 
       if (_selectedQuote != null) {
         data['quote_id'] = _selectedQuote!.id;
       }
 
-      if (_assignedToController.text.trim().isNotEmpty) {
-        data['assigned_to'] = _assignedToController.text.trim();
-      }
+      final order = await controller.createOrder(data);
 
-      final success = await controller.createOrder(data);
-
-      if (success && mounted) {
+      if (order != null && mounted) {
         Navigator.of(context).pop();
         _showSuccessSnackbar('Order created successfully');
       } else if (mounted) {
@@ -466,45 +459,44 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                 title: 'Order Status*',
                                 onChanged: (value) {
                                   setState(() {
-                                    _selectedOrderStatus = _orderStatusToApi(
-                                        value ?? 'Pending');
+                                    _selectedOrderStatus =
+                                        _orderStatusToApi(value ?? 'Pending');
                                   });
                                 },
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: MyDropdown(
-                                controller: _paymentStatusController,
-                                spaceBetweenText: 10,
-                                hintText: 'Select payment status',
-                                items: const [
-                                  'Unpaid',
-                                  'Partially Paid',
-                                  'Paid',
-                                  'Refunded',
-                                ],
-                                title: 'Payment Status*',
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedPaymentStatus =
-                                        _paymentStatusToApi(
-                                            value ?? 'Unpaid');
-                                  });
-                                },
-                              ),
-                            ),
+                            // const SizedBox(width: 16),
+                            // Expanded(
+                            //   child: MyDropdown(
+                            //     controller: _paymentStatusController,
+                            //     spaceBetweenText: 10,
+                            //     hintText: 'Select payment status',
+                            //     items: const [
+                            //       'Unpaid',
+                            //       'Partially Paid',
+                            //       'Paid',
+                            //       'Refunded',
+                            //     ],
+                            //     title: 'Payment Status*',
+                            //     onChanged: (value) {
+                            //       setState(() {
+                            //         _selectedPaymentStatus =
+                            //             _paymentStatusToApi(value ?? 'Unpaid');
+                            //       });
+                            //     },
+                            //   ),
+                            // ),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        // const SizedBox(height: 24),
 
                         // Assigned To
-                        MyTextFormField(
-                          controller: _assignedToController,
-                          hintText: 'Enter employee ID (optional)',
-                          spaceBetweenText: 10,
-                          title: 'Assigned To',
-                        ),
+                        // MyTextFormField(
+                        //   controller: _assignedToController,
+                        //   hintText: 'Enter employee ID (optional)',
+                        //   spaceBetweenText: 10,
+                        //   title: 'Assigned To',
+                        // ),
                       ],
                     ),
                   ),
@@ -572,21 +564,6 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
         return 'cancelled';
       default:
         return 'pending';
-    }
-  }
-
-  String _paymentStatusToApi(String display) {
-    switch (display) {
-      case 'Unpaid':
-        return 'unpaid';
-      case 'Partially Paid':
-        return 'partially_paid';
-      case 'Paid':
-        return 'paid';
-      case 'Refunded':
-        return 'refunded';
-      default:
-        return 'unpaid';
     }
   }
 
@@ -759,8 +736,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
         Obx(() {
           if (serviceController.isLoadingQuotes.value) {
             return Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.grey4),
                 borderRadius: BorderRadius.circular(8),
@@ -817,8 +793,8 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: AppColors.blue),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 14),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 ),
                 onChanged: _filterQuotes,
                 onTap: () {
@@ -851,8 +827,8 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                           padding: EdgeInsets.all(16),
                           child: Text(
                             'No quotes found',
-                            style: TextStyle(
-                                fontSize: 14, color: AppColors.grey1),
+                            style:
+                                TextStyle(fontSize: 14, color: AppColors.grey1),
                           ),
                         )
                       : ListView.builder(
@@ -875,8 +851,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                       : null,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       '${quote.quoteNumber} - ${quote.service.name}',
