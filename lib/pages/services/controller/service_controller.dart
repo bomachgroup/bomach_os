@@ -14,13 +14,19 @@ class ServiceController extends GetxController {
   var isSaving = false.obs;
   var isLoadingCategories = false.obs;
   var isLoadingQuotes = false.obs;
+  var isLoadingOrders = false.obs;
   var services = <Service>[].obs;
   var categories = <ServiceCategory>[].obs;
   var quotes = <Quote>[].obs;
+  var orders = <Order>[].obs;
   var errorMessage = ''.obs;
 
   int limit = 100;
   int offset = 0;
+  var currentPage = 1.obs;
+  var currentQuotePage = 1.obs;
+  var currentOrderPage = 1.obs;
+  var totalItems = 0.obs;
 
   @override
   void onInit() {
@@ -28,6 +34,7 @@ class ServiceController extends GetxController {
     fetchServices();
     fetchCategories();
     fetchQuotes();
+    fetchOrders();
   }
 
   Future<void> fetchServices(
@@ -41,6 +48,8 @@ class ServiceController extends GetxController {
         errorMessage('Authentication token not found');
         return;
       }
+
+      offset = (currentPage.value - 1) * limit;
 
       final result = await _service.getServices(
         token,
@@ -56,6 +65,25 @@ class ServiceController extends GetxController {
       log("Fetch Error: $e");
     } finally {
       isLoading(false);
+    }
+  }
+
+  void nextPage({String? status, int? categoryId, String? search}) {
+    currentPage.value++;
+    fetchServices(status: status, categoryId: categoryId, search: search);
+  }
+
+  void previousPage({String? status, int? categoryId, String? search}) {
+    if (currentPage.value > 1) {
+      currentPage.value--;
+      fetchServices(status: status, categoryId: categoryId, search: search);
+    }
+  }
+
+  void goToPage(int page, {String? status, int? categoryId, String? search}) {
+    if (page > 0) {
+      currentPage.value = page;
+      fetchServices(status: status, categoryId: categoryId, search: search);
     }
   }
 
@@ -171,11 +199,13 @@ class ServiceController extends GetxController {
         return;
       }
 
+      final quoteOffset = (currentQuotePage.value - 1) * limit;
+
       final result = await _service.getQuotes(
         token,
         status: status,
         limit: limit,
-        offset: offset,
+        offset: quoteOffset,
       );
       quotes.assignAll(result);
     } catch (e) {
@@ -183,6 +213,73 @@ class ServiceController extends GetxController {
       log("Fetch Quotes Error: $e");
     } finally {
       isLoadingQuotes(false);
+    }
+  }
+
+  void nextQuotePage({String? status}) {
+    currentQuotePage.value++;
+    fetchQuotes(status: status);
+  }
+
+  void previousQuotePage({String? status}) {
+    if (currentQuotePage.value > 1) {
+      currentQuotePage.value--;
+      fetchQuotes(status: status);
+    }
+  }
+
+  void goToQuotePage(int page, {String? status}) {
+    if (page > 0) {
+      currentQuotePage.value = page;
+      fetchQuotes(status: status);
+    }
+  }
+
+  Future<void> fetchOrders({String? orderStatus, String? paymentStatus}) async {
+    try {
+      isLoadingOrders(true);
+      errorMessage('');
+
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) {
+        errorMessage('Authentication token not found');
+        return;
+      }
+
+      final orderOffset = (currentOrderPage.value - 1) * limit;
+
+      final result = await _service.getOrders(
+        token,
+        orderStatus: orderStatus,
+        paymentStatus: paymentStatus,
+        limit: limit,
+        offset: orderOffset,
+      );
+      orders.assignAll(result);
+    } catch (e) {
+      errorMessage('Failed to load orders: $e');
+      log("Fetch Orders Error: $e");
+    } finally {
+      isLoadingOrders(false);
+    }
+  }
+
+  void nextOrderPage({String? orderStatus, String? paymentStatus}) {
+    currentOrderPage.value++;
+    fetchOrders(orderStatus: orderStatus, paymentStatus: paymentStatus);
+  }
+
+  void previousOrderPage({String? orderStatus, String? paymentStatus}) {
+    if (currentOrderPage.value > 1) {
+      currentOrderPage.value--;
+      fetchOrders(orderStatus: orderStatus, paymentStatus: paymentStatus);
+    }
+  }
+
+  void goToOrderPage(int page, {String? orderStatus, String? paymentStatus}) {
+    if (page > 0) {
+      currentOrderPage.value = page;
+      fetchOrders(orderStatus: orderStatus, paymentStatus: paymentStatus);
     }
   }
 }

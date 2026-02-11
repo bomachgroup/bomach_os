@@ -166,6 +166,35 @@ class ServiceService {
     }
   }
 
+  Future<List<Order>> getOrders(
+    String token, {
+    String? orderStatus,
+    String? paymentStatus,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/orders',
+        queryParameters: {
+          if (orderStatus != null) 'order_status': orderStatus,
+          if (paymentStatus != null) 'payment_status': paymentStatus,
+          'limit': limit,
+          'offset': offset,
+        },
+        options: _authOptions(token),
+      );
+
+      final data = response.data;
+      final List<dynamic> list =
+          (data is Map && data.containsKey('items')) ? data['items'] : data;
+
+      return list.map((json) => Order.fromJson(json)).toList();
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final errorMessage = error.response?.data?['message'] ?? error.message;

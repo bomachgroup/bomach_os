@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 
+import '../../pages/services/models/client_model.dart';
+import '../../pages/services/models/lead_model.dart';
 import '../model/user_model.dart';
 
 class AuthService {
@@ -191,6 +193,163 @@ class AuthService {
       await _dio.post(
         '/api/v1/auth/logout',
         options: _authOptions(accessToken),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // LEADS
+  Future<List<Lead>> getLeads(
+    String token, {
+    String? status,
+    String? search,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/clients/leads/',
+        queryParameters: {
+          if (status != null) 'status': status,
+          if (search != null && search.isNotEmpty) 'search': search,
+          'limit': limit,
+          'offset': offset,
+        },
+        options: _authOptions(token),
+      );
+
+      final data = response.data;
+      final List<dynamic> list =
+          (data is Map && data.containsKey('items')) ? data['items'] : data;
+
+      return list.map((json) => Lead.fromJson(json)).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Lead> createLead(
+    String token,
+    Map<String, dynamic> leadData,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/clients/leads/',
+        data: leadData,
+        options: _authOptions(token),
+      );
+      return Lead.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Lead> updateLead(
+    String token,
+    int leadId,
+    Map<String, dynamic> leadData,
+  ) async {
+    try {
+      final response = await _dio.put(
+        '/api/v1/clients/leads/$leadId/',
+        data: leadData,
+        options: _authOptions(token),
+      );
+      return Lead.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteLead(String token, int leadId) async {
+    try {
+      await _dio.delete(
+        '/api/v1/clients/leads/$leadId/',
+        options: _authOptions(token),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> convertLeadToClient(String token, int leadId) async {
+    try {
+      await _dio.post(
+        '/api/v1/clients/leads/$leadId/convert-to-client/',
+        options: _authOptions(token),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // CLIENTS
+  Future<List<Client>> getClients(
+    String token, {
+    String? search,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/clients/clients/',
+        queryParameters: {
+          if (search != null && search.isNotEmpty) 'search': search,
+          'limit': limit,
+          'offset': offset,
+        },
+        options: _authOptions(token),
+      );
+
+      final data = response.data;
+      final List<dynamic> list =
+          (data is Map && data.containsKey('items')) ? data['items'] : data;
+
+      return list.map((json) => Client.fromJson(json)).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Client> createClient(
+    String token,
+    Map<String, dynamic> clientData,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/clients/clients/',
+        data: clientData,
+        options: _authOptions(token),
+      );
+      return Client.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Client> updateClient(
+    String token,
+    int clientId,
+    Map<String, dynamic> clientData,
+  ) async {
+    try {
+      final response = await _dio.put(
+        '/api/v1/clients/clients/$clientId/',
+        data: clientData,
+        options: _authOptions(token),
+      );
+      return Client.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteClient(String token, int clientId) async {
+    try {
+      await _dio.delete(
+        '/api/v1/clients/clients/$clientId/',
+        options: _authOptions(token),
       );
     } on DioException catch (e) {
       throw _handleError(e);

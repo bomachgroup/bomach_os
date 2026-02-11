@@ -175,3 +175,78 @@ class Quote {
     };
   }
 }
+
+class Order {
+  final int id;
+  final String orderNumber;
+  final String clientId;
+  final Service service;
+  final Quote? quote;
+  final String description;
+  final String amount;
+  final String orderStatus;
+  final String paymentStatus;
+  final String validUntil;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final String createdBy;
+  final String? assignedTo;
+
+  Order({
+    required this.id,
+    required this.orderNumber,
+    required this.clientId,
+    required this.service,
+    this.quote,
+    required this.description,
+    required this.amount,
+    required this.orderStatus,
+    required this.paymentStatus,
+    required this.validUntil,
+    this.createdAt,
+    this.updatedAt,
+    required this.createdBy,
+    this.assignedTo,
+  });
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      orderNumber: json['order_number'] ?? '',
+      clientId: json['client_id']?.toString() ?? '',
+      service: Service.fromJson(json['service'] ?? {}),
+      quote: json['quote'] != null ? Quote.fromJson(json['quote']) : null,
+      description: json['description'] ?? '',
+      amount: json['amount'] ?? '0.00',
+      orderStatus: json['order_status'] ?? 'pending',
+      paymentStatus: json['payment_status'] ?? 'unpaid',
+      validUntil: json['valid_until'] ?? '',
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
+      createdBy: json['created_by']?.toString() ?? '',
+      assignedTo: json['assigned_to']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'order_number': orderNumber,
+      'client_id': clientId,
+      'service_id': service.id,
+      'quote_id': quote?.id,
+      'description': description,
+      'amount': amount,
+      'order_status': orderStatus,
+      'payment_status': paymentStatus,
+      'valid_until': validUntil,
+      'created_by': createdBy,
+      'assigned_to': assignedTo,
+    };
+  }
+}

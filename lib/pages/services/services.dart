@@ -2,9 +2,8 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/services/controller/lead_controller.dart';
 import 'package:bms_front_end/pages/services/controller/service_controller.dart';
-import 'package:bms_front_end/pages/services/generate_invoice_page.dart';
-import 'package:bms_front_end/pages/services/service_invoices.dart';
 import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/widget/add_invoice_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
@@ -26,6 +25,7 @@ class ServicesPage extends StatefulWidget {
 class _ServicesPageState extends State<ServicesPage> {
   int _selectedTab = 0;
   final ServiceController _controller = Get.put(ServiceController());
+  final LeadController _leadController = Get.put(LeadController());
   final TextEditingController _searchController = TextEditingController();
 
   void _onSearch(String? query) {
@@ -100,10 +100,10 @@ class _ServicesPageState extends State<ServicesPage> {
         if (_selectedTab == 0) _catalog(),
         if (_selectedTab == 1) _quotes(),
         if (_selectedTab == 2) _orders(),
-        if (_selectedTab == 3) _billing(),
-        if (_selectedTab == 4) const GenerateInvoicePage(),
-        if (_selectedTab == 5) const ServiceLeadsPage(),
-        if (_selectedTab == 6) const ServiceInvoicesPage(),
+        // if (_selectedTab == 3) _billing(),
+        // if (_selectedTab == 4) const GenerateInvoicePage(),
+        if (_selectedTab == 3) const ServiceLeadsPage(),
+        // if (_selectedTab == 6) const ServiceInvoicesPage(),
 
         // _catalog(),
         // _quotes(),
@@ -250,6 +250,111 @@ class _ServicesPageState extends State<ServicesPage> {
                 );
               }),
             ),
+          const SizedBox(height: 24),
+          // Pagination Controls
+          if (_controller.services.isNotEmpty)
+            Obx(() {
+              final currentPage = _controller.currentPage.value;
+              final hasNextPage = _controller.services.length >= _controller.limit;
+
+              // Calculate page range to show
+              final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+              int endPage = totalPages.clamp(1, totalPages);
+              int startPage = (endPage - 4).clamp(1, endPage);
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Previous Button
+                  IconButton(
+                    onPressed: currentPage > 1
+                        ? () => _controller.previousPage(
+                              search: _searchController.text.trim().isEmpty
+                                  ? null
+                                  : _searchController.text.trim(),
+                            )
+                        : null,
+                    icon: const Icon(Icons.chevron_left),
+                    style: IconButton.styleFrom(
+                      backgroundColor: currentPage > 1
+                          ? AppColors.blue
+                          : Colors.grey[300],
+                      foregroundColor: currentPage > 1
+                          ? Colors.white
+                          : Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Page Numbers
+                  ...List.generate(
+                    endPage - startPage + 1,
+                    (index) {
+                      final pageNumber = startPage + index;
+                      final isCurrentPage = pageNumber == currentPage;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: InkWell(
+                          onTap: () => _controller.goToPage(
+                            pageNumber,
+                            search: _searchController.text.trim().isEmpty
+                                ? null
+                                : _searchController.text.trim(),
+                          ),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: isCurrentPage
+                                  ? AppColors.blue
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isCurrentPage
+                                    ? AppColors.blue
+                                    : Colors.grey[300]!,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '$pageNumber',
+                              style: TextStyle(
+                                color: isCurrentPage
+                                    ? Colors.white
+                                    : Colors.black87,
+                                fontWeight: isCurrentPage
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  // Next Button
+                  IconButton(
+                    onPressed: hasNextPage
+                        ? () => _controller.nextPage(
+                              search: _searchController.text.trim().isEmpty
+                                  ? null
+                                  : _searchController.text.trim(),
+                            )
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                    style: IconButton.styleFrom(
+                      backgroundColor: hasNextPage
+                          ? AppColors.blue
+                          : Colors.grey[300],
+                      foregroundColor: hasNextPage
+                          ? Colors.white
+                          : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              );
+            }),
           const SizedBox(height: 40)
         ],
       );
@@ -308,23 +413,114 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             )
           else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _controller.quotes.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final quote = _controller.quotes[index];
-                return QuoteCard(
-                  company: 'Client ID: ${quote.clientId}',
-                  service: quote.service.name,
-                  email: quote.quoteNumber,
-                  validUntil: quote.validUntil,
-                  description: quote.description,
-                  price: '₦${quote.amount}',
-                  statuses: [quote.status.capitalizeFirst ?? quote.status],
-                );
-              },
+            Column(
+              children: [
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _controller.quotes.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final quote = _controller.quotes[index];
+                    return QuoteCard(
+                      company: 'Client ID: ${quote.clientId}',
+                      service: quote.service.name,
+                      email: quote.quoteNumber,
+                      validUntil: quote.validUntil,
+                      description: quote.description,
+                      price: '₦${quote.amount}',
+                      statuses: [quote.status.capitalizeFirst ?? quote.status],
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                // Pagination Controls
+                Obx(() {
+                  final currentPage = _controller.currentQuotePage.value;
+                  final hasNextPage = _controller.quotes.length >= _controller.limit;
+
+                  final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+                  int endPage = totalPages.clamp(1, totalPages);
+                  int startPage = (endPage - 4).clamp(1, endPage);
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: currentPage > 1
+                            ? () => _controller.previousQuotePage()
+                            : null,
+                        icon: const Icon(Icons.chevron_left),
+                        style: IconButton.styleFrom(
+                          backgroundColor: currentPage > 1
+                              ? AppColors.blue
+                              : Colors.grey[300],
+                          foregroundColor: currentPage > 1
+                              ? Colors.white
+                              : Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ...List.generate(
+                        endPage - startPage + 1,
+                        (index) {
+                          final pageNumber = startPage + index;
+                          final isCurrentPage = pageNumber == currentPage;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: InkWell(
+                              onTap: () => _controller.goToQuotePage(pageNumber),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: isCurrentPage
+                                      ? AppColors.blue
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isCurrentPage
+                                        ? AppColors.blue
+                                        : Colors.grey[300]!,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$pageNumber',
+                                  style: TextStyle(
+                                    color: isCurrentPage
+                                        ? Colors.white
+                                        : Colors.black87,
+                                    fontWeight: isCurrentPage
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        onPressed: hasNextPage
+                            ? () => _controller.nextQuotePage()
+                            : null,
+                        icon: const Icon(Icons.chevron_right),
+                        style: IconButton.styleFrom(
+                          backgroundColor: hasNextPage
+                              ? AppColors.blue
+                              : Colors.grey[300],
+                          foregroundColor: hasNextPage
+                              ? Colors.white
+                              : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ],
             ),
         ],
       );
@@ -332,77 +528,172 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   Widget _orders() {
-    final List<Map<String, dynamic>> quotes = [
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['In Progress', 'Partial'],
-      },
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['Completed', 'Paid'],
-      },
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['Accepted'],
-      },
-      {
-        'company': 'Abuja infrastructure Company',
-        'service': 'Environmental Impact Assessment',
-        'email': 'projects@abujainfra.ng',
-        'valid': '31 Aug 2024',
-        'description':
-            'EIA for shopping mall development in Central Business District',
-        'price': '₦650,000.00',
-        'statuses': ['Sent'],
-      },
-    ];
+    return Obx(() {
+      if (_controller.errorMessage.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _controller.errorMessage.value,
+                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => _controller.fetchOrders(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Service Orders',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
-        const Text('Track active adn completed service orders',
-            style: TextStyle(fontSize: 14, color: Colors.black54)),
-        const SizedBox(height: 24),
-        ListView.separated(
-          shrinkWrap: true,
-          itemCount: quotes.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            final quote = quotes[index];
-            return QuoteCard(
-              company: quote['company']!,
-              service: quote['service']!,
-              email: quote['email']!,
-              validUntil: quote['valid']!,
-              description: quote['description']!,
-              price: quote['price']!,
-              statuses: quote['statuses']!,
-            );
-          },
-        ),
-      ],
-    );
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Service Orders',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          const Text('Track active and completed service orders',
+              style: TextStyle(fontSize: 14, color: Colors.black54)),
+          const SizedBox(height: 24),
+          if (_controller.isLoadingOrders.value)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_controller.orders.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(40.0),
+              child: Center(
+                child: Text(
+                  'No orders available',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+              ),
+            )
+          else
+            Column(
+              children: [
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _controller.orders.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final order = _controller.orders[index];
+                    return QuoteCard(
+                      company: 'Client ID: ${order.clientId}',
+                      service: order.service.name,
+                      email: order.orderNumber,
+                      validUntil: order.validUntil,
+                      description: order.description,
+                      price: '₦${order.amount}',
+                      statuses: [
+                        order.orderStatus.capitalizeFirst ?? order.orderStatus,
+                        order.paymentStatus.capitalizeFirst ?? order.paymentStatus,
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                // Pagination Controls
+                Obx(() {
+                  final currentPage = _controller.currentOrderPage.value;
+                  final hasNextPage = _controller.orders.length >= _controller.limit;
+
+                  final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+                  int endPage = totalPages.clamp(1, totalPages);
+                  int startPage = (endPage - 4).clamp(1, endPage);
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: currentPage > 1
+                            ? () => _controller.previousOrderPage()
+                            : null,
+                        icon: const Icon(Icons.chevron_left),
+                        style: IconButton.styleFrom(
+                          backgroundColor: currentPage > 1
+                              ? AppColors.blue
+                              : Colors.grey[300],
+                          foregroundColor: currentPage > 1
+                              ? Colors.white
+                              : Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ...List.generate(
+                        endPage - startPage + 1,
+                        (index) {
+                          final pageNumber = startPage + index;
+                          final isCurrentPage = pageNumber == currentPage;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: InkWell(
+                              onTap: () => _controller.goToOrderPage(pageNumber),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: isCurrentPage
+                                      ? AppColors.blue
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isCurrentPage
+                                        ? AppColors.blue
+                                        : Colors.grey[300]!,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$pageNumber',
+                                  style: TextStyle(
+                                    color: isCurrentPage
+                                        ? Colors.white
+                                        : Colors.black87,
+                                    fontWeight: isCurrentPage
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        onPressed: hasNextPage
+                            ? () => _controller.nextOrderPage()
+                            : null,
+                        icon: const Icon(Icons.chevron_right),
+                        style: IconButton.styleFrom(
+                          backgroundColor: hasNextPage
+                              ? AppColors.blue
+                              : Colors.grey[300],
+                          foregroundColor: hasNextPage
+                              ? Colors.white
+                              : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ],
+            ),
+        ],
+      );
+    });
   }
 
   Widget _billing() {
@@ -477,9 +768,9 @@ class _ServicesPageState extends State<ServicesPage> {
     return Obx(() {
       final items = [
         {'label': 'Services', 'count': _controller.services.length.toString()},
-        {'label': 'Orders', 'count': '452'},
-        {'label': 'Quotes', 'count': '452'},
-        {'label': 'Invoices', 'count': '452'},
+        {'label': 'Orders', 'count': _controller.orders.length.toString()},
+        {'label': 'Quotes', 'count': _controller.quotes.length.toString()},
+        {'label': 'Leads', 'count': _leadController.leads.length.toString()},
       ];
 
       return LayoutBuilder(
@@ -516,12 +807,12 @@ class _ServicesPageState extends State<ServicesPage> {
     return Obx(() {
       final tabs = [
         'Service Catalog (${_controller.services.length})',
-        'Quotes (12)',
-        'Orders (6)',
-        'Billing (5)',
-        'Generate Invoice',
-        'Service Leads (4)',
-        'Service Invoices (3)',
+        'Quotes (${_controller.quotes.length})',
+        'Orders (${_controller.orders.length})',
+        // 'Billing (5)',
+        // 'Generate Invoice',
+        'Service Leads (${_leadController.leads.length})',
+        // 'Service Invoices (3)',
       ];
 
       return SingleChildScrollView(
