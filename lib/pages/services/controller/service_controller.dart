@@ -276,6 +276,52 @@ class ServiceController extends GetxController {
     }
   }
 
+  Future<bool> createOrder(Map<String, dynamic> data) async {
+    try {
+      isSaving(true);
+      errorMessage('');
+
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) {
+        errorMessage('Authentication token not found');
+        return false;
+      }
+
+      await _service.createOrder(token, data);
+      await fetchOrders();
+      return true;
+    } catch (e) {
+      errorMessage('Failed to create order: $e');
+      log("Create Order Error: $e");
+      return false;
+    } finally {
+      isSaving(false);
+    }
+  }
+
+  Future<bool> createQuote(Map<String, dynamic> data) async {
+    try {
+      isSaving(true);
+      errorMessage('');
+
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) {
+        errorMessage('Authentication token not found');
+        return false;
+      }
+
+      await _service.createQuote(token, data);
+      await fetchQuotes();
+      return true;
+    } catch (e) {
+      errorMessage('Failed to create quote: $e');
+      log("Create Quote Error: $e");
+      return false;
+    } finally {
+      isSaving(false);
+    }
+  }
+
   void goToOrderPage(int page, {String? orderStatus, String? paymentStatus}) {
     if (page > 0) {
       currentOrderPage.value = page;

@@ -270,6 +270,34 @@ class ServiceService {
     }
   }
 
+  Future<Order> createOrder(
+      String token, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        '/orders',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Order.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Quote> createQuote(
+      String token, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        '/quotes',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Quote.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final errorMessage = error.response?.data?['message'] ?? error.message;

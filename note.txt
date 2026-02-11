@@ -47,3 +47,87 @@ Response body
   "created_by": "2"
 }
 
+-----
+
+On the /Users/developer/bomach_os/lib/pages/services/services.dart the order section i want to integrate creating a order so add a button that on click opens a modal that will be used to create a order make sure that for where you select the client and it has a search that enables the user to type the clients name and then the will filter by that so the user can select the client the order is for also do the same for the quote_id.
+
+curl -X 'POST' \
+  'https://bomachservice.bgbot.app/api/v1/orders' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcwODUzNjQ1LCJpYXQiOjE3NzA3OTM2NDUsImp0aSI6ImY1MDYwOTgxLTNmNTktNDk5NC04YzBjLWRlZTY2NTY4M2ZiMCJ9.D_fOoD-7vgngtylijrg8p9rBDL_YvRb8oyTkfp_DG8o' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "client_id": "2",
+  "service_id": 1,
+  "quote_id": 2,
+  "description": "string",
+  "amount": 100,
+  "order_status": "pending",
+  "payment_status": "unpaid",
+  "valid_until": "2026-02-11",
+  "created_by": "2",
+  "assigned_to": "2"
+}'
+
+{
+  "id": 2,
+  "order_number": "ORD-802695639655",
+  "client_id": "2",
+  "service": {
+    "id": 1,
+    "name": "Survery",
+    "category": {
+      "id": 2,
+      "name": "surveying",
+      "description": "",
+      "created_at": "2026-02-09T07:57:26.623Z",
+      "updated_at": "2026-02-09T07:57:26.623Z"
+    },
+    "description": "string",
+    "base_price": "1000.00",
+    "delivery_time": "3 weeks",
+    "status": "active",
+    "created_at": "2026-02-09T07:58:42.474Z",
+    "updated_at": "2026-02-09T07:58:42.474Z",
+    "created_by": "2"
+  },
+  "quote": {
+    "id": 2,
+    "quote_number": "QTE-08E4C3B68E4B",
+    "client_id": "2",
+    "service": {
+      "id": 1,
+      "name": "Survery",
+      "category": {
+        "id": 2,
+        "name": "surveying",
+        "description": "",
+        "created_at": "2026-02-09T07:57:26.623Z",
+        "updated_at": "2026-02-09T07:57:26.623Z"
+      },
+      "description": "string",
+      "base_price": "1000.00",
+      "delivery_time": "3 weeks",
+      "status": "active",
+      "created_at": "2026-02-09T07:58:42.474Z",
+      "updated_at": "2026-02-09T07:58:42.474Z",
+      "created_by": "2"
+    },
+    "description": "string",
+    "amount": "100.00",
+    "valid_until": "2026-02-11",
+    "status": "draft",
+    "created_at": "2026-02-11T10:49:19.017Z",
+    "updated_at": "2026-02-11T10:49:19.017Z",
+    "created_by": "2"
+  },
+  "description": "string",
+  "amount": "100",
+  "order_status": "pending",
+  "payment_status": "unpaid",
+  "valid_until": "2026-02-11",
+  "created_at": "2026-02-11T11:15:58.322Z",
+  "updated_at": "2026-02-11T11:15:58.322Z",
+  "created_by": "2",
+  "assigned_to": "2"
+}
