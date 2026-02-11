@@ -6,6 +6,7 @@ import 'package:bms_front_end/pages/services/controller/lead_controller.dart';
 import 'package:bms_front_end/pages/services/controller/service_controller.dart';
 import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/widget/add_invoice_dialog.dart';
+import 'package:bms_front_end/pages/services/widget/create_order_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/create_quote_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -592,11 +593,47 @@ class _ServicesPageState extends State<ServicesPage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Service Orders',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          const Text('Track active and completed service orders',
-              style: TextStyle(fontSize: 14, color: Colors.black54)),
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Service Orders',
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.w600)),
+                        SizedBox(height: 8),
+                        Text('Track active and completed service orders',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.black54)),
+                      ],
+                    ),
+                    MyElevatedButton(
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: AppColors.white,
+                      ),
+                      child: "Create Order",
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const CreateOrderDialog();
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
           if (_controller.isLoadingOrders.value)
             const Center(
