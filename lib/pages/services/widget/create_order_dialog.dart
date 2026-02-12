@@ -726,7 +726,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const MyText(
-          'Quote (Optional)',
+          'Quote',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
