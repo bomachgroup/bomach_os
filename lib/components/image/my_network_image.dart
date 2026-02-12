@@ -25,13 +25,15 @@ class MyNetworkImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
-      return ClipRect(
-        child: platform.buildWebImage(
-          url,
-          width: width,
-          height: height,
-          fit: fit,
-          errorPlaceholder: errorPlaceholder,
+      return IgnorePointer(
+        child: ClipRect(
+          child: platform.buildWebImage(
+            url,
+            width: width,
+            height: height,
+            fit: fit,
+            errorPlaceholder: errorPlaceholder,
+          ),
         ),
       );
     }

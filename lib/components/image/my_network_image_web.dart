@@ -22,7 +22,8 @@ Widget buildWebImage(
         ..style.width = '100%'
         ..style.height = '100%'
         ..style.objectFit = _cssObjectFit(fit)
-        ..style.display = 'block';
+        ..style.display = 'block'
+        ..style.pointerEvents = 'none';
       return img;
     });
   }
