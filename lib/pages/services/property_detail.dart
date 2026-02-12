@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/widget/add_property_dialog.dart';
@@ -266,12 +267,12 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
           borderRadius: BorderRadius.circular(16),
           child: Stack(
             children: [
-              Image.network(
+              MyNetworkImage(
                 images[_currentImageIndex],
                 width: double.infinity,
                 height: 400,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
+                errorPlaceholder: Container(
                   width: double.infinity,
                   height: 400,
                   color: AppColors.blue.withValues(alpha: 0.1),
@@ -372,10 +373,10 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
+                      child: MyNetworkImage(
                         images[index],
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
+                        errorPlaceholder:
                             const Icon(Icons.broken_image, size: 24),
                       ),
                     ),

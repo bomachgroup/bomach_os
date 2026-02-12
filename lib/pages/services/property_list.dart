@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
@@ -606,13 +607,12 @@ class _PropertyListPageState extends State<PropertyListPage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: hasImage
-                  ? Image.network(
+                  ? MyNetworkImage(
                       property.images.first,
                       width: 120,
                       height: 120,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildPlaceholderImage(),
+                      errorPlaceholder: _buildPlaceholderImage(),
                     )
                   : _buildPlaceholderImage(),
             ),

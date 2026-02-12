@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -534,14 +535,12 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(6),
-                                      child: Image.network(
+                                      child: MyNetworkImage(
                                         url,
                                         width: 56,
                                         height: 56,
                                         fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Container(
+                                        errorPlaceholder: Container(
                                           width: 56,
                                           height: 56,
                                           color: AppColors.blue
