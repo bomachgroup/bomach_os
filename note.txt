@@ -1,133 +1,124 @@
-On the /Users/developer/bomach_os/lib/pages/services/services.dart the quote section i want to integrate creating a quote so add a button that on click opens a modal that will be used to create a quote make sure that for where you select the client it has a search that enables the user to type the clients name and then the will filter by that so the user can select the client the quote is for.
+Work on adding new employee /Users/developer/bomach_os/lib/pages/employees_database/add_new_employee.dart feel free to remove or change fields that doen't align with the system
+
+
+-------------
+
+Integrate the List employee by departments endpoint /Users/developer/bomach_os/lib/pages/hr/department.dart 
+
+fetch departments 
+
+curl -X 'GET' \
+  'https://bomachauth.bgbot.app/api/v1/employees/department?limit=100&offset=0' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMDI3MzA4LCJpYXQiOjE3NzA5NjczMDgsImp0aSI6IjQxYjA5OWQwLThlZjYtNGVkMC05NGYwLTE5YjI0YWMwZjY3NyJ9.hBC4iMO3GJRhr4XpPG1af4mp_6iae3lC1_4IduwmNh0'
+
+	
+Response body
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "it",
+      "description": ""
+    }
+  ],
+  "count": 1
+}
+
+
+then get employees under each just first 3
+curl -X 'GET' \
+  'https://bomachauth.bgbot.app/api/v1/employees/employees?department_id=1&limit=100&offset=0' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMDI3MzA4LCJpYXQiOjE3NzA5NjczMDgsImp0aSI6IjQxYjA5OWQwLThlZjYtNGVkMC05NGYwLTE5YjI0YWMwZjY3NyJ9.hBC4iMO3GJRhr4XpPG1af4mp_6iae3lC1_4IduwmNh0'
+
+	
+Response body
+{
+  "items": [
+    {
+      "user_id": 3,
+      "username": "Maxx",
+      "email": "maxx@gmail.com",
+      "first_name": "Emaxx",
+      "last_name": "Xaaan",
+      "gender": "male",
+      "marital_status": "single",
+      "phone_number": null,
+      "date_of_birth": null,
+      "address": "",
+      "profile_picture": null,
+      "is_verified": false,
+      "is_active": true,
+      "id": 2,
+      "employee_id": "yujf2132j",
+      "employment_type": "full-time",
+      "branch_id": 1,
+      "branch_name": "Enugu",
+      "department_id": 1,
+      "department_name": "it",
+      "level_id": 2,
+      "employee_level": "manager",
+      "start_date": "2026-02-02",
+      "gross_salary": null,
+      "allowances": {},
+      "created_at": "2026-02-02T13:01:10.613Z",
+      "updated_at": "2026-02-02T13:01:10.613Z"
+    },
+    {
+      "user_id": 2,
+      "username": "Maxzeno",
+      "email": "emma@gmail.com",
+      "first_name": "Emma",
+      "last_name": "Maxzeno",
+      "gender": "male",
+      "marital_status": "single",
+      "phone_number": "09077745730",
+      "date_of_birth": null,
+      "address": "",
+      "profile_picture": "https://d1yzddjh14f4tu.cloudfront.net/b46ad0ba-3fef-4a0a-9b66-9e040e96c97f.jpeg",
+      "is_verified": false,
+      "is_active": true,
+      "id": 1,
+      "employee_id": "dsf2132",
+      "employment_type": "full-time",
+      "branch_id": 1,
+      "branch_name": "Enugu",
+      "department_id": 1,
+      "department_name": "it",
+      "level_id": 1,
+      "employee_level": "ceo",
+      "start_date": "2026-01-28",
+      "gross_salary": null,
+      "allowances": {},
+      "created_at": "2026-01-28T08:11:52.739Z",
+      "updated_at": "2026-02-10T15:09:03.805Z"
+    }
+  ],
+  "count": 2
+}
+
+when they search it is by department filter out some department the query param is "search"
+
+
+
+-----------------
+
+Implement creating dartment endpoint 
 
 curl -X 'POST' \
-  'https://bomachservice.bgbot.app/api/v1/quotes' \
+  'https://bomachauth.bgbot.app/api/v1/employees/department' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcwODUzNjQ1LCJpYXQiOjE3NzA3OTM2NDUsImp0aSI6ImY1MDYwOTgxLTNmNTktNDk5NC04YzBjLWRlZTY2NTY4M2ZiMCJ9.D_fOoD-7vgngtylijrg8p9rBDL_YvRb8oyTkfp_DG8o' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMDI3MzA4LCJpYXQiOjE3NzA5NjczMDgsImp0aSI6IjQxYjA5OWQwLThlZjYtNGVkMC05NGYwLTE5YjI0YWMwZjY3NyJ9.hBC4iMO3GJRhr4XpPG1af4mp_6iae3lC1_4IduwmNh0' \
   -H 'Content-Type: application/json' \
   -d '{
-  "client_id": "2",
-  "service_id": 1,
-  "description": "string",
-  "amount": 100,
-  "valid_until": "2026-02-11",
-  "status": "draft",
-  "created_by": "2"
+  "name": "operations",
+  "description": "We are operations"
 }'
 
 Response body
 {
   "id": 2,
-  "quote_number": "QTE-08E4C3B68E4B",
-  "client_id": "2",
-  "service": {
-    "id": 1,
-    "name": "Survery",
-    "category": {
-      "id": 2,
-      "name": "surveying",
-      "description": "",
-      "created_at": "2026-02-09T07:57:26.623Z",
-      "updated_at": "2026-02-09T07:57:26.623Z"
-    },
-    "description": "string",
-    "base_price": "1000.00",
-    "delivery_time": "3 weeks",
-    "status": "active",
-    "created_at": "2026-02-09T07:58:42.474Z",
-    "updated_at": "2026-02-09T07:58:42.474Z",
-    "created_by": "2"
-  },
-  "description": "string",
-  "amount": "100",
-  "valid_until": "2026-02-11",
-  "status": "draft",
-  "created_at": "2026-02-11T10:49:19.017Z",
-  "updated_at": "2026-02-11T10:49:19.017Z",
-  "created_by": "2"
-}
-
------
-
-On the /Users/developer/bomach_os/lib/pages/services/services.dart the order section i want to integrate creating a order so add a button that on click opens a modal that will be used to create a order make sure that for where you select the client and it has a search that enables the user to type the clients name and then the will filter by that so the user can select the client the order is for also do the same for the quote_id.
-
-curl -X 'POST' \
-  'https://bomachservice.bgbot.app/api/v1/orders' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcwODUzNjQ1LCJpYXQiOjE3NzA3OTM2NDUsImp0aSI6ImY1MDYwOTgxLTNmNTktNDk5NC04YzBjLWRlZTY2NTY4M2ZiMCJ9.D_fOoD-7vgngtylijrg8p9rBDL_YvRb8oyTkfp_DG8o' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "client_id": "2",
-  "service_id": 1,
-  "quote_id": 2,
-  "description": "string",
-  "amount": 100,
-  "order_status": "pending",
-  "payment_status": "unpaid",
-  "valid_until": "2026-02-11",
-  "created_by": "2",
-  "assigned_to": "2"
-}'
-
-{
-  "id": 2,
-  "order_number": "ORD-802695639655",
-  "client_id": "2",
-  "service": {
-    "id": 1,
-    "name": "Survery",
-    "category": {
-      "id": 2,
-      "name": "surveying",
-      "description": "",
-      "created_at": "2026-02-09T07:57:26.623Z",
-      "updated_at": "2026-02-09T07:57:26.623Z"
-    },
-    "description": "string",
-    "base_price": "1000.00",
-    "delivery_time": "3 weeks",
-    "status": "active",
-    "created_at": "2026-02-09T07:58:42.474Z",
-    "updated_at": "2026-02-09T07:58:42.474Z",
-    "created_by": "2"
-  },
-  "quote": {
-    "id": 2,
-    "quote_number": "QTE-08E4C3B68E4B",
-    "client_id": "2",
-    "service": {
-      "id": 1,
-      "name": "Survery",
-      "category": {
-        "id": 2,
-        "name": "surveying",
-        "description": "",
-        "created_at": "2026-02-09T07:57:26.623Z",
-        "updated_at": "2026-02-09T07:57:26.623Z"
-      },
-      "description": "string",
-      "base_price": "1000.00",
-      "delivery_time": "3 weeks",
-      "status": "active",
-      "created_at": "2026-02-09T07:58:42.474Z",
-      "updated_at": "2026-02-09T07:58:42.474Z",
-      "created_by": "2"
-    },
-    "description": "string",
-    "amount": "100.00",
-    "valid_until": "2026-02-11",
-    "status": "draft",
-    "created_at": "2026-02-11T10:49:19.017Z",
-    "updated_at": "2026-02-11T10:49:19.017Z",
-    "created_by": "2"
-  },
-  "description": "string",
-  "amount": "100",
-  "order_status": "pending",
-  "payment_status": "unpaid",
-  "valid_until": "2026-02-11",
-  "created_at": "2026-02-11T11:15:58.322Z",
-  "updated_at": "2026-02-11T11:15:58.322Z",
-  "created_by": "2",
-  "assigned_to": "2"
+  "name": "operations",
+  "description": "We are operations"
 }
