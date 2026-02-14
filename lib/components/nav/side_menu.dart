@@ -514,71 +514,71 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Clients',
             route: RouteConstants.serviceClients,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.serviceOrder,
-            label: 'Service Order',
-            route: RouteConstants.serviceOrder,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.realEstate,
-            label: 'Real Estate',
-            route: RouteConstants.realEstate,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.landSurvey,
-            label: 'Land Survey',
-            route: RouteConstants.landSurvey,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.servicesItem,
-            label: 'Services',
-            route: RouteConstants.servicesProperty,
-          ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.serviceOrder,
+          //   label: 'Service Order',
+          //   route: RouteConstants.serviceOrder,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.realEstate,
+          //   label: 'Real Estate',
+          //   route: RouteConstants.realEstate,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.landSurvey,
+          //   label: 'Land Survey',
+          //   route: RouteConstants.landSurvey,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.servicesItem,
+          //   label: 'Services',
+          //   route: RouteConstants.servicesProperty,
+          // ),
           SubMenuItemData(
             id: SubMenuItem.propertyManagement,
             label: 'Property Management',
             route: RouteConstants.propertyList,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.estateManagement,
-            label: 'Estate Management',
-            route: RouteConstants.estateManagement,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.estatePerformance,
-            label: 'Estate Performance',
-            route: RouteConstants.estatePerformance,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.paymentApproval,
-            label: 'Payment Approval',
-            route: RouteConstants.paymentApproval,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.landSurveyCalculator,
-            label: 'Land Survey Calculator',
-            route: RouteConstants.landSurveyCalculator,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.servicesCalculator,
-            label: 'Services Calculator',
-            route: RouteConstants.servicesCalculator,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.generateInvoice,
-            label: 'Generate Invoice',
-            route: RouteConstants.generateInvoice,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.serviceLeads,
-            label: 'Service Leads',
-            route: RouteConstants.serviceLeads,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.serviceInvoices,
-            label: 'Service Invoices',
-            route: RouteConstants.serviceInvoices,
-          ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.estateManagement,
+          //   label: 'Estate Management',
+          //   route: RouteConstants.estateManagement,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.estatePerformance,
+          //   label: 'Estate Performance',
+          //   route: RouteConstants.estatePerformance,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.paymentApproval,
+          //   label: 'Payment Approval',
+          //   route: RouteConstants.paymentApproval,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.landSurveyCalculator,
+          //   label: 'Land Survey Calculator',
+          //   route: RouteConstants.landSurveyCalculator,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.servicesCalculator,
+          //   label: 'Services Calculator',
+          //   route: RouteConstants.servicesCalculator,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.generateInvoice,
+          //   label: 'Generate Invoice',
+          //   route: RouteConstants.generateInvoice,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.serviceLeads,
+          //   label: 'Service Leads',
+          //   route: RouteConstants.serviceLeads,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.serviceInvoices,
+          //   label: 'Service Invoices',
+          //   route: RouteConstants.serviceInvoices,
+          // ),
         ],
       ),
       const MenuItem(
