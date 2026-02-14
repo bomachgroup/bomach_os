@@ -21,7 +21,14 @@ class AuthService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            ));
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
 
   /// Generate Options with Bearer Token
   Options _authOptions(String token) {

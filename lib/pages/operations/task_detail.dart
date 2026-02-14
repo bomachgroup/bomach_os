@@ -3,6 +3,7 @@ import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/image/image_stack.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -11,7 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TaskDetail extends StatefulWidget {
-  const TaskDetail({super.key});
+  final Task? task;
+  const TaskDetail({super.key, this.task});
 
   @override
   State<TaskDetail> createState() => _TaskDetailState();
@@ -20,14 +22,21 @@ class TaskDetail extends StatefulWidget {
 class _TaskDetailState extends State<TaskDetail> {
   @override
   Widget build(BuildContext context) {
-    // Get screen width to determine layout
+    final Task? task =
+        widget.task ?? ModalRoute.of(context)?.settings.arguments as Task?;
+
+    if (task == null) {
+      return const Center(
+        child: MyText('Task not found', style: AppText.black_500_16),
+      );
+    }
+
     final screenWidth = MediaQuery.of(context).size.width;
-    final isWideScreen = screenWidth > 900; // Threshold for layout change
+    final isWideScreen = screenWidth > 900;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header with search and actions
         Row(
           children: [
             Expanded(
@@ -37,8 +46,8 @@ class _TaskDetailState extends State<TaskDetail> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const MyText(
-                    'Task',
+                  MyText(
+                    task.name,
                     style: AppText.black_500_32,
                   ),
                   Wrap(
@@ -87,17 +96,53 @@ class _TaskDetailState extends State<TaskDetail> {
           ],
         ),
         kSizedBox,
-
-        // Main content area - Responsive layout
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey..withValues(alpha: 0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 20,
+            runSpacing: 8,
+            children: [
+              MyText('#${task.id}', weight: 600),
+              MyText(task.priority,
+                  style: const TextStyle(color: Colors.black54)),
+              MyText(task.dueDate,
+                  style: const TextStyle(color: Colors.black54)),
+              MyText('${task.estimatedHours} hrs',
+                  style: const TextStyle(color: Colors.black54)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(task.status).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: MyText(task.status,
+                    color: _getStatusColor(task.status), weight: 600),
+              ),
+            ],
+          ),
+        ),
         isWideScreen
             ? Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
+                  Expanded(
                     flex: 3,
-                    child: TaskDetailBody(),
+                    child: TaskDetailBody(task: task),
                   ),
-                  const SizedBox(width: 20), // Add spacing between columns
+                  const SizedBox(width: 20),
                   Expanded(
                     child: _buildTodayTasksSection(),
                   )
@@ -106,8 +151,8 @@ class _TaskDetailState extends State<TaskDetail> {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const TaskDetailBody(),
-                  const SizedBox(height: 20), // Add spacing between sections
+                  TaskDetailBody(task: task),
+                  const SizedBox(height: 20),
                   _buildTodayTasksSection(),
                 ],
               ),
@@ -115,7 +160,19 @@ class _TaskDetailState extends State<TaskDetail> {
     );
   }
 
-  // Extract Today's Tasks section to reuse in both layouts
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return AppColors.green;
+      case 'in progress':
+        return AppColors.blue;
+      case 'pending':
+        return Colors.orange;
+      default:
+        return AppColors.grey1;
+    }
+  }
+
   Widget _buildTodayTasksSection() {
     return Column(
       children: [
@@ -181,7 +238,8 @@ class _TaskDetailState extends State<TaskDetail> {
 }
 
 class TaskDetailBody extends StatefulWidget {
-  const TaskDetailBody({super.key});
+  final Task task;
+  const TaskDetailBody({super.key, required this.task});
 
   @override
   State<TaskDetailBody> createState() => _TaskDetailBodyState();
@@ -192,7 +250,6 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width to determine card layout
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
     final isMediumScreen = screenWidth >= 600 && screenWidth < 900;
@@ -200,7 +257,42 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Stats Cards Row - Make responsive based on screen size
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey..withValues(alpha: 0.01),
+                spreadRadius: 0.1,
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MyText(widget.task.name, weight: 700, size: 18),
+              const SizedBox(height: 8),
+              MyText(
+                widget.task.description,
+                maxLines: 4,
+                style: const TextStyle(color: Colors.black87),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                children: [
+                  MyText('Project ID: ${widget.task.projectId}',
+                      style: const TextStyle(color: Colors.black54)),
+                ],
+              )
+            ],
+          ),
+        ),
         isSmallScreen
             ? Column(
                 children: [
@@ -239,10 +331,7 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
                       ],
                     ),
                   ),
-
         const SizedBox(height: 24),
-
-        // Task Done Chart Section
         Container(
           margin: const EdgeInsets.all(5),
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -270,8 +359,6 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Time period tabs - Make responsive
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 24,
@@ -294,10 +381,7 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
-
-              // Main chart with responsive height
               SizedBox(
                 height: isSmallScreen ? 250 : 300,
                 child: const TaskChart(),
@@ -305,13 +389,11 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
             ],
           ),
         ),
-
         const SizedBox(height: 24),
       ],
     );
   }
 
-  // Helper method to build stat cards with consistent data
   Widget _buildStatCard({required int index}) {
     final cardData = [
       {
@@ -562,7 +644,6 @@ class TaskChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width to adjust chart display
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
 
@@ -591,8 +672,7 @@ class TaskChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval:
-                  isSmallScreen ? 2 : 1, // Show fewer labels on small screens
+              interval: isSmallScreen ? 2 : 1,
               getTitlesWidget: (value, meta) {
                 const months = [
                   'May',
@@ -648,7 +728,6 @@ class TaskChart extends StatelessWidget {
         minY: 0,
         maxY: 400,
         lineBarsData: [
-          // Main line
           LineChartBarData(
             spots: [
               const FlSpot(0, 50),
@@ -692,7 +771,6 @@ class TaskChart extends StatelessWidget {
               ),
             ),
           ),
-          // Secondary line
           LineChartBarData(
             spots: [
               const FlSpot(0, 30),
@@ -741,7 +819,7 @@ class TaskChart extends StatelessWidget {
                 return LineTooltipItem(
                   '${touchedSpot.y.toInt()}',
                   const TextStyle(
-                    color: Colors.white, // Text color inside the tooltip
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 );
@@ -759,7 +837,6 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width for responsive layout
     final screenWidth = MediaQuery.of(context).size.width;
     final isVerySmallScreen = screenWidth < 400;
 
@@ -782,7 +859,6 @@ class ProjectCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title and status - Make responsive
             Wrap(
               alignment: WrapAlignment.spaceBetween,
               spacing: 10,
@@ -827,7 +903,6 @@ class ProjectCard extends StatelessWidget {
               style: TextStyle(color: Colors.black87),
             ),
             const SizedBox(height: 12),
-            // Deadline - Uses Wrap for responsiveness
             const Wrap(
               spacing: 6,
               runSpacing: 4,
@@ -846,7 +921,6 @@ class ProjectCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            // Avatars and icons - Make responsive
             isVerySmallScreen
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -891,7 +965,6 @@ class ProjectCard extends StatelessWidget {
                         child: Wrap(
                           alignment: WrapAlignment.spaceBetween,
                           children: [
-                            // Avatars
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
@@ -914,7 +987,6 @@ class ProjectCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-
                             const Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,

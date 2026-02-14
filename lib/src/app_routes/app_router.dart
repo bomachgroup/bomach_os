@@ -63,6 +63,7 @@ import 'package:bms_front_end/pages/operations/projects.dart';
 import 'package:bms_front_end/pages/operations/task.dart';
 import 'package:bms_front_end/pages/operations/task_detail.dart';
 import 'package:bms_front_end/pages/operations/timeline_detail.dart';
+import 'package:bms_front_end/pages/operations/widget/project_work_sites.dart';
 import 'package:bms_front_end/pages/operations/worksite_detail.dart';
 import 'package:bms_front_end/pages/services/clients.dart';
 import 'package:bms_front_end/pages/services/estate_detail_page.dart';
@@ -103,6 +104,7 @@ import '../../pages/crm/clients.dart';
 import '../../pages/crm/interactions.dart';
 import '../../pages/crm/lead.dart';
 import '../../pages/events/events.dart';
+import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
 import 'refresh_route.dart';
 
@@ -123,7 +125,7 @@ final Map<String, Widget> _dashboardRoutes = {
 
   RouteConstants.projects: const ProjectsPage(),
   RouteConstants.eachProjects: const EachProjects(),
-  RouteConstants.worksite: const EmployeeProfile(),
+  RouteConstants.worksite: const WorkSite(),
   RouteConstants.tasks: const TaskPage(),
   RouteConstants.realEstate: const RealEstateScreen(),
   RouteConstants.leaves: const LeavesPage(),
@@ -187,7 +189,7 @@ final Map<String, Widget> _dashboardRoutes = {
   // operations
   RouteConstants.operations: const OperationsPage(),
   RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
-  RouteConstants.operationsTaskDetail: const TaskDetailPage(),
+  // RouteConstants.operationsTaskDetail: const TaskDetailPage(),
   RouteConstants.operationsWorksiteDetail: const WorksiteDetailPage(),
   RouteConstants.operationsContractDetail: const ContractDetailPage(),
   RouteConstants.operationsTimelineDetail: const TimelineDetailPage(),

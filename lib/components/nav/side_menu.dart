@@ -416,6 +416,7 @@ class _SideMenuState extends State<SideMenu> {
           SubMenuItemData(
             id: SubMenuItem.worksite,
             label: 'Worksite',
+            route: RouteConstants.worksite,
           ),
           SubMenuItemData(
             id: SubMenuItem.tasks,

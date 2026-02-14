@@ -6,127 +6,114 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-class ContractDetailPage extends StatefulWidget {
-  const ContractDetailPage({super.key});
+import 'controllers/contract_controller.dart';
+import 'models/models.dart';
+import 'widget/add_contract_dialog.dart';
 
-  @override
-  State<ContractDetailPage> createState() => ContractDetailPageState();
-}
+class ContractDetailPage extends StatelessWidget {
+  final Contract? cont;
 
-class ContractDetailPageState extends State<ContractDetailPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  const ContractDetailPage({super.key, this.cont});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    final ContractController controller = Get.find<ContractController>();
+
+    final Contract? contract =
+        cont ?? ModalRoute.of(context)?.settings.arguments as Contract?;
+
+    if (contract == null) {
+      return const Center(
+        child: MyText('Contract not found', style: AppText.black_500_16),
+      );
+    }
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+            Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       InkWell(
-                        onTap: () {
-                          context.pop();
-                        },
+                        onTap: () => context.pop(),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SvgPicture.asset(
-                              "assets/svg/arrow-left.svg",
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
+                            SvgPicture.asset("assets/svg/arrow-left.svg",
+                                colorFilter: const ColorFilter.mode(
+                                    AppColors.black, BlendMode.srcIn)),
                             kSizedBoxWidthSM,
-                            const MyText(
-                              'Back',
-                              style: AppText.black_500_20,
-                              isSelectable: false,
-                            ),
+                            const MyText('Back', style: AppText.black_500_20),
                           ],
                         ),
                       ),
-                      kSizedBoxWidth,
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        spacing: 10,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          MyText(
-                            'Port Harcourt Industrial Estate EIA',
-                            style: AppText.black_500_20,
+                          MyElevatedButton(
+                            child: 'Edit',
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) =>
+                                    AddContractDialog(contract: contract),
+                              );
+                            },
                           ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          MyText(
-                            'Created 8/15/2023 • Updated 1/31/2024',
-                            style: AppText.black_400_16,
+                          MyElevatedButton(
+                            bgColor: AppColors.red,
+                            child: 'Delete',
+                            onTap: () => controller.deleteContract(
+                                context, contract.id, contract.projectId),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  Row(
-                    spacing: 10,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MyElevatedButton(
-                        child: 'Edit',
-                        onTap: () {},
-                      ),
-                      MyElevatedButton(
-                        bgColor: AppColors.red,
-                        child: 'Delete',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
+                ),
+              ],
+            ),
+            kSizedBox,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                children: [
+                  RowText(
+                      label: "Contract Number", value: contract.contractNumber),
+                  RowText(label: "Contract Type", value: contract.contractType),
+                  RowText(
+                      label: "Value",
+                      value: "₦${contract.value.toStringAsFixed(2)}"),
+                  RowText(label: "Status", value: contract.status),
+                  const Divider(height: 30),
+                  RowText(label: "Start Date", value: contract.startDate),
+                  RowText(label: "End Date", value: contract.endDate),
+                  RowText(
+                      label: "Project ID",
+                      value: contract.projectId.toString()),
+                  RowText(label: "Created At", value: contract.createdAt),
                 ],
               ),
-            ),
+            )
           ],
         ),
-        kSizedBox,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Column(
-            children: [
-              RowText(label: "Contract Name", value: "Site Preparation"),
-              RowText(label: "Contract Number", value: "CON-2024-002"),
-              RowText(label: "Contract Type", value: "Main Contractor"),
-              RowText(label: "Value (N)", value: "₦5,500,000.00"),
-              RowText(label: "Start Date", value: "9/1/2023"),
-              RowText(label: "End Date", value: "1/31/2024"),
-              RowText(label: "Status", value: "Pending"),
-              RowText(
-                  label: "Terms",
-                  value:
-                      "Design-build contract for highway survey and preliminary design"),
-            ],
-          ),
-        )
-      ],
+      ),
     );
   }
 }

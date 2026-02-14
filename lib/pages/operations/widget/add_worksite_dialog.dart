@@ -1,49 +1,76 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import '../controllers/work_site_controller.dart';
+import '../models/models.dart';
 
 class AddWorksiteDialog extends StatefulWidget {
-  const AddWorksiteDialog({super.key});
+  final Worksite? worksite;
+
+  const AddWorksiteDialog({
+    super.key,
+    this.worksite,
+  });
 
   @override
   State<AddWorksiteDialog> createState() => AddWorksiteDialogState();
 }
 
 class AddWorksiteDialogState extends State<AddWorksiteDialog> {
+  final WorksiteController controller = Get.find<WorksiteController>();
+
+  late TextEditingController nameCtrl;
+  late TextEditingController locationCtrl;
+  late TextEditingController descCtrl;
+  String selectedStatus = 'Active';
+
+  @override
+  void initState() {
+    super.initState();
+    nameCtrl = TextEditingController(text: widget.worksite?.name ?? '');
+    locationCtrl = TextEditingController(text: widget.worksite?.location ?? '');
+    descCtrl = TextEditingController(text: widget.worksite?.description ?? '');
+
+    if (widget.worksite != null && widget.worksite!.status.isNotEmpty) {
+      selectedStatus = widget.worksite!.status;
+    }
+  }
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    locationCtrl.dispose();
+    descCtrl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isEdit = widget.worksite != null;
+
     return Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+        constraints: const BoxConstraints(maxWidth: 600),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.grey4),
-                ),
-              ),
+          
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'Add Worksite',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  MyText(isEdit ? 'Edit Worksite' : 'Add Worksite',
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold)),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(context).pop(),
@@ -51,81 +78,67 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                 ],
               ),
             ),
+            const Divider(height: 1),
 
-            // Form fields
-            const Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Column(
-                    children: [
-                      Row(
-                        spacing: 15,
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              hintText: "----",
-                              spaceBetweenText: 10,
-                              title: 'Name*',
-                            ),
-                          ),
-                          Expanded(
-                            child: MyTextFormField(
-                              hintText: "----",
-                              spaceBetweenText: 10,
-                              title: 'Site Name*',
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 24),
-                      MyTextFormField(
-                        hintText: '----',
-                        spaceBetweenText: 10,
-                        title: 'Location*',
-                      ),
-                      SizedBox(height: 24),
-                      MyTextFormField(
-                        maxLines: 4,
-                        hintText: '----',
-                        spaceBetweenText: 10,
-                        title: 'Details',
-                      ),
-                    ],
+        
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  MyTextFormField(
+                    controller: nameCtrl,
+                    title: 'Worksite Name*',
+                    hintText: "e.g. Site A",
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  MyTextFormField(
+                    controller: locationCtrl,
+                    title: 'Location*',
+                    hintText: 'e.g. 123 Industrial Rd',
+                  ),
+                  const SizedBox(height: 24),
+                  MyDropdown(
+                    title: 'Status',
+                    items: const ['Active', 'Inactive', 'Completed'],
+                    hintText: 'Select Status',
+                    controller: TextEditingController(text: selectedStatus),
+                    onChanged: (val) => setState(() => selectedStatus = val!),
+                  ),
+                  const SizedBox(height: 24),
+                  MyTextFormField(
+                    controller: descCtrl,
+                    title: 'Details/Notes',
+                    maxLines: 4,
+                    hintText: 'Additional details...',
+                  ),
+                ],
               ),
             ),
 
-            // Action Buttons
+        
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
+                border: Border(top: BorderSide(color: Colors.grey.shade300)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
                     textColor: AppColors.darkGrey1,
-                    borderColor: null,
                     child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
+                  Obx(() => controller.isActionLoading.value
+                      ? const CircularProgressIndicator()
+                      : MyElevatedButton(
+                          icon: SvgPicture.asset("assets/svg/check.svg",
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.white, BlendMode.srcIn)),
+                          child: isEdit ? 'Update' : 'Save',
+                          onTap: _save,
+                        )),
                 ],
               ),
             ),
@@ -133,5 +146,26 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
         ),
       ),
     );
+  }
+
+  void _save() {
+    if (nameCtrl.text.isEmpty || locationCtrl.text.isEmpty) return;
+
+    final formWorksite = Worksite(
+      id: widget.worksite?.id ?? 0, 
+      projectId: widget.worksite?.projectId ?? 0,
+      name: nameCtrl.text,
+      location: locationCtrl.text,
+      status: selectedStatus,
+      description: descCtrl.text,
+      createdAt: widget.worksite?.createdAt ?? '',
+      updatedAt: '',
+    );
+
+    if (widget.worksite == null) {
+      controller.createWorksite(context, formWorksite);
+    } else {
+      controller.updateWorksite(context, formWorksite.id, formWorksite);
+    }
   }
 }
