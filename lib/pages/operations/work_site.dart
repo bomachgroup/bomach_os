@@ -13,15 +13,14 @@ import 'models/models.dart';
 import 'widget/add_worksite_dialog.dart';
 import 'worksite_detail.dart';
 
-class ProjectWorkSite extends StatefulWidget {
-  final Worksite worksite;
-  const ProjectWorkSite({super.key, required this.worksite});
+class WorkSite extends StatefulWidget {
+  const WorkSite({super.key});
 
   @override
-  State<ProjectWorkSite> createState() => _ProjectWorkSiteState();
+  State<WorkSite> createState() => _WorkSiteState();
 }
 
-class _ProjectWorkSiteState extends State<ProjectWorkSite> {
+class _WorkSiteState extends State<WorkSite> {
   final ScrollController _scrollController = ScrollController();
   final WorksiteController controller = Get.put(WorksiteController());
 
@@ -29,7 +28,7 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchWorksites(context, projectId: widget.worksite.projectId);
+      controller.fetchWorksites(context);
     });
   }
 
@@ -54,8 +53,7 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) =>
-                            AddWorksiteDialog(worksite: widget.worksite),
+                        builder: (context) => AddWorksiteDialog(),
                       );
                     },
                   )
@@ -154,8 +152,8 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
             itemBuilder: (context) => [
               PopupMenuItem(
                 child: const Text("Delete"),
-                onTap: () => controller.deleteWorksite(
-                    context, site.id, widget.worksite.projectId),
+                onTap: () =>
+                    controller.deleteWorksite(context, site.id, site.id),
               )
             ],
             child: const Icon(Icons.more_vert),

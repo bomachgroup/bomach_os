@@ -18,7 +18,14 @@ class DashboardService {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
-            ));
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
 
   Options _authOptions(String token) {
     return Options(headers: {
@@ -81,7 +88,6 @@ class DashboardService {
     }
   }
 
-
   Future<Project> createProject({
     required String accessToken,
     required Project project,
@@ -98,7 +104,6 @@ class DashboardService {
     }
   }
 
-
   Future<Project> getProjectById({
     required String accessToken,
     required int projectId,
@@ -113,7 +118,6 @@ class DashboardService {
       throw _handleError(e);
     }
   }
-
 
   Future<Project> updateProject({
     required String accessToken,
@@ -131,7 +135,6 @@ class DashboardService {
       throw _handleError(e);
     }
   }
-
 
   Future<void> deleteProject({
     required String accessToken,

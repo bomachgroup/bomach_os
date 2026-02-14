@@ -8,8 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'models/models.dart';
+
 class TaskDetailPage extends StatefulWidget {
-  const TaskDetailPage({super.key});
+  final Task task;
+  const TaskDetailPage({super.key, required this.task});
 
   @override
   State<TaskDetailPage> createState() => TaskDetailPageState();
@@ -26,6 +29,8 @@ class TaskDetailPageState extends State<TaskDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final task = widget.task;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -42,41 +47,27 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       InkWell(
-                        onTap: () {
-                          context.pop();
-                        },
+                        onTap: () => context.pop(),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SvgPicture.asset(
                               "assets/svg/arrow-left.svg",
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.black,
-                                BlendMode.srcIn,
-                              ),
+                              colorFilter: const ColorFilter.mode(AppColors.black, BlendMode.srcIn),
                             ),
                             kSizedBoxWidthSM,
-                            const MyText(
-                              'Back',
-                              style: AppText.black_500_20,
-                              isSelectable: false,
-                            ),
+                            const MyText('Back', style: AppText.black_500_20, isSelectable: false),
                           ],
                         ),
                       ),
                       kSizedBoxWidth,
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          MyText(task.name, style: AppText.black_500_20),
+                          const SizedBox(height: 8),
                           MyText(
-                            'Initial Site Reconnaissance',
-                            style: AppText.black_500_20,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          MyText(
-                            'Created 8/15/2023 • Updated 1/31/2024',
+                            'Created ${task.createdAt} • Updated ${task.updatedAt}',
                             style: AppText.black_400_16,
                           ),
                         ],
@@ -87,14 +78,12 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                     spacing: 10,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      MyElevatedButton(
-                        child: 'Edit',
-                        onTap: () {},
-                      ),
+                      MyElevatedButton(child: 'Edit', onTap: () {}), 
                       MyElevatedButton(
                         bgColor: AppColors.red,
                         child: 'Delete',
-                        onTap: () {},
+                        onTap: () {
+                        },
                       ),
                     ],
                   ),
@@ -104,62 +93,47 @@ class TaskDetailPageState extends State<TaskDetailPage> {
           ],
         ),
         kSizedBox,
+
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border),
           ),
           child: Column(
             children: [
-              const RowText(
-                  label: "Task Name", value: "Initial Site Reconnaissance"),
-              const RowText(label: "Task Number", value: "TSK-001"),
-              const RowText(
-                  label: "Description",
-                  value:
-                      "Conduct preliminary site visit to assess terrain and access points"),
+              RowText(label: "Task ID", value: "#${task.id}"),
+              RowText(label: "Description", value: task.description),
               kSizedBoxTiny,
+              
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    width: 200,
-                    child: MyText(
-                      "Assigned To",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w400,
-                      ),
+                  const MyText("Assigned To", style: AppText.black_300_16),
+                  Container(
+                    width: 300,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.grey4),
+                      borderRadius: BorderRadius.circular(8)
                     ),
-                  ),
-                  Expanded(
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
+                          decoration: const BoxDecoration(shape: BoxShape.circle),
                           width: 36,
                           height: 36,
-                          child: Image.asset('assets/icons/profile-icon.png'),
+                          child: const Icon(Icons.person), 
                         ),
                         kSizedBoxWidth,
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            MyText(
-                              "Nicholas Chidera Ani",
-                              weight: 400,
-                              size: 16,
-                            ),
-                            MyText(
-                              "MTN Nigeria",
-                              weight: 400,
-                              size: 16,
-                            ),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              MyText("Employee IDs: ${task.assignedTo.join(', ')}", weight: 400, size: 16),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -167,11 +141,11 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                 ],
               ),
               kSizedBoxTiny,
-              const RowText(label: "Status", value: "In Progress"),
-              const RowText(label: "Priority", value: "High"),
-              const RowText(label: "Due Date", value: "1/31/2024"),
-              const RowText(label: "Estimated Hours", value: "16"),
-              const RowText(label: "Actual Hours", value: "14"),
+              
+              RowText(label: "Status", value: task.status),
+              RowText(label: "Priority", value: task.priority),
+              RowText(label: "Due Date", value: task.dueDate),
+              RowText(label: "Estimated Hours", value: task.estimatedHours.toString()),
             ],
           ),
         )

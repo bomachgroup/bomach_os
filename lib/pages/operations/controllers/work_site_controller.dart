@@ -38,7 +38,7 @@ class WorksiteController extends GetxController {
   }
 
   Future<void> fetchWorksites(BuildContext context,
-      {required int projectId, String? search}) async {
+      { int? projectId, String? search}) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';

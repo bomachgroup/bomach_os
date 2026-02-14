@@ -19,13 +19,18 @@ class DashboardStats {
 
   factory DashboardStats.fromJson(Map<String, dynamic> json) {
     return DashboardStats(
-      activeProjects: json['active_projects'] ?? 0,
+      activeProjects:
+          int.tryParse(json['active_projects']?.toString() ?? '0') ?? 0,
       totalBudget: json['total_budget']?.toString() ?? "0",
-      budgetUtilization: (json['budget_utilization'] ?? 0).toDouble(),
-      totalTasks: json['total_tasks'] ?? 0,
-      totalWorksites: json['total_worksites'] ?? 0,
-      totalContracts: json['total_contracts'] ?? 0,
-      totalTimelines: json['total_timelines'] ?? 0,
+      budgetUtilization:
+          double.tryParse(json['budget_utilization']?.toString() ?? '0') ?? 0.0,
+      totalTasks: int.tryParse(json['total_tasks']?.toString() ?? '0') ?? 0,
+      totalWorksites:
+          int.tryParse(json['total_worksites']?.toString() ?? '0') ?? 0,
+      totalContracts:
+          int.tryParse(json['total_contracts']?.toString() ?? '0') ?? 0,
+      totalTimelines:
+          int.tryParse(json['total_timelines']?.toString() ?? '0') ?? 0,
     );
   }
 }
@@ -67,26 +72,27 @@ class Project {
 
   factory Project.fromJson(Map<String, dynamic> json) {
     return Project(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      shortCode: json['short_code'] ?? '',
-      category: json['category'] ?? '',
-      department: json['department'] ?? '',
-      clientId: json['client_id'] ?? 0,
-      location: json['location'] ?? '',
-      priority: json['priority'] ?? '',
-      status: json['status'] ?? '',
-      summary: json['summary'] ?? '',
-      budget: (json['budget'] ?? 0).toDouble(),
-      progress: (json['progress'] ?? 0).toDouble(),
-      startDate: json['start_date'] ?? '',
-      deadline: json['deadline'] ?? '',
-      fileUrl: json['file_url'] ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
+      shortCode: json['short_code']?.toString() ?? '',
+      category: json['category']?.toString() ?? '',
+      department: json['department']?.toString() ?? '',
+      clientId: int.tryParse(json['client_id']?.toString() ?? '0') ?? 0,
+      location: json['location']?.toString() ?? '',
+      priority: json['priority']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      summary: json['summary']?.toString() ?? '',
+      budget: double.tryParse(json['budget']?.toString() ?? '0') ?? 0.0,
+      progress: double.tryParse(json['progress']?.toString() ?? '0') ?? 0.0,
+      startDate: json['start_date']?.toString() ?? '',
+      deadline: json['deadline']?.toString() ?? '',
+      fileUrl: json['file_url']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'short_code': shortCode,
       'category': category,
@@ -133,19 +139,25 @@ class Task {
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
+    var list = json['assigned_to'];
+    List<int> assignedIds = [];
+    if (list != null && list is List) {
+      assignedIds = list.map((e) => int.tryParse(e.toString()) ?? 0).toList();
+    }
+
     return Task(
-      id: json['id'] ?? 0,
-      projectId: json['project_id'] ?? 0,
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      status: json['status'] ?? '',
-      priority: json['priority'] ?? '',
-      assignedTo:
-          (json['assigned_to'] as List?)?.map((e) => e as int).toList() ?? [],
-      dueDate: json['due_date'] ?? '',
-      estimatedHours: (json['estimated_hours'] ?? 0).toDouble(),
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      projectId: int.tryParse(json['project_id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      priority: json['priority']?.toString() ?? '',
+      assignedTo: assignedIds,
+      dueDate: json['due_date']?.toString() ?? '',
+      estimatedHours:
+          double.tryParse(json['estimated_hours']?.toString() ?? '0') ?? 0.0,
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
 
@@ -186,14 +198,14 @@ class Worksite {
 
   factory Worksite.fromJson(Map<String, dynamic> json) {
     return Worksite(
-      id: json['id'] ?? 0,
-      projectId: json['project_id'] ?? 0,
-      name: json['name'] ?? '',
-      location: json['location'] ?? '',
-      status: json['status'] ?? '',
-      description: json['description'] ?? '',
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      projectId: int.tryParse(json['project_id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
+      location: json['location']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
 
@@ -235,16 +247,16 @@ class Contract {
 
   factory Contract.fromJson(Map<String, dynamic> json) {
     return Contract(
-      id: json['id'] ?? 0,
-      projectId: json['project_id'] ?? 0,
-      contractNumber: json['contract_number'] ?? '',
-      contractType: json['contract_type'] ?? '',
-      status: json['status'] ?? '',
-      value: (json['value'] ?? 0).toDouble(),
-      startDate: json['start_date'] ?? '',
-      endDate: json['end_date'] ?? '',
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      projectId: int.tryParse(json['project_id']?.toString() ?? '0') ?? 0,
+      contractNumber: json['contract_number']?.toString() ?? '',
+      contractType: json['contract_type']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      value: double.tryParse(json['value']?.toString() ?? '0') ?? 0.0,
+      startDate: json['start_date']?.toString() ?? '',
+      endDate: json['end_date']?.toString() ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
 
@@ -286,15 +298,15 @@ class TimelineModel {
 
   factory TimelineModel.fromJson(Map<String, dynamic> json) {
     return TimelineModel(
-      id: json['id'] ?? 0,
-      projectId: json['project_id'] ?? 0,
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      status: json['status'] ?? '',
-      startDate: json['start_date'] ?? '',
-      endDate: json['end_date'] ?? '',
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      projectId: int.tryParse(json['project_id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      startDate: json['start_date']?.toString() ?? '',
+      endDate: json['end_date']?.toString() ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
 
