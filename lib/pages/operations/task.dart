@@ -1,21 +1,20 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/operations/models/task_approval_models.dart';
-import 'package:bms_front_end/pages/operations/widget/assign_task_dialog.dart';
-import 'package:bms_front_end/pages/operations/widget/task_approval_dialog.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import '../../src/app_routes/app_route_constants.dart';
+import 'controllers/tasks_controler.dart';
+import 'widget/add_task_dialog.dart';
 
 class TaskPage extends StatefulWidget {
-  const TaskPage({super.key});
+  final int? projectId;
+  const TaskPage({super.key, this.projectId});
 
   @override
   State<TaskPage> createState() => TaskPageState();
@@ -23,129 +22,14 @@ class TaskPage extends StatefulWidget {
 
 class TaskPageState extends State<TaskPage> {
   final ScrollController _scrollController = ScrollController();
-  late List<Task> _tasks;
+  final TaskController controller = Get.put(TaskController());
 
   @override
   void initState() {
     super.initState();
-    _initializeSampleTasks();
-  }
-
-  void _initializeSampleTasks() {
-    _tasks = [
-      Task(
-        id: '1',
-        code: '#1234567',
-        title: 'Benji Express user login Interface',
-        description:
-            'Design and implement user login interface for the Benji Express platform',
-        assignedTo: 'John Michael',
-        assignedToId: 'emp001',
-        projectId: 'proj001',
-        startDate: DateTime(2024, 11, 2),
-        dueDate: DateTime(2024, 11, 15),
-        status: TaskStatus.inProgress,
-        priority: TaskPriority.high,
-        estimatedHours: 40,
-        attachments: [],
-      ),
-      Task(
-        id: '2',
-        code: '#1234568',
-        title: 'API Integration',
-        description: 'Integrate backend APIs with mobile application',
-        assignedTo: 'Sarah Johnson',
-        assignedToId: 'emp002',
-        projectId: 'proj001',
-        startDate: DateTime(2024, 12, 2),
-        dueDate: DateTime(2024, 12, 19),
-        status: TaskStatus.inProgress,
-        priority: TaskPriority.medium,
-        estimatedHours: 32,
-        attachments: [],
-      ),
-      Task(
-        id: '3',
-        code: '#1234569',
-        title: 'Database Optimization',
-        description: 'Optimize database queries for improved performance',
-        assignedTo: 'Nicholas Chidera',
-        assignedToId: 'emp003',
-        projectId: 'proj001',
-        startDate: DateTime(2024, 10, 2),
-        dueDate: DateTime(2024, 10, 15),
-        status: TaskStatus.completed,
-        priority: TaskPriority.low,
-        estimatedHours: 16,
-        attachments: [],
-      ),
-    ];
-  }
-
-  void _handleTaskAssignment(Map<String, dynamic> taskData) {
-    setState(() {
-      _tasks.insert(
-          0,
-          Task(
-            id: DateTime.now().toString(),
-            code: taskData['code'] ?? '#N/A',
-            title: taskData['title'] ?? 'Untitled Task',
-            description: taskData['description'] ?? '',
-            assignedTo: taskData['assignedTo'] ?? 'Unassigned',
-            assignedToId: taskData['assignedToId'] ?? '',
-            projectId: taskData['projectId'] ?? '',
-            startDate: taskData['startDate'] ?? DateTime.now(),
-            dueDate: taskData['dueDate'] ?? DateTime.now(),
-            status: TaskStatus.pending,
-            priority: _parsePriority(taskData['priority'] ?? 'medium'),
-            estimatedHours:
-                double.tryParse(taskData['estimatedHours'].toString()) ?? 0,
-            attachments: [],
-          ));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchTasks(context, projectId: widget.projectId);
     });
-  }
-
-  void _handleTaskApproval(int index, Task updatedTask) {
-    setState(() {
-      _tasks[index] = updatedTask;
-    });
-    _showSuccessMessage('Task approved successfully!');
-  }
-
-  void _openApprovalDialog(BuildContext context, int index, Task task) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return TaskApprovalDialog(
-          task: task,
-          reviewerName: 'Manager Account',
-          onApprovalComplete: (updatedTask) {
-            _handleTaskApproval(index, updatedTask);
-          },
-        );
-      },
-    );
-  }
-
-  void _showSuccessMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: MyText(message),
-        backgroundColor: AppColors.green,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  TaskPriority _parsePriority(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return TaskPriority.high;
-      case 'low':
-        return TaskPriority.low;
-      default:
-        return TaskPriority.medium;
-    }
   }
 
   @override
@@ -164,70 +48,33 @@ class TaskPageState extends State<TaskPage> {
             Expanded(
               child: Wrap(
                 alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Tasks',
-                        style: AppText.black_500_32,
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      MyText(
-                        'Tasks',
-                        style: AppText.black_400_14,
-                      ),
-                    ],
-                  ),
+                  const MyText('Tasks', size: 32, weight: 500),
                   Wrap(
                     spacing: 15,
                     runSpacing: 15,
                     children: [
                       SizedBox(
-                        width: 150,
+                        width: 200,
                         child: MyTextFormField(
                           hintText: 'Search...',
-                          leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      const SortBar(text: "Sort"),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(20)),
-                        child: SvgPicture.asset(
-                          "assets/svg/notification.svg",
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.black,
-                            BlendMode.srcIn,
-                          ),
+                          leading: Icon(Icons.search,
+                              color: AppColors.grey1.withValues(alpha: 0.5)),
+                          onChanged: (val) => controller.fetchTasks(context,
+                              projectId: widget.projectId, search: val),
                         ),
                       ),
                       MyElevatedButton(
-                        icon: const Icon(
-                          Icons.add_circle_outline_rounded,
-                          color: AppColors.white,
-                        ),
+                        icon: const Icon(Icons.add_circle_outline_rounded,
+                            color: AppColors.white),
                         child: "Add Task",
                         onTap: () {
                           showDialog(
                             context: context,
-                            builder: (context) {
-                              return AssignTaskDialog(
-                                onAssign: _handleTaskAssignment,
-                              );
-                            },
+                            builder: (context) => const AddTaskDialog(),
                           );
                         },
                       )
@@ -239,193 +86,117 @@ class TaskPageState extends State<TaskPage> {
           ],
         ),
         kSizedBox,
-        kSizedBoxSM,
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (controller.tasks.isEmpty) {
+              return const Center(
+                  child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Text("No tasks found."),
+              ));
+            }
+
+            return Column(
+              children: [
+                Scrollbar(
                   controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width - 100),
+                      child: DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.tasks),
+                        showBottomBorder: true,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const MyPaginator(),
-            ],
-          ),
+                const MyPaginator(),
+              ],
+            );
+          }),
         ),
       ],
     );
   }
 
   List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Task code",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Task Name",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Assign to",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Start date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Due date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
+    return const [
+      DataColumn(label: MyText("ID")),
+      DataColumn(label: MyText("Task Name")),
+      DataColumn(label: MyText("Priority")),
+      DataColumn(label: MyText("Due Date")),
+      DataColumn(label: MyText("Est. Hours")),
+      DataColumn(label: MyText("Status")),
+      DataColumn(label: MyText("Action")),
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    return _tasks.asMap().entries.map((entry) {
-      final index = entry.key;
-      final task = entry.value;
+  List<DataRow> _createRows(BuildContext context, List<Task> tasks) {
+    return tasks.map((task) {
       return DataRow(cells: <DataCell>[
-        DataCell(
-          MyText(
-            task.code,
-          ),
-        ),
+        DataCell(MyText("#${task.id}")),
         DataCell(
           onTap: () {
-            context.go(RouteConstants.taskDetail);
+            context.push(RouteConstants.taskDetail, extra: task);
           },
-          MyText(
-            task.title,
-            size: 16,
-            weight: 400,
-            isSelectable: false,
-          ),
+          SizedBox(
+              width: 200, child: MyText(task.name, weight: 500, maxLines: 1)),
         ),
+        DataCell(MyText(task.priority)),
+        DataCell(MyText(task.dueDate)),
+        DataCell(MyText(task.estimatedHours.toString())),
+        DataCell(Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+              color: _getStatusColor(task.status).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(4)),
+          child: MyText(task.status,
+              color: _getStatusColor(task.status), weight: 600),
+        )),
         DataCell(
-          Container(
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-            ),
-            width: 36,
-            height: 36,
-            child: CircleAvatar(
-              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-              child: MyText(
-                task.assignedTo.isNotEmpty
-                    ? task.assignedTo[0].toUpperCase()
-                    : '?',
-                weight: 600,
-                color: AppColors.blue,
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: const Text("Edit"),
+                onTap: () {
+                  Future.delayed(Duration.zero, () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AddTaskDialog(task: task),
+                    );
+                  });
+                },
               ),
-            ),
-          ),
-        ),
-        DataCell(
-          MyText(
-            _formatDate(task.startDate),
-          ),
-        ),
-        DataCell(
-          MyText(
-            _formatDate(task.dueDate),
-          ),
-        ),
-        DataCell(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Container(
-                      height: 10,
-                      width: 10,
-                      decoration: ShapeDecoration(
-                        color: _getStatusColor(task.status.displayName),
-                        shape: const OvalBorder(),
-                      ),
-                    ),
-                    kSizedBoxWidthTiny,
-                    MyText(
-                      task.status.displayName,
-                    ),
-                  ],
-                ),
+              PopupMenuItem(
+                child:
+                    const Text("Delete", style: TextStyle(color: Colors.red)),
+                onTap: () =>
+                    controller.deleteTask(context, task.id, widget.projectId),
               ),
-              _buildActionMenu(context, index, task),
             ],
+            child: const Icon(Icons.more_vert),
           ),
         ),
       ]);
     }).toList();
-  }
-
-  Widget _buildActionMenu(BuildContext context, int index, Task task) {
-    return PopupMenuButton<String>(
-      onSelected: (String value) {
-        if (value == 'review') {
-          _openApprovalDialog(context, index, task);
-        }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: 'review',
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MyText('Review Task', isSelectable: false),
-            ],
-          ),
-        ),
-      ],
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFD5D5D5)),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Icon(Icons.more_vert, size: 18, color: AppColors.grey1),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 
   Color _getStatusColor(String status) {
@@ -435,9 +206,7 @@ class TaskPageState extends State<TaskPage> {
       case 'in progress':
         return AppColors.blue;
       case 'pending':
-        return const Color(0xFFFFA500);
-      case 'undone':
-        return const Color(0xFF64748B);
+        return Colors.orange;
       default:
         return AppColors.grey1;
     }

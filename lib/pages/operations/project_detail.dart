@@ -1,105 +1,55 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/components/text/row_text.dart';
+import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 
-class ProjectDetailPage extends StatefulWidget {
-  const ProjectDetailPage({super.key});
+import 'controllers/project_controller.dart';
 
-  @override
-  State<ProjectDetailPage> createState() => ProjectDetailPageState();
-}
-
-class ProjectDetailPageState extends State<ProjectDetailPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+class ProjectDetailPage extends StatelessWidget {
+  final Project? project;
+  const ProjectDetailPage({super.key, this.project});
 
   @override
   Widget build(BuildContext context) {
+    final ProjectController controller = Get.find<ProjectController>();
+
+    final Project? proj =
+        project ?? ModalRoute.of(context)?.settings.arguments as Project?;
+
+    if (proj == null) {
+      return const Center(
+        child: MyText('Project not found', style: AppText.black_500_16),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                runSpacing: 10,
+            InkWell(
+              onTap: () => Navigator.pop(context),
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          context.pop();
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/svg/arrow-left.svg",
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            kSizedBoxWidthSM,
-                            const MyText(
-                              'Back',
-                              style: AppText.black_500_20,
-                              isSelectable: false,
-                            ),
-                          ],
-                        ),
-                      ),
-                      kSizedBoxWidth,
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Port Harcourt Industrial Estate EIA',
-                            style: AppText.black_500_20,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          MyText(
-                            'Created 8/15/2023 • Updated 1/31/2024',
-                            style: AppText.black_400_16,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MyElevatedButton(
-                        child: 'Edit',
-                        onTap: () {},
-                      ),
-                      MyElevatedButton(
-                        bgColor: AppColors.red,
-                        child: 'Delete',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
+                  SvgPicture.asset("assets/svg/arrow-left.svg"),
+                  kSizedBoxWidthSM,
+                  const MyText('Back', style: AppText.black_500_20),
                 ],
               ),
+            ),
+            const Spacer(),
+            MyElevatedButton(
+              bgColor: AppColors.red,
+              child: 'Delete',
+              onTap: () {
+                controller.deleteProject(context, proj.id);
+              },
             ),
           ],
         ),
@@ -110,30 +60,19 @@ class ProjectDetailPageState extends State<ProjectDetailPage> {
             color: AppColors.white,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Column(
+          child: Column(
             children: [
-              RowText(
-                  label: "Project Name",
-                  value: "Port Harcourt Industrial Estate EIA"),
-              RowText(label: "Project Number", value: "PRJ-2024-003"),
-              RowText(
-                  label: "Client", value: "Rivers State Development Authority"),
-              RowText(
-                  label: "Project Type",
-                  value: "Environmental Impact Assessment"),
-              RowText(label: "Status", value: "Completed"),
-              RowText(label: "Priority", value: "Medium"),
-              RowText(label: "Project Name", value: "₦4,200,000.00"),
-              RowText(
-                  label: "Budget (NGN)",
-                  value: "Port Harcourt Industrial Estate EIA"),
-              RowText(label: "Start Date", value: "9/1/2023"),
-              RowText(label: "End Date", value: "1/31/2024"),
-              RowText(label: "Location", value: "Port Harcourt, Rivers State"),
-              RowText(
-                  label: "Description",
-                  value:
-                      "Environmental Impact Assessment for new industrial estate development"),
+              RowText(label: "Project Name", value: proj.name),
+              RowText(label: "Short Code", value: proj.shortCode),
+              RowText(label: "Category", value: proj.category),
+              RowText(label: "Department", value: proj.department),
+              RowText(label: "Status", value: proj.status),
+              RowText(label: "Priority", value: proj.priority),
+              RowText(label: "Budget", value: proj.budget.toString()),
+              RowText(label: "Start Date", value: proj.startDate),
+              RowText(label: "Deadline", value: proj.deadline),
+              RowText(label: "Location", value: proj.location),
+              RowText(label: "Description", value: proj.summary),
             ],
           ),
         )

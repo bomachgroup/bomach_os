@@ -1,14 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import '../controllers/project_controller.dart';
+import '../models/models.dart';
 
 class AddProjectDialog extends StatefulWidget {
   const AddProjectDialog({super.key});
@@ -18,406 +18,164 @@ class AddProjectDialog extends StatefulWidget {
 }
 
 class _AddProjectDialogState extends State<AddProjectDialog> {
+  final ProjectController controller = Get.find<ProjectController>();
+
+  final nameCtrl = TextEditingController();
+  final shortCodeCtrl = TextEditingController();
+  final startDateCtrl = TextEditingController();
+  final deadlineCtrl = TextEditingController();
+  final categoryCtrl = TextEditingController();
+  final departmentCtrl = TextEditingController();
+  final locationCtrl = TextEditingController();
+  final summaryCtrl = TextEditingController();
+  final budgetCtrl = TextEditingController();
+
+  String? selectedStatus;
+  String? selectedPriority;
+  String?
+      selectedClientId; 
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 846),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'Add Project',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const MyText('Add Project',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop()),
                 ],
               ),
             ),
 
-            // Form fields
             Expanded(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '---',
-                                      spaceBetweenText: 10,
-                                      title: 'Project Name',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              // End date
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      spaceBetweenText: 10,
-                                      hintText: "PJ short code",
-                                      title: 'Short Code',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                    Row(children: [
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: nameCtrl,
+                              title: 'Project Name',
+                              hintText: 'Enter name')),
+                      const SizedBox(width: 16),
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: shortCodeCtrl,
+                              title: 'Short Code',
+                              hintText: 'PRJ-001')),
+                    ]),
+                    const SizedBox(height: 24),
 
-                          SizedBox(height: 24),
+                    Row(children: [
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: startDateCtrl,
+                              title: 'Start Date',
+                              hintText: 'YYYY-MM-DD')),
+                      const SizedBox(width: 16),
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: deadlineCtrl,
+                              title: 'Deadline',
+                              hintText: 'YYYY-MM-DD')),
+                    ]),
+                    const SizedBox(height: 24),
 
-                          // Start and End dates
-                          Row(
-                            children: [
-                              // Start date
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: '12-10-2024',
-                                      spaceBetweenText: 10,
-                                      title: 'Start date(optional)*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              // End date
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      spaceBetweenText: 10,
-                                      hintText: "12-10-2024",
-                                      title: 'Deadline(optional)*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 24),
+                    Row(children: [
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: categoryCtrl,
+                              title: 'Category',
+                              hintText: 'e.g. Development')),
+                      const SizedBox(width: 16),
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: departmentCtrl,
+                              title: 'Department',
+                              hintText: 'e.g. IT')),
+                    ]),
+                    const SizedBox(height: 24),
 
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      hintText: "----",
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      title: 'Project Category*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              // Leave Type
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      hintText: "----",
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      title: 'Department(optional)*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                    Row(children: [
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: locationCtrl,
+                              title: 'Location',
+                              hintText: 'City, Country')),
+                      const SizedBox(width: 16),
+                      Expanded(
+                          child: MyTextFormField(
+                              controller: budgetCtrl,
+                              title: 'Budget',
+                              hintText: '0.00')),
+                    ]),
+                    const SizedBox(height: 24),
 
-                          SizedBox(height: 24),
+                    Row(children: [
+                      Expanded(
+                          child: MyDropdown(
+                        title: 'Priority',
+                        hintText: 'Select',
+                        items: const ['Low', 'Medium', 'High'],
+                        onChanged: (val) =>
+                            setState(() => selectedPriority = val),
+                      )),
+                      const SizedBox(width: 16),
+                      Expanded(
+                          child: MyDropdown(
+                        title: 'Status',
+                        hintText: 'Select',
+                        items: const ['Pending', 'In Progress', 'Completed'],
+                        onChanged: (val) =>
+                            setState(() => selectedStatus = val),
+                      )),
+                    ]),
+                    const SizedBox(height: 24),
 
-                          Row(
-                            children: [
-                              // Status
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      hintText: "----",
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      title: 'Client*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              // Leave date
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      hintText: "----",
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      title: 'Employee/members*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 24),
-
-                          Row(
-                            children: [
-                              // Status
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyTextFormField(
-                                      hintText: "----",
-                                      spaceBetweenText: 10,
-                                      title: 'Location*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              // Leave date
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyDropdown(
-                                      hintText: "----",
-                                      items: [],
-                                      spaceBetweenText: 10,
-                                      title: 'Priority*',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 24),
-                          // Reason for absence
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              MyTextFormField(
-                                maxLines: 4,
-                                hintText: '----',
-                                spaceBetweenText: 10,
-                                title: 'Project summary/Note*',
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                    const Divider(
-                      color: AppColors.card,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 40),
-
-                          // File upload and Duration
-                          const Row(
-                            children: [
-                              Expanded(
-                                child: MyText(
-                                  'Other Details',
-                                  size: 32,
-                                  weight: 600,
-                                ),
-                              ),
-                              kSizedBoxWidthSM,
-                              Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                size: 28,
-                              )
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-
-                          const Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // File upload
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyText(
-                                      'Upload File (optional)',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    UploadFile(),
-                                    SizedBox(height: 24),
-                                    Row(
-                                      children: [
-                                        // Start date
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              MyDropdown(
-                                                hintText: '----',
-                                                spaceBetweenText: 10,
-                                                title: 'Currency*',
-                                                items: [],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(width: 16),
-                                        // End date
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              MyTextFormField(
-                                                spaceBetweenText: 10,
-                                                hintText: "----",
-                                                title: 'Project Budget*',
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-
-                          Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.start,
-                            alignment: WrapAlignment.start,
-                            runSpacing: 15,
-                            spacing: 25,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  MyCheckbox(
-                                    isChecked: false,
-                                    onChanged: (value) {},
-                                  ),
-                                  kSizedBoxWidthSM,
-                                  const Expanded(
-                                    child: MyText(
-                                        "Send task notifications to Employee",
-                                        size: 14,
-                                        weight: 400),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  MyCheckbox(
-                                    isChecked: false,
-                                    onChanged: (value) {},
-                                  ),
-                                  kSizedBoxWidthSM,
-                                  const Expanded(
-                                    child: MyText(
-                                        "Send task notifications to Employee",
-                                        size: 14,
-                                        weight: 400),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          kSizedBoxBG,
-                        ],
-                      ),
-                    ),
+                    MyTextFormField(
+                        controller: summaryCtrl,
+                        title: 'Summary',
+                        maxLines: 3,
+                        hintText: 'Project description...'),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
 
-            // Action Buttons
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                      child: 'Cancel', onTap: () => Navigator.pop(context)),
                   const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
+                  Obx(() => controller.isActionLoading.value
+                      ? const CircularProgressIndicator()
+                      : MyElevatedButton(
+                          icon: SvgPicture.asset("assets/svg/check.svg",
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.white, BlendMode.srcIn)),
+                          child: 'Save',
+                          onTap: _saveProject,
+                        )),
                 ],
               ),
             ),
@@ -425,5 +183,29 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
         ),
       ),
     );
+  }
+
+  void _saveProject() {
+    if (nameCtrl.text.isEmpty) return;
+
+    final newProject = Project(
+      id: 0, 
+      name: nameCtrl.text,
+      shortCode: shortCodeCtrl.text,
+      category: categoryCtrl.text,
+      department: departmentCtrl.text,
+      clientId: 1, 
+      location: locationCtrl.text,
+      priority: selectedPriority ?? 'Medium',
+      status: selectedStatus ?? 'Pending',
+      summary: summaryCtrl.text,
+      budget: double.tryParse(budgetCtrl.text) ?? 0.0,
+      progress: 0.0,
+      startDate: startDateCtrl.text,
+      deadline: deadlineCtrl.text,
+      fileUrl: '', 
+    );
+
+    controller.createProject(context, newProject);
   }
 }

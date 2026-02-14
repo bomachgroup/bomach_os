@@ -7,122 +7,117 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 
-class TimelineDetailPage extends StatefulWidget {
-  const TimelineDetailPage({super.key});
+import 'controllers/timeline_controller.dart';
+import 'models/models.dart';
+import 'widget/add_timeline_dialog.dart';
 
-  @override
-  State<TimelineDetailPage> createState() => TimelineDetailPageState();
-}
+class TimelineDetailPage extends StatelessWidget {
+  final TimelineModel? t;
 
-class TimelineDetailPageState extends State<TimelineDetailPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  const TimelineDetailPage({super.key, this.t});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    final TimelineController controller = Get.find<TimelineController>();
+
+    final TimelineModel? timeline =
+        t ?? ModalRoute.of(context)?.settings.arguments as TimelineModel?;
+
+    if (timeline == null) {
+      return const Center(
+        child: MyText('Task not found', style: AppText.black_500_16),
+      );
+    }
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+            Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       InkWell(
-                        onTap: () {
-                          context.pop();
-                        },
+                        onTap: () => context.pop(),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SvgPicture.asset(
-                              "assets/svg/arrow-left.svg",
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
+                            SvgPicture.asset("assets/svg/arrow-left.svg",
+                                colorFilter: const ColorFilter.mode(
+                                    AppColors.black, BlendMode.srcIn)),
                             kSizedBoxWidthSM,
-                            const MyText(
-                              'Back',
-                              style: AppText.black_500_20,
-                              isSelectable: false,
-                            ),
+                            const MyText('Back', style: AppText.black_500_20),
                           ],
                         ),
                       ),
-                      kSizedBoxWidth,
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        spacing: 10,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          MyText(
-                            'Timeline: Site Preparation',
-                            style: AppText.black_500_20,
+                          MyElevatedButton(
+                            child: 'Edit',
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AddTimelineDialog(
+                                  timeline: timeline,
+                                ),
+                              );
+                            },
                           ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          MyText(
-                            'Created 8/15/2023 • Updated 1/31/2024',
-                            style: AppText.black_400_16,
+                          MyElevatedButton(
+                            bgColor: AppColors.red,
+                            child: 'Delete',
+                            onTap: () async {
+                              await controller.deleteTimeline(
+                                  context, timeline.id, timeline.projectId);
+                              if (context.mounted) context.pop();
+                            },
                           ),
                         ],
                       ),
                     ],
                   ),
-                  Row(
-                    spacing: 10,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MyElevatedButton(
-                        child: 'Edit',
-                        onTap: () {},
-                      ),
-                      MyElevatedButton(
-                        bgColor: AppColors.red,
-                        child: 'Delete',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
+                ),
+              ],
+            ),
+            kSizedBox,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                children: [
+                  RowText(label: "Phase", value: timeline.name),
+                  RowText(label: "Status", value: timeline.status),
+                  RowText(label: "Start Date", value: timeline.startDate),
+                  RowText(label: "End Date", value: timeline.endDate),
+                  RowText(
+                      label: "Project ID",
+                      value: timeline.projectId.toString()),
+                  RowText(label: "Created At", value: timeline.createdAt),
+                  const Divider(height: 30),
+                  RowText(
+                      label: "Description",
+                      value: timeline.description.isEmpty
+                          ? "No description provided."
+                          : timeline.description),
                 ],
               ),
-            ),
+            )
           ],
         ),
-        kSizedBox,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Column(
-            children: [
-              RowText(label: "Phase", value: "Site Preparation"),
-              RowText(
-                  label: "Description",
-                  value: "Initial site reconnaissance and access preparation"),
-              RowText(label: "Start Date", value: "9/1/2023"),
-              RowText(label: "End Date", value: "1/31/2024"),
-              RowText(label: "Status", value: "Pending"),
-            ],
-          ),
-        )
-      ],
+      ),
     );
   }
 }

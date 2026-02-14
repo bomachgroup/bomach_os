@@ -5,15 +5,14 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/operations/widget/project_task_table.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class ProjectMilestone extends StatefulWidget {
-  const ProjectMilestone({super.key});
+  final int projectId;
+  const ProjectMilestone({super.key, required this.projectId});
 
   @override
   State<ProjectMilestone> createState() => _ProjectMilestoneState();
@@ -21,12 +20,6 @@ class ProjectMilestone extends StatefulWidget {
 
 class _ProjectMilestoneState extends State<ProjectMilestone> {
   final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,19 +34,12 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
           Scrollbar(
             controller: _scrollController,
             thumbVisibility: true,
-            trackVisibility: true,
             child: SingleChildScrollView(
               controller: _scrollController,
               scrollDirection: Axis.horizontal,
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: bodySpace(context),
-                ),
+                constraints: BoxConstraints(minWidth: bodySpace(context)),
                 child: DataTable(
-                  dataRowMinHeight: 68,
-                  dataRowMaxHeight: 68,
-                  columnSpacing: 24,
-                  horizontalMargin: 12,
                   columns: _createColumns(),
                   rows: _createRows(context),
                   showBottomBorder: true,
@@ -68,461 +54,116 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
   }
 
   List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "S/N",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Milestone Title",
-        ),
-      ),
-      const DataColumn(
-        label: MyText("Milestone cost"),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Task count",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+    return const [
+      DataColumn(label: MyText("S/N")),
+      DataColumn(label: MyText("Milestone Title")),
+      DataColumn(label: MyText("Cost")),
+      DataColumn(label: MyText("Status")),
+      DataColumn(label: MyText("Action")),
     ];
   }
 
   List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          MyText("${index + 1}"),
-        ),
-        DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => const MilestoneDetailDialog(),
-            );
-          },
-          const MyText(
-            "Benji user UI",
-            isSelectable: false,
-          ),
-        ),
-        const DataCell(
-          MyText("\$2.00"),
-        ),
-        const DataCell(
-          MyText("01"),
-        ),
-        DataCell(
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 0.6,
-                            color: getRandomColorFromList('Incomplete')),
-                        color: getRandomColorFromList('Incomplete')
-                            .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6)),
-                    child: const Center(
-                      child: MyText("Incomplete"),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
+    // Placeholder rows - Connect to API using widget.projectId later
+    return List.generate(5, (index) {
+      return DataRow(cells: [
+        DataCell(MyText("${index + 1}")),
+        const DataCell(MyText("Foundation Phase")),
+        const DataCell(MyText("\$5,000.00")),
+        DataCell(Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+              color:
+                  getRandomColorFromList('Incomplete').withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6)),
+          child: const MyText("Incomplete"),
+        )),
+        const DataCell(ThreeDotPop()),
       ]);
     });
   }
 }
 
-class AddMileStoneDialog extends StatefulWidget {
+class AddMileStoneDialog extends StatelessWidget {
   const AddMileStoneDialog({super.key});
 
   @override
-  State<AddMileStoneDialog> createState() => _AddMileStoneDialogState();
-}
-
-class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
-  @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 846),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.grey4),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Expanded(
-                    child: MyText(
-                      'Create Milestones',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  const MyText('Create Milestone',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context)),
                 ],
               ),
             ),
 
-            // Form fields
             const Expanded(
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Column(
-                    children: [
-                      // First row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  hintText: "Enter Milestone title",
-                                  spaceBetweenText: 10,
-                                  title: 'Milestone title*',
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  hintText: "Enter Milestone cost",
-                                  spaceBetweenText: 10,
-                                  title: 'Milestone Cost*',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // Second row
-                      Row(
-                        children: [
-                          // Status
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  hintText: "Marital status",
-                                  items: [],
-                                  spaceBetweenText: 10,
-                                  title: 'Status*',
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          // Leave date
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  hintText: 'Milestone title',
-                                  spaceBetweenText: 10,
-                                  title: 'Milestone title*',
-                                  items: [],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // Reason for absence
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyTextFormField(
-                            maxLines: 4,
-                            hintText: '----',
-                            spaceBetweenText: 10,
-                            title: 'Milestone Summary/Description*',
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // Start and End dates
-                      Row(
-                        children: [
-                          // Start date
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  hintText: '----',
-                                  spaceBetweenText: 10,
-                                  title: 'Start date(optional)*',
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          // End date
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  spaceBetweenText: 10,
-                                  title: 'Start date(optional)*',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MilestoneDetailDialog extends StatelessWidget {
-  const MilestoneDetailDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        // padding: const EdgeInsets.all(kDefaultSpace),
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.grey4),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: MyText(
-                      'Milestone Details',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form fields
-            Expanded(
-              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildFormField('Milestone title*', 'Benji user UI'),
-                          _buildFormField('Milestone Cost*', '\$2.00'),
-                          _buildFormField('Status*', 'Incomplete'),
-                          _buildFormField(
-                            'Milestone smmary*',
-                            'gfvdcisvyif viyfgdsykgogl fyifds9yifvy viyfdsykfgovldsg fy9ivsyvog higvysidyobu ihbsfbvyou hivscy9bvxog isziyvkg 8 isvxyiy9ikx y8svicxb8yh9b y8svcyfgz9c7ioh y8vsiby9gox',
-                            maxLines: 4,
-                          ),
-                          _buildFormField('Start date*', '12-01-2024'),
-                          _buildFormField('End date*', '13-09-2024'),
-                        ],
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText("Tasks", size: 20, weight: 400),
-                          kSizedBox,
-                          ProjectTaskTable(),
-                        ],
-                      ),
-                    )
+                    Row(children: [
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Milestone Title*',
+                              hintText: 'Enter title')),
+                      SizedBox(width: 16),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Cost*', hintText: '0.00')),
+                    ]),
+                    SizedBox(height: 24),
+                    Row(children: [
+                      Expanded(
+                          child: MyDropdown(
+                              title: 'Status*',
+                              items: ['Pending', 'Completed'],
+                              hintText: 'Select')),
+                      SizedBox(width: 16),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Deadline', hintText: 'YYYY-MM-DD')),
+                    ]),
+                    SizedBox(height: 24),
+                    MyTextFormField(
+                        title: 'Description',
+                        maxLines: 3,
+                        hintText: 'Milestone details...'),
+                    SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
 
-            // Action buttons
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppColors.grey4),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/edit-pencil.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Edit',
-                    onTap: () {},
-                  ),
+                      child: 'Cancel', onTap: () => Navigator.pop(context)),
+                  const SizedBox(width: 16),
+                  MyElevatedButton(child: 'Save', onTap: () {}),
                 ],
               ),
-            ),
+            )
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildFormField(String label, String value, {int maxLines = 1}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Row(
-        crossAxisAlignment:
-            maxLines > 1 ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            // width: 200,
-            child: MyText(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ),
-          Expanded(
-            child: MyText(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: maxLines,
-            ),
-          ),
-        ],
       ),
     );
   }

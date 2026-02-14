@@ -186,7 +186,7 @@ final Map<String, Widget> _dashboardRoutes = {
 
   // operations
   RouteConstants.operations: const OperationsPage(),
-  RouteConstants.operationsProjectDetail: const ProjectDetailPage(),
+  RouteConstants.operationsProjectDetail:  const ProjectDetailPage(),
   RouteConstants.operationsTaskDetail: const TaskDetailPage(),
   RouteConstants.operationsWorksiteDetail: const WorksiteDetailPage(),
   RouteConstants.operationsContractDetail: const ContractDetailPage(),

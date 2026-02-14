@@ -6,128 +6,105 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 
-class WorksiteDetailPage extends StatefulWidget {
-  const WorksiteDetailPage({super.key});
+import 'controllers/work_site_controller.dart';
+import 'models/models.dart';
 
-  @override
-  State<WorksiteDetailPage> createState() => WorksiteDetailPageState();
-}
-
-class WorksiteDetailPageState extends State<WorksiteDetailPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+class WorksiteDetailPage extends StatelessWidget {
+  final Worksite? worksite;
+  const WorksiteDetailPage({super.key, this.worksite});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    final WorksiteController controller = Get.find<WorksiteController>();
+
+    final Worksite? ws =
+        worksite ?? ModalRoute.of(context)?.settings.arguments as Worksite?;
+
+    if (ws == null) {
+      return const Scaffold(
+        body: Center(
+          child: MyText('Worksite not found', style: AppText.black_500_20),
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+            // Header
+            Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 10,
+                    runSpacing: 10,
                     children: [
                       InkWell(
-                        onTap: () {
-                          context.pop();
-                        },
+                        onTap: () => Navigator.pop(context),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SvgPicture.asset(
-                              "assets/svg/arrow-left.svg",
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
+                            SvgPicture.asset("assets/svg/arrow-left.svg",
+                                colorFilter: const ColorFilter.mode(
+                                    AppColors.black, BlendMode.srcIn)),
                             kSizedBoxWidthSM,
-                            const MyText(
-                              'Back',
-                              style: AppText.black_500_20,
-                              isSelectable: false,
-                            ),
+                            const MyText('Back', style: AppText.black_500_20),
                           ],
                         ),
                       ),
-                      kSizedBoxWidth,
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        spacing: 10,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          MyText(
-                            'Port Harcourt Industrial Site Office',
-                            style: AppText.black_500_20,
+                          MyElevatedButton(
+                            child: 'Edit',
+                            onTap: () {},
                           ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          MyText(
-                            'Created 8/15/2023 • Updated 1/31/2024',
-                            style: AppText.black_400_16,
+                          MyElevatedButton(
+                            bgColor: AppColors.red,
+                            child: 'Delete',
+                            onTap: () => controller.deleteWorksite(
+                                context, ws.id, ws.projectId),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  Row(
-                    spacing: 10,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MyElevatedButton(
-                        child: 'Edit',
-                        onTap: () {},
-                      ),
-                      MyElevatedButton(
-                        bgColor: AppColors.red,
-                        child: 'Delete',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
+                ),
+              ],
+            ),
+            kSizedBox,
+
+            // Details Card
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.border)),
+              child: Column(
+                children: [
+                  RowText(label: "Site Name", value: ws.name),
+                  RowText(label: "Location", value: ws.location),
+                  RowText(label: "Status", value: ws.status),
+                  RowText(
+                      label: "Created At",
+                      value: ws.createdAt.isEmpty ? 'N/A' : ws.createdAt),
+                  const Divider(height: 30),
+                  RowText(label: "Description", value: ws.description),
                 ],
               ),
-            ),
+            )
           ],
         ),
-        kSizedBox,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Column(
-            children: [
-              RowText(
-                  label: "Site Name",
-                  value: "Port Harcourt Industrial Site Office"),
-              RowText(label: "Worksite Number", value: "WS-003"),
-              RowText(
-                  label: "Location",
-                  value: "Trans-Amadi Industrial Layout, Port Harcourt"),
-              RowText(label: "Status", value: "Completed"),
-              RowText(
-                  label: "Notes",
-                  value:
-                      "Project completed successfully. Equipment relocated."),
-            ],
-          ),
-        )
-      ],
+      ),
     );
   }
 }

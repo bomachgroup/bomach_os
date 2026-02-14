@@ -2,9 +2,9 @@ import 'package:bms_front_end/components/button/in_button.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/pages/operations/widget/add_project_member_dialog.dart';
-import 'package:bms_front_end/pages/operations/widget/add_worksite_dialog.dart';
-import 'package:bms_front_end/pages/operations/widget/meeting_table.dart';
+import 'package:bms_front_end/pages/operations/widget/project_associate.dart';
 import 'package:bms_front_end/pages/operations/widget/project_files.dart';
 import 'package:bms_front_end/pages/operations/widget/project_members.dart';
 import 'package:bms_front_end/pages/operations/widget/project_milestone.dart';
@@ -16,27 +16,30 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
+import 'widget/project_meetings.dart';
+
 class EachProjects extends StatefulWidget {
-  const EachProjects({super.key});
+  final Project? project;
+  const EachProjects({super.key, this.project});
 
   @override
   State<EachProjects> createState() => _EachProjectsState();
 }
 
 class _EachProjectsState extends State<EachProjects> {
-  final List<Widget> _pages = [
-    const ProjectOverview(),
-    const ProjectMembers(),
-    const ProjectWorkSite(),
-    const ProjectFiles(),
-    const ProjectMilestone(),
-    const ProjectTaskTable(),
-    const SizedBox(),
-    const MeetingTable()
-  ];
-  int projectMemberState = 0;
+  int _currentTab = 0;
+
   @override
   Widget build(BuildContext context) {
+    final Project? project = widget.project ??
+        ModalRoute.of(context)?.settings.arguments as Project?;
+
+    if (project == null) {
+      return const Center(
+        child: MyText('Project not found', style: AppText.black_500_20),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -49,8 +52,8 @@ class _EachProjectsState extends State<EachProjects> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const MyText(
-                    'Projects',
+                  MyText(
+                    project.name,
                     style: AppText.black_500_32,
                   ),
                   Wrap(
@@ -67,48 +70,14 @@ class _EachProjectsState extends State<EachProjects> {
                           ),
                         ),
                       ),
-                      if ([0, 1, 2, 4, 5].contains(projectMemberState))
+                      if ([0, 1, 2, 4, 5].contains(_currentTab))
                         MyElevatedButton(
                           icon: const Icon(
                             Icons.add_circle_outline_rounded,
                             color: AppColors.white,
                           ),
-                          child: projectMemberState == 0
-                              ? 'Add New Employee'
-                              : projectMemberState == 1
-                                  ? 'Add Project member'
-                                  : projectMemberState == 2
-                                      ? "Add Worksite"
-                                      : projectMemberState == 4
-                                          ? 'Create milestone'
-                                          : "Add Task",
-                          onTap: () {
-                            if (projectMemberState == 4) {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const AddMileStoneDialog();
-                                },
-                              );
-                            }
-
-                            if (projectMemberState == 2) {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const AddWorksiteDialog();
-                                },
-                              );
-                            }
-                            if (projectMemberState == 1) {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const AddProjectMemberDialog();
-                                },
-                              );
-                            }
-                          },
+                          child: _getButtonTitle(_currentTab),
+                          onTap: () => _handleButtonTap(context, _currentTab),
                         )
                     ],
                   )
@@ -118,137 +87,98 @@ class _EachProjectsState extends State<EachProjects> {
           ],
         ),
         kSizedBoxSM,
-        const Row(
+        Row(
           children: [
-            MyText(
-              'Projects',
-              style: AppText.black_400_14,
-            ),
-            SizedBox(
-              width: 8,
-            ),
-            Icon(
-              Icons.arrow_forward_ios_outlined,
-              size: 12,
-            ),
-            SizedBox(
-              width: 8,
-            ),
-            MyText(
-              'Benji express project ',
-              style: AppText.black_400_14,
-            ),
+            const MyText('Projects', style: AppText.black_400_14),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward_ios_outlined, size: 12),
+            const SizedBox(width: 8),
+            MyText(project.shortCode, style: AppText.black_400_14),
           ],
         ),
-        const SizedBox(
-          height: 21,
-        ),
+        const SizedBox(height: 21),
         SizedBox(
           height: 50,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              InButton(
-                title: 'Overview',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 0;
-                  });
-                },
-                isSelected: projectMemberState == 0,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Members',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 1;
-                  });
-                },
-                isSelected: projectMemberState == 1,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Work site',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 2;
-                  });
-                },
-                isSelected: projectMemberState == 2,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Files',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 3;
-                  });
-                },
-                isSelected: projectMemberState == 3,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Milestone',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 4;
-                  });
-                },
-                isSelected: projectMemberState == 4,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Tasks',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 5;
-                  });
-                },
-                isSelected: projectMemberState == 5,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Associates',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 6;
-                  });
-                },
-                isSelected: projectMemberState == 6,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              InButton(
-                title: 'Meetings',
-                onTap: () {
-                  setState(() {
-                    projectMemberState = 7;
-                  });
-                },
-                isSelected: projectMemberState == 7,
-              ),
+              _buildTabButton("Overview", 0),
+              _buildTabButton("Members", 1),
+              _buildTabButton("Work site", 2),
+              _buildTabButton("Files", 3),
+              _buildTabButton("Milestone", 4),
+              _buildTabButton("Tasks", 5),
+              _buildTabButton("Associates", 6),
+              _buildTabButton("Meetings", 7),
             ],
           ),
         ),
-        const SizedBox(
-          height: 23,
-        ),
-        Container(child: _pages[projectMemberState])
+        const SizedBox(height: 23),
+        Container(child: _buildPageContent(project)),
       ],
     );
+  }
+
+  Widget _buildTabButton(String title, int index) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: InButton(
+        title: title,
+        onTap: () => setState(() => _currentTab = index),
+        isSelected: _currentTab == index,
+      ),
+    );
+  }
+
+  Widget _buildPageContent(Project project) {
+    switch (_currentTab) {
+      case 0:
+        return ProjectOverview(project: project);
+      case 1:
+        return const ProjectMembers();
+      case 2:
+        return const ProjectWorkSite();
+      case 3:
+        return const ProjectFiles();
+      case 4:
+        return ProjectMilestone(projectId: project.id);
+      case 5:
+        return const ProjectTaskTable();
+      case 6:
+        return const ProjectAssociate();
+      case 7:
+        return const ProjectMeetings();
+      default:
+        return const SizedBox();
+    }
+  }
+
+  String _getButtonTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'Add New Employee';
+      case 1:
+        return 'Add Project member';
+      case 2:
+        return "Add Worksite";
+      case 4:
+        return 'Create milestone';
+      case 5:
+        return "Add Task";
+      default:
+        return "Add";
+    }
+  }
+
+  void _handleButtonTap(BuildContext context, int index) {
+    if (index == 1) {
+      showDialog(
+          context: context, builder: (_) => const AddProjectMemberDialog());
+    } else if (index == 2) {
+      showDialog(
+          context: context, builder: (_) => const CreateWorkSiteReport());
+    } else if (index == 4) {
+      showDialog(context: context, builder: (_) => const AddMileStoneDialog());
+    }
   }
 }

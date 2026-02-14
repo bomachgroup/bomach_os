@@ -238,7 +238,7 @@ class _OperationsPageState extends State<OperationsPage> {
                       width: cardWidth,
                       child: GestureDetector(
                         onTap: () {
-                          context.push(RouteConstants.operationsProjectDetail);
+                          context.push(RouteConstants.operationsProjectDetail,extra: project);
                         },
                         child: ProjectCard(
                           title: project['title']!,
@@ -341,7 +341,9 @@ class _OperationsPageState extends State<OperationsPage> {
                           showDialog(
                             context: context,
                             builder: (context) {
-                              return const AddTaskDialog();
+                              return const AddTaskDialog(
+                                task: null,
+                              );
                             },
                           );
                         },
@@ -910,7 +912,7 @@ class TaskCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
@@ -1093,7 +1095,7 @@ class WorksiteCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
@@ -1235,7 +1237,7 @@ class OperationsStatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           )
@@ -1310,7 +1312,7 @@ class ProjectCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
@@ -1603,7 +1605,7 @@ class ContractCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
@@ -1793,7 +1795,7 @@ class TimelineCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
