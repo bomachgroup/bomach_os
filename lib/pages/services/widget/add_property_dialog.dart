@@ -5,6 +5,7 @@ import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
+import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/pages/services/models/property_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
@@ -45,6 +46,14 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
   late final TextEditingController _parkingController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _statusController;
+
+  // Client search
+  final TextEditingController _clientSearchController = TextEditingController();
+  List<Client> _allClients = [];
+  List<Client> _filteredClients = [];
+  Client? _selectedClient;
+  bool _isLoadingClients = true;
+  bool _showClientDropdown = false;
 
   // Image URLs list
   final List<String> _imageUrls = [];
@@ -111,6 +120,65 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
     if (p != null && p.images.isNotEmpty) {
       _imageUrls.addAll(p.images);
     }
+
+    _loadClients();
+  }
+
+  Future<void> _loadClients() async {
+    try {
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) return;
+
+      final clients = await _authService.getClients(token);
+      if (mounted) {
+        setState(() {
+          _allClients = clients;
+          _filteredClients = clients;
+          _isLoadingClients = false;
+
+          // Pre-select client if editing and property has a clientId
+          final p = widget.property;
+          if (p != null && p.clientId.isNotEmpty) {
+            final match = clients.where(
+              (c) => c.id.toString() == p.clientId,
+            );
+            if (match.isNotEmpty) {
+              _selectedClient = match.first;
+              _clientSearchController.text = match.first.fullName;
+            }
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingClients = false;
+        });
+      }
+    }
+  }
+
+  void _filterClients(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredClients = _allClients;
+      } else {
+        _filteredClients = _allClients
+            .where((client) =>
+                client.fullName.toLowerCase().contains(query.toLowerCase()) ||
+                client.email.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+      _showClientDropdown = true;
+    });
+  }
+
+  void _selectClient(Client client) {
+    setState(() {
+      _selectedClient = client;
+      _clientSearchController.text = client.fullName;
+      _showClientDropdown = false;
+    });
   }
 
   @override
@@ -126,6 +194,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
     _parkingController.dispose();
     _descriptionController.dispose();
     _statusController.dispose();
+    _clientSearchController.dispose();
     super.dispose();
   }
 
@@ -200,6 +269,8 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
       'description': _descriptionController.text.trim(),
       'images': _imageUrls,
       'status': status,
+      if (_selectedClient != null)
+        'client_id': _selectedClient!.id.toString(),
     };
 
     bool success;
@@ -287,6 +358,10 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                               ? 'Property name is required'
                               : null,
                         ),
+                        const SizedBox(height: 24),
+
+                        // Client Search (Optional)
+                        _buildClientSearch(),
                         const SizedBox(height: 24),
 
                         // Property Type and Category
@@ -641,6 +716,180 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildClientSearch() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const MyText(
+              'Client',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.grey4,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'Optional',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.grey1,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (_isLoadingClients)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.grey4),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 12),
+                Text(
+                  'Loading clients...',
+                  style: TextStyle(fontSize: 14, color: AppColors.grey1),
+                ),
+              ],
+            ),
+          )
+        else
+          Column(
+            children: [
+              TextFormField(
+                controller: _clientSearchController,
+                decoration: InputDecoration(
+                  hintText: 'Search client by name or email...',
+                  hintStyle:
+                      const TextStyle(fontSize: 14, color: AppColors.grey1),
+                  prefixIcon: const Icon(Icons.search, color: AppColors.grey1),
+                  suffixIcon: _selectedClient != null
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            setState(() {
+                              _selectedClient = null;
+                              _clientSearchController.clear();
+                              _filteredClients = _allClients;
+                              _showClientDropdown = false;
+                            });
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.grey4),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.grey4),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.blue),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                ),
+                onChanged: _filterClients,
+                onTap: () {
+                  setState(() {
+                    _showClientDropdown = true;
+                  });
+                },
+              ),
+              if (_showClientDropdown && _selectedClient == null)
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  margin: const EdgeInsets.only(top: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.grey4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: _filteredClients.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                            'No clients found',
+                            style:
+                                TextStyle(fontSize: 14, color: AppColors.grey1),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _filteredClients.length,
+                          itemBuilder: (context, index) {
+                            final client = _filteredClients[index];
+                            return InkWell(
+                              onTap: () => _selectClient(client),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  border: index < _filteredClients.length - 1
+                                      ? const Border(
+                                          bottom: BorderSide(
+                                              color: AppColors.grey4,
+                                              width: 0.5),
+                                        )
+                                      : null,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      client.fullName,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      client.email,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.grey1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+            ],
+          ),
+      ],
     );
   }
 }
