@@ -1,0 +1,88 @@
+import 'package:dio/dio.dart';
+
+import '../../../pages/hr/models/monthly_scorecard_models.dart';
+import '../../../pages/hr/models/performance_leaderboard_models.dart';
+
+class MonthlyScorecardService {
+  final Dio _dio;
+
+  static const String _baseUrl = 'https://bomachhr.bgbot.app/api/v1';
+
+  MonthlyScorecardService({
+    Dio? dioOverride,
+  }) : _dio = dioOverride ??
+            Dio(BaseOptions(
+              baseUrl: _baseUrl,
+              connectTimeout: const Duration(seconds: 15),
+              receiveTimeout: const Duration(seconds: 15),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            )) {
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      responseBody: true,
+      responseHeader: false,
+    ));
+  }
+
+  Options _authOptions(String token) {
+    return Options(headers: {
+      'Authorization': 'Bearer $token',
+    });
+  }
+
+  Future<MonthlyScorecard> getEmployeeScorecard(
+    String token, {
+    required String employeeId,
+    required int month,
+    required int year,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/monthly-scorecards/employee/$employeeId',
+        queryParameters: {
+          'month': month,
+          'year': year,
+        },
+        options: _authOptions(token),
+      );
+      return MonthlyScorecard.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<LeaderboardResponse> getLeaderboard(
+    String token, {
+    required int month,
+    required int year,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/monthly-scorecards/leaderboard',
+        queryParameters: {
+          'month': month,
+          'year': year,
+        },
+        options: _authOptions(token),
+      );
+      return LeaderboardResponse.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Exception _handleError(dynamic error) {
+    if (error is DioException) {
+      final errorMessage = error.response?.data?['message'] ??
+          error.response?.data?['detail'] ??
+          error.message;
+      return Exception(
+          'API Error: ${error.response?.statusCode} - $errorMessage');
+    }
+    return Exception('Unexpected error: $error');
+  }
+}
