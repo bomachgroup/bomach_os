@@ -1,18 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_checkbox.dart';
-import 'package:bms_front_end/components/input/my_radio.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/employees_database/widget/employee_table.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
+
+import '../../src/model/employees_model.dart';
+import 'add_new_employee.dart';
+import 'controller/employees_controller.dart';
+import 'employee_profile.dart';
 
 class EmployeeDatabase extends StatefulWidget {
   const EmployeeDatabase({super.key});
@@ -22,258 +21,243 @@ class EmployeeDatabase extends StatefulWidget {
 }
 
 class _EmployeeDatabaseState extends State<EmployeeDatabase> {
+  final EmployeeController controller = Get.put(EmployeeController());
+  final _storage = const FlutterSecureStorage();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final token = await _getToken(context);
+    if (token != null) {
+      controller.fetchEmployees(token);
+    }
+  }
+
+  Future<String?> _getToken(BuildContext context) async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
+    return token.replaceAll('"', '').trim();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Header
         Row(
           children: [
             Expanded(
               child: Wrap(
-                spacing: 16,
-                runSpacing: 16,
                 alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                spacing: 10,
+                runSpacing: 10,
                 children: [
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MyText(
-                        'Employee’s Database',
-                        style: AppText.black_600_32,
+                        'Employee Database',
+                        style: AppText.black_500_32,
                       ),
+                      SizedBox(height: 8),
                       MyText(
-                        'Employee’s Database',
-                        style: AppText.black_600_14,
+                        'Manage all your employees here',
+                        size: 14,
+                        weight: 400,
+                        color: Color(0xFF64748B),
                       ),
                     ],
                   ),
-                  Wrap(
-                    runSpacing: 15,
-                    children: [
-                      MyElevatedButton(
-                        icon: const Icon(
-                          Icons.add_circle_outline_rounded,
-                          color: AppColors.white,
-                        ),
-                        child: 'Add New Employee',
-                        onTap: () {
-                          context.push(RouteConstants.addEmployees);
-                        },
-                      ),
-                      kSizedBoxWidth,
-                      MyOutlinedButton(
-                        icon: const Icon(
-                          Icons.tune,
-                          color: AppColors.black,
-                        ),
-                        textColor: AppColors.black,
-                        borderColor: null,
-                        child: 'Filter',
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const FilterDialog();
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                  MyElevatedButton(
+                    icon: const Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: AppColors.white,
+                    ),
+                    child: "New Employee",
+                    onTap: () async {
+                      final token = await _getToken(context);
+                      if (token != null && context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (c) => AddEmployesScreen(token: token)),
+                        );
+                      }
+                    },
                   )
                 ],
               ),
             ),
           ],
         ),
-        kSizedBoxBG,
-        const Wrap(
-          spacing: 8, // Horizontal space between items
-          runSpacing: 8, // Vertical space when wrapping
+        kSizedBox,
+
+        // Search Bar
+        Row(
           children: [
-            SizedBox(
-              width: 276,
-              height: 48,
-              child:
-                  MyTextFormField(hintText: 'Search by name, role, department'),
-            ),
-            SortBar(
-              text: 'Enugu',
-            ),
-            SortBar(
-              text: 'Aso villa Estate',
-            ),
-            SortBar(
-              text: 'Department',
+            Expanded(
+              child: Wrap(
+                spacing: 15,
+                runSpacing: 15,
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 250,
+                    child: MyTextFormField(
+                      hintText: 'Search employees...',
+                      leading: Icon(
+                        Icons.search,
+                        color: AppColors.grey1.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _loadData,
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'Refresh List',
+                  ),
+                ],
+              ),
             ),
           ],
         ),
         kSizedBox,
         kSizedBoxSM,
-        const EmployeeTable(),
+
+        // Data Table
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                trackVisibility: true,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: MediaQuery.of(context).size.width - 100,
+                    ),
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(),
+                        ));
+                      }
+
+                      if (controller.employeeList.isEmpty) {
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text("No employees found."),
+                        ));
+                      }
+
+                      return DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: _createColumns(),
+                        rows: _createRows(context, controller.employeeList),
+                        showBottomBorder: true,
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
-}
 
-class FilterDialog extends StatefulWidget {
-  const FilterDialog({super.key});
+  List<DataColumn> _createColumns() {
+    return [
+      const DataColumn(label: MyText('Name')),
+      const DataColumn(label: MyText('Email')),
+      const DataColumn(label: MyText('Phone')),
+      const DataColumn(label: MyText('Role')),
+      const DataColumn(label: MyText('Status')),
+      const DataColumn(label: MyText('Action')),
+    ];
+  }
 
-  @override
-  FilterDialogState createState() => FilterDialogState();
-}
-
-class FilterDialogState extends State<FilterDialog> {
-  final TextEditingController _searchController = TextEditingController();
-  final List<String> departments = [
-    'Design',
-    'HR',
-    'Sales',
-    'Business Analyst',
-    'Project Manager',
-    'Java',
-    'Python',
-    'React JS',
-    'Account',
-    'Nods JS',
-  ];
-  final List<String> types = [
-    'Full-time',
-    'Hybrid',
-    'Remote',
-    'Intern',
-    'Part-time',
-  ];
-
-  List<String> selectedDepartments = [
-    'Design',
-    'Java',
-    'Python',
-    'Project Manager'
-  ];
-  String? selectedType;
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 383),
-        padding: const EdgeInsets.all(kDefaultSpace),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: AppColors.greyBg,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: MyText("Filter",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 20),
-            // Search Box
+  List<DataRow> _createRows(BuildContext context, List<Employee> employees) {
+    return employees.map((emp) {
+      return DataRow(
+        cells: <DataCell>[
+          DataCell(
             Row(
               children: [
-                Expanded(
-                  child: MyTextFormField(
-                    controller: _searchController,
-                    hintText: "Search Employee",
-                    leading: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: SvgPicture.asset(
-                        "assets/svg/search.svg",
-                      ),
-                    ),
-                  ),
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppColors.greyBg,
+                  backgroundImage: emp.profilePicture != null
+                      ? NetworkImage(emp.profilePicture!)
+                      : null,
+                  child: emp.profilePicture == null
+                      ? Text(emp.firstName[0],
+                          style: const TextStyle(fontSize: 12))
+                      : null,
                 ),
+                const SizedBox(width: 8),
+                MyText('${emp.firstName} ${emp.lastName}', weight: 500),
               ],
             ),
-            const SizedBox(height: 20),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: MyText("Department",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: departments.map((dept) {
-                final selected = selectedDepartments.contains(dept);
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    MyCheckbox(
-                      isChecked: selected,
-                      onChanged: (value) {
-                        setState(() {
-                          selected
-                              ? selectedDepartments.remove(dept)
-                              : selectedDepartments.add(dept);
-                        });
-                      },
-                    ),
-                    kSizedBoxWidthSM,
-                    MyText(
-                      dept,
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ],
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 20),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: MyText("Select Type",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: types.map((type) {
-                return MyRadio<String?>(
-                  label: type,
-                  value: type,
-                  groupValue: selectedType,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedType = value;
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: AppColors.grey3.withValues(alpha: 0.2),
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+          ),
+          DataCell(MyText(emp.email)),
+          DataCell(MyText(emp.phoneNumber ?? '-')),
+          DataCell(MyText(emp.employmentType ?? '-')),
+          DataCell(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: emp.isActive
+                    ? Colors.green.withOpacity(0.1)
+                    : Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                emp.isActive ? 'Active' : 'Inactive',
+                style: TextStyle(
+                  color: emp.isActive ? Colors.green : Colors.red,
+                  fontSize: 12,
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: MyElevatedButton(
-                    child: 'Apply',
-                    onTap: () {},
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
+              ),
+            ),
+          ),
+          DataCell(
+            IconButton(
+              icon: const Icon(Icons.visibility, color: AppColors.blue),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (c) => EmployeeProfile(e: emp)),
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    }).toList();
   }
 }
