@@ -217,7 +217,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                     ),
                   ),
                 ),
-                // const MyPaginator(),
+                const MyPaginator(),
               ],
             );
           }),
