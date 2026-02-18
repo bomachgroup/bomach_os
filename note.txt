@@ -1,124 +1,28 @@
-Work on adding new employee /Users/developer/bomach_os/lib/pages/employees_database/add_new_employee.dart feel free to remove or change fields that doen't align with the system
+integrate the Performance Leaderboard /Users/developer/bomach_os/lib/pages/hr/performance_leaderboard.dart
 
-
--------------
-
-Integrate the List employee by departments endpoint /Users/developer/bomach_os/lib/pages/hr/department.dart 
-
-fetch departments 
+follow existing integration parterns 
+feel free to change things that don't align with the endpoint
 
 curl -X 'GET' \
-  'https://bomachauth.bgbot.app/api/v1/employees/department?limit=100&offset=0' \
+  'https://bomachhr.bgbot.app/api/v1/monthly-scorecards/leaderboard?month=1&year=2026' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMDI3MzA4LCJpYXQiOjE3NzA5NjczMDgsImp0aSI6IjQxYjA5OWQwLThlZjYtNGVkMC05NGYwLTE5YjI0YWMwZjY3NyJ9.hBC4iMO3GJRhr4XpPG1af4mp_6iae3lC1_4IduwmNh0'
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMjkwNzI4LCJpYXQiOjE3NzEyMzA3MjgsImp0aSI6IjU4NTA0YzFlLTIwODktNGQ1Zi04OTRiLTlkNTU4OWRjN2FmZCJ9.Rk-Z3Ein6-hKXVSpva7zqa7U5w48ZOUNzWKD0B8NYUs'
 
-	
 Response body
+Download
 {
-  "items": [
+  "month": 1,
+  "year": 2026,
+  "entries": [
     {
-      "id": 1,
-      "name": "it",
-      "description": ""
+      "rank": 1,
+      "employee_id": "2",
+      "employee_name": "Emma Maxzeno",
+      "branch": "Enugu",
+      "score": "53.14",
+      "award": null
     }
   ],
-  "count": 1
-}
-
-
-then get employees under each just first 3
-curl -X 'GET' \
-  'https://bomachauth.bgbot.app/api/v1/employees/employees?department_id=1&limit=100&offset=0' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMDI3MzA4LCJpYXQiOjE3NzA5NjczMDgsImp0aSI6IjQxYjA5OWQwLThlZjYtNGVkMC05NGYwLTE5YjI0YWMwZjY3NyJ9.hBC4iMO3GJRhr4XpPG1af4mp_6iae3lC1_4IduwmNh0'
-
-	
-Response body
-{
-  "items": [
-    {
-      "user_id": 3,
-      "username": "Maxx",
-      "email": "maxx@gmail.com",
-      "first_name": "Emaxx",
-      "last_name": "Xaaan",
-      "gender": "male",
-      "marital_status": "single",
-      "phone_number": null,
-      "date_of_birth": null,
-      "address": "",
-      "profile_picture": null,
-      "is_verified": false,
-      "is_active": true,
-      "id": 2,
-      "employee_id": "yujf2132j",
-      "employment_type": "full-time",
-      "branch_id": 1,
-      "branch_name": "Enugu",
-      "department_id": 1,
-      "department_name": "it",
-      "level_id": 2,
-      "employee_level": "manager",
-      "start_date": "2026-02-02",
-      "gross_salary": null,
-      "allowances": {},
-      "created_at": "2026-02-02T13:01:10.613Z",
-      "updated_at": "2026-02-02T13:01:10.613Z"
-    },
-    {
-      "user_id": 2,
-      "username": "Maxzeno",
-      "email": "emma@gmail.com",
-      "first_name": "Emma",
-      "last_name": "Maxzeno",
-      "gender": "male",
-      "marital_status": "single",
-      "phone_number": "09077745730",
-      "date_of_birth": null,
-      "address": "",
-      "profile_picture": "https://d1yzddjh14f4tu.cloudfront.net/b46ad0ba-3fef-4a0a-9b66-9e040e96c97f.jpeg",
-      "is_verified": false,
-      "is_active": true,
-      "id": 1,
-      "employee_id": "dsf2132",
-      "employment_type": "full-time",
-      "branch_id": 1,
-      "branch_name": "Enugu",
-      "department_id": 1,
-      "department_name": "it",
-      "level_id": 1,
-      "employee_level": "ceo",
-      "start_date": "2026-01-28",
-      "gross_salary": null,
-      "allowances": {},
-      "created_at": "2026-01-28T08:11:52.739Z",
-      "updated_at": "2026-02-10T15:09:03.805Z"
-    }
-  ],
-  "count": 2
-}
-
-when they search it is by department filter out some department the query param is "search"
-
-
-
------------------
-
-Implement creating dartment endpoint 
-
-curl -X 'POST' \
-  'https://bomachauth.bgbot.app/api/v1/employees/department' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMDI3MzA4LCJpYXQiOjE3NzA5NjczMDgsImp0aSI6IjQxYjA5OWQwLThlZjYtNGVkMC05NGYwLTE5YjI0YWMwZjY3NyJ9.hBC4iMO3GJRhr4XpPG1af4mp_6iae3lC1_4IduwmNh0' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "name": "operations",
-  "description": "We are operations"
-}'
-
-Response body
-{
-  "id": 2,
-  "name": "operations",
-  "description": "We are operations"
+  "avg_score": "53.14",
+  "total_participants": 1
 }

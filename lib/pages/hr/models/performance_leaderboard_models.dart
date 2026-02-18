@@ -1,26 +1,20 @@
-/// Performance Leaderboard data models
 class LeaderboardEntry {
   final int rank;
   final String employeeId;
   final String employeeName;
   final String branch;
-  final double performanceScore;
-  final List<String> achievements; // Awards/achievements
-  final String status; // Consistent Performer, Employee of the Month, etc.
-  final String? profileImageUrl;
+  final double score;
+  final String? award;
 
   LeaderboardEntry({
     required this.rank,
     required this.employeeId,
     required this.employeeName,
     required this.branch,
-    required this.performanceScore,
-    required this.achievements,
-    required this.status,
-    this.profileImageUrl,
+    required this.score,
+    this.award,
   });
 
-  /// Get medal emoji based on rank
   String getMedalEmoji() {
     switch (rank) {
       case 1:
@@ -34,138 +28,79 @@ class LeaderboardEntry {
     }
   }
 
-  /// Get rank color
-  String getRankColor() {
-    switch (rank) {
-      case 1:
-        return '#FFD700'; // Gold
-      case 2:
-        return '#C0C0C0'; // Silver
-      case 3:
-        return '#CD7F32'; // Bronze
-      default:
-        return '#E0E0E0'; // Gray
-    }
-  }
-
-  /// Get status color
-  String getStatusColor() {
-    switch (status) {
-      case 'Consistent Performer':
-        return '#3498DB'; // Blue
-      case 'Employee of the Month':
-        return '#F39C12'; // Orange
-      case 'Best Branch Rep':
-        return '#2ECC71'; // Green
-      case 'Rising Star':
-        return '#9B59B6'; // Purple
-      default:
-        return '#95A5A6'; // Gray
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'rank': rank,
-      'employeeId': employeeId,
-      'employeeName': employeeName,
-      'branch': branch,
-      'performanceScore': performanceScore,
-      'achievements': achievements,
-      'status': status,
-      'profileImageUrl': profileImageUrl,
-    };
-  }
-}
-
-/// Top performers (top 3)
-class TopPerformer {
-  final int rank;
-  final String employeeName;
-  final String branch;
-  final double score;
-  final String medal; // 🥇 🥈 🥉
-
-  TopPerformer({
-    required this.rank,
-    required this.employeeName,
-    required this.branch,
-    required this.score,
-    required this.medal,
-  });
-
-  /// Get medal color
   String getMedalColor() {
     switch (rank) {
       case 1:
-        return '#FFD700'; // Gold
+        return '#FFD700';
       case 2:
-        return '#C0C0C0'; // Silver
+        return '#C0C0C0';
       case 3:
-        return '#CD7F32'; // Bronze
+        return '#CD7F32';
       default:
         return '#E0E0E0';
     }
   }
+
+  String getStatusColor() {
+    if (award == null || award!.isEmpty) return '#3498DB';
+    final a = award!.toLowerCase();
+    if (a.contains('month')) return '#F39C12';
+    if (a.contains('branch')) return '#2ECC71';
+    if (a.contains('star')) return '#9B59B6';
+    return '#3498DB';
+  }
+
+  String get statusLabel => award ?? 'Participant';
+
+  factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
+    return LeaderboardEntry(
+      rank: json['rank'] is int
+          ? json['rank']
+          : int.tryParse(json['rank']?.toString() ?? '0') ?? 0,
+      employeeId: json['employee_id']?.toString() ?? '',
+      employeeName: json['employee_name'] ?? '',
+      branch: json['branch'] ?? '',
+      score: double.tryParse(json['score']?.toString() ?? '0') ?? 0,
+      award: json['award'],
+    );
+  }
 }
 
-/// Performance leaderboard summary
-class PerformanceLeaderboardSummary {
-  final String filterMonth; // Month filter
-  final String filterBranch; // Branch filter
-  final List<TopPerformer> topThree; // Top 3 performers
-  final List<LeaderboardEntry> fullLeaderboard; // All entries
-  final double averageScore;
+class LeaderboardResponse {
+  final int month;
+  final int year;
+  final List<LeaderboardEntry> entries;
+  final double avgScore;
   final int totalParticipants;
-  final List<double> performanceTrend; // Last 12 months trend
 
-  PerformanceLeaderboardSummary({
-    required this.filterMonth,
-    required this.filterBranch,
-    required this.topThree,
-    required this.fullLeaderboard,
-    required this.averageScore,
+  LeaderboardResponse({
+    required this.month,
+    required this.year,
+    required this.entries,
+    required this.avgScore,
     required this.totalParticipants,
-    required this.performanceTrend,
   });
 
-  /// Get top performer
-  TopPerformer? getTopPerformer() {
-    return topThree.isNotEmpty ? topThree.first : null;
+  List<LeaderboardEntry> get topThree =>
+      entries.where((e) => e.rank <= 3).toList();
+
+  factory LeaderboardResponse.fromJson(Map<String, dynamic> json) {
+    return LeaderboardResponse(
+      month: json['month'] is int
+          ? json['month']
+          : int.tryParse(json['month']?.toString() ?? '1') ?? 1,
+      year: json['year'] is int
+          ? json['year']
+          : int.tryParse(json['year']?.toString() ?? '2026') ?? 2026,
+      entries: (json['entries'] as List<dynamic>?)
+              ?.map((e) => LeaderboardEntry.fromJson(e))
+              .toList() ??
+          [],
+      avgScore:
+          double.tryParse(json['avg_score']?.toString() ?? '0') ?? 0,
+      totalParticipants: json['total_participants'] is int
+          ? json['total_participants']
+          : int.tryParse(json['total_participants']?.toString() ?? '0') ?? 0,
+    );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'filterMonth': filterMonth,
-      'filterBranch': filterBranch,
-      'topThree': topThree.map((t) {
-        return {
-          'rank': t.rank,
-          'employeeName': t.employeeName,
-          'branch': t.branch,
-          'score': t.score,
-          'medal': t.medal,
-        };
-      }).toList(),
-      'fullLeaderboard': fullLeaderboard.map((e) => e.toJson()).toList(),
-      'averageScore': averageScore,
-      'totalParticipants': totalParticipants,
-      'performanceTrend': performanceTrend,
-    };
-  }
-}
-
-/// Performance status enum
-enum PerformanceStatus {
-  consistentPerformer('Consistent Performer', '✓', '#3498DB'),
-  employeeOfTheMonth('Employee of the Month', '⭐', '#F39C12'),
-  bestBranchRep('Best Branch Rep', '🏆', '#2ECC71'),
-  risingStar('Rising Star', '📈', '#9B59B6'),
-  newbie('Newbie', '🌱', '#95A5A6');
-
-  final String displayName;
-  final String icon;
-  final String color;
-
-  const PerformanceStatus(this.displayName, this.icon, this.color);
 }

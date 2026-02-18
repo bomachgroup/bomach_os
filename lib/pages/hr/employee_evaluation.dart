@@ -1,9 +1,12 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/hr/controller/employee_evaluation_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'models/employee_evaluation_models.dart';
+import 'package:get/get.dart';
+
+import 'models/monthly_scorecard_models.dart';
 
 class EmployeeEvaluationPage extends StatefulWidget {
   const EmployeeEvaluationPage({super.key});
@@ -14,14 +17,29 @@ class EmployeeEvaluationPage extends StatefulWidget {
 }
 
 class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
-  String selectedDepartment = 'Engineering';
-  String selectedPeriod = 'Q1 2025';
-  late EmployeeEvaluationForm evaluationForm;
+  final EmployeeEvaluationController _controller =
+      Get.put(EmployeeEvaluationController());
+  final TextEditingController _commentsController = TextEditingController();
+
+  static const List<String> _monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   @override
-  void initState() {
-    super.initState();
-    evaluationForm = _getMockEvaluationForm();
+  void dispose() {
+    _commentsController.dispose();
+    super.dispose();
   }
 
   @override
@@ -36,62 +54,129 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             style: AppText.black_500_32,
           ),
           const MyText(
-            'Quarterly Evaluation',
+            'Monthly Evaluation',
             style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
           kSizedBox,
 
           // Filters
-          Row(
-            spacing: 16,
-            children: [
-              Expanded(
-                child: _buildFilterDropdown(
-                  label: 'Department',
-                  value: selectedDepartment,
-                  items: ['Engineering', 'Sales', 'HR', 'Finance'],
-                  onChanged: (value) =>
-                      setState(() => selectedDepartment = value),
+          Obx(() {
+            return Row(
+              spacing: 16,
+              children: [
+                Expanded(
+                  child: _buildFilterDropdown(
+                    label: 'Month',
+                    value:
+                        _monthNames[_controller.selectedMonth.value - 1],
+                    items: _monthNames,
+                    onChanged: (value) {
+                      final monthIndex = _monthNames.indexOf(value) + 1;
+                      _controller.changeMonth(monthIndex);
+                    },
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _buildFilterDropdown(
-                  label: 'Period',
-                  value: selectedPeriod,
-                  items: ['Q1 2025', 'Q4 2024', 'Q3 2024'],
-                  onChanged: (value) =>
-                      setState(() => selectedPeriod = value),
+                Expanded(
+                  child: _buildFilterDropdown(
+                    label: 'Year',
+                    value: _controller.selectedYear.value.toString(),
+                    items: List.generate(
+                      5,
+                      (i) => (DateTime.now().year - 2 + i).toString(),
+                    ),
+                    onChanged: (value) {
+                      _controller.changeYear(int.parse(value));
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          }),
           kSizedBox,
 
-          // Employee Info Card
-          _buildEmployeeInfoCard(),
-          kSizedBox,
+          // Content
+          Obx(() {
+            if (_controller.isLoading.value) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(40.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
 
-          // Core Competencies Section
-          _buildCoreCompetenciesSection(),
-          kSizedBox,
+            if (_controller.errorMessage.isNotEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _controller.errorMessage.value,
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => _controller.fetchScorecard(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
 
-          // KPI Review Section
-          _buildKPIReviewSection(),
-          kSizedBox,
+            final scorecard = _controller.scorecard.value;
+            if (scorecard == null) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(40.0),
+                  child: Text(
+                    'No scorecard data found for this period',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ),
+              );
+            }
 
-          // Manager's Comments
-          _buildManagerCommentsSection(),
-          kSizedBox,
-
-          // Recommendation & Decision
-          _buildRecommendationSection(),
-          kSizedBox,
-
-          // Action Buttons
-          _buildActionButtons(),
-          kSizedBox,
+            return _buildEvaluationContent(scorecard);
+          }),
         ],
       ),
+    );
+  }
+
+  Widget _buildEvaluationContent(MonthlyScorecard scorecard) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Employee Info Card
+        _buildEmployeeInfoCard(scorecard),
+        kSizedBox,
+
+        // Performance Scores Section (from scorecard)
+        _buildPerformanceScoresSection(scorecard),
+        kSizedBox,
+
+        // KPI Review Section (from scorecard metrics)
+        _buildKPIReviewSection(scorecard),
+        kSizedBox,
+
+        // Manager's Comments
+        _buildManagerCommentsSection(),
+        kSizedBox,
+
+        // Recommendation & Decision
+        _buildRecommendationSection(),
+        kSizedBox,
+
+        // Action Buttons
+        _buildActionButtons(),
+        kSizedBox,
+      ],
     );
   }
 
@@ -127,7 +212,8 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             items: items
                 .map((item) => DropdownMenuItem(
                       value: item,
-                      child: MyText(item, style: const TextStyle(fontSize: 13)),
+                      child:
+                          MyText(item, style: const TextStyle(fontSize: 13)),
                     ))
                 .toList(),
           ),
@@ -136,7 +222,11 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
     );
   }
 
-  Widget _buildEmployeeInfoCard() {
+  Widget _buildEmployeeInfoCard(MonthlyScorecard scorecard) {
+    final scoreColor = Color(
+      int.parse(scorecard.getScoreColor().replaceFirst('#', '0xff')),
+    );
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -162,8 +252,15 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                   color: AppColors.lightBlue,
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
-                  child: Icon(Icons.person, color: AppColors.blue),
+                child: Center(
+                  child: MyText(
+                    scorecard.initials,
+                    style: const TextStyle(
+                      color: AppColors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
                 ),
               ),
               Expanded(
@@ -171,21 +268,21 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MyText(
-                      evaluationForm.employeeName,
+                      scorecard.employeeName,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     MyText(
-                      'Department: ${evaluationForm.department}',
+                      'Level: ${scorecard.formattedLevel}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
                       ),
                     ),
                     MyText(
-                      'Role: ${evaluationForm.role} | Branch: ${evaluationForm.branch}',
+                      'Period: ${_monthNames[scorecard.month - 1]} ${scorecard.year}',
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.grey.shade500,
@@ -199,27 +296,15 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                 spacing: 4,
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Color(
-                        int.parse(
-                          evaluationForm.getPerformanceColor()
-                              .replaceFirst('#', '0xff'),
-                        ),
-                      ).withValues(alpha: 0.1),
+                      color: scoreColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: Color(
-                          int.parse(
-                            evaluationForm.getPerformanceColor()
-                                .replaceFirst('#', '0xff'),
-                          ),
-                        ),
-                      ),
+                      border: Border.all(color: scoreColor),
                     ),
                     child: MyText(
-                      'Average Score',
+                      'Overall Score',
                       style: TextStyle(
                         fontSize: 10,
                         color: Colors.grey.shade700,
@@ -227,7 +312,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                     ),
                   ),
                   MyText(
-                    '${evaluationForm.averageScore.toStringAsFixed(1)}%',
+                    '${scorecard.overallScore.toStringAsFixed(1)}%',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -235,7 +320,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                     ),
                   ),
                   MyText(
-                    'Total ${evaluationForm.totalScore}',
+                    'Rank #${scorecard.ranking}',
                     style: TextStyle(
                       fontSize: 11,
                       color: Colors.grey.shade600,
@@ -250,12 +335,12 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
     );
   }
 
-  Widget _buildCoreCompetenciesSection() {
+  Widget _buildPerformanceScoresSection(MonthlyScorecard scorecard) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const MyText(
-          'Core Competence',
+          'Performance Scores',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -275,9 +360,8 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             ],
           ),
           child: Column(
-            children: evaluationForm.coreCompetencies
-                .map((competency) =>
-                    _buildCompetencyRow(competency))
+            children: scorecard.metrics
+                .map((metric) => _buildScoreRow(metric))
                 .toList(),
           ),
         ),
@@ -285,7 +369,12 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
     );
   }
 
-  Widget _buildCompetencyRow(CompetencyRating competency) {
+  Widget _buildScoreRow(MonthlyScorecardMetric metric) {
+    final achievement = metric.getAchievementPercentage();
+    final statusColor = Color(
+      int.parse(metric.getStatusColor().replaceFirst('#', '0xff')),
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
@@ -295,7 +384,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               MyText(
-                competency.competencyName,
+                metric.metricName,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -307,52 +396,29 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Color(
-                    int.parse(
-                      competency.getRatingColor().replaceFirst('#', '0xff'),
-                    ),
-                  ).withValues(alpha: 0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: Color(
-                      int.parse(
-                        competency.getRatingColor()
-                            .replaceFirst('#', '0xff'),
-                      ),
-                    ),
-                  ),
+                  border: Border.all(color: statusColor),
                 ),
                 child: MyText(
-                  '${competency.rating}',
+                  '${metric.currentValue.toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(
-                      int.parse(
-                        competency.getRatingColor()
-                            .replaceFirst('#', '0xff'),
-                      ),
-                    ),
+                    color: statusColor,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          // Rating bar
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: competency.rating / 5,
+              value: (achievement / 100).clamp(0.0, 1.0),
               minHeight: 6,
               backgroundColor: Colors.grey.shade200,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Color(
-                  int.parse(
-                    competency.getRatingColor().replaceFirst('#', '0xff'),
-                  ),
-                ),
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(statusColor),
             ),
           ),
         ],
@@ -360,7 +426,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
     );
   }
 
-  Widget _buildKPIReviewSection() {
+  Widget _buildKPIReviewSection(MonthlyScorecard scorecard) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -385,26 +451,49 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             ],
           ),
           child: Column(
-            children: evaluationForm.kpiReviews.asMap().entries.map((entry) {
-              final isLast = entry.key == evaluationForm.kpiReviews.length - 1;
-              return Column(
-                children: [
-                  _buildKPIRow(entry.value),
-                  if (!isLast)
-                    Divider(
-                      height: 16,
-                      color: Colors.grey.shade200,
-                    ),
-                ],
-              );
-            }).toList(),
+            children: [
+              _buildKPIRow(
+                'Target Score',
+                scorecard.targetScore.toStringAsFixed(1),
+                '%',
+              ),
+              Divider(height: 16, color: Colors.grey.shade200),
+              _buildKPIRow(
+                'Target Achievement',
+                scorecard.targetAchievement.toStringAsFixed(1),
+                '%',
+              ),
+              Divider(height: 16, color: Colors.grey.shade200),
+              _buildKPIRow(
+                'Overall Score',
+                scorecard.overallScore.toStringAsFixed(1),
+                '%',
+              ),
+              Divider(height: 16, color: Colors.grey.shade200),
+              _buildKPIRow(
+                'Ranking',
+                '#${scorecard.ranking}',
+                '',
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildKPIRow(KPIReview kpi) {
+  Widget _buildKPIRow(String label, String value, String unit) {
+    final numValue = double.tryParse(value.replaceAll('#', ''));
+    final isGood = numValue != null && numValue >= 75;
+
+    final statusLabel =
+        numValue != null && numValue >= 100
+            ? 'Exceeded'
+            : (isGood ? 'On Target' : 'Below Target');
+    final statusColor = numValue != null && numValue >= 100
+        ? const Color(0xFF16A34A)
+        : (isGood ? const Color(0xFF3B82F6) : const Color(0xFFEC2623));
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -416,14 +505,14 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
               spacing: 4,
               children: [
                 MyText(
-                  kpi.kpiName,
+                  label,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 MyText(
-                  '${kpi.achievedValue ?? '-'}${kpi.unit} / ${kpi.targetValue}${kpi.unit}',
+                  '$value$unit',
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.grey.shade600,
@@ -438,24 +527,16 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
               vertical: 4,
             ),
             decoration: BoxDecoration(
-              color: Color(
-                int.parse(kpi.getStatusColor().replaceFirst('#', '0xff')),
-              ).withValues(alpha: 0.1),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: Color(
-                  int.parse(kpi.getStatusColor().replaceFirst('#', '0xff')),
-                ),
-              ),
+              border: Border.all(color: statusColor),
             ),
             child: MyText(
-              kpi.status,
+              statusLabel,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Color(
-                  int.parse(kpi.getStatusColor().replaceFirst('#', '0xff')),
-                ),
+                color: statusColor,
               ),
             ),
           ),
@@ -490,9 +571,8 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
           ),
           child: TextField(
             maxLines: 4,
-            controller: TextEditingController(
-              text: evaluationForm.managerComments ?? '',
-            ),
+            controller: _commentsController,
+            onChanged: (value) => _controller.managerComments.value = value,
             decoration: InputDecoration(
               hintText: 'Enter manager comments...',
               border: OutlineInputBorder(
@@ -511,8 +591,6 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
   }
 
   Widget _buildRecommendationSection() {
-    final rec = evaluationForm.recommendation;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -536,23 +614,31 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
               ),
             ],
           ),
-          child: Column(
-            spacing: 12,
-            children: [
-              _buildCheckboxRow(
-                label: 'Promotion Required',
-                value: rec.promotionRecommended,
-              ),
-              _buildCheckboxRow(
-                label: 'Training Required',
-                value: rec.trainingRequired,
-              ),
-              _buildCheckboxRow(
-                label: 'Salary Increase',
-                value: rec.increaseRequired,
-              ),
-            ],
-          ),
+          child: Obx(() {
+            return Column(
+              spacing: 12,
+              children: [
+                _buildCheckboxRow(
+                  label: 'Promotion Required',
+                  value: _controller.promotionRequired.value,
+                  onChanged: (val) =>
+                      _controller.promotionRequired.value = val ?? false,
+                ),
+                _buildCheckboxRow(
+                  label: 'Training Required',
+                  value: _controller.trainingRequired.value,
+                  onChanged: (val) =>
+                      _controller.trainingRequired.value = val ?? false,
+                ),
+                _buildCheckboxRow(
+                  label: 'Salary Increase',
+                  value: _controller.salaryIncrease.value,
+                  onChanged: (val) =>
+                      _controller.salaryIncrease.value = val ?? false,
+                ),
+              ],
+            );
+          }),
         ),
       ],
     );
@@ -561,12 +647,13 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
   Widget _buildCheckboxRow({
     required String label,
     required bool value,
+    required ValueChanged<bool?> onChanged,
   }) {
     return Row(
       children: [
         Checkbox(
           value: value,
-          onChanged: (newValue) {},
+          onChanged: onChanged,
           activeColor: AppColors.blue,
         ),
         MyText(
@@ -578,133 +665,61 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
   }
 
   Widget _buildActionButtons() {
-    return Row(
-      spacing: 12,
-      children: [
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE74C3C),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const MyText(
-              'Save Draft',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              side: const BorderSide(color: AppColors.blue),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const MyText(
-              'Submit Evaluation',
-              style: TextStyle(
-                color: AppColors.blue,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.download, size: 16),
-            label: const MyText(
-              'Generate PDF',
-              style: TextStyle(
-                color: AppColors.blue,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.lightBlue,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              side: const BorderSide(color: AppColors.blue),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+    return Obx(() {
+      final isSubmitting = _controller.isSubmitting.value;
 
-  /// Mock evaluation form data
-  EmployeeEvaluationForm _getMockEvaluationForm() {
-    return EmployeeEvaluationForm(
-      evaluationId: 'eval-001',
-      employeeId: 'emp-001',
-      employeeName: 'Engr. Tochukwu David',
-      employeeEmail: 'tochukwu@company.com',
-      department: selectedDepartment,
-      role: 'Project Manager',
-      branch: 'Enugu',
-      evaluationPeriod: selectedPeriod,
-      evaluationDate: DateTime.now(),
-      evaluatorName: 'John Doe',
-      averageScore: 91,
-      totalScore: 27,
-      coreCompetencies: [
-        CompetencyRating(competencyName: 'Technical Skill', rating: 5),
-        CompetencyRating(competencyName: 'Communication', rating: 5),
-        CompetencyRating(competencyName: 'Teamwork', rating: 5),
-        CompetencyRating(competencyName: 'Innovation', rating: 5),
-        CompetencyRating(competencyName: 'Timeliness', rating: 4),
-      ],
-      kpiReviews: [
-        KPIReview(
-          kpiName: 'Tasks Completed',
-          achievedValue: 95,
-          targetValue: 100,
-          unit: '%',
-          status: 'On Target',
-        ),
-        KPIReview(
-          kpiName: 'Attendance Rate',
-          achievedValue: 95,
-          targetValue: 100,
-          unit: '%',
-          status: 'On Target',
-        ),
-        KPIReview(
-          kpiName: 'Training Hours',
-          achievedValue: 40,
-          targetValue: 30,
-          unit: 'hrs',
-          status: 'Exceeded',
-        ),
-        KPIReview(
-          kpiName: 'Reports Submitted',
-          achievedValue: 12,
-          targetValue: 12,
-          unit: '',
-          status: 'On Target',
-        ),
-      ],
-      managerComments:
-          'Excellent performance this quarter. Shows strong leadership and technical expertise. Recommended for advancement.',
-      recommendation: RecommendationDecision(
-        promotionRecommended: true,
-        trainingRequired: false,
-        increaseRequired: true,
-      ),
-      status: 'Draft',
-    );
+      return Row(
+        spacing: 12,
+        children: [
+          Expanded(
+            child: isSubmitting
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: () async {
+                      final success = await _controller.submitEvaluation();
+                      if (success && mounted) {
+                        _commentsController.clear();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.blue,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const MyText(
+                      'Submit Evaluation',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+          ),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.download, size: 16),
+              label: const MyText(
+                'Generate PDF',
+                style: TextStyle(
+                  color: AppColors.blue,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.lightBlue,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                side: const BorderSide(color: AppColors.blue),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    });
   }
 }
