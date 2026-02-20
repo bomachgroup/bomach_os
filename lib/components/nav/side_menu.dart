@@ -245,19 +245,19 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Branch Performance',
             route: RouteConstants.branchPerformanceAnalysis,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.enugu,
-            label: 'Enugu',
-            route: RouteConstants.enugu,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.portHarcourt,
-            label: 'Port Harcourt',
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.abuja,
-            label: 'Abuja',
-          ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.enugu,
+          //   label: 'Enugu',
+          //   route: RouteConstants.enugu,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.portHarcourt,
+          //   label: 'Port Harcourt',
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.abuja,
+          //   label: 'Abuja',
+          // ),
         ],
       ),
       const MenuItem(
@@ -435,19 +435,19 @@ class _SideMenuState extends State<SideMenu> {
           ),
         ],
       ),
-      const MenuItem(
-        id: MainMenuItem.marketing,
-        label: 'Marketing',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.marketing,
-            label: 'Marketing',
-            route: RouteConstants.marketing,
-          ),
-        ],
-      ),
+      // const MenuItem(
+      //   id: MainMenuItem.marketing,
+      //   label: 'Marketing',
+      //   iconPath: 'assets/svg/sidebar/joined-square.svg',
+      //   isExpandable: true,
+      //   children: [
+      //     SubMenuItemData(
+      //       id: SubMenuItem.marketing,
+      //       label: 'Marketing',
+      //       route: RouteConstants.marketing,
+      //     ),
+      //   ],
+      // ),
       const MenuItem(
         id: MainMenuItem.financeAccounting,
         label: 'Finance & Accounting',
@@ -486,12 +486,12 @@ class _SideMenuState extends State<SideMenu> {
           ),
         ],
       ),
-      const MenuItem(
-        id: MainMenuItem.calendar,
-        label: 'Calendar',
-        iconPath: 'assets/svg/sidebar/calendar.svg',
-        isExpandable: true,
-      ),
+      // const MenuItem(
+      //   id: MainMenuItem.calendar,
+      //   label: 'Calendar',
+      //   iconPath: 'assets/svg/sidebar/calendar.svg',
+      //   isExpandable: true,
+      // ),
       const MenuItem(
         id: MainMenuItem.events,
         label: 'Events',
@@ -748,26 +748,31 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Analytics',
             route: RouteConstants.crmAnalytics,
           ),
+          SubMenuItemData(
+            id: SubMenuItem.marketing,
+            label: 'Marketing',
+            route: RouteConstants.marketing,
+          ),
         ],
       ),
-      const MenuItem(
-        id: MainMenuItem.notification,
-        label: 'Notification',
-        iconPath: 'assets/svg/sidebar/papar.svg',
-        isExpandable: false,
-      ),
-      const MenuItem(
-        id: MainMenuItem.settings,
-        label: 'Settings',
-        iconPath: 'assets/svg/sidebar/settings.svg',
-        isExpandable: false,
-      ),
-      const MenuItem(
-        id: MainMenuItem.help,
-        label: 'Help',
-        iconPath: 'assets/svg/sidebar/help.svg',
-        isExpandable: false,
-      ),
+      // const MenuItem(
+      //   id: MainMenuItem.notification,
+      //   label: 'Notification',
+      //   iconPath: 'assets/svg/sidebar/papar.svg',
+      //   isExpandable: false,
+      // ),
+      // const MenuItem(
+      //   id: MainMenuItem.settings,
+      //   label: 'Settings',
+      //   iconPath: 'assets/svg/sidebar/settings.svg',
+      //   isExpandable: false,
+      // ),
+      // const MenuItem(
+      //   id: MainMenuItem.help,
+      //   label: 'Help',
+      //   iconPath: 'assets/svg/sidebar/help.svg',
+      //   isExpandable: false,
+      // ),
       const MenuItem(
         id: MainMenuItem.logout,
         label: 'Logout',
