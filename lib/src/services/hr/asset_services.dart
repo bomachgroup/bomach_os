@@ -37,6 +37,7 @@ class AssetService {
     String token, {
     String? search,
     String? branch,
+    String? departmentId, // Added parameter
     String? assetType,
     String? status,
     int limit = 100,
@@ -46,10 +47,13 @@ class AssetService {
       final response = await _dio.get(
         '/assets/',
         queryParameters: {
-          if (search != null) 'search': search,
-          if (branch != null) 'branch': branch,
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (branch != null && branch != 'All') 'branch': branch,
+          if (departmentId != null && departmentId != 'All')
+            'department_id': departmentId,
+          if (status != null && status != 'All') 'status': status,
+          // Asset Type is removed from UI filters but kept in service just in case
           if (assetType != null) 'asset_type': assetType,
-          if (status != null) 'status': status,
           'limit': limit,
           'offset': offset,
         },

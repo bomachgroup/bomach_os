@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 
 import '../controller/assets_controller.dart';
 import '../models/assets_model.dart';
+
 class AddAssetDialog extends StatefulWidget {
   final String token;
   final Asset? assetToEdit;
@@ -32,6 +33,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
   late TextEditingController departmentIdCtrl;
   late TextEditingController purchaseDateCtrl;
   late TextEditingController valueCtrl;
+  late TextEditingController vendorCtrl; // Added Vendor Controller
   late TextEditingController invoiceNumberCtrl;
   late TextEditingController warrantyDateCtrl;
   late TextEditingController notesCtrl;
@@ -40,24 +42,47 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
   String? selectedBranch;
   String? selectedStatus;
 
-  final List<String> assetTypes = ['Laptop', 'Printer', 'Vehicle', 'Furniture', 'Equipment', 'IT Equipment'];
-  final List<String> branches = ['Enugu Branch', 'Lagos Branch', 'Abuja Branch'];
-  final List<String> statuses = ['active', 'in-use', 'maintenance', 'retired'];
+  final List<String> assetTypes = [
+    'Laptop',
+    'Printer',
+    'Vehicle',
+    'Furniture',
+    'Equipment',
+    'IT Equipment'
+  ];
+  final List<String> branches = [
+    'Enugu Branch',
+    'Lagos Branch',
+    'Abuja Branch'
+  ];
+  final List<String> statuses = [
+    'available',
+    'in-use',
+    'maintenance',
+    'retired'
+  ];
 
   @override
   void initState() {
     super.initState();
     final a = widget.assetToEdit;
-    
+
     nameCtrl = TextEditingController(text: a?.name ?? '');
     serialCtrl = TextEditingController(text: a?.serialNumber ?? '');
     manufacturerCtrl = TextEditingController(text: a?.manufacturer ?? '');
     assignedToIdCtrl = TextEditingController(text: a?.assignedToId ?? '');
     departmentIdCtrl = TextEditingController(text: a?.departmentId ?? '');
-    purchaseDateCtrl = TextEditingController(text: a?.purchaseDate != null ? DateFormat('yyyy-MM-dd').format(a!.purchaseDate!) : '');
+    purchaseDateCtrl = TextEditingController(
+        text: a?.purchaseDate != null
+            ? DateFormat('yyyy-MM-dd').format(a!.purchaseDate)
+            : '');
     valueCtrl = TextEditingController(text: a?.value.toString() ?? '');
+    vendorCtrl = TextEditingController(text: a?.vendor ?? '');
     invoiceNumberCtrl = TextEditingController(text: a?.invoiceNumber ?? '');
-    warrantyDateCtrl = TextEditingController(text: a?.warrantyExpiryDate != null ? DateFormat('yyyy-MM-dd').format(a!.warrantyExpiryDate!) : '');
+    warrantyDateCtrl = TextEditingController(
+        text: a?.warrantyExpiryDate != null
+            ? DateFormat('yyyy-MM-dd').format(a!.warrantyExpiryDate)
+            : '');
     notesCtrl = TextEditingController(text: a?.notes ?? '');
 
     selectedAssetType = a?.assetType;
@@ -74,6 +99,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     departmentIdCtrl.dispose();
     purchaseDateCtrl.dispose();
     valueCtrl.dispose();
+    vendorCtrl.dispose();
     invoiceNumberCtrl.dispose();
     warrantyDateCtrl.dispose();
     notesCtrl.dispose();
@@ -92,29 +118,48 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     }
   }
 
+  String? _requiredValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+    return null;
+  }
+
   void _save() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Validate Dropdowns manually if needed (assuming MyDropdown doesn't natively integrate with Form)
+    if (selectedAssetType == null ||
+        selectedBranch == null ||
+        selectedStatus == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please select all dropdown options"),
+          backgroundColor: Colors.red));
+      return;
+    }
 
     final newAsset = Asset(
       id: widget.assetToEdit?.id ?? '',
       name: nameCtrl.text,
-      assetType: selectedAssetType ?? '',
-      branch: selectedBranch ?? '',
-      status: selectedStatus ?? 'active',
+      assetType: selectedAssetType!,
+      branch: selectedBranch!,
+      status: selectedStatus!,
       value: double.tryParse(valueCtrl.text) ?? 0.0,
       serialNumber: serialCtrl.text,
       manufacturer: manufacturerCtrl.text,
-      assignedToId: assignedToIdCtrl.text.isEmpty ? null : assignedToIdCtrl.text,
-      departmentId: departmentIdCtrl.text.isEmpty ? null : departmentIdCtrl.text,
-      purchaseDate: DateTime.tryParse(purchaseDateCtrl.text),
+      assignedToId: assignedToIdCtrl.text,
+      departmentId: departmentIdCtrl.text,
+      purchaseDate: DateTime.parse(purchaseDateCtrl.text),
+      vendor: vendorCtrl.text,
       invoiceNumber: invoiceNumberCtrl.text,
-      warrantyExpiryDate: DateTime.tryParse(warrantyDateCtrl.text),
+      warrantyExpiryDate: DateTime.parse(warrantyDateCtrl.text),
       notes: notesCtrl.text,
     );
 
     bool success;
     if (widget.assetToEdit != null) {
-      success = await controller.updateAsset(widget.token, widget.assetToEdit!.id, newAsset);
+      success = await controller.updateAsset(
+          widget.token, widget.assetToEdit!.id, newAsset);
     } else {
       success = await controller.createAsset(widget.token, newAsset);
     }
@@ -122,9 +167,12 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     if (!mounted) return;
     if (success) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Asset saved successfully"), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Asset saved successfully"),
+          backgroundColor: Colors.green));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to save asset"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Failed to save asset"), backgroundColor: Colors.red));
     }
   }
 
@@ -146,28 +194,43 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    MyText(widget.assetToEdit == null ? 'Add New Asset' : 'Edit Asset', size: 20, weight: 600),
-                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                    MyText(
+                        widget.assetToEdit == null
+                            ? 'Add New Asset'
+                            : 'Edit Asset',
+                        size: 20,
+                        weight: 600),
+                    IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context)),
                   ],
                 ),
                 const SizedBox(height: 24),
-
                 const MyText('Asset Information', size: 16, weight: 600),
                 const SizedBox(height: 16),
-                MyTextFormField(hintText: 'Asset Name', controller: nameCtrl),
+                MyTextFormField(
+                    hintText: 'Asset Name',
+                    controller: nameCtrl,
+                    validator: _requiredValidator),
                 kSizedBoxSM,
                 MyDropdown(
                   title: 'Asset Type',
                   hintText: selectedAssetType ?? 'Select Type',
                   items: assetTypes,
-                  onChanged: (value) => setState(() => selectedAssetType = value),
+                  onChanged: (value) =>
+                      setState(() => selectedAssetType = value),
                 ),
                 kSizedBoxSM,
-                MyTextFormField(hintText: 'Serial Number', controller: serialCtrl),
+                MyTextFormField(
+                    hintText: 'Serial Number',
+                    controller: serialCtrl,
+                    validator: _requiredValidator),
                 kSizedBoxSM,
-                MyTextFormField(hintText: 'Manufacturer', controller: manufacturerCtrl),
+                MyTextFormField(
+                    hintText: 'Manufacturer',
+                    controller: manufacturerCtrl,
+                    validator: _requiredValidator),
                 const SizedBox(height: 24),
-
                 const MyText('Location & Assignment', size: 16, weight: 600),
                 const SizedBox(height: 16),
                 MyDropdown(
@@ -177,23 +240,43 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                   onChanged: (value) => setState(() => selectedBranch = value),
                 ),
                 kSizedBoxSM,
-                MyTextFormField(hintText: 'Assigned To ID', controller: assignedToIdCtrl),
+                MyTextFormField(
+                    hintText: 'Assigned To ID',
+                    controller: assignedToIdCtrl,
+                    validator: _requiredValidator),
                 kSizedBoxSM,
-                MyTextFormField(hintText: 'Department ID', controller: departmentIdCtrl),
+                MyTextFormField(
+                    hintText: 'Department ID',
+                    controller: departmentIdCtrl,
+                    validator: _requiredValidator),
                 const SizedBox(height: 24),
-
                 const MyText('Financial Information', size: 16, weight: 600),
                 const SizedBox(height: 16),
                 InkWell(
                   onTap: () => _selectDate(purchaseDateCtrl),
-                  child: IgnorePointer(child: MyTextFormField(hintText: 'Purchase Date (YYYY-MM-DD)', controller: purchaseDateCtrl)),
+                  child: IgnorePointer(
+                      child: MyTextFormField(
+                          hintText: 'Purchase Date (YYYY-MM-DD)',
+                          controller: purchaseDateCtrl,
+                          validator: _requiredValidator)),
                 ),
                 kSizedBoxSM,
-                MyTextFormField(hintText: 'Asset Value', controller: valueCtrl),
+                MyTextFormField(
+                    hintText: 'Asset Value',
+                    controller: valueCtrl,
+                    validator: _requiredValidator,
+                    keyboardType: TextInputType.number),
                 kSizedBoxSM,
-                MyTextFormField(hintText: 'Invoice Number', controller: invoiceNumberCtrl),
+                MyTextFormField(
+                    hintText: 'Vendor',
+                    controller: vendorCtrl,
+                    validator: _requiredValidator),
+                kSizedBoxSM,
+                MyTextFormField(
+                    hintText: 'Invoice Number',
+                    controller: invoiceNumberCtrl,
+                    validator: _requiredValidator),
                 const SizedBox(height: 24),
-
                 const MyText('Status & Warranty', size: 16, weight: 600),
                 const SizedBox(height: 16),
                 MyDropdown(
@@ -205,21 +288,33 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                 kSizedBoxSM,
                 InkWell(
                   onTap: () => _selectDate(warrantyDateCtrl),
-                  child: IgnorePointer(child: MyTextFormField(hintText: 'Warranty Expiry Date', controller: warrantyDateCtrl)),
+                  child: IgnorePointer(
+                      child: MyTextFormField(
+                          hintText: 'Warranty Expiry Date',
+                          controller: warrantyDateCtrl,
+                          validator: _requiredValidator)),
                 ),
                 kSizedBoxSM,
-                MyTextFormField(hintText: 'Additional Notes', controller: notesCtrl, maxLines: 3),
+                MyTextFormField(
+                    hintText: 'Additional Notes',
+                    controller: notesCtrl,
+                    maxLines: 3,
+                    validator: _requiredValidator),
                 const SizedBox(height: 24),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    MyOutlinedButton(textColor: AppColors.darkGrey1, child: 'Cancel', onTap: () => Navigator.pop(context)),
+                    MyOutlinedButton(
+                        textColor: AppColors.darkGrey1,
+                        child: 'Cancel',
+                        onTap: () => Navigator.pop(context)),
                     const SizedBox(width: 12),
                     Obx(() => MyElevatedButton(
-                      child: controller.isSaving.value ? 'Saving...' : 'Save Asset',
-                      onTap: controller.isSaving.value ? () {} : _save,
-                    )),
+                          child: controller.isSaving.value
+                              ? 'Saving...'
+                              : 'Save Asset',
+                          onTap: controller.isSaving.value ? () {} : _save,
+                        )),
                   ],
                 ),
               ],

@@ -11,6 +11,7 @@ import 'package:bms_front_end/pages/company/audit_log.dart';
 import 'package:bms_front_end/pages/company/branch.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/pages/company/compliance.dart';
+import 'package:bms_front_end/pages/company/department_units.dart';
 import 'package:bms_front_end/pages/crm/crm.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/employee/employee.dart';
@@ -31,7 +32,6 @@ import 'package:bms_front_end/pages/hr/assets.dart';
 import 'package:bms_front_end/pages/hr/associates.dart';
 import 'package:bms_front_end/pages/hr/attendance.dart';
 import 'package:bms_front_end/pages/hr/clock_in.dart';
-import 'package:bms_front_end/pages/hr/department.dart';
 import 'package:bms_front_end/pages/hr/hr.dart';
 import 'package:bms_front_end/pages/hr/applicants.dart';
 import 'package:bms_front_end/pages/hr/job_post.dart';
@@ -56,14 +56,12 @@ import 'package:bms_front_end/pages/marketing/site_detail.dart';
 import 'package:bms_front_end/pages/operations/contract.dart';
 import 'package:bms_front_end/pages/operations/contract_detail.dart';
 import 'package:bms_front_end/pages/operations/each_project.dart';
-import 'package:bms_front_end/pages/operations/operation_task_detail.dart';
 import 'package:bms_front_end/pages/operations/operations.dart';
 import 'package:bms_front_end/pages/operations/project_detail.dart';
 import 'package:bms_front_end/pages/operations/projects.dart';
 import 'package:bms_front_end/pages/operations/task.dart';
 import 'package:bms_front_end/pages/operations/task_detail.dart';
 import 'package:bms_front_end/pages/operations/timeline_detail.dart';
-import 'package:bms_front_end/pages/operations/widget/project_work_sites.dart';
 import 'package:bms_front_end/pages/operations/worksite_detail.dart';
 import 'package:bms_front_end/pages/services/clients.dart';
 import 'package:bms_front_end/pages/services/estate_detail_page.dart';
@@ -100,6 +98,8 @@ import '../../pages/analytics/projects.dart';
 import '../../pages/analytics/revenue.dart';
 import '../../pages/analytics/branch_performance_analysis.dart';
 import '../../pages/auth/controller.dart';
+import '../../pages/auth/forgot_password.dart';
+import '../../pages/auth/reset_password.dart';
 import '../../pages/crm/clients.dart';
 import '../../pages/crm/interactions.dart';
 import '../../pages/crm/lead.dart';
@@ -108,9 +108,9 @@ import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
 import 'refresh_route.dart';
 
-/// Map of all dashboard screens to their routes for better maintainability
 final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.home: const DashboardScreen(),
+
   // hr
   RouteConstants.hr: const HRPage(),
   RouteConstants.employees: const EmployeeDatabase(),
@@ -130,7 +130,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.realEstate: const RealEstateScreen(),
   RouteConstants.leaves: const LeavesPage(),
   RouteConstants.meetings: const Meetings(),
-  RouteConstants.department: const DepartmentPage(),
+  RouteConstants.department: const DepartmentsUnitsPage(),
   RouteConstants.serviceOrder: const ServiceOrder(),
   RouteConstants.landSurvey: const LandSurveyScreen(),
   RouteConstants.realEstateDetail: const RealEstateDetailScreen(),
@@ -142,7 +142,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.company: const CompanyProfilePage(),
   RouteConstants.branch: const BranchListPage(),
   RouteConstants.auditLog: const AuditLogPage(),
-  RouteConstants.compliance: const CompliancePage(),
+  // RouteConstants.compliance: const CompliancePage(),
   RouteConstants.enugu: const BranchPage(),
   RouteConstants.finance: const FinancePage(),
   RouteConstants.invoice: const InvoicePage(),
@@ -265,19 +265,24 @@ final goRouter = GoRouter(
     final bool isLoggedIn = authController.currentUser.value != null;
     final String location = state.matchedLocation;
 
-    final bool isLoginRoute = location == RouteConstants.login;
+    // 1. Define all routes that should be accessible WITHOUT logging in
+    final bool isPublicRoute = location == RouteConstants.login ||
+        location == RouteConstants.biometric ||
+        location == RouteConstants.forgotPassword ||
+        location == RouteConstants.resetPassword;
 
-    // Not logged in? Go to Login
-    if (!isLoggedIn && !isLoginRoute) {
+    // 2. If NOT logged in and trying to access a PRIVATE route -> Redirect to Login
+    if (!isLoggedIn && !isPublicRoute) {
       return RouteConstants.login;
     }
 
-    // Logged in and trying to go to Login? Go to Home
-    if (isLoggedIn && isLoginRoute) {
+     // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to Home
+    // (Prevents users from seeing login/biometric screens if they are already authenticated)
+   if (isLoggedIn && isPublicRoute) {
       return RouteConstants.home;
     }
 
-    // Let them go where they want
+    // 4. Otherwise, let them go where they want
     return null;
   },
   routes: [
@@ -288,6 +293,14 @@ final goRouter = GoRouter(
     ),
 
     // Biometric login route (outside the dashboard shell)
+    GoRoute(
+      path: RouteConstants.forgotPassword,
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: RouteConstants.resetPassword,
+      builder: (context, state) => const ResetPasswordScreen(),
+    ),
     GoRoute(
       path: RouteConstants.biometric,
       builder: (context, state) => const BiometricLoginScreen(),

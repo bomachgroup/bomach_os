@@ -1,8 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
-import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/company/widget/add_branch_dialog.dart';
 import 'package:bms_front_end/pages/company/widget/view_branch_dialog.dart';
@@ -15,213 +13,145 @@ import 'package:get/get.dart';
 
 import 'controllers/branch_controller.dart';
 
-class BranchListPage extends StatefulWidget {
+class BranchListPage extends StatelessWidget {
   const BranchListPage({super.key});
 
   @override
-  State<BranchListPage> createState() => BranchListPageState();
-}
-
-class BranchListPageState extends State<BranchListPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  final BranchController controller = Get.put(BranchController());
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _showStateFilterDialog(BuildContext context) {
-    if (controller.stateList.isEmpty) {
-      controller.fetchStatesForCountry(1);
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Filter by State"),
-          content: SizedBox(
-            width: 300,
-            child: Obx(() {
-              if (controller.isFetchingStates.value) {
-                return const LinearProgressIndicator();
-              }
-
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      title: const Text("All States",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      onTap: () {
-                        controller.fetchBranches();
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Divider(),
-                    ...controller.stateList.map((state) => ListTile(
-                          title: Text(state.name),
-                          onTap: () {
-                            controller.applyStateFilter(state.id);
-                            Navigator.pop(context);
-                          },
-                        )),
-                  ],
-                ),
-              );
-            }),
-          ),
-        );
-      },
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final BranchController controller = Get.put(BranchController());
+    final ScrollController scrollController = ScrollController();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // --- Header ---
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Branch',
-                        style: AppText.black_500_32,
-                      ),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
-                    child: "New Branch",
-                    onTap: () {
-                      // Trigger loading resources before showing dialog
-                      controller.loadFormResources();
-
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AddBranchDialog();
-                        },
-                      );
-                    },
-                  )
-                ],
-              ),
+            const MyText('Branches', style: AppText.black_600_32),
+            MyElevatedButton(
+              height: 40,
+              icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 18),
+              child: "New Branch",
+              onTap: () {
+                controller.loadFilterResources(); // Ensure fresh data
+                showDialog(
+                  context: context,
+                  builder: (context) => const AddBranchDialog(),
+                );
+              },
             ),
           ],
         ),
         kSizedBox,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
+
+        // --- Filter Bar ---
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  SizedBox(
-                    width: 250,
+                  // Search
+                  Expanded(
+                    flex: 2,
                     child: MyTextFormField(
                       hintText: 'Search by name, role, department...',
-                      onChanged: (val) {
-                        controller.setSearch(val ?? '');
-                      },
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
+                      onChanged: controller.onSearchChanged,
+                      leading: Icon(Icons.search, color: AppColors.grey1.withOpacity(0.5)),
                     ),
                   ),
-                  Row(
-                    spacing: 15,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () => _showStateFilterDialog(context),
-                        child: const SortBar(text: "Filter State"),
-                      ),
-                      InkWell(
-                        onTap: () => controller.toggleActiveFilter(),
-                        child: Obx(() {
-                          final isActive = controller.activeFilter.value;
-                          return SortBar(
-                            text: isActive ? "Active Only" : "All Status",
-                          );
-                        }),
-                      ),
-                    ],
-                  )
+                  if (MediaQuery.of(context).size.width > 900) ...[
+                    const SizedBox(width: 16),
+                    _buildFilters(controller),
+                  ],
                 ],
               ),
-            ),
-          ],
+              // Mobile/Tablet Filter Wrap
+              if (MediaQuery.of(context).size.width <= 900) ...[
+                const SizedBox(height: 16),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: _buildFilters(controller),
+                ),
+              ]
+            ],
+          ),
         ),
-        kSizedBox,
+        
         kSizedBoxSM,
+
+        // --- Table ---
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
           ),
           child: Column(
             children: [
               Scrollbar(
-                controller: _scrollController,
+                controller: scrollController,
                 thumbVisibility: true,
-                trackVisibility: true,
                 child: SingleChildScrollView(
-                  controller: _scrollController,
+                  controller: scrollController,
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
+                    constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 100),
                     child: Obx(() {
                       if (controller.isLoadingList.value) {
-                        return const SizedBox(
-                          height: 300,
-                          child: Center(child: CircularProgressIndicator()),
-                        );
+                        return const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()));
                       }
-
                       if (controller.branchList.isEmpty) {
-                        return const SizedBox(
-                          height: 200,
-                          child: Center(child: Text("No branches found.")),
-                        );
+                        return const Center(child: Padding(padding: EdgeInsets.all(40), child: Text("No branches found.")));
                       }
 
                       return DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
+                        headingRowColor: MaterialStateProperty.all(Colors.grey.shade50),
+                        dataRowMinHeight: 60,
+                        dataRowMaxHeight: 60,
                         columnSpacing: 24,
                         horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows: _createRows(context, controller.branchList),
-                        showBottomBorder: true,
+                        columns: const [
+                          DataColumn(label: MyText("ID")),
+                          DataColumn(label: MyText("Name")),
+                          DataColumn(label: MyText("Type")),
+                          DataColumn(label: MyText("Location")),
+                          DataColumn(label: MyText("Status")),
+                          DataColumn(label: MyText("Action")),
+                        ],
+                        rows: _buildRows(context, controller.branchList, controller),
                       );
                     }),
                   ),
                 ),
               ),
-              const MyPaginator(),
+              const SizedBox(height: 16),
+              // Pagination
+              Obx(() => Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: controller.currentPage.value > 1 ? controller.prevPage : null,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(color: AppColors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                    child: MyText("Page ${controller.currentPage.value}", color: AppColors.blue, weight: 600),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right),
+                    onPressed: controller.hasMore.value ? controller.nextPage : null,
+                  ),
+                ],
+              )),
             ],
           ),
         ),
@@ -229,131 +159,94 @@ class BranchListPageState extends State<BranchListPage> {
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText("Branch ID"),
-      ),
-      const DataColumn(label: MyText("Branch name")),
-      const DataColumn(label: MyText("Location")),
-      const DataColumn(label: MyText("Manager")),
-      const DataColumn(label: MyText("Status")),
-      const DataColumn(label: MyText("Action")),
-    ];
+  Widget _buildFilters(BranchController controller) {
+    return Obx(() => Row(
+      children: [
+        // State Filter
+        _buildDropdown(
+          hint: "All States",
+          value: controller.stateList.any((s) => s.id == controller.filterStateId.value) 
+              ? controller.stateList.firstWhere((s) => s.id == controller.filterStateId.value).name 
+              : "All States",
+          items: ["All States", ...controller.stateList.map((s) => s.name)],
+          onChanged: controller.onStateFilterChanged,
+        ),
+        const SizedBox(width: 12),
+        // Type Filter (Branch Role)
+        _buildDropdown(
+          hint: "All Types",
+          value: controller.filterBranchRole.value ?? "All Types",
+          items: ["All Types", ...?controller.fieldChoices.value?.branchRole.map((e) => e.label)],
+          onChanged: (val) => controller.onTypeFilterChanged(val == "All Types" ? null : val),
+        ),
+        const SizedBox(width: 12),
+        // Status Filter
+        _buildDropdown(
+          hint: "Status",
+          value: controller.filterStatus.value ?? "All Status",
+          items: ["All Status", ...?controller.fieldChoices.value?.operationalStatus.map((e) => e.label)],
+          onChanged: (val) => controller.onStatusFilterChanged(val == "All Status" ? null : val),
+        ),
+      ],
+    ));
   }
 
-  List<DataRow> _createRows(BuildContext context, List<Branch> branches) {
+  Widget _buildDropdown({required String hint, required String? value, required List<String> items, required Function(String?) onChanged}) {
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: items.contains(value) ? value : items.first,
+          icon: const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
+          style: const TextStyle(fontSize: 13, color: Colors.black87),
+          items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  List<DataRow> _buildRows(BuildContext context, List<Branch> branches, BranchController controller) {
     return branches.map((branch) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          MyText(
-            branch.branchId.isNotEmpty ? branch.branchId : "#${branch.id}",
-            size: 16,
-            weight: 400,
-            isSelectable: false,
-          ),
-        ),
-        DataCell(
-          onTap: () {
+      return DataRow(cells: [
+        DataCell(MyText("#${branch.id}", color: Colors.grey)),
+        DataCell(MyText(branch.branchName, weight: 500)),
+        DataCell(MyText(branch.branchRoleDisplay.isNotEmpty ? branch.branchRoleDisplay : branch.branchRole)),
+        DataCell(MyText(branch.stateName.isNotEmpty ? branch.stateName : branch.countryName)),
+        DataCell(_buildStatusBadge(branch.operationalStatusDisplay)),
+        DataCell(ThreeDotPop(
+          onTapView: () {
             controller.fetchBranchDetails(branch.id);
-
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const ViewBranchDialog();
-              },
-            );
+            showDialog(context: context, builder: (_) => const ViewBranchDialog());
           },
-          MyText(branch.branchName),
-        ),
-        DataCell(
-          MyText(branch.stateName.isNotEmpty
-              ? branch.stateName
-              : branch.countryName),
-        ),
-        DataCell(
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText(
-                branch.managerName.isNotEmpty
-                    ? branch.managerName
-                    : "Unassigned",
-                size: 16,
-                weight: 400,
-                isSelectable: false,
-              ),
-              MyText(branch.contactEmail, size: 14, weight: 300)
-            ],
-          ),
-        ),
-        DataCell(
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          width: 0.6,
-                          color: _getStatusColor(branch.operationalStatus)),
-                      color: _getStatusColor(branch.operationalStatus)
-                          .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Center(
-                      child: MyText(branch.operationalStatusDisplay.isNotEmpty
-                          ? branch.operationalStatusDisplay
-                          : "Unknown"),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        DataCell(
-          ThreeDotPop(
-            onTapView: () {
-              controller.fetchBranchDetails(branch.id);
-
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return const ViewBranchDialog();
-                },
-              );
-            },
-            onTapEdit: () {
-              controller.loadFormResources();
-
-              showDialog(
-                context: context,
-                builder: (context) => AddBranchDialog(
-                  branchToEdit: branch,
-                ),
-              );
-            },
-          ),
-        ),
+          onTapEdit: () {
+            controller.loadFilterResources();
+            showDialog(context: context, builder: (_) => AddBranchDialog(branchToEdit: branch));
+          },
+        )),
       ]);
     }).toList();
   }
 
-  Color _getStatusColor(String status) {
-    status = status.toLowerCase();
-    if (status == 'active' || status == 'operational') {
-      return Colors.green;
-    } else if (status == 'inactive' || status == 'closed') {
-      return Colors.red;
-    } else if (status == 'maintenance') {
-      return Colors.orange;
-    }
-    return Colors.grey;
+  Widget _buildStatusBadge(String status) {
+    Color color = Colors.grey;
+    if (status.toLowerCase().contains('active') || status.toLowerCase().contains('operational')) color = Colors.green;
+    else if (status.toLowerCase().contains('inactive') || status.toLowerCase().contains('closed')) color = Colors.red;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.5)),
+      ),
+      child: Text(status, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+    );
   }
 }

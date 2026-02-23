@@ -2,11 +2,15 @@ class RouteConstants {
   static const String login = '/login';
   static const String biometric = '/biometric';
   static const String home = '/dashboard';
+  static const String resetPassword = '/reset-password';
+  static const String forgotPassword = '/forgot-password';
+
   static const String company = '/company';
   static const String enugu = '/company/enugu';
   static const String branch = '/company/branch';
   static const String auditLog = '/company/audit-log';
-  static const String compliance = '/company/compliance';
+  // static const String compliance = '/company/compliance';
+
   // marketing
   static const String marketing = '/marketing';
   static const String marketingLeadDetail = '/marketing/lead/detail';
@@ -26,13 +30,14 @@ class RouteConstants {
   static const String tasks = '/works/tasks';
   static const String contracts = '/works/contracts';
   static const String worksite = '/works/worksite';
+
   // hr
   static const String employees = '/hr/employees';
   static const String addEmployees = '/hr/employees/add';
   static const String employeeProfile = '/hr/employees/profile';
   static const String leaves = '/hr/leaves';
   static const String meetings = '/hr/meetings';
-  static const String department = '/hr/department';
+  static const String department = '/company/department';
   static const String hr = '/hr';
   static const String jobPost = '/hr/job-post';
   static const String jobApplicants = '/hr/applicants';
@@ -43,13 +48,14 @@ class RouteConstants {
   static const String performanceReview = '/hr/performance-review';
   static const String clockIn = '/hr/clock-in';
   static const String associates = '/hr/associates';
-  static const String assets = '/hr/assets';
+  static const String assets = '/company/assets';
   static const String workReport = '/hr/work-report';
   static const String monthlyScorecard = '/hr/monthly-scorecard';
   static const String awardsRecognition = '/hr/awards-recognition';
   static const String performanceLeaderboard = '/hr/performance-leaderboard';
   static const String employeeEvaluation = '/hr/employee-evaluation';
   static const String disciplinaryProcess = '/hr/disciplinary-process';
+
   // services
   static const String services = '/services';
   static const String servicesProperty = '/services-property';
@@ -62,12 +68,15 @@ class RouteConstants {
   static const String landSurveyDetail = '/services/land-survey/detail';
   static const String landSurveyCalculator = '/services/land-survey-calculator';
   static const String servicesCalculator = '/services/services-calculator';
+
   // Property Management
   static const String propertyList = '/services/property';
   static const String propertyDetail = '/services/property/detail';
+
   // Service Client management
   static const String serviceClients = '/services/clients';
   static const String serviceClientUpload = '/services/clients/upload';
+
   // Service Invoice Management
   static const String generateInvoice = '/services/generate-invoice';
   static const String serviceLeads = '/services/leads';
@@ -77,6 +86,7 @@ class RouteConstants {
   static const String estateManagement = '/services/estate-management';
   static const String estateDetail = '/services/estate/detail';
   static const String estatePerformance = '/services/estate-performance';
+
   // Payment Approval
   static const String paymentApproval = '/services/payment-approval';
   static const String finance = '/finance';
@@ -85,15 +95,18 @@ class RouteConstants {
   static const String expense = '/finance/expense';
   static const String contractPayment = '/finance/contract-payment';
   static const String budget = '/finance/budget';
+
   // workspace
   static const String workspace = '/workspace';
   static const String workspaceDashboard = '/workspace-dashboard';
+
   // Analytics
   static const String analyticsOverview = '/analytics';
   static const String analyticsRevenue = '/analytics/revenue';
   static const String analyticsProjects = '/analytics/projects';
   static const String analyticsPerformance = '/analytics/performance';
-  static const String branchPerformanceAnalysis = '/analytics/branch-performance';
+  static const String branchPerformanceAnalysis =
+      '/analytics/branch-performance';
 
   // Legal & Compliance
   static const String legalContracts = '/legal/contracts';
@@ -119,6 +132,7 @@ class RouteConstants {
   static const String crmClients = '/crm/clients';
   static const String crmLeads = '/crm/leads';
   static const String crmInteractions = '/crm/interactions';
+
   // Events
   static const String events = '/events';
 

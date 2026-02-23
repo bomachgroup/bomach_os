@@ -49,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           return Stack(
             children: [
+              // Background Image
               Container(
                 alignment: Alignment.center,
                 width: double.infinity,
@@ -58,6 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     fit: BoxFit.cover,
                   ),
                 ),
+                // Login Card
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
@@ -73,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        // Logo
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
@@ -100,6 +103,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Colors.white),
                         ),
                         kSizedBox,
+
+                        // User ID Field
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30.0),
                           child: MyTextFormField(
@@ -112,6 +117,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         kSizedBox,
+
+                        // PIN/Password Field with Obscure Toggle
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30.0),
                           child: MyTextFormField(
@@ -121,10 +128,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             textColor: AppColors.white,
                             borderRadius: BorderRadius.circular(30),
                             spaceBetweenText: 10,
-                            // obscureText: authController.obscurePassword.value,
+                            // Connected to controller state
+                            obscureText: authController.obscurePassword.value,
                           ),
                         ),
                         kSizedBoxSM,
+
+                        // Show Password Checkbox
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30.0),
                           child: Row(
@@ -132,6 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               MyCheckbox(
                                 checkColor: AppColors.blue,
                                 backgroundColor: AppColors.white,
+                                // Correctly reflects 'Show Password' logic
                                 isChecked:
                                     !authController.obscurePassword.value,
                                 onChanged: (val) {
@@ -148,6 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
+
+                        // Login Button
                         SigninButton(
                           onPressed: showLoader
                               ? null
@@ -156,17 +169,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                         ),
                         const SizedBox(height: 5),
+
+                        // Bottom Navigation Links
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            GestureDetector(
-                              onTap: showLoader
+                            // Forgot Password Link -> Navigate to Screen
+                            TextButton(
+                              onPressed: showLoader
                                   ? null
                                   : () {
-                                      authController.forgotPassword(context,
-                                          authController.emailController.text);
+                                      // Navigate to Forgot Password Screen instead of calling API directly
+                                      context
+                                          .push(RouteConstants.forgotPassword);
                                     },
-                              child: const MyText(
+                              child: const Text(
                                 "Forgot password?",
                                 style: TextStyle(
                                     color: Colors.white,
@@ -174,11 +191,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontWeight: FontWeight.w300),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                context.go(RouteConstants.biometric);
+
+                            // Biometric Link -> Navigate to Screen
+                            TextButton(
+                              onPressed: () {
+                                context.push(RouteConstants.biometric);
                               },
-                              child: const MyText(
+                              child: const Text(
                                 "Use Biometric",
                                 style: TextStyle(
                                     color: Colors.white,
@@ -193,6 +212,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+
+              // Loading Overlay
               if (showLoader)
                 Container(
                   color: Colors.black.withValues(alpha: 0.5),

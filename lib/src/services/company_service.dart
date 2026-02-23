@@ -83,6 +83,47 @@ class CompanyService {
     }
   }
 
+  Future<List<Compliance>> getComplianceRecords(String token) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/compliance/compliance-records',
+        options: _authOptions(token),
+      );
+      final List data = response.data['items'] ?? [];
+      return data.map((e) => Compliance.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> createCompliance(String token, Compliance compliance) async {
+    try {
+      await _dio.post(
+        '/api/v1/compliance/compliance-records',
+        data: compliance.toJson(),
+        options: _authOptions(token),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // --- AUDIT LOGS ---
+  Future<List<AuditLog>> getAuditLogs(String token,
+      {int limit = 20, int offset = 0}) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/audit-logs/',
+        queryParameters: {'limit': limit, 'offset': offset},
+        options: _authOptions(token),
+      );
+      final List data = response.data['items'] ?? [];
+      return data.map((e) => AuditLog.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(DioException e) {
     String msg = "An unexpected error occurred";
 
