@@ -3,17 +3,20 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
-import 'models/service_invoice_model.dart';
-import 'widgets/invoice_from_lead_dialog.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 
+import 'controller/lead_controller.dart';
+
+// Legacy class for backward compatibility with invoice widgets
 class ServiceLead {
   final String id;
   final String name;
   final String email;
   final String phone;
-  final String serviceType; // 'Real Estate', 'Land Survey', etc.
-  final String property; // Property address or details
-  final String status; // 'New', 'Qualified', 'Negotiating', 'Converted'
+  final String serviceType;
+  final String property;
+  final String status;
   final double estimatedValue;
   final DateTime dateCreated;
   final String? notes;
@@ -41,299 +44,253 @@ class ServiceLeadsPage extends StatefulWidget {
 
 class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = "";
-
-  final List<ServiceLead> _leads = [
-    ServiceLead(
-      id: 'SL-001',
-      name: 'John Okafor',
-      email: 'john.okafor@example.com',
-      phone: '+234 803 456 7890',
-      serviceType: 'Real Estate',
-      property: 'Land at Enugu - Independence Layout, 1500 sqm',
-      status: 'Qualified',
-      estimatedValue: 25000000,
-      dateCreated: DateTime(2025, 1, 15),
-      notes: 'Interested in bulk purchase',
-    ),
-    ServiceLead(
-      id: 'SL-002',
-      name: 'Ngozi Adeyemi',
-      email: 'ngozi.adeyemi@example.com',
-      phone: '+234 801 234 5678',
-      serviceType: 'Land Survey',
-      property: 'Plot 23, Lekki Phase 1, Lagos',
-      status: 'New',
-      estimatedValue: 500000,
-      dateCreated: DateTime(2025, 1, 20),
-    ),
-    ServiceLead(
-      id: 'SL-003',
-      name: 'Michael Eze',
-      email: 'michael.eze@example.com',
-      phone: '+234 802 789 1234',
-      serviceType: 'Property Management',
-      property: 'Ikeja - 3 Bedroom Apartment',
-      status: 'Negotiating',
-      estimatedValue: 15000000,
-      dateCreated: DateTime(2025, 1, 10),
-      notes: 'Needs property valuation first',
-    ),
-    ServiceLead(
-      id: 'SL-004',
-      name: 'Chioma Nwankwo',
-      email: 'chioma.nwankwo@example.com',
-      phone: '+234 705 345 6789',
-      serviceType: 'Real Estate',
-      property: 'Victoria Island - Commercial Property',
-      status: 'Converted',
-      estimatedValue: 80000000,
-      dateCreated: DateTime(2024, 12, 20),
-      notes: 'Invoice generated - INV-2025-01-12345',
-    ),
-  ];
+  final LeadController _controller = Get.put(LeadController());
+  final _storage = const FlutterSecureStorage();
 
   Color _getStatusColor(String status) {
-    switch (status) {
-      case 'New':
+    switch (status.toLowerCase()) {
+      case 'new':
         return Colors.blue;
-      case 'Qualified':
+      case 'qualified':
         return Colors.purple;
-      case 'Negotiating':
+      case 'contacted':
         return Colors.orange;
-      case 'Converted':
+      case 'converted':
         return Colors.green;
       default:
         return Colors.grey;
     }
   }
 
-  String _formatCurrency(double amount) {
-    return '₦${(amount / 1000000).toStringAsFixed(1)}M';
-  }
-
   void _showAddLeadDialog() {
     final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController();
+    final firstNameController = TextEditingController();
+    final lastNameController = TextEditingController();
     final emailController = TextEditingController();
     final phoneController = TextEditingController();
-    final propertyController = TextEditingController();
-    final valueController = TextEditingController();
-    String selectedServiceType = 'Real Estate';
-    String selectedStatus = 'New';
+    final interestedServicesController = TextEditingController();
+    bool isSubmitting = false;
 
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 500),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-          child: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const MyText(
-                    'Add New Service Lead',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  MyText(
-                    'Fill in the lead details',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Client Name
-                  MyTextFormField(
-                    controller: nameController,
-                    hintText: 'Enter client name',
-                    title: 'Client Name',
-                    keyboardType: TextInputType.name,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Name is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Email
-                  MyTextFormField(
-                    controller: emailController,
-                    hintText: 'Enter email address',
-                    title: 'Email Address',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Phone
-                  MyTextFormField(
-                    controller: phoneController,
-                    hintText: 'Enter phone number',
-                    title: 'Phone Number',
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Phone is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Service Type
-                  MyText(
-                    'Service Type',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: AppColors.card),
-                    ),
-                    child: DropdownButton<String>(
-                      value: selectedServiceType,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 500),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            child: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const MyText(
+                      'Add New Service Lead',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
                       ),
-                      items: ['Real Estate', 'Land Survey', 'Property Management']
-                          .map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(
-                            type,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          selectedServiceType = value;
+                    ),
+                    const SizedBox(height: 6),
+                    MyText(
+                      'Fill in the lead details',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // First Name
+                    MyTextFormField(
+                      controller: firstNameController,
+                      hintText: 'Enter first name',
+                      title: 'First Name*',
+                      keyboardType: TextInputType.name,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'First name is required';
                         }
+                        return null;
                       },
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Property
-                  MyTextFormField(
-                    controller: propertyController,
-                    hintText: 'Enter property address/details',
-                    title: 'Property',
-                    maxLines: 2,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Property is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                    // Last Name
+                    MyTextFormField(
+                      controller: lastNameController,
+                      hintText: 'Enter last name',
+                      title: 'Last Name*',
+                      keyboardType: TextInputType.name,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Last name is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
 
-                  // Estimated Value
-                  MyTextFormField(
-                    controller: valueController,
-                    hintText: 'Enter estimated value in naira',
-                    title: 'Estimated Value (₦)',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Value is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 28),
+                    // Email
+                    MyTextFormField(
+                      controller: emailController,
+                      hintText: 'Enter email address',
+                      title: 'Email Address*',
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Email is required';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
 
-                  // Buttons
-                  const Divider(height: 1, thickness: 1, color: Colors.black12),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyElevatedButton(
-                          child: 'Cancel',
-                          bgColor: Colors.grey[200] ?? Colors.grey,
-                          textColor: Colors.black87,
-                          onTap: () => Navigator.pop(context),
+                    // Phone
+                    MyTextFormField(
+                      controller: phoneController,
+                      hintText: 'e.g., +2349012345678',
+                      title: 'Phone Number*',
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Phone is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Interested Services
+                    MyTextFormField(
+                      controller: interestedServicesController,
+                      hintText: 'e.g., Real Estate, Land Survey',
+                      title: 'Interested Services*',
+                      maxLines: 2,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Interested services is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 28),
+
+                    // Buttons
+                    const Divider(
+                        height: 1, thickness: 1, color: Colors.black12),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: MyElevatedButton(
+                            child: 'Cancel',
+                            bgColor: Colors.grey[200] ?? Colors.grey,
+                            textColor: Colors.black87,
+                            onTap: isSubmitting
+                                ? null
+                                : () => Navigator.pop(context),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: MyElevatedButton(
-                          child: 'Add Lead',
-                          bgColor: AppColors.blue,
-                          onTap: () {
-                            if (formKey.currentState!.validate()) {
-                              setState(() {
-                                _leads.add(
-                                  ServiceLead(
-                                    id: 'SL-${_leads.length + 1}'.padRight(5, '0'),
-                                    name: nameController.text,
-                                    email: emailController.text,
-                                    phone: phoneController.text,
-                                    serviceType: selectedServiceType,
-                                    property: propertyController.text,
-                                    status: 'New',
-                                    estimatedValue:
-                                        double.parse(valueController.text),
-                                    dateCreated: DateTime.now(),
-                                  ),
-                                );
-                              });
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      '${nameController.text} added successfully'),
-                                  backgroundColor: Colors.green,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: isSubmitting
+                              ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              : MyElevatedButton(
+                                  child: 'Add Lead',
+                                  bgColor: AppColors.blue,
+                                  onTap: () async {
+                                    if (formKey.currentState!.validate()) {
+                                      setState(() {
+                                        isSubmitting = true;
+                                      });
+
+                                      try {
+                                        // Get user ID from storage
+                                        final userId =
+                                            await _storage.read(key: 'user_id');
+                                        final assignedToId =
+                                            int.tryParse(userId ?? '0') ?? 0;
+
+                                        final leadData = {
+                                          'email': emailController.text.trim(),
+                                          'first_name':
+                                              firstNameController.text.trim(),
+                                          'last_name':
+                                              lastNameController.text.trim(),
+                                          'phone_number':
+                                              phoneController.text.trim(),
+                                          'interested_services':
+                                              interestedServicesController.text
+                                                  .trim(),
+                                          'assigned_to_id': assignedToId,
+                                        };
+
+                                        final success = await _controller
+                                            .createLead(leadData);
+
+                                        if (success && mounted) {
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  '${firstNameController.text} added successfully'),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                        } else if (mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Failed to add lead. Please try again.'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  'Error: ${e.toString()}'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      } finally {
+                                        if (mounted) {
+                                          setState(() {
+                                            isSubmitting = false;
+                                          });
+                                        }
+                                      }
+                                    }
+                                  },
                                 ),
-                              );
-                            }
-                          },
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -345,265 +302,457 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final filteredLeads = _leads
-        .where((lead) => lead.name
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase()))
-        .toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Service Leads",
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "Manage service leads and generate invoices",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            MyElevatedButton(
-              child: 'Add Lead',
-              bgColor: AppColors.blue,
-              icon: const Icon(Icons.add, color: Colors.white),
-              onTap: _showAddLeadDialog,
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-
-        // Search Bar
-        TextField(
-          controller: _searchController,
-          onChanged: (val) => setState(() => _searchQuery = val),
-          decoration: InputDecoration(
-            hintText: "Search by client name...",
-            prefixIcon: const Icon(Icons.search),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+    return Obx(() {
+      if (_controller.errorMessage.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _controller.errorMessage.value,
+                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => _controller.fetchLeads(),
+                  child: const Text('Retry'),
+                ),
+              ],
             ),
           ),
-        ),
+        );
+      }
 
-        const SizedBox(height: 24),
-
-        // Leads List
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: filteredLeads.length,
-          itemBuilder: (context, index) {
-            final lead = filteredLeads[index];
-            final statusColor = _getStatusColor(lead.status);
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                lead.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                lead.email,
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                lead.phone,
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            lead.status,
-                            style: TextStyle(
-                              color: statusColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.home, size: 16, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  lead.property,
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontSize: 13,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.business, size: 16, color: Colors.grey),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    lead.serviceType,
-                                    style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                _formatCurrency(lead.estimatedValue),
-                                style: const TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    Text(
+                      "Service Leads",
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    if (lead.notes != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          'Notes: ${lead.notes}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 13,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "Manage service leads and convert to clients",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
                       ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        if (lead.status != 'Converted')
-                          MyElevatedButton(
-                            child: 'Generate Invoice',
-                            bgColor: AppColors.blue,
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) =>
-                                    InvoiceFromLeadDialog(lead: lead),
-                              );
-                            },
-                          ),
-                        if (lead.status == 'Converted')
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green[50],
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.green[300]!),
-                            ),
-                            child: Text(
-                              'Invoice Generated',
-                              style: TextStyle(
-                                color: Colors.green[700],
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                      ],
                     ),
                   ],
                 ),
               ),
-            );
-          },
-        ),
-      ],
-    );
+              const SizedBox(width: 16),
+              MyElevatedButton(
+                child: 'Add Lead',
+                bgColor: AppColors.blue,
+                icon: const Icon(Icons.add, color: Colors.white),
+                onTap: _showAddLeadDialog,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Search Bar
+          TextField(
+            controller: _searchController,
+            onChanged: (val) {
+              // Debounce search to avoid too many API calls
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (_searchController.text == val) {
+                  _controller.fetchLeads(search: val.trim());
+                }
+              });
+            },
+            decoration: InputDecoration(
+              hintText: "Search by client name...",
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Loading or empty state
+          if (_controller.isLoading.value)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_controller.leads.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(40.0),
+              child: Center(
+                child: Text(
+                  'No leads available',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+              ),
+            )
+          else
+            Column(
+              children: [
+                // Leads List
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _controller.leads.length,
+                  itemBuilder: (context, index) {
+                    final lead = _controller.leads[index];
+                    final statusColor = _getStatusColor(lead.status);
+
+                    return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12.withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    lead.fullName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    lead.email,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    lead.phoneNumber,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: statusColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                lead.status.capitalizeFirst ?? lead.status,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (lead.interestedServices.isNotEmpty)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.business,
+                                        size: 16, color: Colors.grey),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        lead.interestedServices,
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (lead.assignedToName.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.person,
+                                        size: 16, color: Colors.grey),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Assigned to: ${lead.assignedToName}',
+                                      style: TextStyle(
+                                        color: Colors.grey[700],
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (lead.notes.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              'Notes: ${lead.notes}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (lead.status.toLowerCase() != 'converted')
+                              MyElevatedButton(
+                                child: 'Convert to Client',
+                                bgColor: AppColors.blue,
+                                onTap: () async {
+                                  // Show confirmation dialog
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title:
+                                          const Text('Convert Lead to Client'),
+                                      content: Text(
+                                        'Are you sure you want to convert ${lead.fullName} to a client?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.blue,
+                                          ),
+                                          child: const Text(
+                                            'Convert',
+                                            style: TextStyle(
+                                                color: AppColors.white),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (confirmed == true && mounted) {
+                                    final success = await _controller
+                                        .convertLeadToClient(lead.id);
+
+                                    if (success && mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            '${lead.fullName} successfully converted to client',
+                                          ),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    } else if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Failed to convert lead. Please try again.',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            if (lead.status.toLowerCase() == 'converted')
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.green[300]!),
+                                ),
+                                child: Text(
+                                  'Converted to Client',
+                                  style: TextStyle(
+                                    color: Colors.green[700],
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                // Pagination Controls
+                Obx(() {
+                  final currentPage = _controller.currentPage.value;
+                  final hasNextPage = _controller.leads.length >= _controller.limit;
+
+                  final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+                  int endPage = totalPages.clamp(1, totalPages);
+                  int startPage = (endPage - 4).clamp(1, endPage);
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: currentPage > 1
+                            ? () => _controller.previousPage(
+                                  search: _searchController.text.trim().isEmpty
+                                      ? null
+                                      : _searchController.text.trim(),
+                                )
+                            : null,
+                        icon: const Icon(Icons.chevron_left),
+                        style: IconButton.styleFrom(
+                          backgroundColor: currentPage > 1
+                              ? AppColors.blue
+                              : Colors.grey[300],
+                          foregroundColor: currentPage > 1
+                              ? Colors.white
+                              : Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ...List.generate(
+                        endPage - startPage + 1,
+                        (index) {
+                          final pageNumber = startPage + index;
+                          final isCurrentPage = pageNumber == currentPage;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: InkWell(
+                              onTap: () => _controller.goToPage(
+                                pageNumber,
+                                search: _searchController.text.trim().isEmpty
+                                    ? null
+                                    : _searchController.text.trim(),
+                              ),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: isCurrentPage
+                                      ? AppColors.blue
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isCurrentPage
+                                        ? AppColors.blue
+                                        : Colors.grey[300]!,
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$pageNumber',
+                                  style: TextStyle(
+                                    color: isCurrentPage
+                                        ? Colors.white
+                                        : Colors.black87,
+                                    fontWeight: isCurrentPage
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        onPressed: hasNextPage
+                            ? () => _controller.nextPage(
+                                  search: _searchController.text.trim().isEmpty
+                                      ? null
+                                      : _searchController.text.trim(),
+                                )
+                            : null,
+                        icon: const Icon(Icons.chevron_right),
+                        style: IconButton.styleFrom(
+                          backgroundColor: hasNextPage
+                              ? AppColors.blue
+                              : Colors.grey[300],
+                          foregroundColor: hasNextPage
+                              ? Colors.white
+                              : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ],
+            ),
+        ],
+      );
+    });
   }
 
   @override

@@ -33,6 +33,7 @@ dependencies:
   get:
   dio:
   flutter_secure_storage:
+  web: any
 
 dev_dependencies:
   flutter_test:

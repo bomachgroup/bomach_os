@@ -1,6 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -10,9 +9,28 @@ import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
-class DepartmentPage extends StatelessWidget {
+import 'controller/department_controller.dart';
+import 'models/department_model.dart';
+
+class DepartmentPage extends StatefulWidget {
   const DepartmentPage({super.key});
+
+  @override
+  State<DepartmentPage> createState() => _DepartmentPageState();
+}
+
+class _DepartmentPageState extends State<DepartmentPage> {
+  final DepartmentController controller = Get.put(DepartmentController());
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchDepartments(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +40,9 @@ class DepartmentPage extends StatelessWidget {
         const Row(
           children: [
             MyText(
-              'Enugu Branch',
+              'Departments',
               style: AppText.black_600_32,
             ),
-            kSizedBoxWidthSM,
-            Icon(
-              Icons.keyboard_arrow_down_outlined,
-              size: 24,
-            )
           ],
         ),
         kSizedBox,
@@ -60,38 +73,66 @@ class DepartmentPage extends StatelessWidget {
                   Icons.search,
                   color: AppColors.grey1.withValues(alpha: 0.5),
                 ),
+                onChanged: (value) {
+                  controller.onSearch(context, value ?? '');
+                },
               ),
             ),
-            const SortBar(
-              text: "Sort",
-            ),
+            // const SortBar(
+            //   text: "Sort",
+            // ),
           ],
         ),
         kSizedBoxBG,
-        LayoutGrid(
-          columnSizes: isSmallScreen(context) ? [1.fr] : [1.fr, 1.fr],
-          rowSizes: const [
-            auto,
-            auto,
-            auto,
-            auto,
-          ],
-          columnGap: kDefaultSpaceBG,
-          rowGap: kDefaultSpaceBG,
-          children: const [
-            DepartmentCard(),
-            DepartmentCard(),
-            DepartmentCard(),
-          ],
-        ),
+        Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          if (controller.departments.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40),
+                child: MyText(
+                  'No departments found',
+                  style: TextStyle(
+                    color: AppColors.grey2,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            );
+          }
+
+          final depts = controller.departments;
+          final rowCount =
+              (depts.length / (isSmallScreen(context) ? 1 : 2)).ceil();
+
+          return LayoutGrid(
+            columnSizes: isSmallScreen(context) ? [1.fr] : [1.fr, 1.fr],
+            rowSizes: List.generate(rowCount, (_) => auto),
+            columnGap: kDefaultSpaceBG,
+            rowGap: kDefaultSpaceBG,
+            children:
+                depts.map((dept) => DepartmentCard(department: dept)).toList(),
+          );
+        }),
       ],
     );
   }
 }
 
 class DepartmentCard extends StatelessWidget {
+  final Department department;
+
   const DepartmentCard({
     super.key,
+    required this.department,
   });
 
   @override
@@ -105,7 +146,7 @@ class DepartmentCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
@@ -113,20 +154,18 @@ class DepartmentCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     MyText(
-                      'Design Department',
+                      department.name.capitalizeFirst ?? department.name,
                       maxLines: 1,
-                      // overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.black,
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
                       ),
                     ),
                     MyText(
-                      '20 Members',
+                      '${department.employeeCount} ${department.employeeCount == 1 ? 'Member' : 'Members'}',
                       maxLines: 1,
-                      // overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.grey2,
                         fontWeight: FontWeight.w400,
                         fontSize: 14,
@@ -136,7 +175,7 @@ class DepartmentCard extends StatelessWidget {
                 ),
               ),
               kSizedBoxWidthSM,
-              MyText(
+              const MyText(
                 'View All',
                 isSelectable: false,
                 style: TextStyle(
@@ -149,74 +188,113 @@ class DepartmentCard extends StatelessWidget {
           ),
           const Divider(),
           kSizedBoxSM,
-          Column(
-            children: List.generate(
-              3,
-              (index) => Column(
-                children: [
-                  Row(
+          if (department.employees.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: MyText(
+                'No employees in this department',
+                style: TextStyle(
+                  color: AppColors.grey2,
+                  fontSize: 14,
+                ),
+              ),
+            )
+          else
+            Column(
+              children: List.generate(
+                department.employees.length,
+                (index) {
+                  final employee = department.employees[index];
+                  return Column(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: Image.asset(
-                          'assets/image/man-demo.png',
-                          height: 40,
-                          width: 40,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      kSizedBoxWidth,
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            MyText(
-                              'Dianne Russell',
-                              maxLines: 1,
-                              // overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: AppColors.black,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                              ),
-                            ),
-                            MyText(
-                              'Lead UI/UX Designer',
-                              maxLines: 1,
-                              // overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: AppColors.grey2,
-                                fontWeight: FontWeight.w300,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      kSizedBoxWidthSM,
-                      if (index == 0) ...[
-                        const MyText(
-                          'HOD 👑',
-                          style: TextStyle(
-                            color: AppColors.green,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(40),
+                            child: employee.profilePicture != null
+                                ? Image.network(
+                                    employee.profilePicture!,
+                                    height: 40,
+                                    width: 40,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) =>
+                                        _defaultAvatar(employee),
+                                  )
+                                : _defaultAvatar(employee),
                           ),
-                        ),
-                        kSizedBoxWidth,
-                      ],
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 13,
-                      )
+                          kSizedBoxWidth,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                MyText(
+                                  employee.fullName,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: AppColors.black,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                MyText(
+                                  employee.employeeLevel?.capitalizeFirst ??
+                                      employee.employmentType,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: AppColors.grey2,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          kSizedBoxWidthSM,
+                          if (employee.employeeLevel == 'head') ...[
+                            const MyText(
+                              'HOD',
+                              style: TextStyle(
+                                color: AppColors.green,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
+                            ),
+                            kSizedBoxWidth,
+                          ],
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 13,
+                          )
+                        ],
+                      ),
+                      kSizedBox,
                     ],
-                  ),
-                  kSizedBox,
-                ],
+                  );
+                },
               ),
             ),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _defaultAvatar(DepartmentEmployee employee) {
+    return Container(
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(40),
+        color: AppColors.blue.withValues(alpha: 0.15),
+      ),
+      child: Center(
+        child: Text(
+          '${employee.firstName.isNotEmpty ? employee.firstName[0] : ''}${employee.lastName.isNotEmpty ? employee.lastName[0] : ''}',
+          style: const TextStyle(
+            color: AppColors.blue,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }
@@ -230,23 +308,13 @@ class CreateDepartmentDialog extends StatefulWidget {
 }
 
 class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
-  final TextEditingController _reasonController = TextEditingController();
-  final TextEditingController _leaveDateController =
-      TextEditingController(text: '12-12-2024');
-  final TextEditingController _startDateController =
-      TextEditingController(text: '12-10-2024');
-  final TextEditingController _endDateController =
-      TextEditingController(text: '12-10-2024');
-  final TextEditingController _durationController =
-      TextEditingController(text: '5days');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   @override
   void dispose() {
-    _reasonController.dispose();
-    _leaveDateController.dispose();
-    _startDateController.dispose();
-    _endDateController.dispose();
-    _durationController.dispose();
+    _nameController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -296,14 +364,15 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Column(
                     children: [
-                      const MyTextFormField(
+                      MyTextFormField(
+                        controller: _nameController,
                         hintText: "----",
                         spaceBetweenText: 10,
                         title: 'Name*',
                       ),
                       const SizedBox(height: 24),
                       MyTextFormField(
-                        controller: _reasonController,
+                        controller: _descriptionController,
                         maxLines: 4,
                         hintText: '----',
                         spaceBetweenText: 10,
@@ -335,15 +404,46 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
                     },
                   ),
                   const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
+                  Obx(() {
+                    final controller = Get.find<DepartmentController>();
+                    return MyElevatedButton(
+                      icon: controller.isSaving.value
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.white,
+                              ),
+                            )
+                          : SvgPicture.asset(
+                              "assets/svg/check.svg",
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.white, BlendMode.srcIn),
+                            ),
+                      child: 'Save',
+                      onTap: controller.isSaving.value
+                          ? null
+                          : () {
+                              if (_nameController.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Department name is required'),
+                                    backgroundColor: Colors.red,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                return;
+                              }
+                              controller.createDepartment(
+                                context,
+                                name: _nameController.text.trim(),
+                                description: _descriptionController.text.trim(),
+                              );
+                            },
+                    );
+                  }),
                 ],
               ),
             ),

@@ -1,0 +1,28 @@
+integrate the Performance Leaderboard /Users/developer/bomach_os/lib/pages/hr/performance_leaderboard.dart
+
+follow existing integration parterns 
+feel free to change things that don't align with the endpoint
+
+curl -X 'GET' \
+  'https://bomachhr.bgbot.app/api/v1/monthly-scorecards/leaderboard?month=1&year=2026' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMjkwNzI4LCJpYXQiOjE3NzEyMzA3MjgsImp0aSI6IjU4NTA0YzFlLTIwODktNGQ1Zi04OTRiLTlkNTU4OWRjN2FmZCJ9.Rk-Z3Ein6-hKXVSpva7zqa7U5w48ZOUNzWKD0B8NYUs'
+
+Response body
+Download
+{
+  "month": 1,
+  "year": 2026,
+  "entries": [
+    {
+      "rank": 1,
+      "employee_id": "2",
+      "employee_name": "Emma Maxzeno",
+      "branch": "Enugu",
+      "score": "53.14",
+      "award": null
+    }
+  ],
+  "avg_score": "53.14",
+  "total_participants": 1
+}
