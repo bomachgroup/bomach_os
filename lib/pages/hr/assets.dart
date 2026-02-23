@@ -1,8 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
-import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/widget/add_asset_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/view_asset_dialog.dart';
@@ -17,49 +15,19 @@ import 'package:intl/intl.dart';
 import 'controller/assets_controller.dart';
 import 'models/assets_model.dart';
 
-class AssetsPage extends StatefulWidget {
+class AssetsPage extends StatelessWidget {
   const AssetsPage({super.key});
 
   @override
-  State<AssetsPage> createState() => _AssetsPageState();
-}
-
-class _AssetsPageState extends State<AssetsPage> {
-  final ScrollController _scrollController = ScrollController();
-  final AssetController controller = Get.put(AssetController());
-  final _storage = const FlutterSecureStorage();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    final token = await _getToken(context);
-    if (token != null) {
-      controller.fetchAssets(token);
-    }
-  }
-
-  Future<String?> _getToken(BuildContext context) async {
-    String? token = await _storage.read(key: 'access_token');
-    if (token == null) return null;
-    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
-    return token.replaceAll('"', '').trim();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final AssetController controller = Get.put(AssetController());
+    final ScrollController scrollController = ScrollController();
+    final storage = const FlutterSecureStorage();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // --- Header ---
         Row(
           children: [
             Expanded(
@@ -92,7 +60,7 @@ class _AssetsPageState extends State<AssetsPage> {
                     ),
                     child: "New Asset",
                     onTap: () async {
-                      final token = await _getToken(context);
+                      String? token = await storage.read(key: 'access_token');
                       if (token != null && context.mounted) {
                         showDialog(
                           context: context,
@@ -109,74 +77,83 @@ class _AssetsPageState extends State<AssetsPage> {
           ],
         ),
         kSizedBox,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
+
+        // --- Filters & Search ---
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  SizedBox(
-                    width: 250,
+                  // Search Bar
+                  Expanded(
+                    flex: 2,
                     child: MyTextFormField(
                       hintText: 'Search by asset name...',
+                      onChanged: controller.onSearchChanged,
                       leading: Icon(
                         Icons.search,
                         color: AppColors.grey1.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
-                  const Row(
-                    spacing: 15,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SortBar(
-                        text: "Refresh",
-                        //  onTap: _loadData
-                      ),
-                      SortBar(text: "Asset Type"),
-                      SortBar(text: "Status"),
-                    ],
-                  )
+                  if (MediaQuery.of(context).size.width > 800) ...[
+                    const SizedBox(width: 16),
+                    _buildFiltersRow(controller),
+                  ]
                 ],
               ),
-            ),
-          ],
+              // Mobile/Tablet Layout for filters
+              if (MediaQuery.of(context).size.width <= 800) ...[
+                const SizedBox(height: 16),
+                _buildFiltersRow(controller),
+              ]
+            ],
+          ),
         ),
-        kSizedBox,
+
         kSizedBoxSM,
+
+        // --- Table ---
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             children: [
               Scrollbar(
-                controller: _scrollController,
+                controller: scrollController,
                 thumbVisibility: true,
                 trackVisibility: true,
                 child: SingleChildScrollView(
-                  controller: _scrollController,
+                  controller: scrollController,
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
+                      minWidth: MediaQuery.of(context).size.width -
+                          100, // Ensure proper width
                     ),
                     child: Obx(() {
                       if (controller.isLoading.value) {
                         return const Center(
                             child: Padding(
-                                padding: EdgeInsets.all(20),
+                                padding: EdgeInsets.all(40),
                                 child: CircularProgressIndicator()));
                       }
                       if (controller.assetList.isEmpty) {
                         return const Center(
                             child: Padding(
-                                padding: EdgeInsets.all(20),
-                                child: Text("No assets found.")));
+                                padding: EdgeInsets.all(40),
+                                child: Text(
+                                    "No assets found matching your criteria.")));
                       }
 
                       return DataTable(
@@ -185,14 +162,19 @@ class _AssetsPageState extends State<AssetsPage> {
                         columnSpacing: 24,
                         horizontalMargin: 12,
                         columns: _createColumns(),
-                        rows: _createRows(context, controller.assetList),
+                        rows:
+                            _createRows(context, controller.assetList, storage),
                         showBottomBorder: true,
                       );
                     }),
                   ),
                 ),
               ),
-              const MyPaginator(),
+
+              const SizedBox(height: 16),
+
+              // --- Pagination ---
+              _buildPaginationControls(controller),
             ],
           ),
         ),
@@ -200,13 +182,152 @@ class _AssetsPageState extends State<AssetsPage> {
     );
   }
 
+  Widget _buildFiltersRow(AssetController controller) {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const SizedBox(
+          height: 56,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      final bool allEmpty = controller.branches.isEmpty &&
+          controller.departments.isEmpty &&
+          controller.statuses.isEmpty;
+      if (allEmpty) return const SizedBox.shrink();
+
+      return Row(
+        children: [
+          // Branch Filter
+          _buildDropdown(
+            label: "Branch",
+            items: controller.branches,
+            selectedValue: controller.selectedBranch,
+            onChanged: (val) {
+              controller.selectedBranch.value = val!;
+              controller.onFilterChanged();
+            },
+          ),
+          const SizedBox(width: 12),
+          // Department Filter
+          Obx(() => _buildDropdown(
+                label: "Department",
+                // Map department names for dropdown items
+                items: controller.departments.map((d) => d['name']!).toList(),
+                selectedValue: controller.departments.any(
+                        (d) => d['id'] == controller.selectedDepartmentId.value)
+                    ? controller.departments
+                        .firstWhere((d) =>
+                            d['id'] == controller.selectedDepartmentId.value)['name']!
+                        .obs
+                    : 'All Departments'.obs,
+                onChanged: (val) {
+                  // Find ID from Name
+                  final selectedMap = controller.departments.firstWhere(
+                      (d) => d['name'] == val,
+                      orElse: () => {'id': 'All', 'name': 'All'});
+                  controller.selectedDepartmentId.value = selectedMap['id']!;
+                  controller.onFilterChanged();
+                },
+              )),
+          const SizedBox(width: 12),
+          // Status Filter
+          _buildDropdown(
+            label: "Status",
+            items: controller.statuses,
+            selectedValue: controller.selectedStatus,
+            onChanged: (val) {
+              controller.selectedStatus.value = val!;
+              controller.onFilterChanged();
+            },
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildDropdown({
+    required String label,
+    required List<String> items,
+    required RxString selectedValue,
+    required Function(String?) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MyText(label, size: 12, color: const Color(0xFF64748B), weight: 500),
+        const SizedBox(height: 4),
+        Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: Obx(() => DropdownButton<String>(
+                  value: items.contains(selectedValue.value)
+                      ? selectedValue.value
+                      : items.first,
+                  icon: const Icon(Icons.keyboard_arrow_down,
+                      size: 18, color: Color(0xFF64748B)),
+                  style:
+                      const TextStyle(fontSize: 13, color: Color(0xFF334155)),
+                  items: items
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                  onChanged: onChanged,
+                )),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaginationControls(AssetController controller) {
+    return Obx(() {
+      // If list is short and we are on page 1, we might hide pagination,
+      // but showing it provides context (Page 1) even if disabled.
+      if (controller.assetList.isEmpty) return const SizedBox.shrink();
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            onPressed:
+                controller.currentPage.value > 1 ? controller.prevPage : null,
+            icon: const Icon(Icons.chevron_left),
+            tooltip: "Previous Page",
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: MyText(
+              "Page ${controller.currentPage.value}",
+              color: AppColors.blue,
+              weight: 600,
+            ),
+          ),
+          IconButton(
+            onPressed: controller.hasMore.value ? controller.nextPage : null,
+            icon: const Icon(Icons.chevron_right),
+            tooltip: "Next Page",
+          ),
+        ],
+      );
+    });
+  }
+
   List<DataColumn> _createColumns() {
     return const [
-      DataColumn(label: MyText("Asset ID")),
       DataColumn(label: MyText("Asset Name")),
       DataColumn(label: MyText("Type")),
       DataColumn(label: MyText("Branch")),
-      DataColumn(label: MyText("Assigned ID")), // Model only has ID
+      DataColumn(label: MyText("Department")), // New Column
       DataColumn(label: MyText("Purchase Date")),
       DataColumn(label: MyText("Value")),
       DataColumn(label: MyText("Status")),
@@ -214,35 +335,29 @@ class _AssetsPageState extends State<AssetsPage> {
     ];
   }
 
-  List<DataRow> _createRows(BuildContext context, List<Asset> assets) {
+  List<DataRow> _createRows(
+      BuildContext context, List<Asset> assets, FlutterSecureStorage storage) {
     return assets.map((asset) {
       return DataRow(cells: <DataCell>[
         DataCell(
-          MyText(
-            asset.id,
-            size: 14,
-            weight: 500,
-            isSelectable: false,
-          ),
-        ),
-        DataCell(
-          onTap: () async {
-            final token = await _getToken(context);
-            if (token != null && context.mounted) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return ViewAssetDialog(asset: asset, token: token);
-                },
-              );
-            }
-          },
-          MyText(
-            asset.name,
-            size: 14,
-            weight: 500,
-            color: AppColors.blue,
-            isSelectable: false,
+          GestureDetector(
+            onTap: () async {
+              String? token = await storage.read(key: 'access_token');
+              if (token != null && context.mounted) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return ViewAssetDialog(asset: asset, token: token);
+                  },
+                );
+              }
+            },
+            child: MyText(
+              asset.name,
+              size: 14,
+              weight: 500,
+              color: AppColors.blue,
+            ),
           ),
         ),
         DataCell(
@@ -276,10 +391,10 @@ class _AssetsPageState extends State<AssetsPage> {
         ),
         DataCell(
           MyText(
-            asset.assignedToId ?? 'Unassigned',
+            asset.departmentId ??
+                '-', // Showing ID or Name if available in model
             size: 14,
             weight: 400,
-            color: asset.assignedToId == null ? Colors.grey : Colors.black,
           ),
         ),
         DataCell(

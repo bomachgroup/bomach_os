@@ -1,10 +1,11 @@
+// src/model/company_model.dart
+
 class CompanySettings {
-  final int id;
+  final String id;
   final String companyName;
   final String companyEmail;
   final String companyPhone;
   final String companyAddresses;
-  final String? companyLogo; 
   final String rcNumber;
   final String primaryColorCode;
   final String secondaryColorCode;
@@ -12,8 +13,9 @@ class CompanySettings {
   final String defaultCurrency;
   final String languagePreference;
   final String businessRules;
+  final String? companyLogo;
   final String createdAt;
-  final String updatedAt;
+  final String? updatedAt;
 
   CompanySettings({
     required this.id,
@@ -21,7 +23,6 @@ class CompanySettings {
     required this.companyEmail,
     required this.companyPhone,
     required this.companyAddresses,
-    this.companyLogo,
     required this.rcNumber,
     required this.primaryColorCode,
     required this.secondaryColorCode,
@@ -29,18 +30,18 @@ class CompanySettings {
     required this.defaultCurrency,
     required this.languagePreference,
     required this.businessRules,
+    this.companyLogo,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
   });
 
   factory CompanySettings.fromJson(Map<String, dynamic> json) {
     return CompanySettings(
-      id: json['id'] ?? 0,
+      id: json['id']?.toString() ?? '',
       companyName: json['company_name'] ?? '',
       companyEmail: json['company_email'] ?? '',
       companyPhone: json['company_phone'] ?? '',
       companyAddresses: json['company_addresses'] ?? '',
-      companyLogo: json['company_logo'],
       rcNumber: json['rc_number'] ?? '',
       primaryColorCode: json['primary_color_code'] ?? '',
       secondaryColorCode: json['secondary_color_code'] ?? '',
@@ -48,8 +49,9 @@ class CompanySettings {
       defaultCurrency: json['default_currency'] ?? '',
       languagePreference: json['language_preference'] ?? '',
       businessRules: json['business_rules'] ?? '',
+      companyLogo: json['company_logo'],
       createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
+      updatedAt: json['updated_at'],
     );
   }
 
@@ -59,14 +61,90 @@ class CompanySettings {
       'company_email': companyEmail,
       'company_phone': companyPhone,
       'company_addresses': companyAddresses,
-      'company_logo': companyLogo,
-      'rc_number': rcNumber,
+      'company_slogan': companySlogan,
       'primary_color_code': primaryColorCode,
       'secondary_color_code': secondaryColorCode,
-      'company_slogan': companySlogan,
       'default_currency': defaultCurrency,
       'language_preference': languagePreference,
       'business_rules': businessRules,
     };
+  }
+}
+
+class Compliance {
+  final String id;
+  final String type; // e.g., "Tax", "CAC"
+  final String registrationItem;
+  final String number;
+  final String dateRegistered;
+  final String expirationDate;
+  final String status; // "active", "expired", "pending"
+  final String? documentUrl;
+
+  Compliance({
+    required this.id,
+    required this.type,
+    required this.registrationItem,
+    required this.number,
+    required this.dateRegistered,
+    required this.expirationDate,
+    required this.status,
+    this.documentUrl,
+  });
+
+  factory Compliance.fromJson(Map<String, dynamic> json) {
+    return Compliance(
+      id: json['id']?.toString() ?? '',
+      type: json['compliance_type'] ?? '', // Adjusted to match likely API key
+      registrationItem: json['registration_item'] ?? '',
+      number: json['number'] ?? '',
+      dateRegistered: json['date_registered'] ?? '',
+      expirationDate: json['expiration_date'] ?? '',
+      status: json['status'] ?? 'pending',
+      documentUrl: json['document_url'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'compliance_type': type,
+      'registration_item': registrationItem,
+      'number': number,
+      'date_registered': dateRegistered,
+      'expiration_date': expirationDate,
+      'status': status,
+    };
+  }
+}
+
+class AuditLog {
+  final String id;
+  final String action;
+  final String description;
+  final String ipAddress;
+  final String userAgent;
+  final String createdAt;
+  final String userEmail; // Assuming API returns user info
+
+  AuditLog({
+    required this.id,
+    required this.action,
+    required this.description,
+    required this.ipAddress,
+    required this.userAgent,
+    required this.createdAt,
+    required this.userEmail,
+  });
+
+  factory AuditLog.fromJson(Map<String, dynamic> json) {
+    return AuditLog(
+      id: json['id']?.toString() ?? '',
+      action: json['action'] ?? 'Unknown Action',
+      description: json['description'] ?? '',
+      ipAddress: json['ip_address'] ?? '',
+      userAgent: json['user_agent'] ?? '',
+      createdAt: json['created_at'] ?? '',
+      userEmail: json['user_email'] ?? 'System',
+    );
   }
 }

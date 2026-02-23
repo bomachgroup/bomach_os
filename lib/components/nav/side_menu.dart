@@ -25,7 +25,6 @@ enum MainMenuItem {
   notification,
   settings,
   help,
-  logout,
   financeAccounting,
   workspace,
   analytics,
@@ -231,20 +230,30 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.branch,
           ),
           SubMenuItemData(
+            id: SubMenuItem.department,
+            label: 'Departments & Units',
+            route: RouteConstants.department,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.assets,
+            label: 'Assets',
+            route: RouteConstants.assets,
+          ),
+          SubMenuItemData(
             id: SubMenuItem.auditLog,
             label: 'Audit Log',
             route: RouteConstants.auditLog,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.compliance,
-            label: 'Compliance',
-            route: RouteConstants.compliance,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.branchPerformance,
-            label: 'Branch Performance',
-            route: RouteConstants.branchPerformanceAnalysis,
-          ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.compliance,
+          //   label: 'Compliance',
+          //   route: RouteConstants.compliance,
+          // ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.branchPerformance,
+          //   label: 'Branch Performance',
+          //   route: RouteConstants.branchPerformanceAnalysis,
+          // ),
           // SubMenuItemData(
           //   id: SubMenuItem.enugu,
           //   label: 'Enugu',
@@ -316,11 +325,7 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Associates',
             route: RouteConstants.associates,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.assets,
-            label: 'Assets',
-            route: RouteConstants.assets,
-          ),
+
           SubMenuItemData(
             id: SubMenuItem.workReport,
             label: 'Work Reports',
@@ -361,11 +366,11 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Leaves',
             route: RouteConstants.leaves,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.department,
-            label: 'Department',
-            route: RouteConstants.department,
-          ),
+          // SubMenuItemData(
+          //   id: SubMenuItem.department,
+          //   label: 'Department',
+          //   route: RouteConstants.department,
+          // ),
         ],
       ),
       // const MenuItem(
@@ -773,12 +778,6 @@ class _SideMenuState extends State<SideMenu> {
       //   iconPath: 'assets/svg/sidebar/help.svg',
       //   isExpandable: false,
       // ),
-      const MenuItem(
-        id: MainMenuItem.logout,
-        label: 'Logout',
-        iconPath: 'assets/svg/sidebar/logout.svg',
-        isExpandable: false,
-      ),
     ];
   }
 

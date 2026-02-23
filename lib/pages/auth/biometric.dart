@@ -7,6 +7,8 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/biometric_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
+import 'controller.dart'; // Import AuthController
 
 class BiometricLoginScreen extends StatefulWidget {
   const BiometricLoginScreen({super.key});
@@ -16,28 +18,32 @@ class BiometricLoginScreen extends StatefulWidget {
 }
 
 class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
-  bool rememberDevice = false;
+  final AuthController authController = Get.find<AuthController>();
+  final BiometricService _biometricService = BiometricService();
+
   bool isAuthenticating = false;
   String? errorMessage;
   bool isAuthenticated = false;
-  final BiometricService _biometricService = BiometricService();
 
   @override
   void initState() {
     super.initState();
-    _checkBiometricAvailability();
+    _initBiometric();
   }
 
-  Future<void> _checkBiometricAvailability() async {
+  Future<void> _initBiometric() async {
+    // Auto-trigger biometric prompt on load
     final isAvailable = await _biometricService.isBiometricAvailable();
-    if (!isAvailable && mounted) {
-      setState(() {
-        errorMessage = 'Biometric authentication is not available on this device';
-      });
+    if (isAvailable && mounted) {
+      _performBiometricAuth();
+    } else {
+      setState(() => errorMessage = "Biometric not available on device.");
     }
   }
 
   Future<void> _performBiometricAuth() async {
+    if (isAuthenticating) return;
+
     setState(() {
       isAuthenticating = true;
       errorMessage = null;
@@ -45,37 +51,46 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
 
     try {
       final result = await _biometricService.authenticateWithDetails(
-        reason: 'Authenticate to log in to your account',
+        reason: 'Authenticate to access Bomach OS',
       );
 
-      if (mounted) {
-        if (result.isAuthenticated) {
-          // Successful authentication
-          setState(() {
-            isAuthenticated = true;
-            isAuthenticating = false;
-          });
+      if (!mounted) return;
 
-          // Navigate to home after successful authentication
-          if (mounted) {
-            await Future.delayed(const Duration(milliseconds: 500));
-            if (mounted) {
-              context.go(RouteConstants.home);
-            }
-          }
+      if (result.isAuthenticated) {
+        setState(() {
+          isAuthenticated = true;
+          isAuthenticating = false;
+        });
+
+        // Verify stored token is still valid via AuthController
+        await authController.checkAuthStatus();
+
+        if (authController.currentUser.value != null) {
+          // Token valid, go home
+          if (mounted) context.go(RouteConstants.home);
         } else {
-          // Authentication failed
-          setState(() {
-            errorMessage = result.errorMessage;
-            isAuthenticating = false;
-          });
+          // Token expired despite biometric success
+          if (mounted) {
+            setState(() {
+              isAuthenticated = false;
+              errorMessage = "Session expired. Please sign in with PIN.";
+            });
+          }
         }
+      } else {
+        setState(() {
+          isAuthenticating = false;
+          // Only show error if not cancelled by user
+          if (result.errorCode != 'authentication_cancelled') {
+            errorMessage = result.errorMessage ?? "Authentication Failed";
+          }
+        });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          errorMessage = 'Authentication failed: ${e.toString()}';
           isAuthenticating = false;
+          errorMessage = 'Error: ${e.toString()}';
         });
       }
     }
@@ -101,29 +116,12 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
             constraints: const BoxConstraints(maxWidth: 500),
             decoration: BoxDecoration(
               color: AppColors.white,
-              border: Border.all(
-                color: AppColors.grey7,
-                width: 0.5,
-              ),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.grey7, width: 0.5),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.greyBg,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  height: 70,
-                  width: 90,
-                  child: Image.asset("assets/logo/bomach.png"),
-                ),
-                const SizedBox(height: 40),
-
                 // Title
                 const MyText(
                   'Biometric Login',
@@ -131,158 +129,64 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
-
-                // Subtitle
                 MyText(
-                  'Use your fingerprint to log in.',
+                  isAuthenticated ? 'Success!' : 'Tap to unlock',
                   style: AppText.black_400_14,
-                  textAlign: TextAlign.center,
                   color: AppColors.grey2,
                 ),
                 const SizedBox(height: 48),
 
-                // Fingerprint Icon
-                if (!isAuthenticated)
-                  GestureDetector(
-                    onTap: isAuthenticating ? null : _performBiometricAuth,
-                    child: Container(
-                      height: 200,
-                      width: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.darkBlue,
-                          width: 4,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.fingerprint,
-                          size: 120,
-                          color: AppColors.darkBlue,
-                        ),
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 48),
-
-                // Error Message
-                if (errorMessage != null && !isAuthenticated)
-                  Container(
-                    padding: const EdgeInsets.all(12),
+                // Icon / Status
+                GestureDetector(
+                  onTap: _performBiometricAuth,
+                  child: Container(
+                    height: 160,
+                    width: 160,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFEBEE),
-                      border: Border.all(color: AppColors.red, width: 1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: MyText(
-                      errorMessage!,
-                      style: const TextStyle(
-                        color: AppColors.red,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isAuthenticated
+                            ? AppColors.green
+                            : AppColors.darkBlue,
+                        width: 4,
                       ),
-                      textAlign: TextAlign.center,
+                      color: isAuthenticated
+                          ? AppColors.green.withOpacity(0.1)
+                          : Colors.transparent,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        isAuthenticated ? Icons.check : Icons.fingerprint,
+                        size: 90,
+                        color: isAuthenticated
+                            ? AppColors.green
+                            : AppColors.darkBlue,
+                      ),
                     ),
                   ),
+                ),
+                const SizedBox(height: 32),
+
+                if (isAuthenticating)
+                  const Text("Scanning...",
+                      style: TextStyle(color: Colors.grey)),
+
                 if (errorMessage != null && !isAuthenticated)
-                  const SizedBox(height: 24),
-
-                // Remember Device Toggle
-                if (!isAuthenticated)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const MyText(
-                          'Remember this device',
-                          style: AppText.black_400_14,
-                        ),
-                        Switch(
-                          value: rememberDevice,
-                          onChanged: (value) {
-                            setState(() {
-                              rememberDevice = value;
-                            });
-                          },
-                          activeColor: AppColors.blue,
-                          inactiveThumbColor: AppColors.grey5,
-                        ),
-                      ],
-                    ),
-                  ),
-                if (!isAuthenticated) const SizedBox(height: 32),
-
-                // Verify/Retry Button
-                if (!isAuthenticated)
-                  SizedBox(
-                    width: double.infinity,
-                    child: MyElevatedButton(
-                      child: isAuthenticating ? 'Verifying...' : 'Verify Biometric',
-                      onTap: isAuthenticating ? null : _performBiometricAuth,
-                    ),
-                  ),
-                if (!isAuthenticated) const SizedBox(height: 16),
-
-                // Use PIN Button
-                if (!isAuthenticated)
-                  SizedBox(
-                    width: double.infinity,
-                    child: MyElevatedButton(
-                      child: 'Use PIN',
-                      onTap: () {
-                        context.go(RouteConstants.login);
-                      },
-                    ),
-                  ),
-                if (!isAuthenticated) const SizedBox(height: 32),
-
-                // Success Message
-                if (isAuthenticated)
-                  Column(
-                    children: [
-                      Container(
-                        height: 60,
-                        width: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.green,
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const MyText(
-                        'Authentication Successful',
-                        style: AppText.black_600_16,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      const MyText(
-                        'You will be redirected shortly...',
-                        style: AppText.black_400_14,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-
-                // Security Policy Link
-                if (!isAuthenticated)
-                  GestureDetector(
-                    onTap: () {
-                      // Navigate to security policy
-                    },
-                    child: MyText(
-                      'Bomach Security Policy',
-                      style: AppText.black_400_14,
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: Text(
+                      errorMessage!,
+                      style: const TextStyle(color: Colors.red),
                       textAlign: TextAlign.center,
-                      color: AppColors.darkGrey1,
+                    ),
+                  ),
+
+                if (!isAuthenticated)
+                  SizedBox(
+                    width: double.infinity,
+                    child: MyElevatedButton(
+                      onTap: () => context.go(RouteConstants.login),
+                      child: 'Use Password Instead',
                     ),
                   ),
               ],

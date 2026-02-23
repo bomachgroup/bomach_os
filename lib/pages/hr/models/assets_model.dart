@@ -1,18 +1,19 @@
 class Asset {
   final String id;
   final String name;
-  final String assetType; // e.g., "Laptop", "Vehicle"
+  final String assetType;
   final String branch;
-  final String? assignedToId; // Nullable if currently unassigned
-  final String? departmentId;
-  final String status; // e.g., "active", "maintenance"
-  final DateTime? purchaseDate;
+  final String assignedToId; // Changed to non-nullable based on "must be filled up"
+  final String departmentId; // Changed to non-nullable
+  final String status;
+  final DateTime purchaseDate; // Changed to non-nullable
   final double value;
-  final String? invoiceNumber;
-  final DateTime? warrantyExpiryDate;
-  final String? serialNumber;
-  final String? manufacturer;
-  final String? notes;
+  final String vendor; // Added field
+  final String invoiceNumber; // Changed to non-nullable
+  final DateTime warrantyExpiryDate; // Changed to non-nullable
+  final String serialNumber; // Changed to non-nullable
+  final String manufacturer; // Changed to non-nullable
+  final String notes; // Changed to non-nullable
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -21,22 +22,22 @@ class Asset {
     required this.name,
     required this.assetType,
     required this.branch,
-    this.assignedToId,
-    this.departmentId,
+    required this.assignedToId,
+    required this.departmentId,
     required this.status,
-    this.purchaseDate,
+    required this.purchaseDate,
     required this.value,
-    this.invoiceNumber,
-    this.warrantyExpiryDate,
-    this.serialNumber,
-    this.manufacturer,
-    this.notes,
+    required this.vendor,
+    required this.invoiceNumber,
+    required this.warrantyExpiryDate,
+    required this.serialNumber,
+    required this.manufacturer,
+    required this.notes,
     this.createdAt,
     this.updatedAt,
   });
 
   factory Asset.fromJson(Map<String, dynamic> json) {
-    // Helper to safely parse doubles
     double parseDouble(dynamic value) {
       if (value == null) return 0.0;
       if (value is num) return value.toDouble();
@@ -44,26 +45,25 @@ class Asset {
     }
 
     return Asset(
-      // The API docs show 'asset_id' in paths but often 'id' in JSON bodies. 
-      // We handle potential variations or missing IDs gracefully.
       id: json['id']?.toString() ?? json['asset_id']?.toString() ?? '',
       name: json['name'] ?? '',
       assetType: json['asset_type'] ?? '',
       branch: json['branch'] ?? '',
-      assignedToId: json['assigned_to_id']?.toString(),
-      departmentId: json['department_id']?.toString(),
-      status: json['status'] ?? 'active',
+      assignedToId: json['assigned_to_id']?.toString() ?? '',
+      departmentId: json['department_id']?.toString() ?? '',
+      status: json['status'] ?? 'available',
       purchaseDate: json['purchase_date'] != null 
-          ? DateTime.tryParse(json['purchase_date']) 
-          : null,
+          ? DateTime.tryParse(json['purchase_date']) ?? DateTime.now()
+          : DateTime.now(),
       value: parseDouble(json['value']),
-      invoiceNumber: json['invoice_number'],
+      vendor: json['vendor'] ?? '',
+      invoiceNumber: json['invoice_number'] ?? '',
       warrantyExpiryDate: json['warranty_expiry_date'] != null 
-          ? DateTime.tryParse(json['warranty_expiry_date']) 
-          : null,
-      serialNumber: json['serial_number'],
-      manufacturer: json['manufacturer'],
-      notes: json['notes'],
+          ? DateTime.tryParse(json['warranty_expiry_date']) ?? DateTime.now()
+          : DateTime.now(),
+      serialNumber: json['serial_number'] ?? '',
+      manufacturer: json['manufacturer'] ?? '',
+      notes: json['notes'] ?? '',
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
     );
@@ -77,10 +77,11 @@ class Asset {
       'assigned_to_id': assignedToId,
       'department_id': departmentId,
       'status': status,
-      'purchase_date': purchaseDate?.toIso8601String().split('T').first,
+      'purchase_date': purchaseDate.toIso8601String().split('T').first,
       'value': value,
+      'vendor': vendor,
       'invoice_number': invoiceNumber,
-      'warranty_expiry_date': warrantyExpiryDate?.toIso8601String().split('T').first,
+      'warranty_expiry_date': warrantyExpiryDate.toIso8601String().split('T').first,
       'serial_number': serialNumber,
       'manufacturer': manufacturer,
       'notes': notes,

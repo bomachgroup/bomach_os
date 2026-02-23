@@ -116,16 +116,33 @@ class _ViewPerformanceReviewDialogState
                           bgColor: AppColors.red,
                           child: 'Delete',
                           onTap: () {
-                            Get.defaultDialog(
-                              title: "Delete Review",
-                              middleText:
-                                  "Are you sure you want to delete this review?",
-                              onConfirm: () {
-                                controller.deleteReview(widget.review.id!);
-                                Get.back();
-                                Navigator.pop(context);
-                              },
-                              onCancel: () {},
+                            showDialog(
+                              context: context,
+                              builder: (dCtx) => AlertDialog(
+                                title: const Text('Delete Review'),
+                                content: const Text(
+                                    'Are you sure you want to delete this review?'),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () => Navigator.of(dCtx).pop(),
+                                      child: const Text('Cancel')),
+                                  TextButton(
+                                      onPressed: () async {
+                                        await controller
+                                            .deleteReview(widget.review.id!);
+                                        Navigator.of(dCtx).pop();
+                                        Navigator.of(context).pop();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Review deleted'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('Delete')),
+                                ],
+                              ),
                             );
                           },
                         ),
