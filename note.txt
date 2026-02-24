@@ -1,115 +1,165 @@
-Integrate this _buildBoardMembersTab /Users/developer/bomach_os/lib/pages/company/company.dart
+Fix the audit log it is appearing weirdly feel free to update fields on the page and add pagination
 
 curl -X 'GET' \
-  'https://bomachauth.bgbot.app/api/v1/stats/dashboard' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxOTgwODU4LCJpYXQiOjE3NzE5MjA4NTgsImp0aSI6IjlkZjQ1ODc5LTAxMjgtNGRlMC1hODg2LTQ5ODk4NjRlODU4NyJ9.aoEZPHl6m_wkXf5n3BJw4Ya2rIeetg_-aO8a9wtCKNw'
-
-Response body
-{
-  "total_employees": 3,
-  "new_employees_count": 3,
-  "total_branches": 2,
-  "removed_branches_count": 0,
-  "pending_approvals": 0,
-  "overdue_tasks_count": 0,
-  "asset_inventory": 8,
-  "new_inventory_count": 8
-}
-
-
-
-----------------------
-
-Integrate this on the _buildOwnershipTab and _buildBoardMembersTab tab on the /Users/developer/bomach_os/lib/pages/company/company.dart page 
-to filter by board member use is_board_member=true
-curl -X 'GET' \
-  'https://bomachauth.bgbot.app/api/v1/shareholders/?limit=100&offset=0' \
+  'https://bomachauth.bgbot.app/api/v1/audit-logs/?limit=100&offset=0' \
   -H 'accept: application/json' \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxOTgwODU4LCJpYXQiOjE3NzE5MjA4NTgsImp0aSI6IjlkZjQ1ODc5LTAxMjgtNGRlMC1hODg2LTQ5ODk4NjRlODU4NyJ9.aoEZPHl6m_wkXf5n3BJw4Ya2rIeetg_-aO8a9wtCKNw'
 
 {
   "items": [
     {
-      "id": 3,
-      "shareholder_id": "SH-E7FEF8B43ACD",
-      "user_id": 13,
-      "employee_id": 6,
-      "first_name": "Sharr3",
-      "last_name": "Hlderr3",
-      "email": "share3@gmail.com",
-      "phone_number": "+2349077745730",
-      "profile_picture": null,
-      "title": "board_member",
-      "title_display": "Board Member",
-      "share_percentage": "40.00",
-      "share_count": 0,
-      "is_board_member": true,
-      "is_active": true,
-      "notes": "string",
-      "created_at": "2026-02-24T08:35:04.095Z",
-      "updated_at": "2026-02-24T08:35:04.095Z"
+      "id": 9,
+      "activity": "emma@gmail.com logged in successfully",
+      "audit_type": "login",
+      "audit_type_display": "Login",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "197.211.59.119",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-24T11:22:08.143Z",
+      "updated_at": "2026-02-24T11:22:08.143Z"
     },
     {
-      "id": 2,
-      "shareholder_id": "SH-5057F2E06443",
-      "user_id": 12,
-      "employee_id": 5,
-      "first_name": "Sharr2",
-      "last_name": "Hlderr2",
-      "email": "share2@gmail.com",
-      "phone_number": "+2349077745730",
-      "profile_picture": null,
-      "title": "board_member",
-      "title_display": "Board Member",
-      "share_percentage": "30.00",
-      "share_count": 0,
-      "is_board_member": false,
-      "is_active": true,
-      "notes": "string",
-      "created_at": "2026-02-24T08:34:35.315Z",
-      "updated_at": "2026-02-24T08:34:35.315Z"
+      "id": 8,
+      "activity": "emma@gmail.com logged in successfully",
+      "audit_type": "login",
+      "audit_type_display": "Login",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "197.211.59.119",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-24T08:14:18.146Z",
+      "updated_at": "2026-02-24T08:14:18.146Z"
     },
     {
-      "id": 1,
-      "shareholder_id": "SH-C077F1E38ACC",
-      "user_id": 11,
-      "employee_id": 4,
-      "first_name": "Sharr",
-      "last_name": "Hlderr",
-      "email": "share@gmail.com",
-      "phone_number": "+2349077745730",
-      "profile_picture": null,
-      "title": "board_member",
-      "title_display": "Board Member",
-      "share_percentage": "30.00",
-      "share_count": 0,
-      "is_board_member": true,
-      "is_active": true,
-      "notes": "string",
-      "created_at": "2026-02-24T08:34:00.939Z",
-      "updated_at": "2026-02-24T08:34:00.939Z"
+      "id": 7,
+      "activity": "emma@gmail.com logged in successfully",
+      "audit_type": "login",
+      "audit_type_display": "Login",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "197.211.59.119",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-24T07:20:48.669Z",
+      "updated_at": "2026-02-24T07:20:48.669Z"
+    },
+    {
+      "id": 6,
+      "activity": "emma@gmail.com logged in successfully",
+      "audit_type": "login",
+      "audit_type_display": "Login",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "105.112.210.111",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-23T13:06:03.813Z",
+      "updated_at": "2026-02-23T13:06:03.813Z"
+    },
+    {
+      "id": 5,
+      "activity": "emma@gmail.com logged in successfully",
+      "audit_type": "login",
+      "audit_type_display": "Login",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "105.112.210.111",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-23T12:32:53.225Z",
+      "updated_at": "2026-02-23T12:32:53.225Z"
     },
     {
       "id": 4,
-      "shareholder_id": "SH-16747F5314DF",
-      "user_id": 14,
-      "employee_id": 7,
-      "first_name": "Sharr4",
-      "last_name": "Hlderr4",
-      "email": "share4@gmail.com",
-      "phone_number": "+2349077745730",
-      "profile_picture": null,
-      "title": "board_member",
-      "title_display": "Board Member",
-      "share_percentage": "10.00",
-      "share_count": 0,
-      "is_board_member": false,
-      "is_active": true,
-      "notes": "string",
-      "created_at": "2026-02-24T08:35:32.663Z",
-      "updated_at": "2026-02-24T08:35:32.663Z"
+      "activity": "emma@gmail.com logged out",
+      "audit_type": "logout",
+      "audit_type_display": "Logout",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "105.112.210.111",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-23T12:32:43.173Z",
+      "updated_at": "2026-02-23T12:32:43.173Z"
+    },
+    {
+      "id": 3,
+      "activity": "emma@gmail.com logged in successfully",
+      "audit_type": "login",
+      "audit_type_display": "Login",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "105.112.210.111",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-23T12:31:39.155Z",
+      "updated_at": "2026-02-23T12:31:39.155Z"
+    },
+    {
+      "id": 2,
+      "activity": "emma@gmail.com logged in successfully",
+      "audit_type": "login",
+      "audit_type_display": "Login",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "105.112.210.111",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-23T12:30:51.967Z",
+      "updated_at": "2026-02-23T12:30:51.967Z"
+    },
+    {
+      "id": 1,
+      "activity": "emma@gmail.com logged out",
+      "audit_type": "logout",
+      "audit_type_display": "Logout",
+      "audit_status": "success",
+      "audit_status_display": "Success",
+      "ip_address": "105.112.210.111",
+      "metadata": {},
+      "user": {
+        "id": 2,
+        "email": "emma@gmail.com",
+        "full_name": "Emma Maxzeno"
+      },
+      "created_at": "2026-02-23T12:30:40.018Z",
+      "updated_at": "2026-02-23T12:30:40.019Z"
     }
   ],
-  "count": 4
+  "count": 9
 }

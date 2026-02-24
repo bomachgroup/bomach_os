@@ -220,33 +220,43 @@ class DashboardStats {
 }
 
 class AuditLog {
-  final String id;
-  final String action;
-  final String description;
+  final int id;
+  final String activity;
+  final String auditType;
+  final String auditTypeDisplay;
+  final String auditStatus;
+  final String auditStatusDisplay;
   final String ipAddress;
-  final String userAgent;
+  final String userEmail;
+  final String userFullName;
   final String createdAt;
-  final String userEmail; // Assuming API returns user info
 
   AuditLog({
     required this.id,
-    required this.action,
-    required this.description,
+    required this.activity,
+    required this.auditType,
+    required this.auditTypeDisplay,
+    required this.auditStatus,
+    required this.auditStatusDisplay,
     required this.ipAddress,
-    required this.userAgent,
-    required this.createdAt,
     required this.userEmail,
+    required this.userFullName,
+    required this.createdAt,
   });
 
   factory AuditLog.fromJson(Map<String, dynamic> json) {
+    final user = json['user'] as Map<String, dynamic>? ?? {};
     return AuditLog(
-      id: json['id']?.toString() ?? '',
-      action: json['action'] ?? 'Unknown Action',
-      description: json['description'] ?? '',
+      id: json['id'] ?? 0,
+      activity: json['activity'] ?? '',
+      auditType: json['audit_type'] ?? '',
+      auditTypeDisplay: json['audit_type_display'] ?? '',
+      auditStatus: json['audit_status'] ?? '',
+      auditStatusDisplay: json['audit_status_display'] ?? '',
       ipAddress: json['ip_address'] ?? '',
-      userAgent: json['user_agent'] ?? '',
+      userEmail: user['email'] ?? '',
+      userFullName: user['full_name'] ?? '',
       createdAt: json['created_at'] ?? '',
-      userEmail: json['user_email'] ?? 'System',
     );
   }
 }

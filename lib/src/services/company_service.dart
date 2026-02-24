@@ -137,8 +137,8 @@ class CompanyService {
   }
 
   // --- AUDIT LOGS ---
-  Future<List<AuditLog>> getAuditLogs(String token,
-      {int limit = 20, int offset = 0}) async {
+  Future<({List<AuditLog> items, int count})> getAuditLogs(String token,
+      {int limit = 10, int offset = 0}) async {
     try {
       final response = await _dio.get(
         '/api/v1/audit-logs/',
@@ -146,7 +146,11 @@ class CompanyService {
         options: _authOptions(token),
       );
       final List data = response.data['items'] ?? [];
-      return data.map((e) => AuditLog.fromJson(e)).toList();
+      final int count = response.data['count'] ?? 0;
+      return (
+        items: data.map((e) => AuditLog.fromJson(e)).toList(),
+        count: count,
+      );
     } on DioException catch (e) {
       throw _handleError(e);
     }

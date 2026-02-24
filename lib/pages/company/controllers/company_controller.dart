@@ -46,6 +46,9 @@ class CompanyController extends GetxController {
   // Audit
   var auditLogs = <AuditLog>[].obs;
   var isAuditLoading = false.obs;
+  var auditLogsTotal = 0.obs;
+  var auditPage = 0.obs;
+  static const auditPageSize = 10;
 
   // Dashboard Stats
   var dashboardStats = Rxn<DashboardStats>();
@@ -117,13 +120,19 @@ class CompanyController extends GetxController {
   }
 
   // --- AUDIT OPERATIONS ---
-  Future<void> fetchAuditLogs() async {
+  Future<void> fetchAuditLogs({int page = 0}) async {
     try {
       isAuditLoading.value = true;
+      auditPage.value = page;
       final token = await _storage.read(key: 'access_token');
       if (token != null) {
-        final logs = await _companyService.getAuditLogs(token);
-        auditLogs.assignAll(logs);
+        final result = await _companyService.getAuditLogs(
+          token,
+          limit: auditPageSize,
+          offset: page * auditPageSize,
+        );
+        auditLogs.assignAll(result.items);
+        auditLogsTotal.value = result.count;
       }
     } catch (e) {
       log("Error loading audit logs: $e");
