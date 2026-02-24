@@ -102,9 +102,14 @@ class _AuditLogPageState extends State<AuditLogPage> {
                     ? const Padding(
                         padding: EdgeInsets.all(40),
                         child: Center(child: Text('No audit logs found.')))
-                    : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
+                    : LayoutBuilder(
+                        builder: (context, constraints) =>
+                            SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                minWidth: constraints.maxWidth),
+                            child: DataTable(
                           headingRowColor: WidgetStateProperty.all(
                               Colors.grey.shade50),
                           columnSpacing: 24,
@@ -163,6 +168,8 @@ class _AuditLogPageState extends State<AuditLogPage> {
                           }).toList(),
                         ),
                       ),
+                    ),
+                  ),
               ),
 
               // Pagination
