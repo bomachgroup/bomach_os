@@ -43,11 +43,16 @@ class CompanyController extends GetxController {
   var auditLogs = <AuditLog>[].obs;
   var isAuditLoading = false.obs;
 
+  // Dashboard Stats
+  var dashboardStats = Rxn<DashboardStats>();
+  var isDashboardLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
     _loadMockData();
     fetchCompanyProfile();
+    fetchDashboardStats();
   }
 
   void _loadMockData() {
@@ -195,6 +200,22 @@ class CompanyController extends GetxController {
       errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchDashboardStats() async {
+    try {
+      isDashboardLoading.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        final stats =
+            await _companyService.getDashboardStats(accessToken: token);
+        dashboardStats.value = stats;
+      }
+    } catch (e) {
+      log("Error loading dashboard stats: $e");
+    } finally {
+      isDashboardLoading.value = false;
     }
   }
 

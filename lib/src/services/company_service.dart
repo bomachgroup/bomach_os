@@ -108,6 +108,19 @@ class CompanyService {
     }
   }
 
+  Future<DashboardStats> getDashboardStats(
+      {required String accessToken}) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/stats/dashboard',
+        options: _authOptions(accessToken),
+      );
+      return DashboardStats.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // --- AUDIT LOGS ---
   Future<List<AuditLog>> getAuditLogs(String token,
       {int limit = 20, int offset = 0}) async {

@@ -117,6 +117,41 @@ class Compliance {
   }
 }
 
+class DashboardStats {
+  final int totalEmployees;
+  final int newEmployeesCount;
+  final int totalBranches;
+  final int removedBranchesCount;
+  final int pendingApprovals;
+  final int overdueTasksCount;
+  final int assetInventory;
+  final int newInventoryCount;
+
+  DashboardStats({
+    required this.totalEmployees,
+    required this.newEmployeesCount,
+    required this.totalBranches,
+    required this.removedBranchesCount,
+    required this.pendingApprovals,
+    required this.overdueTasksCount,
+    required this.assetInventory,
+    required this.newInventoryCount,
+  });
+
+  factory DashboardStats.fromJson(Map<String, dynamic> json) {
+    return DashboardStats(
+      totalEmployees: json['total_employees'] ?? 0,
+      newEmployeesCount: json['new_employees_count'] ?? 0,
+      totalBranches: json['total_branches'] ?? 0,
+      removedBranchesCount: json['removed_branches_count'] ?? 0,
+      pendingApprovals: json['pending_approvals'] ?? 0,
+      overdueTasksCount: json['overdue_tasks_count'] ?? 0,
+      assetInventory: json['asset_inventory'] ?? 0,
+      newInventoryCount: json['new_inventory_count'] ?? 0,
+    );
+  }
+}
+
 class AuditLog {
   final String id;
   final String action;

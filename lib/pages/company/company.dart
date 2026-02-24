@@ -32,7 +32,7 @@ class CompanyProfilePage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Stats Row (wrap so cards flow on smaller widths)
-          _buildStatsSection(),
+          _buildStatsSection(controller),
 
           const SizedBox(height: 32),
 
@@ -398,47 +398,58 @@ class CompanyProfilePage extends StatelessWidget {
   }
 
   /// statistics row that behaves responsively across screen sizes
-  Widget _buildStatsSection() {
-    // each card is constrained to a max width so that wrap works nicely
+  Widget _buildStatsSection(CompanyController controller) {
     const cardWidth = 260.0;
-    return const Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Total Employees',
-                value: '452',
-                subtext: '2 new employees added!',
-                icon: Icons.people_outline,
-                isPositive: true)),
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Total Branches',
-                value: '29',
-                subtext: '2 Branches removed!',
-                icon: Icons.domain,
-                isPositive: false)),
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Pending Approvals',
-                value: '3',
-                subtext: '2 overdue tasks',
-                icon: Icons.pending_actions,
-                isWarning: true)),
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Asset Inventory',
-                value: '29',
-                subtext: '2 new projects added!',
-                icon: Icons.inventory_2_outlined,
-                isPositive: true)),
-      ],
-    );
+    return Obx(() {
+      final stats = controller.dashboardStats.value;
+      return Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: [
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Total Employees',
+                  value: stats != null ? '${stats.totalEmployees}' : '–',
+                  subtext: stats != null
+                      ? '${stats.newEmployeesCount} new employees added!'
+                      : '–',
+                  icon: Icons.people_outline,
+                  isPositive: true)),
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Total Branches',
+                  value: stats != null ? '${stats.totalBranches}' : '–',
+                  subtext: stats != null
+                      ? '${stats.removedBranchesCount} Branches removed!'
+                      : '–',
+                  icon: Icons.domain,
+                  isPositive: (stats?.removedBranchesCount ?? 0) == 0)),
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Pending Approvals',
+                  value: stats != null ? '${stats.pendingApprovals}' : '–',
+                  subtext: stats != null
+                      ? '${stats.overdueTasksCount} overdue tasks'
+                      : '–',
+                  icon: Icons.pending_actions,
+                  isWarning: (stats?.pendingApprovals ?? 0) > 0 ||
+                      (stats?.overdueTasksCount ?? 0) > 0)),
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Asset Inventory',
+                  value: stats != null ? '${stats.assetInventory}' : '–',
+                  subtext: stats != null
+                      ? '${stats.newInventoryCount} new assets added!'
+                      : '–',
+                  icon: Icons.inventory_2_outlined,
+                  isPositive: true)),
+        ],
+      );
+    });
   }
 }
 
@@ -465,7 +476,7 @@ class DashboardStatCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
+            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)
           ]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
