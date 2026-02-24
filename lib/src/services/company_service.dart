@@ -108,6 +108,21 @@ class CompanyService {
     }
   }
 
+  Future<List<Shareholder>> getShareholders(String token,
+      {int limit = 100, int offset = 0}) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/shareholders/',
+        queryParameters: {'limit': limit, 'offset': offset},
+        options: _authOptions(token),
+      );
+      final List items = response.data['items'] ?? [];
+      return items.map((e) => Shareholder.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<DashboardStats> getDashboardStats(
       {required String accessToken}) async {
     try {

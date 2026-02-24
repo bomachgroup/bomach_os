@@ -117,6 +117,73 @@ class Compliance {
   }
 }
 
+class Shareholder {
+  final int id;
+  final String shareholderId;
+  final int? userId;
+  final int? employeeId;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String phoneNumber;
+  final String? profilePicture;
+  final String title;
+  final String titleDisplay;
+  final String sharePercentage;
+  final int shareCount;
+  final bool isBoardMember;
+  final bool isActive;
+  final String? notes;
+  final String createdAt;
+  final String updatedAt;
+
+  Shareholder({
+    required this.id,
+    required this.shareholderId,
+    this.userId,
+    this.employeeId,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.phoneNumber,
+    this.profilePicture,
+    required this.title,
+    required this.titleDisplay,
+    required this.sharePercentage,
+    required this.shareCount,
+    required this.isBoardMember,
+    required this.isActive,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  String get fullName => '$firstName $lastName';
+
+  factory Shareholder.fromJson(Map<String, dynamic> json) {
+    return Shareholder(
+      id: json['id'] ?? 0,
+      shareholderId: json['shareholder_id'] ?? '',
+      userId: json['user_id'],
+      employeeId: json['employee_id'],
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      email: json['email'] ?? '',
+      phoneNumber: json['phone_number'] ?? '',
+      profilePicture: json['profile_picture'],
+      title: json['title'] ?? '',
+      titleDisplay: json['title_display'] ?? '',
+      sharePercentage: json['share_percentage'] ?? '0.00',
+      shareCount: json['share_count'] ?? 0,
+      isBoardMember: json['is_board_member'] ?? false,
+      isActive: json['is_active'] ?? true,
+      notes: json['notes'],
+      createdAt: json['created_at'] ?? '',
+      updatedAt: json['updated_at'] ?? '',
+    );
+  }
+}
+
 class DashboardStats {
   final int totalEmployees;
   final int newEmployeesCount;

@@ -32,9 +32,13 @@ class CompanyController extends GetxController {
   var dataGdpr = true.obs;
   var dataCcpa = false.obs;
 
-  // Mock Data Lists for Tabs
-  var shareholders = <Map<String, dynamic>>[].obs;
-  var boardMembers = <Map<String, dynamic>>[].obs;
+  // Shareholders / Board Members
+  var shareholders = <Shareholder>[].obs;
+  var isShareholdersLoading = false.obs;
+
+  List<Shareholder> get boardMembers =>
+      shareholders.where((s) => s.isBoardMember).toList();
+
 // Compliance
   var complianceList = <Compliance>[].obs;
   var isComplianceLoading = false.obs;
@@ -50,58 +54,9 @@ class CompanyController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadMockData();
     fetchCompanyProfile();
     fetchDashboardStats();
-  }
-
-  void _loadMockData() {
-    // Populate with data matching your screenshots
-    shareholders.addAll([
-      {
-        'name': 'Stephanie Mgboko',
-        'role': 'Founder',
-        'shares': '4,000,000',
-        'percent': '40.00%',
-        'bg': 0xFFFFF7ED,
-        'fg': 0xFFEA580C
-      },
-      {
-        'name': 'Abraham Godswill',
-        'role': 'Co-Founder',
-        'shares': '3,000,000',
-        'percent': '30.00%',
-        'bg': 0xFFFDF4FF,
-        'fg': 0xFFC026D3
-      },
-      {
-        'name': 'Nicholas Chidera Ani',
-        'role': 'Investor',
-        'shares': '3,000,000',
-        'percent': '30.00%',
-        'bg': 0xFFF0F9FF,
-        'fg': 0xFF0284C7
-      },
-    ]);
-
-    boardMembers.addAll([
-      {
-        'title': 'Mr',
-        'name': 'Nicholas Chidera Ani',
-        'role': 'Founder',
-        'gender': 'Male',
-        'bg': 0xFFFFF7ED,
-        'fg': 0xFFEA580C
-      },
-      {
-        'title': 'Esq',
-        'name': 'Stephanie Mgboko',
-        'role': 'Co-Founder',
-        'gender': 'Female',
-        'bg': 0xFFFDF4FF,
-        'fg': 0xFFC026D3
-      },
-    ]);
+    fetchShareholders();
   }
 
   Future<void> updateCompanyProfile(
@@ -216,6 +171,21 @@ class CompanyController extends GetxController {
       log("Error loading dashboard stats: $e");
     } finally {
       isDashboardLoading.value = false;
+    }
+  }
+
+  Future<void> fetchShareholders() async {
+    try {
+      isShareholdersLoading.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        final list = await _companyService.getShareholders(token);
+        shareholders.assignAll(list);
+      }
+    } catch (e) {
+      log("Error loading shareholders: $e");
+    } finally {
+      isShareholdersLoading.value = false;
     }
   }
 

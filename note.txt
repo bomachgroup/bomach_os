@@ -20,7 +20,8 @@ Response body
 
 
 ----------------------
-integrate this on the _buildOwnershipTab and _buildBoardMembersTab tab on the /Users/developer/bomach_os/lib/pages/company/company.dart page 
+
+Integrate this on the _buildOwnershipTab and _buildBoardMembersTab tab on the /Users/developer/bomach_os/lib/pages/company/company.dart page 
 to filter by board member use is_board_member=true
 curl -X 'GET' \
   'https://bomachauth.bgbot.app/api/v1/shareholders/?limit=100&offset=0' \

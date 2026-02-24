@@ -283,56 +283,119 @@ class CompanyProfilePage extends StatelessWidget {
 
   Widget _buildOwnershipTab(
       BuildContext context, CompanyController controller) {
-    // Renders the mock shareholder list from controller
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text("Ownership Records",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 16),
-      Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          children: controller.shareholders
-              .map((s) => ListTile(
-                    title: Text(s['name']),
-                    subtitle: Text(s['role']),
-                    trailing: Text(s['percent']),
-                    leading: CircleAvatar(
-                        backgroundColor: Color(s['bg']),
-                        child: Text(s['name'][0],
-                            style: TextStyle(color: Color(s['fg'])))),
-                  ))
-              .toList(),
-        ),
-      )
-    ]);
+    return Obx(() {
+      if (controller.isShareholdersLoading.value) {
+        return const Center(
+            child: Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator()));
+      }
+      final list = controller.shareholders;
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text("Ownership Records",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        if (list.isEmpty)
+          const Text("No shareholders found.",
+              style: TextStyle(color: Colors.grey))
+        else
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: list.asMap().entries.map((entry) {
+                final i = entry.key;
+                final s = entry.value;
+                final color = _avatarColor(i);
+                return ListTile(
+                  leading: CircleAvatar(
+                      backgroundColor: color.withValues(alpha: 0.15),
+                      child: Text(s.firstName[0].toUpperCase(),
+                          style: TextStyle(
+                              color: color, fontWeight: FontWeight.bold))),
+                  title: Text(s.fullName),
+                  subtitle: Text(s.titleDisplay),
+                  trailing: Text('${s.sharePercentage}%',
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                );
+              }).toList(),
+            ),
+          )
+      ]);
+    });
   }
 
   Widget _buildBoardMembersTab(
       BuildContext context, CompanyController controller) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text("Board Members",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 16),
-      Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          children: controller.boardMembers
-              .map((s) => ListTile(
-                    title: Text("${s['title']} ${s['name']}"),
-                    subtitle: Text(s['role']),
-                    leading: CircleAvatar(
-                        backgroundColor: Color(s['bg']),
-                        child: Icon(Icons.person, color: Color(s['fg']))),
-                  ))
-              .toList(),
-        ),
-      )
-    ]);
+    return Obx(() {
+      if (controller.isShareholdersLoading.value) {
+        return const Center(
+            child: Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator()));
+      }
+      final list = controller.boardMembers;
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text("Board Members",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        if (list.isEmpty)
+          const Text("No board members found.",
+              style: TextStyle(color: Colors.grey))
+        else
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: list.asMap().entries.map((entry) {
+                final i = entry.key;
+                final s = entry.value;
+                final color = _avatarColor(i);
+                return ListTile(
+                  leading: CircleAvatar(
+                      backgroundColor: color.withValues(alpha: 0.15),
+                      child: Icon(Icons.person, color: color)),
+                  title: Text('${s.titleDisplay}  ${s.fullName}'),
+                  subtitle: Text(s.email),
+                  trailing: s.isActive
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: const Text('Active',
+                              style: TextStyle(
+                                  color: Colors.green, fontSize: 12)))
+                      : Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: const Text('Inactive',
+                              style:
+                                  TextStyle(color: Colors.red, fontSize: 12))),
+                );
+              }).toList(),
+            ),
+          )
+      ]);
+    });
   }
+
+  static const _avatarColors = [
+    Color(0xFFEA580C),
+    Color(0xFFC026D3),
+    Color(0xFF0284C7),
+    Color(0xFF16A34A),
+    Color(0xFFD97706),
+    Color(0xFF7C3AED),
+  ];
+
+  Color _avatarColor(int index) => _avatarColors[index % _avatarColors.length];
 
  
 
