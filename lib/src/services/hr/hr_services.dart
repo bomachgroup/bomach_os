@@ -63,5 +63,54 @@ class HRServices {
     ));
   }
 
+  Options _authOptions(String token) {
+    return Options(headers: {
+      'Authorization': 'Bearer $token',
+    });
+  }
+
+  Future<DashboardStatsModel> getDashboardStats(String token) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/dashboard/stats',
+        options: _authOptions(token),
+      );
+
+      if (response.statusCode == 200) {
+        return DashboardStatsModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load stats: ${response.statusMessage}');
+      }
+    } on DioException catch (e) {
+      // Handle Dio specific errors (timeouts, 400s, 500s)
+      throw Exception('Network Error: ${e.message}');
+    } catch (e) {
+      throw Exception('Error fetching dashboard stats: $e');
+    }
+  }
+
   Dio get client => _dio;
+}
+
+class DashboardStatsModel {
+  final int trainingPrograms;
+  final int jobPostings;
+  final int leaves;
+  final int disciplinaryProcess;
+
+  DashboardStatsModel({
+    required this.trainingPrograms,
+    required this.jobPostings,
+    required this.leaves,
+    required this.disciplinaryProcess,
+  });
+
+  factory DashboardStatsModel.fromJson(Map<String, dynamic> json) {
+    return DashboardStatsModel(
+      trainingPrograms: json['training_programs'] ?? 0,
+      jobPostings: json['job_postings'] ?? 0,
+      leaves: json['leaves'] ?? 0,
+      disciplinaryProcess: json['disciplinary_process'] ?? 0,
+    );
+  }
 }
