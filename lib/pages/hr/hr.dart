@@ -1,8 +1,8 @@
+import 'dart:math';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
@@ -17,208 +17,524 @@ class HRPage extends StatefulWidget {
 class _HRPageState extends State<HRPage> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Define breakpoints based on available width
+        final width = constraints.maxWidth;
+        final bool isDesktop = width >= 1100;
+        final bool isTablet = width >= 650 && width < 1100;
+        final bool isMobile = width < 650;
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(isMobile),
+              kSizedBox,
+
+              // Responsive Grid for Stat Boxes
+              _buildSummaryGrid(isDesktop, isTablet, isMobile),
+
+              kSizedBox,
+
+              // Middle Section: Chart & Birthdays
+              // On Tablet/Mobile, we stack them. On Desktop, side-by-side.
+              if (isDesktop)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 2, child: _buildChartSection()),
+                    kSizedBoxWidth,
+                    Expanded(flex: 1, child: _buildBirthdaysSection()),
+                  ],
+                )
+              else ...[
+                _buildChartSection(),
+                kSizedBox,
+                _buildBirthdaysSection(),
+              ],
+
+              kSizedBox,
+
+              // Bottom Section: Audit Logs & Leaves
+              if (isDesktop)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildAuditLogsSection()),
+                    kSizedBoxWidth,
+                    Expanded(child: _buildLeavesSection()),
+                  ],
+                )
+              else ...[
+                _buildAuditLogsSection(),
+                kSizedBox,
+                _buildLeavesSection(),
+              ],
+              kSizedBox,
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // 1. Header Section
+  Widget _buildHeader(bool isMobile) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const MyText(
-          'HR Dashboard',
+          'HR & Administration',
           style: AppText.black_600_32,
         ),
-        kSizedBox,
-        _buildSummaryGrid(),
+        if (!isMobile)
+          Row(
+            children: [
+              OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.grey.shade300),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const MyText('Job Postings',
+                    style: TextStyle(color: Colors.black)),
+              ),
+              kSizedBoxWidth,
+              ElevatedButton.icon(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0055FF),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: const Icon(CupertinoIcons.add,
+                    color: Colors.white, size: 16),
+                label: const MyText('Add Employee',
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          )
       ],
     );
   }
 
-  Widget _buildSummaryGrid() {
+  // 2. Responsive Summary Cards Grid
+  Widget _buildSummaryGrid(bool isDesktop, bool isTablet, bool isMobile) {
+    // Determine column count
+    int columnCount;
+    if (isDesktop) {
+      columnCount = 4;
+    } else if (isTablet) {
+      columnCount = 2;
+    } else {
+      columnCount = 1;
+    }
+
+    // Determine row sizes (auto for each row needed)
+    // Desktop: 1 row. Tablet: 2 rows. Mobile: 4 rows.
+    List<TrackSize> rowSizes =
+        List.generate((4 / columnCount).ceil(), (_) => auto);
+
     return LayoutGrid(
-      columnSizes: isSmallScreen(context) ? [1.fr] : [1.fr, 1.fr],
-      rowSizes: isSmallScreen(context)
-          ? [
-              auto,
-              auto,
-              auto,
-              auto,
-            ]
-          : const [
-              auto,
-              auto,
-            ],
+      columnSizes: List.generate(columnCount, (_) => 1.fr),
+      rowSizes: rowSizes,
       columnGap: kDefaultSpaceBG,
       rowGap: kDefaultSpaceBG,
       children: [
         _buildSummaryCard(
-          value: '452',
-          label: 'Employees',
-          subtext: "2 new Employees added!",
-          smallIcon: Container(
-            height: 15,
-            width: 15,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withValues(alpha: 0.2),
-            ),
-            child: const Icon(
-              CupertinoIcons.add,
-              size: 8,
-            ),
-          ),
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
-        ),
+            label: 'Total Employees', value: '234', borderColor: Colors.green),
         _buildSummaryCard(
-          value: '452',
-          label: 'Total Expenses',
-          subtext: "2 new Leaves added!",
-          smallIcon: Container(
-            height: 15,
-            width: 15,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withValues(alpha: 0.2),
-            ),
-            child: const Icon(
-              CupertinoIcons.add,
-              size: 8,
-            ),
-          ),
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
-        ),
+            label: 'New Hires (30 days)',
+            value: '18',
+            borderColor: Colors.blue),
         _buildSummaryCard(
-          value: '20',
-          label: 'Outstanding Invoices',
-          subtext: "2 Open Positions added!",
-          smallIcon: Container(
-            height: 15,
-            width: 15,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withValues(alpha: 0.2),
-            ),
-            child: const Icon(
-              CupertinoIcons.add,
-              size: 8,
-            ),
-          ),
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
-        ),
+            label: 'Open Roles', value: '12', borderColor: Colors.orange),
         _buildSummaryCard(
-          value: '20,000,000',
-          label: 'Total Budget',
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
-        ),
+            label: 'New Hires', value: '2', borderColor: Colors.pinkAccent),
       ],
     );
   }
 
   Widget _buildSummaryCard({
-    required String value,
     required String label,
-    required Widget bigIcon,
-    Widget? smallIcon,
-    String? subtext,
+    required String value,
+    required Color borderColor,
   }) {
     return Container(
+      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MyText(
+            label,
+            style: const TextStyle(
+              color: Colors.black87,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          MyText(
+            value,
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 3. Charts Section
+  Widget _buildChartSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.2),
-            spreadRadius: 1,
-            blurRadius: 5,
-          ),
+              color: Colors.grey.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 38,
-                      fontWeight: FontWeight.w300,
-                    ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const MyText('Headcount by Department',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          // Wrap in LayoutBuilder to handle chart responsiveness internally
+          LayoutBuilder(builder: (context, constraints) {
+            final bool narrow = constraints.maxWidth < 350;
+            return Flex(
+              direction: narrow ? Axis.vertical : Axis.horizontal,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 160,
+                  width: 160,
+                  child: CustomPaint(
+                    painter: DonutChartPainter(),
                   ),
-                  bigIcon,
-                ],
-              ),
-            ),
-            MyText(
-              label,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-            if (subtext != null)
-              Row(
-                children: [
-                  smallIcon ?? const SizedBox(),
-                  kSizedBoxWidthSM,
-                  Expanded(
-                    child: MyText(
-                      subtext,
-                      // overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.darkBlue,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
+                ),
+                SizedBox(width: narrow ? 0 : 40, height: narrow ? 20 : 0),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLegendItem(const Color(0xFF6C63FF), 'Development',
+                          '78 employees'),
+                      _buildLegendItem(
+                          const Color(0xFFA063FF), 'Marketing', '42 employees'),
+                      _buildLegendItem(
+                          const Color(0xFFE91E63), 'Sales', '56 employees'),
+                      _buildLegendItem(const Color(0xFFFF9800), 'Operations',
+                          '35 employees'),
+                      _buildLegendItem(
+                          const Color(0xFF26A69A), 'Finance', '24 employees'),
+                      _buildLegendItem(
+                          const Color(0xFF42A5F5), 'HR', '12 employees'),
+                    ],
                   ),
-                ],
-              ),
-          ],
-        ),
+                )
+              ],
+            );
+          }),
+        ],
       ),
     );
   }
+
+  Widget _buildLegendItem(Color color, String label, String sub) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          CircleAvatar(radius: 4, backgroundColor: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: MyText(label,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 13)),
+                ),
+                const SizedBox(width: 4),
+                MyText(sub,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 4. Birthdays Section
+  Widget _buildBirthdaysSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const MyText('Upcoming Birthdays',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          _buildBirthdayTile(
+              'N', 'Nicky Fry', 'Designer', 'Apr 24', Colors.purpleAccent),
+          _buildBirthdayTile(
+              'R', 'Rick Fry', 'Developer', 'May 11', Colors.pinkAccent),
+          _buildBirthdayTile(
+              'A', 'Alice Fry', 'Manager', 'May 06', Colors.orangeAccent),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBirthdayTile(
+      String init, String name, String role, String date, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: color.withOpacity(0.1),
+            child: MyText(init,
+                style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyText(name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14)),
+                MyText(role,
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+              ],
+            ),
+          ),
+          MyText(date, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+        ],
+      ),
+    );
+  }
+
+  // 5. Audit Logs Section
+  Widget _buildAuditLogsSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const MyText('Audit Logs',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          _buildAuditItem('Clark Changed Rose Ells', '08:12 AM'),
+          _buildAuditItem('Garrett added a new employee', '06:45 AM'),
+          _buildAuditItem('Sophie generated Payroll Report', 'Yesterday'),
+          _buildAuditItem('System Backup completed', 'Yesterday'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAuditItem(String title, String time) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                height: 8,
+                width: 8,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.redAccent,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 30,
+                color: Colors.grey[300],
+              )
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyText(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 14)),
+                const SizedBox(height: 4),
+                MyText(time,
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  // 6. Recent Leaves Section
+  Widget _buildLeavesSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const MyText('Recent Leaves',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          _buildLeaveItem(
+              'David West', '2024-12-01 - 2024-12-14', 'Approved', Colors.blue),
+          _buildLeaveItem('Sarah Musa', '2024-12-01 - 2024-12-14', 'Pending',
+              Colors.orange),
+          _buildLeaveItem('Benji Rider 1', '2024-12-01 - 2024-12-14',
+              'Rejected', Colors.red),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeaveItem(
+      String name, String date, String status, Color statusColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyText(name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14)),
+                const SizedBox(height: 4),
+                MyText(date,
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: MyText(
+              status,
+              style: TextStyle(
+                  color: statusColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+// Zero-Dependency Donut Chart Painter
+class DonutChartPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    const strokeWidth = 30.0;
+    final rect =
+        Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    double startAngle = -pi / 2;
+
+    void drawSegment(Color color, double percentage) {
+      paint.color = color;
+      final sweepAngle = 2 * pi * percentage;
+      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+      startAngle += sweepAngle;
+    }
+
+    drawSegment(const Color(0xFF6C63FF), 0.32); // Dev
+    drawSegment(const Color(0xFFA063FF), 0.17); // Mkt
+    drawSegment(const Color(0xFFE91E63), 0.23); // Sales
+    drawSegment(const Color(0xFFFF9800), 0.14); // Ops
+    drawSegment(const Color(0xFF26A69A), 0.09); // Fin
+    drawSegment(const Color(0xFF42A5F5), 0.05); // HR
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
