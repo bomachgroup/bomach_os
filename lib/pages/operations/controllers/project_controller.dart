@@ -15,6 +15,8 @@ class ProjectController extends GetxController {
   var isActionLoading = false.obs;
   var isLoadingEmployees = false.obs;
   var errorMessage = ''.obs;
+  var totalCount = 0.obs;
+  var currentSearch = ''.obs;
 
   var currentLimit = 10.obs;
   var currentOffset = 0.obs;
@@ -49,6 +51,10 @@ class ProjectController extends GetxController {
   Future<void> fetchProjects(BuildContext context,
       {String? search, String? status}) async {
     try {
+      if (search != null) {
+        currentSearch.value = search;
+        currentOffset.value = 0;
+      }
       isLoading.value = true;
       errorMessage.value = '';
 
@@ -59,11 +65,12 @@ class ProjectController extends GetxController {
         accessToken: token,
         limit: currentLimit.value,
         offset: currentOffset.value,
-        search: search,
+        search: currentSearch.value.isEmpty ? null : currentSearch.value,
         status: status,
       );
 
-      projects.assignAll(result);
+      projects.assignAll(result.items);
+      totalCount.value = result.count;
     } catch (e) {
       errorMessage.value = e.toString();
       _showError(context, "Failed to load projects: ${e.toString()}");

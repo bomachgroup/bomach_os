@@ -48,7 +48,7 @@ class DashboardService {
   }
 
   /// PROJECTS
-  Future<List<Project>> getProjects({
+  Future<({List<Project> items, int count})> getProjects({
     required String accessToken,
     String? status,
     String? priority,
@@ -78,11 +78,14 @@ class DashboardService {
 
       final data = response.data;
       if (data != null && data['items'] is List) {
-        return (data['items'] as List)
-            .map((item) => Project.fromJson(item))
-            .toList();
+        return (
+          items: (data['items'] as List)
+              .map((item) => Project.fromJson(item))
+              .toList(),
+          count: (data['count'] as num?)?.toInt() ?? 0,
+        );
       }
-      return [];
+      return (items: <Project>[], count: 0);
     } on DioException catch (e) {
       throw _handleError(e);
     }

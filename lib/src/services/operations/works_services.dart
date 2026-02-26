@@ -33,7 +33,7 @@ class WorksiteService {
     });
   }
 
-  Future<List<Worksite>> getWorksites({
+  Future<({List<Worksite> items, int count})> getWorksites({
     required String accessToken,
     int? projectId,
     String? status,
@@ -59,11 +59,14 @@ class WorksiteService {
 
       final data = response.data;
       if (data != null && data['items'] is List) {
-        return (data['items'] as List)
-            .map((item) => Worksite.fromJson(item))
-            .toList();
+        return (
+          items: (data['items'] as List)
+              .map((item) => Worksite.fromJson(item))
+              .toList(),
+          count: (data['count'] as num?)?.toInt() ?? 0,
+        );
       }
-      return [];
+      return (items: <Worksite>[], count: 0);
     } on DioException catch (e) {
       throw _handleError(e);
     }

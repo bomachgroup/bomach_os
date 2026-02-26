@@ -128,7 +128,15 @@ class TaskPageState extends State<TaskPage> {
                     ),
                   ),
                 ),
-                const MyPaginator(),
+                MyPaginator(
+                  totalRecords: controller.totalCount.value,
+                  onPageChanged: (page, limit) {
+                    controller.currentLimit.value = limit;
+                    controller.currentOffset.value = (page - 1) * limit;
+                    controller.fetchTasks(context,
+                        projectId: widget.projectId);
+                  },
+                ),
               ],
             );
           }),

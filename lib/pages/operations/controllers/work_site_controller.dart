@@ -14,8 +14,10 @@ class WorksiteController extends GetxController {
   var isLoading = false.obs;
   var isActionLoading = false.obs;
   var errorMessage = ''.obs;
+  var totalCount = 0.obs;
+  var currentSearch = ''.obs;
 
-  var currentLimit = 100.obs;
+  var currentLimit = 10.obs;
   var currentOffset = 0.obs;
 
   Future<String?> _getToken(BuildContext context) async {
@@ -38,8 +40,12 @@ class WorksiteController extends GetxController {
   }
 
   Future<void> fetchWorksites(BuildContext context,
-      { int? projectId, String? search}) async {
+      {int? projectId, String? search}) async {
     try {
+      if (search != null) {
+        currentSearch.value = search;
+        currentOffset.value = 0;
+      }
       isLoading.value = true;
       errorMessage.value = '';
 
@@ -49,12 +55,13 @@ class WorksiteController extends GetxController {
       final result = await _service.getWorksites(
         accessToken: token,
         projectId: projectId,
-        search: search,
+        search: currentSearch.value.isEmpty ? null : currentSearch.value,
         limit: currentLimit.value,
         offset: currentOffset.value,
       );
 
-      worksites.assignAll(result);
+      worksites.assignAll(result.items);
+      totalCount.value = result.count;
     } catch (e) {
       errorMessage.value = e.toString();
       _showError(context, "Error loading worksites: ${e.toString()}");

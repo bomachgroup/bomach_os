@@ -119,7 +119,7 @@ class Task {
   final String description;
   final String status;
   final String priority;
-  final List<int> assignedTo;
+  final List<String> assignedTo;
   final String dueDate;
   final double estimatedHours;
   final String createdAt;
@@ -133,7 +133,7 @@ class Task {
     required this.description,
     required this.status,
     required this.priority,
-    required this.assignedTo,
+    required this.assignedTo, // List<String> of employee IDs
     required this.dueDate,
     required this.estimatedHours,
     required this.createdAt,
@@ -142,9 +142,9 @@ class Task {
 
   factory Task.fromJson(Map<String, dynamic> json) {
     var list = json['assigned_to'];
-    List<int> assignedIds = [];
+    List<String> assignedIds = [];
     if (list != null && list is List) {
-      assignedIds = list.map((e) => int.tryParse(e.toString()) ?? 0).toList();
+      assignedIds = list.map((e) => e.toString()).toList();
     }
 
     return Task(

@@ -32,7 +32,7 @@ class TaskService {
     });
   }
 
-  Future<List<Task>> getTasks({
+  Future<({List<Task> items, int count})> getTasks({
     required String accessToken,
     int? projectId,
     String? status,
@@ -62,11 +62,14 @@ class TaskService {
 
       final data = response.data;
       if (data != null && data['items'] is List) {
-        return (data['items'] as List)
-            .map((item) => Task.fromJson(item))
-            .toList();
+        return (
+          items: (data['items'] as List)
+              .map((item) => Task.fromJson(item))
+              .toList(),
+          count: (data['count'] as num?)?.toInt() ?? 0,
+        );
       }
-      return [];
+      return (items: <Task>[], count: 0);
     } on DioException catch (e) {
       throw _handleError(e);
     }
