@@ -22,6 +22,7 @@ class AddContractDialog extends StatefulWidget {
 class _AddContractDialogState extends State<AddContractDialog> {
   final ContractController controller = Get.find<ContractController>();
 
+  late TextEditingController nameCtrl;
   late TextEditingController numberCtrl;
   late TextEditingController valueCtrl;
   late TextEditingController startCtrl;
@@ -36,6 +37,7 @@ class _AddContractDialogState extends State<AddContractDialog> {
   void initState() {
     super.initState();
     final c = widget.contract;
+    nameCtrl = TextEditingController(text: c?.name ?? '');
     numberCtrl = TextEditingController(text: c?.contractNumber ?? '');
     valueCtrl = TextEditingController(text: c?.value.toString() ?? '0');
     startCtrl = TextEditingController(text: c?.startDate ?? '');
@@ -89,6 +91,13 @@ class _AddContractDialogState extends State<AddContractDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    MyTextFormField(
+                      controller: nameCtrl,
+                      title: 'Contract Name*',
+                      hintText: 'e.g. Site A Development Contract',
+                    ),
+                    const SizedBox(height: 24),
+
                     // Row 1: Number & Type
                     Row(
                       children: [
@@ -208,11 +217,12 @@ class _AddContractDialogState extends State<AddContractDialog> {
   }
 
   void _save() {
-    if (numberCtrl.text.isEmpty) return;
+    if (nameCtrl.text.isEmpty || numberCtrl.text.isEmpty) return;
 
     final contract = Contract(
       id: widget.contract?.id ?? 0,
       projectId: int.tryParse(projectIdCtrl.text) ?? 0,
+      name: nameCtrl.text,
       contractNumber: numberCtrl.text,
       contractType: selectedType,
       status: selectedStatus,

@@ -164,6 +164,31 @@ class DashboardService {
     }
   }
 
+  Future<List<ProjectEmployee>> getProjectEmployees({
+    required String accessToken,
+    required int projectId,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/projects/$projectId/employees',
+        queryParameters: {'limit': limit, 'offset': offset},
+        options: _authOptions(accessToken),
+      );
+
+      final data = response.data;
+      if (data != null && data['items'] is List) {
+        return (data['items'] as List)
+            .map((item) => ProjectEmployee.fromJson(item))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // Error Handler
   Exception _handleError(DioException e) {
     String msg = 'An unknown error occurred.';

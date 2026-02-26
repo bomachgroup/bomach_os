@@ -54,7 +54,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
               padding: EdgeInsets.all(20),
               child: Text("Activity Log Coming Soon"))),
       const Projects(),
-      const ProjectTaskTable(),
+      const ProjectTaskTable(projectId: 0),
       const ReportFilesTable(),
     ];
 

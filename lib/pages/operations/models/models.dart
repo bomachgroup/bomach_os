@@ -114,6 +114,7 @@ class Project {
 class Task {
   final int id;
   final int projectId;
+  final int? milestoneId;
   final String name;
   final String description;
   final String status;
@@ -127,6 +128,7 @@ class Task {
   Task({
     required this.id,
     required this.projectId,
+    this.milestoneId,
     required this.name,
     required this.description,
     required this.status,
@@ -148,6 +150,9 @@ class Task {
     return Task(
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       projectId: int.tryParse(json['project_id']?.toString() ?? '0') ?? 0,
+      milestoneId: json['milestone_id'] != null
+          ? int.tryParse(json['milestone_id'].toString())
+          : null,
       name: json['name']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
@@ -163,14 +168,14 @@ class Task {
 
   Map<String, dynamic> toJson() {
     return {
-      'project_id': projectId,
+      if (milestoneId != null) 'milestone_id': milestoneId,
       'name': name,
-      'description': description,
+      'description': description.isEmpty ? null : description,
       'status': status,
       'priority': priority,
       'assigned_to': assignedTo,
-      'due_date': dueDate,
-      'estimated_hours': estimatedHours,
+      'due_date': dueDate.isEmpty ? null : dueDate,
+      'estimated_hours': estimatedHours > 0 ? estimatedHours : null,
     };
   }
 }
@@ -223,6 +228,7 @@ class Worksite {
 class Contract {
   final int id;
   final int projectId;
+  final String name;
   final String contractNumber;
   final String contractType;
   final String status;
@@ -235,6 +241,7 @@ class Contract {
   Contract({
     required this.id,
     required this.projectId,
+    required this.name,
     required this.contractNumber,
     required this.contractType,
     required this.status,
@@ -249,6 +256,7 @@ class Contract {
     return Contract(
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       projectId: int.tryParse(json['project_id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
       contractNumber: json['contract_number']?.toString() ?? '',
       contractType: json['contract_type']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
@@ -263,6 +271,7 @@ class Contract {
   Map<String, dynamic> toJson() {
     return {
       'project_id': projectId,
+      'name': name,
       'contract_number': contractNumber,
       'contract_type': contractType,
       'status': status,
@@ -319,5 +328,144 @@ class TimelineModel {
       'start_date': startDate,
       'end_date': endDate,
     };
+  }
+}
+
+class Milestone {
+  final int id;
+  final int projectId;
+  final String name;
+  final String description;
+  final String priority;
+  final String status;
+  final String budget;
+  final int progress;
+  final String startDate;
+  final String endDate;
+  final String createdAt;
+  final String updatedAt;
+
+  Milestone({
+    required this.id,
+    required this.projectId,
+    required this.name,
+    required this.description,
+    required this.priority,
+    required this.status,
+    required this.budget,
+    required this.progress,
+    required this.startDate,
+    required this.endDate,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory Milestone.fromJson(Map<String, dynamic> json) {
+    return Milestone(
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      projectId: int.tryParse(json['project_id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      priority: json['priority']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      budget: json['budget']?.toString() ?? '0',
+      progress: int.tryParse(json['progress']?.toString() ?? '0') ?? 0,
+      startDate: json['start_date']?.toString() ?? '',
+      endDate: json['end_date']?.toString() ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'project_id': projectId,
+      'name': name,
+      'description': description.isEmpty ? null : description,
+      'priority': priority,
+      'status': status,
+      'budget': budget.isEmpty ? null : budget,
+      'progress': progress,
+      'start_date': startDate.isEmpty ? null : startDate,
+      'end_date': endDate.isEmpty ? null : endDate,
+    };
+  }
+}
+
+class SiteEquipment {
+  final int id;
+  final int worksiteId;
+  final String name;
+  final String unitValue;
+  final String createdAt;
+  final String updatedAt;
+
+  SiteEquipment({
+    required this.id,
+    required this.worksiteId,
+    required this.name,
+    required this.unitValue,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory SiteEquipment.fromJson(Map<String, dynamic> json) {
+    return SiteEquipment(
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      worksiteId: int.tryParse(json['worksite_id']?.toString() ?? '0') ?? 0,
+      name: json['name']?.toString() ?? '',
+      unitValue: json['unit_value']?.toString() ?? '',
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'worksite_id': worksiteId,
+      'name': name,
+      'unit_value': unitValue,
+    };
+  }
+}
+
+class ProjectEmployee {
+  final String id;
+  final String employeeId;
+  final String email;
+  final String fullName;
+  final String phone;
+  final String position;
+  final bool isActive;
+  final String departmentName;
+  final String branchName;
+  final String employmentType;
+
+  ProjectEmployee({
+    required this.id,
+    required this.employeeId,
+    required this.email,
+    required this.fullName,
+    required this.phone,
+    required this.position,
+    required this.isActive,
+    required this.departmentName,
+    required this.branchName,
+    required this.employmentType,
+  });
+
+  factory ProjectEmployee.fromJson(Map<String, dynamic> json) {
+    return ProjectEmployee(
+      id: json['id']?.toString() ?? '',
+      employeeId: json['employee_id']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      fullName: json['full_name']?.toString() ?? '',
+      phone: json['phone']?.toString() ?? '',
+      position: json['position']?.toString() ?? '',
+      isActive: json['is_active'] == true,
+      departmentName: json['department_name']?.toString() ?? '',
+      branchName: json['branch_name']?.toString() ?? '',
+      employmentType: json['employment_type']?.toString() ?? '',
+    );
   }
 }
