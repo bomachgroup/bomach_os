@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 
@@ -20,6 +21,12 @@ class AttendancePageState extends State<AttendancePage> {
   final BiometricsController controller = Get.put(BiometricsController());
   final _storage = const FlutterSecureStorage();
   final ScrollController _scrollController = ScrollController();
+
+  // Helper stream for live clock
+  Stream<String> get _timeStream => Stream.periodic(
+        const Duration(seconds: 1),
+        (_) => DateFormat('HH:mm:ss').format(DateTime.now()),
+      );
 
   @override
   void initState() {
@@ -38,7 +45,23 @@ class AttendancePageState extends State<AttendancePage> {
     final token = await _getToken(context);
     if (token != null) {
       await controller.fetchAttendanceHistory(token);
-    } else {}
+    }
+  }
+
+  Future<void> _handleClockAction(bool isClockIn) async {
+    final token = await _getToken(context);
+    if (token != null) {
+      await controller.performClockAction(token, isClockIn: isClockIn);
+      if (controller.errorMessage.isNotEmpty && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(controller.errorMessage.value),
+            backgroundColor: Colors.red));
+      } else if (controller.successMessage.isNotEmpty && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(controller.successMessage.value),
+            backgroundColor: Colors.green));
+      }
+    }
   }
 
   @override
@@ -49,26 +72,94 @@ class AttendancePageState extends State<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
+    return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Attendance', style: AppText.black_500_32),
-              SizedBox(height: 4),
-              MyText('Monitor your biometric check-ins',
-                  color: Colors.grey, size: 14),
-            ],
-          ),
+          // --- Title ---
+          const MyText('Attendance Management', style: AppText.black_500_32),
           kSizedBox,
+
+          // --- 1. Action Cards (Clock In / Clock Out) ---
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  spacing: 15,
+                child: _buildTimeCard(
+                  title: "Time In",
+                  buttonColor: const Color(0xFF00C853), // Green
+                  buttonText: "Clock In",
+                  onTap: () => _handleClockAction(true),
+                ),
+              ),
+              const SizedBox(width: 24),
+              Expanded(
+                child: _buildTimeCard(
+                  title: "Time Out",
+                  buttonColor: const Color(0xFF2962FF), // Blue
+                  buttonText: "Clock Out",
+                  onTap: () => _handleClockAction(false),
+                ),
+              ),
+            ],
+          ),
+          kSizedBox,
+
+          // --- 2. Graph Section (Dummy Visual) ---
+          Container(
+            height: 300,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0XFFD5D5D5), width: 0.6),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const MyText("Attendance Graph",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(children: [
+                        Text("This Week", style: TextStyle(fontSize: 12)),
+                        SizedBox(width: 4),
+                        Icon(Icons.keyboard_arrow_down, size: 16)
+                      ]),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: CustomPaint(
+                    size: Size.infinite,
+                    painter: _SimpleChartPainter(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          kSizedBox,
+
+          // --- 3. Table Section ---
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
                       width: 250,
@@ -78,455 +169,181 @@ class AttendancePageState extends State<AttendancePage> {
                             color: Colors.grey.withOpacity(0.5)),
                       ),
                     ),
-                    IconButton(
-                      onPressed: _refreshData,
-                      icon: const Icon(Icons.refresh),
-                      tooltip: 'Refresh Records',
-                    ),
+                    Row(
+                      children: [
+                        _buildFilterBtn("All Staff"),
+                        const SizedBox(width: 12),
+                        _buildFilterBtn("Today"),
+                      ],
+                    )
                   ],
                 ),
-              )
-            ],
-          ),
-          kSizedBox,
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                const SizedBox(height: 24),
+                Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                if (controller.errorMessage.isNotEmpty &&
-                    controller.attendanceList.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline,
-                            color: Colors.red, size: 40),
-                        const SizedBox(height: 10),
-                        Text(controller.errorMessage.value),
-                        TextButton(
-                            onPressed: _refreshData, child: const Text("Retry"))
+                  if (controller.dailyAttendanceList.isEmpty) {
+                    return const Center(
+                        child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Text("No records found."),
+                    ));
+                  }
+
+                  return SizedBox(
+                    width: double.infinity,
+                    child: DataTable(
+                      headingTextStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black87),
+                      columnSpacing: 24,
+                      columns: const [
+                        DataColumn(label: Text('Date')),
+                        DataColumn(label: Text('Employee')),
+                        DataColumn(label: Text('Clock In')),
+                        DataColumn(label: Text('Clock Out')),
+                        DataColumn(label: Text('Hours Worked')),
                       ],
-                    ),
-                  );
-                }
-
-                if (controller.attendanceList.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.history, size: 60, color: Colors.grey[300]),
-                        const SizedBox(height: 16),
-                        const Text("No attendance records found."),
-                      ],
-                    ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: _refreshData,
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    thumbVisibility: true,
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      controller: _scrollController,
-                      scrollDirection: Axis.vertical,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columnSpacing: 24,
-                          columns: const [
-                            DataColumn(label: Text('Date')),
-                            DataColumn(label: Text('Time')),
-                            DataColumn(label: Text('Type')),
-                            DataColumn(label: Text('Method')),
-                            DataColumn(label: Text('Status')),
-                          ],
-                          rows: controller.attendanceList.map((record) {
-                            return DataRow(cells: [
-                              DataCell(MyText(DateFormat('dd-MM-yyyy')
-                                  .format(record.timestamp))),
-                              DataCell(MyText(DateFormat('hh:mm a')
-                                  .format(record.timestamp))),
-                              DataCell(MyText(record.attendanceType)),
-                              DataCell(MyText(record.verificationMethod)),
-                              DataCell(
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    "Success",
-                                    style: TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
+                      rows: controller.dailyAttendanceList.map((day) {
+                        return DataRow(cells: [
+                          DataCell(Text(day.date)),
+                          DataCell(Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundColor: Colors.grey.shade200,
+                                child: const Icon(Icons.person,
+                                    size: 16, color: Colors.grey),
                               ),
-                            ]);
-                          }).toList(),
-                        ),
-                      ),
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(day.employeeName,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13)),
+                                  Text(day.role,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 11)),
+                                ],
+                              )
+                            ],
+                          )),
+                          DataCell(Text(day.clockInTime ?? '--:--')),
+                          DataCell(Text(day.clockOutTime ?? '--:--')),
+                          DataCell(Text(day.hoursWorked)),
+                        ]);
+                      }).toList(),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildTimeCard({
+    required String title,
+    required Color buttonColor,
+    required String buttonText,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+      ),
+      child: Column(
+        children: [
+          MyText(title, color: const Color(0xFF2E7D32), weight: 600, size: 14),
+          const SizedBox(height: 16),
+          StreamBuilder<String>(
+            stream: _timeStream,
+            builder: (context, snapshot) {
+              return MyText(
+                snapshot.data ?? "--:--:--",
+                style:
+                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: buttonColor,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Obx(() => controller.isAuthenticating.value
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2))
+                  : Text(buttonText,
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold))),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterBtn(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300)),
+      child: Row(
+        children: [
+          Text(text,
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          const SizedBox(width: 8),
+          const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey)
+        ],
+      ),
+    );
+  }
 }
-// import 'package:bms_front_end/components/button/my_elevated_button.dart';
-// import 'package:bms_front_end/components/button/sort_bar.dart';
-// import 'package:bms_front_end/components/input/my_textformfield.dart';
-// import 'package:bms_front_end/components/nav/three_dot_pop.dart';
-// import 'package:bms_front_end/components/paginate/my_paginator.dart';
-// import 'package:bms_front_end/components/text/my_text.dart';
-// import 'package:bms_front_end/pages/hr/models/attendance_models.dart';
-// import 'package:bms_front_end/pages/hr/widget/clock_in_dialog.dart';
-// import 'package:bms_front_end/pages/hr/widget/view_attendance_dialog.dart';
-// import 'package:bms_front_end/src/constants/colors.dart';
-// import 'package:bms_front_end/src/constants/spaces.dart';
-// import 'package:bms_front_end/src/constants/textstyle.dart';
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
 
-// class AttendancePage extends StatefulWidget {
-//   const AttendancePage({super.key});
+class _SimpleChartPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF00C853)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
 
-//   @override
-//   State<AttendancePage> createState() => AttendancePageState();
-// }
+    final path = Path();
+    path.moveTo(0, size.height * 0.7);
+    path.cubicTo(size.width * 0.2, size.height * 0.5, size.width * 0.4,
+        size.height * 0.8, size.width * 0.5, size.height * 0.4);
+    path.cubicTo(size.width * 0.6, size.height * 0.1, size.width * 0.8,
+        size.height * 0.6, size.width, size.height * 0.2);
 
-// class AttendancePageState extends State<AttendancePage> {
-//   final ScrollController _scrollController = ScrollController();
-//   late List<AttendanceRecord> _attendanceRecords;
+    canvas.drawPath(path, paint);
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     _initializeSampleData();
-//   }
+    final dotPaint = Paint()..color = const Color(0xFF00C853);
+    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);
+    canvas.drawCircle(Offset(size.width, size.height * 0.2), 4, dotPaint);
+  }
 
-//   void _initializeSampleData() {
-//     _attendanceRecords = [
-//       AttendanceRecord(
-//         employeeId: 'K997KD',
-//         employeeName: 'John Michael',
-//         employeeEmail: 'johnmichael5@gmail.com',
-//         date: DateTime.now(),
-//         checkInTime: DateTime.now().subtract(const Duration(hours: 2)),
-//         checkOutTime: DateTime.now(),
-//         status: 'Present',
-//       ),
-//       AttendanceRecord(
-//         employeeId: 'E002',
-//         employeeName: 'Sarah Johnson',
-//         employeeEmail: 'sarah.johnson@gmail.com',
-//         date: DateTime.now(),
-//         checkInTime: DateTime.now().subtract(const Duration(hours: 3)),
-//         checkOutTime: null,
-//         status: 'Present',
-//       ),
-//     ];
-//   }
-
-//   void _handleClockIn(AttendanceRecord record) {
-//     setState(() {
-//       // Check if record already exists, if so update it
-//       final existingIndex = _attendanceRecords.indexWhere(
-//         (r) =>
-//             r.employeeId == record.employeeId &&
-//             r.date.day == record.date.day,
-//       );
-
-//       if (existingIndex >= 0) {
-//         _attendanceRecords[existingIndex] = record;
-//       } else {
-//         _attendanceRecords.insert(0, record);
-//       }
-//     });
-//   }
-
-//   @override
-//   void dispose() {
-//     _scrollController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Row(
-//           children: [
-//             Expanded(
-//               child: Wrap(
-//                 alignment: WrapAlignment.spaceBetween,
-//                 crossAxisAlignment: WrapCrossAlignment.start,
-//                 spacing: 10,
-//                 runSpacing: 10,
-//                 children: [
-//                   const Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       MyText(
-//                         'Attendance',
-//                         style: AppText.black_500_32,
-//                       ),
-//                     ],
-//                   ),
-//                   MyElevatedButton(
-//                     icon: const Icon(
-//                       Icons.access_time,
-//                       color: AppColors.white,
-//                     ),
-//                     child: "Clock In",
-//                     onTap: () {
-//                       showDialog(
-//                         context: context,
-//                         builder: (context) {
-//                           return ClockInDialog(
-//                             onClockIn: _handleClockIn,
-//                           );
-//                         },
-//                       );
-//                     },
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//         kSizedBox,
-//         Row(
-//           children: [
-//             Expanded(
-//               child: Wrap(
-//                 spacing: 15,
-//                 runSpacing: 15,
-//                 alignment: WrapAlignment.spaceBetween,
-//                 children: [
-//                   SizedBox(
-//                     width: 250,
-//                     child: MyTextFormField(
-//                       hintText: 'Search by name',
-//                       leading: Icon(
-//                         Icons.search,
-//                         color: AppColors.grey1.withValues(alpha: 0.5),
-//                       ),
-//                     ),
-//                   ),
-//                   const Row(
-//                     spacing: 15,
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: [
-//                       SortBar(text: "All States"),
-//                       SortBar(text: "Status"),
-//                     ],
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//         kSizedBox,
-//         kSizedBoxSM,
-//         Container(
-//           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-//           decoration: BoxDecoration(
-//             border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-//             borderRadius: BorderRadius.circular(16),
-//           ),
-//           child: Column(
-//             children: [
-//               Scrollbar(
-//                 controller: _scrollController,
-//                 thumbVisibility: true,
-//                 trackVisibility: true,
-//                 child: SingleChildScrollView(
-//                   controller: _scrollController,
-//                   scrollDirection: Axis.horizontal,
-//                   child: ConstrainedBox(
-//                     constraints: BoxConstraints(
-//                       minWidth: bodySpace(context),
-//                     ),
-//                     child: DataTable(
-//                       dataRowMinHeight: 68,
-//                       dataRowMaxHeight: 68,
-//                       columnSpacing: 24,
-//                       horizontalMargin: 12,
-//                       columns: _createColumns(),
-//                       rows: _createRows(context),
-//                       showBottomBorder: true,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               const MyPaginator(),
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   List<DataColumn> _createColumns() {
-//     return [
-//       const DataColumn(
-//         headingRowAlignment: MainAxisAlignment.start,
-//         label: MyText(
-//           "Employee ID",
-//         ),
-//       ),
-//       const DataColumn(
-//         label: MyText(
-//           "Name & Email",
-//         ),
-//       ),
-//       const DataColumn(
-//         label: MyText(
-//           "Check-in",
-//         ),
-//       ),
-//       const DataColumn(
-//         label: MyText(
-//           "Check-out",
-//         ),
-//       ),
-//       const DataColumn(
-//         label: MyText(
-//           "Date",
-//         ),
-//       ),
-//       const DataColumn(
-//         label: MyText(
-//           "Status",
-//         ),
-//       ),
-//       const DataColumn(
-//         label: MyText(
-//           "Action",
-//         ),
-//       ),
-//     ];
-//   }
-
-//   List<DataRow> _createRows(BuildContext context) {
-//     return _attendanceRecords.map((record) {
-//       return DataRow(cells: <DataCell>[
-//         DataCell(
-//           MyText(
-//             record.employeeId,
-//             size: 16,
-//             weight: 400,
-//             isSelectable: false,
-//           ),
-//         ),
-//         DataCell(
-//           onTap: () {
-//             showDialog(
-//               context: context,
-//               builder: (context) {
-//                 return const ViewAttendanceDialog();
-//               },
-//             );
-//           },
-//           Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               MyText(
-//                 record.employeeName,
-//                 style: const TextStyle(fontWeight: FontWeight.bold),
-//                 isSelectable: false,
-//               ),
-//               MyText(
-//                 record.employeeEmail,
-//                 isSelectable: false,
-//               ),
-//             ],
-//           ),
-//         ),
-//         DataCell(
-//           MyText(
-//             record.checkInTime != null
-//                 ? DateFormat('HH:mm:ss').format(record.checkInTime!)
-//                 : '---',
-//           ),
-//         ),
-//         DataCell(
-//           MyText(
-//             record.checkOutTime != null
-//                 ? DateFormat('HH:mm:ss').format(record.checkOutTime!)
-//                 : '---',
-//           ),
-//         ),
-//         DataCell(
-//           MyText(
-//             DateFormat('dd-MM-yyyy').format(record.date),
-//           ),
-//         ),
-//         DataCell(
-//           Container(
-//             padding: const EdgeInsets.symmetric(
-//               horizontal: 12,
-//               vertical: 6,
-//             ),
-//             decoration: BoxDecoration(
-//               color: _getStatusColor(record.status),
-//               borderRadius: BorderRadius.circular(6),
-//             ),
-//             child: MyText(
-//               record.status,
-//               style: const TextStyle(
-//                 color: AppColors.white,
-//                 fontSize: 12,
-//                 fontWeight: FontWeight.w500,
-//               ),
-//             ),
-//           ),
-//         ),
-//         const DataCell(
-//           ThreeDotPop(),
-//         ),
-//       ]);
-//     }).toList();
-//   }
-
-//   Color _getStatusColor(String status) {
-//     switch (status.toLowerCase()) {
-//       case 'present':
-//         return AppColors.green;
-//       case 'absent':
-//         return AppColors.red;
-//       case 'late':
-//         return const Color(0xFFFFA500);
-//       case 'early leave':
-//         return const Color(0xFFFF6B6B);
-//       case 'on leave':
-//         return const Color(0xFF9B59B6);
-//       case 'half day':
-//         return const Color(0xFF3498DB);
-//       case 'remote':
-//         return const Color(0xFF27AE60);
-//       default:
-//         return AppColors.grey1;
-//     }
-//   }
-// }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

@@ -1,11 +1,9 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../controller/leave_request_controller.dart';
 import '../models/leave_request_model.dart';
-import 'add_leave_request_dialog.dart';
 
 class ViewLeaveRequestDialog extends StatefulWidget {
   final LeaveRequest request;
@@ -16,42 +14,45 @@ class ViewLeaveRequestDialog extends StatefulWidget {
 }
 
 class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
-  final ScrollController _scrollController = ScrollController();
   final LeaveRequestController _ctrl = Get.find<LeaveRequestController>();
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  Widget _buildDetailRow(String label, String value, {bool isBlue = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 200,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w400,
+  void _confirmReject(BuildContext context, int requestId) {
+    final reasonCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Reject Request"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Are you sure you want to reject this request?"),
+            const SizedBox(height: 16),
+            TextField(
+              controller: reasonCtrl,
+              decoration: const InputDecoration(
+                labelText: "Reason for rejection (Optional)",
+                border: OutlineInputBorder(),
               ),
+              maxLines: 3,
             ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel"),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx); // Close confirmation dialog
+              _ctrl.updateLeaveStatus(context, requestId, 'rejected',
+                  rejectionReason: reasonCtrl.text);
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD32F2F)),
+            child: const Text("Reject", style: TextStyle(color: Colors.white)),
+          )
         ],
       ),
     );
@@ -60,139 +61,227 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
   @override
   Widget build(BuildContext context) {
     final r = widget.request;
+
+    // Colors from design
+    final greenColor = const Color(0xFF00C853);
+    final redColor = const Color(0xFFD32F2F);
+
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        width: 900,
+        constraints: const BoxConstraints(maxWidth: 950, maxHeight: 600),
         child: Column(
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
+            // --- Header ---
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Leave Request Details',
+                    'Leave Application',
                     style: TextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+
+            // --- Body (Two Columns) ---
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- Left Column: Info ---
+                  Expanded(
+                    flex: 2,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Profile
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: const Color(0xFFE3F2FD),
+                                child: Text(
+                                    r.employeeId.isNotEmpty
+                                        ? r.employeeId[0].toUpperCase()
+                                        : "U",
+                                    style: const TextStyle(
+                                        color: Color(0xFF1976D2),
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    r.employeeId,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  const Text(
+                                    "Senior Software Engineer",
+                                    style: TextStyle(
+                                        color: Colors.grey, fontSize: 13),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+
+                          // Leave Info
+                          const Text("Leave info",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 15)),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                                color: const Color(0xFFFAFAFA),
+                                borderRadius: BorderRadius.circular(12),
+                                border:
+                                    Border.all(color: const Color(0xFFEEEEEE))),
+                            child: Column(
+                              children: [
+                                _buildGridRow("Leave Type", r.leaveType,
+                                    "Start Date", _fmtDate(r.startDate)),
+                                const SizedBox(height: 20),
+                                _buildGridRow(
+                                    "Emergency Contact Name",
+                                    "Evelyn Chisom",
+                                    "Emergency Contact Phone",
+                                    "0803 1265 4789"),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Reason
+                          const Text("Reason For Leave",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 15)),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: const Color(0xFFFAFAFA),
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: const Color(0xFFEEEEEE))),
+                            child: Text(
+                              r.reason ?? "No reason provided.",
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  height: 1.5,
+                                  color: Colors.black87),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Vertical Divider
+                  Container(width: 1, color: const Color(0xFFEEEEEE)),
+
+                  // --- Right Column: Actions ---
+                  Expanded(
+                    flex: 1,
                     child: Container(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close,
-                        size: 24,
-                        color: Colors.grey[600],
+                      padding: const EdgeInsets.all(24),
+                      color: const Color(0xFFFAFBFC),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Actions",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 15)),
+                          const SizedBox(height: 16),
+
+                          // Approve Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: Obx(() => ElevatedButton(
+                                  onPressed:
+                                      _ctrl.isSaving.value || r.id == null
+                                          ? null
+                                          : () => _ctrl.updateLeaveStatus(
+                                              context, r.id!, 'approved'),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: greenColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                      elevation: 0),
+                                  child: _ctrl.isSaving.value
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2))
+                                      : const Text("Approve",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold)),
+                                )),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Reject Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: Obx(() => ElevatedButton(
+                                  onPressed: _ctrl.isSaving.value ||
+                                          r.id == null
+                                      ? null
+                                      : () => _confirmReject(context, r.id!),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: redColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                      elevation: 0),
+                                  child: _ctrl.isSaving.value
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2))
+                                      : const Text("Reject",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold)),
+                                )),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-
-            const Divider(height: 1, color: Color(0xFFE5E5E5)),
-
-            // Scrollable Content
-            Expanded(
-              child: Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailRow('Employee ID', r.employeeId),
-                      _buildDetailRow('Leave Type', r.leaveType),
-                      _buildDetailRow(
-                          'Start Date',
-                          r.startDate != null
-                              ? r.startDate!.toIso8601String().split('T').first
-                              : ''),
-                      _buildDetailRow(
-                          'End Date',
-                          r.endDate != null
-                              ? r.endDate!.toIso8601String().split('T').first
-                              : ''),
-                      _buildDetailRow('Status', r.status ?? ''),
-                      _buildDetailRow('Reason', r.reason ?? ''),
-                      _buildDetailRow('Approver ID', r.approverId ?? ''),
-                      _buildDetailRow(
-                          'Approval Date',
-                          r.approvalDate != null
-                              ? r.approvalDate!
-                                  .toIso8601String()
-                                  .split('T')
-                                  .first
-                              : ''),
-                      _buildDetailRow(
-                          'Rejection Reason', r.rejectionReason ?? ''),
-
-                      const SizedBox(height: 100), // Space for bottom buttons
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Obx(() {
-                if (_ctrl.isLoading.value) {
-                  return const SizedBox(
-                    height: 50,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-                return Row(
-                  children: [
-                    MyElevatedButton(
-                      bgColor: AppColors.red,
-                      child: 'Delete',
-                      onTap: () {
-                        _showDeleteConfirmation(context);
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    MyElevatedButton(
-                      child: 'Edit',
-                      onTap: () {
-                        _ctrl.populateForm(r);
-                        showDialog(
-                          context: context,
-                          builder: (_) => AddLeaveRequestDialog(request: r),
-                        );
-                      },
-                    ),
-                  ],
-                );
-              }),
             ),
           ],
         ),
@@ -200,30 +289,53 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Leave Request'),
-        content: const Text(
-            'Are you sure you want to delete this leave request? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+  Widget _buildGridRow(String l1, String v1, String l2, String v2) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l1,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500)),
+              const SizedBox(height: 4),
+              Text(v1,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87)),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _ctrl.deleteRequest(context, widget.request.id);
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: AppColors.red),
-            ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l2,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500)),
+              const SizedBox(height: 4),
+              Text(v2,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87)),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
+  }
+
+  String _fmtDate(DateTime? d) {
+    if (d == null) return "-";
+    return DateFormat('dd/MM/yyyy').format(d);
   }
 }

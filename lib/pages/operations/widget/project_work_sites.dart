@@ -6,7 +6,6 @@ import 'package:bms_front_end/components/input/rich_text.dart';
 import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/employees_database/widget/employee_table.dart';
 import 'package:bms_front_end/pages/operations/widget/project_task_table.dart';
 import 'package:bms_front_end/pages/operations/widget/site_equipment_table.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -127,7 +126,7 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
           ),
         ),
         kSizedBoxBG,
-        if (selectionStepperState == 0) const EmployeeTable(),
+        if (selectionStepperState == 0)  Container(),
         if (selectionStepperState == 1) const SiteEquipmentTable(),
         if (selectionStepperState == 2) const ProjectTaskTable(),
       ],

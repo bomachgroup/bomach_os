@@ -29,7 +29,10 @@ class TopNavigationBar extends StatelessWidget {
           if (!isLargeScreen(context)) ...[
             IconButton(
               onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: const Icon(Icons.menu),
+              icon: const Icon(
+                Icons.menu,
+                color: Colors.black,
+              ),
             ),
             kSizedBoxWidth,
           ],
@@ -40,7 +43,9 @@ class TopNavigationBar extends StatelessWidget {
           if (!isSmallScreen(context))
             IconButton(
               onPressed: () {},
-              icon: SvgPicture.asset("assets/svg/notification.svg"),
+              icon: SvgPicture.asset("assets/svg/notification.svg",
+                  colorFilter:
+                      const ColorFilter.mode(Colors.black, BlendMode.srcIn)),
             ),
 
           kSizedBoxWidth,

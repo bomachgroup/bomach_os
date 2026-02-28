@@ -121,7 +121,7 @@ class _LeadsPageState extends State<LeadsPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         )

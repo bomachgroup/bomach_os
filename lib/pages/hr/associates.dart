@@ -14,7 +14,6 @@ import 'controller/associate_controller.dart';
 import 'widget/add_associate_dialog.dart';
 import 'widget/view_associate_dialog.dart';
 
-
 class AssociatesPage extends StatefulWidget {
   const AssociatesPage({super.key});
 
@@ -152,11 +151,17 @@ class _AssociatesPageState extends State<AssociatesPage> {
                     ),
                     child: Obx(() {
                       if (controller.isLoading.value) {
-                        return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+                        return const Center(
+                            child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: CircularProgressIndicator()));
                       }
-                      
+
                       if (controller.associateList.isEmpty) {
-                        return const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("No associates found.")));
+                        return const Center(
+                            child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Text("No associates found.")));
                       }
 
                       return DataTable(
@@ -172,7 +177,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),
@@ -204,9 +209,14 @@ class _AssociatesPageState extends State<AssociatesPage> {
                 ),
                 width: 36,
                 height: 36,
-                child: associate.profilePicture != null 
-                    ? CircleAvatar(backgroundImage: NetworkImage(associate.profilePicture!))
-                    : Center(child: Text(associate.firstName.isNotEmpty ? associate.firstName[0] : 'A')),
+                child: associate.profilePicture != null
+                    ? CircleAvatar(
+                        backgroundImage:
+                            NetworkImage(associate.profilePicture!))
+                    : Center(
+                        child: Text(associate.firstName.isNotEmpty
+                            ? associate.firstName[0]
+                            : 'A')),
               ),
               const SizedBox(width: 8),
               MyText(

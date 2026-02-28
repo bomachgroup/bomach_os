@@ -127,7 +127,7 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),

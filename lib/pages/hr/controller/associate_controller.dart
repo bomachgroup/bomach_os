@@ -30,7 +30,7 @@ class AssociatesController extends GetxController {
       final result = await _service.getEmployees(token,
           limit: 1000, offset: offset, employmentType: '');
 
-      final filtered = result.where((e) {
+      final filtered = result.list.where((e) {
         final role = e.employmentType?.toLowerCase() ?? '';
         return associateRoles.contains(role);
       }).toList();

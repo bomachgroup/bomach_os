@@ -56,7 +56,7 @@ class _MeetingTableState extends State<MeetingTable> {
               ),
             ),
           ),
-          const MyPaginator(),
+          // const PaginatorFooter(),
         ],
       ),
     );

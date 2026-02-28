@@ -136,7 +136,7 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),

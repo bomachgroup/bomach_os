@@ -63,7 +63,8 @@ class ContractPageState extends State<ContractPage> {
                     children: [
                       MyText('Contracts', style: AppText.black_500_32),
                       SizedBox(height: 8),
-                      MyText('Manage your contracts', style: AppText.black_400_14),
+                      MyText('Manage your contracts',
+                          style: AppText.black_400_14),
                     ],
                   ),
                   Wrap(
@@ -74,13 +75,16 @@ class ContractPageState extends State<ContractPage> {
                         width: 150,
                         child: MyTextFormField(
                           hintText: 'Search...',
-                          leading: Icon(Icons.search, color: AppColors.grey1.withValues(alpha: 0.5)),
-                          onChanged: (val) => controller.fetchContracts(context, projectId: widget.projectId, search: val),
+                          leading: Icon(Icons.search,
+                              color: AppColors.grey1.withValues(alpha: 0.5)),
+                          onChanged: (val) => controller.fetchContracts(context,
+                              projectId: widget.projectId, search: val),
                         ),
                       ),
                       const SortBar(text: "Sort"),
                       MyElevatedButton(
-                        icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.white),
+                        icon: const Icon(Icons.add_circle_outline_rounded,
+                            color: AppColors.white),
                         child: "Create Contract",
                         onTap: () {
                           showDialog(
@@ -98,7 +102,7 @@ class ContractPageState extends State<ContractPage> {
         ),
         kSizedBox,
         kSizedBoxSM,
-        
+
         // --- Table ---
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -112,7 +116,8 @@ class ContractPageState extends State<ContractPage> {
             }
 
             if (controller.contracts.isEmpty) {
-              return const Center(child: Padding(
+              return const Center(
+                  child: Padding(
                 padding: EdgeInsets.all(20),
                 child: Text("No contracts found."),
               ));
@@ -141,7 +146,7 @@ class ContractPageState extends State<ContractPage> {
                     ),
                   ),
                 ),
-                const MyPaginator(),
+                // const PaginatorFooter(),
               ],
             );
           }),
@@ -166,7 +171,8 @@ class ContractPageState extends State<ContractPage> {
       return DataRow(cells: <DataCell>[
         DataCell(
           onTap: () {
-            context.push(RouteConstants.operationsContractDetail, extra: contract);
+            context.push(RouteConstants.operationsContractDetail,
+                extra: contract);
           },
           MyText(contract.contractNumber, size: 16, weight: 500),
         ),
@@ -180,21 +186,27 @@ class ContractPageState extends State<ContractPage> {
             decoration: BoxDecoration(
                 color: _getStatusColor(contract.status).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _getStatusColor(contract.status).withValues(alpha: 0.5))
-            ),
-            child: MyText(contract.status, color: _getStatusColor(contract.status)),
+                border: Border.all(
+                    color: _getStatusColor(contract.status)
+                        .withValues(alpha: 0.5))),
+            child: MyText(contract.status,
+                color: _getStatusColor(contract.status)),
           ),
         ),
       ]);
     }).toList();
   }
-  
+
   Color _getStatusColor(String status) {
-    switch(status.toLowerCase()) {
-      case 'active': return AppColors.green;
-      case 'pending': return Colors.orange;
-      case 'terminated': return AppColors.red;
-      default: return AppColors.grey1;
+    switch (status.toLowerCase()) {
+      case 'active':
+        return AppColors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'terminated':
+        return AppColors.red;
+      default:
+        return AppColors.grey1;
     }
   }
 }

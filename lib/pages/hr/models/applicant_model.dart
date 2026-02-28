@@ -10,7 +10,11 @@ class Applicant {
   final String? resumeUrl;
   final String? coverLetter;
   final String? notes;
+
+  /// Status: ["applied", "shortlisted", "interviewed", "offered", "hired", "rejected"]
   final String status;
+
+  /// Stage: ["applied", "screening", "interview", "offered", "rejected"]
   final String stage;
   final double rating;
   final DateTime? createdAt;

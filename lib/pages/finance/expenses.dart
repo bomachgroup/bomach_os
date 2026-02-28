@@ -136,7 +136,7 @@ class ExpensesPageState extends State<ExpensesPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),

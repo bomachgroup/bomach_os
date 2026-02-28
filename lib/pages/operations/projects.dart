@@ -44,7 +44,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
         const MyText('Projects', style: AppText.black_500_32),
         const MyText('Manage your projects', style: AppText.black_400_14),
         const SizedBox(height: 12),
-
         Wrap(
           runSpacing: kDefaultSpace,
           spacing: kDefaultSpace,
@@ -75,11 +74,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
         ),
         kSizedBox,
         kSizedBoxSM,
-
-      
         SizedBox(
-          height:
-              tableHeight > 400 ? tableHeight : 400,
+          height: tableHeight > 400 ? tableHeight : 400,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
@@ -125,7 +121,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       ),
                     ),
                   ),
-                  const MyPaginator(),
+                  // const PaginatorFooter(),
                 ],
               );
             }),

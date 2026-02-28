@@ -40,13 +40,13 @@ class RouteConstants {
   static const String department = '/company/department';
   static const String hr = '/hr';
   static const String jobPost = '/hr/job-post';
-  static const String jobApplicants = '/hr/applicants';
   static const String attendance = '/hr/attendance';
-  static const String payroll = '/hr/payroll';
+  static const String benefits = '/hr/benefits';
   static const String leaveRequest = '/hr/leave-request';
   static const String trainingProgram = '/hr/training-program';
+  static const String loans = '/hr/loans';
   static const String performanceReview = '/hr/performance-review';
-  static const String clockIn = '/hr/clock-in';
+  // static const String clockIn = '/hr/clock-in';
   static const String associates = '/hr/associates';
   static const String assets = '/company/assets';
   static const String workReport = '/hr/work-report';

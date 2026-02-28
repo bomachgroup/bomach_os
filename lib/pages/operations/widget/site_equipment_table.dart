@@ -54,7 +54,7 @@ class _SiteEquipmentTableState extends State<SiteEquipmentTable> {
               ),
             ),
           ),
-          const MyPaginator(),
+          // const PaginatorFooter(),
         ],
       ),
     );

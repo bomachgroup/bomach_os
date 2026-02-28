@@ -187,7 +187,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),

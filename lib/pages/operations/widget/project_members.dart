@@ -56,7 +56,7 @@ class _ProjectMembersState extends State<ProjectMembers> {
               ),
             ),
           ),
-          const MyPaginator(),
+          // const PaginatorFooter(),
         ],
       ),
     );

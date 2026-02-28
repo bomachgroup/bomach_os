@@ -10,11 +10,11 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; 
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/pay_roll_controller.dart';
-import 'models/payroll_model.dart'; 
+import 'models/payroll_model.dart';
 
 class PayrollPage extends StatefulWidget {
   const PayrollPage({super.key});
@@ -88,7 +88,7 @@ class PayrollPageState extends State<PayrollPage> {
                   SizedBox(
                     width: 250,
                     child: MyTextFormField(
-                      hintText: 'Search...', 
+                      hintText: 'Search...',
                       leading: Icon(
                         Icons.search,
                         color: AppColors.grey1.withValues(alpha: 0.5),
@@ -99,8 +99,9 @@ class PayrollPageState extends State<PayrollPage> {
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All States", 
-                      // onTap: controller.fetchPayrolls
+                      SortBar(
+                        text: "All States",
+                        // onTap: controller.fetchPayrolls
                       ), // Acts as refresh
                       SortBar(text: "Status"),
                     ],
@@ -133,18 +134,21 @@ class PayrollPageState extends State<PayrollPage> {
                     ),
                     child: Obx(() {
                       if (controller.isLoading.value) {
-                        return const Center(child: Padding(
+                        return const Center(
+                            child: Padding(
                           padding: EdgeInsets.all(20.0),
                           child: CircularProgressIndicator(),
                         ));
                       }
-                      
+
                       if (controller.errorMessage.isNotEmpty) {
-                        return Center(child: Text(controller.errorMessage.value));
+                        return Center(
+                            child: Text(controller.errorMessage.value));
                       }
 
                       if (controller.payrollList.isEmpty) {
-                        return const Center(child: Padding(
+                        return const Center(
+                            child: Padding(
                           padding: EdgeInsets.all(20.0),
                           child: Text("No payroll records found."),
                         ));
@@ -163,7 +167,7 @@ class PayrollPageState extends State<PayrollPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),
@@ -194,36 +198,33 @@ class PayrollPageState extends State<PayrollPage> {
             isSelectable: false,
           ),
           onTap: () {
-             showDialog(
+            showDialog(
               context: context,
               builder: (context) => ViewPayrollDialog(payroll: payroll),
             );
           },
         ),
         DataCell(MyText(payroll.payrollPeriod)),
-        DataCell(MyText(payroll.disbursementDate != null 
-          ? DateFormat('yyyy-MM-dd').format(payroll.disbursementDate!) 
-          : '-')),
+        DataCell(MyText(payroll.disbursementDate != null
+            ? DateFormat('yyyy-MM-dd').format(payroll.disbursementDate!)
+            : '-')),
         DataCell(MyText(payroll.grossSalary.toStringAsFixed(2))),
         DataCell(MyText(payroll.netSalary.toStringAsFixed(2))),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: payroll.status == 'paid' ? Colors.green.shade100 : Colors.orange.shade100,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              payroll.status, 
-              style: TextStyle(
-                color: payroll.status == 'paid' ? Colors.green : Colors.orange
-              )
-            ),
-          )
-        ),
-        const DataCell(
-          ThreeDotPop(
+        DataCell(Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: payroll.status == 'paid'
+                ? Colors.green.shade100
+                : Colors.orange.shade100,
+            borderRadius: BorderRadius.circular(4),
           ),
+          child: Text(payroll.status,
+              style: TextStyle(
+                  color:
+                      payroll.status == 'paid' ? Colors.green : Colors.orange)),
+        )),
+        const DataCell(
+          ThreeDotPop(),
         ),
       ]);
     }).toList();

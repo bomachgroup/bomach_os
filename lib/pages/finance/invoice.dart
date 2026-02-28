@@ -136,7 +136,7 @@ class InvoicePageState extends State<InvoicePage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),

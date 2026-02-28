@@ -129,7 +129,9 @@ class _WorkReportPageState extends State<WorkReportPage> {
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                       IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
+                      IconButton(
+                          icon: const Icon(Icons.refresh),
+                          onPressed: _loadData),
                     ],
                   )
                 ],
@@ -160,10 +162,16 @@ class _WorkReportPageState extends State<WorkReportPage> {
                     ),
                     child: Obx(() {
                       if (controller.isLoading.value) {
-                        return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+                        return const Center(
+                            child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: CircularProgressIndicator()));
                       }
                       if (controller.workReports.isEmpty) {
-                         return const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("No reports found.")));
+                        return const Center(
+                            child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Text("No reports found.")));
                       }
                       return DataTable(
                         dataRowMinHeight: 68,
@@ -178,7 +186,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         ),
@@ -209,8 +217,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
         ),
         DataCell(
           MyText(
-             report.day != null 
-                ? DateFormat('dd MMM yyyy').format(report.day!) 
+            report.day != null
+                ? DateFormat('dd MMM yyyy').format(report.day!)
                 : '-',
           ),
         ),
@@ -250,7 +258,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
           ),
         ),
         DataCell(
-           _buildActionMenu(context, report),
+          _buildActionMenu(context, report),
         ),
       ]);
     }).toList();
@@ -258,21 +266,31 @@ class _WorkReportPageState extends State<WorkReportPage> {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'approved': return AppColors.green;
-      case 'submitted': return AppColors.blue;
-      case 'draft': return const Color(0xFF64748B);
-      case 'rejected': return AppColors.red;
-      default: return AppColors.grey1;
+      case 'approved':
+        return AppColors.green;
+      case 'submitted':
+        return AppColors.blue;
+      case 'draft':
+        return const Color(0xFF64748B);
+      case 'rejected':
+        return AppColors.red;
+      default:
+        return AppColors.grey1;
     }
   }
 
   String _getMoodEmoji(String mood) {
     switch (mood.toLowerCase()) {
-      case 'happy': return '😊';
-      case 'neutral': return '😐';
-      case 'tired': return '😴';
-      case 'frustrated': return '😞';
-      default: return '😐';
+      case 'happy':
+        return '😊';
+      case 'neutral':
+        return '😐';
+      case 'tired':
+        return '😴';
+      case 'frustrated':
+        return '😞';
+      default:
+        return '😐';
     }
   }
 
@@ -286,13 +304,11 @@ class _WorkReportPageState extends State<WorkReportPage> {
         if (result == 'view') {
           showDialog(
             context: context,
-            builder: (context) => WorkReportReviewDialog(
-              report: report, 
-              token: token
-            ),
+            builder: (context) =>
+                WorkReportReviewDialog(report: report, token: token),
           );
         } else if (result == 'edit') {
-           showDialog(
+          showDialog(
             context: context,
             builder: (context) => DailyWorkReportDialog(
               existingReport: report,
@@ -300,7 +316,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             ),
           );
         } else if (result == 'delete') {
-            await controller.deleteReport(token, report.id);
+          await controller.deleteReport(token, report.id);
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-
 import '../../../pages/hr/models/training_program_model.dart';
 
 class TrainingProgramService {
@@ -33,7 +32,8 @@ class TrainingProgramService {
     });
   }
 
-  Future<List<TrainingProgram>> getTrainingPrograms(
+  // Updated return type to include count for pagination
+  Future<({List<TrainingProgram> items, int count})> getTrainingPrograms(
     String token, {
     String? search,
     String? programName,
@@ -53,10 +53,10 @@ class TrainingProgramService {
       final response = await _dio.get(
         '/training-programs/',
         queryParameters: {
-          if (search != null) 'search': search,
+          if (search != null && search.isNotEmpty) 'search': search,
           if (programName != null) 'program_name': programName,
           if (provider != null) 'provider': provider,
-          if (status != null) 'status': status,
+          if (status != null && status != 'All Statutes') 'status': status,
           if (targetAudience != null) 'target_audience': targetAudience,
           if (startDateFrom != null) 'start_date_from': startDateFrom,
           if (startDateTo != null) 'start_date_to': startDateTo,
@@ -74,7 +74,15 @@ class TrainingProgramService {
       final List<dynamic> list =
           (data is Map && data.containsKey('items')) ? data['items'] : data;
 
-      return list.map((json) => TrainingProgram.fromJson(json)).toList();
+      // Try to get count from API response, fallback to list length
+      final int count = (data is Map && data.containsKey('count'))
+          ? (data['count'] as int)
+          : list.length;
+
+      return (
+        items: list.map((json) => TrainingProgram.fromJson(json)).toList(),
+        count: count
+      );
     } catch (e) {
       throw _handleError(e);
     }
@@ -86,19 +94,6 @@ class TrainingProgramService {
       final response = await _dio.post(
         '/training-programs/',
         data: program.toJson(),
-        options: _authOptions(token),
-      );
-      return TrainingProgram.fromJson(response.data);
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  Future<TrainingProgram> getTrainingProgramById(
-      String token, String programId) async {
-    try {
-      final response = await _dio.get(
-        '/training-programs/$programId',
         options: _authOptions(token),
       );
       return TrainingProgram.fromJson(response.data);

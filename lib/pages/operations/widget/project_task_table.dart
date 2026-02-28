@@ -1,6 +1,5 @@
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/employees_database/widget/view_task_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +53,7 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
               ),
             ),
           ),
-          const MyPaginator(),
+          // const PaginatorFooter(),
         ],
       ),
     );
@@ -106,7 +105,7 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
             showDialog(
               context: context,
               builder: (context) {
-                return const ViewTaskDialog();
+                return  Container();
               },
             );
           },

@@ -34,7 +34,7 @@ class EmployeeService {
     });
   }
 
-  Future<List<Employee>> getEmployees(
+  Future<({List<Employee> list, int count})> getEmployees(
     String token, {
     bool? isActive,
     String? employmentType,
@@ -63,7 +63,10 @@ class EmployeeService {
       final List<dynamic> list =
           (data is Map && data.containsKey('items')) ? data['items'] : data;
 
-      return list.map((json) => Employee.fromJson(json)).toList();
+      return (
+        list: list.map((json) => Employee.fromJson(json)).toList(),
+        count: data['count'] as int
+      );
     } catch (e) {
       throw _handleError(e);
     }

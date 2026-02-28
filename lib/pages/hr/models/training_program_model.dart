@@ -71,9 +71,7 @@ class TrainingProgram {
       'end_date': endDate?.toIso8601String().split('T').first,
       'cost': cost,
       'target_audience': targetAudience,
-      'duration_days': durationDays,
       'status': status,
-      // 'is_mandatory': isMandatory,
     };
   }
 }

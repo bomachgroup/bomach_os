@@ -19,9 +19,10 @@ import 'package:bms_front_end/pages/employee/employee_attendance.dart';
 import 'package:bms_front_end/pages/employee/employee_directory.dart';
 import 'package:bms_front_end/pages/employee/employee_performance.dart';
 import 'package:bms_front_end/pages/employee/employee_training.dart';
-import 'package:bms_front_end/pages/employees_database/add_new_employee.dart';
-import 'package:bms_front_end/pages/employees_database/employee_database.dart';
-import 'package:bms_front_end/pages/employees_database/employee_profile.dart';
+import 'package:bms_front_end/pages/hr/loans.dart';
+import 'package:bms_front_end/pages/hr/widget/add_new_employee.dart';
+import 'package:bms_front_end/pages/hr/employee_database.dart';
+import 'package:bms_front_end/pages/hr/employee_profile.dart';
 import 'package:bms_front_end/pages/finance/budget.dart';
 import 'package:bms_front_end/pages/finance/contract_payment.dart';
 import 'package:bms_front_end/pages/finance/expenses.dart';
@@ -31,9 +32,7 @@ import 'package:bms_front_end/pages/finance/payments.dart';
 import 'package:bms_front_end/pages/hr/assets.dart';
 import 'package:bms_front_end/pages/hr/associates.dart';
 import 'package:bms_front_end/pages/hr/attendance.dart';
-import 'package:bms_front_end/pages/hr/clock_in.dart';
 import 'package:bms_front_end/pages/hr/hr.dart';
-import 'package:bms_front_end/pages/hr/applicants.dart';
 import 'package:bms_front_end/pages/hr/job_post.dart';
 import 'package:bms_front_end/pages/hr/leave_request.dart';
 import 'package:bms_front_end/pages/hr/leaves.dart';
@@ -104,6 +103,7 @@ import '../../pages/crm/clients.dart';
 import '../../pages/crm/interactions.dart';
 import '../../pages/crm/lead.dart';
 import '../../pages/events/events.dart';
+import '../../pages/hr/benefits.dart';
 import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
 import 'refresh_route.dart';
@@ -151,12 +151,12 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.contractPayment: const ContractPaymentPage(),
   RouteConstants.budget: const BudgetPage(),
   RouteConstants.jobPost: const JobPostPage(),
-  RouteConstants.jobApplicants: const JobApplicatantsPage(),
   RouteConstants.attendance: const AttendancePage(),
-  RouteConstants.clockIn: const ClockInScreen(),
+  // RouteConstants.clockIn: const ClockInScreen(),
   RouteConstants.leaveRequest: const LeaveRequestPage(),
-  RouteConstants.payroll: const PayrollPage(),
+  RouteConstants.benefits: const BenefitsPage(),
   RouteConstants.trainingProgram: const TrainingProgramPage(),
+  RouteConstants.loans: const LoanPage(),
   RouteConstants.performanceReview: const PerformanceReviewPage(),
   RouteConstants.associates: const AssociatesPage(),
   RouteConstants.assets: const AssetsPage(),
@@ -276,9 +276,9 @@ final goRouter = GoRouter(
       return RouteConstants.login;
     }
 
-     // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to Home
+    // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to Home
     // (Prevents users from seeing login/biometric screens if they are already authenticated)
-   if (isLoggedIn && isPublicRoute) {
+    if (isLoggedIn && isPublicRoute) {
       return RouteConstants.home;
     }
 

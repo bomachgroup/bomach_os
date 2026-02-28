@@ -114,7 +114,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
                   ),
                 ),
               ),
-              const MyPaginator(),
+              // const PaginatorFooter(),
             ],
           ),
         )

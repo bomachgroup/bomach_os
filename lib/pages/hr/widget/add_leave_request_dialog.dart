@@ -128,37 +128,13 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  controller: _ctrl.endDateController,
-                                  hintText: 'Select Date',
-                                  spaceBetweenText: 10,
-                                  title: 'End Date',
-                                  readOnly: true,
-                                  onTap: () => _ctrl.pickDate(context, false),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Obx(() => MyDropdown(
-                                          items: _ctrl.statusOptions,
-                                          // value: _ctrl.selectedStatus.value,
-                                          onChanged: (val) => _ctrl
-                                              .selectedStatus.value = val ?? '',
-
-                                          hintText: _ctrl.selectedStatus.value,
-                                          spaceBetweenText: 10,
-                                          title: 'Status',
-                                        )),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          MyTextFormField(
+                            controller: _ctrl.endDateController,
+                            hintText: 'Select Date',
+                            spaceBetweenText: 10,
+                            title: 'End Date',
+                            readOnly: true,
+                            onTap: () => _ctrl.pickDate(context, false),
                           ),
                           const SizedBox(height: 24),
                           Row(

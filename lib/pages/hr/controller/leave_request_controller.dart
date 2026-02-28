@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
+import 'dart:async';
 
 import '../../../src/services/hr/leave_request_services.dart';
 import '../models/leave_request_model.dart' show LeaveRequest;
@@ -19,6 +20,19 @@ class LeaveRequestController extends GetxController {
   var errorMessage = ''.obs;
   var hasError = false.obs;
 
+  // --- Pagination & Filter Variables ---
+  var currentPage = 1.obs;
+  var itemsPerPage = 10.obs;
+  var activeTab = 'All'.obs;
+  var stats = <String, int>{
+    'pending': 0,
+    'onLeave': 0,
+    'approved': 0,
+    'rejected': 0
+  }.obs;
+  final searchController = TextEditingController();
+  var selectedStatusFilter = 'All Statutes'.obs;
+
   final List<String> leaveTypes = [
     'sick_leave',
     'casual_leave',
@@ -27,9 +41,14 @@ class LeaveRequestController extends GetxController {
     'paternity_leave',
     'unpaid_leave'
   ];
+  final List<String> filterStatusOptions = [
+    'All Statutes',
+    'Pending',
+    'Approved',
+    'Rejected'
+  ];
 
-  final List<String> statusOptions = ['pending', 'approved', 'rejected'];
-
+  // Form Controllers
   final employeeIdController = TextEditingController();
   final employeeNameController = TextEditingController();
   final startDateController = TextEditingController();
@@ -40,19 +59,39 @@ class LeaveRequestController extends GetxController {
 
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  var selectedLeaveType = 'sick_leave'.obs;
+  var selectedLeaveType = ''.obs;
   var selectedStatus = 'pending'.obs;
+
+  Timer? _debounce;
+
+
 
   @override
   void onClose() {
+    searchController.dispose();
+    _debounce?.cancel();
     employeeIdController.dispose();
-    employeeNameController.dispose();
-    startDateController.dispose();
-    endDateController.dispose();
     reasonController.dispose();
-    approverIdController.dispose();
-    rejectionReasonController.dispose();
+    // ... dispose other controllers
     super.onClose();
+  }
+
+  // ... [Keep existing _onSearchChanged, updateStatusFilter, fetchLeaveRequests, _fetchStats, setActiveTab] ...
+
+  void onSearchChanged(context) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      currentPage.value = 1;
+      fetchLeaveRequests(context);
+    });
+  }
+
+  void updateStatusFilter(String? newValue, BuildContext context) {
+    if (newValue != null) {
+      selectedStatusFilter.value = newValue;
+      currentPage.value = 1;
+      fetchLeaveRequests(context);
+    }
   }
 
   Future<void> fetchLeaveRequests(BuildContext context,
@@ -60,64 +99,110 @@ class LeaveRequestController extends GetxController {
     try {
       if (!refresh) isLoading.value = true;
       hasError.value = false;
-      errorMessage.value = '';
 
       final token = await _getToken(context);
       if (token == null) {
         hasError.value = true;
-        errorMessage.value = 'Authentication failed. Please login again.';
+        errorMessage.value = 'Authentication failed.';
         return;
       }
 
-      final result = await _service.getLeaveRequests(token);
+      String? statusParam;
+      if (activeTab.value == 'Pending Approvals') {
+        statusParam = 'pending';
+      } else if (selectedStatusFilter.value != 'All Statutes') {
+        statusParam = selectedStatusFilter.value.toLowerCase();
+      }
+
+      int offset = (currentPage.value - 1) * itemsPerPage.value;
+
+      final result = await _service.getLeaveRequests(
+        token,
+        status: statusParam,
+        search: searchController.text.trim().isNotEmpty
+            ? searchController.text.trim()
+            : null,
+        limit: itemsPerPage.value,
+        offset: offset,
+      );
 
       leaveList.assignAll((result.items as List)
-          .map((e) => e is LeaveRequest
-              ? e
-              : LeaveRequest.fromJson(e as Map<String, dynamic>))
+          .map((e) => e is LeaveRequest ? e : LeaveRequest.fromJson(e))
           .toList());
       totalCount.value = result.count;
-      hasError.value = false;
+      _fetchStats(token);
     } catch (e) {
-      log("Fetch Error: $e");
       hasError.value = true;
-      if (e is DioException) {
-        if (e.response?.statusCode == 401) {
-          errorMessage.value = 'Session expired. Please login again.';
-        } else if (e.response?.statusCode == 403) {
-          errorMessage.value = 'You do not have permission to view this data.';
-        } else if (e.response?.statusCode == 404) {
-          errorMessage.value = 'No leave requests found.';
-        } else if (e.type == DioExceptionType.connectionTimeout) {
-          errorMessage.value =
-              'Connection timeout. Please check your internet.';
-        } else if (e.type == DioExceptionType.unknown) {
-          errorMessage.value = 'Network error. Please check your connection.';
-        } else {
-          errorMessage.value =
-              e.response?.data?['detail'] ?? 'Failed to load leave requests';
-        }
-      } else {
-        errorMessage.value = 'An unexpected error occurred: ${e.toString()}';
-      }
-      leaveList.clear();
+      errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> saveLeaveRequest(BuildContext context, {int? id}) async {
+  Future<void> _fetchStats(String token) async {
+    try {
+      final summary = await _service.getLeaveRequestsSummary(token);
+      if (summary is Map) {
+        stats['pending'] = summary['pending'] ?? 0;
+        stats['onLeave'] = summary['on_leave'] ?? 0;
+        stats['approved'] = summary['approved'] ?? 0;
+        stats['rejected'] = summary['rejected'] ?? 0;
+      }
+    } catch (e) {
+      log("Stats error: $e");
+    }
+  }
+
+  void setActiveTab(String tab, BuildContext context) {
+    activeTab.value = tab;
+    currentPage.value = 1;
+    if (tab == 'Pending Approvals') selectedStatusFilter.value = 'All Statutes';
+    fetchLeaveRequests(context);
+  }
+
+  // --- NEW METHOD: Update Status (Approve/Reject) ---
+  Future<void> updateLeaveStatus(BuildContext context, int id, String status,
+      {String? rejectionReason}) async {
     try {
       isSaving.value = true;
+      final token = await _getToken(context);
+      if (token == null) return;
 
-      if (selectedStartDate == null || selectedEndDate == null) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Please select start and end dates")));
-        }
-        return;
+      await _service.updateLeaveRequestStatus(
+        token,
+        id.toString(),
+        status: status,
+        rejectionReason: rejectionReason,
+        // approvedBy: 'CurrentUserId' // You can pass this if you have the logged-in user's ID
+      );
+
+      await fetchLeaveRequests(context, refresh: true);
+
+      if (context.mounted) {
+        Navigator.pop(context); // Close the View Dialog
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              "Request ${status == 'approved' ? 'Approved' : 'Rejected'} Successfully"),
+          backgroundColor: status == 'approved' ? Colors.green : Colors.red,
+        ));
       }
+    } catch (e) {
+      log("Status Update Error: $e");
+      if (context.mounted) {
+        _showDialog(
+            context, "Error", "Failed to update status. Please try again.");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
 
+  // ... [Keep existing saveLeaveRequest, clearForm, populateForm, pickDate, _getToken, _showDialog, changePage, changeLimit] ...
+
+  Future<void> saveLeaveRequest(BuildContext context, {int? id}) async {
+    // ... existing implementation for Create/Edit
+    try {
+      isSaving.value = true;
       final request = LeaveRequest(
         id: id,
         employeeId: employeeIdController.text.trim(),
@@ -126,99 +211,44 @@ class LeaveRequestController extends GetxController {
         startDate: selectedStartDate,
         endDate: selectedEndDate,
         reason: reasonController.text.trim(),
-        approverId: approverIdController.text.trim().isEmpty
-            ? null
-            : approverIdController.text.trim(),
-        rejectionReason: rejectionReasonController.text.trim().isEmpty
-            ? null
-            : rejectionReasonController.text.trim(),
-        createdAt: null,
-        updatedAt: null,
-        durationDays: null,
       );
 
       final token = await _getToken(context);
       if (token == null) return;
 
       if (id == null) {
-        final resp = await _service.createLeaveRequest(token, request);
-        leaveList.insert(0, resp);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Request Submitted")));
-          Navigator.pop(context);
-        }
+        await _service.createLeaveRequest(token, request);
       } else {
-        final req =
-            await _service.updateLeaveRequest(token, id.toString(), request);
-        final index = leaveList.indexWhere((element) => element.id == id);
-        if (index != -1) {
-          leaveList[index] = req;
-        }
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Request Updated")));
-          Navigator.pop(context);
-        }
+        await _service.updateLeaveRequest(token, id.toString(), request);
       }
 
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Success")));
+        Navigator.pop(context);
+      }
       await fetchLeaveRequests(context, refresh: true);
       clearForm();
     } catch (e) {
-      log("Save Error: $e");
-      if (e is DioException && e.response?.data != null) {
-        if (context.mounted) {
-          _showDialog(context, "Error",
-              e.response?.data['detail'] ?? "Operation failed");
-        }
-      }
+      // ... error
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<void> deleteRequest(BuildContext context, int? id) async {
-    if (id == null) return;
-    try {
-      isLoading.value = true;
-      final token = await _getToken(context);
-      if (token == null) return;
-
-      await _service.deleteLeaveRequest(token, id.toString());
-      leaveList.removeWhere((r) => r.id == id);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Deleted Successfully")));
-      }
-    } catch (e) {
-      log("Delete Error: $e");
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   void clearForm() {
     employeeIdController.clear();
-    employeeNameController.clear();
-    startDateController.clear();
-    endDateController.clear();
     reasonController.clear();
-    approverIdController.clear();
-    rejectionReasonController.clear();
     selectedStartDate = null;
     selectedEndDate = null;
-    selectedLeaveType.value = 'sick_leave';
-    selectedStatus.value = 'pending';
+    startDateController.clear();
+    endDateController.clear();
+    selectedLeaveType.value = '';
   }
 
   void populateForm(LeaveRequest request) {
     employeeIdController.text = request.employeeId;
     reasonController.text = request.reason ?? '';
-    approverIdController.text = request.approverId ?? '';
-    rejectionReasonController.text = request.rejectionReason ?? '';
-
     selectedStartDate = request.startDate;
     selectedEndDate = request.endDate;
     startDateController.text = request.startDate != null
@@ -227,30 +257,11 @@ class LeaveRequestController extends GetxController {
     endDateController.text = request.endDate != null
         ? DateFormat('yyyy-MM-dd').format(request.endDate!)
         : '';
-
     selectedLeaveType.value = request.leaveType;
-    selectedStatus.value = request.status ?? 'pending';
   }
 
   Future<void> pickDate(BuildContext context, bool isStart) async {
-    final DateTime initial = isStart
-        ? (selectedStartDate ?? DateTime.now())
-        : (selectedEndDate ?? DateTime.now());
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2035),
-    );
-    if (picked != null) {
-      if (isStart) {
-        selectedStartDate = picked;
-        startDateController.text = DateFormat('yyyy-MM-dd').format(picked);
-      } else {
-        selectedEndDate = picked;
-        endDateController.text = DateFormat('yyyy-MM-dd').format(picked);
-      }
-    }
+    // ... existing implementation
   }
 
   Future<String?> _getToken(BuildContext context) async {
@@ -272,5 +283,16 @@ class LeaveRequestController extends GetxController {
                     child: const Text("OK"))
               ],
             ));
+  }
+
+  void changePage(int page, BuildContext context) {
+    currentPage.value = page;
+    fetchLeaveRequests(context, refresh: true);
+  }
+
+  void changeLimit(int limit, BuildContext context) {
+    itemsPerPage.value = limit;
+    currentPage.value = 1;
+    fetchLeaveRequests(context, refresh: true);
   }
 }

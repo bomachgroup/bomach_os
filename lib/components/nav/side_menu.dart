@@ -62,10 +62,10 @@ enum SubMenuItem {
   jobPost,
   jobApplicants,
   attendance,
-  clockIn,
+  loans,
   leaveRequest,
   performance,
-  payroll,
+  benefits,
   trainingProgram,
   associates,
   assets,
@@ -271,7 +271,7 @@ class _SideMenuState extends State<SideMenu> {
       ),
       const MenuItem(
         id: MainMenuItem.hr,
-        label: 'HR',
+        label: 'HR/Admin',
         iconPath: 'assets/svg/sidebar/people.svg',
         isExpandable: true,
         children: [
@@ -281,51 +281,60 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.hr,
           ),
           SubMenuItemData(
-            id: SubMenuItem.jobPost,
-            label: 'Job Postings',
-            route: RouteConstants.jobPost,
+            id: SubMenuItem.employees,
+            label: 'Employees',
+            route: RouteConstants.employees,
           ),
           SubMenuItemData(
-            id: SubMenuItem.jobApplicants,
-            label: 'Applicants',
-            route: RouteConstants.jobApplicants,
+            id: SubMenuItem.jobPost,
+            label: 'Recruitment',
+            route: RouteConstants.jobPost,
+          ),
+
+          /// NOW IN THE JOB POST
+          // SubMenuItemData(
+          //   id: SubMenuItem.jobApplicants,
+          //   label: 'Applicants',
+          //   route: RouteConstants.jobApplicants,
+          // ),
+          SubMenuItemData(
+            id: SubMenuItem.leaveRequest,
+            label: 'Leaves',
+            route: RouteConstants.leaveRequest,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.trainingProgram,
+            label: 'Training',
+            route: RouteConstants.trainingProgram,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.loans,
+            label: 'Loans',
+            route: RouteConstants.loans,
+          ),
+                    SubMenuItemData(
+            id: SubMenuItem.benefits,
+            label: 'Benefits',
+            route: RouteConstants.benefits,
           ),
           SubMenuItemData(
             id: SubMenuItem.attendance,
             label: 'Attendance',
             route: RouteConstants.attendance,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.clockIn,
-            label: 'Clock In',
-            route: RouteConstants.clockIn,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leaveRequest,
-            label: 'Leave Request',
-            route: RouteConstants.leaveRequest,
-          ),
+
           SubMenuItemData(
             id: SubMenuItem.performance,
             label: 'Performance',
             route: RouteConstants.performanceReview,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.payroll,
-            label: 'Payroll',
-            route: RouteConstants.payroll,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.trainingProgram,
-            label: 'Training Program',
-            route: RouteConstants.trainingProgram,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.associates,
-            label: 'Associates',
-            route: RouteConstants.associates,
-          ),
 
+          /// TODO: REMOVE OR TRANSFER MISSING SCREENS
+          // SubMenuItemData(
+          //   id: SubMenuItem.associates,
+          //   label: 'Associates',
+          //   route: RouteConstants.associates,
+          // ),
           SubMenuItemData(
             id: SubMenuItem.workReport,
             label: 'Work Reports',
@@ -346,26 +355,20 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Performance Leaderboard',
             route: RouteConstants.performanceLeaderboard,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.employeeEvaluation,
-            label: 'Employee Evaluation',
-            route: RouteConstants.employeeEvaluation,
-          ),
+
+          /// TODO: MERGE TO EMPLOYEE PROFILE OR MOVE TO ANOTHER MODULE
+          // SubMenuItemData(
+          //   id: SubMenuItem.employeeEvaluation,
+          //   label: 'Employee Evaluation',
+          //   route: RouteConstants.employeeEvaluation,
+          // ),
           SubMenuItemData(
             id: SubMenuItem.disciplinaryProcess,
             label: 'Disciplinary Process',
             route: RouteConstants.disciplinaryProcess,
           ),
-          SubMenuItemData(
-            id: SubMenuItem.employees,
-            label: 'Employees',
-            route: RouteConstants.employees,
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leaves,
-            label: 'Leaves',
-            route: RouteConstants.leaves,
-          ),
+
+          /// NOW IN THE COMPANY
           // SubMenuItemData(
           //   id: SubMenuItem.department,
           //   label: 'Department',

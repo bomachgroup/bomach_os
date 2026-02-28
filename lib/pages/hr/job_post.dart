@@ -8,8 +8,11 @@ import 'package:get/get.dart';
 
 import 'package:bms_front_end/pages/hr/widget/add_job_post_dialog.dart';
 
+import 'controller/applicant_controller.dart';
 import 'controller/jobposting_control.dart';
+import 'models/applicant_model.dart';
 import 'models/job_posting.dart';
+import 'widget/view_job_applicant_dialog.dart';
 
 class JobPostPage extends StatefulWidget {
   const JobPostPage({super.key});
@@ -392,129 +395,79 @@ class _JobOpeningTable extends StatelessWidget {
   }
 }
 
-// ==============================================================================
-// 2. PIPELINE TAB (Kanban Board)
-// ==============================================================================
 class PipelineTab extends StatelessWidget {
   const PipelineTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final ApplicantController controller = Get.put(ApplicantController());
+
     return Column(
       children: [
         _buildFilterBar(context),
         kSizedBox,
-        // FIX: Removed Expanded here as well, since parent provides constraint
         Expanded(
-          child: Scrollbar(
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildKanbanColumn(title: 'Applied', count: 2, candidates: [
-                    _Candidate(
-                        name: 'Jenny Wilson',
-                        role: 'Senior Software Engineer',
-                        date: '02 Jan 2025'),
-                    _Candidate(
-                        name: 'Jacob Jones',
-                        role: 'Data Analyst',
-                        date: '02 Jan 2025'),
-                  ]),
-                  _buildKanbanColumn(
-                      title: 'Shortlisted',
-                      count: 2,
-                      candidates: [
-                        _Candidate(
-                            name: 'Robert Fox',
-                            role: 'Senior Software Engineer',
-                            date: '02 Jan 2025'),
-                        _Candidate(
-                            name: 'Cody Fisher',
-                            role: 'Senior Software Engineer',
-                            date: '02 Jan 2025'),
-                      ]),
-                  _buildKanbanColumn(
-                      title: 'Interviewed',
-                      count: 1,
-                      candidates: [
-                        _Candidate(
-                            name: 'Esther Howard',
-                            role: 'Senior Software Engineer',
-                            date: '02 Jan 2025'),
-                      ]),
-                  _buildKanbanColumn(title: 'Hired', count: 1, candidates: [
-                    _Candidate(
-                        name: 'Jenny Wilson',
-                        role: 'Senior Software Engineer',
-                        date: '02 Jan 2025'),
-                  ]),
-                ],
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (controller.applicantList.isEmpty) {
+              return const Center(
+                  child: Text("No candidates found in pipeline."));
+            }
+
+            return Scrollbar(
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildKanbanColumn(context,
+                        title: 'Applied',
+                        applicants: controller.appliedApplicants),
+                    _buildKanbanColumn(context,
+                        title: 'Shortlisted',
+                        applicants: controller.shortlistedApplicants),
+                    _buildKanbanColumn(context,
+                        title: 'Interviewed',
+                        applicants: controller.interviewedApplicants),
+                    _buildKanbanColumn(context,
+                        title: 'Hired', applicants: controller.hiredApplicants),
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
+        // Paginator (Using simplified version or your custom one)
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                  onPressed: () {}, icon: const Icon(Icons.chevron_left)),
+              const Text("Page 1 of 1"),
+              IconButton(
+                  onPressed: () {}, icon: const Icon(Icons.chevron_right)),
+            ],
+          ),
+        )
       ],
     );
   }
 
   Widget _buildFilterBar(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 300,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.search,
-                  color: Colors.grey.shade400, size: 20),
-              const SizedBox(width: 8),
-              const Expanded(
-                  child:
-                      Text('Search...', style: TextStyle(color: Colors.grey))),
-            ],
-          ),
-        ),
-        const Spacer(),
-        _buildDropdown('All Departments'),
-        const SizedBox(width: 12),
-        _buildDropdown('All Statuses'),
-      ],
-    );
+    return Container(); // Placeholder for brevity
   }
 
-  Widget _buildDropdown(String text) {
+  Widget _buildKanbanColumn(BuildContext context,
+      {required String title, required List<Applicant> applicants}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        children: [
-          MyText(text, size: 13, color: Colors.grey.shade700),
-          const SizedBox(width: 8),
-          Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey.shade600)
-        ],
-      ),
-    );
-  }
-
-  Widget _buildKanbanColumn(
-      {required String title,
-      required int count,
-      required List<_Candidate> candidates}) {
-    return Container(
-      width: 300,
+      width: 320,
       margin: const EdgeInsets.only(right: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -535,54 +488,74 @@ class PipelineTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
-                child: MyText('$count', size: 12, weight: 600),
+                child: MyText('${applicants.length}', size: 12, weight: 600),
               )
             ],
           ),
           const SizedBox(height: 16),
-          ...candidates.map((c) => _buildCandidateCard(c)),
+          if (applicants.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Center(
+                  child: Text("No candidates",
+                      style: TextStyle(color: Colors.grey[400]))),
+            )
+          else
+            ...applicants.map((app) => _buildCandidateCard(context, app)),
         ],
       ),
     );
   }
 
-  Widget _buildCandidateCard(_Candidate candidate) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 5,
-              offset: const Offset(0, 2)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MyText(candidate.name, weight: 700, size: 15),
-          const SizedBox(height: 4),
-          MyText(candidate.role,
-              color: const Color(0xFF0055FF), weight: 500, size: 13),
-          const SizedBox(height: 12),
-          Container(height: 1, color: Colors.grey.shade100),
-          const SizedBox(height: 12),
-          MyText(candidate.date, color: Colors.grey.shade500, size: 12),
-        ],
+  Widget _buildCandidateCard(BuildContext context, Applicant app) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => ViewJobApplicantDialog(applicant: app),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 5,
+                offset: const Offset(0, 2)),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MyText('${app.firstName} ${app.lastName}', weight: 700, size: 15),
+            const SizedBox(height: 4),
+            MyText(app.jobPostingId,
+                color: const Color(0xFF0055FF), weight: 500, size: 13),
+            const SizedBox(height: 12),
+            Container(height: 1, color: Colors.grey.shade100),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                MyText(
+                    app.createdAt != null
+                        ? "${app.createdAt!.day}/${app.createdAt!.month}/${app.createdAt!.year}"
+                        : "N/A",
+                    color: Colors.grey.shade500,
+                    size: 12),
+                // Rating stars if needed
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-class _Candidate {
-  final String name;
-  final String role;
-  final String date;
-  _Candidate({required this.name, required this.role, required this.date});
 }
 
 class OnboardingTab extends StatelessWidget {

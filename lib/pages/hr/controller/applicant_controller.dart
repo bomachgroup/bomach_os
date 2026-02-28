@@ -10,13 +10,17 @@ class ApplicantController extends GetxController {
   final ApplicantService _applicantService = ApplicantService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
+  // Loading & State
   var isLoading = false.obs;
   var isSaving = false.obs;
   var applicantList = <Applicant>[].obs;
 
-  var selectedStageFilter = RxnString();
-  var selectedStatusFilter = RxnString();
+  // Pagination
+  var currentPage = 1.obs;
+  var limit = 100.obs; // Higher limit for Kanban board usually
+  var totalItems = 0.obs;
 
+  // Form Controllers
   final jobIdController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -30,8 +34,29 @@ class ApplicantController extends GetxController {
   var selectedStage = 'Applied'.obs;
   var selectedStatus = 'New'.obs;
 
-  var formStage = 'Applied'.obs;
-  var formStatus = 'New'.obs;
+  // Filtered Getters for Kanban Columns
+  List<Applicant> get appliedApplicants =>
+      applicantList.where((a) => a.stage.toLowerCase() == 'applied').toList();
+
+  List<Applicant> get shortlistedApplicants => applicantList
+      .where((a) =>
+          a.stage.toLowerCase() == 'shortlisted' ||
+          a.stage.toLowerCase() == 'screening')
+      .toList();
+
+  List<Applicant> get interviewedApplicants => applicantList
+      .where((a) =>
+          a.stage.toLowerCase() == 'interview' ||
+          a.stage.toLowerCase() == 'interviewed')
+      .toList();
+
+  List<Applicant> get hiredApplicants => applicantList
+      .where((a) =>
+          a.stage.toLowerCase() == 'hired' ||
+          a.stage.toLowerCase() == 'offered')
+      .toList();
+
+  // --- Fetching ---
 
   Future<void> fetchApplicants(BuildContext context,
       {bool refresh = false}) async {
@@ -41,54 +66,57 @@ class ApplicantController extends GetxController {
       final token = await _getToken(context);
       if (token == null) return;
 
-      final stage = selectedStageFilter.value == 'All Stages'
-          ? null
-          : selectedStageFilter.value;
-      final status = selectedStatusFilter.value == 'All Status'
-          ? null
-          : selectedStatusFilter.value;
+      int offset = (currentPage.value - 1) * limit.value;
 
       final result = await _applicantService.getApplicants(
         token,
-        stage: stage,
-        status: status,
+        limit: limit.value,
+        offset: offset,
       );
 
       applicantList.assignAll(result.items);
+      totalItems.value = result.count;
     } catch (e) {
       log("Fetch Applicants Error: $e");
       if (context.mounted) {
-        if (e.toString().contains('404')) {
-          _showDialog(context, "Not Found (404)",
-              "The request returned 404. Check the API endpoint/path and request parameters (stage/status). If you're filtering, try removing filters to verify.");
-        } else {
-          _showSnackBar(context, "Failed to load applicants: $e",
-              isError: true);
-        }
+        _showSnackBar(context, "Failed to load applicants: $e", isError: true);
       }
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> createApplicant(BuildContext context) async {
+  // --- Pagination Actions ---
+
+  void changePage(BuildContext context, int newPage) {
+    currentPage.value = newPage;
+    fetchApplicants(context);
+  }
+
+  void changeLimit(BuildContext context, int newLimit) {
+    limit.value = newLimit;
+    currentPage.value = 1;
+    fetchApplicants(context);
+  }
+
+  // --- CRUD Actions ---
+
+  Future<void> saveApplicant(BuildContext context, {String? id}) async {
+    if (id == null) {
+      await _createApplicant(context);
+    } else {
+      await _updateApplicant(context, id);
+    }
+  }
+
+  Future<void> _createApplicant(BuildContext context) async {
     try {
-      // Basic client-side validation to prevent malformed requests
-      if (jobIdController.text.trim().isEmpty) {
-        if (context.mounted) {
-          _showDialog(
-              context, "Validation Failed", "Job Posting ID is required.");
-        }
-        return;
-      }
-
       isSaving.value = true;
-
       final token = await _getToken(context);
       if (token == null) return;
 
       final newApplicant = Applicant(
-        id: '', // Backend generates this
+        id: '',
         jobPostingId: jobIdController.text,
         firstName: firstNameController.text,
         lastName: lastNameController.text,
@@ -96,14 +124,14 @@ class ApplicantController extends GetxController {
         phone: phoneController.text,
         linkedinUrl: linkedinController.text,
         portfolioUrl: portfolioController.text,
-        coverLetter: notesController.text,
-        stage: selectedStage.value,
-        status: selectedStatus.value,
-        rating: 0,
+        coverLetter:
+            coverLetterController.text, // Fix: Use coverLetterController
+        notes: notesController.text,
+        stage: 'applied', // Default
+        status: 'new',
       );
 
       await _applicantService.createApplicant(token, newApplicant);
-
       await fetchApplicants(context, refresh: true);
 
       if (context.mounted) {
@@ -112,35 +140,19 @@ class ApplicantController extends GetxController {
       }
       clearForm();
     } catch (e) {
-      log("Create Applicant Error: $e");
-      if (context.mounted) {
-        if (e.toString().contains('404')) {
-          _showDialog(context, "Not Found (404)",
-              "Creation returned 404. Verify the API create endpoint and that the jobPostingId exists on the server. Check request payload and server routes.");
-        } else {
-          _showDialog(context, "Creation Failed", e.toString());
-        }
-      }
+      _handleError(context, "Creation Failed", e);
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<void> updateApplicant(BuildContext context, String id) async {
+  Future<void> _updateApplicant(BuildContext context, String id) async {
     try {
-      if (jobIdController.text.trim().isEmpty) {
-        if (context.mounted) {
-          _showDialog(
-              context, "Validation Failed", "Job Posting ID is required.");
-        }
-        return;
-      }
-
       isSaving.value = true;
-
       final token = await _getToken(context);
       if (token == null) return;
 
+      // Reconstruct applicant object
       final updatedApplicant = Applicant(
         id: id,
         jobPostingId: jobIdController.text,
@@ -150,31 +162,22 @@ class ApplicantController extends GetxController {
         phone: phoneController.text,
         linkedinUrl: linkedinController.text,
         portfolioUrl: portfolioController.text,
-        coverLetter: notesController.text,
-        stage: selectedStage.value,
+        coverLetter: coverLetterController.text,
+        notes: notesController.text,
+        stage: selectedStage.value, // Preserve or update stage
         status: selectedStatus.value,
-        rating: 0,
       );
 
       await _applicantService.updateApplicant(token, id, updatedApplicant);
-
       await fetchApplicants(context, refresh: true);
 
       if (context.mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(); // Close Add Dialog
         _showSnackBar(context, "Applicant updated successfully");
       }
       clearForm();
     } catch (e) {
-      log("Update Applicant Error: $e");
-      if (context.mounted) {
-        if (e.toString().contains('404')) {
-          _showDialog(context, "Not Found (404)",
-              "Update returned 404. Confirm the applicant id exists and the update endpoint path is correct on the server.");
-        } else {
-          _showDialog(context, "Update Failed", e.toString());
-        }
-      }
+      _handleError(context, "Update Failed", e);
     } finally {
       isSaving.value = false;
     }
@@ -182,74 +185,97 @@ class ApplicantController extends GetxController {
 
   Future<void> deleteApplicant(BuildContext context, String id) async {
     try {
-      if (context.mounted) Navigator.of(context).pop();
-
+      if (context.mounted) Navigator.of(context).pop(); // Close View Dialog
       isLoading.value = true;
 
       final token = await _getToken(context);
       if (token == null) return;
 
       await _applicantService.deleteApplicant(token, id);
-
       applicantList.removeWhere((app) => app.id == id);
+      totalItems.value--;
 
       if (context.mounted) {
         _showSnackBar(context, "Applicant deleted successfully");
       }
     } catch (e) {
-      log("Delete Applicant Error: $e");
-      if (context.mounted) {
-        _showSnackBar(context, "Failed to delete: $e", isError: true);
-      }
+      _handleError(context, "Delete Failed", e);
     } finally {
       isLoading.value = false;
     }
   }
 
+  // --- Stage Management ---
+
+  Future<void> moveApplicantToStage(
+      BuildContext context, String id, String newStage) async {
+    try {
+      isLoading.value = true; // Show global loading or handle locally
+      final token = await _getToken(context);
+      if (token == null) return;
+
+      await _applicantService.updateApplicantStage(token, id, newStage);
+      await fetchApplicants(context, refresh: true);
+
+      if (context.mounted) {
+        _showSnackBar(context, "Candidate moved to $newStage");
+        Navigator.of(context).pop(); // Close View Dialog
+      }
+    } catch (e) {
+      _handleError(context, "Action Failed", e);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> rejectApplicant(BuildContext context, String id) async {
+    try {
+      isLoading.value = true;
+      final token = await _getToken(context);
+      if (token == null) return;
+
+      await _applicantService.updateApplicantStage(token, id, 'rejected');
+      await fetchApplicants(context, refresh: true);
+
+      if (context.mounted) {
+        _showSnackBar(context, "Candidate rejected", isError: true);
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      _handleError(context, "Action Failed", e);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // --- Helpers ---
+
   Future<String?> _getToken(BuildContext context) async {
     String? token = await _storage.read(key: 'access_token');
-
     if (token == null) {
-      if (context.mounted) {
-        _showSnackBar(context, "Authentication Error: Please login again",
-            isError: true);
-      }
+      if (context.mounted)
+        _showSnackBar(context, "Please login", isError: true);
       return null;
     }
-
-    if (token.startsWith("Bearer ")) {
-      token = token.replaceFirst("Bearer ", "");
-    }
-    token = token.replaceAll('"', '').trim();
-
-    return token;
+    return token.startsWith("Bearer ")
+        ? token.replaceFirst("Bearer ", "")
+        : token.replaceAll('"', '').trim();
   }
 
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: isError ? Colors.red : Colors.green,
+      behavior: SnackBarBehavior.floating,
+    ));
   }
 
-  void _showDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text("OK"),
-          )
-        ],
-      ),
-    );
+  void _handleError(BuildContext context, String title, dynamic error) {
+    log("$title: $error");
+    if (context.mounted) {
+      _showSnackBar(context, "$title: $error", isError: true);
+    }
   }
 
   void clearForm() {
@@ -262,10 +288,7 @@ class ApplicantController extends GetxController {
     portfolioController.clear();
     coverLetterController.clear();
     notesController.clear();
-    formStage.value = 'Applied';
-    formStatus.value = 'New';
     selectedStage.value = 'Applied';
-    selectedStatus.value = 'New';
   }
 
   void populateForm(Applicant applicant) {
@@ -277,18 +300,8 @@ class ApplicantController extends GetxController {
     linkedinController.text = applicant.linkedinUrl ?? '';
     portfolioController.text = applicant.portfolioUrl ?? '';
     coverLetterController.text = applicant.coverLetter ?? '';
-    notesController.text = applicant.coverLetter ?? '';
-    formStage.value = applicant.stage;
-    formStatus.value = applicant.status;
-    selectedStage.value = applicant.stage;
-    selectedStatus.value = applicant.status;
-  }
-
-  Future<void> saveApplicant(BuildContext context, {String? id}) async {
-    if (id == null) {
-      await createApplicant(context);
-    } else {
-      await updateApplicant(context, id);
-    }
+    notesController.text = applicant.notes ?? '';
+    selectedStage.value =
+        applicant.stage.isNotEmpty ? applicant.stage : 'Applied';
   }
 }

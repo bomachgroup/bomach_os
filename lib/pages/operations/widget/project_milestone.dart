@@ -47,7 +47,7 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
               ),
             ),
           ),
-          const MyPaginator(),
+          // const PaginatorFooter(),
         ],
       ),
     );
@@ -111,7 +111,6 @@ class AddMileStoneDialog extends StatelessWidget {
                 ],
               ),
             ),
-
             const Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24),
@@ -149,7 +148,6 @@ class AddMileStoneDialog extends StatelessWidget {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(24),
               child: Row(

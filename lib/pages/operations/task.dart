@@ -128,7 +128,7 @@ class TaskPageState extends State<TaskPage> {
                     ),
                   ),
                 ),
-                const MyPaginator(),
+                // const PaginatorFooter(),
               ],
             );
           }),
