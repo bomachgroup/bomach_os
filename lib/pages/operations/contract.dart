@@ -7,9 +7,7 @@ import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
@@ -146,7 +144,15 @@ class ContractPageState extends State<ContractPage> {
                     ),
                   ),
                 ),
-                // const PaginatorFooter(),
+                // MyPaginator(
+                //   totalRecords: controller.totalCount.value,
+                //   onPageChanged: (page, limit) {
+                //     controller.currentLimit.value = limit;
+                //     controller.currentOffset.value = (page - 1) * limit;
+                //     controller.fetchContracts(context,
+                //         projectId: widget.projectId);
+                //   },
+                // ),
               ],
             );
           }),
@@ -157,6 +163,7 @@ class ContractPageState extends State<ContractPage> {
 
   List<DataColumn> _createColumns() {
     return const [
+      DataColumn(label: MyText("Name")),
       DataColumn(label: MyText("Contract No.")),
       DataColumn(label: MyText("Type")),
       DataColumn(label: MyText("Value")),
@@ -174,7 +181,10 @@ class ContractPageState extends State<ContractPage> {
             context.push(RouteConstants.operationsContractDetail,
                 extra: contract);
           },
-          MyText(contract.contractNumber, size: 16, weight: 500),
+          MyText(contract.name.isEmpty ? '-' : contract.name, size: 16, weight: 500),
+        ),
+        DataCell(
+          MyText(contract.contractNumber),
         ),
         DataCell(MyText(contract.contractType)),
         DataCell(MyText("₦${contract.value.toStringAsFixed(2)}")),

@@ -1,20 +1,17 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/input/my_dropdown.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/input/rich_text.dart';
-import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/nav/employee_stepper.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/operations/widget/project_task_table.dart';
+import 'package:bms_front_end/pages/operations/controllers/work_site_controller.dart';
+import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/pages/operations/widget/site_equipment_table.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/pages/operations/widget/project_task_table.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class ProjectWorkSite extends StatefulWidget {
-  const ProjectWorkSite({super.key});
+  final int projectId;
+  const ProjectWorkSite({super.key, required this.projectId});
 
   @override
   State<ProjectWorkSite> createState() => _ProjectWorkSiteState();
@@ -22,6 +19,22 @@ class ProjectWorkSite extends StatefulWidget {
 
 class _ProjectWorkSiteState extends State<ProjectWorkSite> {
   int selectionStepperState = 0;
+  Worksite? selectedWorksite;
+  late final WorksiteController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.isRegistered<WorksiteController>()
+        ? Get.find<WorksiteController>()
+        : Get.put(WorksiteController());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await controller.fetchWorksites(context, projectId: widget.projectId);
+      if (controller.worksites.isNotEmpty) {
+        setState(() => selectedWorksite = controller.worksites.first);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,354 +42,113 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         kSizedBoxBG,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 20,
-                runSpacing: 20,
-                children: [
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    padding: const EdgeInsets.symmetric(horizontal: 50),
-                    child: const MyText(
-                      "Agbani Site, behind Orando fuel station, Eke Agbani",
-                      size: 28,
-                      weight: 500,
-                      maxLines: 2,
-                    ),
-                  ),
-                  MyElevatedButton(
-                      child: "Add Employee",
-                      icon: const Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: AppColors.white,
-                      ),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const CreateWorkSiteReport();
-                          },
-                        );
-                      })
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                EmployeeInfoStepper(
-                  isActive: selectionStepperState == 0,
-                  icon: SvgPicture.asset(
-                    "assets/svg/person.svg",
-                  ),
-                  activeIcon: SvgPicture.asset(
-                    "assets/svg/person-filled.svg",
-                  ),
-                  title: 'Employees',
-                  onTap: () {
-                    setState(() {
-                      selectionStepperState = 0;
-                    });
-                  },
-                ),
-                kSizedBoxWidth,
-                EmployeeInfoStepper(
-                  isActive: selectionStepperState == 1,
-                  icon: SvgPicture.asset(
-                    "assets/svg/settings.svg",
-                  ),
-                  activeIcon: SvgPicture.asset(
-                    "assets/svg/settings-filled.svg",
-                  ),
-                  title: 'Site Equipments',
-                  onTap: () {
-                    setState(() {
-                      selectionStepperState = 1;
-                    });
-                  },
-                ),
-                kSizedBoxWidth,
-                EmployeeInfoStepper(
-                  isActive: selectionStepperState == 2,
-                  icon: SvgPicture.asset(
-                    "assets/svg/document.svg",
-                  ),
-                  activeIcon: SvgPicture.asset(
-                    "assets/svg/document-filled.svg",
-                  ),
-                  title: 'Site Task',
-                  onTap: () {
-                    setState(() {
-                      selectionStepperState = 2;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        kSizedBoxBG,
-        if (selectionStepperState == 0)  Container(),
-        if (selectionStepperState == 1) const SiteEquipmentTable(),
-        if (selectionStepperState == 2) const ProjectTaskTable(),
-      ],
-    );
-  }
-}
+        Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-class CreateWorkSiteReport extends StatefulWidget {
-  const CreateWorkSiteReport({super.key});
-
-  @override
-  State<CreateWorkSiteReport> createState() => _CreateWorkSiteReportState();
-}
-
-class _CreateWorkSiteReportState extends State<CreateWorkSiteReport> {
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.grey4),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText(
-                    'Worksite Report',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form fields
-            const Expanded(
-              child: SingleChildScrollView(
+          if (controller.worksites.isEmpty) {
+            return const Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Column(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                        "No worksites for this project yet. Add one above.")));
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Worksite selector
+              Row(
+                children: [
+                  const MyText("Worksite:", size: 16, weight: 500),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButton<Worksite>(
+                      isExpanded: true,
+                      value: selectedWorksite,
+                      items: controller.worksites
+                          .map((ws) => DropdownMenuItem(
+                                value: ws,
+                                child: Text(
+                                    "${ws.name} — ${ws.location}",
+                                    overflow: TextOverflow.ellipsis),
+                              ))
+                          .toList(),
+                      onChanged: (ws) =>
+                          setState(() => selectedWorksite = ws),
+                    ),
+                  ),
+                ],
+              ),
+              kSizedBox,
+
+              // Sub-tabs
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // First row
-                      Row(
-                        children: [
-                          // Choose Employee
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  hintText: "----",
-                                  items: [],
-                                  spaceBetweenText: 10,
-                                  title: 'Report Title*',
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          // Leave Type
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  hintText: "----",
-                                  items: [],
-                                  spaceBetweenText: 10,
-                                  title: 'Location*',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      EmployeeInfoStepper(
+                        isActive: selectionStepperState == 0,
+                        icon: SvgPicture.asset("assets/svg/person.svg"),
+                        activeIcon:
+                            SvgPicture.asset("assets/svg/person-filled.svg"),
+                        title: 'Employees',
+                        onTap: () =>
+                            setState(() => selectionStepperState = 0),
                       ),
-
-                      SizedBox(height: 24),
-
-                      // Second row
-                      Row(
-                        children: [
-                          // Status
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  hintText: "----",
-                                  items: [],
-                                  spaceBetweenText: 10,
-                                  title: 'Office*',
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          // Leave date
-                          Spacer()
-                        ],
+                      kSizedBoxWidth,
+                      EmployeeInfoStepper(
+                        isActive: selectionStepperState == 1,
+                        icon: SvgPicture.asset("assets/svg/settings.svg"),
+                        activeIcon: SvgPicture.asset(
+                            "assets/svg/settings-filled.svg"),
+                        title: 'Site Equipments',
+                        onTap: () =>
+                            setState(() => selectionStepperState = 1),
                       ),
-
-                      SizedBox(height: 24),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyTextFormField(
-                            maxLines: 4,
-                            hintText: '----',
-                            spaceBetweenText: 10,
-                            title: 'Office Address*',
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // Start and End dates
-                      Row(
-                        children: [
-                          // Start date
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  hintText: '----',
-                                  spaceBetweenText: 10,
-                                  title: 'Report Type*',
-                                  items: [],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          // End date
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  spaceBetweenText: 10,
-                                  title: 'Awaiting approval',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 24),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Deeds (Write a note)',
-                            weight: 400,
-                            size: 16,
-                          ),
-                          kSizedBoxSM,
-                          RichTextEditor(),
-                        ],
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // File upload and Duration
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // File upload
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  'Upload  File (optional)',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                UploadFile(),
-                              ],
-                            ),
-                          ),
-                        ],
+                      kSizedBoxWidth,
+                      EmployeeInfoStepper(
+                        isActive: selectionStepperState == 2,
+                        icon: SvgPicture.asset("assets/svg/document.svg"),
+                        activeIcon: SvgPicture.asset(
+                            "assets/svg/document-filled.svg"),
+                        title: 'Site Task',
+                        onTap: () =>
+                            setState(() => selectionStepperState = 2),
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
+              kSizedBoxBG,
 
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/check.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Save',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+              // Sub-tab content
+              if (selectionStepperState == 0)  Container(),
+              if (selectionStepperState == 1 && selectedWorksite != null)
+                SiteEquipmentTable(worksiteId: selectedWorksite!.id),
+              if (selectionStepperState == 1 && selectedWorksite == null)
+                const Center(child: Text("Select a worksite first.")),
+              if (selectionStepperState == 2)
+                ProjectTaskTable(projectId: widget.projectId),
+            ],
+          );
+        }),
+      ],
     );
+  }
+}
+
+/// Dialog used from the Add Worksite button on the Work site tab
+class CreateWorkSiteReport extends StatelessWidget {
+  final int projectId;
+  const CreateWorkSiteReport({super.key, required this.projectId});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink(); // redirected — use AddWorksiteDialog
   }
 }

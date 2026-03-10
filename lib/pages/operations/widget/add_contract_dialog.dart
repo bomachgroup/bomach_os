@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -22,6 +23,7 @@ class AddContractDialog extends StatefulWidget {
 class _AddContractDialogState extends State<AddContractDialog> {
   final ContractController controller = Get.find<ContractController>();
 
+  late TextEditingController nameCtrl;
   late TextEditingController numberCtrl;
   late TextEditingController valueCtrl;
   late TextEditingController startCtrl;
@@ -36,6 +38,7 @@ class _AddContractDialogState extends State<AddContractDialog> {
   void initState() {
     super.initState();
     final c = widget.contract;
+    nameCtrl = TextEditingController(text: c?.name ?? '');
     numberCtrl = TextEditingController(text: c?.contractNumber ?? '');
     valueCtrl = TextEditingController(text: c?.value.toString() ?? '0');
     startCtrl = TextEditingController(text: c?.startDate ?? '');
@@ -89,6 +92,13 @@ class _AddContractDialogState extends State<AddContractDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    MyTextFormField(
+                      controller: nameCtrl,
+                      title: 'Contract Name*',
+                      hintText: 'e.g. Site A Development Contract',
+                    ),
+                    const SizedBox(height: 24),
+
                     // Row 1: Number & Type
                     Row(
                       children: [
@@ -154,18 +164,16 @@ class _AddContractDialogState extends State<AddContractDialog> {
                     Row(
                       children: [
                         Expanded(
-                          child: MyTextFormField(
+                          child: MyDateField(
                             controller: startCtrl,
                             title: 'Start Date*',
-                            hintText: "YYYY-MM-DD",
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: MyTextFormField(
+                          child: MyDateField(
                             controller: endCtrl,
                             title: 'End Date',
-                            hintText: "YYYY-MM-DD",
                           ),
                         ),
                       ],
@@ -208,11 +216,12 @@ class _AddContractDialogState extends State<AddContractDialog> {
   }
 
   void _save() {
-    if (numberCtrl.text.isEmpty) return;
+    if (nameCtrl.text.isEmpty || numberCtrl.text.isEmpty) return;
 
     final contract = Contract(
       id: widget.contract?.id ?? 0,
       projectId: int.tryParse(projectIdCtrl.text) ?? 0,
+      name: nameCtrl.text,
       contractNumber: numberCtrl.text,
       contractType: selectedType,
       status: selectedStatus,

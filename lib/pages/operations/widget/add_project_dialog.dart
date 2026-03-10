@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -82,16 +83,14 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
 
                     Row(children: [
                       Expanded(
-                          child: MyTextFormField(
+                          child: MyDateField(
                               controller: startDateCtrl,
-                              title: 'Start Date',
-                              hintText: 'YYYY-MM-DD')),
+                              title: 'Start Date')),
                       const SizedBox(width: 16),
                       Expanded(
-                          child: MyTextFormField(
+                          child: MyDateField(
                               controller: deadlineCtrl,
-                              title: 'Deadline',
-                              hintText: 'YYYY-MM-DD')),
+                              title: 'Deadline')),
                     ]),
                     const SizedBox(height: 24),
 

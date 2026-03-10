@@ -94,6 +94,7 @@ class ContractDetailPage extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  RowText(label: "Contract Name", value: contract.name),
                   RowText(
                       label: "Contract Number", value: contract.contractNumber),
                   RowText(label: "Contract Type", value: contract.contractType),

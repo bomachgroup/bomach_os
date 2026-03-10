@@ -24,7 +24,9 @@ class AssetController extends GetxController {
   var selectedStatus = 'All'.obs;
 
   // --- DROPDOWN DATA ---
-  var departments = <Map<String, String>>[].obs; // {id, name}
+  var departments = <Map<String, String>>[
+    {'id': 'All', 'name': 'All Departments'}
+  ].obs;
   // Hardcoded based on AddAssetDialog usage, or could be fetched
   final branches = ['All', 'Enugu Branch', 'Lagos Branch', 'Abuja Branch'];
   final statuses = ['All', 'active', 'in-use', 'maintenance', 'retired'];
@@ -87,11 +89,10 @@ class AssetController extends GetxController {
   Future<void> fetchDepartments(String token) async {
     try {
       final deptList = await _employeeService.getDepartments(token, limit: 100);
-      departments.clear();
-      departments.add({'id': 'All', 'name': 'All Departments'});
-      for (var d in deptList) {
-        departments.add({'id': d.id, 'name': d.name});
-      }
+      departments.assignAll([
+        {'id': 'All', 'name': 'All Departments'},
+        ...deptList.map((d) => {'id': d.id, 'name': d.name}),
+      ]);
     } catch (e) {
       debugPrint("Error fetching departments: $e");
     }

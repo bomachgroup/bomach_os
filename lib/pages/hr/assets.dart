@@ -267,9 +267,14 @@ class AssetsPage extends StatelessWidget {
           ),
           child: DropdownButtonHideUnderline(
             child: Obx(() => DropdownButton<String>(
-                  value: items.contains(selectedValue.value)
-                      ? selectedValue.value
-                      : items.first,
+                  value: items.isEmpty
+                      ? null
+                      : (items.contains(selectedValue.value)
+                          ? selectedValue.value
+                          : items.first),
+                  hint: const Text('Loading…',
+                      style:
+                          TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
                   icon: const Icon(Icons.keyboard_arrow_down,
                       size: 18, color: Color(0xFF64748B)),
                   style:
@@ -277,7 +282,7 @@ class AssetsPage extends StatelessWidget {
                   items: items
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
-                  onChanged: onChanged,
+                  onChanged: items.isEmpty ? null : onChanged,
                 )),
           ),
         ),
@@ -391,17 +396,14 @@ class AssetsPage extends StatelessWidget {
         ),
         DataCell(
           MyText(
-            asset.departmentId ??
-                '-', // Showing ID or Name if available in model
+            asset.departmentId.isEmpty ? '-' : asset.departmentId,
             size: 14,
             weight: 400,
           ),
         ),
         DataCell(
           MyText(
-            asset.purchaseDate != null
-                ? DateFormat('yyyy-MM-dd').format(asset.purchaseDate!)
-                : '-',
+            DateFormat('yyyy-MM-dd').format(asset.purchaseDate),
             size: 14,
             weight: 400,
           ),

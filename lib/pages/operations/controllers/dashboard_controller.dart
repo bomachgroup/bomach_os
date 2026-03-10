@@ -72,7 +72,7 @@ class DashboardController extends GetxController {
         search: search,
       );
 
-      projects.assignAll(result);
+      projects.assignAll(result.items);
     } catch (e) {
       _showError(context, "Failed to load projects: ${e.toString()}");
     } finally {

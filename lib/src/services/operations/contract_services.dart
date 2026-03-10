@@ -33,7 +33,7 @@ class ContractService {
     });
   }
 
-  Future<List<Contract>> getContracts({
+  Future<({List<Contract> items, int count})> getContracts({
     required String accessToken,
     int? projectId,
     String? status,
@@ -63,11 +63,14 @@ class ContractService {
 
       final data = response.data;
       if (data != null && data['items'] is List) {
-        return (data['items'] as List)
-            .map((item) => Contract.fromJson(item))
-            .toList();
+        return (
+          items: (data['items'] as List)
+              .map((item) => Contract.fromJson(item))
+              .toList(),
+          count: (data['count'] as num?)?.toInt() ?? 0,
+        );
       }
-      return [];
+      return (items: <Contract>[], count: 0);
     } on DioException catch (e) {
       throw _handleError(e);
     }
