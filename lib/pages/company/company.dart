@@ -32,7 +32,7 @@ class CompanyProfilePage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Stats Row (wrap so cards flow on smaller widths)
-          _buildStatsSection(),
+          _buildStatsSection(controller),
 
           const SizedBox(height: 32),
 
@@ -283,56 +283,119 @@ class CompanyProfilePage extends StatelessWidget {
 
   Widget _buildOwnershipTab(
       BuildContext context, CompanyController controller) {
-    // Renders the mock shareholder list from controller
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text("Ownership Records",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 16),
-      Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          children: controller.shareholders
-              .map((s) => ListTile(
-                    title: Text(s['name']),
-                    subtitle: Text(s['role']),
-                    trailing: Text(s['percent']),
-                    leading: CircleAvatar(
-                        backgroundColor: Color(s['bg']),
-                        child: Text(s['name'][0],
-                            style: TextStyle(color: Color(s['fg'])))),
-                  ))
-              .toList(),
-        ),
-      )
-    ]);
+    return Obx(() {
+      if (controller.isShareholdersLoading.value) {
+        return const Center(
+            child: Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator()));
+      }
+      final list = controller.shareholders;
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text("Ownership Records",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        if (list.isEmpty)
+          const Text("No shareholders found.",
+              style: TextStyle(color: Colors.grey))
+        else
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: list.asMap().entries.map((entry) {
+                final i = entry.key;
+                final s = entry.value;
+                final color = _avatarColor(i);
+                return ListTile(
+                  leading: CircleAvatar(
+                      backgroundColor: color.withValues(alpha: 0.15),
+                      child: Text(s.firstName[0].toUpperCase(),
+                          style: TextStyle(
+                              color: color, fontWeight: FontWeight.bold))),
+                  title: Text(s.fullName),
+                  subtitle: Text(s.titleDisplay),
+                  trailing: Text('${s.sharePercentage}%',
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                );
+              }).toList(),
+            ),
+          )
+      ]);
+    });
   }
 
   Widget _buildBoardMembersTab(
       BuildContext context, CompanyController controller) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text("Board Members",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 16),
-      Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          children: controller.boardMembers
-              .map((s) => ListTile(
-                    title: Text("${s['title']} ${s['name']}"),
-                    subtitle: Text(s['role']),
-                    leading: CircleAvatar(
-                        backgroundColor: Color(s['bg']),
-                        child: Icon(Icons.person, color: Color(s['fg']))),
-                  ))
-              .toList(),
-        ),
-      )
-    ]);
+    return Obx(() {
+      if (controller.isShareholdersLoading.value) {
+        return const Center(
+            child: Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator()));
+      }
+      final list = controller.boardMembers;
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text("Board Members",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        if (list.isEmpty)
+          const Text("No board members found.",
+              style: TextStyle(color: Colors.grey))
+        else
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: list.asMap().entries.map((entry) {
+                final i = entry.key;
+                final s = entry.value;
+                final color = _avatarColor(i);
+                return ListTile(
+                  leading: CircleAvatar(
+                      backgroundColor: color.withValues(alpha: 0.15),
+                      child: Icon(Icons.person, color: color)),
+                  title: Text('${s.titleDisplay}  ${s.fullName}'),
+                  subtitle: Text(s.email),
+                  trailing: s.isActive
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: const Text('Active',
+                              style: TextStyle(
+                                  color: Colors.green, fontSize: 12)))
+                      : Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: const Text('Inactive',
+                              style:
+                                  TextStyle(color: Colors.red, fontSize: 12))),
+                );
+              }).toList(),
+            ),
+          )
+      ]);
+    });
   }
+
+  static const _avatarColors = [
+    Color(0xFFEA580C),
+    Color(0xFFC026D3),
+    Color(0xFF0284C7),
+    Color(0xFF16A34A),
+    Color(0xFFD97706),
+    Color(0xFF7C3AED),
+  ];
+
+  Color _avatarColor(int index) => _avatarColors[index % _avatarColors.length];
 
  
 
@@ -398,47 +461,58 @@ class CompanyProfilePage extends StatelessWidget {
   }
 
   /// statistics row that behaves responsively across screen sizes
-  Widget _buildStatsSection() {
-    // each card is constrained to a max width so that wrap works nicely
+  Widget _buildStatsSection(CompanyController controller) {
     const cardWidth = 260.0;
-    return const Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Total Employees',
-                value: '452',
-                subtext: '2 new employees added!',
-                icon: Icons.people_outline,
-                isPositive: true)),
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Total Branches',
-                value: '29',
-                subtext: '2 Branches removed!',
-                icon: Icons.domain,
-                isPositive: false)),
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Pending Approvals',
-                value: '3',
-                subtext: '2 overdue tasks',
-                icon: Icons.pending_actions,
-                isWarning: true)),
-        SizedBox(
-            width: cardWidth,
-            child: DashboardStatCard(
-                label: 'Asset Inventory',
-                value: '29',
-                subtext: '2 new projects added!',
-                icon: Icons.inventory_2_outlined,
-                isPositive: true)),
-      ],
-    );
+    return Obx(() {
+      final stats = controller.dashboardStats.value;
+      return Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: [
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Total Employees',
+                  value: stats != null ? '${stats.totalEmployees}' : '–',
+                  subtext: stats != null
+                      ? '${stats.newEmployeesCount} new employees added!'
+                      : '–',
+                  icon: Icons.people_outline,
+                  isPositive: true)),
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Total Branches',
+                  value: stats != null ? '${stats.totalBranches}' : '–',
+                  subtext: stats != null
+                      ? '${stats.removedBranchesCount} Branches removed!'
+                      : '–',
+                  icon: Icons.domain,
+                  isPositive: (stats?.removedBranchesCount ?? 0) == 0)),
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Pending Approvals',
+                  value: stats != null ? '${stats.pendingApprovals}' : '–',
+                  subtext: stats != null
+                      ? '${stats.overdueTasksCount} overdue tasks'
+                      : '–',
+                  icon: Icons.pending_actions,
+                  isWarning: (stats?.pendingApprovals ?? 0) > 0 ||
+                      (stats?.overdueTasksCount ?? 0) > 0)),
+          SizedBox(
+              width: cardWidth,
+              child: DashboardStatCard(
+                  label: 'Asset Inventory',
+                  value: stats != null ? '${stats.assetInventory}' : '–',
+                  subtext: stats != null
+                      ? '${stats.newInventoryCount} new assets added!'
+                      : '–',
+                  icon: Icons.inventory_2_outlined,
+                  isPositive: true)),
+        ],
+      );
+    });
   }
 }
 
@@ -465,7 +539,7 @@ class DashboardStatCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
+            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)
           ]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

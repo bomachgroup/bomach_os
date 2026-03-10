@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -108,18 +109,16 @@ class _AddTimelineDialogState extends State<AddTimelineDialog> {
                     Row(
                       children: [
                         Expanded(
-                          child: MyTextFormField(
+                          child: MyDateField(
                             controller: startCtrl,
                             title: 'Start Date',
-                            hintText: 'YYYY-MM-DD',
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: MyTextFormField(
+                          child: MyDateField(
                             controller: endCtrl,
                             title: 'End Date',
-                            hintText: 'YYYY-MM-DD',
                           ),
                         ),
                       ],

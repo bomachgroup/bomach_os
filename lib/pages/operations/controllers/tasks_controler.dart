@@ -14,8 +14,10 @@ class TaskController extends GetxController {
   var isLoading = false.obs;
   var isActionLoading = false.obs;
   var errorMessage = ''.obs;
+  var totalCount = 0.obs;
+  var currentSearch = ''.obs;
 
-  var currentLimit = 100.obs;
+  var currentLimit = 10.obs;
   var currentOffset = 0.obs;
 
   Future<String?> _getToken(BuildContext context) async {
@@ -40,6 +42,10 @@ class TaskController extends GetxController {
   Future<void> fetchTasks(BuildContext context,
       {int? projectId, String? search}) async {
     try {
+      if (search != null) {
+        currentSearch.value = search;
+        currentOffset.value = 0;
+      }
       isLoading.value = true;
       errorMessage.value = '';
 
@@ -49,12 +55,13 @@ class TaskController extends GetxController {
       final result = await _service.getTasks(
         accessToken: token,
         projectId: projectId,
-        search: search,
+        search: currentSearch.value.isEmpty ? null : currentSearch.value,
         limit: currentLimit.value,
         offset: currentOffset.value,
       );
 
-      tasks.assignAll(result);
+      tasks.assignAll(result.items);
+      totalCount.value = result.count;
     } catch (e) {
       errorMessage.value = e.toString();
       _showError(context, "Error loading tasks: ${e.toString()}");

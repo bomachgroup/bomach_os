@@ -12,10 +12,12 @@ import '../models/models.dart';
 
 class AddWorksiteDialog extends StatefulWidget {
   final Worksite? worksite;
+  final int projectId;
 
   const AddWorksiteDialog({
     super.key,
     this.worksite,
+    this.projectId = 0,
   });
 
   @override
@@ -152,8 +154,8 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
     if (nameCtrl.text.isEmpty || locationCtrl.text.isEmpty) return;
 
     final formWorksite = Worksite(
-      id: widget.worksite?.id ?? 0, 
-      projectId: widget.worksite?.projectId ?? 0,
+      id: widget.worksite?.id ?? 0,
+      projectId: widget.worksite?.projectId ?? widget.projectId,
       name: nameCtrl.text,
       location: locationCtrl.text,
       status: selectedStatus,

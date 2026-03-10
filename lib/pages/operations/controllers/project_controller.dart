@@ -10,9 +10,13 @@ class ProjectController extends GetxController {
   final _storage = const FlutterSecureStorage();
 
   var projects = <Project>[].obs;
+  var projectEmployees = <ProjectEmployee>[].obs;
   var isLoading = false.obs;
   var isActionLoading = false.obs;
+  var isLoadingEmployees = false.obs;
   var errorMessage = ''.obs;
+  var totalCount = 0.obs;
+  var currentSearch = ''.obs;
 
   var currentLimit = 10.obs;
   var currentOffset = 0.obs;
@@ -47,6 +51,10 @@ class ProjectController extends GetxController {
   Future<void> fetchProjects(BuildContext context,
       {String? search, String? status}) async {
     try {
+      if (search != null) {
+        currentSearch.value = search;
+        currentOffset.value = 0;
+      }
       isLoading.value = true;
       errorMessage.value = '';
 
@@ -57,11 +65,12 @@ class ProjectController extends GetxController {
         accessToken: token,
         limit: currentLimit.value,
         offset: currentOffset.value,
-        search: search,
+        search: currentSearch.value.isEmpty ? null : currentSearch.value,
         status: status,
       );
 
-      projects.assignAll(result);
+      projects.assignAll(result.items);
+      totalCount.value = result.count;
     } catch (e) {
       errorMessage.value = e.toString();
       _showError(context, "Failed to load projects: ${e.toString()}");
@@ -105,6 +114,25 @@ class ProjectController extends GetxController {
       _showError(context, "Failed to update project: ${e.toString()}");
     } finally {
       isActionLoading.value = false;
+    }
+  }
+
+  Future<void> fetchProjectEmployees(BuildContext context, int projectId) async {
+    try {
+      isLoadingEmployees.value = true;
+      final token = await _getToken(context);
+      if (token == null) throw Exception("Authentication token not found");
+
+      final result = await _service.getProjectEmployees(
+        accessToken: token,
+        projectId: projectId,
+      );
+
+      projectEmployees.assignAll(result);
+    } catch (e) {
+      _showError(context, "Failed to load project members: ${e.toString()}");
+    } finally {
+      isLoadingEmployees.value = false;
     }
   }
 

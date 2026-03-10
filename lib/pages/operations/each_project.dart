@@ -4,6 +4,8 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/pages/operations/widget/add_project_member_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/add_task_dialog.dart';
+import 'package:bms_front_end/pages/operations/widget/add_worksite_dialog.dart';
 import 'package:bms_front_end/pages/operations/widget/project_associate.dart';
 import 'package:bms_front_end/pages/operations/widget/project_files.dart';
 import 'package:bms_front_end/pages/operations/widget/project_members.dart';
@@ -52,10 +54,7 @@ class _EachProjectsState extends State<EachProjects> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  MyText(
-                    project.name,
-                    style: AppText.black_500_32,
-                  ),
+                  MyText(project.name, style: AppText.black_500_32),
                   Wrap(
                     spacing: 15,
                     runSpacing: 15,
@@ -70,14 +69,15 @@ class _EachProjectsState extends State<EachProjects> {
                           ),
                         ),
                       ),
-                      if ([0, 1, 2, 4, 5].contains(_currentTab))
+                      if ([1, 2, 4, 5].contains(_currentTab))
                         MyElevatedButton(
                           icon: const Icon(
                             Icons.add_circle_outline_rounded,
                             color: AppColors.white,
                           ),
                           child: _getButtonTitle(_currentTab),
-                          onTap: () => _handleButtonTap(context, _currentTab),
+                          onTap: () =>
+                              _handleButtonTap(context, _currentTab, project),
                         )
                     ],
                   )
@@ -114,7 +114,7 @@ class _EachProjectsState extends State<EachProjects> {
           ),
         ),
         const SizedBox(height: 23),
-        Container(child: _buildPageContent(project)),
+        _buildPageContent(project),
       ],
     );
   }
@@ -135,15 +135,15 @@ class _EachProjectsState extends State<EachProjects> {
       case 0:
         return ProjectOverview(project: project);
       case 1:
-        return const ProjectMembers();
+        return ProjectMembers(projectId: project.id);
       case 2:
-        return const ProjectWorkSite();
+        return ProjectWorkSite(projectId: project.id);
       case 3:
         return const ProjectFiles();
       case 4:
         return ProjectMilestone(projectId: project.id);
       case 5:
-        return const ProjectTaskTable();
+        return ProjectTaskTable(projectId: project.id);
       case 6:
         return const ProjectAssociate();
       case 7:
@@ -155,30 +155,41 @@ class _EachProjectsState extends State<EachProjects> {
 
   String _getButtonTitle(int index) {
     switch (index) {
-      case 0:
-        return 'Add New Employee';
       case 1:
-        return 'Add Project member';
+        return 'Add Project Member';
       case 2:
-        return "Add Worksite";
+        return 'Add Worksite';
       case 4:
-        return 'Create milestone';
+        return 'Create Milestone';
       case 5:
-        return "Add Task";
+        return 'Add Task';
       default:
-        return "Add";
+        return 'Add';
     }
   }
 
-  void _handleButtonTap(BuildContext context, int index) {
-    if (index == 1) {
-      showDialog(
-          context: context, builder: (_) => const AddProjectMemberDialog());
-    } else if (index == 2) {
-      showDialog(
-          context: context, builder: (_) => const CreateWorkSiteReport());
-    } else if (index == 4) {
-      showDialog(context: context, builder: (_) => const AddMileStoneDialog());
+  void _handleButtonTap(BuildContext context, int index, Project project) {
+    switch (index) {
+      case 1:
+        showDialog(
+            context: context,
+            builder: (_) => const AddProjectMemberDialog());
+        break;
+      case 2:
+        showDialog(
+            context: context,
+            builder: (_) => AddWorksiteDialog(projectId: project.id));
+        break;
+      case 4:
+        showDialog(
+            context: context,
+            builder: (_) => AddMileStoneDialog(projectId: project.id));
+        break;
+      case 5:
+        showDialog(
+            context: context,
+            builder: (_) => AddTaskDialog(projectId: project.id));
+        break;
     }
   }
 }

@@ -32,9 +32,13 @@ class CompanyController extends GetxController {
   var dataGdpr = true.obs;
   var dataCcpa = false.obs;
 
-  // Mock Data Lists for Tabs
-  var shareholders = <Map<String, dynamic>>[].obs;
-  var boardMembers = <Map<String, dynamic>>[].obs;
+  // Shareholders / Board Members
+  var shareholders = <Shareholder>[].obs;
+  var isShareholdersLoading = false.obs;
+
+  List<Shareholder> get boardMembers =>
+      shareholders.where((s) => s.isBoardMember).toList();
+
 // Compliance
   var complianceList = <Compliance>[].obs;
   var isComplianceLoading = false.obs;
@@ -42,61 +46,20 @@ class CompanyController extends GetxController {
   // Audit
   var auditLogs = <AuditLog>[].obs;
   var isAuditLoading = false.obs;
+  var auditLogsTotal = 0.obs;
+  var auditPage = 0.obs;
+  static const auditPageSize = 10;
+
+  // Dashboard Stats
+  var dashboardStats = Rxn<DashboardStats>();
+  var isDashboardLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    _loadMockData();
     fetchCompanyProfile();
-  }
-
-  void _loadMockData() {
-    // Populate with data matching your screenshots
-    shareholders.addAll([
-      {
-        'name': 'Stephanie Mgboko',
-        'role': 'Founder',
-        'shares': '4,000,000',
-        'percent': '40.00%',
-        'bg': 0xFFFFF7ED,
-        'fg': 0xFFEA580C
-      },
-      {
-        'name': 'Abraham Godswill',
-        'role': 'Co-Founder',
-        'shares': '3,000,000',
-        'percent': '30.00%',
-        'bg': 0xFFFDF4FF,
-        'fg': 0xFFC026D3
-      },
-      {
-        'name': 'Nicholas Chidera Ani',
-        'role': 'Investor',
-        'shares': '3,000,000',
-        'percent': '30.00%',
-        'bg': 0xFFF0F9FF,
-        'fg': 0xFF0284C7
-      },
-    ]);
-
-    boardMembers.addAll([
-      {
-        'title': 'Mr',
-        'name': 'Nicholas Chidera Ani',
-        'role': 'Founder',
-        'gender': 'Male',
-        'bg': 0xFFFFF7ED,
-        'fg': 0xFFEA580C
-      },
-      {
-        'title': 'Esq',
-        'name': 'Stephanie Mgboko',
-        'role': 'Co-Founder',
-        'gender': 'Female',
-        'bg': 0xFFFDF4FF,
-        'fg': 0xFFC026D3
-      },
-    ]);
+    fetchDashboardStats();
+    fetchShareholders();
   }
 
   Future<void> updateCompanyProfile(
@@ -157,13 +120,19 @@ class CompanyController extends GetxController {
   }
 
   // --- AUDIT OPERATIONS ---
-  Future<void> fetchAuditLogs() async {
+  Future<void> fetchAuditLogs({int page = 0}) async {
     try {
       isAuditLoading.value = true;
+      auditPage.value = page;
       final token = await _storage.read(key: 'access_token');
       if (token != null) {
-        final logs = await _companyService.getAuditLogs(token);
-        auditLogs.assignAll(logs);
+        final result = await _companyService.getAuditLogs(
+          token,
+          limit: auditPageSize,
+          offset: page * auditPageSize,
+        );
+        auditLogs.assignAll(result.items);
+        auditLogsTotal.value = result.count;
       }
     } catch (e) {
       log("Error loading audit logs: $e");
@@ -195,6 +164,37 @@ class CompanyController extends GetxController {
       errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchDashboardStats() async {
+    try {
+      isDashboardLoading.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        final stats =
+            await _companyService.getDashboardStats(accessToken: token);
+        dashboardStats.value = stats;
+      }
+    } catch (e) {
+      log("Error loading dashboard stats: $e");
+    } finally {
+      isDashboardLoading.value = false;
+    }
+  }
+
+  Future<void> fetchShareholders() async {
+    try {
+      isShareholdersLoading.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        final list = await _companyService.getShareholders(token);
+        shareholders.assignAll(list);
+      }
+    } catch (e) {
+      log("Error loading shareholders: $e");
+    } finally {
+      isShareholdersLoading.value = false;
     }
   }
 
