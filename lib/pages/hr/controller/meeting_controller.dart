@@ -48,7 +48,7 @@ class MeetingController extends GetxController {
         isActive: true,
         limit: 200,
       );
-      employees.assignAll(result);
+      employees.assignAll(result.list);
     } catch (_) {
       // non-critical — search field degrades gracefully
     } finally {

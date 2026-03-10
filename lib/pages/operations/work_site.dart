@@ -106,13 +106,13 @@ class _WorkSiteState extends State<WorkSite> {
                   ),
                 ),
                 // PaginatorFooter(
-                  totalRecords: controller.totalCount.value,
-                  onPageChanged: (page, limit) {
-                    controller.currentLimit.value = limit;
-                    controller.currentOffset.value = (page - 1) * limit;
-                    controller.fetchWorksites(context);
-                  },
-                ),
+                //   totalRecords: controller.totalCount.value,
+                //   onPageChanged: (page, limit) {
+                //     controller.currentLimit.value = limit;
+                //     controller.currentOffset.value = (page - 1) * limit;
+                //     controller.fetchWorksites(context);
+                //   },
+                // ),
               ],
             );
           }),

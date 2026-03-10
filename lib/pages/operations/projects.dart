@@ -121,14 +121,14 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       ),
                     ),
                   ),
-                  MyPaginator(
-                    totalRecords: controller.totalCount.value,
-                    onPageChanged: (page, limit) {
-                      controller.currentLimit.value = limit;
-                      controller.currentOffset.value = (page - 1) * limit;
-                      controller.fetchProjects(context);
-                    },
-                  ),
+                  // MyPaginator(
+                  //   totalRecords: controller.totalCount.value,
+                  //   onPageChanged: (page, limit) {
+                  //     controller.currentLimit.value = limit;
+                  //     controller.currentOffset.value = (page - 1) * limit;
+                  //     controller.fetchProjects(context);
+                  //   },
+                  // ),
                 ],
               );
             }),
