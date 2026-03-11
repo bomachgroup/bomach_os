@@ -33,7 +33,7 @@ class EmployeeEvaluationService {
 
   Future<Map<String, dynamic>> createEvaluation(
     String token, {
-    required String employeeId,
+    required int employeeId,
     required String evaluatorId,
     required int month,
     required int year,

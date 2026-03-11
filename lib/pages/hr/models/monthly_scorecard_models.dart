@@ -32,7 +32,7 @@ class MonthlyScorecardMetric {
 
 class MonthlyScorecard {
   final int id;
-  final String employeeId;
+  final int employeeId;
   final String employeeName;
   final String employeeLevel;
   final int month;
@@ -126,7 +126,9 @@ class MonthlyScorecard {
       id: json['id'] is int
           ? json['id']
           : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
-      employeeId: json['employee_id']?.toString() ?? '',
+      employeeId: json['employee_id'] is int
+          ? json['employee_id']
+          : int.tryParse(json['employee_id']?.toString() ?? '0') ?? 0,
       employeeName: json['employee_name'] ?? '',
       employeeLevel: json['employee_level'] ?? '',
       month: json['month'] is int
@@ -142,9 +144,9 @@ class MonthlyScorecard {
       reportAccuracyScore:
           double.tryParse(json['report_accuracy_score']?.toString() ?? '0') ??
               0,
-      brandContributionScore:
-          double.tryParse(json['brand_contribution_score']?.toString() ?? '0') ??
-              0,
+      brandContributionScore: double.tryParse(
+              json['brand_contribution_score']?.toString() ?? '0') ??
+          0,
       trainingProgressScore:
           double.tryParse(json['training_progress_score']?.toString() ?? '0') ??
               0,
