@@ -7,7 +7,7 @@ import '../../../src/services/operations/contract_services.dart';
 
 class ContractController extends GetxController {
   final ContractService _service =
-      ContractService(baseUrl: 'https://bomachoperations.bgbot.app');
+      ContractService(baseUrl: 'https://bomachauth.bgbot.app');
   final _storage = const FlutterSecureStorage();
 
   var contracts = <Contract>[].obs;

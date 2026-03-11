@@ -6,7 +6,7 @@ import '../../../pages/hr/models/performance_leaderboard_models.dart';
 class MonthlyScorecardService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachhr.bgbot.app/api/v1';
+  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
 
   MonthlyScorecardService({
     Dio? dioOverride,

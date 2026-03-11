@@ -6,7 +6,7 @@ import '../../pages/services/models/service_model.dart';
 class ServiceService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachservice.bgbot.app/api/v1';
+  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
 
   ServiceService({
     Dio? dioOverride,
@@ -270,8 +270,7 @@ class ServiceService {
     }
   }
 
-  Future<Order> createOrder(
-      String token, Map<String, dynamic> data) async {
+  Future<Order> createOrder(String token, Map<String, dynamic> data) async {
     try {
       final response = await _dio.post(
         '/orders',
@@ -284,8 +283,7 @@ class ServiceService {
     }
   }
 
-  Future<Quote> createQuote(
-      String token, Map<String, dynamic> data) async {
+  Future<Quote> createQuote(String token, Map<String, dynamic> data) async {
     try {
       final response = await _dio.post(
         '/quotes',

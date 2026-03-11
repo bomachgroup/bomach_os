@@ -7,7 +7,7 @@ import '../../../src/services/operations/milestone_services.dart';
 
 class MilestoneController extends GetxController {
   final MilestoneService _service =
-      MilestoneService(baseUrl: 'https://bomachoperations.bgbot.app');
+      MilestoneService(baseUrl: 'https://bomachauth.bgbot.app');
   final _storage = const FlutterSecureStorage();
 
   var milestones = <Milestone>[].obs;
@@ -27,14 +27,18 @@ class MilestoneController extends GetxController {
 
   void _showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red,
+      SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating),
     );
   }
 
   void _showSuccess(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green,
+      SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating),
     );
   }
@@ -65,7 +69,8 @@ class MilestoneController extends GetxController {
     }
   }
 
-  Future<void> createMilestone(BuildContext context, Milestone milestone) async {
+  Future<void> createMilestone(
+      BuildContext context, Milestone milestone) async {
     try {
       isActionLoading.value = true;
       final token = await _getToken(context);

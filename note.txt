@@ -4,7 +4,7 @@ Parse all available endpoints and write it to a file. one for bomachauth another
 
 https://bomachauth.bgbot.app/api/v1/docs/#/
 
-https://bomachoperations.bgbot.app/api/v1/docs/#/
+https://bomachauth.bgbot.app/api/v1/docs/#/
 
 
 -------------

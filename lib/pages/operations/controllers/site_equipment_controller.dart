@@ -7,7 +7,7 @@ import '../../../src/services/operations/site_equipment_services.dart';
 
 class SiteEquipmentController extends GetxController {
   final SiteEquipmentService _service =
-      SiteEquipmentService(baseUrl: 'https://bomachoperations.bgbot.app');
+      SiteEquipmentService(baseUrl: 'https://bomachauth.bgbot.app');
   final _storage = const FlutterSecureStorage();
 
   var equipment = <SiteEquipment>[].obs;
@@ -63,8 +63,7 @@ class SiteEquipmentController extends GetxController {
     }
   }
 
-  Future<void> createEquipment(
-      BuildContext context, SiteEquipment item) async {
+  Future<void> createEquipment(BuildContext context, SiteEquipment item) async {
     try {
       isActionLoading.value = true;
       final token = await _getToken(context);
@@ -91,8 +90,7 @@ class SiteEquipmentController extends GetxController {
       final token = await _getToken(context);
       if (token == null) throw Exception("Authentication token not found");
 
-      await _service.deleteSiteEquipment(
-          accessToken: token, equipmentId: id);
+      await _service.deleteSiteEquipment(accessToken: token, equipmentId: id);
 
       _showSuccess(context, "Equipment deleted successfully");
 

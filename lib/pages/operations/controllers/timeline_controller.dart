@@ -7,7 +7,7 @@ import '../../../src/services/operations/timeline_services.dart';
 
 class TimelineController extends GetxController {
   final TimelineService _service =
-      TimelineService(baseUrl: 'https://bomachoperations.bgbot.app');
+      TimelineService(baseUrl: 'https://bomachauth.bgbot.app');
   final _storage = const FlutterSecureStorage();
 
   var timelines = <TimelineModel>[].obs;

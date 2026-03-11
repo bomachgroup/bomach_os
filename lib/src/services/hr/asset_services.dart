@@ -5,7 +5,7 @@ import '../../../pages/hr/models/assets_model.dart';
 class AssetService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachhr.bgbot.app/api/v1';
+  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
 
   AssetService({
     Dio? dioOverride,

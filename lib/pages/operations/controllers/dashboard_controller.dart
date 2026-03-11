@@ -7,7 +7,7 @@ import '../../../src/services/operations/operations_services.dart';
 
 class DashboardController extends GetxController {
   final DashboardService _service =
-      DashboardService(baseUrl: 'https://bomachoperations.bgbot.app');
+      DashboardService(baseUrl: 'https://bomachauth.bgbot.app');
   final _storage = const FlutterSecureStorage();
 
   var stats = Rxn<DashboardStats>();

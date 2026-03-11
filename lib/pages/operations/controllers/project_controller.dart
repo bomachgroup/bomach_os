@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+
 import '../../../pages/operations/models/models.dart';
 import '../../../src/services/operations/operations_services.dart';
 
 class ProjectController extends GetxController {
   final DashboardService _service =
-      DashboardService(baseUrl: 'https://bomachoperations.bgbot.app');
+      DashboardService(baseUrl: 'https://bomachauth.bgbot.app');
   final _storage = const FlutterSecureStorage();
 
   var projects = <Project>[].obs;
@@ -117,7 +118,8 @@ class ProjectController extends GetxController {
     }
   }
 
-  Future<void> fetchProjectEmployees(BuildContext context, int projectId) async {
+  Future<void> fetchProjectEmployees(
+      BuildContext context, int projectId) async {
     try {
       isLoadingEmployees.value = true;
       final token = await _getToken(context);

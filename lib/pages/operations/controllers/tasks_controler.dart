@@ -7,7 +7,7 @@ import '../../../src/services/operations/tasks_services.dart';
 
 class TaskController extends GetxController {
   final TaskService _service =
-      TaskService(baseUrl: 'https://bomachoperations.bgbot.app');
+      TaskService(baseUrl: 'https://bomachauth.bgbot.app');
   final _storage = const FlutterSecureStorage();
 
   var tasks = <Task>[].obs;

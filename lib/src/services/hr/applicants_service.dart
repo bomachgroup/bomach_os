@@ -5,7 +5,7 @@ import '../../../pages/hr/models/applicant_model.dart';
 class ApplicantService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachhr.bgbot.app/api/v1';
+  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
 
   ApplicantService({
     Dio? dioOverride,
