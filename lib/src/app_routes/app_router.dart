@@ -18,6 +18,9 @@ import 'package:bms_front_end/pages/company/compliance.dart';
 import 'package:bms_front_end/pages/company/department_units.dart';
 import 'package:bms_front_end/pages/crm/crm.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
+import 'package:bms_front_end/pages/dashboad/my_tasks.dart';
+import 'package:bms_front_end/pages/dashboad/my_profile.dart';
+import 'package:bms_front_end/pages/dashboad/my_work_reports.dart';
 import 'package:bms_front_end/pages/employee/employee.dart';
 import 'package:bms_front_end/pages/employee/employee_attendance.dart';
 import 'package:bms_front_end/pages/employee/employee_directory.dart';
@@ -113,6 +116,9 @@ import 'refresh_route.dart';
 
 final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.home: const DashboardScreen(),
+  RouteConstants.employeeMyTasks: const MyTasksPage(),
+  RouteConstants.employeeMyReports: const MyWorkReportsPage(),
+  RouteConstants.employeeMyProfile: const MyProfilePage(),
 
   // hr
   RouteConstants.hr: const HRPage(),

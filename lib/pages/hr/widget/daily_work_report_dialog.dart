@@ -37,10 +37,18 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   late TextEditingController _employeeIdController;
   late TextEditingController _hoursWorkedController;
 
-  String _selectedMood = 'Neutral';
+  String _selectedMood = 'neutral';
   DateTime _reportDate = DateTime.now();
 
-  final List<String> _moodOptions = ['Happy', 'Neutral', 'Tired', 'Frustrated'];
+  // API accepts: happy, neutral, sad, stressed, tired, frustrated
+  final Map<String, String> _moodOptions = {
+    'Happy': 'happy',
+    'Neutral': 'neutral',
+    'Sad': 'sad',
+    'Stressed': 'stressed',
+    'Tired': 'tired',
+    'Frustrated': 'frustrated',
+  };
 
   @override
   void initState() {
@@ -52,7 +60,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     _employeeIdController = TextEditingController(text: r?.employeeId ?? '');
     _hoursWorkedController = TextEditingController(text: r?.hoursWorked.toString() ?? '');
     
-    _selectedMood = r?.mood.isNotEmpty == true ? r!.mood : 'Neutral';
+    _selectedMood = r?.mood.isNotEmpty == true ? r!.mood.toLowerCase() : 'neutral';
     _reportDate = r?.day ?? DateTime.now();
   }
 
@@ -180,9 +188,13 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                          Expanded(
                             child: MyDropdown(
                               title: 'Mood',
-                              items: _moodOptions,
-                              hintText: _selectedMood,
-                              onChanged: (val) => setState(() => _selectedMood = val ?? 'Neutral'),
+                              items: _moodOptions.keys.toList(),
+                              hintText: _moodOptions.entries
+                                  .firstWhere((e) => e.value == _selectedMood,
+                                      orElse: () => const MapEntry('Neutral', 'neutral'))
+                                  .key,
+                              onChanged: (val) => setState(() =>
+                                  _selectedMood = _moodOptions[val] ?? 'neutral'),
                             ),
                          ),
                       ],

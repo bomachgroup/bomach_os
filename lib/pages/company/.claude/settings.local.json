@@ -7,7 +7,13 @@
       "Bash(xargs basename:*)",
       "Bash(grep -E \"\\\\.dart$\")",
       "Bash(flutter pub:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(find /c/Users/nemelu/Documents/bomach_os/lib/pages/company -type f -name *.dart)",
+      "Bash(findstr \"dashboad\")",
+      "Bash(findstr /i \"error\")",
+      "Bash(findstr \"error\")",
+      "Bash(findstr \"my_profile\")",
+      "Bash(findstr \"dashboad\\\\|app_router\\\\|app_route_constants\\\\|side_menu\")"
     ]
   }
 }

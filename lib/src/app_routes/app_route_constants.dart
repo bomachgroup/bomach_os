@@ -146,4 +146,9 @@ class RouteConstants {
   static const String employeePerformance = '/employee/performance';
   static const String employeeAttendance = '/employee/attendance';
   static const String employeeTraining = '/employee/training';
+
+  // Employee Dashboard Flow
+  static const String employeeMyTasks = '/dashboard/my-tasks';
+  static const String employeeMyReports = '/dashboard/my-reports';
+  static const String employeeMyProfile = '/dashboard/my-profile';
 }

@@ -8,7 +8,10 @@ import 'package:bms_front_end/pages/operations/controllers/milestone_controller.
 import 'package:bms_front_end/pages/operations/controllers/project_controller.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/model/employees_model.dart';
+import 'package:bms_front_end/src/services/employees_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
@@ -340,7 +343,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   }
 }
 
-class _AssignedToField extends StatelessWidget {
+class _AssignedToField extends StatefulWidget {
   final ProjectController projectController;
   final List<String> selectedIds;
   final TextEditingController searchCtrl;
@@ -358,17 +361,68 @@ class _AssignedToField extends StatelessWidget {
   });
 
   @override
+  State<_AssignedToField> createState() => _AssignedToFieldState();
+}
+
+class _AssignedToFieldState extends State<_AssignedToField> {
+  final EmployeeService _employeeService = EmployeeService();
+  final _storage = const FlutterSecureStorage();
+
+  List<Employee> _allEmployees = [];
+  bool _isLoadingAll = false;
+  String? _filterDepartmentId;
+  String? _filterBranchId;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllEmployees();
+  }
+
+  Future<void> _fetchAllEmployees() async {
+    setState(() => _isLoadingAll = true);
+    try {
+      String? token = await _storage.read(key: 'access_token');
+      if (token == null) return;
+      if (token.startsWith("Bearer ")) {
+        token = token.replaceFirst("Bearer ", "");
+      }
+      token = token.replaceAll('"', '').trim();
+
+      final result = await _employeeService.getEmployees(
+        token,
+        isActive: true,
+        departmentId: _filterDepartmentId,
+        branchId: _filterBranchId,
+        limit: 200,
+      );
+      setState(() => _allEmployees = result.list);
+    } catch (e) {
+      debugPrint("Error fetching employees: $e");
+    } finally {
+      setState(() => _isLoadingAll = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final isLoading = projectController.isLoadingEmployees.value;
-      final employees = projectController.projectEmployees;
+      final projectEmployees = widget.projectController.projectEmployees;
+      final isProjectLoading =
+          widget.projectController.isLoadingEmployees.value;
 
-      final filtered = query.isEmpty
+      // Use all employees if available, fallback to project employees
+      final employees = _allEmployees.isNotEmpty ? _allEmployees : <Employee>[];
+      final isLoading = _isLoadingAll || isProjectLoading;
+
+      final filtered = widget.query.isEmpty
           ? employees
           : employees
               .where((e) =>
-                  e.fullName.toLowerCase().contains(query.toLowerCase()) ||
-                  e.employeeId.toLowerCase().contains(query.toLowerCase()))
+                  e.fullName.toLowerCase().contains(widget.query.toLowerCase()) ||
+                  (e.employeeId ?? '')
+                      .toLowerCase()
+                      .contains(widget.query.toLowerCase()))
               .toList();
 
       return Column(
@@ -377,21 +431,64 @@ class _AssignedToField extends StatelessWidget {
           const MyText('Assigned To*', weight: 500),
           const SizedBox(height: 8),
 
+          // Department & Branch filters
+          Row(
+            children: [
+              Expanded(
+                child: MyTextFormField(
+                  title: 'Filter by Department ID',
+                  hintText: 'e.g. 1',
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    _filterDepartmentId =
+                        val.isNotEmpty ? val : null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: MyTextFormField(
+                  title: 'Filter by Branch ID',
+                  hintText: 'e.g. 1',
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    _filterBranchId =
+                        val.isNotEmpty ? val : null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: IconButton(
+                  icon: const Icon(Icons.filter_list, color: AppColors.blue),
+                  tooltip: 'Apply filters',
+                  onPressed: _fetchAllEmployees,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
           // Selected chips
-          if (selectedIds.isNotEmpty) ...[
+          if (widget.selectedIds.isNotEmpty) ...[
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: selectedIds.map((id) {
-                final emp = employees.where((e) => e.id == id).firstOrNull;
-                final label = emp?.fullName ?? id;
+              children: widget.selectedIds.map((id) {
+                final emp =
+                    employees.where((e) => e.tableId.toString() == id || e.id.toString() == id).firstOrNull;
+                final projEmp = projectEmployees
+                    .where((e) => e.id == id)
+                    .firstOrNull;
+                final label = emp?.fullName ?? projEmp?.fullName ?? id;
                 return Chip(
                   label: Text(label, style: const TextStyle(fontSize: 12)),
                   deleteIcon: const Icon(Icons.close, size: 14),
-                  onDeleted: () => onToggle(id),
+                  onDeleted: () => widget.onToggle(id),
                   backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-                  side:
-                      BorderSide(color: AppColors.blue.withValues(alpha: 0.3)),
+                  side: BorderSide(
+                      color: AppColors.blue.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 );
@@ -402,8 +499,8 @@ class _AssignedToField extends StatelessWidget {
 
           // Search input
           TextField(
-            controller: searchCtrl,
-            onChanged: onQueryChanged,
+            controller: widget.searchCtrl,
+            onChanged: widget.onQueryChanged,
             decoration: InputDecoration(
               hintText: 'Search employees by name or ID...',
               prefixIcon:
@@ -444,7 +541,7 @@ class _AssignedToField extends StatelessWidget {
                     ? const Padding(
                         padding: EdgeInsets.all(16),
                         child: Text(
-                          'No employees assigned to this project.',
+                          'No employees found. Try adjusting filters.',
                           style: TextStyle(color: Colors.grey),
                         ),
                       )
@@ -463,9 +560,11 @@ class _AssignedToField extends StatelessWidget {
                                 height: 1, color: Color(0XFFD5D5D5)),
                             itemBuilder: (ctx, i) {
                               final emp = filtered[i];
-                              final isSelected = selectedIds.contains(emp.id);
+                              final empId = emp.tableId.toString();
+                              final isSelected =
+                                  widget.selectedIds.contains(empId);
                               return InkWell(
-                                onTap: () => onToggle(emp.id),
+                                onTap: () => widget.onToggle(empId),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 10),
@@ -473,7 +572,8 @@ class _AssignedToField extends StatelessWidget {
                                     children: [
                                       Checkbox(
                                         value: isSelected,
-                                        onChanged: (_) => onToggle(emp.id),
+                                        onChanged: (_) =>
+                                            widget.onToggle(empId),
                                         activeColor: AppColors.blue,
                                         materialTapTargetSize:
                                             MaterialTapTargetSize.shrinkWrap,
@@ -492,7 +592,7 @@ class _AssignedToField extends StatelessWidget {
                                                   fontWeight: FontWeight.w500),
                                             ),
                                             Text(
-                                              '${emp.employeeId} · ${emp.position}',
+                                              '${emp.employeeId ?? ''} · ${emp.designation ?? ''} · ${emp.departmentName ?? ''} · ${emp.branchName ?? ''}',
                                               style: const TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.grey),

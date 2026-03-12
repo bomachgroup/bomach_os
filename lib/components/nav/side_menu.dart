@@ -35,6 +35,12 @@ enum MainMenuItem {
 }
 
 enum SubMenuItem {
+  // Dashboard sub-items
+  dashboardHome,
+  myProfile,
+  myTasks,
+  myReports,
+
   // Company sub-items
   company,
   branch,
@@ -215,7 +221,29 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Dashboard',
         iconPath: 'assets/svg/sidebar/home.svg',
         route: RouteConstants.home,
-        isExpandable: false,
+        isExpandable: true,
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.dashboardHome,
+            label: 'Overview',
+            route: RouteConstants.home,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.myProfile,
+            label: 'My Profile',
+            route: RouteConstants.employeeMyProfile,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.myTasks,
+            label: 'My Tasks',
+            route: RouteConstants.employeeMyTasks,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.myReports,
+            label: 'My Work Reports',
+            route: RouteConstants.employeeMyReports,
+          ),
+        ],
       ),
       const MenuItem(
         id: MainMenuItem.company,
