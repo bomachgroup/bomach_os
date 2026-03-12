@@ -6,6 +6,7 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/widget/add_program_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/view_program_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -109,24 +110,19 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
         const SizedBox(height: 24),
 
         // --- 2. Stats Cards ---
-        Obx(() => Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    title: 'Total Programs',
-                    count: _ctrl.stats['totalPrograms'].toString(),
-                    borderColor: _blueColor,
-                    countColor: _blueColor,
-                  ),
+        Obx(() => ResponsiveStatRow(
+              cards: [
+                _buildStatCard(
+                  title: 'Total Programs',
+                  count: _ctrl.stats['totalPrograms'].toString(),
+                  borderColor: _blueColor,
+                  countColor: _blueColor,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    title: 'Total Enrolled',
-                    count: _ctrl.stats['totalEnrolled'].toString(),
-                    borderColor: _greenColor,
-                    countColor: _greenColor,
-                  ),
+                _buildStatCard(
+                  title: 'Total Enrolled',
+                  count: _ctrl.stats['totalEnrolled'].toString(),
+                  borderColor: _greenColor,
+                  countColor: _greenColor,
                 ),
               ],
             )),

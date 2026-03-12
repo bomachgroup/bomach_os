@@ -36,12 +36,39 @@ class CompanyController extends GetxController {
   var shareholders = <Shareholder>[].obs;
   var isShareholdersLoading = false.obs;
 
+  // Equity (local state — API endpoint not yet available)
+  var authorizedShares = 0.obs;
+  var isEquityLoading = false.obs;
+
+  int get issuedShares =>
+      shareholders.fold<int>(0, (sum, s) => sum + s.shareCount);
+
+  int get unissuedShares {
+    final auth = authorizedShares.value;
+    final issued = issuedShares;
+    return auth > issued ? auth - issued : 0;
+  }
+
   List<Shareholder> get boardMembers =>
       shareholders.where((s) => s.isBoardMember).toList();
+
+  // Board Members search
+  var boardSearchQuery = ''.obs;
+
+  List<Shareholder> get filteredBoardMembers {
+    final query = boardSearchQuery.value.toLowerCase();
+    if (query.isEmpty) return boardMembers;
+    return boardMembers.where((s) {
+      return s.fullName.toLowerCase().contains(query) ||
+          s.email.toLowerCase().contains(query) ||
+          s.titleDisplay.toLowerCase().contains(query);
+    }).toList();
+  }
 
 // Compliance
   var complianceList = <Compliance>[].obs;
   var isComplianceLoading = false.obs;
+  var complianceSearchQuery = ''.obs;
 
   // Audit
   var auditLogs = <AuditLog>[].obs;
@@ -60,6 +87,7 @@ class CompanyController extends GetxController {
     fetchCompanyProfile();
     fetchDashboardStats();
     fetchShareholders();
+    fetchEquityInfo();
   }
 
   Future<void> updateCompanyProfile(
@@ -100,6 +128,19 @@ class CompanyController extends GetxController {
     }
   }
 
+  List<Compliance> get filteredComplianceList {
+    final query = complianceSearchQuery.value.toLowerCase();
+    if (query.isEmpty) return complianceList;
+    return complianceList.where((item) {
+      return item.complianceType.toLowerCase().contains(query) ||
+          item.referenceNumber.toLowerCase().contains(query) ||
+          item.fullName.toLowerCase().contains(query) ||
+          item.issuingAuthority.toLowerCase().contains(query) ||
+          item.status.toLowerCase().contains(query) ||
+          item.description.toLowerCase().contains(query);
+    }).toList();
+  }
+
   Future<void> createCompliance(BuildContext context, Compliance item) async {
     try {
       isSaving.value = true;
@@ -114,6 +155,48 @@ class CompanyController extends GetxController {
       }
     } catch (e) {
       _showSnackBar(context, "Error: $e", isError: true);
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> updateCompliance(
+      BuildContext context, String id, Compliance item) async {
+    try {
+      isSaving.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        await _companyService.updateCompliance(token, id, item);
+        await fetchComplianceRecords();
+        if (context.mounted) {
+          Navigator.pop(context);
+          _showSnackBar(context, "Compliance record updated");
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, "Error: $e", isError: true);
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> deleteCompliance(BuildContext context, String id) async {
+    try {
+      isSaving.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        await _companyService.deleteCompliance(token, id);
+        complianceList.removeWhere((c) => c.id == id);
+        if (context.mounted) {
+          _showSnackBar(context, "Compliance record deleted");
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, "Error: $e", isError: true);
+      }
     } finally {
       isSaving.value = false;
     }
@@ -195,6 +278,140 @@ class CompanyController extends GetxController {
       log("Error loading shareholders: $e");
     } finally {
       isShareholdersLoading.value = false;
+    }
+  }
+
+  Future<void> createShareholder(
+      BuildContext context, Map<String, dynamic> data) async {
+    try {
+      isSaving.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) return;
+
+      await _companyService.createShareholder(token, data);
+      await fetchShareholders();
+      await fetchEquityInfo();
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        _showSnackBar(context, "Shareholder added successfully");
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, "Failed to add shareholder: $e", isError: true);
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> updateShareholder(
+      BuildContext context, int id, Map<String, dynamic> data) async {
+    try {
+      isSaving.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) return;
+
+      await _companyService.updateShareholder(token, id, data);
+      await fetchShareholders();
+      await fetchEquityInfo();
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        _showSnackBar(context, "Shareholder updated successfully");
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, "Failed to update shareholder: $e",
+            isError: true);
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> deleteShareholder(BuildContext context, int id) async {
+    try {
+      isSaving.value = true;
+      final token = await _storage.read(key: 'access_token');
+      if (token == null) return;
+
+      await _companyService.deleteShareholder(token, id);
+      shareholders.removeWhere((s) => s.id == id);
+      await fetchEquityInfo();
+
+      if (context.mounted) {
+        _showSnackBar(context, "Shareholder removed successfully");
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, "Failed to remove shareholder: $e",
+            isError: true);
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> fetchEquityInfo() async {
+    try {
+      isEquityLoading.value = true;
+      // Try API first
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        try {
+          final info = await _companyService.getEquityInfo(token);
+          authorizedShares.value = info.authorizedShares;
+          return;
+        } catch (_) {
+          // API not available — fall back to local storage
+        }
+      }
+      // Fall back to locally saved value
+      final saved = await _storage.read(key: 'authorized_shares');
+      if (saved != null) {
+        authorizedShares.value = int.tryParse(saved) ?? 0;
+      }
+    } catch (e) {
+      log("Error loading equity info: $e");
+    } finally {
+      isEquityLoading.value = false;
+    }
+  }
+
+  Future<void> updateEquityValue(
+      BuildContext context, int shares) async {
+    try {
+      isSaving.value = true;
+      // Try API first
+      final token = await _storage.read(key: 'access_token');
+      if (token != null) {
+        try {
+          final result =
+              await _companyService.updateEquityInfo(token, shares);
+          authorizedShares.value = result.authorizedShares;
+        } catch (_) {
+          // API not available — save locally
+          authorizedShares.value = shares;
+          await _storage.write(
+              key: 'authorized_shares', value: shares.toString());
+        }
+      } else {
+        authorizedShares.value = shares;
+        await _storage.write(
+            key: 'authorized_shares', value: shares.toString());
+      }
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        _showSnackBar(context, "Equity value updated successfully");
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, "Failed to update equity: $e", isError: true);
+      }
+    } finally {
+      isSaving.value = false;
     }
   }
 

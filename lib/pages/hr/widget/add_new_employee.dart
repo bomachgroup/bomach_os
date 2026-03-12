@@ -1,9 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -11,17 +14,16 @@ import 'package:intl/intl.dart';
 import '../../../src/model/employees_model.dart';
 import '../controller/employees_controller.dart';
 
-class AddEmployesScreen extends StatefulWidget {
-  final String? token;
-  final Employee? employee; // Optional: If provided, we are in Edit Mode
+class AddEmployeeDialog extends StatefulWidget {
+  final Employee? employee; // If provided, we are in Edit Mode
 
-  const AddEmployesScreen({super.key, this.token, this.employee});
+  const AddEmployeeDialog({super.key, this.employee});
 
   @override
-  State<AddEmployesScreen> createState() => _AddEmployesScreenState();
+  State<AddEmployeeDialog> createState() => _AddEmployeeDialogState();
 }
 
-class _AddEmployesScreenState extends State<AddEmployesScreen> {
+class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   final EmployeeController controller = Get.isRegistered<EmployeeController>()
       ? Get.find<EmployeeController>()
       : Get.put(EmployeeController());
@@ -70,22 +72,34 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
   DateTime? _joinDate;
   final _probationCtrl = TextEditingController();
   final _workScheduleCtrl = TextEditingController();
+  final _locationCtrl = TextEditingController();
 
   String? _selectedDeptId;
   String? _selectedBranchId;
   String? _selectedUnitId;
-  String? _selectedReportingTo;
-  String? _selectedLocation;
+  String? _selectedLevelId;
+  String? _selectedReportingToId;
 
   // Step 4: Compensation
   final _basicSalaryCtrl = TextEditingController();
-  final _paymentFreqCtrl = TextEditingController();
+  String _selectedSalaryFrequency = 'monthly';
   final _bankNameCtrl = TextEditingController();
   final _accountNumberCtrl = TextEditingController();
   final _taxIdCtrl = TextEditingController();
   final _pensionNumberCtrl = TextEditingController();
+  final _pfaProviderCtrl = TextEditingController();
+  final _rsaNumberCtrl = TextEditingController();
+  final _employerContribCtrl = TextEditingController();
+  final _hmoPlanCtrl = TextEditingController();
+  final _hmoIdCtrl = TextEditingController();
+  final _hmoDependentsCtrl = TextEditingController();
 
   final _passwordCtrl = TextEditingController(text: 'Password@123');
+
+  // Profile Picture
+  Uint8List? _imageBytes;
+  String? _imageName;
+  String? _existingImageUrl; // For edit mode
 
   bool get isEditMode => widget.employee != null;
 
@@ -99,6 +113,13 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
 
   void _populateFields() {
     final e = widget.employee!;
+
+    // Profile picture
+    if (e.profilePicture != null &&
+        e.profilePicture != 'string' &&
+        e.profilePicture!.isNotEmpty) {
+      _existingImageUrl = e.profilePicture;
+    }
 
     // 1. Personal
     _firstNameCtrl.text = e.firstName;
@@ -115,19 +136,11 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     _personalEmailCtrl.text = e.personalEmail ?? '';
     _otherPhoneCtrl.text = e.otherPhoneNumber ?? '';
 
-    // Split Address if possible, else put full in street
-    if (e.address != null && e.address!.contains(',')) {
-      final parts = e.address!.split(',');
-      if (parts.isNotEmpty) _streetCtrl.text = parts[0].trim();
-      if (parts.length > 1) _cityCtrl.text = parts[1].trim();
-      if (parts.length > 2) _stateCtrl.text = parts[2].trim();
-      if (parts.length > 3) _countryCtrl.text = parts[3].trim();
-    } else {
-      _streetCtrl.text = e.address ?? '';
-    }
-    
+    _streetCtrl.text = e.streetAddress ?? e.address ?? '';
+    _cityCtrl.text = e.city ?? '';
+    _stateCtrl.text = e.state ?? '';
     _zipCtrl.text = e.zipCode ?? '';
-    _countryCtrl.text = e.country ?? ''; // Or fallback from split
+    _countryCtrl.text = e.country ?? '';
 
     _emergNameCtrl.text = e.emergencyContactName ?? '';
     _emergRelCtrl.text = e.emergencyContactRelationship ?? '';
@@ -140,17 +153,32 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     _joinDate = e.startDate;
     _probationCtrl.text = e.probationPeriod ?? '';
     _workScheduleCtrl.text = e.workSchedule ?? '';
-    
+    _locationCtrl.text = e.location ?? '';
+
     if (e.departmentId != null) _selectedDeptId = e.departmentId.toString();
     if (e.branchId != null) _selectedBranchId = e.branchId.toString();
-    
+    if (e.departmentUnitId != null) _selectedUnitId = e.departmentUnitId.toString();
+    if (e.levelId != null) _selectedLevelId = e.levelId.toString();
+    if (e.reportingToId != null) _selectedReportingToId = e.reportingToId.toString();
+
+    // Load units for selected department
+    if (_selectedDeptId != null) {
+      controller.fetchDepartmentUnits(departmentId: _selectedDeptId);
+    }
+
     // 4. Compensation
     _basicSalaryCtrl.text = e.grossSalary?.toString() ?? '';
-    _paymentFreqCtrl.text = e.paymentFrequency ?? '';
+    if (e.salaryFrequency != null) _selectedSalaryFrequency = e.salaryFrequency!;
     _bankNameCtrl.text = e.bankName ?? '';
     _accountNumberCtrl.text = e.accountNumber ?? '';
     _taxIdCtrl.text = e.taxId ?? '';
     _pensionNumberCtrl.text = e.pensionNumber ?? '';
+    _pfaProviderCtrl.text = e.pfaProvider ?? '';
+    _rsaNumberCtrl.text = e.rsaNumber ?? '';
+    _employerContribCtrl.text = e.employerContribution?.toString() ?? '';
+    _hmoPlanCtrl.text = e.hmoPlan ?? '';
+    _hmoIdCtrl.text = e.hmoIdNumber ?? '';
+    _hmoDependentsCtrl.text = e.hmoDependentsCovered?.toString() ?? '';
   }
 
   @override
@@ -159,19 +187,36 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     _workEmailCtrl.dispose(); _personalEmailCtrl.dispose(); _phoneCtrl.dispose(); _otherPhoneCtrl.dispose();
     _streetCtrl.dispose(); _cityCtrl.dispose(); _stateCtrl.dispose(); _zipCtrl.dispose(); _countryCtrl.dispose();
     _emergNameCtrl.dispose(); _emergRelCtrl.dispose(); _emergPhoneCtrl.dispose();
-    _designationCtrl.dispose(); _probationCtrl.dispose(); _workScheduleCtrl.dispose();
-    _basicSalaryCtrl.dispose(); _paymentFreqCtrl.dispose(); _bankNameCtrl.dispose(); _accountNumberCtrl.dispose(); _taxIdCtrl.dispose(); _pensionNumberCtrl.dispose();
+    _designationCtrl.dispose(); _probationCtrl.dispose(); _workScheduleCtrl.dispose(); _locationCtrl.dispose();
+    _basicSalaryCtrl.dispose(); _bankNameCtrl.dispose(); _accountNumberCtrl.dispose();
+    _taxIdCtrl.dispose(); _pensionNumberCtrl.dispose();
+    _pfaProviderCtrl.dispose(); _rsaNumberCtrl.dispose(); _employerContribCtrl.dispose();
+    _hmoPlanCtrl.dispose(); _hmoIdCtrl.dispose(); _hmoDependentsCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
 
   // --- Actions ---
 
+  Future<void> _pickProfileImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _imageBytes = result.files.first.bytes;
+        _imageName = result.files.first.name;
+      });
+    }
+  }
+
   Future<void> _selectDate(bool isDob) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: isDob 
-          ? (_dob ?? DateTime(1990)) 
+      initialDate: isDob
+          ? (_dob ?? DateTime(1990))
           : (_joinDate ?? DateTime.now()),
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
@@ -187,7 +232,106 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     if (_currentStep < 3) {
       setState(() => _currentStep++);
     } else {
-      _submit();
+      _onSave();
+    }
+  }
+
+  void _onSave() {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_workEmailCtrl.text.trim().isEmpty) {
+      _showSnackBar(context, "Email address is required", isError: true);
+      if (_currentStep != 1) setState(() => _currentStep = 1);
+      return;
+    }
+
+    // Profile picture is compulsory for new employees
+    if (!isEditMode && _imageBytes == null) {
+      _showSnackBar(context, "Profile picture is required", isError: true);
+      if (_currentStep != 0) setState(() => _currentStep = 0);
+      return;
+    }
+
+    if (_dob == null || _joinDate == null) {
+      _showSnackBar(context, "Please select valid Date of Birth and Join Date", isError: true);
+      return;
+    }
+
+    final String fullAddress = "${_streetCtrl.text}, ${_cityCtrl.text}, ${_stateCtrl.text}, ${_countryCtrl.text}";
+
+    // Build profile picture value
+    String profilePic = '';
+    if (_imageBytes != null) {
+      // Convert to base64 data URI for the API
+      final base64Str = Uri.dataFromBytes(
+        _imageBytes!,
+        mimeType: _imageName?.toLowerCase().endsWith('.png') == true
+            ? 'image/png'
+            : 'image/jpeg',
+      ).toString();
+      profilePic = base64Str;
+    } else if (isEditMode && _existingImageUrl != null) {
+      profilePic = _existingImageUrl!;
+    }
+
+    final Map<String, dynamic> data = {
+      'email': _workEmailCtrl.text.trim(),
+      'first_name': _firstNameCtrl.text.trim(),
+      'last_name': _lastNameCtrl.text.trim(),
+      'middle_name': _middleNameCtrl.text.trim(),
+      'gender': _selectedGender,
+      'marital_status': _selectedMaritalStatus,
+      'nationality': _nationality,
+      'date_of_birth': DateFormat('yyyy-MM-dd').format(_dob!),
+      'profile_picture': profilePic,
+      'phone_number': _phoneCtrl.text,
+      'other_phone': _otherPhoneCtrl.text,
+      'personal_email': _personalEmailCtrl.text,
+      'address': fullAddress,
+      'city': _cityCtrl.text,
+      'state': _stateCtrl.text,
+      'zip_code': _zipCtrl.text,
+      'country': _countryCtrl.text,
+      'emergency_contact_name': _emergNameCtrl.text,
+      'emergency_contact_relationship': _emergRelCtrl.text,
+      'emergency_contact_phone': _emergPhoneCtrl.text,
+      'designation': _designationCtrl.text,
+      'employment_type': _selectedEmpType,
+      'employment_status': _selectedStatus,
+      'branch_id': int.tryParse(_selectedBranchId ?? '0') ?? 0,
+      'department_id': int.tryParse(_selectedDeptId ?? '0') ?? 0,
+      'department_unit_id': int.tryParse(_selectedUnitId ?? '0') ?? 0,
+      'level_id': int.tryParse(_selectedLevelId ?? '0') ?? 0,
+      'location': _locationCtrl.text,
+      'reporting_to_id': int.tryParse(_selectedReportingToId ?? '0') ?? 0,
+      'start_date': DateFormat('yyyy-MM-dd').format(_joinDate!),
+      'probation_period': int.tryParse(_probationCtrl.text) ?? 0,
+      'work_schedule': _workScheduleCtrl.text,
+      'is_active': _selectedStatus == 'active',
+      'gross_salary': double.tryParse(_basicSalaryCtrl.text) ?? 0,
+      'salary_frequency': _selectedSalaryFrequency,
+      'allowances': {},
+      'bank_name': _bankNameCtrl.text,
+      'account_number': _accountNumberCtrl.text,
+      'tax_id': _taxIdCtrl.text,
+      'pension_number': _pensionNumberCtrl.text,
+      'pfa_provider': _pfaProviderCtrl.text,
+      'rsa_number': _rsaNumberCtrl.text,
+      'employer_contribution': double.tryParse(_employerContribCtrl.text) ?? 0,
+      'hmo_current_plan': _hmoPlanCtrl.text,
+      'hmo_id_number': _hmoIdCtrl.text,
+      'hmo_dependents_covered': int.tryParse(_hmoDependentsCtrl.text) ?? 0,
+    };
+
+    // Add password only for creation
+    if (!isEditMode && _passwordCtrl.text.isNotEmpty) {
+      data['password'] = _passwordCtrl.text;
+    }
+
+    if (isEditMode) {
+      controller.updateEmployee(context, widget.employee!.id, data);
+    } else {
+      controller.createEmployee(context, data);
     }
   }
 
@@ -202,81 +346,19 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     );
   }
 
-  void _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    if (_dob == null || _joinDate == null) {
-      _showSnackBar(context, "Error: Please select valid Date of Birth and Join Date", isError: true);
-      return;
-    }
-
-    final String fullAddress = "${_streetCtrl.text}, ${_cityCtrl.text}, ${_stateCtrl.text}, ${_countryCtrl.text}";
-
-    final employeeData = Employee(
-      // Keep ID if editing, otherwise empty string
-      id: isEditMode ? widget.employee!.id : '', 
-      
-      email: _workEmailCtrl.text,
-      password: isEditMode ? null : _passwordCtrl.text, // Don't send password on edit unless changed
-      firstName: _firstNameCtrl.text,
-      lastName: _lastNameCtrl.text,
-      
-      // Mapped fields
-      middleName: _middleNameCtrl.text,
-      gender: _selectedGender,
-      maritalStatus: _selectedMaritalStatus,
-      nationality: _nationality,
-      phoneNumber: _phoneCtrl.text,
-      dateOfBirth: _dob,
-      address: fullAddress,
-      profilePicture: isEditMode ? widget.employee!.profilePicture : "string", // Keep existing or default
-      
-      // IDs
-      branchId: int.tryParse(_selectedBranchId ?? '0'),
-      departmentId: int.tryParse(_selectedDeptId ?? '0'),
-      levelId: 0,
-      
-      employmentType: _selectedEmpType,
-      startDate: _joinDate,
-      grossSalary: double.tryParse(_basicSalaryCtrl.text) ?? 0,
-      isActive: _selectedStatus == 'active',
-      allowances: {},
-
-      // Extra UI fields
-      designation: _designationCtrl.text,
-      probationPeriod: _probationCtrl.text,
-      bankName: _bankNameCtrl.text,
-      accountNumber: _accountNumberCtrl.text,
-      emergencyContactName: _emergNameCtrl.text,
-    );
-
-    bool success;
-    if (isEditMode) {
-      // UPDATE
-      success = await controller.updateEmployee(widget.token!, widget.employee!.id, employeeData);
-    } else {
-      // CREATE
-      success = await controller.createEmployee(widget.token!, employeeData);
-    }
-
-    if (success && mounted) {
-      Navigator.pop(context);
-      _showSnackBar(context, isEditMode ? "Success: Profile updated" : "Success: Employee added");
-    } else {
-      _showSnackBar(context, "Error: Operation failed", isError: true);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (widget.token == null) {
-      return const Scaffold(body: Center(child: Text("No access token")));
-    }
-
-    return Material(
-      color: Colors.white,
-      child: SafeArea(
+    return Dialog(
+      backgroundColor: Colors.white,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        width: 700,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Header
             Padding(
@@ -288,21 +370,22 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MyText(
-                        isEditMode ? 'Edit Employee' : 'Add New Employee', 
-                        style: AppText.black_600_32
+                        isEditMode ? 'Edit Employee' : 'Add New Employee',
+                        style: AppText.black_600_32,
                       ),
                       const SizedBox(height: 4),
                       MyText(
-                        isEditMode 
-                            ? 'Update profile details for this team member.' 
+                        isEditMode
+                            ? 'Update profile details for this team member.'
                             : 'Create a comprehensive profile for a new team member.',
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13)
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                       ),
                     ],
                   ),
                   IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close, color: Colors.grey))
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                  ),
                 ],
               ),
             ),
@@ -331,7 +414,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                           ),
                           const SizedBox(height: 4),
                           if (isActive)
-                            Container(height: 2, width: 20, color: const Color(0xFF0055FF))
+                            Container(height: 2, width: 20, color: const Color(0xFF0055FF)),
                         ],
                       ),
                     ),
@@ -341,7 +424,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
             ),
 
             // Form Body
-            Expanded(
+            Flexible(
               child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
@@ -352,11 +435,9 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
             ),
 
             // Footer
+            const Divider(height: 1),
             Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey.shade200)),
-              ),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -376,26 +457,23 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
                   ),
                   const SizedBox(width: 16),
                   Obx(() => MyElevatedButton(
-                        child: _currentStep == 3
-                            ? (controller.isSaving.value
-                                ? (isEditMode ? 'Updating...' : 'Creating...')
-                                : (isEditMode ? 'Update Profile' : 'Create Profile'))
-                            : 'Next Step',
-                        onTap: controller.isSaving.value ? null : _nextStep,
-                        bgColor: const Color(0xFF0055FF),
-                      )),
+                    child: _currentStep == 3
+                        ? (controller.isSaving.value
+                            ? (isEditMode ? 'Updating...' : 'Creating...')
+                            : (isEditMode ? 'Update Profile' : 'Create Profile'))
+                        : 'Next Step',
+                    onTap: controller.isSaving.value ? null : _nextStep,
+                    bgColor: const Color(0xFF0055FF),
+                  )),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ... (buildCurrentStep, buildStep1, buildStep2, buildStep3, buildStep4 remain mostly same)
-  // ... (Helpers: buildRow, buildField, buildDropdown, buildDatePicker remain same)
-  
   Widget _buildCurrentStep() {
     switch (_currentStep) {
       case 0: return _buildStep1();
@@ -411,6 +489,11 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Profile Picture Upload
+        const MyText('Profile Picture *', size: 13, weight: 600),
+        const SizedBox(height: 8),
+        _buildProfilePictureZone(),
+        kSizedBox,
         _buildRow([
           _buildField("First Name", _firstNameCtrl),
           _buildField("Middle Name", _middleNameCtrl),
@@ -432,6 +515,10 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
         _buildDropdown("Nationality", _nationality,
             ['Nigerian', 'Ghanaian', 'Other'],
             (v) => setState(() => _nationality = v!)),
+        if (!isEditMode) ...[
+          kSizedBox,
+          _buildField("Default Password", _passwordCtrl),
+        ],
       ],
     );
   }
@@ -488,26 +575,74 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
         const SizedBox(height: 16),
         _buildRow([
           _buildField("Designation", _designationCtrl),
-          // Mock IDs for UI: In real app, load from API
-          _buildDropdown("Department", _selectedDeptId ?? "Select", 
-              ["Select", "1", "2"],
-              (v) => setState(() => _selectedDeptId = v == "Select" ? null : v)),
+          // Department dropdown from API
+          Obx(() => _buildApiDropdown(
+            "Department",
+            _selectedDeptId,
+            controller.departments
+                .map((d) => DropdownMenuItem(
+                    value: d.id, child: Text(d.name, style: const TextStyle(fontSize: 14))))
+                .toList(),
+            (v) {
+              setState(() {
+                _selectedDeptId = v;
+                _selectedUnitId = null; // Reset unit
+              });
+              if (v != null) {
+                controller.fetchDepartmentUnits(departmentId: v);
+              }
+            },
+          )),
         ]),
         kSizedBox,
         _buildRow([
-          _buildDropdown("Unit", "Select", ["Select", "A", "B"],
-              (v) => setState(() => _selectedUnitId = v)),
-          _buildDropdown("Branch", _selectedBranchId ?? "Select",
-              ["Select", "1", "2"],
-              (v) => setState(() => _selectedBranchId = v == "Select" ? null : v)),
+          // Unit dropdown — cascading from department
+          Obx(() => _buildApiDropdown(
+            "Unit",
+            _selectedUnitId,
+            controller.departmentUnits
+                .map((u) => DropdownMenuItem(
+                    value: u.id, child: Text(u.name, style: const TextStyle(fontSize: 14))))
+                .toList(),
+            (v) => setState(() => _selectedUnitId = v),
+          )),
+          // Branch dropdown from API
+          Obx(() => _buildApiDropdown(
+            "Branch",
+            _selectedBranchId,
+            controller.branches
+                .map((b) => DropdownMenuItem(
+                    value: b.id.toString(), child: Text(b.branchName, style: const TextStyle(fontSize: 14))))
+                .toList(),
+            (v) => setState(() => _selectedBranchId = v),
+          )),
         ]),
         kSizedBox,
         _buildRow([
-          _buildDropdown("Location", "Select", ["Select", "Remote", "On-site"],
-              (v) => setState(() => _selectedLocation = v)),
-          _buildDropdown("Reporting To", "Select", ["Select", "Manager A"],
-              (v) => setState(() => _selectedReportingTo = v)),
+          // Level dropdown from API
+          Obx(() => _buildApiDropdown(
+            "Level",
+            _selectedLevelId,
+            controller.levels
+                .map((l) => DropdownMenuItem(
+                    value: l['id']?.toString() ?? '',
+                    child: Text(l['name']?.toString() ?? '', style: const TextStyle(fontSize: 14))))
+                .toList(),
+            (v) => setState(() => _selectedLevelId = v),
+          )),
+          _buildField("Location", _locationCtrl),
         ]),
+        kSizedBox,
+        // Reporting To dropdown from allEmployees
+        Obx(() => _buildApiDropdown(
+          "Reporting To",
+          _selectedReportingToId,
+          controller.allEmployees
+              .map((e) => DropdownMenuItem(
+                  value: e.id, child: Text(e.fullName, style: const TextStyle(fontSize: 14))))
+              .toList(),
+          (v) => setState(() => _selectedReportingToId = v),
+        )),
         kSizedBox,
         const MyText('Employment', weight: 600, size: 14),
         const SizedBox(height: 16),
@@ -521,7 +656,7 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
         kSizedBox,
         _buildRow([
           _buildDatePicker("Join Date", _joinDate, false),
-          _buildField("Probation Period(months)", _probationCtrl),
+          _buildField("Probation Period (months)", _probationCtrl),
         ]),
         kSizedBox,
         _buildField("Work Schedule", _workScheduleCtrl),
@@ -537,18 +672,16 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
         const MyText('Salary Information', weight: 600, size: 14),
         const SizedBox(height: 16),
         _buildRow([
-          _buildField("Basic Salary", _basicSalaryCtrl),
-          _buildDropdown("Payment Frequency", _paymentFreqCtrl.text.isNotEmpty ? _paymentFreqCtrl.text : "Select", 
-              ["Select", "Monthly", "Weekly"],
-              (v) => _paymentFreqCtrl.text = v!),
+          _buildField("Gross Salary", _basicSalaryCtrl),
+          _buildDropdown("Salary Frequency", _selectedSalaryFrequency,
+              ['monthly', 'weekly', 'bi-weekly', 'annually'],
+              (v) => setState(() => _selectedSalaryFrequency = v!)),
         ]),
         kSizedBox,
         const MyText('Bank Details', weight: 600, size: 14),
         const SizedBox(height: 16),
         _buildRow([
-          _buildDropdown("Bank Name", _bankNameCtrl.text.isNotEmpty ? _bankNameCtrl.text : "Select",
-              ["Select", "GTBank", "Zenith"],
-              (v) => _bankNameCtrl.text = v!),
+          _buildField("Bank Name", _bankNameCtrl),
           _buildField("Account Number", _accountNumberCtrl),
         ]),
         kSizedBox,
@@ -556,7 +689,143 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
           _buildField("Tax ID", _taxIdCtrl),
           _buildField("Pension Number", _pensionNumberCtrl),
         ]),
+        kSizedBox,
+        const MyText('Pension & HMO', weight: 600, size: 14),
+        const SizedBox(height: 16),
+        _buildRow([
+          _buildField("PFA Provider", _pfaProviderCtrl),
+          _buildField("RSA Number", _rsaNumberCtrl),
+        ]),
+        kSizedBox,
+        _buildField("Employer Contribution (%)", _employerContribCtrl),
+        kSizedBox,
+        _buildRow([
+          _buildField("HMO Current Plan", _hmoPlanCtrl),
+          _buildField("HMO ID Number", _hmoIdCtrl),
+        ]),
+        kSizedBox,
+        _buildField("HMO Dependents Covered", _hmoDependentsCtrl),
       ],
+    );
+  }
+
+  // ─── SHARED FORM WIDGETS ────────────────────────────────────────────
+
+  Widget _buildProfilePictureZone() {
+    final bool hasNewImage = _imageBytes != null;
+    final bool hasExistingImage = _existingImageUrl != null && _existingImageUrl!.isNotEmpty;
+
+    return InkWell(
+      onTap: _pickProfileImage,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F9FB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: (hasNewImage || hasExistingImage)
+                ? Colors.green.withOpacity(0.5)
+                : const Color(0xFF0055FF).withOpacity(0.3),
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (hasNewImage) ...[
+              // Show picked image preview
+              ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: Image.memory(
+                  _imageBytes!,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _imageName ?? 'Image selected',
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text("Tap to change image",
+                  style: TextStyle(
+                      fontSize: 11, color: Colors.grey.shade500)),
+            ] else if (hasExistingImage) ...[
+              // Show existing image from URL
+              ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: Image.network(
+                  _existingImageUrl!,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.person,
+                        size: 40, color: Colors.grey),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                "Current profile picture",
+                style: TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text("Tap to replace",
+                  style: TextStyle(
+                      fontSize: 11, color: Colors.grey.shade500)),
+            ] else ...[
+              // Empty state — drag & drop / click
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0055FF),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: const Icon(Icons.cloud_upload_outlined,
+                    color: Colors.white, size: 24),
+              ),
+              const SizedBox(height: 14),
+              RichText(
+                textAlign: TextAlign.center,
+                text: const TextSpan(
+                  style: TextStyle(fontSize: 13, color: Colors.black87),
+                  children: [
+                    TextSpan(
+                        text: "Drag & Drop or ",
+                        style: TextStyle(fontWeight: FontWeight.w500)),
+                    TextSpan(
+                        text: "choose file",
+                        style: TextStyle(
+                            color: Color(0xFF0055FF),
+                            fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: " to upload",
+                        style: TextStyle(fontWeight: FontWeight.w500)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text("Supported formats: JPG, PNG, GIF (max 5MB)",
+                  style: TextStyle(
+                      fontSize: 11, color: Colors.grey.shade500)),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -564,30 +833,30 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
     return Row(
       children: children
           .map((c) => Expanded(
-                  child: Padding(
-                padding: EdgeInsets.only(
-                    right: children.indexOf(c) != children.length - 1 ? 16.0 : 0),
-                child: c,
-              )))
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      right: children.indexOf(c) != children.length - 1 ? 16.0 : 0),
+                  child: c,
+                ),
+              ))
           .toList(),
     );
   }
 
-  Widget _buildField(String title, TextEditingController controller) {
+  Widget _buildField(String title, TextEditingController ctrl) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         MyText(title, size: 13, weight: 500),
         const SizedBox(height: 8),
-        MyTextFormField(controller: controller, hintText: "Type"),
+        MyTextFormField(controller: ctrl, hintText: "Type"),
       ],
     );
   }
 
   Widget _buildDropdown(String title, String value, List<String> items, Function(String?) onChanged) {
-    // Safety check: ensure value is in items, else default to first
     final safeValue = items.contains(value) ? value : items.first;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -602,6 +871,38 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
           ),
           items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 14)))).toList(),
           onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  /// API-driven dropdown (for departments, branches, units, levels, employees)
+  Widget _buildApiDropdown(
+    String title,
+    String? selectedValue,
+    List<DropdownMenuItem<String>> items,
+    Function(String?) onChanged,
+  ) {
+    // Ensure selected value is in items, otherwise null
+    final validValues = items.map((i) => i.value).toSet();
+    final safeValue = validValues.contains(selectedValue) ? selectedValue : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MyText(title, size: 13, weight: 500),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: safeValue,
+          hint: Text("Select $title", style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+          ),
+          items: items,
+          onChanged: onChanged,
+          isExpanded: true,
         ),
       ],
     );
@@ -626,12 +927,14 @@ class _AddEmployesScreenState extends State<AddEmployesScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                    date != null
-                        ? DateFormat('yyyy-MM-dd').format(date)
-                        : 'Select Date',
-                    style: TextStyle(
-                        color: date != null ? Colors.black : Colors.grey,
-                        fontSize: 14)),
+                  date != null
+                      ? DateFormat('yyyy-MM-dd').format(date)
+                      : 'Select Date',
+                  style: TextStyle(
+                    color: date != null ? Colors.black : Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
                 const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
               ],
             ),

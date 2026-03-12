@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:dio/dio.dart';
 
 import '../../../pages/hr/models/assets_model.dart';
@@ -33,11 +34,12 @@ class AssetService {
     });
   }
 
-  Future<List<Asset>> getAssets(
+  /// GET /api/v1/assets/ — List Assets
+  Future<({List<Asset> items, int total})> getAssets(
     String token, {
     String? search,
     String? branch,
-    String? departmentId, // Added parameter
+    String? departmentId,
     String? assetType,
     String? status,
     int limit = 100,
@@ -52,7 +54,6 @@ class AssetService {
           if (departmentId != null && departmentId != 'All')
             'department_id': departmentId,
           if (status != null && status != 'All') 'status': status,
-          // Asset Type is removed from UI filters but kept in service just in case
           if (assetType != null) 'asset_type': assetType,
           'limit': limit,
           'offset': offset,
@@ -61,20 +62,30 @@ class AssetService {
       );
 
       final data = response.data;
-      final List<dynamic> list =
-          (data is Map && data.containsKey('items')) ? data['items'] : data;
+      if (data is Map && data.containsKey('items')) {
+        final items = (data['items'] as List)
+            .map((json) => Asset.fromJson(json))
+            .toList();
+        final total = data['count'] ?? data['total'] ?? items.length;
+        return (items: items, total: total as int);
+      }
 
-      return list.map((json) => Asset.fromJson(json)).toList();
+      // Fallback: data is a plain list
+      final items =
+          (data as List).map((json) => Asset.fromJson(json)).toList();
+      return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  Future<Asset> createAsset(String token, Asset asset) async {
+  /// POST /api/v1/assets/ — Create Asset
+  Future<Asset> createAsset(String token, Map<String, dynamic> data) async {
     try {
+      log("AssetService: Creating asset...");
       final response = await _dio.post(
         '/assets/',
-        data: asset.toJson(),
+        data: data,
         options: _authOptions(token),
       );
       return Asset.fromJson(response.data);
@@ -83,6 +94,7 @@ class AssetService {
     }
   }
 
+  /// GET /api/v1/assets/{asset_id} — Get Asset
   Future<Asset> getAssetById(String token, String assetId) async {
     try {
       final response = await _dio.get(
@@ -95,11 +107,14 @@ class AssetService {
     }
   }
 
-  Future<Asset> updateAsset(String token, String assetId, Asset asset) async {
+  /// PUT /api/v1/assets/{asset_id} — Update Asset
+  Future<Asset> updateAsset(
+      String token, String assetId, Map<String, dynamic> data) async {
     try {
+      log("AssetService: Updating asset $assetId...");
       final response = await _dio.put(
         '/assets/$assetId',
-        data: asset.toJson(),
+        data: data,
         options: _authOptions(token),
       );
       return Asset.fromJson(response.data);
@@ -108,8 +123,10 @@ class AssetService {
     }
   }
 
+  /// DELETE /api/v1/assets/{asset_id} — Delete Asset
   Future<void> deleteAsset(String token, String assetId) async {
     try {
+      log("AssetService: Deleting asset $assetId...");
       await _dio.delete(
         '/assets/$assetId',
         options: _authOptions(token),
@@ -120,11 +137,27 @@ class AssetService {
   }
 
   Exception _handleError(dynamic error) {
+    String msg = "An unexpected error occurred";
+
     if (error is DioException) {
-      final errorMessage = error.response?.data?['message'] ?? error.message;
-      return Exception(
-          'API Error: ${error.response?.statusCode} - $errorMessage');
+      if (error.response != null) {
+        final data = error.response?.data;
+        log("SERVER ERROR: $data");
+
+        if (data is Map<String, dynamic>) {
+          if (data['errors'] != null) {
+            return Exception("Validation: ${data['errors']}");
+          }
+          if (data.containsKey('detail')) {
+            msg = data['detail'];
+          } else if (data.containsKey('message')) {
+            msg = data['message'];
+          }
+        }
+      } else {
+        msg = "Connection error. Please check your internet.";
+      }
     }
-    return Exception('Unexpected error: $error');
+    return Exception(msg);
   }
 }

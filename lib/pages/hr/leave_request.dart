@@ -5,6 +5,7 @@ import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/widget/add_leave_request_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -105,42 +106,31 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
         const SizedBox(height: 24),
 
         // --- 2. Stats Cards Section ---
-        Obx(() => Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    title: 'Pending Requests',
-                    count: _ctrl.stats['pending'].toString(),
-                    borderColor: _orangeColor,
-                    countColor: _orangeColor,
-                  ),
+        Obx(() => ResponsiveStatRow(
+              cards: [
+                _buildStatCard(
+                  title: 'Pending Requests',
+                  count: _ctrl.stats['pending'].toString(),
+                  borderColor: _orangeColor,
+                  countColor: _orangeColor,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    title: 'On Leave Today',
-                    count: _ctrl.stats['onLeave'].toString(),
-                    borderColor: _blueColor,
-                    countColor: _blueColor,
-                  ),
+                _buildStatCard(
+                  title: 'On Leave Today',
+                  count: _ctrl.stats['onLeave'].toString(),
+                  borderColor: _blueColor,
+                  countColor: _blueColor,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    title: 'Approved This Month',
-                    count: _ctrl.stats['approved'].toString(),
-                    borderColor: _greenColor,
-                    countColor: _greenColor,
-                  ),
+                _buildStatCard(
+                  title: 'Approved This Month',
+                  count: _ctrl.stats['approved'].toString(),
+                  borderColor: _greenColor,
+                  countColor: _greenColor,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    title: 'Rejected',
-                    count: _ctrl.stats['rejected'].toString(),
-                    borderColor: _redColor,
-                    countColor: _redColor,
-                  ),
+                _buildStatCard(
+                  title: 'Rejected',
+                  count: _ctrl.stats['rejected'].toString(),
+                  borderColor: _redColor,
+                  countColor: _redColor,
                 ),
               ],
             )),

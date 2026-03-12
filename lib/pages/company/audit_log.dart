@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -175,7 +176,13 @@ class _AuditLogPageState extends State<AuditLogPage> {
               // Pagination
               if (_searchQuery.isEmpty) ...[
                 kSizedBoxSM,
-                _PaginationBar(controller: controller),
+                Obx(() => PaginatorFooter(
+                      totalItems: controller.auditLogsTotal.value,
+                      limit: CompanyController.auditPageSize,
+                      currentPage: controller.auditPage.value + 1,
+                      onPageChanged: (page) =>
+                          controller.fetchAuditLogs(page: page - 1),
+                    )),
               ],
             ],
           );
@@ -245,97 +252,3 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-// ── Pagination bar ────────────────────────────────────────────────────────────
-
-class _PaginationBar extends StatelessWidget {
-  final CompanyController controller;
-  const _PaginationBar({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final page = controller.auditPage.value;
-      final total = controller.auditLogsTotal.value;
-      const pageSize = CompanyController.auditPageSize;
-      final totalPages = (total / pageSize).ceil();
-      final from = total == 0 ? 0 : page * pageSize + 1;
-      final to = ((page + 1) * pageSize).clamp(0, total);
-
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('Showing $from–$to of $total entries',
-              style: const TextStyle(
-                  fontSize: 12, color: Color(0xFF64748B))),
-          Row(children: [
-            _PageBtn(
-              icon: Icons.chevron_left,
-              enabled: page > 0,
-              onTap: () => controller.fetchAuditLogs(page: page - 1),
-            ),
-            const SizedBox(width: 4),
-            ...List.generate(totalPages, (i) {
-              final active = i == page;
-              return GestureDetector(
-                onTap: () => controller.fetchAuditLogs(page: i),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                      color: active
-                          ? const Color(0xFF005CE8)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(6),
-                      border: active
-                          ? null
-                          : Border.all(color: const Color(0xFFE2E8F0))),
-                  child: Center(
-                      child: Text('${i + 1}',
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: active
-                                  ? Colors.white
-                                  : const Color(0xFF475569)))),
-                ),
-              );
-            }),
-            const SizedBox(width: 4),
-            _PageBtn(
-              icon: Icons.chevron_right,
-              enabled: page < totalPages - 1,
-              onTap: () => controller.fetchAuditLogs(page: page + 1),
-            ),
-          ]),
-        ],
-      );
-    });
-  }
-}
-
-class _PageBtn extends StatelessWidget {
-  final IconData icon;
-  final bool enabled;
-  final VoidCallback onTap;
-  const _PageBtn(
-      {required this.icon, required this.enabled, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: const Color(0xFFE2E8F0))),
-        child: Icon(icon,
-            size: 18,
-            color:
-                enabled ? const Color(0xFF475569) : const Color(0xFFCBD5E1)),
-      ),
-    );
-  }
-}

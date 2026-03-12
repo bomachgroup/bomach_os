@@ -9,6 +9,10 @@ class RouteConstants {
   static const String enugu = '/company/enugu';
   static const String branch = '/company/branch';
   static const String auditLog = '/company/audit-log';
+  static const String board = '/company/board';
+  static const String broadcast = '/company/broadcast';
+  static const String roles = '/company/roles';
+  static const String approvalWorkflow = '/company/approval-workflow';
   // static const String compliance = '/company/compliance';
 
   // marketing

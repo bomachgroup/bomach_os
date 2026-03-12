@@ -108,6 +108,30 @@ class CompanyService {
     }
   }
 
+  Future<void> updateCompliance(
+      String token, String id, Compliance compliance) async {
+    try {
+      await _dio.put(
+        '/api/v1/compliance/compliance-records/$id',
+        data: compliance.toJson(),
+        options: _authOptions(token),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteCompliance(String token, String id) async {
+    try {
+      await _dio.delete(
+        '/api/v1/compliance/compliance-records/$id',
+        options: _authOptions(token),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<List<Shareholder>> getShareholders(String token,
       {int limit = 100, int offset = 0}) async {
     try {
@@ -118,6 +142,71 @@ class CompanyService {
       );
       final List items = response.data['items'] ?? [];
       return items.map((e) => Shareholder.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Shareholder> createShareholder(
+      String token, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/shareholders/',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Shareholder.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Shareholder> updateShareholder(
+      String token, int id, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(
+        '/api/v1/shareholders/$id',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Shareholder.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteShareholder(String token, int id) async {
+    try {
+      await _dio.delete(
+        '/api/v1/shareholders/$id',
+        options: _authOptions(token),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<EquityInfo> getEquityInfo(String token) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/shareholders/equity',
+        options: _authOptions(token),
+      );
+      return EquityInfo.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<EquityInfo> updateEquityInfo(
+      String token, int authorizedShares) async {
+    try {
+      final response = await _dio.put(
+        '/api/v1/shareholders/equity',
+        data: {'authorized_shares': authorizedShares},
+        options: _authOptions(token),
+      );
+      return EquityInfo.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
     }

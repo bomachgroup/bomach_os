@@ -4,7 +4,6 @@ import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../src/model/departments_units_model.dart';
 import '../controllers/department_units_controller.dart';
@@ -48,7 +47,7 @@ class BaseDialog extends StatelessWidget {
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.grey),
-                    onPressed: () => context.pop(),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
@@ -70,7 +69,8 @@ class BaseDialog extends StatelessWidget {
 }
 
 class CreateDepartmentDialog extends StatefulWidget {
-  const CreateDepartmentDialog({super.key});
+  final Department? department;
+  const CreateDepartmentDialog({super.key, this.department});
   @override
   State<CreateDepartmentDialog> createState() => _CreateDepartmentDialogState();
 }
@@ -79,20 +79,16 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
   final controller = Get.find<DepartmentsUnitsController>();
   final nameCtrl = TextEditingController();
   final descCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-  String? selectedCompany;
-  String? selectedBranch;
-  String? selectedHod;
-  String selectedStatus = "Active";
+  bool get isEditing => widget.department != null;
 
   @override
   void initState() {
     super.initState();
-    // Safely initialize default values
-    if (controller.departmentsList.isNotEmpty) {
-      selectedCompany = controller.departmentsList.first.name;
-    } else {
-      selectedCompany = "Bomach Group";
+    if (isEditing) {
+      nameCtrl.text = widget.department!.name;
+      descCtrl.text = widget.department!.description;
     }
   }
 
@@ -106,122 +102,74 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
   @override
   Widget build(BuildContext context) {
     return BaseDialog(
-      title: "Create Department",
+      title: isEditing ? "Edit Department" : "Create Department",
       width: 750,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: MyTextFormField(
-                  title: "Department Name",
-                  hintText: "Enter Name",
-                  controller: nameCtrl,
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: MyDropdown(
-                  title: "Company",
-                  hintText: "Select Company",
-                  items: const ["Bomach Group", "Benji Express"],
-                  onChanged: (v) => setState(() => selectedCompany = v),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: MyDropdown(
-                  title: "Branch",
-                  hintText: "Lagos Head Office",
-                  items: const ["Lagos Head Office", "Abuja Branch"],
-                  onChanged: (v) => setState(() => selectedBranch = v),
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: MyDropdown(
-                  title: "Head of Department",
-                  hintText: "Select HOD",
-                  items: const ["Nicholas Chidera", "Sarah Engineer"],
-                  onChanged: (v) => setState(() => selectedHod = v),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: MyDropdown(
-                  title: "Status",
-                  hintText: "Active",
-                  items: const ["Active", "Inactive"],
-                  onChanged: (v) =>
-                      setState(() => selectedStatus = v ?? "Active"),
-                ),
-              ),
-              const SizedBox(width: 24),
-              const Expanded(child: SizedBox()), // Spacer
-            ],
-          ),
-          const SizedBox(height: 20),
-          MyTextFormField(
-            title: "Description",
-            hintText: "This is a mock text...",
-            maxLines: 4,
-            controller: descCtrl,
-          ),
-          const SizedBox(height: 32),
-
-          // Footer Actions
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MyTextFormField(
+              title: "Department Name",
+              hintText: "Enter Name",
+              controller: nameCtrl,
+              validator: (val) =>
+                  (val == null || val.isEmpty) ? 'Name is required' : null,
             ),
-            const SizedBox(width: 16),
-            Obx(() => MyElevatedButton(
-                  width: 120,
-                  child: controller.isSaving.value ? "Saving..." : "Save",
-                  onTap: controller.isSaving.value
-                      ? () {}
-                      : () {
-                          if (nameCtrl.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Department name is required'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-                          controller.createDepartment(
-                            name: nameCtrl.text,
-                            description: descCtrl.text,
-                            company: selectedCompany ?? "Bomach Group",
-                            branch: selectedBranch,
-                            hod: selectedHod,
-                            status: selectedStatus,
-                          );
-                        },
-                )),
-          ]),
-        ],
+            const SizedBox(height: 20),
+            MyTextFormField(
+              title: "Description",
+              hintText: "Enter department description...",
+              maxLines: 4,
+              controller: descCtrl,
+            ),
+            const SizedBox(height: 32),
+
+            // Footer Actions
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child:
+                    const Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
+              const SizedBox(width: 16),
+              Obx(() => MyElevatedButton(
+                    width: 120,
+                    child: controller.isSaving.value
+                        ? "Saving..."
+                        : (isEditing ? "Update" : "Save"),
+                    onTap: controller.isSaving.value ? () {} : _onSave,
+                  )),
+            ]),
+          ],
+        ),
       ),
     );
+  }
+
+  void _onSave() {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (isEditing) {
+      controller.updateDepartment(
+        context,
+        departmentId: widget.department!.id,
+        name: nameCtrl.text.trim(),
+        description: descCtrl.text.trim(),
+      );
+    } else {
+      controller.createDepartment(
+        context,
+        name: nameCtrl.text.trim(),
+        description: descCtrl.text.trim(),
+      );
+    }
   }
 }
 
 class CreateUnitDialog extends StatefulWidget {
-  const CreateUnitDialog({super.key});
+  final DepartmentUnit? unit;
+  const CreateUnitDialog({super.key, this.unit});
   @override
   State<CreateUnitDialog> createState() => _CreateUnitDialogState();
 }
@@ -230,10 +178,21 @@ class _CreateUnitDialogState extends State<CreateUnitDialog> {
   final controller = Get.find<DepartmentsUnitsController>();
   final nameCtrl = TextEditingController();
   final descCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   String? selectedDeptId;
-  String? selectedHod;
-  String selectedStatus = "Active";
+
+  bool get isEditing => widget.unit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isEditing) {
+      nameCtrl.text = widget.unit!.name;
+      descCtrl.text = widget.unit!.description;
+      selectedDeptId = widget.unit!.departmentId;
+    }
+  }
 
   @override
   void dispose() {
@@ -245,118 +204,106 @@ class _CreateUnitDialogState extends State<CreateUnitDialog> {
   @override
   Widget build(BuildContext context) {
     return BaseDialog(
-      title: "Create Unit",
+      title: isEditing ? "Edit Unit" : "Create Unit",
       width: 750,
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: MyTextFormField(
-                  title: "Unit Name",
-                  hintText: "Enter Name",
-                  controller: nameCtrl,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    title: "Unit Name",
+                    hintText: "Enter Name",
+                    controller: nameCtrl,
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Name is required' : null,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 24),
-              // Dynamic Department Dropdown
-              Expanded(
-                child: Obx(() => MyDropdown(
-                      title: "Department",
-                      hintText: "Select Dept",
-                      // FIX: Safe map access to avoid null crash
-                      items: controller.departmentOptions
-                          .map((e) => e['name'] ?? 'Unknown')
-                          .toList(),
-                      onChanged: (name) {
-                        try {
-                          final dept = controller.departmentOptions
-                              .firstWhere((e) => e['name'] == name);
-                          setState(() => selectedDeptId = dept['id']);
-                        } catch (e) {
-                          // Handle not found
-                        }
-                      },
-                    )),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: MyDropdown(
-                  title: "Head of Unit",
-                  hintText: "Select Head",
-                  items: const ["Nicholas Chidera", "David Lead"],
-                  onChanged: (v) => setState(() => selectedHod = v),
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: MyDropdown(
-                  title: "Status",
-                  hintText: "Active",
-                  items: const ["Active", "Inactive"],
-                  onChanged: (v) =>
-                      setState(() => selectedStatus = v ?? "Active"),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          MyTextFormField(
-            title: "Description",
-            hintText: "This is a mock text...",
-            maxLines: 4,
-            controller: descCtrl,
-          ),
-          const SizedBox(height: 32),
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-            ),
-            const SizedBox(width: 16),
-            Obx(() => MyElevatedButton(
-                  width: 120,
-                  child: controller.isSaving.value ? "Saving..." : "Save",
-                  onTap: controller.isSaving.value
-                      ? () {}
-                      : () {
-                          if (nameCtrl.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Unit name is required'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-                          if (selectedDeptId == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please select a department'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-                          controller.createUnit(
-                            name: nameCtrl.text,
-                            description: descCtrl.text,
-                            departmentId: selectedDeptId!,
-                            hod: selectedHod,
-                            status: selectedStatus,
-                          );
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Obx(() => MyDropdown(
+                        title: "Department",
+                        hintText: isEditing
+                            ? (widget.unit!.departmentName ?? "Select Dept")
+                            : "Select Dept",
+                        items: controller.departmentOptions
+                            .map((e) => e['name'] ?? 'Unknown')
+                            .toList(),
+                        onChanged: (name) {
+                          try {
+                            final dept = controller.departmentOptions
+                                .firstWhere((e) => e['name'] == name);
+                            setState(() => selectedDeptId = dept['id']);
+                          } catch (_) {}
                         },
-                )),
-          ]),
-        ],
+                      )),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            MyTextFormField(
+              title: "Description",
+              hintText: "Enter unit description...",
+              maxLines: 4,
+              controller: descCtrl,
+            ),
+            const SizedBox(height: 32),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child:
+                    const Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
+              const SizedBox(width: 16),
+              Obx(() => MyElevatedButton(
+                    width: 120,
+                    child: controller.isSaving.value
+                        ? "Saving..."
+                        : (isEditing ? "Update" : "Save"),
+                    onTap: controller.isSaving.value ? () {} : _onSave,
+                  )),
+            ]),
+          ],
+        ),
       ),
     );
+  }
+
+  void _onSave() {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (selectedDeptId == null && !isEditing) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a department'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final deptId = selectedDeptId ?? widget.unit!.departmentId;
+
+    if (isEditing) {
+      controller.updateUnit(
+        context,
+        unitId: widget.unit!.id!,
+        name: nameCtrl.text.trim(),
+        description: descCtrl.text.trim(),
+        departmentId: deptId,
+      );
+    } else {
+      controller.createUnit(
+        context,
+        name: nameCtrl.text.trim(),
+        description: descCtrl.text.trim(),
+        departmentId: deptId,
+      );
+    }
   }
 }
 
@@ -376,7 +323,6 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
               style: const TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 24),
 
-          // Basic Info Grid
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -391,13 +337,12 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
           _buildInfoColumn("Description", department.description),
           const SizedBox(height: 32),
 
-          // --- Performance & KPIs ---
+          // Performance & KPIs (mock data)
           const Text("Performance & KPIs",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 12),
           Row(
             children: [
-              // Performance Score Box
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(12),
@@ -419,7 +364,7 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                                   color: Color(0xFF005CE8))),
                           SizedBox(width: 4),
                           Icon(Icons.trending_up,
-                              color: Colors.green, size: 16) // Trend icon
+                              color: Colors.green, size: 16)
                         ],
                       )
                     ],
@@ -427,7 +372,6 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              // Total Staff Box
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(12),
@@ -453,14 +397,13 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Progress Bars
-          _buildProgressBarRow("Revenue Achievement", 0.88, Colors.green),
+          _buildProgressBarRow("Revenue Achievement", 0.88),
           const SizedBox(height: 12),
-          _buildProgressBarRow("Utilization Rate", 0.92, Colors.orange),
+          _buildProgressBarRow("Utilization Rate", 0.92),
 
           const SizedBox(height: 32),
 
-          // --- Activity Summary ---
+          // Activity Summary
           const Text("Activity Summary",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 12),
@@ -470,7 +413,7 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          // --- Budget Overview ---
+          // Budget Overview
           const Text("Budget Overview",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 12),
@@ -486,7 +429,8 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                   children: [
                     _buildBudgetMetric("Allocated", "₦12,500,000", Colors.blue),
                     _buildBudgetMetric("Spent", "₦10,937,500", Colors.orange),
-                    _buildBudgetMetric("Remaining", "₦1,562,500", Colors.green),
+                    _buildBudgetMetric(
+                        "Remaining", "₦1,562,500", Colors.green),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -496,7 +440,8 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                     value: 0.875,
                     minHeight: 6,
                     backgroundColor: Colors.grey.shade100,
-                    valueColor: const AlwaysStoppedAnimation(Colors.black87),
+                    valueColor:
+                        const AlwaysStoppedAnimation(Colors.black87),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -509,12 +454,26 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
           ),
 
           const SizedBox(height: 24),
-          Align(
-            alignment: Alignment.centerRight,
-            child: MyOutlinedButton(
-                child: "Close",
-                onTap: () => context.pop(),
-                textColor: Colors.grey),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              MyOutlinedButton(
+                child: "Edit",
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (_) =>
+                        CreateDepartmentDialog(department: department),
+                  );
+                },
+              ),
+              const SizedBox(width: 12),
+              MyOutlinedButton(
+                  child: "Close",
+                  onTap: () => Navigator.pop(context),
+                  textColor: Colors.grey),
+            ],
           ),
         ],
       ),
@@ -545,7 +504,12 @@ class ViewUnitDetailsDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: _buildInfoColumn("Unit Name", unit.name)),
-              Expanded(child: _buildInfoColumn("Unit Code", "TOPO-001")),
+              Expanded(
+                  child: _buildInfoColumn(
+                      "Unit Code",
+                      unit.id != null && unit.id!.length >= 3
+                          ? "UNIT-${unit.id!.substring(0, 3)}"
+                          : "UNIT-${unit.id ?? '?'}")),
             ],
           ),
           const SizedBox(height: 16),
@@ -556,16 +520,8 @@ class ViewUnitDetailsDialog extends StatelessWidget {
                   child: _buildInfoColumn(
                       "Department", unit.departmentName ?? "-")),
               Expanded(
-                  child:
-                      _buildInfoColumn("Supervisor", unit.hod ?? "David Lead")),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildInfoColumn("Branch", "Lagos Head Office")),
-              Expanded(child: _buildInfoColumn("Country", "Nigeria")),
+                  child: _buildInfoColumn(
+                      "Head of Unit", unit.hod ?? "Not Assigned")),
             ],
           ),
           const SizedBox(height: 16),
@@ -585,12 +541,25 @@ class ViewUnitDetailsDialog extends StatelessWidget {
           const SizedBox(height: 8),
           _buildSummaryRow("Active Members:", "6/6", "Team Size:", "6"),
           const SizedBox(height: 24),
-          Align(
-            alignment: Alignment.centerRight,
-            child: MyOutlinedButton(
-                child: "Close",
-                onTap: () => context.pop(),
-                textColor: Colors.grey),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              MyOutlinedButton(
+                child: "Edit",
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (_) => CreateUnitDialog(unit: unit),
+                  );
+                },
+              ),
+              const SizedBox(width: 12),
+              MyOutlinedButton(
+                  child: "Close",
+                  onTap: () => Navigator.pop(context),
+                  textColor: Colors.grey),
+            ],
           ),
         ],
       ),
@@ -615,7 +584,7 @@ Widget _buildInfoColumn(String label, String value) {
   );
 }
 
-Widget _buildProgressBarRow(String label, double value, Color color) {
+Widget _buildProgressBarRow(String label, double value) {
   return Column(
     children: [
       Row(
@@ -683,7 +652,7 @@ Widget _buildBudgetMetric(String label, String value, Color color) {
         margin: const EdgeInsets.only(top: 2),
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(2)),
         child: Text(value,
             style: TextStyle(

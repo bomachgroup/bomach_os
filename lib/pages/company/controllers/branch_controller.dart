@@ -4,10 +4,13 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:bms_front_end/src/model/branch_model.dart';
+import 'package:bms_front_end/src/model/employees_model.dart';
 import '../../../src/services/branch_service.dart';
+import '../../../src/services/employees_services.dart';
 
 class BranchController extends GetxController {
   final BranchService _branchService = BranchService();
+  final EmployeeService _employeeService = EmployeeService();
   final _storage = const FlutterSecureStorage();
 
   // --- State Variables ---
@@ -24,6 +27,11 @@ class BranchController extends GetxController {
   var countryList = <Country>[].obs;
   var stateList = <StateModel>[].obs;
   var fieldChoices = Rxn<BranchFieldChoices>();
+  var allEmployees = <Employee>[].obs; // For manager dropdown
+
+  // --- Enriched Detail Data ---
+  var currentCountryDetail = Rxn<Country>();
+  var currentStateDetail = Rxn<StateModel>();
 
   // --- Filters ---
   var searchQuery = ''.obs;
@@ -34,7 +42,7 @@ class BranchController extends GetxController {
   // --- Pagination ---
   var currentPage = 1.obs;
   var limit = 10.obs;
-  var hasMore = true.obs; // To disable "Next" if fewer items returned
+  var totalItems = 0.obs;
 
   @override
   void onInit() {
@@ -55,23 +63,18 @@ class BranchController extends GetxController {
 
       int offset = (currentPage.value - 1) * limit.value;
 
-      final branches = await _branchService.getBranches(
+      final result = await _branchService.getBranches(
         accessToken: token,
-        search: searchQuery.value,
+        search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
         stateId: filterStateId.value,
-        branchRole: filterBranchRole.value == 'All' ? null : filterBranchRole.value,
-        operationalStatus: filterStatus.value == 'All' ? null : filterStatus.value,
+        branchRole: filterBranchRole.value,
+        operationalStatus: filterStatus.value,
         limit: limit.value,
         offset: offset,
       );
 
-      if (branches.length < limit.value) {
-        hasMore.value = false;
-      } else {
-        hasMore.value = true;
-      }
-
-      branchList.assignAll(branches);
+      branchList.assignAll(result.items);
+      totalItems.value = result.total;
     } catch (e) {
       log("Error fetching branches: $e");
     } finally {
@@ -84,6 +87,8 @@ class BranchController extends GetxController {
       isLoadingDetail.value = true;
       currentBranch.value = null;
       currentPerformance.value = null;
+      currentCountryDetail.value = null;
+      currentStateDetail.value = null;
 
       final token = await _getToken();
       if (token == null) return;
@@ -95,10 +100,43 @@ class BranchController extends GetxController {
 
       currentBranch.value = results[0] as Branch;
       currentPerformance.value = results[1] as BranchPerformance;
+
+      // Fetch enriched country and state details using single-item endpoints
+      final branch = currentBranch.value!;
+      if (branch.countryId != 0) {
+        _fetchCountryDetail(token, branch.countryId);
+      }
+      if (branch.stateId != 0) {
+        _fetchStateDetail(token, branch.stateId);
+      }
     } catch (e) {
       log("Error fetching branch details: $e");
     } finally {
       isLoadingDetail.value = false;
+    }
+  }
+
+  Future<void> _fetchCountryDetail(String token, int countryId) async {
+    try {
+      final country = await _branchService.getCountry(
+        accessToken: token,
+        countryId: countryId,
+      );
+      currentCountryDetail.value = country;
+    } catch (e) {
+      log("Error fetching country detail: $e");
+    }
+  }
+
+  Future<void> _fetchStateDetail(String token, int stateId) async {
+    try {
+      final state = await _branchService.getState(
+        accessToken: token,
+        stateId: stateId,
+      );
+      currentStateDetail.value = state;
+    } catch (e) {
+      log("Error fetching state detail: $e");
     }
   }
 
@@ -108,23 +146,33 @@ class BranchController extends GetxController {
     try {
       final token = await _getToken();
       if (token == null) return;
-      
-      // Load countries and choices for filters/forms
+
+      // Load countries, choices, and employees for filters/forms in parallel
       final results = await Future.wait([
         _branchService.getCountries(accessToken: token, isActive: true),
         _branchService.getBranchFieldChoices(accessToken: token),
+        _fetchAllEmployees(token),
       ]);
 
       countryList.assignAll(results[0] as List<Country>);
       fieldChoices.value = results[1] as BranchFieldChoices;
-      
+
       // Attempt to load states for the default country (e.g., Nigeria if id=1 exists)
       // This helps populate the "All States" filter immediately if applicable
       if (countryList.isNotEmpty) {
-        fetchStatesForCountry(countryList.first.id); 
+        fetchStatesForCountry(countryList.first.id);
       }
     } catch (e) {
       log("Error loading resources: $e");
+    }
+  }
+
+  Future<void> _fetchAllEmployees(String token) async {
+    try {
+      final result = await _employeeService.getEmployees(token, limit: 500);
+      allEmployees.assignAll(result.list);
+    } catch (e) {
+      log("Error fetching employees for manager dropdown: $e");
     }
   }
 
@@ -207,32 +255,43 @@ class BranchController extends GetxController {
     fetchBranches();
   }
 
-  void onTypeFilterChanged(String? type) {
-    filterBranchRole.value = type;
+  void onTypeFilterChanged(String? typeLabel) {
+    if (typeLabel == null || typeLabel == 'All Types') {
+      filterBranchRole.value = null;
+    } else {
+      // Map display label to API value
+      final option = fieldChoices.value?.branchRole
+          .firstWhereOrNull((e) => e.label == typeLabel);
+      filterBranchRole.value = option?.value ?? typeLabel;
+    }
     currentPage.value = 1;
     fetchBranches();
   }
 
-  void onStatusFilterChanged(String? status) {
-    filterStatus.value = status;
+  void onStatusFilterChanged(String? statusLabel) {
+    if (statusLabel == null || statusLabel == 'All Status') {
+      filterStatus.value = null;
+    } else {
+      // Map display label to API value
+      final option = fieldChoices.value?.operationalStatus
+          .firstWhereOrNull((e) => e.label == statusLabel);
+      filterStatus.value = option?.value ?? statusLabel;
+    }
     currentPage.value = 1;
     fetchBranches();
   }
 
   // --- Pagination Actions ---
 
-  void nextPage() {
-    if (hasMore.value) {
-      currentPage.value++;
-      fetchBranches();
-    }
+  void goToPage(int page) {
+    currentPage.value = page;
+    fetchBranches();
   }
 
-  void prevPage() {
-    if (currentPage.value > 1) {
-      currentPage.value--;
-      fetchBranches();
-    }
+  void setLimit(int newLimit) {
+    limit.value = newLimit;
+    currentPage.value = 1;
+    fetchBranches();
   }
 
   // --- Helpers ---

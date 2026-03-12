@@ -33,6 +33,7 @@ dependencies:
   get:
   dio:
   flutter_secure_storage:
+  file_picker: ^8.0.0
   web: any
 
 dev_dependencies:

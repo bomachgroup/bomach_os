@@ -4,7 +4,6 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 import '../../components/paginate/my_paginator.dart';
@@ -20,42 +19,19 @@ class EmployeeDatabase extends StatefulWidget {
   State<EmployeeDatabase> createState() => _EmployeeDatabaseState();
 }
 
-// 1. Add AutomaticKeepAliveClientMixin to keep state alive
 class _EmployeeDatabaseState extends State<EmployeeDatabase>
     with AutomaticKeepAliveClientMixin {
   final EmployeeController controller = Get.put(EmployeeController());
-  final _storage = const FlutterSecureStorage();
   final ScrollController _scrollController = ScrollController();
 
-  String? _cachedToken;
   String _selectedTab = 'Active';
 
   @override
-  bool get wantKeepAlive => true; // Keep page alive
-
-  @override
-  void initState() {
-    super.initState();
-    _initLoad();
-  }
-
-  Future<void> _initLoad() async {
-    _cachedToken = await _getToken(context);
-    if (_cachedToken != null) {
-      controller.fetchEmployees(_cachedToken!);
-    }
-  }
-
-  Future<String?> _getToken(BuildContext context) async {
-    String? token = await _storage.read(key: 'access_token');
-    if (token == null) return null;
-    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
-    return token.replaceAll('"', '').trim();
-  }
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Required for KeepAlive
+    super.build(context);
 
     return LayoutBuilder(builder: (context, constraints) {
       final bool isMobile = constraints.maxWidth < 800;
@@ -124,7 +100,6 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                       constraints: BoxConstraints(
                         minWidth: isMobile ? 900 : constraints.maxWidth - 72,
                       ),
-                      // 2. Explicit Error and Empty Handling
                       child: Obx(() {
                         if (controller.isLoading.value) {
                           return const Padding(
@@ -145,7 +120,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                                   MyText(controller.errorMessage.value,
                                       color: Colors.red),
                                   TextButton(
-                                    onPressed: () => _initLoad(),
+                                    onPressed: () => controller.fetchEmployees(),
                                     child: const Text("Retry"),
                                   )
                                 ],
@@ -188,14 +163,10 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                       limit: controller.limit.value,
                       currentPage: controller.currentPage.value,
                       onPageChanged: (newPage) {
-                        if (_cachedToken != null) {
-                          controller.changePage(_cachedToken!, newPage);
-                        }
+                        controller.changePage(newPage);
                       },
                       onLimitChanged: (newLimit) {
-                        if (_cachedToken != null) {
-                          controller.changeLimit(_cachedToken!, newLimit);
-                        }
+                        controller.changeLimit(newLimit);
                       },
                       limitOptions: const [5, 10, 20, 50],
                     )),
@@ -220,9 +191,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
       ),
       child: TextField(
         onChanged: (val) {
-          if (_cachedToken != null) {
-            controller.onSearchChanged(_cachedToken!, val);
-          }
+          controller.onSearchChanged(val);
         },
         decoration: InputDecoration(
           hintText: 'Search employees...',
@@ -264,18 +233,11 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
               ),
               kSizedBoxWidth,
               ElevatedButton.icon(
-                onPressed: () async {
-                  if (_cachedToken != null) {
-                    // 3. Force refresh on return
-                    await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (c) =>
-                                AddEmployesScreen(token: _cachedToken!)));
-
-                    // Refresh data when coming back from Add Screen
-                    controller.fetchEmployees(_cachedToken!);
-                  }
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => const AddEmployeeDialog(),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0055FF),
@@ -296,15 +258,11 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
           )
         else
           IconButton(
-            onPressed: () async {
-              if (_cachedToken != null) {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (c) =>
-                            AddEmployesScreen(token: _cachedToken!)));
-                controller.fetchEmployees(_cachedToken!);
-              }
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => const AddEmployeeDialog(),
+              );
             },
             icon: const Icon(CupertinoIcons.add_circled_solid,
                 color: Color(0xFF0055FF), size: 30),
@@ -321,12 +279,11 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
               e.employmentType?.toLowerCase().contains('contract') ?? false)
           .length;
 
-      // FIX: Use simple Column for Mobile (No Expanded), Row with Expanded for Desktop
       if (isMobile) {
         return Column(
           children: [
             SizedBox(
-              width: double.infinity, // Ensure full width
+              width: double.infinity,
               child: _buildStatCard(
                   label: 'Total Employees',
                   value: '$total',
@@ -393,11 +350,8 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
         setState(() {
           _selectedTab = title;
         });
-
-        if (_cachedToken != null) {
-          final bool active = (title == 'Active');
-          controller.filterByStatus(_cachedToken!, active);
-        }
+        final bool active = (title == 'Active');
+        controller.filterByStatus(active);
       },
       borderRadius: BorderRadius.circular(30),
       child: Container(
@@ -450,11 +404,13 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                   radius: 20,
                   backgroundColor: AppColors.greyBg,
                   backgroundImage: emp.profilePicture != null &&
-                          emp.profilePicture!.isNotEmpty
+                          emp.profilePicture!.isNotEmpty &&
+                          emp.profilePicture != 'string'
                       ? NetworkImage(emp.profilePicture!)
                       : null,
                   child: (emp.profilePicture == null ||
-                          emp.profilePicture!.isEmpty)
+                          emp.profilePicture!.isEmpty ||
+                          emp.profilePicture == 'string')
                       ? Text(emp.firstName.isNotEmpty ? emp.firstName[0] : '?',
                           style: const TextStyle(
                               fontSize: 14,
@@ -470,19 +426,19 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                     MyText('${emp.firstName} ${emp.lastName}',
                         weight: 600, size: 14),
                     const SizedBox(height: 4),
-                    MyText(emp.id.isNotEmpty ? emp.id : 'ID-Pending',
+                    MyText(emp.employeeId ?? emp.id,
                         weight: 600, size: 12, color: Colors.black54),
                   ],
                 ),
               ],
             ),
           ),
-          DataCell(MyText(emp.designation ?? emp.role ?? 'Staff',
+          DataCell(MyText(emp.designation ?? emp.role,
               weight: 600, size: 14, color: Colors.black54)),
-          DataCell(MyText(emp.departmentId?.toString() ?? '-',
+          DataCell(MyText(emp.departmentName ?? emp.departmentId?.toString() ?? '-',
               weight: 600, size: 14)),
           DataCell(
-              MyText(emp.employmentType ?? 'Contract', weight: 600, size: 14)),
+              MyText(emp.employmentType ?? 'Full-time', weight: 600, size: 14)),
           DataCell(
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -499,9 +455,6 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                   const SizedBox(width: 8),
                   MyText(statusText,
                       size: 12, color: Colors.black54, weight: 600),
-                  const SizedBox(width: 4),
-                  Icon(Icons.keyboard_arrow_down,
-                      size: 14, color: Colors.grey.shade500)
                 ],
               ),
             ),

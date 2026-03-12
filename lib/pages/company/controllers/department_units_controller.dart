@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -25,7 +26,7 @@ class DepartmentsUnitsController extends GetxController {
   final departmentOptions = RxList<Map<String, String>>();
 
   // Pagination config
-  static const int itemsPerPage = 10;
+  final itemsPerPage = RxInt(10);
 
   @override
   void onInit() {
@@ -100,17 +101,17 @@ class DepartmentsUnitsController extends GetxController {
   // Paginated results with calculated total pages
   List<Department> get paginatedDepartments {
     final filtered = _allFilteredDepartments;
-    final startIdx = currentPage.value * itemsPerPage;
+    final startIdx = currentPage.value * itemsPerPage.value;
     if (startIdx >= filtered.length) return [];
-    final endIdx = (startIdx + itemsPerPage).clamp(0, filtered.length);
+    final endIdx = (startIdx + itemsPerPage.value).clamp(0, filtered.length);
     return filtered.sublist(startIdx, endIdx);
   }
 
   List<DepartmentUnit> get paginatedUnits {
     final filtered = _allFilteredUnits;
-    final startIdx = currentPage.value * itemsPerPage;
+    final startIdx = currentPage.value * itemsPerPage.value;
     if (startIdx >= filtered.length) return [];
-    final endIdx = (startIdx + itemsPerPage).clamp(0, filtered.length);
+    final endIdx = (startIdx + itemsPerPage.value).clamp(0, filtered.length);
     return filtered.sublist(startIdx, endIdx);
   }
 
@@ -120,55 +121,138 @@ class DepartmentsUnitsController extends GetxController {
     final total = currentTab.value == 'Departments'
         ? totalDepartmentsFiltered
         : totalUnitsFiltered;
-    return total == 0 ? 1 : (total / itemsPerPage).ceil();
+    return total == 0 ? 1 : (total / itemsPerPage.value).ceil();
   }
 
   // --- CRUD OPERATIONS ---
 
-  Future<bool> createDepartment({
+  Future<void> createDepartment(
+    BuildContext context, {
     required String name,
     required String description,
-    String? company,
-    String? branch,
-    String? hod,
-    String? status,
   }) async {
     isSaving.value = true;
     try {
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null) return;
 
       await _service.createDepartment(token, name, description);
-      await fetchData(); // Refresh to show new item
-      return true;
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Department created successfully'), backgroundColor: Colors.green),
+        );
+      }
     } catch (e) {
-      print('Failed to create department: $e');
-      return false;
+      log('Failed to create department: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create department: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<bool> createUnit({
+  Future<void> updateDepartment(
+    BuildContext context, {
+    required String departmentId,
     required String name,
     required String description,
-    required String departmentId,
-    String? hod,
-    String? status,
   }) async {
     isSaving.value = true;
     try {
       final token = await _getToken();
-      if (token == null) return false;
+      if (token == null) return;
+
+      await _service.updateDepartment(token, departmentId, name, description);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Department updated successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      log('Failed to update department: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update department: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> createUnit(
+    BuildContext context, {
+    required String name,
+    required String description,
+    required String departmentId,
+  }) async {
+    isSaving.value = true;
+    try {
+      final token = await _getToken();
+      if (token == null) return;
 
       final unit = DepartmentUnit(
           name: name, description: description, departmentId: departmentId);
       await _service.createDepartmentUnit(token, unit);
-      await fetchData();
-      return true;
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unit created successfully'), backgroundColor: Colors.green),
+        );
+      }
     } catch (e) {
-      print('Failed to create unit: $e');
-      return false;
+      log('Failed to create unit: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create unit: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> updateUnit(
+    BuildContext context, {
+    required String unitId,
+    required String name,
+    required String description,
+    required String departmentId,
+  }) async {
+    isSaving.value = true;
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+
+      final unit = DepartmentUnit(
+          name: name, description: description, departmentId: departmentId);
+      await _service.updateDepartmentUnit(token, unitId, unit);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unit updated successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      log('Failed to update unit: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update unit: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
       isSaving.value = false;
     }
@@ -199,6 +283,11 @@ class DepartmentsUnitsController extends GetxController {
 
   void resetPagination() {
     currentPage.value = 0;
+  }
+
+  void setLimit(int newLimit) {
+    itemsPerPage.value = newLimit;
+    resetPagination();
   }
 
   void nextPage() {

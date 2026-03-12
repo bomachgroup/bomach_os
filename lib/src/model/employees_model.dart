@@ -11,39 +11,20 @@ class Employee {
   final String? password; // UI Only (for creation)
   final String firstName;
   final String lastName;
+  final String? middleName;
   final String? gender;
   final String? maritalStatus;
+  final String? nationality;
   final String? phoneNumber;
   final DateTime? dateOfBirth;
   final String? address;
   final String? profilePicture;
-  
+
   // Status
   final bool isVerified;
   final bool isActive;
-  
-  // Work Info
-  final String? employmentType;
-  final int? branchId;
-  final String? branchName; // From API
-  final int? departmentId;
-  final String? departmentName; // From API
-  final int? levelId;
-  final String? employeeLevel; // From API (e.g., "head", "ceo")
-  final DateTime? startDate;
-  
-  // Compensation
-  final double? grossSalary;
-  final Map<String, dynamic>? allowances;
 
-  // Metadata
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-
-  // --- UI ONLY Fields (Not in API response yet) ---
-  // These are needed for the Add Employee form logic
-  final String? middleName;
-  final String? nationality;
+  // Contact
   final String? otherPhoneNumber;
   final String? personalEmail;
   final String? streetAddress;
@@ -51,17 +32,49 @@ class Employee {
   final String? state;
   final String? zipCode;
   final String? country;
+
+  // Emergency Contact
   final String? emergencyContactName;
   final String? emergencyContactRelationship;
   final String? emergencyContactPhone;
+
+  // Work Info
   final String? designation;
+  final String? employmentType;
+  final String? employmentStatus;
+  final int? branchId;
+  final String? branchName;
+  final int? departmentId;
+  final String? departmentName;
+  final int? departmentUnitId;
+  final String? departmentUnitName;
+  final int? levelId;
+  final String? employeeLevel; // From API (e.g., "head", "ceo")
+  final String? location;
+  final int? reportingToId;
+  final String? reportingToName;
+  final DateTime? startDate;
   final String? probationPeriod;
   final String? workSchedule;
-  final String? paymentFrequency;
+
+  // Compensation
+  final double? grossSalary;
+  final String? salaryFrequency;
+  final Map<String, dynamic>? allowances;
   final String? bankName;
   final String? accountNumber;
   final String? taxId;
   final String? pensionNumber;
+  final String? pfaProvider;
+  final String? rsaNumber;
+  final double? employerContribution;
+  final String? hmoPlan;
+  final String? hmoIdNumber;
+  final int? hmoDependentsCovered;
+
+  // Metadata
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   // Helper: Role Display Priority
   String get role => employeeLevel ?? designation ?? 'Staff';
@@ -75,30 +88,16 @@ class Employee {
     this.password,
     required this.firstName,
     required this.lastName,
+    this.middleName,
     this.gender,
     this.maritalStatus,
+    this.nationality,
     this.phoneNumber,
     this.dateOfBirth,
     this.address,
     this.profilePicture,
     this.isVerified = false,
     this.isActive = true,
-    this.employmentType,
-    this.branchId,
-    this.branchName,
-    this.departmentId,
-    this.departmentName,
-    this.levelId,
-    this.employeeLevel,
-    this.startDate,
-    this.grossSalary,
-    this.allowances,
-    this.createdAt,
-    this.updatedAt,
-    
-    // UI fields
-    this.middleName,
-    this.nationality,
     this.otherPhoneNumber,
     this.personalEmail,
     this.streetAddress,
@@ -110,13 +109,37 @@ class Employee {
     this.emergencyContactRelationship,
     this.emergencyContactPhone,
     this.designation,
+    this.employmentType,
+    this.employmentStatus,
+    this.branchId,
+    this.branchName,
+    this.departmentId,
+    this.departmentName,
+    this.departmentUnitId,
+    this.departmentUnitName,
+    this.levelId,
+    this.employeeLevel,
+    this.location,
+    this.reportingToId,
+    this.reportingToName,
+    this.startDate,
     this.probationPeriod,
     this.workSchedule,
-    this.paymentFrequency,
+    this.grossSalary,
+    this.salaryFrequency,
+    this.allowances,
     this.bankName,
     this.accountNumber,
     this.taxId,
     this.pensionNumber,
+    this.pfaProvider,
+    this.rsaNumber,
+    this.employerContribution,
+    this.hmoPlan,
+    this.hmoIdNumber,
+    this.hmoDependentsCovered,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Employee.fromJson(Map<String, dynamic> json) {
@@ -125,73 +148,92 @@ class Employee {
       id: json['user_id']?.toString() ?? '',
       tableId: json['id']?.toString(),
       employeeId: json['employee_id']?.toString(),
-      
+
       email: json['email'] ?? '',
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
+      middleName: json['middle_name'],
       gender: json['gender'],
       maritalStatus: json['marital_status'],
-      
-      // Phone can be null in JSON
-      phoneNumber: json['phone_number'], 
-      
+      nationality: json['nationality'],
+
+      phoneNumber: json['phone_number'],
+      otherPhoneNumber: json['other_phone'],
+      personalEmail: json['personal_email'],
+
       // Date Parsing
       dateOfBirth: json['date_of_birth'] != null
           ? DateTime.tryParse(json['date_of_birth'])
           : null,
-          
+
       address: json['address'],
       profilePicture: json['profile_picture'],
       isVerified: json['is_verified'] ?? false,
       isActive: json['is_active'] ?? true,
-      
+
+      // Contact Address
+      streetAddress: json['street_address'],
+      city: json['city'],
+      state: json['state'],
+      zipCode: json['zip_code'],
+      country: json['country'],
+
+      // Emergency Contact
+      emergencyContactName: json['emergency_contact_name'],
+      emergencyContactRelationship: json['emergency_contact_relationship'],
+      emergencyContactPhone: json['emergency_contact_phone'],
+
+      // Work Info
+      designation: json['designation'],
       employmentType: json['employment_type'],
-      
+      employmentStatus: json['employment_status'],
+
       // Branch/Dept (Handle nulls safely)
       branchId: json['branch_id'] is String ? int.tryParse(json['branch_id']) : json['branch_id'],
       branchName: json['branch_name'],
-      
+
       departmentId: json['department_id'] is String ? int.tryParse(json['department_id']) : json['department_id'],
       departmentName: json['department_name'],
-      
+
+      departmentUnitId: json['department_unit_id'] is String ? int.tryParse(json['department_unit_id']) : json['department_unit_id'],
+      departmentUnitName: json['department_unit_name'],
+
       levelId: json['level_id'] is String ? int.tryParse(json['level_id']) : json['level_id'],
-      employeeLevel: json['employee_level'], // e.g. "head", "ceo"
-      
+      employeeLevel: json['employee_level'],
+
+      location: json['location'],
+      reportingToId: json['reporting_to_id'] is String ? int.tryParse(json['reporting_to_id']) : json['reporting_to_id'],
+      reportingToName: json['reporting_to_name'],
+
       startDate: json['start_date'] != null
           ? DateTime.tryParse(json['start_date'])
           : null,
-      
-      // Handle null gross_salary
-      grossSalary: json['gross_salary'] != null 
-          ? (json['gross_salary'] is num ? (json['gross_salary'] as num).toDouble() : double.tryParse(json['gross_salary'].toString())) 
+      probationPeriod: json['probation_period']?.toString(),
+      workSchedule: json['work_schedule'],
+
+      // Compensation
+      grossSalary: json['gross_salary'] != null
+          ? (json['gross_salary'] is num ? (json['gross_salary'] as num).toDouble() : double.tryParse(json['gross_salary'].toString()))
           : 0.0,
-      
+      salaryFrequency: json['salary_frequency'],
       allowances: json['allowances'] is Map<String, dynamic> ? json['allowances'] : {},
-      
+      bankName: json['bank_name'],
+      accountNumber: json['account_number'],
+      taxId: json['tax_id'],
+      pensionNumber: json['pension_number'],
+      pfaProvider: json['pfa_provider'],
+      rsaNumber: json['rsa_number'],
+      employerContribution: json['employer_contribution'] != null
+          ? (json['employer_contribution'] is num ? (json['employer_contribution'] as num).toDouble() : double.tryParse(json['employer_contribution'].toString()))
+          : null,
+      hmoPlan: json['hmo_current_plan'],
+      hmoIdNumber: json['hmo_id_number'],
+      hmoDependentsCovered: json['hmo_dependents_covered'] is String
+          ? int.tryParse(json['hmo_dependents_covered'])
+          : json['hmo_dependents_covered'],
+
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
-
-      // Initialize UI-only fields to null (since API doesn't send them yet)
-      middleName: null,
-      nationality: null,
-      otherPhoneNumber: null,
-      personalEmail: null,
-      streetAddress: null,
-      city: null,
-      state: null,
-      zipCode: null,
-      country: null,
-      emergencyContactName: null,
-      emergencyContactRelationship: null,
-      emergencyContactPhone: null,
-      designation: null,
-      probationPeriod: null,
-      workSchedule: null,
-      paymentFrequency: null,
-      bankName: null,
-      accountNumber: null,
-      taxId: null,
-      pensionNumber: null,
     );
   }
 
@@ -201,20 +243,49 @@ class Employee {
       'email': email,
       'first_name': firstName,
       'last_name': lastName,
+      'middle_name': middleName ?? '',
       'gender': gender ?? 'male',
       'marital_status': maritalStatus ?? 'single',
-      'phone_number': phoneNumber ?? '',
+      'nationality': nationality ?? 'Nigerian',
       'date_of_birth': dateOfBirth?.toIso8601String().split('T').first ?? DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      'profile_picture': (profilePicture != null && profilePicture != 'string') ? profilePicture : '',
+      'phone_number': phoneNumber ?? '',
+      'other_phone': otherPhoneNumber ?? '',
+      'personal_email': personalEmail ?? '',
       'address': address ?? '',
-      'profile_picture': profilePicture ?? "string",
+      'city': city ?? '',
+      'state': state ?? '',
+      'zip_code': zipCode ?? '',
+      'country': country ?? '',
+      'emergency_contact_name': emergencyContactName ?? '',
+      'emergency_contact_relationship': emergencyContactRelationship ?? '',
+      'emergency_contact_phone': emergencyContactPhone ?? '',
+      'designation': designation ?? '',
       'employment_type': employmentType ?? 'full-time',
+      'employment_status': employmentStatus ?? 'active',
       'branch_id': branchId ?? 0,
       'department_id': departmentId ?? 0,
+      'department_unit_id': departmentUnitId ?? 0,
       'level_id': levelId ?? 0,
+      'location': location ?? '',
+      'reporting_to_id': reportingToId ?? 0,
       'start_date': startDate?.toIso8601String().split('T').first ?? DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      'probation_period': int.tryParse(probationPeriod ?? '0') ?? 0,
+      'work_schedule': workSchedule ?? '',
       'is_active': isActive,
       'gross_salary': grossSalary ?? 0,
+      'salary_frequency': salaryFrequency ?? 'monthly',
       'allowances': allowances ?? {},
+      'bank_name': bankName ?? '',
+      'account_number': accountNumber ?? '',
+      'tax_id': taxId ?? '',
+      'pension_number': pensionNumber ?? '',
+      'pfa_provider': pfaProvider ?? '',
+      'rsa_number': rsaNumber ?? '',
+      'employer_contribution': employerContribution ?? 0,
+      'hmo_current_plan': hmoPlan ?? '',
+      'hmo_id_number': hmoIdNumber ?? '',
+      'hmo_dependents_covered': hmoDependentsCovered ?? 0,
     };
 
     if (password != null && password!.isNotEmpty) {

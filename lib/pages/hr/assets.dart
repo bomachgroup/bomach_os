@@ -1,19 +1,21 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/nav/three_dot_pop.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/hr/widget/add_asset_dialog.dart';
-import 'package:bms_front_end/pages/hr/widget/view_asset_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/assets_controller.dart';
 import 'models/assets_model.dart';
+import 'widget/add_asset_dialog.dart';
+import 'widget/view_asset_dialog.dart';
+
+import 'package:bms_front_end/pages/company/controllers/company_controller.dart';
+import 'package:bms_front_end/pages/company/company.dart';
 
 class AssetsPage extends StatelessWidget {
   const AssetsPage({super.key});
@@ -21,420 +23,499 @@ class AssetsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AssetController controller = Get.put(AssetController());
-    final ScrollController scrollController = ScrollController();
-    final storage = const FlutterSecureStorage();
+    final CompanyController companyController = Get.put(CompanyController());
 
+    Widget body = SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 50),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          const MyText('Company Assets', style: AppText.black_600_32),
+          const SizedBox(height: 8),
+          const Text(
+            'Manage company properties across all branches',
+            style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+          ),
+          const SizedBox(height: 24),
+
+          // Stats Row
+          _buildStatsSection(companyController),
+
+          const SizedBox(height: 32),
+
+          // Assets Content
+          _AssetsContent(controller: controller),
+        ],
+      ),
+    );
+
+    return ResponsiveWidget(
+      largeScreen: body,
+      mediumScreen: body,
+      smallScreen: body,
+    );
+  }
+
+  Widget _buildStatsSection(CompanyController companyController) {
+    return Obx(() {
+      final stats = companyController.dashboardStats.value;
+      return ResponsiveStatRow(
+        cards: [
+          DashboardStatCard(
+            title: 'Total Employees',
+            count: stats != null ? '${stats.totalEmployees}' : '–',
+            borderColor: Colors.green,
+            countColor: Colors.green,
+          ),
+          DashboardStatCard(
+            title: 'Total Branches',
+            count: stats != null ? '${stats.totalBranches}' : '–',
+            borderColor: const Color(0xFF1976D2),
+            countColor: const Color(0xFF1976D2),
+          ),
+          DashboardStatCard(
+            title: 'Pending Approvals',
+            count: stats != null ? '${stats.pendingApprovals}' : '–',
+            borderColor: const Color(0xFFC27803),
+            countColor: const Color(0xFFC27803),
+          ),
+          DashboardStatCard(
+            title: 'Asset Inventory',
+            count: stats != null ? '${stats.assetInventory}' : '–',
+            borderColor: Colors.green,
+            countColor: Colors.green,
+          ),
+        ],
+      );
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ASSETS CONTENT
+// ═══════════════════════════════════════════════════════════════════════
+
+class _AssetsContent extends StatelessWidget {
+  final AssetController controller;
+  const _AssetsContent({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --- Header ---
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        // Subheader
+        ResponsiveSubheader(
+          title: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MyText('Assets', style: AppText.black_600_16),
+              SizedBox(height: 2),
+              Text('Bomach Group of Companies',
+                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+            ],
+          ),
+          search: MyTextFormField(
+            hintText: 'Search',
+            leading:
+                const Icon(Icons.search, color: Colors.grey, size: 20),
+            onChanged: controller.onSearchChanged,
+          ),
+          action: MyElevatedButton(
+            height: 40,
+            icon: const Icon(Icons.add, color: Colors.white, size: 18),
+            child: 'New Asset',
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => const AddAssetDialog(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Table
+        Obx(() {
+          if (controller.isLoading.value && controller.assetList.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(60),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          if (controller.assetList.isEmpty) {
+            return _buildEmptyState(
+              context,
+              icon: Icons.inventory_2_outlined,
+              title: 'No assets yet',
+              subtitle: 'Create a new asset to get started.',
+              buttonLabel: 'New Asset',
+              onAdd: () => showDialog(
+                context: context,
+                builder: (_) => const AddAssetDialog(),
+              ),
+            );
+          }
+
+          return ResponsiveTableWrapper(
+            child: Card(
+            color: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              children: [
+                // Table Header
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: const Row(
                     children: [
-                      MyText(
-                        'Company Assets',
-                        style: AppText.black_500_32,
+                      SizedBox(width: 40),
+                      Expanded(
+                        flex: 2,
+                        child: Text('Asset Name',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B))),
                       ),
-                      SizedBox(height: 8),
-                      MyText(
-                        'Manage company properties across all branches',
-                        size: 14,
-                        weight: 400,
-                        color: Color(0xFF64748B),
+                      Expanded(
+                        flex: 1,
+                        child: Text('Type',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B))),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text('Branch',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B))),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text('Purchase Date',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B))),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text('Value',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B))),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text('Status',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B))),
+                      ),
+                      SizedBox(
+                        width: 48,
+                        child: Text('Action',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B))),
                       ),
                     ],
                   ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
-                    child: "New Asset",
-                    onTap: () async {
-                      String? token = await storage.read(key: 'access_token');
-                      if (token != null && context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AddAssetDialog(token: token);
-                          },
-                        );
-                      }
-                    },
-                  )
-                ],
-              ),
+                ),
+                const Divider(height: 1),
+                ...controller.assetList
+                    .map((asset) => _buildAssetRow(context, asset)),
+
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Obx(() => PaginatorFooter(
+                        totalItems: controller.totalItems.value,
+                        limit: controller.limit.value,
+                        currentPage: controller.currentPage.value,
+                        onPageChanged: controller.goToPage,
+                        onLimitChanged: controller.setLimit,
+                      )),
+                ),
+              ],
             ),
-          ],
-        ),
-        kSizedBox,
-
-        // --- Filters & Search ---
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
           ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  // Search Bar
-                  Expanded(
-                    flex: 2,
-                    child: MyTextFormField(
-                      hintText: 'Search by asset name...',
-                      onChanged: controller.onSearchChanged,
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
-                    ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildAssetRow(BuildContext context, Asset asset) {
+    String displayDate = '';
+    try {
+      displayDate = DateFormat('MMM d, yyyy').format(asset.purchaseDate);
+    } catch (_) {
+      displayDate = '–';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 40,
+            child: Checkbox(
+              value: false,
+              onChanged: (_) {},
+              activeColor: AppColors.blue,
+            ),
+          ),
+          // Asset Name
+          Expanded(
+            flex: 2,
+            child: Text(
+              asset.name,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w500, fontSize: 14),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // Type
+          Expanded(
+            flex: 1,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _getTypeColor(asset.assetType)
+                      .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    width: 0.6,
+                    color: _getTypeColor(asset.assetType),
                   ),
-                  if (MediaQuery.of(context).size.width > 800) ...[
-                    const SizedBox(width: 16),
-                    _buildFiltersRow(controller),
-                  ]
-                ],
-              ),
-              // Mobile/Tablet Layout for filters
-              if (MediaQuery.of(context).size.width <= 800) ...[
-                const SizedBox(height: 16),
-                _buildFiltersRow(controller),
-              ]
-            ],
-          ),
-        ),
-
-        kSizedBoxSM,
-
-        // --- Table ---
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: MediaQuery.of(context).size.width -
-                          100, // Ensure proper width
-                    ),
-                    child: Obx(() {
-                      if (controller.isLoading.value) {
-                        return const Center(
-                            child: Padding(
-                                padding: EdgeInsets.all(40),
-                                child: CircularProgressIndicator()));
-                      }
-                      if (controller.assetList.isEmpty) {
-                        return const Center(
-                            child: Padding(
-                                padding: EdgeInsets.all(40),
-                                child: Text(
-                                    "No assets found matching your criteria.")));
-                      }
-
-                      return DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows:
-                            _createRows(context, controller.assetList, storage),
-                        showBottomBorder: true,
-                      );
-                    }),
+                ),
+                child: Text(
+                  asset.assetType,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: _getTypeColor(asset.assetType),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16),
-
-              // --- Pagination ---
-              _buildPaginationControls(controller),
-            ],
+            ),
           ),
-        ),
-      ],
+          // Branch
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                const Icon(Icons.location_on_outlined,
+                    size: 16, color: AppColors.blue),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(asset.branch,
+                      style: const TextStyle(fontSize: 13),
+                      overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ),
+          ),
+          // Purchase Date
+          Expanded(
+            flex: 1,
+            child: Text(displayDate,
+                style: const TextStyle(fontSize: 13)),
+          ),
+          // Value
+          Expanded(
+            flex: 1,
+            child: Text(
+              asset.value.toStringAsFixed(2),
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green),
+            ),
+          ),
+          // Status
+          Expanded(
+            flex: 1,
+            child: _buildStatusBadge(asset.status),
+          ),
+          // Action menu
+          SizedBox(
+            width: 48,
+            child: _buildActionMenu(context, asset),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildFiltersRow(AssetController controller) {
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return const SizedBox(
-          height: 56,
-          child: Center(child: CircularProgressIndicator()),
-        );
-      }
+  Widget _buildStatusBadge(String status) {
+    final Color color = _getStatusColor(status);
+    final String display =
+        status.isNotEmpty ? status[0].toUpperCase() + status.substring(1) : status;
 
-      final bool allEmpty = controller.branches.isEmpty &&
-          controller.departments.isEmpty &&
-          controller.statuses.isEmpty;
-      if (allEmpty) return const SizedBox.shrink();
-
-      return Row(
-        children: [
-          // Branch Filter
-          _buildDropdown(
-            label: "Branch",
-            items: controller.branches,
-            selectedValue: controller.selectedBranch,
-            onChanged: (val) {
-              controller.selectedBranch.value = val!;
-              controller.onFilterChanged();
-            },
-          ),
-          const SizedBox(width: 12),
-          // Department Filter
-          Obx(() => _buildDropdown(
-                label: "Department",
-                // Map department names for dropdown items
-                items: controller.departments.map((d) => d['name']!).toList(),
-                selectedValue: controller.departments.any(
-                        (d) => d['id'] == controller.selectedDepartmentId.value)
-                    ? controller.departments
-                        .firstWhere((d) =>
-                            d['id'] == controller.selectedDepartmentId.value)['name']!
-                        .obs
-                    : 'All Departments'.obs,
-                onChanged: (val) {
-                  // Find ID from Name
-                  final selectedMap = controller.departments.firstWhere(
-                      (d) => d['name'] == val,
-                      orElse: () => {'id': 'All', 'name': 'All'});
-                  controller.selectedDepartmentId.value = selectedMap['id']!;
-                  controller.onFilterChanged();
-                },
-              )),
-          const SizedBox(width: 12),
-          // Status Filter
-          _buildDropdown(
-            label: "Status",
-            items: controller.statuses,
-            selectedValue: controller.selectedStatus,
-            onChanged: (val) {
-              controller.selectedStatus.value = val!;
-              controller.onFilterChanged();
-            },
-          ),
-        ],
-      );
-    });
-  }
-
-  Widget _buildDropdown({
-    required String label,
-    required List<String> items,
-    required RxString selectedValue,
-    required Function(String?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MyText(label, size: 12, color: const Color(0xFF64748B), weight: 500),
-        const SizedBox(height: 4),
-        Container(
-          height: 40,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: Obx(() => DropdownButton<String>(
-                  value: items.isEmpty
-                      ? null
-                      : (items.contains(selectedValue.value)
-                          ? selectedValue.value
-                          : items.first),
-                  hint: const Text('Loading…',
-                      style:
-                          TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
-                  icon: const Icon(Icons.keyboard_arrow_down,
-                      size: 18, color: Color(0xFF64748B)),
-                  style:
-                      const TextStyle(fontSize: 13, color: Color(0xFF334155)),
-                  items: items
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                  onChanged: items.isEmpty ? null : onChanged,
-                )),
-          ),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
         ),
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.circle, size: 7, color: color),
+            const SizedBox(width: 5),
+            Text(display,
+                style: TextStyle(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildPaginationControls(AssetController controller) {
-    return Obx(() {
-      // If list is short and we are on page 1, we might hide pagination,
-      // but showing it provides context (Page 1) even if disabled.
-      if (controller.assetList.isEmpty) return const SizedBox.shrink();
-
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          IconButton(
-            onPressed:
-                controller.currentPage.value > 1 ? controller.prevPage : null,
-            icon: const Icon(Icons.chevron_left),
-            tooltip: "Previous Page",
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.blue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: MyText(
-              "Page ${controller.currentPage.value}",
-              color: AppColors.blue,
-              weight: 600,
-            ),
-          ),
-          IconButton(
-            onPressed: controller.hasMore.value ? controller.nextPage : null,
-            icon: const Icon(Icons.chevron_right),
-            tooltip: "Next Page",
-          ),
-        ],
-      );
-    });
-  }
-
-  List<DataColumn> _createColumns() {
-    return const [
-      DataColumn(label: MyText("Asset Name")),
-      DataColumn(label: MyText("Type")),
-      DataColumn(label: MyText("Branch")),
-      DataColumn(label: MyText("Department")), // New Column
-      DataColumn(label: MyText("Purchase Date")),
-      DataColumn(label: MyText("Value")),
-      DataColumn(label: MyText("Status")),
-      DataColumn(label: MyText("Action")),
-    ];
-  }
-
-  List<DataRow> _createRows(
-      BuildContext context, List<Asset> assets, FlutterSecureStorage storage) {
-    return assets.map((asset) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          GestureDetector(
-            onTap: () async {
-              String? token = await storage.read(key: 'access_token');
-              if (token != null && context.mounted) {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return ViewAssetDialog(asset: asset, token: token);
-                  },
-                );
-              }
-            },
-            child: MyText(
-              asset.name,
-              size: 14,
-              weight: 500,
-              color: AppColors.blue,
-            ),
-          ),
-        ),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: _getTypeColor(asset.assetType).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                width: 0.6,
-                color: _getTypeColor(asset.assetType),
+  Widget _buildActionMenu(BuildContext context, Asset asset) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, size: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      onSelected: (value) async {
+        switch (value) {
+          case 'view':
+            showDialog(
+              context: context,
+              builder: (_) => ViewAssetDialog(asset: asset),
+            );
+            break;
+          case 'edit':
+            showDialog(
+              context: context,
+              builder: (_) => AddAssetDialog(asset: asset),
+            );
+            break;
+          case 'delete':
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (c) => AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                title: const Text('Delete Asset'),
+                content: Text(
+                    'Are you sure you want to delete "${asset.name}"?'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(c, false),
+                      child: const Text('Cancel')),
+                  TextButton(
+                      onPressed: () => Navigator.pop(c, true),
+                      child: const Text('Delete',
+                          style: TextStyle(color: Colors.red))),
+                ],
               ),
+            );
+            if (confirmed == true && context.mounted) {
+              controller.deleteAsset(context, asset.id);
+            }
+            break;
+        }
+      },
+      itemBuilder: (_) => [
+        const PopupMenuItem(
+          value: 'view',
+          child: Row(children: [
+            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
+            SizedBox(width: 8),
+            Text('View Details'),
+          ]),
+        ),
+        const PopupMenuItem(
+          value: 'edit',
+          child: Row(children: [
+            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+            SizedBox(width: 8),
+            Text('Edit'),
+          ]),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Row(children: [
+            Icon(Icons.delete_outline, size: 18, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Delete', style: TextStyle(color: Colors.red)),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String buttonLabel,
+    required VoidCallback onAdd,
+  }) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 60),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
             ),
-            child: MyText(
-              asset.assetType,
-              size: 12,
-              weight: 500,
-              color: _getTypeColor(asset.assetType),
+            const SizedBox(height: 20),
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            Text(subtitle,
+                style:
+                    const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                textAlign: TextAlign.center),
+            const SizedBox(height: 24),
+            MyElevatedButton(
+              child: buttonLabel,
+              icon: const Icon(Icons.add, size: 18, color: Colors.white),
+              onTap: onAdd,
             ),
-          ),
+          ],
         ),
-        DataCell(
-          Row(
-            children: [
-              const Icon(Icons.location_on_outlined,
-                  size: 16, color: AppColors.blue),
-              const SizedBox(width: 6),
-              MyText(asset.branch, size: 14, weight: 400),
-            ],
-          ),
-        ),
-        DataCell(
-          MyText(
-            asset.departmentId.isEmpty ? '-' : asset.departmentId,
-            size: 14,
-            weight: 400,
-          ),
-        ),
-        DataCell(
-          MyText(
-            DateFormat('yyyy-MM-dd').format(asset.purchaseDate),
-            size: 14,
-            weight: 400,
-          ),
-        ),
-        DataCell(
-          MyText(
-            asset.value.toStringAsFixed(2),
-            size: 14,
-            weight: 600,
-            color: Colors.green,
-          ),
-        ),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              border:
-                  Border.all(width: 0.6, color: _getStatusColor(asset.status)),
-              color: _getStatusColor(asset.status).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: MyText(
-              asset.status.toUpperCase(),
-              size: 12,
-              weight: 500,
-            ),
-          ),
-        ),
-        const DataCell(ThreeDotPop()),
-      ]);
-    }).toList();
+      ),
+    );
   }
 
   Color _getTypeColor(String type) {
@@ -449,6 +530,8 @@ class AssetsPage extends StatelessWidget {
         return Colors.green;
       case 'printer':
         return Colors.teal;
+      case 'it equipment':
+        return Colors.indigo;
       default:
         return Colors.grey;
     }
@@ -457,11 +540,14 @@ class AssetsPage extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'active':
+      case 'available':
         return Colors.green;
       case 'in-use':
         return Colors.blue;
       case 'maintenance':
         return Colors.orange;
+      case 'retired':
+        return Colors.red;
       default:
         return Colors.grey;
     }

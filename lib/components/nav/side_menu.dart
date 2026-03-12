@@ -38,6 +38,10 @@ enum SubMenuItem {
   // Company sub-items
   company,
   branch,
+  board,
+  broadcast,
+  roles,
+  approvalWorkflow,
   auditLog,
   compliance,
   enugu,
@@ -228,6 +232,26 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.branch,
             label: 'Branch',
             route: RouteConstants.branch,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.board,
+            label: 'Board',
+            route: RouteConstants.board,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.broadcast,
+            label: 'Broadcast',
+            route: RouteConstants.broadcast,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.roles,
+            label: 'Roles & Permissions',
+            route: RouteConstants.roles,
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.approvalWorkflow,
+            label: 'Approval Workflows',
+            route: RouteConstants.approvalWorkflow,
           ),
           SubMenuItemData(
             id: SubMenuItem.department,

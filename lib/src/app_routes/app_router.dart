@@ -8,6 +8,10 @@ import 'package:bms_front_end/pages/auth/login.dart';
 import 'package:bms_front_end/pages/branch/branch.dart';
 import 'package:bms_front_end/pages/clients_portal/portal.dart';
 import 'package:bms_front_end/pages/company/audit_log.dart';
+import 'package:bms_front_end/pages/company/board.dart';
+import 'package:bms_front_end/pages/company/broadcast.dart';
+import 'package:bms_front_end/pages/company/roles.dart';
+import 'package:bms_front_end/pages/company/approval_workflow.dart';
 import 'package:bms_front_end/pages/company/branch.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/pages/company/compliance.dart';
@@ -20,7 +24,6 @@ import 'package:bms_front_end/pages/employee/employee_directory.dart';
 import 'package:bms_front_end/pages/employee/employee_performance.dart';
 import 'package:bms_front_end/pages/employee/employee_training.dart';
 import 'package:bms_front_end/pages/hr/loans.dart';
-import 'package:bms_front_end/pages/hr/widget/add_new_employee.dart';
 import 'package:bms_front_end/pages/hr/employee_database.dart';
 import 'package:bms_front_end/pages/hr/employee_profile.dart';
 import 'package:bms_front_end/pages/finance/budget.dart';
@@ -114,7 +117,6 @@ final Map<String, Widget> _dashboardRoutes = {
   // hr
   RouteConstants.hr: const HRPage(),
   RouteConstants.employees: const EmployeeDatabase(),
-  RouteConstants.addEmployees: const AddEmployesScreen(),
   RouteConstants.employeeProfile: const EmployeeProfile(),
   // Employee module
   RouteConstants.employee: const EmployeePage(),
@@ -142,6 +144,10 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.company: const CompanyProfilePage(),
   RouteConstants.branch: const BranchListPage(),
   RouteConstants.auditLog: const AuditLogPage(),
+  RouteConstants.board: const BoardPage(),
+  RouteConstants.broadcast: const BroadcastPage(),
+  RouteConstants.roles: const RolesPage(),
+  RouteConstants.approvalWorkflow: const ApprovalWorkflowPage(),
   // RouteConstants.compliance: const CompliancePage(),
   RouteConstants.enugu: const BranchPage(),
   RouteConstants.finance: const FinancePage(),

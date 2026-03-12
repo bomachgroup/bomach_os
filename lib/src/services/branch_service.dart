@@ -33,7 +33,7 @@ class BranchService {
   }
 
   // GET ALL BRANCHES (With Filters)
-  Future<List<Branch>> getBranches({
+  Future<({List<Branch> items, int total})> getBranches({
     required String accessToken,
     int? countryId,
     int? stateId,
@@ -69,11 +69,13 @@ class BranchService {
 
       final data = response.data;
       if (data != null && data['items'] is List) {
-        return (data['items'] as List)
+        final items = (data['items'] as List)
             .map((item) => Branch.fromJson(item))
             .toList();
+        final total = data['total'] ?? data['count'] ?? items.length;
+        return (items: items, total: total as int);
       }
-      return [];
+      return (items: <Branch>[], total: 0);
     } on DioException catch (e) {
       throw _handleError(e);
     }

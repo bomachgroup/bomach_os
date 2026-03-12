@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +122,21 @@ class DepartmentsUnitsPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildPaginationControls(controller),
+                    Obx(() {
+                      final filteredCount =
+                          controller.currentTab.value == 'Departments'
+                              ? controller.totalDepartmentsFiltered
+                              : controller.totalUnitsFiltered;
+                      return PaginatorFooter(
+                        totalItems: filteredCount,
+                        limit: controller.itemsPerPage.value,
+                        currentPage: controller.currentPage.value + 1,
+                        onPageChanged: (page) =>
+                            controller.goToPage(page - 1),
+                        onLimitChanged: (newLimit) =>
+                            controller.setLimit(newLimit),
+                      );
+                    }),
                   ],
                 );
               }),
@@ -276,61 +291,6 @@ class DepartmentsUnitsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPaginationControls(DepartmentsUnitsController controller) {
-    final currentPage = controller.currentPage.value + 1;
-    final totalPages = controller.totalPages;
-
-    final filteredCount = controller.currentTab.value == 'Departments'
-        ? controller.totalDepartmentsFiltered
-        : controller.totalUnitsFiltered;
-
-    if (filteredCount == 0 || totalPages <= 1) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ElevatedButton.icon(
-            onPressed: controller.canGoPrevious
-                ? () => controller.previousPage()
-                : null,
-            icon: const Icon(Icons.chevron_left, size: 18),
-            label: const Text("Previous"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: controller.canGoPrevious
-                  ? const Color(0xFF005CE8)
-                  : Colors.grey.shade300,
-              foregroundColor: Colors.white,
-            ),
-          ),
-          Text("Page $currentPage of $totalPages",
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF475569))),
-          ElevatedButton.icon(
-            onPressed:
-                controller.canGoNext ? () => controller.nextPage() : null,
-            label: const Text("Next"),
-            icon: const Icon(Icons.chevron_right, size: 18),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: controller.canGoNext
-                  ? const Color(0xFF005CE8)
-                  : Colors.grey.shade300,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // --- REFACTORED TABLES ---
 
   Widget _buildDepartmentsTable(DepartmentsUnitsController controller,
@@ -424,13 +384,44 @@ class DepartmentsUnitsPage extends StatelessWidget {
                             fontSize: 11, color: Color(0xFF94A3B8))),
                   ],
                 )),
-                DataCell(IconButton(
+                DataCell(PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert,
                       size: 20, color: Color(0xFF94A3B8)),
-                  onPressed: () => showDialog(
-                      context: context,
-                      builder: (_) =>
-                          ViewDepartmentDetailsDialog(department: dept)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  onSelected: (value) {
+                    if (value == 'view') {
+                      showDialog(
+                          context: context,
+                          builder: (_) =>
+                              ViewDepartmentDetailsDialog(department: dept));
+                    } else if (value == 'edit') {
+                      showDialog(
+                          context: context,
+                          builder: (_) =>
+                              CreateDepartmentDialog(department: dept));
+                    }
+                  },
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'view',
+                      child: Row(children: [
+                        Icon(Icons.visibility_outlined,
+                            size: 18, color: Colors.grey),
+                        SizedBox(width: 8),
+                        Text('View Details'),
+                      ]),
+                    ),
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Row(children: [
+                        Icon(Icons.edit_outlined,
+                            size: 18, color: Colors.grey),
+                        SizedBox(width: 8),
+                        Text('Edit'),
+                      ]),
+                    ),
+                  ],
                 )),
               ],
             );
@@ -529,12 +520,42 @@ class DepartmentsUnitsPage extends StatelessWidget {
               DataCell(Text(unit.hod ?? "-",
                   style: const TextStyle(color: Color(0xFF475569)))),
               DataCell(_buildStatusBadge(unit.status ?? "Active", controller)),
-              DataCell(IconButton(
+              DataCell(PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert,
                     size: 20, color: Color(0xFF94A3B8)),
-                onPressed: () => showDialog(
-                    context: context,
-                    builder: (_) => ViewUnitDetailsDialog(unit: unit)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                onSelected: (value) {
+                  if (value == 'view') {
+                    showDialog(
+                        context: context,
+                        builder: (_) => ViewUnitDetailsDialog(unit: unit));
+                  } else if (value == 'edit') {
+                    showDialog(
+                        context: context,
+                        builder: (_) => CreateUnitDialog(unit: unit));
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(
+                    value: 'view',
+                    child: Row(children: [
+                      Icon(Icons.visibility_outlined,
+                          size: 18, color: Colors.grey),
+                      SizedBox(width: 8),
+                      Text('View Details'),
+                    ]),
+                  ),
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(children: [
+                      Icon(Icons.edit_outlined,
+                          size: 18, color: Colors.grey),
+                      SizedBox(width: 8),
+                      Text('Edit'),
+                    ]),
+                  ),
+                ],
               )),
             ],
           );

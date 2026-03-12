@@ -3,10 +3,11 @@ import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../src/model/employees_model.dart';
+import 'controller/employees_controller.dart';
 import 'widget/add_employee_appraisal.dart';
 import 'widget/add_employee_document.dart';
 import 'widget/add_new_employee.dart';
@@ -20,16 +21,11 @@ class EmployeeProfile extends StatefulWidget {
 }
 
 class _EmployeeProfileState extends State<EmployeeProfile> {
-  // 0: Profile, 1: Documents, 2: Reviews, 3: Benefits
   int _selectedTab = 0;
-  final _storage = const FlutterSecureStorage();
 
-  Future<String?> _getToken(BuildContext context) async {
-    String? token = await _storage.read(key: 'access_token');
-    if (token == null) return null;
-    if (token.startsWith("Bearer ")) token = token.replaceFirst("Bearer ", "");
-    return token.replaceAll('"', '').trim();
-  }
+  final EmployeeController controller = Get.isRegistered<EmployeeController>()
+      ? Get.find<EmployeeController>()
+      : Get.put(EmployeeController());
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +40,10 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Header Section
           _buildHeader(context, employee),
           const SizedBox(height: 24),
-
-          // 2. Tabs
           _buildTabs(),
           const SizedBox(height: 24),
-
-          // 3. Dynamic Body
           _buildBody(employee),
         ],
       ),
@@ -71,7 +62,6 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back Button
           InkWell(
             onTap: () => Navigator.pop(context),
             child: Row(
@@ -88,12 +78,9 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Profile Row
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Avatar
               Container(
                 height: 64,
                 width: 64,
@@ -123,29 +110,19 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                     : null,
               ),
               const SizedBox(width: 16),
-
-              // Name & Role
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyText(
-                      '${employee.firstName} ${employee.lastName}',
-                      size: 20,
-                      weight: 700,
-                    ),
+                    MyText(employee.fullName, size: 20, weight: 700),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        MyText(
-                          employee.role,
-                          color: Colors.grey.shade600,
-                          size: 14,
-                        ),
+                        MyText(employee.role,
+                            color: Colors.grey.shade600, size: 14),
                         const SizedBox(width: 8),
                         Container(
-                          width: 4,
-                          height: 4,
+                          width: 4, height: 4,
                           decoration: const BoxDecoration(
                               color: Colors.grey, shape: BoxShape.circle),
                         ),
@@ -162,8 +139,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                           child: MyText(
                             isActive ? 'Active' : 'Inactive',
                             color: isActive ? Colors.green : Colors.red,
-                            size: 11,
-                            weight: 600,
+                            size: 11, weight: 600,
                           ),
                         )
                       ],
@@ -171,8 +147,6 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   ],
                 ),
               ),
-
-              // Actions Buttons
               if (!isSmallScreen(context))
                 Row(
                   children: [
@@ -187,31 +161,26 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       child: 'Edit Profile',
                       bgColor: const Color(0xFF0055FF),
                       height: 40,
-                      onTap: () async {
-                        final token = await _getToken(context);
-                        if (token != null && context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (c) => AddEmployesScreen(
-                                  token: token, employee: employee),
-                            ),
-                          );
-                        }
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) =>
+                              AddEmployeeDialog(employee: employee),
+                        );
                       },
                     ),
                     const SizedBox(width: 12),
                     MyElevatedButton(
                       child: 'Give Review',
-                      bgColor: const Color(0xFFD500F9), // Purple
-                      icon:
-                          const Icon(Icons.star, color: Colors.white, size: 16),
+                      bgColor: const Color(0xFFD500F9),
+                      icon: const Icon(Icons.star, color: Colors.white, size: 16),
                       height: 40,
-                      // CONNECTED DIALOG HERE
                       onTap: () {
                         showDialog(
                           context: context,
-                          builder: (context) => const EmployeeAppraisalDialog(),
+                          builder: (_) => EmployeeAppraisalDialog(
+                            userId: employee.id,
+                          ),
                         );
                       },
                     ),
@@ -249,8 +218,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                 const SizedBox(height: 6),
                 if (isSelected)
                   Container(
-                    height: 2,
-                    width: 20,
+                    height: 2, width: 20,
                     color: const Color(0xFF0055FF),
                   )
               ],
@@ -266,111 +234,16 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       case 0:
         return _ProfileTab(employee: employee);
       case 1:
-        return _DocumentsTab();
+        return _DocumentsTab(
+            controller: controller, userId: employee.id);
       case 2:
-        return _ReviewsTab(employee: employee);
+        return _ReviewsTab(
+            controller: controller, employee: employee);
       case 3:
-        return _BenefitsTab();
+        return _BenefitsTab(employee: employee);
       default:
         return _ProfileTab(employee: employee);
     }
-  }
-}
-
-// ==============================================================================
-// TAB 2: DOCUMENTS
-// ==============================================================================
-class _DocumentsTab extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const MyText("Digital Personnel File", weight: 600, size: 16),
-                MyElevatedButton(
-                  child: "Upload Document",
-                  bgColor: const Color(0xFF0055FF),
-                  height: 36,
-                  // CONNECTED DIALOG HERE
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const UploadDocumentDialog(),
-                    );
-                  },
-                )
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // ... rest of the table implementation
-          Container(
-            color: Colors.grey.shade50,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Row(
-              children: [
-                const Expanded(
-                    flex: 3,
-                    child: MyText("Document Title",
-                        weight: 600, color: Colors.grey)),
-                const Expanded(
-                    flex: 2,
-                    child: MyText("Type", weight: 600, color: Colors.grey)),
-                const Expanded(
-                    flex: 2,
-                    child:
-                        MyText("Uploaded By", weight: 600, color: Colors.grey)),
-                Expanded(
-                    flex: 1,
-                    child: Container(
-                        alignment: Alignment.centerRight,
-                        child: const MyText("Action",
-                            weight: 600, color: Colors.grey))),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // Table Rows
-          _buildDocRow("Employment Agreement", "Contract", "Lagos"),
-          _buildDocRow("ID Card Scan", "ID", "Abuja"),
-          _buildDocRow("Driving Certificate", "License", "Port Harcourt"),
-          _buildDocRow("Training Certificate", "Training", "Port Harcourt"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDocRow(String title, String type, String uploader) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-      ),
-      child: Row(
-        children: [
-          Expanded(flex: 3, child: MyText(title, weight: 500)),
-          Expanded(flex: 2, child: MyText(type, color: Colors.grey.shade700)),
-          Expanded(
-              flex: 2, child: MyText(uploader, color: Colors.grey.shade700)),
-          Expanded(
-              flex: 1,
-              child: Container(
-                  alignment: Alignment.centerRight,
-                  child: const Icon(Icons.more_vert,
-                      size: 18, color: Colors.grey))),
-        ],
-      ),
-    );
   }
 }
 
@@ -402,18 +275,18 @@ class _ProfileTab extends StatelessWidget {
                 icon: Icons.phone_outlined,
                 label: "Phone Number",
                 value: employee.phoneNumber ?? "N/A"),
-            const _InfoRow(
+            _InfoRow(
                 icon: Icons.location_on_outlined,
                 label: "Location",
-                value: "Abuja Branch"), // Mock or derive
+                value: employee.location ?? employee.branchName ?? "N/A"),
           ],
         ),
         _InfoCard(
           title: "Personal Information",
           width: isDesktop ? 0.66 : 1.0,
-          isGrid: true, // 2 Columns
+          isGrid: true,
           children: [
-            _DataField(label: "Employee ID", value: employee.id),
+            _DataField(label: "Employee ID", value: employee.employeeId ?? employee.id),
             _DataField(
                 label: "Date of Birth",
                 value: employee.dateOfBirth != null
@@ -422,7 +295,7 @@ class _ProfileTab extends StatelessWidget {
             _DataField(label: "Gender", value: employee.gender ?? '-'),
             _DataField(
                 label: "Marital Status", value: employee.maritalStatus ?? '-'),
-            const _DataField(label: "Nationality", value: "Nigeria"), // Mock
+            _DataField(label: "Nationality", value: employee.nationality ?? '-'),
           ],
         ),
 
@@ -433,19 +306,24 @@ class _ProfileTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   backgroundColor: Colors.orange,
                   radius: 20,
-                  child: Text("LS",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    (employee.reportingToName ?? 'N').isNotEmpty
+                        ? (employee.reportingToName ?? 'N')[0]
+                        : 'N',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const MyText("Engr. David", weight: 600, size: 14),
-                    MyText("Hiring Manager",
+                    MyText(employee.reportingToName ?? "Not Assigned",
+                        weight: 600, size: 14),
+                    MyText("Manager",
                         size: 12, color: Colors.grey.shade600),
                   ],
                 )
@@ -459,19 +337,17 @@ class _ProfileTab extends StatelessWidget {
           isGrid: true,
           children: [
             _DataField(label: "Work Email", value: employee.email),
-            _DataField(label: "Personal Email", value: employee.email), // Mock
+            _DataField(label: "Personal Email", value: employee.personalEmail ?? '-'),
             _DataField(label: "Phone", value: employee.phoneNumber ?? '-'),
-            _DataField(
-                label: "Other Phone", value: employee.phoneNumber), // Mock
+            _DataField(label: "Other Phone", value: employee.otherPhoneNumber ?? '-'),
             _DataField(
                 label: "Street Address",
-                value: employee.address ?? "No 12 Street"),
-            const _DataField(label: "City", value: "Ikeja"), // Mock
-            const _DataField(label: "State", value: "Lagos"), // Mock
-            const _DataField(label: "Zip Code", value: "100001"), // Mock
-            const _DataField(
-                label: "Emergency Contact", value: "Grace Mercy Ijoma"), // Mock
-            const _DataField(label: "Relationship", value: "Sister"), // Mock
+                value: employee.streetAddress ?? employee.address ?? '-'),
+            _DataField(label: "City", value: employee.city ?? '-'),
+            _DataField(label: "State", value: employee.state ?? '-'),
+            _DataField(label: "Zip Code", value: employee.zipCode ?? '-'),
+            _DataField(label: "Emergency Contact", value: employee.emergencyContactName ?? '-'),
+            _DataField(label: "Relationship", value: employee.emergencyContactRelationship ?? '-'),
           ],
         ),
 
@@ -481,58 +357,49 @@ class _ProfileTab extends StatelessWidget {
           width: 1.0,
           isGrid: true,
           children: [
-            _DataField(label: "Designation", value: employee.role),
+            _DataField(label: "Designation", value: employee.designation ?? employee.role),
             _DataField(
                 label: "Department",
-                value: employee.departmentId?.toString() ?? "IT"),
-            const _DataField(label: "Unit", value: "Bomach"), // Mock
+                value: employee.departmentName ?? employee.departmentId?.toString() ?? '-'),
+            _DataField(label: "Unit", value: employee.departmentUnitName ?? '-'),
             _DataField(
                 label: "Branch",
-                value: employee.branchId?.toString() ?? "Lagos Branch"),
-            const _DataField(label: "Location", value: "Ikeja"), // Mock
+                value: employee.branchName ?? employee.branchId?.toString() ?? '-'),
+            _DataField(label: "Location", value: employee.location ?? '-'),
             _DataField(
                 label: "Reporting To",
-                customValue: Row(children: [
-                  const CircleAvatar(
-                      radius: 10,
-                      backgroundColor: Colors.orange,
-                      child: Text("L", style: TextStyle(fontSize: 10))),
-                  const SizedBox(width: 8),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Luka Simon",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text("Hiring Manager",
-                            style: TextStyle(
-                                fontSize: 10, color: Colors.grey.shade500))
-                      ])
-                ])),
+                value: employee.reportingToName ?? '-'),
             _DataField(
                 label: "Employment Type",
-                value: employee.employmentType ?? "Full-Time"),
+                value: employee.employmentType ?? '-'),
             _DataField(
                 label: "Status",
                 customValue: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: employee.isActive
+                          ? Colors.green.withOpacity(0.1)
+                          : Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4)),
-                  child: const Text("Active",
-                      style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold)),
+                  child: Text(
+                    employee.isActive ? "Active" : "Inactive",
+                    style: TextStyle(
+                        color: employee.isActive ? Colors.green : Colors.red,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold),
+                  ),
                 )),
             _DataField(
                 label: "Joining Date",
                 value: employee.startDate != null
                     ? DateFormat('MMM dd, yyyy').format(employee.startDate!)
                     : '-'),
-            const _DataField(
-                label: "Probation Period", value: "3 Months"), // Mock
+            _DataField(
+                label: "Probation Period",
+                value: employee.probationPeriod != null
+                    ? "${employee.probationPeriod} Months"
+                    : '-'),
           ],
         ),
 
@@ -547,13 +414,11 @@ class _ProfileTab extends StatelessWidget {
                 value: employee.grossSalary != null
                     ? "₦${employee.grossSalary}"
                     : "₦0.00"),
-            const _DataField(label: "Payment Frequency", value: "Monthly"),
-            const _DataField(label: "Bank Name", value: "Bomach Bank"), // Mock
-            const _DataField(
-                label: "Account Number", value: "0587654321"), // Mock
-            const _DataField(label: "Tax ID", value: "AFD938935"), // Mock
-            const _DataField(
-                label: "Pension Number", value: "LDGS930003MM02"), // Mock
+            _DataField(label: "Payment Frequency", value: employee.salaryFrequency ?? '-'),
+            _DataField(label: "Bank Name", value: employee.bankName ?? '-'),
+            _DataField(label: "Account Number", value: employee.accountNumber ?? '-'),
+            _DataField(label: "Tax ID", value: employee.taxId ?? '-'),
+            _DataField(label: "Pension Number", value: employee.pensionNumber ?? '-'),
           ],
         ),
       ],
@@ -562,11 +427,24 @@ class _ProfileTab extends StatelessWidget {
 }
 
 // ==============================================================================
-// TAB 3: REVIEWS
+// TAB 2: DOCUMENTS
 // ==============================================================================
-class _ReviewsTab extends StatelessWidget {
-  final Employee employee;
-  const _ReviewsTab({required this.employee});
+class _DocumentsTab extends StatefulWidget {
+  final EmployeeController controller;
+  final String userId;
+
+  const _DocumentsTab({required this.controller, required this.userId});
+
+  @override
+  State<_DocumentsTab> createState() => _DocumentsTabState();
+}
+
+class _DocumentsTabState extends State<_DocumentsTab> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.fetchDocuments(widget.userId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -578,68 +456,227 @@ class _ReviewsTab extends StatelessWidget {
       ),
       child: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const MyText("Digital Personnel File", weight: 600, size: 16),
+                MyElevatedButton(
+                  child: "Upload Document",
+                  bgColor: const Color(0xFF0055FF),
+                  height: 36,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) =>
+                          UploadDocumentDialog(userId: widget.userId),
+                    );
+                  },
+                )
+              ],
+            ),
+          ),
+          const Divider(height: 1),
           // Table Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
+            color: Colors.grey.shade50,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: const Row(
               children: [
-                const Expanded(
+                Expanded(
                     flex: 3,
-                    child: MyText("From", weight: 600, color: Colors.grey)),
-                const Expanded(
+                    child: MyText("Document Title",
+                        weight: 600, color: Colors.grey)),
+                Expanded(
                     flex: 2,
-                    child: MyText("Date", weight: 600, color: Colors.grey)),
-                const Expanded(
+                    child: MyText("Type", weight: 600, color: Colors.grey)),
+                Expanded(
                     flex: 2,
-                    child: MyText("Rating", weight: 600, color: Colors.grey)),
+                    child:
+                        MyText("Uploaded By", weight: 600, color: Colors.grey)),
                 Expanded(
                     flex: 1,
-                    child: Container(
+                    child: Align(
                         alignment: Alignment.centerRight,
-                        child: const MyText("Action",
+                        child: MyText("Action",
                             weight: 600, color: Colors.grey))),
               ],
             ),
           ),
           const Divider(height: 1),
-          // Rows
-          _buildReviewRow(employee),
-          _buildReviewRow(employee),
-          _buildReviewRow(employee),
-          // Footer
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const MyText("Showing 03", color: Colors.grey),
-                Row(
-                  children: [
-                    const Icon(Icons.chevron_left, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                            color: const Color(0xFF0055FF),
-                            borderRadius: BorderRadius.circular(4)),
-                        child: const Center(
-                            child: Text("1",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 12)))),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.chevron_right, color: Colors.grey),
-                  ],
-                )
-              ],
-            ),
-          )
+          // Dynamic rows from API
+          Obx(() {
+            if (widget.controller.isLoadingDocuments.value) {
+              return const Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (widget.controller.documents.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: Text("No documents found.")),
+              );
+            }
+
+            return Column(
+              children: widget.controller.documents.map((doc) {
+                final title = doc['name'] ?? doc['document_name'] ?? 'Untitled';
+                final type = doc['type'] ?? doc['document_type'] ?? '-';
+                final uploader = doc['uploaded_by'] ?? '-';
+                final docId = doc['id']?.toString() ?? '';
+
+                return _buildDocRow(title, type, uploader, docId);
+              }).toList(),
+            );
+          }),
         ],
       ),
     );
   }
 
-  Widget _buildReviewRow(Employee e) {
+  Widget _buildDocRow(String title, String type, String uploader, String docId) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+      ),
+      child: Row(
+        children: [
+          Expanded(flex: 3, child: MyText(title, weight: 500)),
+          Expanded(flex: 2, child: MyText(type, color: Colors.grey.shade700)),
+          Expanded(
+              flex: 2, child: MyText(uploader, color: Colors.grey.shade700)),
+          Expanded(
+            flex: 1,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
+                onSelected: (value) {
+                  if (value == 'delete' && docId.isNotEmpty) {
+                    widget.controller.deleteDocument(
+                        context, widget.userId, docId);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                      value: 'delete', child: Text('Delete')),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ==============================================================================
+// TAB 3: REVIEWS
+// ==============================================================================
+class _ReviewsTab extends StatefulWidget {
+  final EmployeeController controller;
+  final Employee employee;
+
+  const _ReviewsTab({required this.controller, required this.employee});
+
+  @override
+  State<_ReviewsTab> createState() => _ReviewsTabState();
+}
+
+class _ReviewsTabState extends State<_ReviewsTab> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.fetchReviews(widget.employee.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: const Row(
+              children: [
+                Expanded(
+                    flex: 3,
+                    child: MyText("From", weight: 600, color: Colors.grey)),
+                Expanded(
+                    flex: 2,
+                    child: MyText("Date", weight: 600, color: Colors.grey)),
+                Expanded(
+                    flex: 2,
+                    child: MyText("Rating", weight: 600, color: Colors.grey)),
+                Expanded(
+                    flex: 1,
+                    child: Align(
+                        alignment: Alignment.centerRight,
+                        child: MyText("Action",
+                            weight: 600, color: Colors.grey))),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Obx(() {
+            if (widget.controller.isLoadingReviews.value) {
+              return const Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (widget.controller.reviews.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: Text("No reviews found.")),
+              );
+            }
+
+            return Column(
+              children: widget.controller.reviews.map((review) {
+                final reviewerName =
+                    review['reviewer_name'] ?? review['from'] ?? 'Unknown';
+                final date = review['created_at'] ?? review['date'] ?? '-';
+                final rating = review['rating'] ?? review['overall_rating'] ?? 0;
+                final reviewId = review['id']?.toString() ?? '';
+
+                return _buildReviewRow(reviewerName, date, rating, reviewId);
+              }).toList(),
+            );
+          }),
+          Obx(() => Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    MyText(
+                        "Showing ${widget.controller.reviews.length}",
+                        color: Colors.grey),
+                    const SizedBox(),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewRow(
+      String reviewer, String date, dynamic rating, String reviewId) {
+    final int ratingInt =
+        rating is int ? rating : (int.tryParse(rating.toString()) ?? 0);
+    final String formattedDate = date.length > 10 ? date.substring(0, 10) : date;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
@@ -651,40 +688,50 @@ class _ReviewsTab extends StatelessWidget {
                 CircleAvatar(
                   radius: 14,
                   backgroundColor: Colors.grey.shade200,
-                  backgroundImage: (e.profilePicture?.isNotEmpty ?? false)
-                      ? NetworkImage(e.profilePicture!)
-                      : null,
+                  child: Text(
+                    reviewer.isNotEmpty ? reviewer[0] : '?',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    MyText("${e.firstName} ${e.lastName}",
-                        weight: 600, size: 13),
-                    MyText(e.departmentId?.toString() ?? "IT",
-                        size: 11, color: Colors.grey),
-                  ],
-                )
+                MyText(reviewer, weight: 600, size: 13),
               ],
             ),
           ),
-          const Expanded(
-              flex: 2, child: MyText("2024-03-20", color: Colors.grey)),
-          const Expanded(
-              flex: 2,
-              child: Row(children: [
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star_border, color: Colors.amber, size: 16)
-              ])),
           Expanded(
-              flex: 1,
-              child: Container(
-                  alignment: Alignment.centerRight,
-                  child: const Icon(Icons.more_vert,
-                      size: 18, color: Colors.grey))),
+              flex: 2,
+              child: MyText(formattedDate, color: Colors.grey)),
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: List.generate(5, (index) {
+                return Icon(
+                  index < ratingInt ? Icons.star : Icons.star_border,
+                  color: Colors.amber,
+                  size: 16,
+                );
+              }),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
+                onSelected: (value) {
+                  if (value == 'delete' && reviewId.isNotEmpty) {
+                    widget.controller.deleteReview(
+                        context, widget.employee.id, reviewId);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                      value: 'delete', child: Text('Delete')),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -695,36 +742,39 @@ class _ReviewsTab extends StatelessWidget {
 // TAB 4: BENEFITS
 // ==============================================================================
 class _BenefitsTab extends StatelessWidget {
+  final Employee employee;
+  const _BenefitsTab({required this.employee});
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 24,
       runSpacing: 24,
       children: [
-        const Row(
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: _InfoCard(
                 title: "Health Insurance (HMO)",
-                hasEdit: true, // "Edit" button
+                hasEdit: true,
                 children: [
                   _DataField(
                       label: "Current Plan",
-                      value: "Reliance Platinum",
+                      value: employee.hmoPlan ?? '-',
                       isBoldValue: true),
                   _DataField(
                       label: "HMO ID Number",
-                      value: "REL-313548",
+                      value: employee.hmoIdNumber ?? '-',
                       isBoldValue: true),
                   _DataField(
                       label: "Dependents Covered",
-                      value: "2",
+                      value: employee.hmoDependentsCovered?.toString() ?? '-',
                       isBoldValue: true),
                 ],
               ),
             ),
-            SizedBox(width: 24),
+            const SizedBox(width: 24),
             Expanded(
               child: _InfoCard(
                 title: "Pension Scheme",
@@ -732,15 +782,17 @@ class _BenefitsTab extends StatelessWidget {
                 children: [
                   _DataField(
                       label: "PFA Provider",
-                      value: "Stanbic IBTC",
+                      value: employee.pfaProvider ?? '-',
                       isBoldValue: true),
                   _DataField(
                       label: "RSA Number",
-                      value: "PEN100028344",
+                      value: employee.rsaNumber ?? '-',
                       isBoldValue: true),
                   _DataField(
                       label: "Employer Contribution",
-                      value: "10%",
+                      value: employee.employerContribution != null
+                          ? "${employee.employerContribution}%"
+                          : '-',
                       isBoldValue: true),
                 ],
               ),
@@ -761,30 +813,38 @@ class _BenefitsTab extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.bold)),
           ),
-          children: [
-            _AllowanceRow("Housing", "10%"),
-            _AllowanceRow("Transport", "10%"),
-            _AllowanceRow("Data", "10%"),
-          ],
+          children: _buildAllowanceRows(),
         )
       ],
     );
   }
 
-  Widget _AllowanceRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            MyText(label, weight: 600, size: 14),
-            MyText(value, color: Colors.grey, size: 12),
-          ]),
-          const Icon(Icons.delete_outline, color: Colors.red, size: 18)
-        ],
-      ),
-    );
+  List<Widget> _buildAllowanceRows() {
+    final allowances = employee.allowances;
+    if (allowances == null || allowances.isEmpty) {
+      return [
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: MyText("No allowances configured", color: Colors.grey),
+        )
+      ];
+    }
+
+    return allowances.entries.map((entry) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              MyText(entry.key, weight: 600, size: 14),
+              MyText("${entry.value}", color: Colors.grey, size: 12),
+            ]),
+            const Icon(Icons.delete_outline, color: Colors.red, size: 18)
+          ],
+        ),
+      );
+    }).toList();
   }
 }
 
@@ -836,9 +896,7 @@ class _InfoCard extends StatelessWidget {
                 customAction!
               else
                 const MyText("Edit",
-                    color: Color(0xFF0055FF),
-                    weight: 600,
-                    size: 12), // Default Edit
+                    color: Color(0xFF0055FF), weight: 600, size: 12),
             ],
           ),
           const SizedBox(height: 20),

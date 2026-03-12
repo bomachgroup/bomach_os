@@ -73,46 +73,86 @@ class CompanySettings {
 
 class Compliance {
   final String id;
-  final String type; // e.g., "Tax", "CAC"
-  final String registrationItem;
-  final String number;
-  final String dateRegistered;
-  final String expirationDate;
-  final String status; // "active", "expired", "pending"
-  final String? documentUrl;
+  final String fullName;
+  final String emailAddress;
+  final String phoneNumber;
+  final String departmentId;
+  final String complianceType;
+  final String referenceNumber;
+  final String dateOfIssue;
+  final String expiryDate;
+  final String issuingAuthority;
+  final String status;
+  final String description;
+  final String contactPerson;
+  final String contactEmail;
+  final num cost;
+  final String priorityLevel;
+  final List<String> documents;
 
   Compliance({
     required this.id,
-    required this.type,
-    required this.registrationItem,
-    required this.number,
-    required this.dateRegistered,
-    required this.expirationDate,
+    this.fullName = '',
+    this.emailAddress = '',
+    this.phoneNumber = '',
+    this.departmentId = '',
+    required this.complianceType,
+    this.referenceNumber = '',
+    required this.dateOfIssue,
+    required this.expiryDate,
+    this.issuingAuthority = '',
     required this.status,
-    this.documentUrl,
+    this.description = '',
+    this.contactPerson = '',
+    this.contactEmail = '',
+    this.cost = 0,
+    this.priorityLevel = 'medium',
+    this.documents = const [],
   });
 
   factory Compliance.fromJson(Map<String, dynamic> json) {
     return Compliance(
       id: json['id']?.toString() ?? '',
-      type: json['compliance_type'] ?? '', // Adjusted to match likely API key
-      registrationItem: json['registration_item'] ?? '',
-      number: json['number'] ?? '',
-      dateRegistered: json['date_registered'] ?? '',
-      expirationDate: json['expiration_date'] ?? '',
+      fullName: json['full_name'] ?? '',
+      emailAddress: json['email_address'] ?? '',
+      phoneNumber: json['phone_number'] ?? '',
+      departmentId: json['department_id']?.toString() ?? '',
+      complianceType: json['compliance_type'] ?? '',
+      referenceNumber: json['reference_number'] ?? '',
+      dateOfIssue: json['date_of_issue'] ?? '',
+      expiryDate: json['expiry_date'] ?? '',
+      issuingAuthority: json['issuing_authority'] ?? '',
       status: json['status'] ?? 'pending',
-      documentUrl: json['document_url'],
+      description: json['description'] ?? '',
+      contactPerson: json['contact_person'] ?? '',
+      contactEmail: json['contact_email'] ?? '',
+      cost: num.tryParse(json['cost']?.toString() ?? '') ?? 0,
+      priorityLevel: json['priority_level'] ?? 'medium',
+      documents: (json['documents'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'compliance_type': type,
-      'registration_item': registrationItem,
-      'number': number,
-      'date_registered': dateRegistered,
-      'expiration_date': expirationDate,
+      'full_name': fullName,
+      'email_address': emailAddress,
+      'phone_number': phoneNumber,
+      'department_id': departmentId,
+      'compliance_type': complianceType,
+      'reference_number': referenceNumber,
+      'date_of_issue': dateOfIssue,
+      'expiry_date': expiryDate,
+      'issuing_authority': issuingAuthority,
       'status': status,
+      'description': description,
+      'contact_person': contactPerson,
+      'contact_email': contactEmail,
+      'cost': cost,
+      'priority_level': priorityLevel,
+      'documents': documents,
     };
   }
 }
@@ -180,6 +220,41 @@ class Shareholder {
       notes: json['notes'],
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+      'phone_number': phoneNumber,
+      'title': title,
+      'share_percentage': sharePercentage,
+      'share_count': shareCount,
+      'is_board_member': isBoardMember,
+      'is_active': isActive,
+      if (notes != null) 'notes': notes,
+    };
+  }
+}
+
+class EquityInfo {
+  final int authorizedShares;
+  final int issuedShares;
+  final int unissuedShares;
+
+  EquityInfo({
+    required this.authorizedShares,
+    required this.issuedShares,
+    required this.unissuedShares,
+  });
+
+  factory EquityInfo.fromJson(Map<String, dynamic> json) {
+    return EquityInfo(
+      authorizedShares: int.tryParse(json['authorized_shares']?.toString() ?? '') ?? 0,
+      issuedShares: int.tryParse(json['issued_shares']?.toString() ?? '') ?? 0,
+      unissuedShares: int.tryParse(json['unissued_shares']?.toString() ?? '') ?? 0,
     );
   }
 }

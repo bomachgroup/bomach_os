@@ -34,6 +34,8 @@ class EmployeeService {
     });
   }
 
+  // ─── EMPLOYEES ──────────────────────────────────────────────────────
+
   Future<({List<Employee> list, int count})> getEmployees(
     String token, {
     bool? isActive,
@@ -72,14 +74,8 @@ class EmployeeService {
     }
   }
 
-  Future<Employee> createEmployee(String token, Employee employee,
-      {String? password}) async {
+  Future<Employee> createEmployee(String token, Map<String, dynamic> data) async {
     try {
-      final data = employee.toJson();
-      if (password != null) {
-        data['password'] = password;
-      }
-
       final response = await _dio.post(
         '/api/v1/employees/employees',
         data: data,
@@ -104,11 +100,11 @@ class EmployeeService {
   }
 
   Future<Employee> updateEmployee(
-      String token, String userId, Employee employee) async {
+      String token, String userId, Map<String, dynamic> data) async {
     try {
       final response = await _dio.put(
         '/api/v1/employees/employees/$userId',
-        data: employee.toJson(),
+        data: data,
         options: _authOptions(token),
       );
       return Employee.fromJson(response.data);
@@ -116,6 +112,8 @@ class EmployeeService {
       throw _handleError(e);
     }
   }
+
+  // ─── DEPARTMENTS ────────────────────────────────────────────────────
 
   Future<List<Department>> getDepartments(
     String token, {
@@ -178,6 +176,8 @@ class EmployeeService {
     }
   }
 
+  // ─── DEPARTMENT UNITS ───────────────────────────────────────────────
+
   Future<List<DepartmentUnit>> getDepartmentUnits(
     String token, {
     String? departmentId,
@@ -233,6 +233,8 @@ class EmployeeService {
     }
   }
 
+  // ─── EMPLOYEE LEVELS ────────────────────────────────────────────────
+
   Future<List<dynamic>> getEmployeeLevels(
     String token, {
     int limit = 100,
@@ -253,6 +255,112 @@ class EmployeeService {
       throw _handleError(e);
     }
   }
+
+  // ─── EMPLOYEE DOCUMENTS ─────────────────────────────────────────────
+
+  Future<List<dynamic>> getEmployeeDocuments(String token, String userId) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/employees/employees/$userId/documents',
+        options: _authOptions(token),
+      );
+      final data = response.data;
+      if (data is List) return data;
+      if (data is Map && data.containsKey('items')) return data['items'];
+      return [];
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<dynamic> uploadEmployeeDocument(
+      String token, String userId, FormData formData) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/employees/employees/$userId/documents',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+      return response.data;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteEmployeeDocument(
+      String token, String userId, String docId) async {
+    try {
+      await _dio.delete(
+        '/api/v1/employees/employees/$userId/documents/$docId',
+        options: _authOptions(token),
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ─── EMPLOYEE REVIEWS ───────────────────────────────────────────────
+
+  Future<List<dynamic>> getEmployeeReviews(String token, String userId) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/employees/employees/$userId/reviews',
+        options: _authOptions(token),
+      );
+      final data = response.data;
+      if (data is List) return data;
+      if (data is Map && data.containsKey('items')) return data['items'];
+      return [];
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<dynamic> createEmployeeReview(
+      String token, String userId, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/employees/employees/$userId/reviews',
+        data: data,
+        options: _authOptions(token),
+      );
+      return response.data;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<dynamic> updateEmployeeReview(
+      String token, String reviewId, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(
+        '/api/v1/employees/reviews/$reviewId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return response.data;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteEmployeeReview(String token, String reviewId) async {
+    try {
+      await _dio.delete(
+        '/api/v1/employees/reviews/$reviewId',
+        options: _authOptions(token),
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ─── ERROR HANDLER ──────────────────────────────────────────────────
 
   Exception _handleError(dynamic error) {
     if (error is DioException) {

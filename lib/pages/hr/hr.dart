@@ -4,8 +4,9 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+
 
 class HRPage extends StatefulWidget {
   const HRPage({super.key});
@@ -124,85 +125,65 @@ class _HRPageState extends State<HRPage> {
     );
   }
 
-  // 2. Responsive Summary Cards Grid
+  // 2. Summary Cards Row
   Widget _buildSummaryGrid(bool isDesktop, bool isTablet, bool isMobile) {
-    // Determine column count
-    int columnCount;
-    if (isDesktop) {
-      columnCount = 4;
-    } else if (isTablet) {
-      columnCount = 2;
-    } else {
-      columnCount = 1;
-    }
-
-    // Determine row sizes (auto for each row needed)
-    // Desktop: 1 row. Tablet: 2 rows. Mobile: 4 rows.
-    List<TrackSize> rowSizes =
-        List.generate((4 / columnCount).ceil(), (_) => auto);
-
-    return LayoutGrid(
-      columnSizes: List.generate(columnCount, (_) => 1.fr),
-      rowSizes: rowSizes,
-      columnGap: kDefaultSpaceBG,
-      rowGap: kDefaultSpaceBG,
-      children: [
-        _buildSummaryCard(
-            label: 'Total Employees', value: '234', borderColor: Colors.green),
-        _buildSummaryCard(
-            label: 'New Hires (30 days)',
-            value: '18',
-            borderColor: Colors.blue),
-        _buildSummaryCard(
-            label: 'Open Roles', value: '12', borderColor: Colors.orange),
-        _buildSummaryCard(
-            label: 'New Hires', value: '2', borderColor: Colors.pinkAccent),
+    return ResponsiveStatRow(
+      cards: [
+        _buildStatCard(
+          title: 'Total Employees',
+          count: '234',
+          borderColor: Colors.green,
+          countColor: Colors.green,
+        ),
+        _buildStatCard(
+          title: 'New Hires (30 days)',
+          count: '18',
+          borderColor: const Color(0xFF1976D2),
+          countColor: const Color(0xFF1976D2),
+        ),
+        _buildStatCard(
+          title: 'Open Roles',
+          count: '12',
+          borderColor: const Color(0xFFC27803),
+          countColor: const Color(0xFFC27803),
+        ),
+        _buildStatCard(
+          title: 'New Hires',
+          count: '2',
+          borderColor: Colors.pinkAccent,
+          countColor: Colors.pinkAccent,
+        ),
       ],
     );
   }
 
-  Widget _buildSummaryCard({
-    required String label,
-    required String value,
+  Widget _buildStatCard({
+    required String title,
+    required String count,
     required Color borderColor,
+    required Color countColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(20),
-      width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: borderColor, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          MyText(
-            label,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text(title,
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87)),
           const SizedBox(height: 12),
-          MyText(
-            value,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
+          Text(count,
+              style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: countColor)),
         ],
       ),
     );

@@ -49,8 +49,12 @@ class AssociatesController extends GetxController {
       {String? password}) async {
     try {
       isSaving(true);
-      await _service.createEmployee(token, employee, password: password);
-      await fetchAssociates(token); 
+      final data = employee.toJson();
+      if (password != null && password.isNotEmpty) {
+        data['password'] = password;
+      }
+      await _service.createEmployee(token, data);
+      await fetchAssociates(token);
       return true;
     } catch (e) {
       debugPrint("Create Error: $e");
@@ -64,7 +68,7 @@ class AssociatesController extends GetxController {
       String token, String id, Employee employee) async {
     try {
       isSaving(true);
-      await _service.updateEmployee(token, id, employee);
+      await _service.updateEmployee(token, id, employee.toJson());
       await fetchAssociates(token);
       return true;
     } catch (e) {

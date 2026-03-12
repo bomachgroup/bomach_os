@@ -1,116 +1,392 @@
 import 'dart:async';
+import 'dart:developer';
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../../../src/model/branch_model.dart';
+import '../../../src/model/departments_units_model.dart';
 import '../../../src/model/employees_model.dart';
+import '../../../src/services/branch_service.dart';
 import '../../../src/services/employees_services.dart';
 
 class EmployeeController extends GetxController {
   final EmployeeService _service = EmployeeService();
+  final BranchService _branchService = BranchService();
+  final _storage = const FlutterSecureStorage();
 
-  // Loading & Error State
+  // ─── Loading & Error State ──────────────────────────────────────────
   var isLoading = false.obs;
   var isSaving = false.obs;
   var errorMessage = ''.obs;
 
-  // Data State
+  // ─── Employee List ──────────────────────────────────────────────────
   var employeeList = <Employee>[].obs;
-  
-  // Filter State
-  var currentIsActive = true.obs; // Default to Active
 
-  // Pagination State
+  // ─── Filter State ───────────────────────────────────────────────────
+  var currentIsActive = true.obs;
+
+  // ─── Pagination State ───────────────────────────────────────────────
   var currentPage = 1.obs;
-  var limit = 10.obs;     
-  var totalItems = 0.obs; 
+  var limit = 10.obs;
+  var totalItems = 0.obs;
 
-  // Search State
+  // ─── Search State ───────────────────────────────────────────────────
   var searchQuery = ''.obs;
   Timer? _debounce;
 
-  Future<void> fetchEmployees(String token) async {
+  // ─── Dropdown Data ──────────────────────────────────────────────────
+  var departments = <Department>[].obs;
+  var departmentUnits = <DepartmentUnit>[].obs;
+  var branches = <Branch>[].obs;
+  var levels = <dynamic>[].obs;
+  var allEmployees = <Employee>[].obs; // For "Reporting To" dropdown
+
+  // ─── Documents & Reviews ────────────────────────────────────────────
+  var documents = <dynamic>[].obs;
+  var reviews = <dynamic>[].obs;
+  var isLoadingDocuments = false.obs;
+  var isLoadingReviews = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadInitialData();
+  }
+
+  // ─── INIT ───────────────────────────────────────────────────────────
+
+  Future<void> _loadInitialData() async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    // Load dropdown data and employee list in parallel
+    await Future.wait([
+      _fetchDepartments(token),
+      _fetchBranches(token),
+      _fetchLevels(token),
+      _fetchAllEmployees(token),
+      fetchEmployees(),
+    ]);
+  }
+
+  Future<void> _fetchDepartments(String token) async {
     try {
-      isLoading(true);
+      final result = await _service.getDepartments(token, limit: 200);
+      departments.assignAll(result);
+    } catch (e) {
+      log("Error fetching departments: $e");
+    }
+  }
+
+  Future<void> _fetchBranches(String token) async {
+    try {
+      final result = await _branchService.getBranches(
+          accessToken: token, limit: 200);
+      branches.assignAll(result.items);
+    } catch (e) {
+      log("Error fetching branches: $e");
+    }
+  }
+
+  Future<void> _fetchLevels(String token) async {
+    try {
+      final result = await _service.getEmployeeLevels(token, limit: 200);
+      levels.assignAll(result);
+    } catch (e) {
+      log("Error fetching levels: $e");
+    }
+  }
+
+  Future<void> _fetchAllEmployees(String token) async {
+    try {
+      final result = await _service.getEmployees(token, limit: 500);
+      allEmployees.assignAll(result.list);
+    } catch (e) {
+      log("Error fetching all employees: $e");
+    }
+  }
+
+  /// Fetch department units — called when department selection changes
+  Future<void> fetchDepartmentUnits({String? departmentId}) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      final result = await _service.getDepartmentUnits(
+        token,
+        departmentId: departmentId,
+        limit: 200,
+      );
+      departmentUnits.assignAll(result);
+    } catch (e) {
+      log("Error fetching department units: $e");
+    }
+  }
+
+  // ─── FETCH EMPLOYEES ───────────────────────────────────────────────
+
+  Future<void> fetchEmployees({bool refresh = false}) async {
+    try {
+      if (!refresh) isLoading(true);
       errorMessage('');
-      
-      // Calculate offset
+
+      final token = await _getToken();
+      if (token == null) return;
+
       int offset = (currentPage.value - 1) * limit.value;
 
-      // Pass currentIsActive.value to the service
       final result = await _service.getEmployees(
         token,
         limit: limit.value,
         offset: offset,
-        isActive: currentIsActive.value, 
+        isActive: currentIsActive.value,
         search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
       );
       employeeList.assignAll(result.list);
-      totalItems.value = result.count; 
-
+      totalItems.value = result.count;
     } catch (e) {
       errorMessage('Failed to load employees: $e');
-      debugPrint("Fetch Error: $e");
+      log("Fetch Error: $e");
     } finally {
       isLoading(false);
     }
   }
 
-  // --- Actions ---
+  // ─── CREATE ─────────────────────────────────────────────────────────
 
-  void changePage(String token, int newPage) {
+  Future<void> createEmployee(
+      BuildContext context, Map<String, dynamic> data) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      log("Create Employee payload: $data");
+      await _service.createEmployee(token, data);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchEmployees(refresh: true);
+        _showSnackBar(context, "Employee created successfully");
+      }
+    } catch (e) {
+      log("Create Employee Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(
+            context, "Failed to create employee: ${e.toString()}");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  // ─── UPDATE ─────────────────────────────────────────────────────────
+
+  Future<void> updateEmployee(
+      BuildContext context, String userId, Map<String, dynamic> data) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      log("Update Employee payload: $data");
+      await _service.updateEmployee(token, userId, data);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchEmployees(refresh: true);
+        _showSnackBar(context, "Employee updated successfully");
+      }
+    } catch (e) {
+      log("Update Employee Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to update employee");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  // ─── DOCUMENTS ──────────────────────────────────────────────────────
+
+  Future<void> fetchDocuments(String userId) async {
+    try {
+      isLoadingDocuments.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+      final result = await _service.getEmployeeDocuments(token, userId);
+      documents.assignAll(result);
+    } catch (e) {
+      log("Error fetching documents: $e");
+    } finally {
+      isLoadingDocuments.value = false;
+    }
+  }
+
+  Future<void> uploadDocument(
+      BuildContext context, String userId, dio.FormData formData) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.uploadEmployeeDocument(token, userId, formData);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchDocuments(userId);
+        _showSnackBar(context, "Document uploaded successfully");
+      }
+    } catch (e) {
+      log("Upload Document Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to upload document: ${e.toString()}");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> deleteDocument(
+      BuildContext context, String userId, String docId) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.deleteEmployeeDocument(token, userId, docId);
+
+      if (context.mounted) {
+        fetchDocuments(userId);
+        _showSnackBar(context, "Document deleted successfully");
+      }
+    } catch (e) {
+      log("Delete Document Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to delete document");
+      }
+    }
+  }
+
+  // ─── REVIEWS ────────────────────────────────────────────────────────
+
+  Future<void> fetchReviews(String userId) async {
+    try {
+      isLoadingReviews.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+      final result = await _service.getEmployeeReviews(token, userId);
+      reviews.assignAll(result);
+    } catch (e) {
+      log("Error fetching reviews: $e");
+    } finally {
+      isLoadingReviews.value = false;
+    }
+  }
+
+  Future<void> createReview(
+      BuildContext context, String userId, Map<String, dynamic> data) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.createEmployeeReview(token, userId, data);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchReviews(userId);
+        _showSnackBar(context, "Review submitted successfully");
+      }
+    } catch (e) {
+      log("Create Review Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to create review: ${e.toString()}");
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> deleteReview(
+      BuildContext context, String userId, String reviewId) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _service.deleteEmployeeReview(token, reviewId);
+
+      if (context.mounted) {
+        fetchReviews(userId);
+        _showSnackBar(context, "Review deleted successfully");
+      }
+    } catch (e) {
+      log("Delete Review Error: $e");
+      if (context.mounted) {
+        _showErrorDialog(context, "Failed to delete review");
+      }
+    }
+  }
+
+  // ─── SEARCH / FILTER / PAGINATION ──────────────────────────────────
+
+  void changePage(int newPage) {
     currentPage.value = newPage;
-    fetchEmployees(token);
+    fetchEmployees();
   }
 
-  void changeLimit(String token, int newLimit) {
+  void changeLimit(int newLimit) {
     limit.value = newLimit;
-    currentPage.value = 1; // Reset to page 1
-    fetchEmployees(token);
+    currentPage.value = 1;
+    fetchEmployees();
   }
 
-  void onSearchChanged(String token, String val) {
+  void onSearchChanged(String val) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       searchQuery.value = val;
-      currentPage.value = 1; 
-      fetchEmployees(token);
+      currentPage.value = 1;
+      fetchEmployees();
     });
   }
 
-  // New Method for Tab Switching
-  void filterByStatus(String token, bool isActive) {
+  void filterByStatus(bool isActive) {
     currentIsActive.value = isActive;
-    currentPage.value = 1; // Reset pagination when switching tabs
-    fetchEmployees(token);
+    currentPage.value = 1;
+    fetchEmployees();
   }
 
-  Future<bool> createEmployee(String token, Employee employee, {String? password}) async {
-    try {
-      isSaving(true);
-      await _service.createEmployee(token, employee, password: password);
-      await fetchEmployees(token); 
-      return true;
-    } catch (e) {
-      debugPrint("Create Error: $e");
-      return false;
-    } finally {
-      isSaving(false);
+  // ─── HELPERS ────────────────────────────────────────────────────────
+
+  Future<String?> _getToken() async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith("Bearer ")) {
+      token = token.replaceFirst("Bearer ", "");
     }
+    return token.replaceAll('"', '').trim();
   }
 
-  Future<bool> updateEmployee(String token, String id, Employee employee) async {
-    try {
-      isSaving(true);
-      await _service.updateEmployee(token, id, employee);
-      await fetchEmployees(token);
-      return true;
-    } catch (e) {
-      debugPrint("Update Error: $e");
-      return false;
-    } finally {
-      isSaving(false);
-    }
-  }  
-  
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(c), child: const Text("OK")),
+        ],
+      ),
+    );
+  }
+
   @override
   void onClose() {
     _debounce?.cancel();
