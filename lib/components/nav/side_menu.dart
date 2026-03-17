@@ -3,12 +3,15 @@ import 'dart:developer';
 import 'package:bms_front_end/main.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expanded_tile/flutter_expanded_tile.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 // Enums for menu identification
@@ -165,6 +168,7 @@ class MenuItem {
   final String label;
   final String iconPath;
   final String? route;
+  final String? permission;
   final bool isExpandable;
   final List<SubMenuItemData> children;
 
@@ -173,6 +177,7 @@ class MenuItem {
     required this.label,
     required this.iconPath,
     this.route,
+    this.permission,
     required this.isExpandable,
     this.children = const [],
   });
@@ -182,11 +187,13 @@ class SubMenuItemData {
   final SubMenuItem id;
   final String label;
   final String? route;
+  final String? permission;
 
   const SubMenuItemData({
     required this.id,
     required this.label,
     this.route,
+    this.permission,
   });
 }
 
@@ -250,75 +257,72 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Company',
         iconPath: 'assets/svg/sidebar/person-plus.svg',
         isExpandable: true,
+        permission:
+            '${PermissionConstants.resBranches}:${PermissionConstants.actList}', // Example fallback
         children: [
           SubMenuItemData(
             id: SubMenuItem.company,
             label: 'Profile',
             route: RouteConstants.company,
+            permission:
+                '${PermissionConstants.resCompanySettings}:${PermissionConstants.actView}',
           ),
           SubMenuItemData(
             id: SubMenuItem.branch,
             label: 'Branch',
             route: RouteConstants.branch,
+            permission:
+                '${PermissionConstants.resBranches}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.board,
             label: 'Board',
             route: RouteConstants.board,
+            permission:
+                '${PermissionConstants.resBoardResolutions}:${PermissionConstants.actView}',
           ),
           SubMenuItemData(
             id: SubMenuItem.broadcast,
             label: 'Broadcast',
             route: RouteConstants.broadcast,
+            permission:
+                '${PermissionConstants.resAnnouncements}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.roles,
             label: 'Roles & Permissions',
             route: RouteConstants.roles,
+            permission:
+                '${PermissionConstants.resRoles}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.approvalWorkflow,
             label: 'Approval Workflows',
             route: RouteConstants.approvalWorkflow,
+            permission:
+                '${PermissionConstants.resApprovalFlows}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.department,
             label: 'Departments & Units',
             route: RouteConstants.department,
+            permission:
+                '${PermissionConstants.resDepartments}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.assets,
             label: 'Assets',
             route: RouteConstants.assets,
+            permission:
+                '${PermissionConstants.resAssets}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.auditLog,
             label: 'Audit Log',
             route: RouteConstants.auditLog,
+            permission:
+                '${PermissionConstants.resAuditLogs}:${PermissionConstants.actList}',
           ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.compliance,
-          //   label: 'Compliance',
-          //   route: RouteConstants.compliance,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.branchPerformance,
-          //   label: 'Branch Performance',
-          //   route: RouteConstants.branchPerformanceAnalysis,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.enugu,
-          //   label: 'Enugu',
-          //   route: RouteConstants.enugu,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.portHarcourt,
-          //   label: 'Port Harcourt',
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.abuja,
-          //   label: 'Abuja',
-          // ),
         ],
       ),
       const MenuItem(
@@ -331,40 +335,45 @@ class _SideMenuState extends State<SideMenu> {
             id: SubMenuItem.hrDashboad,
             label: 'Dashboard',
             route: RouteConstants.hr,
+            permission:
+                '${PermissionConstants.resDashboard}:${PermissionConstants.actView}',
           ),
           SubMenuItemData(
             id: SubMenuItem.employees,
             label: 'Employees',
             route: RouteConstants.employees,
+            permission:
+                '${PermissionConstants.resEmployees}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.jobPost,
             label: 'Recruitment',
             route: RouteConstants.jobPost,
+            permission:
+                '${PermissionConstants.resJobPostings}:${PermissionConstants.actList}',
           ),
-
-          /// NOW IN THE JOB POST
-          // SubMenuItemData(
-          //   id: SubMenuItem.jobApplicants,
-          //   label: 'Applicants',
-          //   route: RouteConstants.jobApplicants,
-          // ),
           SubMenuItemData(
             id: SubMenuItem.leaveRequest,
             label: 'Leaves',
             route: RouteConstants.leaveRequest,
+            permission:
+                '${PermissionConstants.resLeaveRequests}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.trainingProgram,
             label: 'Training',
             route: RouteConstants.trainingProgram,
+            permission:
+                '${PermissionConstants.resTrainingPrograms}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.loans,
             label: 'Loans',
             route: RouteConstants.loans,
+            permission:
+                '${PermissionConstants.resLoans}:${PermissionConstants.actList}',
           ),
-                    SubMenuItemData(
+          SubMenuItemData(
             id: SubMenuItem.benefits,
             label: 'Benefits',
             route: RouteConstants.benefits,
@@ -374,58 +383,46 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Attendance',
             route: RouteConstants.attendance,
           ),
-
           SubMenuItemData(
             id: SubMenuItem.performance,
             label: 'Performance',
             route: RouteConstants.performanceReview,
+            permission:
+                '${PermissionConstants.resPerformanceReviews}:${PermissionConstants.actList}',
           ),
-
-          /// TODO: REMOVE OR TRANSFER MISSING SCREENS
-          // SubMenuItemData(
-          //   id: SubMenuItem.associates,
-          //   label: 'Associates',
-          //   route: RouteConstants.associates,
-          // ),
           SubMenuItemData(
             id: SubMenuItem.workReport,
             label: 'Work Reports',
             route: RouteConstants.workReport,
+            permission:
+                '${PermissionConstants.resWorkReports}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.monthlyScorecard,
             label: 'Monthly Scorecard',
             route: RouteConstants.monthlyScorecard,
+            permission:
+                '${PermissionConstants.resMonthlyScorecards}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.awardsRecognition,
             label: 'Awards & Recognition',
             route: RouteConstants.awardsRecognition,
+            permission:
+                '${PermissionConstants.resAwards}:${PermissionConstants.actList}',
           ),
           SubMenuItemData(
             id: SubMenuItem.performanceLeaderboard,
             label: 'Performance Leaderboard',
             route: RouteConstants.performanceLeaderboard,
           ),
-
-          /// TODO: MERGE TO EMPLOYEE PROFILE OR MOVE TO ANOTHER MODULE
-          // SubMenuItemData(
-          //   id: SubMenuItem.employeeEvaluation,
-          //   label: 'Employee Evaluation',
-          //   route: RouteConstants.employeeEvaluation,
-          // ),
           SubMenuItemData(
             id: SubMenuItem.disciplinaryProcess,
             label: 'Disciplinary Process',
             route: RouteConstants.disciplinaryProcess,
+            permission:
+                '${PermissionConstants.resDisciplinaryCases}:${PermissionConstants.actList}',
           ),
-
-          /// NOW IN THE COMPANY
-          // SubMenuItemData(
-          //   id: SubMenuItem.department,
-          //   label: 'Department',
-          //   route: RouteConstants.department,
-          // ),
         ],
       ),
       // const MenuItem(
@@ -924,6 +921,24 @@ class _SideMenuState extends State<SideMenu> {
   }
 
   Widget _buildMenuItem(MenuItem menuItem) {
+    final permissionService = Get.find<PermissionService>();
+
+    // Filter sub-items based on permissions
+    final authorizedSubItems = menuItem.children
+        .where((subItem) => permissionService.canAccess(subItem.permission))
+        .toList();
+
+    // Hide if not expandable and no permission
+    if (!menuItem.isExpandable &&
+        !permissionService.canAccess(menuItem.permission)) {
+      return const SizedBox.shrink();
+    }
+
+    // Hide if expandable and no authorized children
+    if (menuItem.isExpandable && authorizedSubItems.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final bool isSelected = selectedMainMenu == menuItem.id;
 
     final icon = SvgPicture.asset(
@@ -957,7 +972,7 @@ class _SideMenuState extends State<SideMenu> {
         });
         _saveMenuState(menuItem.id, selectedSubMenu);
       },
-      children: menuItem.children.map<Widget>((subMenuItem) {
+      children: authorizedSubItems.map<Widget>((subMenuItem) {
         return _buildSubItem(subMenuItem, menuItem.id);
       }).toList(),
     );

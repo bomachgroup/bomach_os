@@ -21,7 +21,18 @@ class PermissionService extends GetxService {
     // Or if they have 'all' or '*' permissions if implemented by backend
     final actions = _userPermissions[resource];
     if (actions == null) return false;
-    return actions.contains(action) || actions.contains('*') || actions.contains('all');
+    return actions.contains(action) ||
+        actions.contains('*') ||
+        actions.contains('all');
+  }
+
+  /// Checks if the user has access based on a permission string in the format "resource:action"
+  /// Returns true if permission is null (public access)
+  bool canAccess(String? permission) {
+    if (permission == null) return true;
+    final parts = permission.split(':');
+    if (parts.length != 2) return false;
+    return hasPermission(parts[0], parts[1]);
   }
 
   void clearPermissions() {

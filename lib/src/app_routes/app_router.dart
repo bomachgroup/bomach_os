@@ -110,6 +110,8 @@ import '../../pages/events/events.dart';
 import '../../pages/hr/benefits.dart';
 import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'refresh_route.dart';
 
 final Map<String, Widget> _dashboardRoutes = {
@@ -243,6 +245,31 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.events: const EventsPage(),
 };
 
+final Map<String, String> _routePermissions = {
+  RouteConstants.employees: PermissionConstants.perm(PermissionConstants.resEmployees, PermissionConstants.actList),
+  RouteConstants.roles: PermissionConstants.perm(PermissionConstants.resRoles, PermissionConstants.actList),
+  RouteConstants.budget: PermissionConstants.perm(PermissionConstants.resBudgets, PermissionConstants.actList),
+  RouteConstants.expense: PermissionConstants.perm(PermissionConstants.resExpenses, PermissionConstants.actList),
+  RouteConstants.invoice: PermissionConstants.perm(PermissionConstants.resEstateInvoices, PermissionConstants.actList),
+  RouteConstants.branch: PermissionConstants.perm(PermissionConstants.resBranches, PermissionConstants.actList),
+  RouteConstants.department: PermissionConstants.perm(PermissionConstants.resDepartments, PermissionConstants.actList),
+  RouteConstants.jobPost: PermissionConstants.perm(PermissionConstants.resJobPostings, PermissionConstants.actList),
+  RouteConstants.leaveRequest: PermissionConstants.perm(PermissionConstants.resLeaveRequests, PermissionConstants.actList),
+  RouteConstants.performanceReview: PermissionConstants.perm(PermissionConstants.resPerformanceReviews, PermissionConstants.actList),
+  RouteConstants.assets: PermissionConstants.perm(PermissionConstants.resAssets, PermissionConstants.actList),
+  RouteConstants.auditLog: PermissionConstants.perm(PermissionConstants.resAuditLogs, PermissionConstants.actList),
+  RouteConstants.approvalWorkflow: PermissionConstants.perm(PermissionConstants.resApprovalFlows, PermissionConstants.actList),
+  RouteConstants.board: PermissionConstants.perm(PermissionConstants.resBoardResolutions, PermissionConstants.actList),
+  RouteConstants.broadcast: PermissionConstants.perm(PermissionConstants.resAnnouncements, PermissionConstants.actList),
+  RouteConstants.projects: PermissionConstants.perm(PermissionConstants.resProjects, PermissionConstants.actList),
+  RouteConstants.tasks: PermissionConstants.perm(PermissionConstants.resTasks, PermissionConstants.actList),
+  RouteConstants.contracts: PermissionConstants.perm(PermissionConstants.resContracts, PermissionConstants.actList),
+  RouteConstants.realEstate: PermissionConstants.perm(PermissionConstants.resProperties, PermissionConstants.actList),
+  RouteConstants.landSurvey: PermissionConstants.perm(PermissionConstants.resProperties, PermissionConstants.actList),
+  RouteConstants.estateManagement: PermissionConstants.perm(PermissionConstants.resEstates, PermissionConstants.actList),
+  RouteConstants.propertyList: PermissionConstants.perm(PermissionConstants.resProperties, PermissionConstants.actList),
+};
+
 /// Creates a branch for StatefulShellRoute with a single route
 StatefulShellBranch _createBranch(String path, Widget screen) {
   return StatefulShellBranch(
@@ -287,12 +314,20 @@ final goRouter = GoRouter(
     }
 
     // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to Home
-    // (Prevents users from seeing login/biometric screens if they are already authenticated)
     if (isLoggedIn && isPublicRoute) {
       return RouteConstants.home;
     }
 
-    // 4. Otherwise, let them go where they want
+    // 4. Permission Checking
+    final permissionService = Get.find<PermissionService>();
+    final requiredPermission = _routePermissions[location];
+
+    if (requiredPermission != null && !permissionService.canAccess(requiredPermission)) {
+      debugPrint('Access Denied to $location. Required: $requiredPermission');
+      return RouteConstants.home; // Or a dedicated /unauthorized page
+    }
+
+    // 5. Otherwise, let them go where they want
     return null;
   },
   routes: [
