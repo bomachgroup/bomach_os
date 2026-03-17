@@ -80,7 +80,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
               border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.05),
+                  color: Colors.grey.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -391,8 +391,8 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
       final bool isActive = emp.isActive;
       final Color statusColor = isActive ? Colors.green : Colors.red;
       final Color statusBg = isActive
-          ? Colors.green.withOpacity(0.1)
-          : Colors.red.withOpacity(0.1);
+          ? Colors.green.withValues(alpha: 0.1)
+          : Colors.red.withValues(alpha: 0.1);
       final String statusText = isActive ? 'Active' : 'Inactive';
 
       return DataRow(

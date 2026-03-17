@@ -28,10 +28,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
   final Color _orangeColor = const Color(0xFFC27803);
   final Color _blueColor = const Color(0xFF1976D2);
   final Color _greenColor = const Color(0xFF27AE60);
-  final Color _greenBg = const Color(0xFFE8F5E9);
   final Color _redColor = const Color(0xFFEB5757);
-  final Color _redBg = const Color(0xFFFFEBEE);
-  final Color _orangeBg = const Color(0xFFFDF6E7);
 
   @override
   void initState() {
@@ -157,7 +154,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -466,15 +463,15 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
     String label;
 
     if (status == 'approved') {
-      bg = _greenBg;
+      bg = _greenColor.withValues(alpha: 0.1);
       text = _greenColor;
       label = "Approved";
     } else if (status == 'rejected') {
-      bg = _redBg;
+      bg = _redColor.withValues(alpha: 0.1);
       text = _redColor;
       label = "Rejected";
     } else {
-      bg = _orangeBg;
+      bg = _orangeColor.withValues(alpha: 0.1);
       text = _orangeColor;
       label = "Pending";
     }

@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/button/sort_filter_bar2..dart';
+import 'package:bms_front_end/components/button/sort_filter_bar2.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';

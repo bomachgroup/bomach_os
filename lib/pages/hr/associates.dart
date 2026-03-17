@@ -238,7 +238,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
                 color: associate.isActive ? AppColors.green : AppColors.red,
               ),
               color: (associate.isActive ? AppColors.green : AppColors.red)
-                  .withOpacity(0.1),
+                  .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: MyText(

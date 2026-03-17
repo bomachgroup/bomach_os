@@ -4,8 +4,8 @@ import 'package:dio/dio.dart';
 
 import '../../pages/services/models/client_model.dart';
 import '../../pages/services/models/lead_model.dart';
-import '../model/user_model.dart';
 import '../model/role_model.dart';
+import '../model/user_model.dart';
 
 class AuthService {
   final Dio _dio;
@@ -16,8 +16,8 @@ class AuthService {
   }) : _dio = dioOverride ??
             Dio(BaseOptions(
               baseUrl: baseUrl,
-              connectTimeout: const Duration(seconds: 20),
-              receiveTimeout: const Duration(seconds: 20),
+              connectTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 30),
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -132,7 +132,9 @@ class AuthService {
         return [];
       }
 
-      return (response.data as List).map((json) => Role.fromJson(json)).toList();
+      return (response.data as List)
+          .map((json) => Role.fromJson(json))
+          .toList();
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -384,7 +386,8 @@ class AuthService {
   }
 
   // FILE UPLOAD
-  Future<String> uploadFile(String token, List<int> fileBytes, String fileName) async {
+  Future<String> uploadFile(
+      String token, List<int> fileBytes, String fileName) async {
     try {
       final formData = FormData.fromMap({
         'file': MultipartFile.fromBytes(fileBytes, filename: fileName),

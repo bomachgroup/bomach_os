@@ -165,7 +165,7 @@ class AttendancePageState extends State<AttendancePage> {
                       child: MyTextFormField(
                         hintText: 'Search...',
                         leading: Icon(Icons.search,
-                            color: Colors.grey.withOpacity(0.5)),
+                            color: Colors.grey.withValues(alpha: 0.5)),
                       ),
                     ),
                     Row(
