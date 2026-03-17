@@ -144,9 +144,9 @@ class _LoanPageState extends State<LoanPage> {
                     width: double.infinity,
                     child: DataTable(
                       headingRowColor:
-                          MaterialStateProperty.all(Colors.transparent),
+                          WidgetStateProperty.all(Colors.transparent),
                       dataRowColor:
-                          MaterialStateProperty.all(Colors.transparent),
+                          WidgetStateProperty.all(Colors.transparent),
                       columnSpacing: 20,
                       horizontalMargin: 0,
                       headingTextStyle: const TextStyle(
@@ -324,7 +324,7 @@ class _LoanPageState extends State<LoanPage> {
               decoration: BoxDecoration(color: dot, shape: BoxShape.circle)),
           const SizedBox(width: 8),
           Text(status,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.black87,
                   fontSize: 12,
                   fontWeight: FontWeight.w500)),

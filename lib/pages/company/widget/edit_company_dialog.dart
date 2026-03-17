@@ -220,10 +220,12 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
     primaryCtrl = TextEditingController(text: data.primaryColorCode);
     secondaryCtrl = TextEditingController(text: data.secondaryColorCode);
     rulesCtrl = TextEditingController(text: data.businessRules);
-    if (data.defaultCurrency.isNotEmpty)
+    if (data.defaultCurrency.isNotEmpty) {
       selectedCurrency = data.defaultCurrency;
-    if (data.languagePreference.isNotEmpty)
+    }
+    if (data.languagePreference.isNotEmpty) {
       selectedLanguage = data.languagePreference;
+    }
     selectedTimezone = controller.timeZone.value;
   }
 

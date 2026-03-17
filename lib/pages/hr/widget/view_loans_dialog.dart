@@ -11,8 +11,8 @@ class ViewLoanDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Colors from design
-    final greenColor = const Color(0xFF00C853);
-    final redColor = const Color(0xFFD32F2F);
+    const greenColor = Color(0xFF00C853);
+    const redColor = Color(0xFFD32F2F);
 
     return Dialog(
       backgroundColor: Colors.white,

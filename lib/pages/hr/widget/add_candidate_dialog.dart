@@ -95,7 +95,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
+      child: SizedBox(
         width: 700,
         height: 700,
         child: Column(

@@ -219,9 +219,9 @@ class _ServicesPageState extends State<ServicesPage> {
                 // determine columns from available width
                 double maxWidth = constraints.maxWidth;
                 int columns = 1;
-                if (maxWidth > 1200)
+                if (maxWidth > 1200) {
                   columns = 3;
-                else if (maxWidth > 900)
+                } else if (maxWidth > 900)
                   columns = 3;
                 else if (maxWidth > 700)
                   columns = 2;

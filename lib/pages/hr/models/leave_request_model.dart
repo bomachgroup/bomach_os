@@ -39,7 +39,7 @@ class LeaveRequest {
         } catch (_) {
           // try yyyy-MM-dd
           try {
-            return DateTime.parse(v + "T00:00:00");
+            return DateTime.parse("${v}T00:00:00");
           } catch (_) {
             return null;
           }
@@ -76,11 +76,9 @@ class LeaveRequest {
     return {
       'employee_id': employeeId,
       'leave_type': leaveType,
-      'start_date': startDate != null
-          ? startDate!.toIso8601String().split('T').first
-          : null,
+      'start_date': startDate?.toIso8601String().split('T').first,
       'end_date':
-          endDate != null ? endDate!.toIso8601String().split('T').first : null,
+          endDate?.toIso8601String().split('T').first,
       'reason': reason,
     }..removeWhere((key, value) => value == null);
   }

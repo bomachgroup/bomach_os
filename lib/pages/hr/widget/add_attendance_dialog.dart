@@ -79,7 +79,7 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
               const MyText('Type', size: 14, weight: 500),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _attendanceType,
+                initialValue: _attendanceType,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
                 items: const [
                   DropdownMenuItem(value: 'CLOCK_IN', child: Text('Clock In')),

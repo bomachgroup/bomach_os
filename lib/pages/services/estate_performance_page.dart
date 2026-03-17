@@ -458,7 +458,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                 child: Icon(icon, color: color, size: 20),
               ),
               const Spacer(),
-              Icon(Icons.more_vert, size: 20, color: AppColors.grey1),
+              const Icon(Icons.more_vert, size: 20, color: AppColors.grey1),
             ],
           ),
           kSizedBox,

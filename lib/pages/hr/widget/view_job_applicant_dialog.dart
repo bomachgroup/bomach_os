@@ -158,12 +158,12 @@ class ViewJobApplicantDialog extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(8)),
-                            child: Row(
+                            child: const Row(
                               children: [
-                                const Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
-                                const SizedBox(width: 8),
-                                const Expanded(child: MyText("Resume.pdf", size: 13, weight: 500)),
-                                const Icon(Icons.download, size: 18, color: Colors.grey),
+                                Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
+                                SizedBox(width: 8),
+                                Expanded(child: MyText("Resume.pdf", size: 13, weight: 500)),
+                                Icon(Icons.download, size: 18, color: Colors.grey),
                               ],
                             ),
                           )

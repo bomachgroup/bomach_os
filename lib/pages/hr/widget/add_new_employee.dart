@@ -223,7 +223,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     );
     if (picked != null) {
       setState(() {
-        if (isDob) _dob = picked; else _joinDate = picked;
+        if (isDob) {
+          _dob = picked;
+        } else {
+          _joinDate = picked;
+        }
       });
     }
   }
@@ -863,7 +867,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         MyText(title, size: 13, weight: 500),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: safeValue,
+          initialValue: safeValue,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
@@ -893,7 +897,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         MyText(title, size: 13, weight: 500),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: safeValue,
+          initialValue: safeValue,
           hint: Text("Select $title", style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),

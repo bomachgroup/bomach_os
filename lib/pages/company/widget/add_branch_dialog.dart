@@ -391,7 +391,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                                   ),
                                   dense: true,
                                   contentPadding: EdgeInsets.zero,
-                                  activeColor: Colors.green,
+                                  activeThumbColor: Colors.green,
                                 ),
                               ],
                             ),

@@ -130,9 +130,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
 }
 
 class _ProjectCard extends StatelessWidget {
-  const _ProjectCard({
-    super.key,
-  });
+  const _ProjectCard();
 
   @override
   Widget build(BuildContext context) {

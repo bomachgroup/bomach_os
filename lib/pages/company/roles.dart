@@ -519,7 +519,7 @@ class _RolesPageState extends State<RolesPage> {
                   ),
                   child: Text(
                     '${role.permissions.length} permissions',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.blue,
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -908,7 +908,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                         const SizedBox(width: 16),
                         Switch(
                           value: _isActive,
-                          activeColor: AppColors.blue,
+                          activeThumbColor: AppColors.blue,
                           onChanged: (val) =>
                               setState(() => _isActive = val),
                         ),
@@ -1183,11 +1183,11 @@ class _ViewRoleDialog extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.check_circle,
+                              const Icon(Icons.check_circle,
                                   size: 14, color: AppColors.blue),
                               const SizedBox(width: 6),
                               Text(label,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: AppColors.blue,
                                     fontWeight: FontWeight.w500,

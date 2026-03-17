@@ -53,7 +53,7 @@ class _WorkSiteState extends State<WorkSite> {
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) => AddWorksiteDialog(),
+                        builder: (context) => const AddWorksiteDialog(),
                       );
                     },
                   )

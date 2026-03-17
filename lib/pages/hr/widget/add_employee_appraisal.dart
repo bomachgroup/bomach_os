@@ -179,7 +179,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
         MyText(label, size: 12, weight: 600, color: Colors.black87),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           decoration: InputDecoration(
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

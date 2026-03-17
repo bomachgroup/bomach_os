@@ -46,8 +46,9 @@ class PerformanceReviewController extends GetxController {
       performanceReviews.assignAll(reviews);
     } catch (e) {
       final context = Get.context;
-      if (context != null)
+      if (context != null) {
         _showSnackBar(context, 'Error', 'Failed to fetch reviews: $e');
+      }
     } finally {
       isLoading(false);
     }
@@ -65,17 +66,16 @@ class PerformanceReviewController extends GetxController {
       }
       final createdReview =
           await _service.createPerformanceReview(token, review);
-      if (createdReview != null) {
-        await fetchPerformanceReviews();
-        _showSnackBar(
-            context, 'Success', 'Performance review created successfully');
-        return true;
-      }
-      return false;
+      await fetchPerformanceReviews();
+      _showSnackBar(
+          context, 'Success', 'Performance review created successfully');
+      return true;
+          return false;
     } catch (e) {
       final context = Get.context;
-      if (context != null)
+      if (context != null) {
         _showSnackBar(context, 'Error', 'Failed to create review: $e');
+      }
       return false;
     } finally {
       isSaving(false);
@@ -103,8 +103,9 @@ class PerformanceReviewController extends GetxController {
       return true;
     } catch (e) {
       final context = Get.context;
-      if (context != null)
+      if (context != null) {
         _showSnackBar(context, 'Error', 'Failed to update review: $e');
+      }
       return false;
     } finally {
       isSaving(false);
@@ -126,8 +127,9 @@ class PerformanceReviewController extends GetxController {
     } catch (e) {
       fetchPerformanceReviews();
       final context = Get.context;
-      if (context != null)
+      if (context != null) {
         _showSnackBar(context, 'Error', 'Failed to delete review: $e');
+      }
     }
   }
 

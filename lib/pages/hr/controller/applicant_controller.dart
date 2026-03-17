@@ -253,8 +253,9 @@ class ApplicantController extends GetxController {
   Future<String?> _getToken(BuildContext context) async {
     String? token = await _storage.read(key: 'access_token');
     if (token == null) {
-      if (context.mounted)
+      if (context.mounted) {
         _showSnackBar(context, "Please login", isError: true);
+      }
       return null;
     }
     return token.startsWith("Bearer ")

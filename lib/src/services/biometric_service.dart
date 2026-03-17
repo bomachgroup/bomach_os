@@ -25,7 +25,7 @@ class BiometricService {
       if (kIsWeb || _auth == null) {
         return false;
       }
-      return await _auth!.canCheckBiometrics;
+      return await _auth.canCheckBiometrics;
     } catch (e) {
       debugPrint('Error checking biometric availability: $e');
       return false;
@@ -38,8 +38,8 @@ class BiometricService {
       if (kIsWeb || _auth == null) {
         return false;
       }
-      final isAvailable = await _auth!.canCheckBiometrics;
-      final isDeviceSupported = await _auth!.isDeviceSupported();
+      final isAvailable = await _auth.canCheckBiometrics;
+      final isDeviceSupported = await _auth.isDeviceSupported();
       return isAvailable || isDeviceSupported;
     } catch (e) {
       debugPrint('Error checking biometric enrollment: $e');
@@ -53,7 +53,7 @@ class BiometricService {
       if (kIsWeb || _auth == null) {
         return [];
       }
-      return await _auth!.getAvailableBiometrics();
+      return await _auth.getAvailableBiometrics();
     } catch (e) {
       debugPrint('Error getting available biometrics: $e');
       return [];
@@ -74,7 +74,7 @@ class BiometricService {
       }
 
       // Perform authentication
-      final isAuthenticated = await _auth!.authenticate(
+      final isAuthenticated = await _auth.authenticate(
         localizedReason: reason,
         options: const AuthenticationOptions(
           stickyAuth: true,
@@ -115,7 +115,7 @@ class BiometricService {
       }
 
       // Perform authentication
-      final isAuthenticated = await _auth!.authenticate(
+      final isAuthenticated = await _auth.authenticate(
         localizedReason: reason,
         options: const AuthenticationOptions(
           stickyAuth: true,
@@ -148,7 +148,7 @@ class BiometricService {
   Future<void> stopAuthentication() async {
     try {
       if (_auth != null) {
-        await _auth!.stopAuthentication();
+        await _auth.stopAuthentication();
       }
     } catch (e) {
       debugPrint('Error stopping authentication: $e');

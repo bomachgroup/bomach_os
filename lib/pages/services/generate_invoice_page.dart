@@ -736,7 +736,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                 title: 'Tax Rate (%)',
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
-                                  if (value != null && value.isNotEmpty) {
+                                  if (value.isNotEmpty) {
                                     setState(() {
                                       taxRate =
                                           double.tryParse(value) ?? 7.5;
@@ -753,7 +753,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                 title: 'Discount (₦)',
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
-                                  if (value != null && value.isNotEmpty) {
+                                  if (value.isNotEmpty) {
                                     setState(() {
                                       discount = double.tryParse(value) ?? 0;
                                     });
@@ -769,7 +769,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                 title: 'Days Until Due',
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) {
-                                  if (value != null && value.isNotEmpty) {
+                                  if (value.isNotEmpty) {
                                     setState(() {
                                       daysUntilDue =
                                           int.tryParse(value) ?? 30;

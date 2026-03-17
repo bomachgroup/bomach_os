@@ -200,7 +200,7 @@ class ViewEventDialog extends StatelessWidget {
                                 Container(
                                   width: 24,
                                   height: 24,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.blue,
                                     shape: BoxShape.circle,
                                   ),

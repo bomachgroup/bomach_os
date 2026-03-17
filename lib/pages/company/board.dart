@@ -1260,7 +1260,7 @@ class _EmployeeListTab extends StatelessWidget {
                       employee.firstName.isNotEmpty
                           ? employee.firstName[0].toUpperCase()
                           : '?',
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: AppColors.blue,
                           fontWeight: FontWeight.w600,
                           fontSize: 14),
@@ -1436,7 +1436,7 @@ class _EmployeeListTab extends StatelessWidget {
                               employee.firstName.isNotEmpty
                                   ? employee.firstName[0].toUpperCase()
                                   : '?',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: AppColors.blue,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 22),

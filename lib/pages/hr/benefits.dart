@@ -122,9 +122,9 @@ class _BenefitsPageState extends State<BenefitsPage> {
                             minWidth: MediaQuery.of(context).size.width - 300),
                         child: DataTable(
                           headingRowColor:
-                              MaterialStateProperty.all(Colors.transparent),
+                              WidgetStateProperty.all(Colors.transparent),
                           dataRowColor:
-                              MaterialStateProperty.all(Colors.transparent),
+                              WidgetStateProperty.all(Colors.transparent),
                           columnSpacing: 24,
                           horizontalMargin: 0,
                           columns: const [
@@ -138,10 +138,10 @@ class _BenefitsPageState extends State<BenefitsPage> {
                             return DataRow(cells: [
                               DataCell(Row(
                                 children: [
-                                  CircleAvatar(
+                                  const CircleAvatar(
                                     radius: 16,
-                                    backgroundColor: const Color(0xFFE3F2FD),
-                                    child: const Icon(Icons.person,
+                                    backgroundColor: Color(0xFFE3F2FD),
+                                    child: Icon(Icons.person,
                                         size: 16, color: Color(0xFF1976D2)),
                                   ),
                                   const SizedBox(width: 12),
@@ -359,11 +359,11 @@ class _BenefitsPageState extends State<BenefitsPage> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                       radius: 20,
-                      backgroundColor: const Color(0xFFE3F2FD),
+                      backgroundColor: Color(0xFFE3F2FD),
                       child:
-                          const Icon(Icons.person, color: Color(0xFF1976D2))),
+                          Icon(Icons.person, color: Color(0xFF1976D2))),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,11 +436,11 @@ class _BenefitsPageState extends State<BenefitsPage> {
                 // User Info Header
                 Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                         radius: 20,
-                        backgroundColor: const Color(0xFFE3F2FD),
+                        backgroundColor: Color(0xFFE3F2FD),
                         child:
-                            const Icon(Icons.person, color: Color(0xFF1976D2))),
+                            Icon(Icons.person, color: Color(0xFF1976D2))),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,7 +562,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
               decoration: BoxDecoration(color: dot, shape: BoxShape.circle)),
           const SizedBox(width: 8),
           Text(status,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.black87,
                   fontSize: 12,
                   fontWeight: FontWeight.w500)),

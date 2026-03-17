@@ -257,8 +257,9 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                                 items: statusOptions,
                                 hintText: selectedStatus,
                                 onChanged: (val) {
-                                  if (val != null)
+                                  if (val != null) {
                                     setState(() => selectedStatus = val);
+                                  }
                                 },
                               ),
                             ],

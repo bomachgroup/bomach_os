@@ -392,7 +392,7 @@ class _WorkflowsTab extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.blue,
           fontSize: 11,
           fontWeight: FontWeight.w600,

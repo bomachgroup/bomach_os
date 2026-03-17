@@ -87,7 +87,7 @@ class CompanyProfilePage extends StatelessWidget {
               case 'Board Members':
                 return const BoardMembersPage();
               case 'Compliance & Registration':
-                return CompliancePage();
+                return const CompliancePage();
               case 'Profile':
               default:
                 return _buildProfileTab(context, controller, data);
@@ -427,38 +427,38 @@ class CompanyProfilePage extends StatelessWidget {
                       topRight: Radius.circular(12),
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const SizedBox(width: 40),
-                      const Expanded(
+                      SizedBox(width: 40),
+                      Expanded(
                           flex: 3,
                           child: Text("Name",
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
                                   color: Color(0xFF64748B)))),
-                      const Expanded(
+                      Expanded(
                           flex: 2,
                           child: Text("Role",
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
                                   color: Color(0xFF64748B)))),
-                      const Expanded(
+                      Expanded(
                           flex: 2,
                           child: Text("Shares",
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
                                   color: Color(0xFF64748B)))),
-                      const Expanded(
+                      Expanded(
                           flex: 2,
                           child: Text("Percentage",
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
                                   color: Color(0xFF64748B)))),
-                      const SizedBox(
+                      SizedBox(
                           width: 48,
                           child: Text("Action",
                               style: TextStyle(
@@ -732,8 +732,8 @@ class CompanyProfilePage extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),

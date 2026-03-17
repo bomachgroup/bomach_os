@@ -255,9 +255,9 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                     width: double.infinity,
                     child: DataTable(
                       headingRowColor:
-                          MaterialStateProperty.all(Colors.transparent),
+                          WidgetStateProperty.all(Colors.transparent),
                       dataRowColor:
-                          MaterialStateProperty.all(Colors.transparent),
+                          WidgetStateProperty.all(Colors.transparent),
                       columnSpacing: 20,
                       horizontalMargin: 0,
                       headingTextStyle: const TextStyle(
@@ -382,10 +382,10 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
           DataCell(
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: const Color(0xFFEEEEEE),
+                const CircleAvatar(
+                  backgroundColor: Color(0xFFEEEEEE),
                   radius: 18,
-                  child: const Icon(Icons.person, color: Colors.grey, size: 20),
+                  child: Icon(Icons.person, color: Colors.grey, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Column(

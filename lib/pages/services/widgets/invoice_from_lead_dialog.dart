@@ -256,9 +256,9 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                 const SizedBox(height: 24),
 
                 // Invoice Items Section
-                MyText(
+                const MyText(
                   'Invoice Items',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -388,9 +388,9 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                 const SizedBox(height: 24),
 
                 // Financial Details
-                MyText(
+                const MyText(
                   'Financial Details',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -475,7 +475,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                         title: 'Days Until Due',
                         keyboardType: TextInputType.number,
                         onChanged: (value) {
-                          if (value != null && value.isNotEmpty) {
+                          if (value.isNotEmpty) {
                             setState(() {
                               daysUntilDue = int.tryParse(value) ?? 30;
                             });
@@ -491,7 +491,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                         title: 'Tax Rate (%)',
                         keyboardType: TextInputType.number,
                         onChanged: (value) {
-                          if (value != null && value.isNotEmpty) {
+                          if (value.isNotEmpty) {
                             setState(() {
                               taxRate = double.tryParse(value) ?? 7.5;
                             });

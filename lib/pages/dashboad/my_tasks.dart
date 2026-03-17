@@ -341,6 +341,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
                         const SizedBox(width: 6),
                         MyText(
                           f['label'] as String,
+                          isSelectable: false,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight:
@@ -406,8 +407,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
                           color: Color(0xFF64748B))),
                   const SizedBox(height: 6),
                   const MyText('Tasks assigned to you will appear here',
-                      style:
-                          TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
                 ],
               ),
             ),
@@ -467,8 +467,8 @@ class _MyTasksPageState extends State<MyTasksPage> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: _getPriorityColor(task.priority)
-                        .withValues(alpha: 0.1),
+                    color:
+                        _getPriorityColor(task.priority).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
@@ -500,16 +500,11 @@ class _MyTasksPageState extends State<MyTasksPage> {
             ),
           ),
           DataCell(_buildPriorityBadge(task.priority)),
+          DataCell(MyText(task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
+              style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
           DataCell(MyText(
-              task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
-              style:
-                  const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
-          DataCell(MyText(
-              task.estimatedHours > 0
-                  ? '${task.estimatedHours}h'
-                  : '\u2014',
-              style:
-                  const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
+              task.estimatedHours > 0 ? '${task.estimatedHours}h' : '\u2014',
+              style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
           DataCell(_buildStatusBadge(task.status)),
           DataCell(_buildActionMenu(task)),
         ],
@@ -660,8 +655,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color:
-                            const Color(0xFF6366F1).withValues(alpha: 0.1),
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(Icons.assignment_rounded,
@@ -697,22 +691,18 @@ class _MyTasksPageState extends State<MyTasksPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _detailItem(Icons.badge_rounded, 'Task Name', task.name),
-                    _detailItem(
-                        Icons.notes_rounded,
-                        'Description',
-                        task.description.isNotEmpty
-                            ? task.description
-                            : 'N/A'),
+                    _detailItem(Icons.notes_rounded, 'Description',
+                        task.description.isNotEmpty ? task.description : 'N/A'),
                     Row(
                       children: [
                         Expanded(
-                            child: _detailItem(Icons.flag_rounded, 'Priority',
-                                task.priority,
+                            child: _detailItem(
+                                Icons.flag_rounded, 'Priority', task.priority,
                                 badge: _buildPriorityBadge(task.priority))),
                         const SizedBox(width: 16),
                         Expanded(
-                            child: _detailItem(Icons.circle_rounded, 'Status',
-                                task.status,
+                            child: _detailItem(
+                                Icons.circle_rounded, 'Status', task.status,
                                 badge: _buildStatusBadge(task.status))),
                       ],
                     ),

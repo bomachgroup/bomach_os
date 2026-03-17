@@ -1563,7 +1563,7 @@ class EventsCalendarWidget extends StatelessWidget {
 class _TableHeader extends StatelessWidget {
   final String text;
 
-  const _TableHeader({super.key, required this.text});
+  const _TableHeader({required this.text});
 
   @override
   Widget build(BuildContext context) {

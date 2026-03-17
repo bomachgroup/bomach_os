@@ -118,9 +118,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Client Information
-                    MyText(
+                    const MyText(
                       'Client Information',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -205,9 +205,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                     const SizedBox(height: 24),
 
                     // Service Information
-                    MyText(
+                    const MyText(
                       'Service Details',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -272,9 +272,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                     const SizedBox(height: 24),
 
                     // Invoice Items
-                    MyText(
+                    const MyText(
                       'Invoice Items',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -347,9 +347,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                     const SizedBox(height: 24),
 
                     // Totals
-                    MyText(
+                    const MyText(
                       'Financial Summary',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -455,9 +455,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          MyText(
+                          const MyText(
                             'Payment Status',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -537,9 +537,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          MyText(
+                          const MyText(
                             'Payment History',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -662,9 +662,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          MyText(
+                          const MyText(
                             'Notes',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,

@@ -138,9 +138,9 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
           builder: (context, constraints) {
             double maxWidth = constraints.maxWidth;
             int columns = 1;
-            if (maxWidth > 1200)
+            if (maxWidth > 1200) {
               columns = 2;
-            else if (maxWidth > 900)
+            } else if (maxWidth > 900)
               columns = 2;
             else if (maxWidth > 700)
               columns = 2;

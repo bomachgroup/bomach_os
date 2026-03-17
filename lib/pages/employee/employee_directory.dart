@@ -80,7 +80,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                         bottom: BorderSide(color: AppColors.grey7),
                       ),
                     ),
-                    child: SingleChildScrollView(
+                    child: const SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
@@ -91,7 +91,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                               style: AppText.black_600_14,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           SizedBox(
                             width: 150,
                             child: MyText(
@@ -99,7 +99,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                               style: AppText.black_600_14,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           SizedBox(
                             width: 150,
                             child: MyText(
@@ -107,7 +107,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                               style: AppText.black_600_14,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           SizedBox(
                             width: 100,
                             child: MyText(
@@ -120,11 +120,11 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                     ),
                   ),
                   // Empty State
-                  Expanded(
+                  const Expanded(
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(
                             Icons.people_outline,
                             size: 48,

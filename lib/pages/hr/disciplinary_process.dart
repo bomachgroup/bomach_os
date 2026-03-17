@@ -278,8 +278,9 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
 
   Color _getActionColor(String actionType) {
     final type = actionType.toLowerCase();
-    if (type.contains('termination') || type.contains('dismissal'))
+    if (type.contains('termination') || type.contains('dismissal')) {
       return AppColors.red;
+    }
     if (type.contains('suspension')) return Colors.orange;
     if (type.contains('warning')) return Colors.blue;
     return AppColors.grey1;

@@ -461,7 +461,7 @@ class ViewWorkflowDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(label,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.blue,
             fontSize: 12,
             fontWeight: FontWeight.w600,

@@ -450,9 +450,9 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                     color: const Color(0xFF0EA5E9).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Icon(Icons.calendar_today_rounded,
-                        size: 16, color: const Color(0xFF0EA5E9)),
+                        size: 16, color: Color(0xFF0EA5E9)),
                   ),
                 ),
                 const SizedBox(width: 10),

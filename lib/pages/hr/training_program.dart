@@ -223,8 +223,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
 
   Widget _buildProgramsTable() {
     return DataTable(
-      headingRowColor: MaterialStateProperty.all(Colors.transparent),
-      dataRowColor: MaterialStateProperty.all(Colors.transparent),
+      headingRowColor: WidgetStateProperty.all(Colors.transparent),
+      dataRowColor: WidgetStateProperty.all(Colors.transparent),
       columnSpacing: 20,
       horizontalMargin: 0,
       headingTextStyle: const TextStyle(
@@ -309,8 +309,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
 
   Widget _buildAssessmentsTable() {
     return DataTable(
-      headingRowColor: MaterialStateProperty.all(Colors.transparent),
-      dataRowColor: MaterialStateProperty.all(Colors.transparent),
+      headingRowColor: WidgetStateProperty.all(Colors.transparent),
+      dataRowColor: WidgetStateProperty.all(Colors.transparent),
       columnSpacing: 20,
       horizontalMargin: 0,
       headingTextStyle: const TextStyle(
