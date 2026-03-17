@@ -8,9 +8,11 @@ import 'package:go_router/go_router.dart';
 import '../../src/app_routes/app_route_constants.dart';
 import '../../src/model/user_model.dart';
 import '../../src/services/auth_service.dart';
+import '../../src/services/permission_service.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
+  final PermissionService _permissionService = Get.put(PermissionService());
   final _storage = const FlutterSecureStorage();
 
   var isLoading = false.obs;
@@ -97,6 +99,9 @@ class AuthController extends GetxController {
       await _storage.write(key: 'access_token', value: response.accessToken);
       await _storage.write(key: 'refresh_token', value: response.refreshToken);
       await _storage.write(key: 'user_id', value: response.userId.toString());
+      
+      // Fetch permissions
+      await _fetchUserPermissions(response.accessToken, response.userId);
 
       await _fetchUserProfile(response.accessToken, response.userId);
 
@@ -126,6 +131,18 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> _fetchUserPermissions(String token, int userId) async {
+    try {
+      final roles = await _authService.getEmployeeRoles(
+          accessToken: token, userId: userId);
+      _permissionService.loadPermissions(roles);
+    } catch (e) {
+      log("Fetch Permissions Failed: $e");
+      // Don't throw here, just log. 
+      // User can still browse with minimal/no permissions if profile succeeds.
+    }
+  }
+
   Future<void> logout() async {
     try {
       final token = await _storage.read(key: 'access_token');
@@ -136,6 +153,7 @@ class AuthController extends GetxController {
       log("Logout error: $e");
     } finally {
       await _storage.deleteAll();
+      _permissionService.clearPermissions();
       currentUser.value = null;
       emailController.clear();
       passwordController.clear();
@@ -193,6 +211,7 @@ class AuthController extends GetxController {
             await _authService.verifyToken(accessToken: accessToken);
 
         if (isValid) {
+          await _fetchUserPermissions(accessToken, userId);
           await _fetchUserProfile(accessToken, userId);
         } else {
           if (refreshToken != null) {
@@ -222,6 +241,7 @@ class AuthController extends GetxController {
 
       log("Token refreshed successfully.");
 
+      await _fetchUserPermissions(accessToken, userId);
       await _fetchUserProfile(accessToken, userId);
     } catch (e) {
       log("Token refresh failed: $e");

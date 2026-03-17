@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../../pages/services/models/client_model.dart';
 import '../../pages/services/models/lead_model.dart';
 import '../model/user_model.dart';
+import '../model/role_model.dart';
 
 class AuthService {
   final Dio _dio;
@@ -113,6 +114,25 @@ class AuthService {
       }
 
       return User.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // GET EMPLOYEE ROLES
+  Future<List<Role>> getEmployeeRoles(
+      {required String accessToken, required int userId}) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/roles/employees/$userId',
+        options: _authOptions(accessToken),
+      );
+
+      if (response.data == null || response.data is! List) {
+        return [];
+      }
+
+      return (response.data as List).map((json) => Role.fromJson(json)).toList();
     } on DioException catch (e) {
       throw _handleError(e);
     }
