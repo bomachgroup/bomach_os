@@ -132,8 +132,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: isActive
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.red.withOpacity(0.1),
+                                ? Colors.green.withValues(alpha: 0.1)
+                                : Colors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: MyText(
@@ -379,8 +379,8 @@ class _ProfileTab extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                       color: employee.isActive
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4)),
                   child: Text(
                     employee.isActive ? "Active" : "Inactive",
@@ -937,7 +937,7 @@ class _InfoRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
+                color: Colors.green.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(icon, color: Colors.green, size: 16),
           ),
           const SizedBox(width: 12),

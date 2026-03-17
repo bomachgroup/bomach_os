@@ -151,7 +151,7 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
                         width: 4,
                       ),
                       color: isAuthenticated
-                          ? AppColors.green.withOpacity(0.1)
+                          ? AppColors.green.withValues(alpha: 0.1)
                           : Colors.transparent,
                     ),
                     child: Center(
