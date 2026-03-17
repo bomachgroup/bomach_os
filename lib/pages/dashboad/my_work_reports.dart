@@ -50,8 +50,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
   List<WorkReport> get _filteredReports {
     if (_selectedFilter == 'all') return controller.workReports;
     return controller.workReports
-        .where(
-            (r) => r.status.toLowerCase() == _selectedFilter.toLowerCase())
+        .where((r) => r.status.toLowerCase() == _selectedFilter.toLowerCase())
         .toList();
   }
 
@@ -133,15 +132,13 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                   color: AppColors.white, size: 20),
               child: "New Report",
               borderCurve: 12,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               onTap: () async {
                 final token = await _getToken();
                 if (token != null && context.mounted) {
                   showDialog(
                     context: context,
-                    builder: (context) =>
-                        DailyWorkReportDialog(token: token),
+                    builder: (context) => DailyWorkReportDialog(token: token),
                   );
                 }
               },
@@ -312,6 +309,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                     Flexible(
                       child: MyText(
                         f['label'] as String,
+                        isSelectable: false,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight:
@@ -384,8 +382,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                   ),
                   const SizedBox(height: 6),
                   const MyText('Submit a new report to get started',
-                      style:
-                          TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
                 ],
               ),
             ),
@@ -488,15 +485,13 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           DataCell(SizedBox(
             width: 150,
             child: MyText(report.achievements ?? '-',
-                style: const TextStyle(
-                    fontSize: 13, color: Color(0xFF475569)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
                 maxLines: 1),
           )),
           DataCell(SizedBox(
             width: 150,
             child: MyText(report.challenges ?? '-',
-                style: const TextStyle(
-                    fontSize: 13, color: Color(0xFF475569)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
                 maxLines: 1),
           )),
           DataCell(_buildStatusBadge(report.status)),
@@ -561,8 +556,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
 
   Widget _buildRating(int rating) {
     if (rating == 0) {
-      return const MyText('\u2014',
-          style: TextStyle(color: Color(0xFF94A3B8)));
+      return const MyText('\u2014', style: TextStyle(color: Color(0xFF94A3B8)));
     }
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -570,9 +564,8 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         ...List.generate(5, (i) {
           return Icon(
             i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
-            color: i < rating
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFFE2E8F0),
+            color:
+                i < rating ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0),
             size: 18,
           );
         }),
