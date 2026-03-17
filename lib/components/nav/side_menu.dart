@@ -933,16 +933,15 @@ class _SideMenuState extends State<SideMenu> {
   Widget _buildMenuItem(MenuItem menuItem) {
     final permissionService = Get.find<PermissionService>();
 
+    // Hide if user lacks the parent permission
+    if (!permissionService.canAccess(menuItem.permission)) {
+      return const SizedBox.shrink();
+    }
+
     // Filter sub-items based on permissions
     final authorizedSubItems = menuItem.children
         .where((subItem) => permissionService.canAccess(subItem.permission))
         .toList();
-
-    // Hide if not expandable and no permission
-    if (!menuItem.isExpandable &&
-        !permissionService.canAccess(menuItem.permission)) {
-      return const SizedBox.shrink();
-    }
 
     // Hide if expandable and no authorized children
     if (menuItem.isExpandable && authorizedSubItems.isEmpty) {
