@@ -229,26 +229,36 @@ class _SideMenuState extends State<SideMenu> {
         iconPath: 'assets/svg/sidebar/home.svg',
         route: RouteConstants.home,
         isExpandable: true,
+        permission:
+            '${PermissionConstants.resStats}:${PermissionConstants.actViewOwn}',
         children: [
           SubMenuItemData(
             id: SubMenuItem.dashboardHome,
             label: 'Overview',
             route: RouteConstants.home,
+            permission:
+                '${PermissionConstants.resStats}:${PermissionConstants.actViewOwn}',
           ),
           SubMenuItemData(
             id: SubMenuItem.myProfile,
             label: 'My Profile',
             route: RouteConstants.employeeMyProfile,
+            permission:
+                '${PermissionConstants.resEmployees}:${PermissionConstants.actViewOwn}',
           ),
           SubMenuItemData(
             id: SubMenuItem.myTasks,
             label: 'My Tasks',
             route: RouteConstants.employeeMyTasks,
+            permission:
+                '${PermissionConstants.resTasks}:${PermissionConstants.actListOwn}',
           ),
           SubMenuItemData(
             id: SubMenuItem.myReports,
             label: 'My Work Reports',
             route: RouteConstants.employeeMyReports,
+            permission:
+                '${PermissionConstants.resWorkReports}:${PermissionConstants.actListOwn}',
           ),
         ],
       ),
@@ -258,7 +268,7 @@ class _SideMenuState extends State<SideMenu> {
         iconPath: 'assets/svg/sidebar/person-plus.svg',
         isExpandable: true,
         permission:
-            '${PermissionConstants.resBranches}:${PermissionConstants.actList}', // Example fallback
+            '${PermissionConstants.resCompanySettings}:${PermissionConstants.actView}',
         children: [
           SubMenuItemData(
             id: SubMenuItem.company,
