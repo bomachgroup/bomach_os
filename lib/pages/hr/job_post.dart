@@ -268,7 +268,7 @@ class _JobOpeningTable extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
+            color: Colors.grey.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -339,8 +339,8 @@ class _JobOpeningTable extends StatelessWidget {
       final bool isActive = job.status.toLowerCase() == 'active';
       final Color statusColor = isActive ? Colors.green : Colors.grey;
       final Color statusBg = isActive
-          ? Colors.green.withOpacity(0.1)
-          : Colors.grey.withOpacity(0.1);
+          ? Colors.green.withValues(alpha: 0.1)
+          : Colors.grey.withValues(alpha: 0.1);
       final String statusText = isActive ? 'Active' : 'Draft';
 
       return DataRow(cells: <DataCell>[
@@ -524,7 +524,7 @@ class PipelineTab extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 5,
                 offset: const Offset(0, 2)),
           ],
@@ -598,7 +598,7 @@ class OnboardingTab extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.05),
+              color: Colors.grey.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4))
         ],
@@ -763,7 +763,7 @@ class OffboardingTab extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.05),
+              color: Colors.grey.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4))
         ],

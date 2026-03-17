@@ -106,7 +106,9 @@ class CompanyController extends GetxController {
         _showSnackBar(context, "Profile updated successfully");
       }
     } catch (e) {
-      _showSnackBar(context, "Failed to update: $e", isError: true);
+      if (context.mounted) {
+        _showSnackBar(context, "Failed to update: $e", isError: true);
+      }
     } finally {
       isSaving.value = false;
     }
@@ -154,7 +156,9 @@ class CompanyController extends GetxController {
         }
       }
     } catch (e) {
-      _showSnackBar(context, "Error: $e", isError: true);
+      if (context.mounted) {
+        _showSnackBar(context, "Error: $e", isError: true);
+      }
     } finally {
       isSaving.value = false;
     }

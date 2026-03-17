@@ -730,8 +730,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: (hasNewImage || hasExistingImage)
-                ? Colors.green.withOpacity(0.5)
-                : const Color(0xFF0055FF).withOpacity(0.3),
+                ? Colors.green.withValues(alpha: 0.5)
+                : const Color(0xFF0055FF).withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
