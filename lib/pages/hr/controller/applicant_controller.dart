@@ -132,6 +132,7 @@ class ApplicantController extends GetxController {
       );
 
       await _applicantService.createApplicant(token, newApplicant);
+      if (!context.mounted) return;
       await fetchApplicants(context, refresh: true);
 
       if (context.mounted) {
@@ -169,6 +170,7 @@ class ApplicantController extends GetxController {
       );
 
       await _applicantService.updateApplicant(token, id, updatedApplicant);
+      if (!context.mounted) return;
       await fetchApplicants(context, refresh: true);
 
       if (context.mounted) {
@@ -189,7 +191,7 @@ class ApplicantController extends GetxController {
       isLoading.value = true;
 
       final token = await _getToken(context);
-      if (token == null) return;
+      if (token == null || !context.mounted) return;
 
       await _applicantService.deleteApplicant(token, id);
       applicantList.removeWhere((app) => app.id == id);
@@ -215,6 +217,7 @@ class ApplicantController extends GetxController {
       if (token == null) return;
 
       await _applicantService.updateApplicantStage(token, id, newStage);
+      if (!context.mounted) return;
       await fetchApplicants(context, refresh: true);
 
       if (context.mounted) {
@@ -235,6 +238,7 @@ class ApplicantController extends GetxController {
       if (token == null) return;
 
       await _applicantService.updateApplicantStage(token, id, 'rejected');
+      if (!context.mounted) return;
       await fetchApplicants(context, refresh: true);
 
       if (context.mounted) {

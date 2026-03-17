@@ -123,6 +123,7 @@ class DepartmentController extends GetxController {
         _showSnackBar(context, "Department created successfully");
       }
 
+      if (!context.mounted) return;
       await fetchDepartments(context);
     } catch (e) {
       log("Create Department Error: $e");
@@ -168,6 +169,7 @@ class DepartmentController extends GetxController {
 
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
