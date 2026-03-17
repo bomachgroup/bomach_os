@@ -195,7 +195,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
           color: const Color(0xFFF8F9FB),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color(0xFF0055FF).withOpacity(0.3),
+            color: const Color(0xFF0055FF).withValues(alpha: 0.3),
           ),
         ),
         child: Column(

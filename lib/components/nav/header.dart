@@ -81,7 +81,7 @@ class TopNavigationBar extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.blue.withOpacity(0.1),
+                        color: AppColors.blue.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                         image: (image != null && image.isNotEmpty)
                             ? DecorationImage(
@@ -171,7 +171,7 @@ class UserProfileDialog extends StatelessWidget {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.blue.withOpacity(0.1),
+                        color: AppColors.blue.withValues(alpha: 0.1),
                         image: (user.profilePicture != null &&
                                 user.profilePicture!.isNotEmpty)
                             ? DecorationImage(
@@ -299,8 +299,8 @@ class UserProfileDialog extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
                 color: isActive
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.red.withOpacity(0.1),
+                    ? Colors.green.withValues(alpha: 0.1)
+                    : Colors.red.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4)),
             child: Text(
               isActive ? "Yes" : "No",

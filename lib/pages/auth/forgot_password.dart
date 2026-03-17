@@ -47,7 +47,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withOpacity(0.1),
+                    color: AppColors.blue.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.lock_reset,

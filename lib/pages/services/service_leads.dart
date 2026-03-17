@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
+import 'package:bms_front_end/components/permission_gate.dart';
 import 'controller/lead_controller.dart';
 
 // Legacy class for backward compatibility with invoice widgets
@@ -356,11 +357,15 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                 ),
               ),
               const SizedBox(width: 16),
-              MyElevatedButton(
-                child: 'Add Lead',
-                bgColor: AppColors.blue,
-                icon: const Icon(Icons.add, color: Colors.white),
-                onTap: _showAddLeadDialog,
+              PermissionGate(
+                resource: 'leads',
+                action: 'create',
+                child: MyElevatedButton(
+                  child: 'Add Lead',
+                  bgColor: AppColors.blue,
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  onTap: _showAddLeadDialog,
+                ),
               ),
             ],
           ),

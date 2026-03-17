@@ -139,7 +139,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
         endDateCtrl.text.isEmpty) {
       Get.snackbar("Error", "Please fill in all required fields",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.1),
+          backgroundColor: Colors.red.withValues(alpha: 0.1),
           colorText: Colors.red);
       return;
     }
