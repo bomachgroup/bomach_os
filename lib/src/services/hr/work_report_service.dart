@@ -74,7 +74,7 @@ class WorkReportService {
     try {
       final response = await _dio.post(
         '/work-reports/',
-        data: report.toJson(),
+        data: report.toCreateJson(),
         options: _authOptions(token),
       );
       return WorkReport.fromJson(response.data);
@@ -100,7 +100,7 @@ class WorkReportService {
     try {
       final response = await _dio.put(
         '/work-reports/$reportId',
-        data: report.toJson(),
+        data: report.toUpdateJson(),
         options: _authOptions(token),
       );
       return WorkReport.fromJson(response.data);

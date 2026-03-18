@@ -51,13 +51,14 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
       employeeId: widget.report.employeeId,
       day: widget.report.day,
       hoursWorked: widget.report.hoursWorked,
-      mood: widget.report.mood,
-      challenges: widget.report.challenges,
-      achievements: widget.report.achievements,
+      operationalBase: widget.report.operationalBase,
+      workActivities: widget.report.workActivities,
+      taskDetails: widget.report.taskDetails,
       planNextDay: widget.report.planNextDay,
       status: newStatus,
       rating: _rating,
       feedback: _feedbackController.text,
+      attachments: widget.report.attachments,
     );
 
     final success = await controller.updateReport(
@@ -96,7 +97,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                 ],
               ),
             ),
-            Expanded(
+            Flexible(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -126,9 +127,10 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildDetail('Achievements', widget.report.achievements),
-                    _buildDetail('Challenges', widget.report.challenges),
-                    _buildDetail('Next Day Plan', widget.report.planNextDay),
+                    _buildDetail('Operational Base', widget.report.operationalBase),
+                    _buildDetail('Work Activities', widget.report.workActivities),
+                    _buildDetail('Task Details', widget.report.taskDetails),
+                    _buildDetail('Plan for Next Day', widget.report.planNextDay),
                     const Divider(height: 32),
                     const MyText('Manager Review', style: AppText.black_600_16),
                     const SizedBox(height: 16),

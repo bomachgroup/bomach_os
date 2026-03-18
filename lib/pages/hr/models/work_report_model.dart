@@ -1,15 +1,28 @@
+class WorkReportAttachment {
+  final String fileUrl;
+
+  WorkReportAttachment({required this.fileUrl});
+
+  factory WorkReportAttachment.fromJson(Map<String, dynamic> json) {
+    return WorkReportAttachment(fileUrl: json['file_url'] ?? '');
+  }
+
+  Map<String, dynamic> toJson() => {'file_url': fileUrl};
+}
+
 class WorkReport {
   final String id;
-  final String employeeId;
-  final DateTime? day; // The specific date of the report
+  final int employeeId;
+  final DateTime? day;
   final double hoursWorked;
-  final String mood; // e.g., "Good", "Neutral", "Bad"
-  final String? challenges;
-  final String? achievements;
+  final String? operationalBase;
+  final String? workActivities;
+  final String? taskDetails;
   final String? planNextDay;
-  final String status; // e.g., "draft", "submitted"
-  final String? feedback; // Manager feedback
-  final int rating;
+  final String status;
+  final String? feedback;
+  final int? rating;
+  final List<WorkReportAttachment> attachments;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -18,56 +31,86 @@ class WorkReport {
     required this.employeeId,
     this.day,
     required this.hoursWorked,
-    required this.mood,
-    this.challenges,
-    this.achievements,
+    this.operationalBase,
+    this.workActivities,
+    this.taskDetails,
     this.planNextDay,
     required this.status,
     this.feedback,
-    required this.rating,
+    this.rating,
+    this.attachments = const [],
     this.createdAt,
     this.updatedAt,
   });
 
   factory WorkReport.fromJson(Map<String, dynamic> json) {
-    // Helper to safely parse doubles
     double parseDouble(dynamic value) {
       if (value == null) return 0.0;
       if (value is num) return value.toDouble();
       return double.tryParse(value.toString()) ?? 0.0;
     }
 
+    final rawAttachments = json['attachments'];
+    final attachmentsList = rawAttachments is List
+        ? rawAttachments
+            .map((a) =>
+                WorkReportAttachment.fromJson(a as Map<String, dynamic>))
+            .toList()
+        : <WorkReportAttachment>[];
+
     return WorkReport(
       id: json['id']?.toString() ?? '',
-      employeeId: json['employee_id']?.toString() ?? '',
+      employeeId: json['employee_id'] is int
+          ? json['employee_id']
+          : int.tryParse(json['employee_id']?.toString() ?? '0') ?? 0,
       day: json['day'] != null ? DateTime.tryParse(json['day']) : null,
       hoursWorked: parseDouble(json['hours_worked']),
-      mood: json['mood'] ?? '',
-      challenges: json['challenges'],
-      achievements: json['achievements'],
+      operationalBase: json['operational_base'],
+      workActivities: json['work_activities'],
+      taskDetails: json['task_details'],
       planNextDay: json['plan_next_day'],
       status: json['status'] ?? 'draft',
       feedback: json['feedback'],
-      rating: json['rating'] is int 
-          ? json['rating'] 
-          : int.tryParse(json['rating']?.toString() ?? '0') ?? 0,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      rating: json['rating'] is int
+          ? json['rating']
+          : int.tryParse(json['rating']?.toString() ?? '0'),
+      attachments: attachmentsList,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  /// For POST /work-reports/ (create)
+  Map<String, dynamic> toCreateJson() {
     return {
-      'employee_id': employeeId,
-      'day': day?.toIso8601String().split('T').first, // Format YYYY-MM-DD
+      'day': day?.toIso8601String().split('T').first,
       'hours_worked': hoursWorked,
-      'mood': mood,
-      'challenges': challenges,
-      'achievements': achievements,
+      'operational_base': operationalBase,
+      'work_activities': workActivities,
+      'task_details': taskDetails,
+      'plan_next_day': planNextDay,
+      'status': status,
+      'attachments': attachments.map((a) => a.toJson()).toList(),
+    };
+  }
+
+  /// For PUT /work-reports/{id} (update)
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'day': day?.toIso8601String().split('T').first,
+      'hours_worked': hoursWorked,
+      'operational_base': operationalBase,
+      'work_activities': workActivities,
+      'task_details': taskDetails,
       'plan_next_day': planNextDay,
       'status': status,
       'feedback': feedback,
       'rating': rating,
+      'attachments': attachments.map((a) => a.toJson()).toList(),
     };
   }
 }
