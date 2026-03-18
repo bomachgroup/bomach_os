@@ -229,13 +229,19 @@ class _SideMenuState extends State<SideMenu> {
         iconPath: 'assets/svg/sidebar/home.svg',
         route: RouteConstants.home,
         isExpandable: true,
-        resources: [PermissionConstants.resStats],
+        resources: [
+          PermissionConstants.resDashboard,
+          PermissionConstants.resEmployees,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.dashboardHome,
             label: 'Overview',
             route: RouteConstants.home,
-            resources: [PermissionConstants.resStats],
+            resources: [
+              PermissionConstants.resDashboard,
+              PermissionConstants.resEmployees,
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.myProfile,
