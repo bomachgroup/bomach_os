@@ -63,6 +63,68 @@ class EmployeeEvaluationService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> listEvaluations(
+    String token, {
+    required int employeeId,
+    int? month,
+    int? year,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/employee-evaluations/employee/$employeeId',
+        queryParameters: {
+          if (month != null) 'month': month,
+          if (year != null) 'year': year,
+        },
+        options: _authOptions(token),
+      );
+      return List<Map<String, dynamic>>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getEvaluation(
+    String token, {
+    required int evaluationId,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/employee-evaluations/$evaluationId',
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> updateEvaluation(
+    String token, {
+    required int evaluationId,
+    String? managerComments,
+    bool? promotionRequired,
+    bool? trainingRequired,
+    bool? salaryIncrease,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (managerComments != null) data['manager_comments'] = managerComments;
+      if (promotionRequired != null) data['promotion_required'] = promotionRequired;
+      if (trainingRequired != null) data['training_required'] = trainingRequired;
+      if (salaryIncrease != null) data['salary_increase'] = salaryIncrease;
+
+      final response = await _dio.put(
+        '/employee-evaluations/$evaluationId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final errorMessage = error.response?.data?['message'] ??

@@ -140,6 +140,46 @@ class ServiceService {
     }
   }
 
+  // --- Categories CRUD ---
+  Future<ServiceCategory> createCategory(
+      String token, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        '/categories',
+        data: data,
+        options: _authOptions(token),
+      );
+      return ServiceCategory.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<ServiceCategory> updateCategory(
+      String token, int categoryId, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(
+        '/categories/$categoryId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return ServiceCategory.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteCategory(String token, int categoryId) async {
+    try {
+      await _dio.delete(
+        '/categories/$categoryId',
+        options: _authOptions(token),
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<List<Quote>> getQuotes(
     String token, {
     String? status,
@@ -265,6 +305,94 @@ class ServiceService {
         options: _authOptions(token),
       );
       return Property.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // --- Quotes CRUD (missing methods) ---
+  Future<Quote> getQuoteById(String token, int quoteId) async {
+    try {
+      final response = await _dio.get(
+        '/quotes/$quoteId',
+        options: _authOptions(token),
+      );
+      return Quote.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Quote> updateQuote(
+      String token, int quoteId, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(
+        '/quotes/$quoteId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Quote.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteQuote(String token, int quoteId) async {
+    try {
+      await _dio.delete(
+        '/quotes/$quoteId',
+        options: _authOptions(token),
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // --- Orders CRUD (missing methods) ---
+  Future<Order> getOrderById(String token, int orderId) async {
+    try {
+      final response = await _dio.get(
+        '/orders/$orderId',
+        options: _authOptions(token),
+      );
+      return Order.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Order> updateOrder(
+      String token, int orderId, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(
+        '/orders/$orderId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Order.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> deleteOrder(String token, int orderId) async {
+    try {
+      await _dio.delete(
+        '/orders/$orderId',
+        options: _authOptions(token),
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // --- Properties (missing method) ---
+  Future<void> deleteProperty(String token, int propertyId) async {
+    try {
+      await _dio.delete(
+        '/properties/$propertyId',
+        options: _authOptions(token),
+      );
     } catch (e) {
       throw _handleError(e);
     }

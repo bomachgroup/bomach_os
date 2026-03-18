@@ -140,6 +140,54 @@ class PayrollService {
     }
   }
 
+  Future<Map<String, dynamic>> processBatch(
+    String token, {
+    required String periodDate,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/payroll/process-batch',
+        data: {'period_date': periodDate},
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> makePayment(
+    String token, {
+    required int year,
+    required int month,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/payroll/make-payment/$year/$month',
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> authorizePayroll(
+    String token, {
+    required int year,
+    required int month,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/payroll/make-payment/$year/$month/authorize',
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final errorMessage = error.response?.data?['message'] ?? error.message;

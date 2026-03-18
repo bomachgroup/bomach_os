@@ -75,6 +75,38 @@ class MonthlyScorecardService {
     }
   }
 
+  Future<MonthlyScorecard> updateScorecard(
+    String token, {
+    required int scorecardId,
+    double? attendanceScore,
+    double? taskDeliveryScore,
+    double? reportAccuracyScore,
+    double? brandContributionScore,
+    double? trainingProgressScore,
+    double? targetScore,
+    String? notes,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (attendanceScore != null) data['attendance_score'] = attendanceScore;
+      if (taskDeliveryScore != null) data['task_delivery_score'] = taskDeliveryScore;
+      if (reportAccuracyScore != null) data['report_accuracy_score'] = reportAccuracyScore;
+      if (brandContributionScore != null) data['brand_contribution_score'] = brandContributionScore;
+      if (trainingProgressScore != null) data['training_progress_score'] = trainingProgressScore;
+      if (targetScore != null) data['target_score'] = targetScore;
+      if (notes != null) data['notes'] = notes;
+
+      final response = await _dio.put(
+        '/monthly-scorecards/$scorecardId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return MonthlyScorecard.fromJson(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Exception _handleError(dynamic error) {
     if (error is DioException) {
       final errorMessage = error.response?.data?['message'] ??
