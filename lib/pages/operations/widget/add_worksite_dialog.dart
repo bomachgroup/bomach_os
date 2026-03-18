@@ -82,7 +82,7 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
             ),
             const Divider(height: 1),
 
-        
+
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -117,7 +117,7 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
               ),
             ),
 
-        
+
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(

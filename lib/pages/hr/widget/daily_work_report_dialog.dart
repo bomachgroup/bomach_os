@@ -146,7 +146,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
               ),
             ),
 
-            Expanded(
+            Flexible(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Column(
