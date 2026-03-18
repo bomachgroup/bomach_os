@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../components/input/my_dropdown.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
+import '../../src/services/crm/crm_service.dart';
+import 'controllers/crm_controller.dart';
 import 'dialogs/client_dialog.dart';
-import 'dialogs/lead_dialog.dart';
+import 'dialogs/lead_dialog.dart' show AddNewLeadDialog;
 import 'models.dart';
 import 'widgets/widgets.dart';
 
@@ -13,6 +15,7 @@ class CrmClientsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(CrmController());
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
     final isTablet = screenWidth < 900;
@@ -105,32 +108,64 @@ class CrmClientsPage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: crmMetrics.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isMobile ? 2 : 4,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: isMobile
-                ? 1.5
-                : isTablet
-                    ? 1
-                    : 1.8,
-          ),
-          itemBuilder: (context, index) =>
-              StandardMetricCard(data: crmMetrics[index]),
-        ),
+        Obx(() {
+          final metrics = [
+            MetricData(
+                title: 'Total Clients',
+                value: controller.totalClients.value.toString(),
+                icon: Icons.people_alt,
+                color: Colors.blue.shade600,
+                subtitle: 'Active client base'),
+            MetricData(
+                title: 'Total Leads',
+                value: controller.totalLeads.value.toString(),
+                icon: Icons.trending_up,
+                color: Colors.green.shade600,
+                subtitle: 'Current leads'),
+            MetricData(
+                title: 'Conversion Rate',
+                value: controller.totalLeads.value > 0
+                    ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
+                    : '0%',
+                icon: Icons.attach_money,
+                color: Colors.purple.shade600,
+                subtitle: 'Lead to client'),
+            MetricData(
+                title: 'Retention Rate',
+                value: '—',
+                icon: Icons.star,
+                color: Colors.orange.shade600,
+                subtitle: 'Client retention'),
+          ];
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: metrics.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isMobile ? 2 : 4,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+              childAspectRatio: isMobile
+                  ? 1.5
+                  : isTablet
+                      ? 1
+                      : 1.8,
+            ),
+            itemBuilder: (context, index) =>
+                StandardMetricCard(data: metrics[index]),
+          );
+        }),
         const SizedBox(height: 32),
-        const ClientsTable(),
+        _ClientsTableLive(controller: controller),
       ],
     );
   }
 }
 
-class ClientsTable extends StatelessWidget {
-  const ClientsTable({super.key});
+class _ClientsTableLive extends StatelessWidget {
+  final CrmController controller;
+  const _ClientsTableLive({required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -150,124 +185,59 @@ class ClientsTable extends StatelessWidget {
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Text(
-            'Clients',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
+        children: [
+          const Text('Clients',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87)),
           const SizedBox(height: 4),
-          const Text(
-            'Manage your client relationships',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
+          const Text('Manage your client relationships',
+              style: TextStyle(fontSize: 14, color: Colors.grey)),
           const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isMobile = constraints.maxWidth < 600;
-              if (isMobile) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search clients...',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Color(0xFFF7F7F7),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    MyDropdown(
-                      hintText: 'All Status',
-                      items: const ['All Status', 'active', 'inactive'],
-                      onChanged: (String? newValue) {},
-                      fillColor: const Color(0xFFF7F7F7),
-                    ),
-                    const SizedBox(height: 12),
-                    MyDropdown(
-                      hintText: 'All Types',
-                      items: const [
-                        'All Types',
-                        'Government',
-                        'Corporate',
-                        'Institution'
-                      ],
-                      onChanged: (String? newValue) {},
-                      fillColor: const Color(0xFFF7F7F7),
-                    ),
-                  ],
-                );
-              } else {
-                return Row(
-                  children: <Widget>[
-                    const Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search clients...',
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(4.0)),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Color(0xFFF7F7F7),
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      child: MyDropdown(
-                        hintText: 'All Status',
-                        items: const ['All Status', 'active', 'inactive'],
-                        onChanged: (String? newValue) {},
-                        fillColor: const Color(0xFFF7F7F7),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: MyDropdown(
-                        hintText: 'All Types',
-                        items: const [
-                          'All Types',
-                          'Government',
-                          'Corporate',
-                          'Institution'
-                        ],
-                        onChanged: (String? newValue) {},
-                        fillColor: const Color(0xFFF7F7F7),
-                      ),
-                    ),
-                  ],
-                );
-              }
-            },
+          TextField(
+            decoration: const InputDecoration(
+              hintText: 'Search clients...',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Color(0xFFF7F7F7),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            ),
+            onChanged: controller.onClientSearchChanged,
           ),
           const SizedBox(height: 24),
-          ClientDataTable(),
+          Obx(() {
+            if (controller.isLoadingClients.value) {
+              return const Center(
+                  child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ));
+            }
+            if (controller.clientList.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(
+                    child: Text('No clients found.',
+                        style: TextStyle(color: Colors.grey))),
+              );
+            }
+            return _ClientDataTableLive(clients: controller.clientList);
+          }),
         ],
       ),
     );
   }
 }
 
-class ClientDataTable extends StatelessWidget {
-  ClientDataTable({super.key});
+class _ClientDataTableLive extends StatelessWidget {
+  final List<CrmClient> clients;
+  _ClientDataTableLive({required this.clients});
+
   final ScrollController scrollController = ScrollController();
 
   @override
@@ -284,120 +254,30 @@ class ClientDataTable extends StatelessWidget {
           dataRowMinHeight: 60,
           dataRowMaxHeight: 80,
           dividerThickness: 1.0,
-          columns: const <DataColumn>[
+          columns: const [
             DataColumn(
                 label: Text('Client',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
-                label: Text('Contact',
+                label: Text('Email',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
-                label: Text('Type',
+                label: Text('Phone',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
-                label: Text('Industry',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Status',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Value',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Projects',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Actions',
+                label: Text('Balance',
                     style: TextStyle(fontWeight: FontWeight.bold))),
           ],
-          rows: mockClients.map((client) => _buildDataRow(client)).toList(),
-        ),
-      ),
-    );
-  }
-
-  DataRow _buildDataRow(ClientItem client) {
-    final email = client.contact.split('\n').first;
-    final phone = client.contact.split('\n').length > 1
-        ? client.contact.split('\n')[1]
-        : null;
-
-    return DataRow(
-      cells: <DataCell>[
-        DataCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                client.name,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
-              Text(
-                client.type,
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-        DataCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Row(
-                children: [
-                  const Icon(Icons.mail_outline, size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(email, style: const TextStyle(fontSize: 12)),
-                ],
-              ),
-              Row(
-                children: [
-                  const Icon(Icons.phone_outlined,
-                      size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(phone ?? 'none', style: const TextStyle(fontSize: 12)),
-                ],
-              ),
-            ],
-          ),
-        ),
-        DataCell(_buildStatusTag(client.type,
-            backgroundColor: const Color(0xFFF0F0F0),
-            textColor: Colors.black87)),
-        DataCell(Text(client.industry)),
-        DataCell(_buildStatusTag(client.status,
-            backgroundColor: const Color(0xFFE6FFF2),
-            textColor: const Color(0xFF00B062))),
-        DataCell(Text(client.value,
-            style: const TextStyle(fontWeight: FontWeight.w600))),
-        DataCell(Text(client.projects.toString())),
-        const DataCell(
-          IconButton(
-            icon: Icon(Icons.remove_red_eye_outlined, color: Colors.grey),
-            onPressed: null,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatusTag(String text,
-      {required Color backgroundColor, required Color textColor}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text.toUpperCase(),
-        style: TextStyle(
-          color: textColor,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
+          rows: clients.map((c) {
+            return DataRow(cells: [
+              DataCell(Text(c.fullName,
+                  style: const TextStyle(fontWeight: FontWeight.w600))),
+              DataCell(Text(c.email)),
+              DataCell(Text(c.phoneNumber ?? '—')),
+              DataCell(Text('₦${c.balance.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.w600))),
+            ]);
+          }).toList(),
         ),
       ),
     );

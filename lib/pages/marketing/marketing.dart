@@ -2,6 +2,7 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/marketing/controllers/marketing_controller.dart';
 import 'package:bms_front_end/pages/marketing/widget/add_campaign_dialog.dart';
 import 'package:bms_front_end/pages/marketing/widget/add_content_dialog.dart';
 import 'package:bms_front_end/pages/marketing/widget/add_lead_dialog.dart';
@@ -10,6 +11,7 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 class MarketingPage extends StatefulWidget {
@@ -21,6 +23,7 @@ class MarketingPage extends StatefulWidget {
 
 class _MarketingPageState extends State<MarketingPage> {
   int _selectedTab = 0;
+  final MarketingController _controller = Get.put(MarketingController());
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +101,6 @@ class _MarketingPageState extends State<MarketingPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Projects Header
         Row(
           children: [
             Expanded(
@@ -108,18 +110,20 @@ class _MarketingPageState extends State<MarketingPage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Marketing Campaigns (2)',
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 8),
-                      Text('Manage and track marketing campaign performance',
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
-                    ],
-                  ),
+                  Obx(() => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              'Marketing Campaigns (${_controller.totalCampaigns.value})',
+                              style: const TextStyle(
+                                  fontSize: 22, fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          const Text(
+                              'Manage and track marketing campaign performance',
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.black54)),
+                        ],
+                      )),
                   SizedBox(
                     width: 300,
                     child: MyTextFormField(
@@ -128,6 +132,7 @@ class _MarketingPageState extends State<MarketingPage> {
                         Icons.search,
                         color: AppColors.grey1.withValues(alpha: 0.5),
                       ),
+                      onChanged: _controller.onCampaignSearchChanged,
                     ),
                   ),
                 ],
@@ -136,33 +141,45 @@ class _MarketingPageState extends State<MarketingPage> {
           ],
         ),
         const SizedBox(height: 24),
-
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: 3,
-          separatorBuilder: (_, __) => const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                context.push(RouteConstants.marketingCampaignDetail);
-              },
-              child: const CampaignCard(
-                title: "Q1 Land Survey Awareness",
-                subtitle: "Property developers in Lagos",
-                status: "Active",
-                channel: "Social Media",
-                budgetUsed: 62.5,
-                impressions: 130000,
-                ctr: 2.6,
-                roi: 120,
-                spent: 145000,
-                total: 1200000,
-              ),
-            );
-          },
-        ),
-
+        Obx(() {
+          if (_controller.isLoadingCampaigns.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (_controller.campaignList.isEmpty) {
+            return const Center(
+                child: Padding(
+              padding: EdgeInsets.all(32),
+              child: Text('No campaigns found.',
+                  style: TextStyle(color: Colors.grey)),
+            ));
+          }
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _controller.campaignList.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (context, index) {
+              final c = _controller.campaignList[index];
+              return GestureDetector(
+                onTap: () {
+                  context.push(RouteConstants.marketingCampaignDetail);
+                },
+                child: CampaignCard(
+                  title: c.name,
+                  subtitle: c.description ?? '',
+                  status: c.status,
+                  channel: c.channel,
+                  budgetUsed: c.budgetUtilizationPercentage,
+                  impressions: c.impressions,
+                  ctr: double.tryParse(c.ctr) ?? 0,
+                  roi: double.tryParse(c.roi) ?? 0,
+                  spent: double.tryParse(c.budgetSpent) ?? 0,
+                  total: double.tryParse(c.budgetAllocated) ?? 0,
+                ),
+              );
+            },
+          );
+        }),
         const SizedBox(height: 40),
       ],
     );

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../components/input/my_dropdown.dart';
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
+import '../../src/services/crm/crm_service.dart';
+import 'controllers/crm_controller.dart';
 import 'dialogs/client_dialog.dart';
 import 'dialogs/lead_dialog.dart' show AddNewLeadDialog;
 import 'models.dart';
@@ -13,6 +16,7 @@ class CrmLeadsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(CrmController());
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
     final isTablet = screenWidth < 900;
@@ -105,25 +109,56 @@ class CrmLeadsPage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: crmMetrics.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isMobile ? 2 : 4,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: isMobile
-                ? 1.5
-                : isTablet
-                    ? 1
-                    : 1.8,
-          ),
-          itemBuilder: (context, index) =>
-              StandardMetricCard(data: crmMetrics[index]),
-        ),
+        Obx(() {
+          final metrics = [
+            MetricData(
+                title: 'Total Clients',
+                value: controller.totalClients.value.toString(),
+                icon: Icons.people_alt,
+                color: Colors.blue.shade600,
+                subtitle: 'Active client base'),
+            MetricData(
+                title: 'Total Leads',
+                value: controller.totalLeads.value.toString(),
+                icon: Icons.trending_up,
+                color: Colors.green.shade600,
+                subtitle: 'Current leads'),
+            MetricData(
+                title: 'Conversion Rate',
+                value: controller.totalLeads.value > 0
+                    ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
+                    : '0%',
+                icon: Icons.attach_money,
+                color: Colors.purple.shade600,
+                subtitle: 'Lead to client'),
+            MetricData(
+                title: 'Retention Rate',
+                value: '—',
+                icon: Icons.star,
+                color: Colors.orange.shade600,
+                subtitle: 'Client retention'),
+          ];
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: metrics.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isMobile ? 2 : 4,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+              childAspectRatio: isMobile
+                  ? 1.5
+                  : isTablet
+                      ? 1
+                      : 1.8,
+            ),
+            itemBuilder: (context, index) =>
+                StandardMetricCard(data: metrics[index]),
+          );
+        }),
         const SizedBox(height: 32),
-        const LeadsTable()
+        _LeadsTableLive(controller: controller),
       ],
     );
   }
@@ -135,14 +170,17 @@ Map<String, Color> _getStatusColors(String status) {
       return {'bg': const Color(0xFFF6F0FF), 'text': const Color(0xFF9B59B6)};
     case 'proposal':
       return {'bg': const Color(0xFFFFFBE8), 'text': const Color(0xFFF1C40F)};
+    case 'converted':
+      return {'bg': const Color(0xFFE6FFF2), 'text': const Color(0xFF00B062)};
     case 'new':
     default:
       return {'bg': const Color(0xFFEEF7FF), 'text': const Color(0xFF3498DB)};
   }
 }
 
-class LeadsTable extends StatelessWidget {
-  const LeadsTable({super.key});
+class _LeadsTableLive extends StatelessWidget {
+  final CrmController controller;
+  const _LeadsTableLive({required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -162,29 +200,21 @@ class LeadsTable extends StatelessWidget {
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Text(
-            'Sales Pipeline',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
+        children: [
+          const Text('Sales Pipeline',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87)),
           const SizedBox(height: 4),
-          const Text(
-            'Track and manage your sales leads',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
+          const Text('Track and manage your sales leads',
+              style: TextStyle(fontSize: 14, color: Colors.grey)),
           const SizedBox(height: 16),
           Row(
-            children: <Widget>[
-              const Expanded(
+            children: [
+              Expanded(
                 child: TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Search leads...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(4.0)),
@@ -195,6 +225,7 @@ class LeadsTable extends StatelessWidget {
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                   ),
+                  onChanged: controller.onLeadSearchChanged,
                 ),
               ),
               const SizedBox(width: 16),
@@ -202,32 +233,55 @@ class LeadsTable extends StatelessWidget {
                 width: 150,
                 child: MyDropdown(
                   hintText: 'All Status',
-                  items: const ['All Status', 'qualified', 'proposal', 'new'],
-                  onChanged: (String? newValue) {},
+                  items: const ['All Status', 'new', 'qualified', 'proposal', 'converted'],
+                  onChanged: (val) {
+                    controller.onLeadStatusFilterChanged(
+                        val == 'All Status' ? null : val);
+                  },
                   fillColor: const Color(0xFFF7F7F7),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 24),
-          LeadDataTable(),
+          Obx(() {
+            if (controller.isLoadingLeads.value) {
+              return const Center(
+                  child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ));
+            }
+            if (controller.leadList.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(
+                    child: Text('No leads found.',
+                        style: TextStyle(color: Colors.grey))),
+              );
+            }
+            return _LeadDataTableLive(
+                leads: controller.leadList, controller: controller);
+          }),
         ],
       ),
     );
   }
 }
 
-class LeadDataTable extends StatelessWidget {
-  LeadDataTable({super.key});
+class _LeadDataTableLive extends StatelessWidget {
+  final List<CrmLead> leads;
+  final CrmController controller;
+  _LeadDataTableLive({required this.leads, required this.controller});
 
-  final scrollControler = ScrollController();
+  final scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return Scrollbar(
-      controller: scrollControler,
+      controller: scrollController,
       child: SingleChildScrollView(
-        controller: scrollControler,
+        controller: scrollController,
         scrollDirection: Axis.horizontal,
         child: DataTable(
           headingRowColor:
@@ -236,12 +290,15 @@ class LeadDataTable extends StatelessWidget {
           dataRowMinHeight: 60,
           dataRowMaxHeight: 80,
           dividerThickness: 1.0,
-          columns: const <DataColumn>[
+          columns: const [
             DataColumn(
                 label: Text('Lead',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
-                label: Text('Contact',
+                label: Text('Email',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Phone',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
                 label: Text('Company',
@@ -253,105 +310,59 @@ class LeadDataTable extends StatelessWidget {
                 label: Text('Status',
                     style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(
-                label: Text('Score',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Value',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Next Follow-up',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
                 label: Text('Actions',
                     style: TextStyle(fontWeight: FontWeight.bold))),
           ],
-          rows: leadsMock.map((lead) => _buildDataRow(lead)).toList(),
+          rows: leads.map((lead) {
+            final statusColors = _getStatusColors(lead.status);
+            return DataRow(cells: [
+              DataCell(Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(lead.fullName,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(lead.interestedServices,
+                      style:
+                          const TextStyle(color: Colors.grey, fontSize: 12)),
+                ],
+              )),
+              DataCell(Text(lead.email, style: const TextStyle(fontSize: 12))),
+              DataCell(
+                  Text(lead.phoneNumber ?? '—', style: const TextStyle(fontSize: 12))),
+              DataCell(Text(lead.companyName ?? '—')),
+              DataCell(_buildTag(lead.source,
+                  backgroundColor: const Color(0xFFF7F7F7),
+                  textColor: Colors.black87)),
+              DataCell(_buildTag(lead.status.toUpperCase(),
+                  backgroundColor: statusColors['bg']!,
+                  textColor: statusColors['text']!)),
+              DataCell(Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    tooltip: 'Convert to Client',
+                    onPressed: () =>
+                        controller.convertLeadToClient(context, lead.id),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline,
+                        size: 18, color: Colors.red),
+                    tooltip: 'Delete',
+                    onPressed: () =>
+                        controller.deleteLead(context, lead.id),
+                  ),
+                ],
+              )),
+            ]);
+          }).toList(),
         ),
       ),
     );
   }
 
-  DataRow _buildDataRow(SalesLead lead) {
-    final statusColors = _getStatusColors(lead.status);
-
-    return DataRow(
-      cells: <DataCell>[
-        DataCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                lead.leadName,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
-              Text(
-                lead.leadRepresentative,
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-        DataCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Row(
-                children: [
-                  const Icon(Icons.mail_outline, size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(lead.contactEmail, style: const TextStyle(fontSize: 12)),
-                ],
-              ),
-              Row(
-                children: [
-                  const Icon(Icons.phone_outlined,
-                      size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(lead.contactPhone, style: const TextStyle(fontSize: 12)),
-                ],
-              ),
-            ],
-          ),
-        ),
-        DataCell(Text(lead.company)),
-        DataCell(_buildSimpleTag(lead.source,
-            backgroundColor: const Color(0xFFF7F7F7),
-            textColor: Colors.black87)),
-        DataCell(_buildStatusTag(
-          lead.status,
-          backgroundColor: statusColors['bg']!,
-          textColor: statusColors['text']!,
-        )),
-        DataCell(
-          Row(
-            children: [
-              Text(
-                lead.score.toString(),
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
-              const SizedBox(width: 8),
-              _buildProgressBar(lead.score.toDouble()),
-            ],
-          ),
-        ),
-        DataCell(Text(lead.value,
-            style: const TextStyle(fontWeight: FontWeight.w600))),
-        DataCell(Text(lead.nextFollowUp)),
-        const DataCell(
-          IconButton(
-            icon: Icon(Icons.remove_red_eye_outlined, color: Colors.grey),
-            onPressed: null,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatusTag(String text,
+  Widget _buildTag(String text,
       {required Color backgroundColor, required Color textColor}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -359,45 +370,9 @@ class LeadDataTable extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        text.toUpperCase(),
-        style: TextStyle(
-          color: textColor,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSimpleTag(String text,
-      {required Color backgroundColor, required Color textColor}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressBar(double score) {
-    return SizedBox(
-      width: 50,
-      child: LinearProgressIndicator(
-        value: score / 100,
-        backgroundColor: Colors.grey[200],
-        valueColor: const AlwaysStoppedAnimation<Color>(Colors.black),
-        minHeight: 4,
-        borderRadius: BorderRadius.circular(2),
-      ),
+      child: Text(text,
+          style: TextStyle(
+              color: textColor, fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }
 }

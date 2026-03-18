@@ -1,8 +1,10 @@
 import 'package:bms_front_end/pages/crm/widgets/line_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
+import 'controllers/crm_controller.dart';
 import 'dialogs/client_dialog.dart';
 import 'dialogs/lead_dialog.dart';
 import 'models.dart';
@@ -56,6 +58,8 @@ class CrmDashboardPage extends StatelessWidget {
         );
       }
     }
+
+    final controller = Get.put(CrmController());
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -111,23 +115,54 @@ class CrmDashboardPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: crmMetrics.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: isMobile ? 2 : 4,
-              crossAxisSpacing: 16.0,
-              mainAxisSpacing: 16.0,
-              childAspectRatio: isMobile
-                  ? 1.5
-                  : isTablet
-                      ? 1
-                      : 1.8,
-            ),
-            itemBuilder: (context, index) =>
-                StandardMetricCard(data: crmMetrics[index]),
-          ),
+          Obx(() {
+            final metrics = [
+              MetricData(
+                  title: 'Total Clients',
+                  value: controller.totalClients.value.toString(),
+                  icon: Icons.people_alt,
+                  color: Colors.blue.shade600,
+                  subtitle: 'Active client base'),
+              MetricData(
+                  title: 'Total Leads',
+                  value: controller.totalLeads.value.toString(),
+                  icon: Icons.trending_up,
+                  color: Colors.green.shade600,
+                  subtitle: 'Current leads'),
+              MetricData(
+                  title: 'Conversion Rate',
+                  value: controller.totalLeads.value > 0
+                      ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
+                      : '0%',
+                  icon: Icons.attach_money,
+                  color: Colors.purple.shade600,
+                  subtitle: 'Lead to client'),
+              MetricData(
+                  title: 'Retention Rate',
+                  value: '—',
+                  icon: Icons.star,
+                  color: Colors.orange.shade600,
+                  subtitle: 'Client retention'),
+            ];
+
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: metrics.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isMobile ? 2 : 4,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
+                childAspectRatio: isMobile
+                    ? 1.5
+                    : isTablet
+                        ? 1
+                        : 1.8,
+              ),
+              itemBuilder: (context, index) =>
+                  StandardMetricCard(data: metrics[index]),
+            );
+          }),
           const SizedBox(height: 32),
           if (!isMobile)
             const Row(
