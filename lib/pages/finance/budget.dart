@@ -1,33 +1,22 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/finance/controllers/budget_controller.dart';
 import 'package:bms_front_end/pages/finance/widget/add_budget_dialog.dart';
-import 'package:bms_front_end/pages/finance/widget/view_budget_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class BudgetPage extends StatefulWidget {
+class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});
 
   @override
-  State<BudgetPage> createState() => BudgetPageState();
-}
-
-class BudgetPageState extends State<BudgetPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final BudgetController controller = Get.put(BudgetController());
+    final ScrollController scrollController = ScrollController();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -43,24 +32,17 @@ class BudgetPageState extends State<BudgetPage> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
-                        'Budget',
-                        style: AppText.black_500_32,
-                      ),
+                      MyText('Budget', style: AppText.black_500_32),
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
+                    icon: const Icon(Icons.add_circle_outline_rounded,
+                        color: AppColors.white),
                     child: "New Budget",
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) {
-                          return const AddBudgetDialog();
-                        },
+                        builder: (context) => const AddBudgetDialog(),
                       );
                     },
                   )
@@ -82,18 +64,19 @@ class BudgetPageState extends State<BudgetPage> {
                     width: 250,
                     child: MyTextFormField(
                       hintText: 'Search for budget...',
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
+                      leading: Icon(Icons.search,
+                          color: AppColors.grey1.withValues(alpha: 0.5)),
+                      onChanged: (val) => controller.searchQuery.value = val,
                     ),
                   ),
-                  const Row(
+                  Row(
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All States"),
-                      SortBar(text: "Status"),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () => controller.fetchBudgets(refresh: true),
+                      ),
                     ],
                   )
                 ],
@@ -109,113 +92,86 @@ class BudgetPageState extends State<BudgetPage> {
             border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
+          child: Obx(() {
+            if (controller.isLoading.value && controller.budgetList.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator()));
+            }
+            if (controller.budgetList.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text("No budgets found.")));
+            }
+            return Column(
+              children: [
+                Scrollbar(
+                  controller: scrollController,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minWidth: bodySpace(context)),
+                      child: DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: const [
+                          DataColumn(label: MyText("Branch")),
+                          DataColumn(label: MyText("Department")),
+                          DataColumn(label: MyText("Fiscal Period")),
+                          DataColumn(label: MyText("Amount")),
+                          DataColumn(label: MyText("Spent")),
+                          DataColumn(label: MyText("Remaining")),
+                          DataColumn(label: MyText("Action")),
+                        ],
+                        rows: controller.budgetList.map((budget) {
+                          return DataRow(cells: [
+                            DataCell(MyText(budget.branchName)),
+                            DataCell(MyText(budget.departmentName)),
+                            DataCell(MyText(budget.fiscalPeriod)),
+                            DataCell(MyText(budget.amount)),
+                            DataCell(MyText(budget.currentSpend)),
+                            DataCell(MyText(budget.remainingBudget)),
+                            DataCell(
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert),
+                                onSelected: (value) {
+                                  if (value == 'delete') {
+                                    controller.deleteBudget(
+                                        context, budget.id);
+                                  }
+                                },
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                      value: 'edit',
+                                      child: Text('Edit')),
+                                  const PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text('Delete',
+                                          style:
+                                              TextStyle(color: Colors.red))),
+                                ],
+                              ),
+                            ),
+                          ]);
+                        }).toList(),
+                        showBottomBorder: true,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
+              ],
+            );
+          }),
         ),
       ],
     );
-  }
-
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Invoice ID",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Client",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Amount",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Method",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
-    ];
-  }
-
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
-      return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText(
-            "FJ9387HDS",
-            size: 16,
-            weight: 400,
-            isSelectable: false,
-          ),
-        ),
-        DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const ViewBudgetDialog();
-              },
-            );
-          },
-          const MyText(
-            "MTN Group",
-            isSelectable: false,
-          ),
-        ),
-        const DataCell(
-          MyText("24-05-2025"),
-        ),
-        const DataCell(
-          MyText("1200", size: 14, weight: 300),
-        ),
-        const DataCell(
-          MyText("Transfer"),
-        ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
-      ]);
-    });
   }
 }

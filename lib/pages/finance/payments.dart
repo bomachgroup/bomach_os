@@ -1,33 +1,22 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/finance/controllers/payment_controller.dart';
 import 'package:bms_front_end/pages/finance/widget/add_payment_dialog.dart';
-import 'package:bms_front_end/pages/finance/widget/view_payment_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class PaymentsPage extends StatefulWidget {
+class PaymentsPage extends StatelessWidget {
   const PaymentsPage({super.key});
 
   @override
-  State<PaymentsPage> createState() => PaymentsPageState();
-}
-
-class PaymentsPageState extends State<PaymentsPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final PaymentController controller = Get.put(PaymentController());
+    final ScrollController scrollController = ScrollController();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -43,24 +32,17 @@ class PaymentsPageState extends State<PaymentsPage> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
-                        'Payments',
-                        style: AppText.black_500_32,
-                      ),
+                      MyText('Payments', style: AppText.black_500_32),
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
+                    icon: const Icon(Icons.add_circle_outline_rounded,
+                        color: AppColors.white),
                     child: "New Payment",
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) {
-                          return const AddPaymentDialog();
-                        },
+                        builder: (context) => const AddPaymentDialog(),
                       );
                     },
                   )
@@ -82,18 +64,19 @@ class PaymentsPageState extends State<PaymentsPage> {
                     width: 250,
                     child: MyTextFormField(
                       hintText: 'Search for payment...',
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
+                      leading: Icon(Icons.search,
+                          color: AppColors.grey1.withValues(alpha: 0.5)),
                     ),
                   ),
-                  const Row(
+                  Row(
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All States"),
-                      SortBar(text: "Status"),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () =>
+                            controller.fetchPayments(refresh: true),
+                      ),
                     ],
                   )
                 ],
@@ -109,113 +92,82 @@ class PaymentsPageState extends State<PaymentsPage> {
             border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
+          child: Obx(() {
+            if (controller.isLoading.value && controller.paymentList.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator()));
+            }
+            if (controller.paymentList.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text("No payments found.")));
+            }
+            return Column(
+              children: [
+                Scrollbar(
+                  controller: scrollController,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minWidth: bodySpace(context)),
+                      child: DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: const [
+                          DataColumn(label: MyText("Reference")),
+                          DataColumn(label: MyText("Invoice ID")),
+                          DataColumn(label: MyText("Amount")),
+                          DataColumn(label: MyText("Method")),
+                          DataColumn(label: MyText("Date")),
+                          DataColumn(label: MyText("Action")),
+                        ],
+                        rows: controller.paymentList.map((payment) {
+                          return DataRow(cells: [
+                            DataCell(MyText(payment.paymentReference)),
+                            DataCell(
+                                MyText(payment.invoiceId.toString())),
+                            DataCell(MyText(payment.amount)),
+                            DataCell(MyText(payment.paymentMethod)),
+                            DataCell(MyText(payment.paymentDate)),
+                            DataCell(
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert),
+                                onSelected: (value) {
+                                  if (value == 'delete') {
+                                    controller.deletePayment(
+                                        context, payment.id);
+                                  }
+                                },
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text('Delete',
+                                          style:
+                                              TextStyle(color: Colors.red))),
+                                ],
+                              ),
+                            ),
+                          ]);
+                        }).toList(),
+                        showBottomBorder: true,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
+              ],
+            );
+          }),
         ),
       ],
     );
-  }
-
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Invoice ID",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Client",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Amount",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Method",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
-    ];
-  }
-
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
-      return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText(
-            "FJ9387HDS",
-            size: 16,
-            weight: 400,
-            isSelectable: false,
-          ),
-        ),
-        DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const ViewPaymentDialog();
-              },
-            );
-          },
-          const MyText(
-            "MTN Group",
-            isSelectable: false,
-          ),
-        ),
-        const DataCell(
-          MyText("24-05-2025"),
-        ),
-        const DataCell(
-          MyText("1200", size: 14, weight: 300),
-        ),
-        const DataCell(
-          MyText("Transfer"),
-        ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
-      ]);
-    });
   }
 }

@@ -1,34 +1,22 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_dropdown2.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/finance/controllers/expense_controller.dart';
 import 'package:bms_front_end/pages/finance/widget/add_expense_dialog.dart';
-import 'package:bms_front_end/pages/finance/widget/view_expense_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class ExpensesPage extends StatefulWidget {
+class ExpensesPage extends StatelessWidget {
   const ExpensesPage({super.key});
 
   @override
-  State<ExpensesPage> createState() => ExpensesPageState();
-}
-
-class ExpensesPageState extends State<ExpensesPage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final ExpenseController controller = Get.put(ExpenseController());
+    final ScrollController scrollController = ScrollController();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,24 +32,17 @@ class ExpensesPageState extends State<ExpensesPage> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
-                        'Expenses',
-                        style: AppText.black_500_32,
-                      ),
+                      MyText('Expenses', style: AppText.black_500_32),
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
+                    icon: const Icon(Icons.add_circle_outline_rounded,
+                        color: AppColors.white),
                     child: "New Expense",
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) {
-                          return const AddExpenseDialog();
-                        },
+                        builder: (context) => const AddExpenseDialog(),
                       );
                     },
                   )
@@ -83,18 +64,20 @@ class ExpensesPageState extends State<ExpensesPage> {
                     width: 250,
                     child: MyTextFormField(
                       hintText: 'Search for expense...',
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
+                      leading: Icon(Icons.search,
+                          color: AppColors.grey1.withValues(alpha: 0.5)),
+                      onChanged: (val) => controller.searchQuery.value = val,
                     ),
                   ),
-                  const Row(
+                  Row(
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All States"),
-                      SortBar(text: "Status"),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () =>
+                            controller.fetchExpenses(refresh: true),
+                      ),
                     ],
                   )
                 ],
@@ -110,112 +93,135 @@ class ExpensesPageState extends State<ExpensesPage> {
             border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
+          child: Obx(() {
+            if (controller.isLoading.value && controller.expenseList.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator()));
+            }
+            if (controller.expenseList.isEmpty) {
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text("No expenses found.")));
+            }
+            return Column(
+              children: [
+                Scrollbar(
+                  controller: scrollController,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minWidth: bodySpace(context)),
+                      child: DataTable(
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        columns: const [
+                          DataColumn(label: MyText("Date")),
+                          DataColumn(label: MyText("Description")),
+                          DataColumn(label: MyText("Amount")),
+                          DataColumn(label: MyText("Category")),
+                          DataColumn(label: MyText("Status")),
+                          DataColumn(label: MyText("Action")),
+                        ],
+                        rows: controller.expenseList.map((expense) {
+                          return DataRow(cells: [
+                            DataCell(MyText(expense.date)),
+                            DataCell(MyText(expense.description)),
+                            DataCell(MyText(expense.amount)),
+                            DataCell(MyText(expense.category)),
+                            DataCell(_statusBadge(expense.status)),
+                            DataCell(
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert),
+                                onSelected: (value) {
+                                  if (value == 'delete') {
+                                    controller.deleteExpense(
+                                        context, expense.id);
+                                  } else if (value == 'approve') {
+                                    controller.approveExpense(
+                                        context, expense.id);
+                                  } else if (value == 'reject') {
+                                    controller.rejectExpense(
+                                        context, expense.id);
+                                  }
+                                },
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                      value: 'edit',
+                                      child: Text('Edit')),
+                                  const PopupMenuItem(
+                                      value: 'approve',
+                                      child: Text('Approve')),
+                                  const PopupMenuItem(
+                                      value: 'reject',
+                                      child: Text('Reject')),
+                                  const PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text('Delete',
+                                          style:
+                                              TextStyle(color: Colors.red))),
+                                ],
+                              ),
+                            ),
+                          ]);
+                        }).toList(),
+                        showBottomBorder: true,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
+              ],
+            );
+          }),
         ),
       ],
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Description",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Amount",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Category",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
-    ];
-  }
+  Widget _statusBadge(String status) {
+    Color bgColor;
+    Color textColor;
 
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
-      return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText(
-            "24-05-2025",
-            size: 16,
-            weight: 400,
-            isSelectable: false,
-          ),
+    switch (status.toLowerCase()) {
+      case 'approved':
+        bgColor = Colors.green.shade50;
+        textColor = Colors.green.shade700;
+        break;
+      case 'rejected':
+        bgColor = Colors.red.shade50;
+        textColor = Colors.red.shade700;
+        break;
+      case 'pending':
+        bgColor = Colors.orange.shade50;
+        textColor = Colors.orange.shade700;
+        break;
+      default:
+        bgColor = Colors.grey.shade100;
+        textColor = Colors.grey.shade700;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
-        DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const ViewExpenseDialog();
-              },
-            );
-          },
-          const MyText(
-            "Purchase of flight tickets",
-            isSelectable: false,
-          ),
-        ),
-        const DataCell(
-          MyText("121500"),
-        ),
-        const DataCell(
-          MyText("Travel", size: 14, weight: 300),
-        ),
-        const DataCell(
-          MyDropdown2(),
-        ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
-      ]);
-    });
+      ),
+    );
   }
 }
