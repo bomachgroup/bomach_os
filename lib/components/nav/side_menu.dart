@@ -168,7 +168,7 @@ class MenuItem {
   final String label;
   final String iconPath;
   final String? route;
-  final String? permission;
+  final List<String>? resources;
   final bool isExpandable;
   final List<SubMenuItemData> children;
 
@@ -177,7 +177,7 @@ class MenuItem {
     required this.label,
     required this.iconPath,
     this.route,
-    this.permission,
+    this.resources,
     required this.isExpandable,
     this.children = const [],
   });
@@ -187,13 +187,13 @@ class SubMenuItemData {
   final SubMenuItem id;
   final String label;
   final String? route;
-  final String? permission;
+  final List<String>? resources;
 
   const SubMenuItemData({
     required this.id,
     required this.label,
     this.route,
-    this.permission,
+    this.resources,
   });
 }
 
@@ -229,36 +229,31 @@ class _SideMenuState extends State<SideMenu> {
         iconPath: 'assets/svg/sidebar/home.svg',
         route: RouteConstants.home,
         isExpandable: true,
-        permission:
-            '${PermissionConstants.resStats}:${PermissionConstants.actViewOwn}',
+        resources: [PermissionConstants.resStats],
         children: [
           SubMenuItemData(
             id: SubMenuItem.dashboardHome,
             label: 'Overview',
             route: RouteConstants.home,
-            permission:
-                '${PermissionConstants.resStats}:${PermissionConstants.actViewOwn}',
+            resources: [PermissionConstants.resStats],
           ),
           SubMenuItemData(
             id: SubMenuItem.myProfile,
             label: 'My Profile',
             route: RouteConstants.employeeMyProfile,
-            permission:
-                '${PermissionConstants.resEmployees}:${PermissionConstants.actViewOwn}',
+            resources: [PermissionConstants.resEmployees],
           ),
           SubMenuItemData(
             id: SubMenuItem.myTasks,
             label: 'My Tasks',
             route: RouteConstants.employeeMyTasks,
-            permission:
-                '${PermissionConstants.resTasks}:${PermissionConstants.actListOwn}',
+            resources: [PermissionConstants.resTasks],
           ),
           SubMenuItemData(
             id: SubMenuItem.myReports,
             label: 'My Work Reports',
             route: RouteConstants.employeeMyReports,
-            permission:
-                '${PermissionConstants.resWorkReports}:${PermissionConstants.actListOwn}',
+            resources: [PermissionConstants.resWorkReports],
           ),
         ],
       ),
@@ -267,71 +262,61 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Company',
         iconPath: 'assets/svg/sidebar/person-plus.svg',
         isExpandable: true,
-        permission:
-            '${PermissionConstants.resCompanySettings}:${PermissionConstants.actView}',
+        resources: [PermissionConstants.resCompanySettings],
         children: [
           SubMenuItemData(
             id: SubMenuItem.company,
             label: 'Profile',
             route: RouteConstants.company,
-            permission:
-                '${PermissionConstants.resCompanySettings}:${PermissionConstants.actView}',
+            resources: [PermissionConstants.resCompanySettings],
           ),
           SubMenuItemData(
             id: SubMenuItem.branch,
             label: 'Branch',
             route: RouteConstants.branch,
-            permission:
-                '${PermissionConstants.resBranches}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resBranches],
           ),
           SubMenuItemData(
             id: SubMenuItem.board,
             label: 'Board',
             route: RouteConstants.board,
-            permission:
-                '${PermissionConstants.resBoardResolutions}:${PermissionConstants.actView}',
+            resources: [PermissionConstants.resBoardResolutions],
           ),
           SubMenuItemData(
             id: SubMenuItem.broadcast,
             label: 'Broadcast',
             route: RouteConstants.broadcast,
-            permission:
-                '${PermissionConstants.resAnnouncements}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resAnnouncements],
           ),
           SubMenuItemData(
             id: SubMenuItem.roles,
             label: 'Roles & Permissions',
             route: RouteConstants.roles,
-            permission:
-                '${PermissionConstants.resRoles}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resRoles],
           ),
           SubMenuItemData(
             id: SubMenuItem.approvalWorkflow,
             label: 'Approval Workflows',
             route: RouteConstants.approvalWorkflow,
-            permission:
-                '${PermissionConstants.resApprovalFlows}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resApprovalFlows],
           ),
           SubMenuItemData(
             id: SubMenuItem.department,
             label: 'Departments & Units',
             route: RouteConstants.department,
-            permission:
-                '${PermissionConstants.resDepartments}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resDepartments],
           ),
           SubMenuItemData(
             id: SubMenuItem.assets,
             label: 'Assets',
             route: RouteConstants.assets,
-            permission:
-                '${PermissionConstants.resAssets}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resAssets],
           ),
           SubMenuItemData(
             id: SubMenuItem.auditLog,
             label: 'Audit Log',
             route: RouteConstants.auditLog,
-            permission:
-                '${PermissionConstants.resAuditLogs}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resAuditLogs],
           ),
         ],
       ),
@@ -340,313 +325,252 @@ class _SideMenuState extends State<SideMenu> {
         label: 'HR/Admin',
         iconPath: 'assets/svg/sidebar/people.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resEmployees,
+          PermissionConstants.resJobPostings,
+          PermissionConstants.resLeaveRequests,
+          PermissionConstants.resPayroll,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.hrDashboad,
             label: 'Dashboard',
             route: RouteConstants.hr,
-            permission:
-                '${PermissionConstants.resDashboard}:${PermissionConstants.actView}',
+            resources: [PermissionConstants.resDashboard],
           ),
           SubMenuItemData(
             id: SubMenuItem.employees,
             label: 'Employees',
             route: RouteConstants.employees,
-            permission:
-                '${PermissionConstants.resEmployees}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resEmployees],
           ),
           SubMenuItemData(
             id: SubMenuItem.jobPost,
             label: 'Recruitment',
             route: RouteConstants.jobPost,
-            permission:
-                '${PermissionConstants.resJobPostings}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resJobPostings],
           ),
           SubMenuItemData(
             id: SubMenuItem.leaveRequest,
             label: 'Leaves',
             route: RouteConstants.leaveRequest,
-            permission:
-                '${PermissionConstants.resLeaveRequests}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resLeaveRequests],
           ),
           SubMenuItemData(
             id: SubMenuItem.trainingProgram,
             label: 'Training',
             route: RouteConstants.trainingProgram,
-            permission:
-                '${PermissionConstants.resTrainingPrograms}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resTrainingPrograms],
           ),
           SubMenuItemData(
             id: SubMenuItem.loans,
             label: 'Loans',
             route: RouteConstants.loans,
-            permission:
-                '${PermissionConstants.resLoans}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resLoans],
           ),
           SubMenuItemData(
             id: SubMenuItem.benefits,
             label: 'Benefits',
             route: RouteConstants.benefits,
+            resources: [PermissionConstants.resPayroll],
           ),
           SubMenuItemData(
             id: SubMenuItem.attendance,
             label: 'Attendance',
             route: RouteConstants.attendance,
+            resources: [PermissionConstants.resEmployees],
           ),
           SubMenuItemData(
             id: SubMenuItem.performance,
             label: 'Performance',
             route: RouteConstants.performanceReview,
-            permission:
-                '${PermissionConstants.resPerformanceReviews}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resPerformanceReviews],
           ),
           SubMenuItemData(
             id: SubMenuItem.workReport,
             label: 'Work Reports',
             route: RouteConstants.workReport,
-            permission:
-                '${PermissionConstants.resWorkReports}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resWorkReports],
           ),
           SubMenuItemData(
             id: SubMenuItem.monthlyScorecard,
             label: 'Monthly Scorecard',
             route: RouteConstants.monthlyScorecard,
-            permission:
-                '${PermissionConstants.resMonthlyScorecards}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resMonthlyScorecards],
           ),
           SubMenuItemData(
             id: SubMenuItem.awardsRecognition,
             label: 'Awards & Recognition',
             route: RouteConstants.awardsRecognition,
-            permission:
-                '${PermissionConstants.resAwards}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resAwards],
           ),
           SubMenuItemData(
             id: SubMenuItem.performanceLeaderboard,
             label: 'Performance Leaderboard',
             route: RouteConstants.performanceLeaderboard,
+            resources: [PermissionConstants.resKpis],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employeeEvaluation,
+            label: 'Employee Evaluation',
+            route: RouteConstants.employeeEvaluation,
+            resources: [PermissionConstants.resEmployeeEvaluations],
           ),
           SubMenuItemData(
             id: SubMenuItem.disciplinaryProcess,
             label: 'Disciplinary Process',
             route: RouteConstants.disciplinaryProcess,
-            permission:
-                '${PermissionConstants.resDisciplinaryCases}:${PermissionConstants.actList}',
+            resources: [PermissionConstants.resDisciplinaryCases],
           ),
         ],
       ),
-      // const MenuItem(
-      //   id: MainMenuItem.employee,
-      //   label: 'Employee',
-      //   iconPath: 'assets/svg/sidebar/people.svg',
-      //   route: RouteConstants.employee,
-      //   isExpandable: true,
-      //   children: [
-      //     SubMenuItemData(
-      //       id: SubMenuItem.employeeDirectory,
-      //       label: 'Directory',
-      //       route: RouteConstants.employeeDirectory,
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.employeePerformance,
-      //       label: 'Performance Reviews',
-      //       route: RouteConstants.employeePerformance,
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.employeeAttendance,
-      //       label: 'Attendance',
-      //       route: RouteConstants.employeeAttendance,
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.employeeTraining,
-      //       label: 'Training Programs',
-      //       route: RouteConstants.employeeTraining,
-      //     ),
-      //   ],
-      // ),
       const MenuItem(
         id: MainMenuItem.work,
         label: 'Operations',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resProjects,
+          PermissionConstants.resTasks,
+          PermissionConstants.resContracts,
+          PermissionConstants.resWorksites,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.operations,
             label: 'Operations',
             route: RouteConstants.operations,
+            resources: [PermissionConstants.resProjects],
           ),
           SubMenuItemData(
             id: SubMenuItem.project,
             label: 'Project',
             route: RouteConstants.projects,
+            resources: [PermissionConstants.resProjects],
           ),
           SubMenuItemData(
             id: SubMenuItem.worksite,
             label: 'Worksite',
             route: RouteConstants.worksite,
+            resources: [PermissionConstants.resWorksites],
           ),
           SubMenuItemData(
             id: SubMenuItem.tasks,
             label: 'Tasks',
             route: RouteConstants.tasks,
+            resources: [PermissionConstants.resTasks],
           ),
           SubMenuItemData(
             id: SubMenuItem.contracts,
             label: 'Contracts',
             route: RouteConstants.contracts,
+            resources: [PermissionConstants.resContracts],
           ),
           SubMenuItemData(
             id: SubMenuItem.meetings,
             label: 'Meetings',
             route: RouteConstants.meetings,
+            resources: [PermissionConstants.resMeetings],
           ),
         ],
       ),
-      // const MenuItem(
-      //   id: MainMenuItem.marketing,
-      //   label: 'Marketing',
-      //   iconPath: 'assets/svg/sidebar/joined-square.svg',
-      //   isExpandable: true,
-      //   children: [
-      //     SubMenuItemData(
-      //       id: SubMenuItem.marketing,
-      //       label: 'Marketing',
-      //       route: RouteConstants.marketing,
-      //     ),
-      //   ],
-      // ),
       const MenuItem(
         id: MainMenuItem.financeAccounting,
         label: 'Finance & Accounting',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resBudgets,
+          PermissionConstants.resExpenses,
+          PermissionConstants.resPayments,
+          PermissionConstants.resEstateInvoices,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.financeDashboard,
             label: 'Dashboard',
             route: RouteConstants.finance,
+            resources: [
+              PermissionConstants.resStats,
+              PermissionConstants.resBudgets,
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.invoice,
             label: 'Invoice',
             route: RouteConstants.invoice,
+            resources: [
+              PermissionConstants.resEstateInvoices,
+              PermissionConstants.resServiceInvoices,
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.payments,
             label: 'Payments',
             route: RouteConstants.payment,
+            resources: [PermissionConstants.resPayments],
           ),
           SubMenuItemData(
             id: SubMenuItem.expenses,
             label: 'Expenses',
             route: RouteConstants.expense,
+            resources: [PermissionConstants.resExpenses],
           ),
           SubMenuItemData(
             id: SubMenuItem.budget,
             label: 'Budget',
             route: RouteConstants.budget,
+            resources: [PermissionConstants.resBudgets],
           ),
           SubMenuItemData(
             id: SubMenuItem.vendorContributor,
             label: 'Vendor/Contributor',
             route: RouteConstants.contractPayment,
+            resources: [
+              PermissionConstants.resContracts,
+              PermissionConstants.resPayments,
+            ],
           ),
         ],
       ),
-      // const MenuItem(
-      //   id: MainMenuItem.calendar,
-      //   label: 'Calendar',
-      //   iconPath: 'assets/svg/sidebar/calendar.svg',
-      //   isExpandable: true,
-      // ),
       const MenuItem(
         id: MainMenuItem.events,
         label: 'Events',
         iconPath: 'assets/svg/sidebar/calendar.svg',
         route: RouteConstants.events,
         isExpandable: false,
+        resources: [PermissionConstants.resEvents],
       ),
       const MenuItem(
         id: MainMenuItem.services,
         label: 'Services',
         iconPath: 'assets/svg/sidebar/calendar.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resServices,
+          PermissionConstants.resProperties,
+          PermissionConstants.resEstates,
+          PermissionConstants.resClients,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.servicesDashboard,
             label: 'Dashboard',
             route: RouteConstants.services,
+            resources: [PermissionConstants.resServices],
           ),
           SubMenuItemData(
             id: SubMenuItem.serviceClients,
             label: 'Clients',
             route: RouteConstants.serviceClients,
+            resources: [PermissionConstants.resClients],
           ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.serviceOrder,
-          //   label: 'Service Order',
-          //   route: RouteConstants.serviceOrder,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.realEstate,
-          //   label: 'Real Estate',
-          //   route: RouteConstants.realEstate,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.landSurvey,
-          //   label: 'Land Survey',
-          //   route: RouteConstants.landSurvey,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.servicesItem,
-          //   label: 'Services',
-          //   route: RouteConstants.servicesProperty,
-          // ),
           SubMenuItemData(
             id: SubMenuItem.propertyManagement,
             label: 'Property Management',
             route: RouteConstants.propertyList,
+            resources: [PermissionConstants.resProperties],
           ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.estateManagement,
-          //   label: 'Estate Management',
-          //   route: RouteConstants.estateManagement,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.estatePerformance,
-          //   label: 'Estate Performance',
-          //   route: RouteConstants.estatePerformance,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.paymentApproval,
-          //   label: 'Payment Approval',
-          //   route: RouteConstants.paymentApproval,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.landSurveyCalculator,
-          //   label: 'Land Survey Calculator',
-          //   route: RouteConstants.landSurveyCalculator,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.servicesCalculator,
-          //   label: 'Services Calculator',
-          //   route: RouteConstants.servicesCalculator,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.generateInvoice,
-          //   label: 'Generate Invoice',
-          //   route: RouteConstants.generateInvoice,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.serviceLeads,
-          //   label: 'Service Leads',
-          //   route: RouteConstants.serviceLeads,
-          // ),
-          // SubMenuItemData(
-          //   id: SubMenuItem.serviceInvoices,
-          //   label: 'Service Invoices',
-          //   route: RouteConstants.serviceInvoices,
-          // ),
         ],
       ),
       const MenuItem(
@@ -654,16 +578,28 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Workspace',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resDocuments,
+          PermissionConstants.resContent,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.workspace,
             label: 'Overview',
             route: RouteConstants.workspace,
+            resources: [
+              PermissionConstants.resDocuments,
+              PermissionConstants.resContent,
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.workspaceDashboard,
             label: 'Dashboard',
             route: RouteConstants.workspaceDashboard,
+            resources: [
+              PermissionConstants.resDocuments,
+              PermissionConstants.resContent,
+            ],
           ),
         ],
       ),
@@ -672,31 +608,43 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Analytics & Insights',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [PermissionConstants.resStats],
         children: [
           SubMenuItemData(
             id: SubMenuItem.overview,
             label: 'Overview',
             route: RouteConstants.analyticsOverview,
+            resources: [PermissionConstants.resStats],
           ),
           SubMenuItemData(
             id: SubMenuItem.revenue,
             label: 'Revenue',
             route: RouteConstants.analyticsRevenue,
+            resources: [PermissionConstants.resStats],
           ),
           SubMenuItemData(
             id: SubMenuItem.projects,
             label: 'Projects',
             route: RouteConstants.analyticsProjects,
+            resources: [
+              PermissionConstants.resProjects,
+              PermissionConstants.resStats,
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.analyticsPerformance,
             label: 'Performance',
             route: RouteConstants.analyticsPerformance,
+            resources: [PermissionConstants.resStats],
           ),
           SubMenuItemData(
             id: SubMenuItem.branchPerformance,
             label: 'Branch Performance',
             route: RouteConstants.branchPerformanceAnalysis,
+            resources: [
+              PermissionConstants.resBranches,
+              PermissionConstants.resStats,
+            ],
           ),
         ],
       ),
@@ -705,26 +653,36 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Legal & Compliance',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resLegalCases,
+          PermissionConstants.resComplianceRecords,
+          PermissionConstants.resComplianceAudits,
+          PermissionConstants.resContracts,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.legalContracts,
             label: 'Contracts',
             route: RouteConstants.legalContracts,
+            resources: [PermissionConstants.resContracts],
           ),
           SubMenuItemData(
             id: SubMenuItem.legalCompliance,
             label: 'Compliance',
             route: RouteConstants.legalCompliance,
+            resources: [PermissionConstants.resComplianceRecords],
           ),
           SubMenuItemData(
             id: SubMenuItem.legalCases,
             label: 'Cases',
             route: RouteConstants.legalCases,
+            resources: [PermissionConstants.resLegalCases],
           ),
           SubMenuItemData(
             id: SubMenuItem.legalAudits,
             label: 'Audits',
             route: RouteConstants.legalAudits,
+            resources: [PermissionConstants.resComplianceAudits],
           ),
         ],
       ),
@@ -733,26 +691,37 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Client Portal',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resClients,
+          PermissionConstants.resDocuments,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.clientAccess,
             label: 'Client Access',
             route: RouteConstants.clientAccess,
+            resources: [PermissionConstants.resClients],
           ),
           SubMenuItemData(
             id: SubMenuItem.documentSharing,
             label: 'Document Sharing',
             route: RouteConstants.documentSharing,
+            resources: [PermissionConstants.resDocuments],
           ),
           SubMenuItemData(
             id: SubMenuItem.communications,
             label: 'Communications',
             route: RouteConstants.communications,
+            resources: [PermissionConstants.resClients],
           ),
           SubMenuItemData(
             id: SubMenuItem.portalAnalytics,
             label: 'Portal Analytics',
             route: RouteConstants.portalAnalytics,
+            resources: [
+              PermissionConstants.resStats,
+              PermissionConstants.resClients,
+            ],
           ),
         ],
       ),
@@ -761,31 +730,41 @@ class _SideMenuState extends State<SideMenu> {
         label: 'Security & Authorization',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resAuditLogs,
+          PermissionConstants.resRoles,
+          PermissionConstants.resApprovalFlows,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.securityOverview,
             label: 'Overview',
             route: RouteConstants.securityOverview,
+            resources: [PermissionConstants.resAuditLogs],
           ),
           SubMenuItemData(
             id: SubMenuItem.securityCodes,
             label: 'Security Codes',
             route: RouteConstants.securityCodes,
+            resources: [PermissionConstants.resRoles],
           ),
           SubMenuItemData(
             id: SubMenuItem.securityWorkflow,
             label: 'Workflows',
             route: RouteConstants.securityWorkflow,
+            resources: [PermissionConstants.resApprovalFlows],
           ),
           SubMenuItemData(
             id: SubMenuItem.securityAlerts,
             label: 'Security Alerts',
             route: RouteConstants.securityAlerts,
+            resources: [PermissionConstants.resAuditLogs],
           ),
           SubMenuItemData(
             id: SubMenuItem.securityLogs,
             label: 'Audit Logs',
             route: RouteConstants.securityLogs,
+            resources: [PermissionConstants.resAuditLogs],
           ),
         ],
       ),
@@ -794,52 +773,50 @@ class _SideMenuState extends State<SideMenu> {
         label: 'CRM',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
         isExpandable: true,
+        resources: [
+          PermissionConstants.resClients,
+          PermissionConstants.resLeads,
+          PermissionConstants.resMarketingCampaigns,
+        ],
         children: [
           SubMenuItemData(
             id: SubMenuItem.crmClients,
             label: 'Clients',
             route: RouteConstants.crmClients,
+            resources: [PermissionConstants.resClients],
           ),
           SubMenuItemData(
             id: SubMenuItem.crmLeads,
             label: 'Leads',
             route: RouteConstants.crmLeads,
+            resources: [PermissionConstants.resLeads],
           ),
           SubMenuItemData(
             id: SubMenuItem.crmInteractions,
             label: 'Interactions',
             route: RouteConstants.crmInteractions,
+            resources: [
+              PermissionConstants.resClients,
+              PermissionConstants.resLeads,
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.crmAnalytics,
             label: 'Analytics',
             route: RouteConstants.crmAnalytics,
+            resources: [
+              PermissionConstants.resStats,
+              PermissionConstants.resClients,
+            ],
           ),
           SubMenuItemData(
             id: SubMenuItem.marketing,
             label: 'Marketing',
             route: RouteConstants.marketing,
+            resources: [PermissionConstants.resMarketingCampaigns],
           ),
         ],
       ),
-      // const MenuItem(
-      //   id: MainMenuItem.notification,
-      //   label: 'Notification',
-      //   iconPath: 'assets/svg/sidebar/papar.svg',
-      //   isExpandable: false,
-      // ),
-      // const MenuItem(
-      //   id: MainMenuItem.settings,
-      //   label: 'Settings',
-      //   iconPath: 'assets/svg/sidebar/settings.svg',
-      //   isExpandable: false,
-      // ),
-      // const MenuItem(
-      //   id: MainMenuItem.help,
-      //   label: 'Help',
-      //   iconPath: 'assets/svg/sidebar/help.svg',
-      //   isExpandable: false,
-      // ),
     ];
   }
 
@@ -933,18 +910,19 @@ class _SideMenuState extends State<SideMenu> {
   Widget _buildMenuItem(MenuItem menuItem) {
     final permissionService = Get.find<PermissionService>();
 
-    // Initial permission check
-    bool isAuthorized = permissionService.canAccess(menuItem.permission);
+    // Dynamic resource-based permission check
+    bool isAuthorized =
+        permissionService.canAccessResources(menuItem.resources);
 
     // MUTUAL EXCLUSIVITY LOGIC:
     // 1. If this is the Dashboard, hide it if user also has Company Settings access (CEO view)
     if (menuItem.id == MainMenuItem.dashboard &&
-        permissionService.canAccess(
-            '${PermissionConstants.resCompanySettings}:${PermissionConstants.actView}')) {
+        permissionService.hasAnyPermissionForResource(
+            PermissionConstants.resCompanySettings)) {
       isAuthorized = false;
     }
 
-    // 2. If this is Company, it is already gated by company_settings:view
+    // 2. If this is Company, it is already gated by company_settings resource
     // (Which employees lack, so it will be hidden naturally)
 
     // Hide if not authorized
@@ -952,9 +930,10 @@ class _SideMenuState extends State<SideMenu> {
       return const SizedBox.shrink();
     }
 
-    // Filter sub-items based on permissions
+    // Filter sub-items based on resource permissions
     final authorizedSubItems = menuItem.children
-        .where((subItem) => permissionService.canAccess(subItem.permission))
+        .where(
+            (subItem) => permissionService.canAccessResources(subItem.resources))
         .toList();
 
     // Hide if expandable and no authorized children
