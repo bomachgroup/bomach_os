@@ -35,6 +35,21 @@ class PermissionService extends GetxService {
     return hasPermission(parts[0], parts[1]);
   }
 
+  /// Returns true if user has any permission at all for a given resource
+  bool hasAnyPermissionForResource(String resource) {
+    return _userPermissions.containsKey(resource) &&
+        _userPermissions[resource]!.isNotEmpty;
+  }
+
+  /// Returns true if resources is null/empty (public access) or user has any
+  /// permission for at least one of the listed resources.
+  /// This is used by the sidebar to dynamically show/hide menu items based on
+  /// the resource names returned by the backend permissions map.
+  bool canAccessResources(List<String>? resources) {
+    if (resources == null || resources.isEmpty) return true;
+    return resources.any((r) => hasAnyPermissionForResource(r));
+  }
+
   void clearPermissions() {
     _userPermissions.clear();
   }
