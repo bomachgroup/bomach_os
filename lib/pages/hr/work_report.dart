@@ -198,8 +198,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
       const DataColumn(label: MyText("Employee ID")),
       const DataColumn(label: MyText("Date")),
       const DataColumn(label: MyText("Hours")),
-      const DataColumn(label: MyText("Mood")),
-      const DataColumn(label: MyText("Challenges")),
+      const DataColumn(label: MyText("Operational Base")),
+      const DataColumn(label: MyText("Work Activities")),
       const DataColumn(label: MyText("Status")),
       const DataColumn(label: MyText("Action")),
     ];
@@ -210,7 +210,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
       return DataRow(cells: <DataCell>[
         DataCell(
           MyText(
-            report.employeeId,
+            report.employeeId.toString(),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -225,16 +225,13 @@ class _WorkReportPageState extends State<WorkReportPage> {
           MyText('${report.hoursWorked.toStringAsFixed(1)} hrs'),
         ),
         DataCell(
-          MyText(
-            _getMoodEmoji(report.mood),
-            size: 18,
-          ),
+          MyText(report.operationalBase ?? '-'),
         ),
         DataCell(
           SizedBox(
             width: 150,
             child: MyText(
-              report.challenges ?? '-',
+              report.workActivities ?? '-',
               maxLines: 1,
             ),
           ),
@@ -275,21 +272,6 @@ class _WorkReportPageState extends State<WorkReportPage> {
         return AppColors.red;
       default:
         return AppColors.grey1;
-    }
-  }
-
-  String _getMoodEmoji(String mood) {
-    switch (mood.toLowerCase()) {
-      case 'happy':
-        return '😊';
-      case 'neutral':
-        return '😐';
-      case 'tired':
-        return '😴';
-      case 'frustrated':
-        return '😞';
-      default:
-        return '😐';
     }
   }
 

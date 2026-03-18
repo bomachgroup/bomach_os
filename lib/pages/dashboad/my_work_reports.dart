@@ -498,37 +498,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                 maxLines: 1),
           )),
           DataCell(_buildStatusBadge(report.status)),
-          DataCell(_buildRating(report.rating)),
+          DataCell(_buildRating(report.rating ?? 0)),
           DataCell(_buildActionMenu(report)),
         ],
       );
     }).toList();
-  }
-
-  Widget _buildMoodChip(String mood) {
-    final emoji = _getMoodEmoji(mood);
-    final label =
-        mood.isNotEmpty ? mood[0].toUpperCase() + mood.substring(1) : 'Neutral';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 6),
-          MyText(label,
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF475569))),
-        ],
-      ),
-    );
   }
 
   Widget _buildStatusBadge(String status) {
@@ -680,22 +654,4 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
     }
   }
 
-  String _getMoodEmoji(String mood) {
-    switch (mood.toLowerCase()) {
-      case 'happy':
-        return '\u{1F60A}';
-      case 'neutral':
-        return '\u{1F610}';
-      case 'sad':
-        return '\u{1F614}';
-      case 'stressed':
-        return '\u{1F62B}';
-      case 'tired':
-        return '\u{1F634}';
-      case 'frustrated':
-        return '\u{1F61E}';
-      default:
-        return '\u{1F610}';
-    }
-  }
 }

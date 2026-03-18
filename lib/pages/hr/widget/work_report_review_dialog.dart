@@ -36,7 +36,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
     super.initState();
     _feedbackController =
         TextEditingController(text: widget.report.feedback ?? '');
-    _rating = widget.report.rating;
+    _rating = widget.report.rating ?? 0;
   }
 
   @override
