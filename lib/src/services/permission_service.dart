@@ -19,8 +19,6 @@ class PermissionService extends GetxService {
   }
 
   bool hasPermission(String resource, String action) {
-    // Check if the user has the specific action for the resource
-    // Or if they have 'all' or '*' permissions if implemented by backend
     final actions = _userPermissions[resource];
     if (actions == null) return false;
     return actions.contains(action) ||
@@ -51,6 +49,49 @@ class PermissionService extends GetxService {
     if (resources == null || resources.isEmpty) return true;
     return resources.any((r) => hasAnyPermissionForResource(r));
   }
+
+  /// Checks if the user can access a specific route by verifying against
+  /// the route permissions map. If the route has no explicit permission
+  /// requirement, falls back to resource-based check.
+  bool canAccessRoute(String? route, List<String>? resources) {
+    if (route == null) return canAccessResources(resources);
+
+    // Check route permission map first — this is the authoritative check
+    final requiredPermission = routePermissions[route];
+    if (requiredPermission != null) {
+      return canAccess(requiredPermission);
+    }
+
+    // No route-level permission defined, fall back to resource check
+    return canAccessResources(resources);
+  }
+
+  /// Route-to-permission mapping used by both the router guard and sidebar.
+  /// Centralised here so the sidebar can hide items the user cannot navigate to.
+  static final Map<String, String> routePermissions = {
+    RouteConstants.employees: PermissionConstants.perm(PermissionConstants.resEmployees, PermissionConstants.actList),
+    RouteConstants.roles: PermissionConstants.perm(PermissionConstants.resRoles, PermissionConstants.actList),
+    RouteConstants.budget: PermissionConstants.perm(PermissionConstants.resBudgets, PermissionConstants.actList),
+    RouteConstants.expense: PermissionConstants.perm(PermissionConstants.resExpenses, PermissionConstants.actList),
+    RouteConstants.invoice: PermissionConstants.perm(PermissionConstants.resEstateInvoices, PermissionConstants.actList),
+    RouteConstants.branch: PermissionConstants.perm(PermissionConstants.resBranches, PermissionConstants.actList),
+    RouteConstants.department: PermissionConstants.perm(PermissionConstants.resDepartments, PermissionConstants.actList),
+    RouteConstants.jobPost: PermissionConstants.perm(PermissionConstants.resJobPostings, PermissionConstants.actList),
+    RouteConstants.leaveRequest: PermissionConstants.perm(PermissionConstants.resLeaveRequests, PermissionConstants.actList),
+    RouteConstants.performanceReview: PermissionConstants.perm(PermissionConstants.resPerformanceReviews, PermissionConstants.actList),
+    RouteConstants.assets: PermissionConstants.perm(PermissionConstants.resAssets, PermissionConstants.actList),
+    RouteConstants.auditLog: PermissionConstants.perm(PermissionConstants.resAuditLogs, PermissionConstants.actList),
+    RouteConstants.approvalWorkflow: PermissionConstants.perm(PermissionConstants.resApprovalFlows, PermissionConstants.actList),
+    RouteConstants.board: PermissionConstants.perm(PermissionConstants.resBoardResolutions, PermissionConstants.actList),
+    RouteConstants.broadcast: PermissionConstants.perm(PermissionConstants.resAnnouncements, PermissionConstants.actList),
+    RouteConstants.projects: PermissionConstants.perm(PermissionConstants.resProjects, PermissionConstants.actList),
+    RouteConstants.tasks: PermissionConstants.perm(PermissionConstants.resTasks, PermissionConstants.actList),
+    RouteConstants.contracts: PermissionConstants.perm(PermissionConstants.resContracts, PermissionConstants.actList),
+    RouteConstants.realEstate: PermissionConstants.perm(PermissionConstants.resProperties, PermissionConstants.actList),
+    RouteConstants.landSurvey: PermissionConstants.perm(PermissionConstants.resProperties, PermissionConstants.actList),
+    RouteConstants.estateManagement: PermissionConstants.perm(PermissionConstants.resEstates, PermissionConstants.actList),
+    RouteConstants.propertyList: PermissionConstants.perm(PermissionConstants.resProperties, PermissionConstants.actList),
+  };
 
   /// Returns the first route the user is permitted to see, following
   /// the same menu order and mutual-exclusivity logic as the sidebar.

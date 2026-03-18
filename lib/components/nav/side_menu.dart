@@ -936,10 +936,10 @@ class _SideMenuState extends State<SideMenu> {
       return const SizedBox.shrink();
     }
 
-    // Filter sub-items based on resource permissions
+    // Filter sub-items: check route-level permissions first, then resource-based
     final authorizedSubItems = menuItem.children
-        .where(
-            (subItem) => permissionService.canAccessResources(subItem.resources))
+        .where((subItem) =>
+            permissionService.canAccessRoute(subItem.route, subItem.resources))
         .toList();
 
     // Hide if expandable and no authorized children
