@@ -1,139 +1,302 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:async';
 
+import '../../../src/services/hr/loan_service.dart';
 import '../models/loans_model.dart';
 
 class LoanController extends GetxController {
+  final LoanService _service = LoanService();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
   // --- State Variables ---
   var isLoading = false.obs;
-  var allLoans = <LoanRequest>[].obs;       // Master list
-  var displayedLoans = <LoanRequest>[].obs; // Filtered & Paginated list
-  
+  var isSaving = false.obs;
+  var allLoans = <LoanRequest>[].obs;
+  var displayedLoans = <LoanRequest>[].obs;
+  var totalCount = 0.obs;
+  var errorMessage = ''.obs;
+  var hasError = false.obs;
+
   // Filters
-  var activeTab = 'All'.obs; 
+  var activeTab = 'All'.obs;
   final searchController = TextEditingController();
   var selectedStatusFilter = 'All Statutes'.obs;
-  final List<String> statusOptions = ['All Statutes', 'Pending', 'Approved', 'Rejected'];
+  final List<String> statusOptions = [
+    'All Statutes',
+    'Pending',
+    'Approved',
+    'Rejected'
+  ];
 
   // Pagination
   var currentPage = 1.obs;
   var itemsPerPage = 10.obs;
-  var totalItems = 0.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    _generateDummyData(); // Load initial dummy data
-    searchController.addListener(_applyFilters);
-  }
+  // Form Controllers
+  final loanAmountController = TextEditingController();
+  final repaymentDateController = TextEditingController();
+  final reasonController = TextEditingController();
+  final emergencyContactNameController = TextEditingController();
+  final emergencyContactPhoneController = TextEditingController();
+  final attachmentController = TextEditingController();
+
+  DateTime? selectedRepaymentDate;
+
+  Timer? _debounce;
 
   @override
   void onClose() {
     searchController.dispose();
+    loanAmountController.dispose();
+    repaymentDateController.dispose();
+    reasonController.dispose();
+    emergencyContactNameController.dispose();
+    emergencyContactPhoneController.dispose();
+    attachmentController.dispose();
+    _debounce?.cancel();
     super.onClose();
   }
 
-  // --- Actions ---
+  // --- Search ---
 
-  void setActiveTab(String tab) {
+  void onSearchChanged(BuildContext context) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      currentPage.value = 1;
+      fetchLoans(context);
+    });
+  }
+
+  // --- Tab / Filter Actions ---
+
+  void setActiveTab(String tab, BuildContext context) {
     activeTab.value = tab;
-    currentPage.value = 1; // Reset page on tab change
-    // Auto-set status filter based on tab for convenience
+    currentPage.value = 1;
     if (tab == 'Pending Approvals') {
       selectedStatusFilter.value = 'Pending';
     } else if (tab == 'History') {
-       // History usually implies resolved, but we'll leave filter open or set to 'All'
-       selectedStatusFilter.value = 'All Statutes';
+      selectedStatusFilter.value = 'All Statutes';
     } else {
       selectedStatusFilter.value = 'All Statutes';
     }
-    _applyFilters();
+    fetchLoans(context);
   }
 
-  void updateStatusFilter(String? val) {
+  void updateStatusFilter(String? val, BuildContext context) {
     if (val != null) {
       selectedStatusFilter.value = val;
       currentPage.value = 1;
-      _applyFilters();
+      fetchLoans(context);
     }
   }
 
-  void changePage(int page) {
+  void changePage(int page, BuildContext context) {
     currentPage.value = page;
-    _applyFilters();
+    fetchLoans(context, refresh: true);
   }
 
-  void changeLimit(int limit) {
+  void changeLimit(int limit, BuildContext context) {
     itemsPerPage.value = limit;
     currentPage.value = 1;
-    _applyFilters();
+    fetchLoans(context, refresh: true);
   }
 
-  // --- Filtering Logic ---
+  // --- API Calls ---
 
-  void _applyFilters() {
-    isLoading.value = true;
-    
-    // 1. Filter by Tab & Status & Search
-    List<LoanRequest> temp = allLoans.where((loan) {
-      // Tab Logic
-      bool matchTab = true;
+  Future<void> fetchLoans(BuildContext context, {bool refresh = false}) async {
+    try {
+      if (!refresh) isLoading.value = true;
+      hasError.value = false;
+
+      final token = await _getToken(context);
+      if (token == null) {
+        hasError.value = true;
+        errorMessage.value = 'Authentication failed.';
+        return;
+      }
+
+      String? statusParam;
       if (activeTab.value == 'Pending Approvals') {
-        matchTab = loan.status == 'Pending';
-      } else if (activeTab.value == 'History') {
-        matchTab = loan.status != 'Pending';
+        statusParam = 'pending';
+      } else if (selectedStatusFilter.value != 'All Statutes') {
+        statusParam = selectedStatusFilter.value.toLowerCase();
       }
 
-      // Status Dropdown Logic
-      bool matchStatus = true;
-      if (selectedStatusFilter.value != 'All Statutes') {
-        matchStatus = loan.status == selectedStatusFilter.value;
-      }
+      int offset = (currentPage.value - 1) * itemsPerPage.value;
 
-      // Search Logic
-      bool matchSearch = true;
-      if (searchController.text.isNotEmpty) {
-        String query = searchController.text.toLowerCase();
-        matchSearch = loan.employeeName.toLowerCase().contains(query) || 
-                      loan.reason.toLowerCase().contains(query);
-      }
+      final result = await _service.getLoans(
+        token,
+        status: statusParam,
+        search: searchController.text.trim().isNotEmpty
+            ? searchController.text.trim()
+            : null,
+        limit: itemsPerPage.value,
+        offset: offset,
+      );
 
-      return matchTab && matchStatus && matchSearch;
-    }).toList();
-
-    totalItems.value = temp.length;
-
-    // 2. Pagination Logic (Slice the list)
-    int start = (currentPage.value - 1) * itemsPerPage.value;
-    if (start >= temp.length) {
-      start = 0; 
-      currentPage.value = 1;
-    }
-    int end = start + itemsPerPage.value;
-    if (end > temp.length) end = temp.length;
-
-    displayedLoans.assignAll(temp.sublist(start, end));
-    
-    // Simulate slight delay for realism if desired
-    Future.delayed(const Duration(milliseconds: 200), () {
+      allLoans.assignAll(result.items);
+      displayedLoans.assignAll(result.items);
+      totalCount.value = result.count;
+    } catch (e) {
+      hasError.value = true;
+      errorMessage.value = e.toString();
+      log('Fetch loans error: $e');
+    } finally {
       isLoading.value = false;
-    });
+    }
   }
 
-  // --- Dummy Data Generation ---
-  void _generateDummyData() {
-    allLoans.value = List.generate(25, (index) {
-      String status = index % 3 == 0 ? 'Approved' : (index % 3 == 1 ? 'Rejected' : 'Pending');
-      return LoanRequest(
-        id: '$index',
-        employeeName: index % 2 == 0 ? "Evelyn George" : "Mathew Parker",
-        employeeRole: "Software Engineer",
-        amount: (index + 1) * 50000.0,
-        repaymentDate: DateTime.now().add(Duration(days: index * 5)),
-        reason: index % 2 == 0 ? "Family trip" : "Medical Emergency",
-        status: status,
+  Future<void> createLoan(BuildContext context) async {
+    try {
+      isSaving.value = true;
+
+      final token = await _getToken(context);
+      if (token == null) return;
+
+      final loan = LoanRequest(
+        loanAmount: loanAmountController.text.trim(),
+        repaymentDate: repaymentDateController.text.trim(),
+        reason: reasonController.text.trim(),
+        emergencyContactName: emergencyContactNameController.text.trim(),
+        emergencyContactPhone: emergencyContactPhoneController.text.trim(),
+        attachment: attachmentController.text.trim(),
       );
-    });
-    _applyFilters();
+
+      await _service.createLoan(token, loan);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Loan request created successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
+
+      clearForm();
+      await fetchLoans(context, refresh: true);
+    } catch (e) {
+      log('Create loan error: $e');
+      if (context.mounted) {
+        _showDialog(context, 'Error', 'Failed to create loan request. Please try again.');
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> approveLoan(BuildContext context, int loanId) async {
+    try {
+      isSaving.value = true;
+
+      final token = await _getToken(context);
+      if (token == null) return;
+
+      await _service.approveLoan(token, loanId);
+
+      await fetchLoans(context, refresh: true);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Loan approved successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      log('Approve loan error: $e');
+      if (context.mounted) {
+        _showDialog(context, 'Error', 'Failed to approve loan. Please try again.');
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> rejectLoan(BuildContext context, int loanId) async {
+    try {
+      isSaving.value = true;
+
+      final token = await _getToken(context);
+      if (token == null) return;
+
+      await _service.rejectLoan(token, loanId);
+
+      await fetchLoans(context, refresh: true);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Loan rejected'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      log('Reject loan error: $e');
+      if (context.mounted) {
+        _showDialog(context, 'Error', 'Failed to reject loan. Please try again.');
+      }
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  // --- Form Helpers ---
+
+  void clearForm() {
+    loanAmountController.clear();
+    repaymentDateController.clear();
+    reasonController.clear();
+    emergencyContactNameController.clear();
+    emergencyContactPhoneController.clear();
+    attachmentController.clear();
+    selectedRepaymentDate = null;
+  }
+
+  Future<void> pickRepaymentDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selectedRepaymentDate ?? DateTime.now().add(const Duration(days: 30)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+    );
+    if (picked != null) {
+      selectedRepaymentDate = picked;
+      repaymentDateController.text =
+          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+    }
+  }
+
+  // --- Utilities ---
+
+  Future<String?> _getToken(BuildContext context) async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith('Bearer ')) token = token.replaceFirst('Bearer ', '');
+    return token.replaceAll('"', '').trim();
+  }
+
+  void _showDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }

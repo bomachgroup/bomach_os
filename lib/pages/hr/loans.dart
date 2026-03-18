@@ -8,8 +8,6 @@ import 'package:bms_front_end/pages/hr/widget/view_loans_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-
 import 'controller/loans_controller.dart';
 
 class LoanPage extends StatefulWidget {
@@ -183,7 +181,7 @@ class _LoanPageState extends State<LoanPage> {
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 13)),
-                                  Text(loan.employeeRole,
+                                  Text(loan.jobTitle,
                                       style: const TextStyle(
                                           fontSize: 11, color: Colors.grey)),
                                 ],
@@ -191,13 +189,12 @@ class _LoanPageState extends State<LoanPage> {
                             ],
                           )),
                           DataCell(Text(
-                            NumberFormat.currency(symbol: '₦', decimalDigits: 0)
-                                .format(loan.amount),
+                            '₦${loan.loanAmount}',
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 13),
                           )),
                           DataCell(Text(
-                            DateFormat('yyyy-MM-dd').format(loan.repaymentDate),
+                            loan.repaymentDate,
                             style: const TextStyle(fontSize: 13),
                           )),
                           DataCell(Text(
@@ -234,11 +231,11 @@ class _LoanPageState extends State<LoanPage> {
 
               // Pagination
               Obx(() => PaginatorFooter(
-                    totalItems: _ctrl.totalItems.value,
+                    totalItems: _ctrl.totalCount.value,
                     limit: _ctrl.itemsPerPage.value,
                     currentPage: _ctrl.currentPage.value,
-                    onPageChanged: (page) => _ctrl.changePage(page),
-                    onLimitChanged: (limit) => _ctrl.changeLimit(limit),
+                    onPageChanged: (page) => _ctrl.changePage(page, context),
+                    onLimitChanged: (limit) => _ctrl.changeLimit(limit, context),
                   )),
             ],
           ),
@@ -251,7 +248,7 @@ class _LoanPageState extends State<LoanPage> {
 
   Widget _buildTabButton(String text, bool isActive) {
     return InkWell(
-      onTap: () => _ctrl.setActiveTab(text),
+      onTap: () => _ctrl.setActiveTab(text, context),
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
@@ -287,7 +284,7 @@ class _LoanPageState extends State<LoanPage> {
                   size: 18, color: Colors.black54),
               elevation: 4,
               style: const TextStyle(fontSize: 14, color: Colors.black87),
-              onChanged: (val) => _ctrl.updateStatusFilter(val),
+              onChanged: (val) => _ctrl.updateStatusFilter(val, context),
               items: _ctrl.statusOptions
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),

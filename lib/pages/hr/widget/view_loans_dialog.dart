@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 
+import '../controller/loans_controller.dart';
 import '../models/loans_model.dart';
 
 class ViewLoanDialog extends StatelessWidget {
@@ -13,6 +14,7 @@ class ViewLoanDialog extends StatelessWidget {
     // Colors from design
     const greenColor = Color(0xFF00C853);
     const redColor = Color(0xFFD32F2F);
+    final LoanController controller = Get.find();
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -76,7 +78,7 @@ class ViewLoanDialog extends StatelessWidget {
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16)),
-                                  Text(loan.employeeRole,
+                                  Text(loan.jobTitle,
                                       style: const TextStyle(
                                           color: Colors.grey, fontSize: 13)),
                                 ],
@@ -101,18 +103,15 @@ class ViewLoanDialog extends StatelessWidget {
                               children: [
                                 _buildGridRow(
                                     "Loan Amount",
-                                    NumberFormat.currency(
-                                            symbol: '₦', decimalDigits: 0)
-                                        .format(loan.amount),
+                                    '₦${loan.loanAmount}',
                                     "Repayment Date",
-                                    DateFormat('dd/MM/yyyy')
-                                        .format(loan.repaymentDate)),
+                                    loan.repaymentDate),
                                 const SizedBox(height: 20),
                                 _buildGridRow(
                                     "Emergency Contact Name",
-                                    "Evelyn Chisom",
+                                    loan.emergencyContactName,
                                     "Emergency Contact Phone",
-                                    "0803 1265 4789"),
+                                    loan.emergencyContactPhone),
                                 const SizedBox(height: 20),
                                 // Handover Section (Inside box per design)
                                 Row(
@@ -214,13 +213,9 @@ class ViewLoanDialog extends StatelessWidget {
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text("Loan Approved"),
-                                        backgroundColor: Colors.green));
-                              },
+                              onPressed: loan.id != null
+                                  ? () => controller.approveLoan(context, loan.id!)
+                                  : null,
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: greenColor,
                                   shape: RoundedRectangleBorder(
@@ -239,13 +234,9 @@ class ViewLoanDialog extends StatelessWidget {
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text("Loan Rejected"),
-                                        backgroundColor: Colors.red));
-                              },
+                              onPressed: loan.id != null
+                                  ? () => controller.rejectLoan(context, loan.id!)
+                                  : null,
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: redColor,
                                   shape: RoundedRectangleBorder(

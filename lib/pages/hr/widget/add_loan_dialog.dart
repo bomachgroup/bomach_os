@@ -34,15 +34,11 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
     super.initState();
     final l = widget.loanToEdit;
     employeeCtrl = TextEditingController(text: l?.employeeName ?? '');
-    amountCtrl = TextEditingController(text: l?.amount.toString() ?? '');
-    repaymentDateCtrl = TextEditingController(
-        text: l?.repaymentDate != null
-            ? DateFormat('yyyy-MM-dd').format(l!.repaymentDate)
-            : '');
+    amountCtrl = TextEditingController(text: l?.loanAmount ?? '');
+    repaymentDateCtrl = TextEditingController(text: l?.repaymentDate ?? '');
     reasonCtrl = TextEditingController(text: l?.reason ?? '');
-    // Assuming model has these fields, otherwise empty
-    emergencyNameCtrl = TextEditingController(text: 'Evelyn Chisom');
-    emergencyPhoneCtrl = TextEditingController(text: '0803 1265 4789');
+    emergencyNameCtrl = TextEditingController(text: l?.emergencyContactName ?? '');
+    emergencyPhoneCtrl = TextEditingController(text: l?.emergencyContactPhone ?? '');
   }
 
   @override
@@ -72,7 +68,9 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
     // Basic Validation
     if (amountCtrl.text.isEmpty ||
         repaymentDateCtrl.text.isEmpty ||
-        reasonCtrl.text.isEmpty) {
+        reasonCtrl.text.isEmpty ||
+        emergencyNameCtrl.text.isEmpty ||
+        emergencyPhoneCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
             "Please fill in all required fields",
@@ -81,14 +79,13 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
       return;
     }
 
-    // Since we are using dummy data in controller, we just close dialog and show snackbar
-    // In real app, call controller.createLoan(...) here
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text("Loan Application Submitted"),
-          backgroundColor: Colors.green),
-    );
+    // Populate controller form fields and call createLoan
+    controller.loanAmountController.text = amountCtrl.text.trim();
+    controller.repaymentDateController.text = repaymentDateCtrl.text.trim();
+    controller.reasonController.text = reasonCtrl.text.trim();
+    controller.emergencyContactNameController.text = emergencyNameCtrl.text.trim();
+    controller.emergencyContactPhoneController.text = emergencyPhoneCtrl.text.trim();
+    controller.createLoan(context);
   }
 
   @override
