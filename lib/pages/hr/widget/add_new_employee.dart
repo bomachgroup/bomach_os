@@ -36,7 +36,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     "Personal Info",
     "Contact Address",
     "Employment",
-    "Compensation"
+    "Compensation",
   ];
 
   // --- Controllers ---
@@ -157,9 +157,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
     if (e.departmentId != null) _selectedDeptId = e.departmentId.toString();
     if (e.branchId != null) _selectedBranchId = e.branchId.toString();
-    if (e.departmentUnitId != null) _selectedUnitId = e.departmentUnitId.toString();
+    if (e.departmentUnitId != null)
+      _selectedUnitId = e.departmentUnitId.toString();
     if (e.levelId != null) _selectedLevelId = e.levelId.toString();
-    if (e.reportingToId != null) _selectedReportingToId = e.reportingToId.toString();
+    if (e.reportingToId != null)
+      _selectedReportingToId = e.reportingToId.toString();
 
     // Load units for selected department
     if (_selectedDeptId != null) {
@@ -168,7 +170,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
     // 4. Compensation
     _basicSalaryCtrl.text = e.grossSalary?.toString() ?? '';
-    if (e.salaryFrequency != null) _selectedSalaryFrequency = e.salaryFrequency!;
+    if (e.salaryFrequency != null)
+      _selectedSalaryFrequency = e.salaryFrequency!;
     _bankNameCtrl.text = e.bankName ?? '';
     _accountNumberCtrl.text = e.accountNumber ?? '';
     _taxIdCtrl.text = e.taxId ?? '';
@@ -183,15 +186,36 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
   @override
   void dispose() {
-    _firstNameCtrl.dispose(); _middleNameCtrl.dispose(); _lastNameCtrl.dispose();
-    _workEmailCtrl.dispose(); _personalEmailCtrl.dispose(); _phoneCtrl.dispose(); _otherPhoneCtrl.dispose();
-    _streetCtrl.dispose(); _cityCtrl.dispose(); _stateCtrl.dispose(); _zipCtrl.dispose(); _countryCtrl.dispose();
-    _emergNameCtrl.dispose(); _emergRelCtrl.dispose(); _emergPhoneCtrl.dispose();
-    _designationCtrl.dispose(); _probationCtrl.dispose(); _workScheduleCtrl.dispose(); _locationCtrl.dispose();
-    _basicSalaryCtrl.dispose(); _bankNameCtrl.dispose(); _accountNumberCtrl.dispose();
-    _taxIdCtrl.dispose(); _pensionNumberCtrl.dispose();
-    _pfaProviderCtrl.dispose(); _rsaNumberCtrl.dispose(); _employerContribCtrl.dispose();
-    _hmoPlanCtrl.dispose(); _hmoIdCtrl.dispose(); _hmoDependentsCtrl.dispose();
+    _firstNameCtrl.dispose();
+    _middleNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _workEmailCtrl.dispose();
+    _personalEmailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _otherPhoneCtrl.dispose();
+    _streetCtrl.dispose();
+    _cityCtrl.dispose();
+    _stateCtrl.dispose();
+    _zipCtrl.dispose();
+    _countryCtrl.dispose();
+    _emergNameCtrl.dispose();
+    _emergRelCtrl.dispose();
+    _emergPhoneCtrl.dispose();
+    _designationCtrl.dispose();
+    _probationCtrl.dispose();
+    _workScheduleCtrl.dispose();
+    _locationCtrl.dispose();
+    _basicSalaryCtrl.dispose();
+    _bankNameCtrl.dispose();
+    _accountNumberCtrl.dispose();
+    _taxIdCtrl.dispose();
+    _pensionNumberCtrl.dispose();
+    _pfaProviderCtrl.dispose();
+    _rsaNumberCtrl.dispose();
+    _employerContribCtrl.dispose();
+    _hmoPlanCtrl.dispose();
+    _hmoIdCtrl.dispose();
+    _hmoDependentsCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
@@ -257,11 +281,16 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     }
 
     if (_dob == null || _joinDate == null) {
-      _showSnackBar(context, "Please select valid Date of Birth and Join Date", isError: true);
+      _showSnackBar(
+        context,
+        "Please select valid Date of Birth and Join Date",
+        isError: true,
+      );
       return;
     }
 
-    final String fullAddress = "${_streetCtrl.text}, ${_cityCtrl.text}, ${_stateCtrl.text}, ${_countryCtrl.text}";
+    final String fullAddress =
+        "${_streetCtrl.text}, ${_cityCtrl.text}, ${_stateCtrl.text}, ${_countryCtrl.text}";
 
     // Build profile picture value
     String profilePic = '';
@@ -339,7 +368,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     }
   }
 
-  void _showSnackBar(BuildContext context, String message, {bool isError = false}) {
+  void _showSnackBar(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -382,7 +415,10 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         isEditMode
                             ? 'Update profile details for this team member.'
                             : 'Create a comprehensive profile for a new team member.',
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -411,14 +447,22 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                           Text(
                             _steps[index],
                             style: TextStyle(
-                              color: isActive ? const Color(0xFF0055FF) : Colors.grey.shade600,
-                              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                              color: isActive
+                                  ? const Color(0xFF0055FF)
+                                  : Colors.grey.shade600,
+                              fontWeight: isActive
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                               fontSize: 14,
                             ),
                           ),
                           const SizedBox(height: 4),
                           if (isActive)
-                            Container(height: 2, width: 20, color: const Color(0xFF0055FF)),
+                            Container(
+                              height: 2,
+                              width: 20,
+                              color: const Color(0xFF0055FF),
+                            ),
                         ],
                       ),
                     ),
@@ -460,15 +504,19 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     onTap: () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                    child: _currentStep == 3
-                        ? (controller.isSaving.value
-                            ? (isEditMode ? 'Updating...' : 'Creating...')
-                            : (isEditMode ? 'Update Profile' : 'Create Profile'))
-                        : 'Next Step',
-                    onTap: controller.isSaving.value ? null : _nextStep,
-                    bgColor: const Color(0xFF0055FF),
-                  )),
+                  Obx(
+                    () => MyElevatedButton(
+                      child: _currentStep == 3
+                          ? (controller.isSaving.value
+                                ? (isEditMode ? 'Updating...' : 'Creating...')
+                                : (isEditMode
+                                      ? 'Update Profile'
+                                      : 'Create Profile'))
+                          : 'Next Step',
+                      onTap: controller.isSaving.value ? null : _nextStep,
+                      bgColor: const Color(0xFF0055FF),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -480,11 +528,16 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
   Widget _buildCurrentStep() {
     switch (_currentStep) {
-      case 0: return _buildStep1();
-      case 1: return _buildStep2();
-      case 2: return _buildStep3();
-      case 3: return _buildStep4();
-      default: return _buildStep1();
+      case 0:
+        return _buildStep1();
+      case 1:
+        return _buildStep2();
+      case 2:
+        return _buildStep3();
+      case 3:
+        return _buildStep4();
+      default:
+        return _buildStep1();
     }
   }
 
@@ -509,16 +562,23 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         ]),
         kSizedBox,
         _buildRow([
-          _buildDropdown("Gender", _selectedGender, ['male', 'female'],
-              (v) => setState(() => _selectedGender = v!)),
-          _buildDropdown("Marital Status", _selectedMaritalStatus,
-              ['single', 'married', 'divorced'],
-              (v) => setState(() => _selectedMaritalStatus = v!)),
+          _buildDropdown("Gender", _selectedGender, [
+            'male',
+            'female',
+          ], (v) => setState(() => _selectedGender = v!)),
+          _buildDropdown(
+            "Marital Status",
+            _selectedMaritalStatus,
+            ['single', 'married', 'divorced'],
+            (v) => setState(() => _selectedMaritalStatus = v!),
+          ),
         ]),
         kSizedBox,
-        _buildDropdown("Nationality", _nationality,
-            ['Nigerian', 'Ghanaian', 'Other'],
-            (v) => setState(() => _nationality = v!)),
+        _buildDropdown("Nationality", _nationality, [
+          'Nigerian',
+          'Ghanaian',
+          'Other',
+        ], (v) => setState(() => _nationality = v!)),
         if (!isEditMode) ...[
           kSizedBox,
           _buildField("Default Password", _passwordCtrl),
@@ -580,82 +640,125 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         _buildRow([
           _buildField("Designation", _designationCtrl),
           // Department dropdown from API
-          Obx(() => _buildApiDropdown(
-            "Department",
-            _selectedDeptId,
-            controller.departments
-                .map((d) => DropdownMenuItem(
-                    value: d.id, child: Text(d.name, style: const TextStyle(fontSize: 14))))
-                .toList(),
-            (v) {
-              setState(() {
-                _selectedDeptId = v;
-                _selectedUnitId = null; // Reset unit
-              });
-              if (v != null) {
-                controller.fetchDepartmentUnits(departmentId: v);
-              }
-            },
-          )),
+          Obx(
+            () => _buildApiDropdown(
+              "Department",
+              _selectedDeptId,
+              controller.departments
+                  .map(
+                    (d) => DropdownMenuItem(
+                      value: d.id,
+                      child: Text(d.name, style: const TextStyle(fontSize: 14)),
+                    ),
+                  )
+                  .toList(),
+              (v) {
+                setState(() {
+                  _selectedDeptId = v;
+                  _selectedUnitId = null; // Reset unit
+                });
+                if (v != null) {
+                  controller.fetchDepartmentUnits(departmentId: v);
+                }
+              },
+            ),
+          ),
         ]),
         kSizedBox,
         _buildRow([
           // Unit dropdown — cascading from department
-          Obx(() => _buildApiDropdown(
-            "Unit",
-            _selectedUnitId,
-            controller.departmentUnits
-                .map((u) => DropdownMenuItem(
-                    value: u.id, child: Text(u.name, style: const TextStyle(fontSize: 14))))
-                .toList(),
-            (v) => setState(() => _selectedUnitId = v),
-          )),
+          Obx(
+            () => _buildApiDropdown(
+              "Unit",
+              _selectedUnitId,
+              controller.departmentUnits
+                  .map(
+                    (u) => DropdownMenuItem(
+                      value: u.id,
+                      child: Text(u.name, style: const TextStyle(fontSize: 14)),
+                    ),
+                  )
+                  .toList(),
+              (v) => setState(() => _selectedUnitId = v),
+            ),
+          ),
           // Branch dropdown from API
-          Obx(() => _buildApiDropdown(
-            "Branch",
-            _selectedBranchId,
-            controller.branches
-                .map((b) => DropdownMenuItem(
-                    value: b.id.toString(), child: Text(b.branchName, style: const TextStyle(fontSize: 14))))
-                .toList(),
-            (v) => setState(() => _selectedBranchId = v),
-          )),
+          Obx(
+            () => _buildApiDropdown(
+              "Branch",
+              _selectedBranchId,
+              controller.branches
+                  .map(
+                    (b) => DropdownMenuItem(
+                      value: b.id.toString(),
+                      child: Text(
+                        b.branchName,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              (v) => setState(() => _selectedBranchId = v),
+            ),
+          ),
         ]),
         kSizedBox,
         _buildRow([
           // Level dropdown from API
-          Obx(() => _buildApiDropdown(
-            "Level",
-            _selectedLevelId,
-            controller.levels
-                .map((l) => DropdownMenuItem(
-                    value: l['id']?.toString() ?? '',
-                    child: Text(l['name']?.toString() ?? '', style: const TextStyle(fontSize: 14))))
-                .toList(),
-            (v) => setState(() => _selectedLevelId = v),
-          )),
+          Obx(
+            () => _buildApiDropdown(
+              "Level",
+              _selectedLevelId,
+              controller.levels
+                  .map(
+                    (l) => DropdownMenuItem(
+                      value: l['id']?.toString() ?? '',
+                      child: Text(
+                        l['name']?.toString() ?? '',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              (v) => setState(() => _selectedLevelId = v),
+            ),
+          ),
           _buildField("Location", _locationCtrl),
         ]),
         kSizedBox,
         // Reporting To dropdown from allEmployees
-        Obx(() => _buildApiDropdown(
-          "Reporting To",
-          _selectedReportingToId,
-          controller.allEmployees
-              .map((e) => DropdownMenuItem(
-                  value: e.id, child: Text(e.fullName, style: const TextStyle(fontSize: 14))))
-              .toList(),
-          (v) => setState(() => _selectedReportingToId = v),
-        )),
+        Obx(
+          () => _buildApiDropdown(
+            "Reporting To",
+            _selectedReportingToId,
+            controller.allEmployees
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e.id,
+                    child: Text(
+                      e.fullName,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                )
+                .toList(),
+            (v) => setState(() => _selectedReportingToId = v),
+          ),
+        ),
         kSizedBox,
         const MyText('Employment', weight: 600, size: 14),
         const SizedBox(height: 16),
         _buildRow([
-          _buildDropdown("Employment Type", _selectedEmpType,
-              ['full-time', 'part-time', 'contract'],
-              (v) => setState(() => _selectedEmpType = v!)),
-          _buildDropdown("Status", _selectedStatus, ['active', 'inactive'],
-              (v) => setState(() => _selectedStatus = v!)),
+          _buildDropdown(
+            "Employment Type",
+            _selectedEmpType,
+            ['full-time', 'part-time', 'contract'],
+            (v) => setState(() => _selectedEmpType = v!),
+          ),
+          _buildDropdown("Status", _selectedStatus, [
+            'active',
+            'inactive',
+          ], (v) => setState(() => _selectedStatus = v!)),
         ]),
         kSizedBox,
         _buildRow([
@@ -677,9 +780,12 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         const SizedBox(height: 16),
         _buildRow([
           _buildField("Gross Salary", _basicSalaryCtrl),
-          _buildDropdown("Salary Frequency", _selectedSalaryFrequency,
-              ['monthly', 'weekly', 'bi-weekly', 'annually'],
-              (v) => setState(() => _selectedSalaryFrequency = v!)),
+          _buildDropdown(
+            "Salary Frequency",
+            _selectedSalaryFrequency,
+            ['monthly', 'weekly', 'bi-weekly', 'annually'],
+            (v) => setState(() => _selectedSalaryFrequency = v!),
+          ),
         ]),
         kSizedBox,
         const MyText('Bank Details', weight: 600, size: 14),
@@ -717,7 +823,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
   Widget _buildProfilePictureZone() {
     final bool hasNewImage = _imageBytes != null;
-    final bool hasExistingImage = _existingImageUrl != null && _existingImageUrl!.isNotEmpty;
+    final bool hasExistingImage =
+        _existingImageUrl != null && _existingImageUrl!.isNotEmpty;
 
     return InkWell(
       onTap: _pickProfileImage,
@@ -753,13 +860,16 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               Text(
                 _imageName ?? 'Image selected',
                 style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w600),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
-              Text("Tap to change image",
-                  style: TextStyle(
-                      fontSize: 11, color: Colors.grey.shade500)),
+              Text(
+                "Tap to change image",
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+              ),
             ] else if (hasExistingImage) ...[
               // Show existing image from URL
               ClipRRect(
@@ -776,21 +886,24 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                       color: Colors.grey.shade200,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.person,
-                        size: 40, color: Colors.grey),
+                    child: const Icon(
+                      Icons.person,
+                      size: 40,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 12),
               const Text(
                 "Current profile picture",
-                style: TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
-              Text("Tap to replace",
-                  style: TextStyle(
-                      fontSize: 11, color: Colors.grey.shade500)),
+              Text(
+                "Tap to replace",
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+              ),
             ] else ...[
               // Empty state — drag & drop / click
               Container(
@@ -799,8 +912,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   color: const Color(0xFF0055FF),
                   borderRadius: BorderRadius.circular(50),
                 ),
-                child: const Icon(Icons.cloud_upload_outlined,
-                    color: Colors.white, size: 24),
+                child: const Icon(
+                  Icons.cloud_upload_outlined,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
               const SizedBox(height: 14),
               RichText(
@@ -809,23 +925,28 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   style: TextStyle(fontSize: 13, color: Colors.black87),
                   children: [
                     TextSpan(
-                        text: "Drag & Drop or ",
-                        style: TextStyle(fontWeight: FontWeight.w500)),
+                      text: "Drag & Drop or ",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                     TextSpan(
-                        text: "choose file",
-                        style: TextStyle(
-                            color: Color(0xFF0055FF),
-                            fontWeight: FontWeight.bold)),
+                      text: "choose file",
+                      style: TextStyle(
+                        color: Color(0xFF0055FF),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     TextSpan(
-                        text: " to upload",
-                        style: TextStyle(fontWeight: FontWeight.w500)),
+                      text: " to upload",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 6),
-              Text("Supported formats: JPG, PNG, GIF (max 5MB)",
-                  style: TextStyle(
-                      fontSize: 11, color: Colors.grey.shade500)),
+              Text(
+                "Supported formats: JPG, PNG, GIF (max 5MB)",
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+              ),
             ],
           ],
         ),
@@ -836,13 +957,16 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   Widget _buildRow(List<Widget> children) {
     return Row(
       children: children
-          .map((c) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      right: children.indexOf(c) != children.length - 1 ? 16.0 : 0),
-                  child: c,
+          .map(
+            (c) => Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: children.indexOf(c) != children.length - 1 ? 16.0 : 0,
                 ),
-              ))
+                child: c,
+              ),
+            ),
+          )
           .toList(),
     );
   }
@@ -858,7 +982,12 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     );
   }
 
-  Widget _buildDropdown(String title, String value, List<String> items, Function(String?) onChanged) {
+  Widget _buildDropdown(
+    String title,
+    String value,
+    List<String> items,
+    Function(String?) onChanged,
+  ) {
     final safeValue = items.contains(value) ? value : items.first;
 
     return Column(
@@ -869,11 +998,27 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         DropdownButtonFormField<String>(
           initialValue: safeValue,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
           ),
-          items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 14)))).toList(),
+          items: items
+              .map(
+                (e) => DropdownMenuItem(
+                  value: e,
+                  child: Text(e, style: const TextStyle(fontSize: 14)),
+                ),
+              )
+              .toList(),
           onChanged: onChanged,
         ),
       ],
@@ -889,7 +1034,9 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   ) {
     // Ensure selected value is in items, otherwise null
     final validValues = items.map((i) => i.value).toSet();
-    final safeValue = validValues.contains(selectedValue) ? selectedValue : null;
+    final safeValue = validValues.contains(selectedValue)
+        ? selectedValue
+        : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -898,11 +1045,23 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: safeValue,
-          hint: Text("Select $title", style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+          hint: Text(
+            "Select $title",
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+          ),
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
           ),
           items: items,
           onChanged: onChanged,

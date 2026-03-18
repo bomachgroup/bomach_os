@@ -933,8 +933,22 @@ class _SideMenuState extends State<SideMenu> {
   Widget _buildMenuItem(MenuItem menuItem) {
     final permissionService = Get.find<PermissionService>();
 
-    // Hide if user lacks the parent permission
-    if (!permissionService.canAccess(menuItem.permission)) {
+    // Initial permission check
+    bool isAuthorized = permissionService.canAccess(menuItem.permission);
+
+    // MUTUAL EXCLUSIVITY LOGIC:
+    // 1. If this is the Dashboard, hide it if user also has Company Settings access (CEO view)
+    if (menuItem.id == MainMenuItem.dashboard &&
+        permissionService.canAccess(
+            '${PermissionConstants.resCompanySettings}:${PermissionConstants.actView}')) {
+      isAuthorized = false;
+    }
+
+    // 2. If this is Company, it is already gated by company_settings:view
+    // (Which employees lack, so it will be hidden naturally)
+
+    // Hide if not authorized
+    if (!isAuthorized) {
       return const SizedBox.shrink();
     }
 
@@ -1009,21 +1023,21 @@ class _SideMenuState extends State<SideMenu> {
       color: AppColors.sideMenu,
       padding: const EdgeInsets.only(right: 16, left: 16),
       height: MediaQuery.sizeOf(context).height,
-      child: ListView(
-        physics: const BouncingScrollPhysics(),
-        children: [
-          kSizedBoxBG,
-          const Row(
+      child: Obx(() => ListView(
+            physics: const BouncingScrollPhysics(),
             children: [
-              Text('BOMACH', style: AppText.black_500_20),
-              Text('OS', style: AppText.black_500_32),
+              kSizedBoxBG,
+              const Row(
+                children: [
+                  Text('BOMACH', style: AppText.black_500_20),
+                  Text('OS', style: AppText.black_500_32),
+                ],
+              ),
+              const SizedBox(height: 24),
+              ...menuItems.map((menuItem) => _buildMenuItem(menuItem)),
+              kSizedBox,
             ],
-          ),
-          const SizedBox(height: 24),
-          ...menuItems.map((menuItem) => _buildMenuItem(menuItem)),
-          kSizedBox,
-        ],
-      ),
+          )),
     );
   }
 }

@@ -60,7 +60,8 @@ class _GenerateInvoiceDialogState extends State<GenerateInvoiceDialog> {
     }
 
     // Set default terms and conditions
-    _termsController.text = '''Payment is due within 30 days from the invoice date.
+    _termsController.text =
+        '''Payment is due within 30 days from the invoice date.
 Late payments may incur additional charges.
 All prices are in Nigerian Naira (₦).''';
   }
@@ -138,7 +139,8 @@ All prices are in Nigerian Naira (₦).''';
     if (_formKey.currentState?.validate() ?? false) {
       // Generate invoice number
       final now = DateTime.now();
-      final invoiceNumber = 'INV-${now.year}-${now.month.toString().padLeft(2, '0')}-${now.millisecondsSinceEpoch.toString().substring(8)}';
+      final invoiceNumber =
+          'INV-${now.year}-${now.month.toString().padLeft(2, '0')}-${now.millisecondsSinceEpoch.toString().substring(8)}';
 
       // Create invoice items
       final items = _items.map((item) {
@@ -163,9 +165,15 @@ All prices are in Nigerian Naira (₦).''';
         invoiceNumber: invoiceNumber,
         clientId: 'temp-${DateTime.now().millisecondsSinceEpoch}',
         clientName: _clientNameController.text,
-        clientEmail: _clientEmailController.text.isEmpty ? null : _clientEmailController.text,
-        clientPhone: _clientPhoneController.text.isEmpty ? null : _clientPhoneController.text,
-        clientAddress: _clientAddressController.text.isEmpty ? null : _clientAddressController.text,
+        clientEmail: _clientEmailController.text.isEmpty
+            ? null
+            : _clientEmailController.text,
+        clientPhone: _clientPhoneController.text.isEmpty
+            ? null
+            : _clientPhoneController.text,
+        clientAddress: _clientAddressController.text.isEmpty
+            ? null
+            : _clientAddressController.text,
         serviceType: _selectedServiceType,
         serviceId: widget.serviceId,
         projectId: widget.projectId,
@@ -182,7 +190,8 @@ All prices are in Nigerian Naira (₦).''';
         amountPaid: 0,
         balance: total,
         notes: _notesController.text.isEmpty ? null : _notesController.text,
-        termsAndConditions: _termsController.text.isEmpty ? null : _termsController.text,
+        termsAndConditions:
+            _termsController.text.isEmpty ? null : _termsController.text,
         createdBy: 'Current User', // Replace with actual user
         createdDate: DateTime.now(),
       );
@@ -217,7 +226,8 @@ All prices are in Nigerian Naira (₦).''';
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -242,7 +252,8 @@ All prices are in Nigerian Naira (₦).''';
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -251,7 +262,8 @@ All prices are in Nigerian Naira (₦).''';
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       MyDropdown(
                                         items: const [
@@ -268,7 +280,8 @@ All prices are in Nigerian Naira (₦).''';
                                         title: 'Service Type*',
                                         onChanged: (value) {
                                           setState(() {
-                                            _selectedServiceType = value ?? 'Real Estate';
+                                            _selectedServiceType =
+                                                value ?? 'Real Estate';
                                           });
                                         },
                                       ),
@@ -284,7 +297,8 @@ All prices are in Nigerian Naira (₦).''';
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const MyText(
                                         'Issue Date*',
@@ -299,14 +313,18 @@ All prices are in Nigerian Naira (₦).''';
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
                                           decoration: BoxDecoration(
-                                            border: Border.all(color: AppColors.grey4),
-                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: AppColors.grey4),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               MyText(_formatDate(_issueDate)),
-                                              const Icon(Icons.calendar_today, size: 18),
+                                              const Icon(Icons.calendar_today,
+                                                  size: 18),
                                             ],
                                           ),
                                         ),
@@ -317,7 +335,8 @@ All prices are in Nigerian Naira (₦).''';
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const MyText(
                                         'Due Date*',
@@ -332,14 +351,18 @@ All prices are in Nigerian Naira (₦).''';
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
                                           decoration: BoxDecoration(
-                                            border: Border.all(color: AppColors.grey4),
-                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: AppColors.grey4),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               MyText(_formatDate(_dueDate)),
-                                              const Icon(Icons.calendar_today, size: 18),
+                                              const Icon(Icons.calendar_today,
+                                                  size: 18),
                                             ],
                                           ),
                                         ),
@@ -465,7 +488,9 @@ All prices are in Nigerian Naira (₦).''';
                                           hintText: '7.5',
                                           onChanged: (value) {
                                             setState(() {
-                                              _taxRate = double.tryParse(value ?? '7.5') ?? 7.5;
+                                              _taxRate = double.tryParse(
+                                                      value ?? '7.5') ??
+                                                  7.5;
                                             });
                                           },
                                         ),
@@ -492,7 +517,9 @@ All prices are in Nigerian Naira (₦).''';
                                           hintText: '0.00',
                                           onChanged: (value) {
                                             setState(() {
-                                              _discount = double.tryParse(value ?? '0') ?? 0;
+                                              _discount = double.tryParse(
+                                                      value ?? '0') ??
+                                                  0;
                                             });
                                           },
                                         ),
@@ -500,7 +527,8 @@ All prices are in Nigerian Naira (₦).''';
                                     ],
                                   ),
                                   const Divider(height: 32),
-                                  _buildSummaryRow('Total Amount', total, isTotal: true),
+                                  _buildSummaryRow('Total Amount', total,
+                                      isTotal: true),
                                 ],
                               ),
                             ),
@@ -534,7 +562,8 @@ All prices are in Nigerian Naira (₦).''';
 
               // Action Buttons
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(color: Colors.grey.shade300),
