@@ -731,49 +731,49 @@ class _SideMenuState extends State<SideMenu> {
           ),
         ],
       ),
-      const MenuItem(
-        id: MainMenuItem.security,
-        label: 'Security & Authorization',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resAuditLogs,
-          PermissionConstants.resRoles,
-          PermissionConstants.resApprovalFlows,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.securityOverview,
-            label: 'Overview',
-            route: RouteConstants.securityOverview,
-            resources: [PermissionConstants.resAuditLogs],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.securityCodes,
-            label: 'Security Codes',
-            route: RouteConstants.securityCodes,
-            resources: [PermissionConstants.resRoles],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.securityWorkflow,
-            label: 'Workflows',
-            route: RouteConstants.securityWorkflow,
-            resources: [PermissionConstants.resApprovalFlows],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.securityAlerts,
-            label: 'Security Alerts',
-            route: RouteConstants.securityAlerts,
-            resources: [PermissionConstants.resAuditLogs],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.securityLogs,
-            label: 'Audit Logs',
-            route: RouteConstants.securityLogs,
-            resources: [PermissionConstants.resAuditLogs],
-          ),
-        ],
-      ),
+      // const MenuItem(
+      //   id: MainMenuItem.security,
+      //   label: 'Security & Authorization',
+      //   iconPath: 'assets/svg/sidebar/joined-square.svg',
+      //   isExpandable: true,
+      //   resources: [
+      //     PermissionConstants.resAuditLogs,
+      //     PermissionConstants.resRoles,
+      //     PermissionConstants.resApprovalFlows,
+      //   ],
+      //   children: [
+      //     SubMenuItemData(
+      //       id: SubMenuItem.securityOverview,
+      //       label: 'Overview',
+      //       route: RouteConstants.securityOverview,
+      //       resources: [PermissionConstants.resAuditLogs],
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.securityCodes,
+      //       label: 'Security Codes',
+      //       route: RouteConstants.securityCodes,
+      //       resources: [PermissionConstants.resRoles],
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.securityWorkflow,
+      //       label: 'Workflows',
+      //       route: RouteConstants.securityWorkflow,
+      //       resources: [PermissionConstants.resApprovalFlows],
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.securityAlerts,
+      //       label: 'Security Alerts',
+      //       route: RouteConstants.securityAlerts,
+      //       resources: [PermissionConstants.resAuditLogs],
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.securityLogs,
+      //       label: 'Audit Logs',
+      //       route: RouteConstants.securityLogs,
+      //       resources: [PermissionConstants.resAuditLogs],
+      //     ),
+      //   ],
+      // ),
       const MenuItem(
         id: MainMenuItem.crm,
         label: 'CRM',

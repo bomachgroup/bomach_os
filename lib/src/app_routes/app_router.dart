@@ -313,9 +313,10 @@ final goRouter = GoRouter(
       return RouteConstants.login;
     }
 
-    // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to Home
+    // 3. If LOGGED IN and trying to access a PUBLIC AUTH route -> Redirect to first permitted page
     if (isLoggedIn && isPublicRoute) {
-      return RouteConstants.home;
+      final permissionService = Get.find<PermissionService>();
+      return permissionService.getFirstPermittedRoute();
     }
 
     // 4. Permission Checking
@@ -324,7 +325,7 @@ final goRouter = GoRouter(
 
     if (requiredPermission != null && !permissionService.canAccess(requiredPermission)) {
       debugPrint('Access Denied to $location. Required: $requiredPermission');
-      return RouteConstants.home; // Or a dedicated /unauthorized page
+      return permissionService.getFirstPermittedRoute();
     }
 
     // 5. Otherwise, let them go where they want
