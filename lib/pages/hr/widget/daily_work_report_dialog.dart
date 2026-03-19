@@ -1,6 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -36,7 +35,6 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   late TextEditingController _taskDetailsController;
   late TextEditingController _nextDayPlanController;
 
-  String _selectedStatus = 'draft';
   DateTime _reportDate = DateTime.now();
 
   @override
@@ -54,7 +52,6 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     _nextDayPlanController =
         TextEditingController(text: r?.planNextDay ?? '');
 
-    _selectedStatus = r?.status.isNotEmpty == true ? r!.status : 'draft';
     _reportDate = r?.day ?? DateTime.now();
   }
 
@@ -105,7 +102,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       planNextDay: _nextDayPlanController.text.isNotEmpty
           ? _nextDayPlanController.text
           : null,
-      status: _selectedStatus,
+      status: 'draft',
       rating: widget.existingReport?.rating,
       feedback: widget.existingReport?.feedback,
       attachments: widget.existingReport?.attachments ?? [],
