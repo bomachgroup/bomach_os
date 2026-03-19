@@ -1,10 +1,13 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/events/controller/event_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/services/events/event_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ViewEventDialog extends StatelessWidget {
-  final Map<String, dynamic> event;
+  final Event event;
 
   const ViewEventDialog({
     super.key,
@@ -13,7 +16,7 @@ class ViewEventDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color eventColor = _getEventColor(event['type']);
+    Color eventColor = _getEventColor(event.eventType);
 
     return Dialog(
       backgroundColor: AppColors.white,
@@ -59,7 +62,7 @@ class ViewEventDialog extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: MyText(
-                            event['type'].toString().toUpperCase(),
+                            _formatEventType(event.eventType),
                             size: 11,
                             weight: 600,
                             color: eventColor,
@@ -67,7 +70,7 @@ class ViewEventDialog extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         MyText(
-                          event['title'],
+                          event.title,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -96,14 +99,23 @@ class ViewEventDialog extends StatelessWidget {
                       _buildDetailItem(
                         icon: Icons.tag,
                         label: 'Event ID',
-                        value: event['id'],
+                        value: event.eventId,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Status
+                      _buildDetailItem(
+                        icon: Icons.info_outline,
+                        label: 'Status',
+                        value: event.status,
                       ),
 
                       const SizedBox(height: 20),
 
                       // Time Information
                       const MyText(
-                        'Time & Duration',
+                        'Time',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -114,117 +126,109 @@ class ViewEventDialog extends StatelessWidget {
 
                       _buildDetailItem(
                         icon: Icons.access_time,
-                        label: 'Start Time',
-                        value: event['time'],
+                        label: 'From',
+                        value: _formatDateTime(event.eventTimeFrom),
                       ),
 
                       const SizedBox(height: 12),
 
                       _buildDetailItem(
-                        icon: Icons.hourglass_empty,
-                        label: 'Duration',
-                        value: event['duration'],
+                        icon: Icons.access_time_filled,
+                        label: 'To',
+                        value: _formatDateTime(event.eventTimeTo),
                       ),
 
                       const SizedBox(height: 20),
 
                       // Location
-                      const MyText(
-                        'Location',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A202C),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      _buildDetailItem(
-                        icon: Icons.location_on_outlined,
-                        label: 'Venue',
-                        value: event['location'],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Description
-                      if (event['description'] != null) ...[
+                      if (event.meetingLocation != null &&
+                          event.meetingLocation!.isNotEmpty) ...[
                         const MyText(
-                          'Description',
+                          'Location',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF1A202C),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        MyText(
-                          event['description'],
-                          size: 14,
-                          weight: 400,
-                          color: const Color(0xFF64748B),
+                        const SizedBox(height: 12),
+                        _buildDetailItem(
+                          icon: Icons.location_on_outlined,
+                          label: 'Venue',
+                          value: event.meetingLocation!,
                         ),
                         const SizedBox(height: 20),
                       ],
 
-                      // Attendees
-                      const MyText(
-                        'Attendees',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A202C),
+                      // Organizer
+                      if (event.organizerName != null &&
+                          event.organizerName!.isNotEmpty) ...[
+                        _buildDetailItem(
+                          icon: Icons.person_outline,
+                          label: 'Organizer',
+                          value: event.organizerName!,
                         ),
-                      ),
-                      const SizedBox(height: 12),
+                        const SizedBox(height: 20),
+                      ],
 
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: (event['attendees'] as List<String>).map((attendee) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.blue.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColors.blue.withValues(alpha: 0.3),
+                      // Recurrence
+                      if (event.isRecurring) ...[
+                        const MyText(
+                          'Recurrence',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1A202C),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildDetailItem(
+                          icon: Icons.repeat,
+                          label: 'Recurring',
+                          value: event.recurrence ?? 'Yes',
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+
+                      // Target Audience
+                      if (event.targetAudience.isNotEmpty) ...[
+                        const MyText(
+                          'Target Audience',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1A202C),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: event.targetAudience.map((audience) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
                               ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.blue,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: MyText(
-                                      attendee[0],
-                                      size: 12,
-                                      weight: 600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.blue.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.blue
+                                      .withValues(alpha: 0.3),
                                 ),
-                                const SizedBox(width: 8),
-                                MyText(
-                                  attendee,
-                                  size: 13,
-                                  weight: 500,
-                                  color: AppColors.blue,
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                              ),
+                              child: MyText(
+                                audience,
+                                size: 13,
+                                weight: 500,
+                                color: AppColors.blue,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -233,7 +237,8 @@ class ViewEventDialog extends StatelessWidget {
 
             // Action Buttons
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(color: Colors.grey.shade300),
@@ -243,14 +248,41 @@ class ViewEventDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton.icon(
-                    onPressed: () {
-                      // Handle edit
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Delete Event'),
+                          content: const Text(
+                              'Are you sure you want to delete this event?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed == true) {
+                        final controller = Get.find<EventController>();
+                        await controller.deleteEvent(event.id);
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
+                      }
                     },
-                    icon: const Icon(Icons.edit_outlined),
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
                     label: const MyText(
-                      'Edit Event',
+                      'Delete Event',
                       size: 14,
                       weight: 500,
+                      color: Colors.red,
                     ),
                   ),
                   MyElevatedButton(
@@ -307,20 +339,39 @@ class ViewEventDialog extends StatelessWidget {
     );
   }
 
+  String _formatEventType(String type) {
+    return type.replaceAll('_', ' ');
+  }
+
+  String _formatDateTime(String dateTimeStr) {
+    final dt = DateTime.tryParse(dateTimeStr);
+    if (dt == null) return dateTimeStr;
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '${months[dt.month - 1]} ${dt.day}, ${dt.year} at $hour:$minute $period';
+  }
+
   Color _getEventColor(String type) {
     switch (type) {
-      case 'meeting':
+      case 'GENERAL_MEETING':
         return Colors.blue;
-      case 'deadline':
+      case 'BOARD_MEETING':
         return Colors.red;
-      case 'training':
+      case 'TRAINING':
         return Colors.orange;
-      case 'presentation':
+      case 'CONFERENCE':
         return Colors.green;
-      case 'event':
+      case 'SOCIAL_EVENT':
         return Colors.purple;
-      default:
+      case 'OTHER':
         return Colors.grey;
+      default:
+        return Colors.blue;
     }
   }
 }

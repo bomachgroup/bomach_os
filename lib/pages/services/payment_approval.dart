@@ -3,11 +3,12 @@ import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/models/invoice_model.dart';
+import 'package:bms_front_end/pages/services/controller/payment_approval_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class PaymentApprovalPage extends StatefulWidget {
@@ -18,135 +19,29 @@ class PaymentApprovalPage extends StatefulWidget {
 }
 
 class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
+  final controller = Get.put(PaymentApprovalController());
   String _selectedFilter = 'All';
   String _searchQuery = '';
 
-  // Sample data - replace with actual data from your backend
-  final List<Invoice> _sampleInvoices = [];
+  List<Map<String, dynamic>> get _filteredInvoices {
+    var invoices = controller.pendingInvoices.toList();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadSampleData();
-  }
-
-  void _loadSampleData() {
-    // Sample invoices with payments awaiting approval
-    _sampleInvoices.addAll([
-      Invoice(
-        id: '1',
-        invoiceNumber: 'INV-SVC-2024-001',
-        clientId: 'client-1',
-        clientName: 'Abuja Infrastructure Company',
-        clientEmail: 'projects@abujainfra.ng',
-        clientPhone: '+234 803 456 7890',
-        serviceType: 'Land Survey',
-        items: [
-          InvoiceItem(
-            id: 'item-1',
-            description: 'Land Survey Services',
-            quantity: 1,
-            unitPrice: 650000,
-            amount: 650000,
-          ),
-        ],
-        subtotal: 650000,
-        taxAmount: 48750,
-        totalAmount: 698750,
-        issueDate: DateTime.now().subtract(const Duration(days: 30)),
-        dueDate: DateTime.now().subtract(const Duration(days: 5)),
-        status: InvoiceStatus.sent,
-        paymentStatus: PaymentStatus.partiallyPaid,
-        payments: [
-          Payment(
-            id: 'payment-1',
-            invoiceId: '1',
-            amount: 300000,
-            paymentDate: DateTime.now().subtract(const Duration(days: 2)),
-            method: PaymentMethod.bankTransfer,
-            approvalStatus: PaymentApprovalStatus.pending,
-            transactionReference: 'TRX-20240125-001',
-            bankName: 'First Bank',
-            depositorName: 'Abuja Infrastructure Ltd',
-            proofOfPayment: ['receipt_001.pdf'],
-            createdBy: 'Client Portal',
-            createdDate: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-        ],
-        amountPaid: 0,
-        balance: 698750,
-        createdBy: 'Admin',
-        createdDate: DateTime.now().subtract(const Duration(days: 30)),
-      ),
-      Invoice(
-        id: '2',
-        invoiceNumber: 'INV-SVC-2024-002',
-        clientId: 'client-2',
-        clientName: 'Lagos Real Estate Ltd',
-        clientEmail: 'info@lagosrealestate.com',
-        serviceType: 'Real Estate',
-        items: [
-          InvoiceItem(
-            id: 'item-2',
-            description: 'Property Management Services',
-            quantity: 1,
-            unitPrice: 850000,
-            amount: 850000,
-          ),
-        ],
-        subtotal: 850000,
-        taxAmount: 63750,
-        totalAmount: 913750,
-        issueDate: DateTime.now().subtract(const Duration(days: 20)),
-        dueDate: DateTime.now().add(const Duration(days: 10)),
-        status: InvoiceStatus.sent,
-        paymentStatus: PaymentStatus.unpaid,
-        payments: [
-          Payment(
-            id: 'payment-2',
-            invoiceId: '2',
-            amount: 913750,
-            paymentDate: DateTime.now().subtract(const Duration(days: 1)),
-            method: PaymentMethod.bankTransfer,
-            approvalStatus: PaymentApprovalStatus.pending,
-            transactionReference: 'TRX-20240126-002',
-            bankName: 'GTBank',
-            depositorName: 'Lagos Real Estate Limited',
-            proofOfPayment: ['receipt_002.pdf'],
-            notes: 'Full payment via bank transfer',
-            createdBy: 'Client Portal',
-            createdDate: DateTime.now().subtract(const Duration(days: 1)),
-          ),
-        ],
-        amountPaid: 0,
-        balance: 913750,
-        createdBy: 'Admin',
-        createdDate: DateTime.now().subtract(const Duration(days: 20)),
-      ),
-    ]);
-  }
-
-  List<Invoice> get _filteredInvoices {
-    var invoices = _sampleInvoices.where((invoice) {
-      // Check if invoice has pending payments
-      final hasPendingPayments = invoice.payments
-          .any((p) => p.approvalStatus == PaymentApprovalStatus.pending);
-      if (!hasPendingPayments) return false;
-
-      // Apply search filter
-      if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        return invoice.invoiceNumber.toLowerCase().contains(query) ||
-            invoice.clientName.toLowerCase().contains(query);
-      }
-      return true;
-    }).toList();
-
-    // Apply status filter
-    if (_selectedFilter != 'All') {
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
       invoices = invoices.where((invoice) {
-        final paymentStatus = _selectedFilter.toLowerCase().replaceAll(' ', '');
-        return invoice.paymentStatus.name == paymentStatus;
+        final invoiceNumber =
+            (invoice['invoice_number'] ?? '').toString().toLowerCase();
+        final clientName =
+            (invoice['client_name'] ?? '').toString().toLowerCase();
+        return invoiceNumber.contains(query) || clientName.contains(query);
+      }).toList();
+    }
+
+    if (_selectedFilter != 'All') {
+      final filterValue = _selectedFilter.toLowerCase().replaceAll(' ', '_');
+      invoices = invoices.where((invoice) {
+        final status = (invoice['status'] ?? '').toString().toLowerCase();
+        return status == filterValue;
       }).toList();
     }
 
@@ -160,65 +55,61 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
       children: [
         _buildHeader(),
         kSizedBox,
-        _buildStatsCards(),
+        Obx(() => _buildStatsCards()),
         const SizedBox(height: 24),
         _buildFilters(),
         const SizedBox(height: 24),
-        _buildPaymentsList(),
+        Obx(() => _buildPaymentsList()),
       ],
     );
   }
 
   Widget _buildHeader() {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        MyText(
-          'Payment Approval',
-          style: AppText.black_500_32,
-        ),
-        SizedBox(height: 4),
-        MyText(
-          'Review and approve pending payment submissions',
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black54,
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MyText(
+                'Payment Approval',
+                style: AppText.black_500_32,
+              ),
+              SizedBox(height: 4),
+              MyText(
+                'Review and approve pending payment submissions',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
           ),
+        ),
+        IconButton(
+          onPressed: () => controller.fetchPendingApprovals(),
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Refresh',
         ),
       ],
     );
   }
 
   Widget _buildStatsCards() {
-    final pendingPayments = _sampleInvoices.fold<int>(
+    final invoices = controller.pendingInvoices;
+    final pendingCount = invoices.length;
+
+    final pendingAmount = invoices.fold<double>(
       0,
-      (sum, invoice) =>
-          sum +
-          invoice.payments
-              .where((p) => p.approvalStatus == PaymentApprovalStatus.pending)
-              .length,
+      (sum, invoice) => sum + ((invoice['balance'] ?? 0) as num).toDouble(),
     );
 
-    final pendingAmount = _sampleInvoices.fold<double>(
-      0,
-      (sum, invoice) =>
-          sum +
-          invoice.payments
-              .where((p) => p.approvalStatus == PaymentApprovalStatus.pending)
-              .fold<double>(0, (pSum, payment) => pSum + payment.amount),
-    );
-
-    final todayPayments = _sampleInvoices.fold<int>(
-      0,
-      (sum, invoice) =>
-          sum +
-          invoice.payments
-              .where((p) =>
-                  p.approvalStatus == PaymentApprovalStatus.pending &&
-                  p.createdDate.day == DateTime.now().day)
-              .length,
-    );
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final todayCount = invoices.where((invoice) {
+      final issueDate = (invoice['issue_date'] ?? '').toString();
+      return issueDate.startsWith(today);
+    }).length;
 
     return Wrap(
       spacing: 16,
@@ -226,19 +117,19 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
       children: [
         _buildStatCard(
           'Pending Approvals',
-          pendingPayments.toString(),
+          pendingCount.toString(),
           Icons.pending_actions,
           AppColors.blue,
         ),
         _buildStatCard(
           'Total Amount',
-          '₦${NumberFormat('#,###').format(pendingAmount)}',
+          '\u20A6${NumberFormat('#,###').format(pendingAmount)}',
           Icons.attach_money,
           Colors.green,
         ),
         _buildStatCard(
           'Today\'s Submissions',
-          todayPayments.toString(),
+          todayCount.toString(),
           Icons.today,
           Colors.orange,
         ),
@@ -311,7 +202,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                   ),
                   onChanged: (value) {
                     setState(() {
-                      _searchQuery = value ?? "";
+                      _searchQuery = value;
                     });
                   },
                 ),
@@ -321,9 +212,12 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 child: MyDropdown(
                   items: const [
                     'All',
-                    'Unpaid',
+                    'Draft',
+                    'Sent',
                     'Partially Paid',
                     'Paid',
+                    'Overdue',
+                    'Cancelled',
                   ],
                   hintText: _selectedFilter,
                   title: 'Filter by Status',
@@ -342,6 +236,41 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
   }
 
   Widget _buildPaymentsList() {
+    if (controller.isLoading.value) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(48),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (controller.errorMessage.value.isNotEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(48),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
+            const SizedBox(height: 16),
+            Text(
+              controller.errorMessage.value,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.red.shade600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            MyElevatedButton(
+              child: 'Retry',
+              onTap: () => controller.fetchPendingApprovals(),
+            ),
+          ],
+        ),
+      );
+    }
+
     final filteredInvoices = _filteredInvoices;
 
     if (filteredInvoices.isEmpty) {
@@ -388,11 +317,15 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     );
   }
 
-  Widget _buildPaymentCard(Invoice invoice) {
-    // Get pending payments for this invoice
-    final pendingPayments = invoice.payments
-        .where((p) => p.approvalStatus == PaymentApprovalStatus.pending)
-        .toList();
+  Widget _buildPaymentCard(Map<String, dynamic> invoice) {
+    final invoiceNumber = invoice['invoice_number'] ?? '';
+    final clientName = invoice['client_name'] ?? '';
+    final invoiceType = invoice['invoice_type'] ?? '';
+    final totalAmount = ((invoice['total_amount'] ?? 0) as num).toDouble();
+    final balance = ((invoice['balance'] ?? 0) as num).toDouble();
+    final status = (invoice['status'] ?? '').toString();
+    final items = (invoice['items'] as List?) ?? [];
+    final approvals = (invoice['approvals'] as List?) ?? [];
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -422,28 +355,28 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                     Row(
                       children: [
                         Text(
-                          invoice.invoiceNumber,
+                          invoiceNumber,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(width: 12),
-                        _buildStatusBadge(invoice.paymentStatus),
+                        _buildStatusBadge(status),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      invoice.clientName,
+                      clientName,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    if (invoice.serviceType != null) ...[
+                    if (invoiceType.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
-                        invoice.serviceType!,
+                        invoiceType,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey.shade600,
@@ -457,7 +390,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Total: ${invoice.currency}${NumberFormat('#,###').format(invoice.totalAmount)}',
+                    'Total: \u20A6${NumberFormat('#,###').format(totalAmount)}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -465,7 +398,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Balance: ${invoice.currency}${NumberFormat('#,###').format(invoice.balance)}',
+                    'Balance: \u20A6${NumberFormat('#,###').format(balance)}',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.red.shade700,
@@ -476,204 +409,229 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 16),
 
-          // Pending Payments Section
-          const Text(
-            'Pending Payments',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+          // Items section
+          if (items.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 12),
+            const Text(
+              'Invoice Items',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 8),
+            ...items.map((item) {
+              final description =
+                  (item['description'] ?? item['name'] ?? '').toString();
+              final quantity = item['quantity'] ?? 1;
+              final unitPrice =
+                  ((item['unit_price'] ?? 0) as num).toDouble();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '$quantity x \u20A6${NumberFormat('#,###').format(unitPrice)}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
 
-          ...pendingPayments
-              .map((payment) => _buildPaymentItem(payment, invoice)),
+          // Approvals section
+          if (approvals.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 12),
+            const Text(
+              'Approval Steps',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...approvals.map((approval) => _buildApprovalStep(
+                  approval,
+                  invoice,
+                )),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildPaymentItem(Payment payment, Invoice invoice) {
+  Widget _buildApprovalStep(
+      dynamic approval, Map<String, dynamic> invoice) {
+    final step = approval['step'] ?? 0;
+    final stepName = (approval['step_name'] ?? 'Step $step').toString();
+    final decision = (approval['decision'] ?? '').toString();
+    final decidedBy = (approval['decided_by_name'] ?? '').toString();
+    final comment = (approval['comment'] ?? '').toString();
+    final invoiceId = invoice['id'];
+    final isPending = decision.isEmpty || decision == 'pending';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: isPending ? Colors.orange.shade50 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isPending ? Colors.orange.shade200 : Colors.grey.shade200,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Icon(
+                isPending
+                    ? Icons.pending_actions
+                    : decision == 'approved'
+                        ? Icons.check_circle
+                        : Icons.cancel,
+                size: 18,
+                color: isPending
+                    ? Colors.orange
+                    : decision == 'approved'
+                        ? Colors.green
+                        : Colors.red,
+              ),
+              const SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          _getPaymentMethodIcon(payment.method),
-                          size: 18,
-                          color: AppColors.blue,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _formatPaymentMethod(payment.method),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildPaymentDetail('Amount',
-                        '₦${NumberFormat('#,###').format(payment.amount)}'),
-                    _buildPaymentDetail('Date',
-                        DateFormat('dd MMM yyyy').format(payment.paymentDate)),
-                    if (payment.transactionReference != null)
-                      _buildPaymentDetail(
-                          'Reference', payment.transactionReference!),
-                    if (payment.bankName != null)
-                      _buildPaymentDetail('Bank', payment.bankName!),
-                    if (payment.depositorName != null)
-                      _buildPaymentDetail('Depositor', payment.depositorName!),
-                    if (payment.notes != null && payment.notes!.isNotEmpty)
-                      _buildPaymentDetail('Notes', payment.notes!),
-                  ],
+                child: Text(
+                  stepName,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
+              if (!isPending)
+                _buildDecisionBadge(decision),
             ],
           ),
-          if (payment.proofOfPayment.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: payment.proofOfPayment.map((file) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppColors.blue),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.attach_file,
-                        size: 16,
-                        color: AppColors.blue,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        file,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+          if (decidedBy.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Decided by: $decidedBy',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              MyOutlinedButton(
-                textColor: Colors.red,
-                borderColor: Colors.red,
-                child: 'Reject',
-                onTap: () => _handleRejectPayment(payment, invoice),
-              ),
-              const SizedBox(width: 12),
-              MyElevatedButton(
-                icon: const Icon(Icons.check, color: Colors.white, size: 18),
-                child: 'Approve',
-                onTap: () => _handleApprovePayment(payment, invoice),
-              ),
-            ],
-          ),
+          if (comment.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Comment: $comment',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
+          ],
+          if (isPending) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                MyOutlinedButton(
+                  textColor: Colors.red,
+                  borderColor: Colors.red,
+                  child: 'Reject',
+                  onTap: () => _handleRejectPayment(invoiceId, step, invoice),
+                ),
+                const SizedBox(width: 12),
+                MyElevatedButton(
+                  icon:
+                      const Icon(Icons.check, color: Colors.white, size: 18),
+                  child: 'Approve',
+                  onTap: () =>
+                      _handleApprovePayment(invoiceId, step, invoice),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildPaymentDetail(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              '$label:',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
+  Widget _buildDecisionBadge(String decision) {
+    final isApproved = decision == 'approved';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isApproved ? Colors.green.shade100 : Colors.red.shade100,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        isApproved ? 'Approved' : 'Rejected',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: isApproved ? Colors.green.shade800 : Colors.red.shade800,
+        ),
       ),
     );
   }
 
-  Widget _buildStatusBadge(PaymentStatus status) {
+  Widget _buildStatusBadge(String status) {
     Color backgroundColor;
     Color textColor;
     String label;
 
-    switch (status) {
-      case PaymentStatus.paid:
+    switch (status.toLowerCase()) {
+      case 'paid':
         backgroundColor = Colors.green.shade100;
         textColor = Colors.green.shade800;
         label = 'Paid';
         break;
-      case PaymentStatus.partiallyPaid:
+      case 'partially_paid':
         backgroundColor = Colors.orange.shade100;
         textColor = Colors.orange.shade800;
         label = 'Partially Paid';
         break;
-      case PaymentStatus.unpaid:
+      case 'overdue':
         backgroundColor = Colors.red.shade100;
         textColor = Colors.red.shade800;
-        label = 'Unpaid';
+        label = 'Overdue';
         break;
-      case PaymentStatus.refunded:
-        backgroundColor = Colors.purple.shade100;
-        textColor = Colors.purple.shade800;
-        label = 'Refunded';
+      case 'sent':
+        backgroundColor = Colors.blue.shade100;
+        textColor = Colors.blue.shade800;
+        label = 'Sent';
         break;
-      case PaymentStatus.cancelled:
+      case 'draft':
+        backgroundColor = Colors.grey.shade100;
+        textColor = Colors.grey.shade800;
+        label = 'Draft';
+        break;
+      case 'cancelled':
         backgroundColor = Colors.grey.shade100;
         textColor = Colors.grey.shade800;
         label = 'Cancelled';
         break;
+      default:
+        backgroundColor = Colors.blue.shade100;
+        textColor = Colors.blue.shade800;
+        label = status.isNotEmpty
+            ? status[0].toUpperCase() + status.substring(1).replaceAll('_', ' ')
+            : 'Unknown';
     }
 
     return Container(
@@ -693,41 +651,12 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     );
   }
 
-  IconData _getPaymentMethodIcon(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return Icons.payments;
-      case PaymentMethod.bankTransfer:
-        return Icons.account_balance;
-      case PaymentMethod.cheque:
-        return Icons.description;
-      case PaymentMethod.card:
-        return Icons.credit_card;
-      case PaymentMethod.mobileWallet:
-        return Icons.phone_android;
-      case PaymentMethod.other:
-        return Icons.more_horiz;
-    }
-  }
+  void _handleApprovePayment(
+      dynamic invoiceId, dynamic step, Map<String, dynamic> invoice) {
+    final invoiceNumber = invoice['invoice_number'] ?? '';
+    final clientName = invoice['client_name'] ?? '';
+    final balance = ((invoice['balance'] ?? 0) as num).toDouble();
 
-  String _formatPaymentMethod(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return 'Cash Payment';
-      case PaymentMethod.bankTransfer:
-        return 'Bank Transfer';
-      case PaymentMethod.cheque:
-        return 'Cheque';
-      case PaymentMethod.card:
-        return 'Card Payment';
-      case PaymentMethod.mobileWallet:
-        return 'Mobile Wallet';
-      case PaymentMethod.other:
-        return 'Other';
-    }
-  }
-
-  void _handleApprovePayment(Payment payment, Invoice invoice) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -739,11 +668,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             const Text('Are you sure you want to approve this payment?'),
             const SizedBox(height: 16),
             Text(
-              'Amount: ₦${NumberFormat('#,###').format(payment.amount)}',
+              'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            Text('Invoice: ${invoice.invoiceNumber}'),
-            Text('Client: ${invoice.clientName}'),
+            Text('Invoice: $invoiceNumber'),
+            Text('Client: $clientName'),
           ],
         ),
         actions: [
@@ -756,19 +685,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
           MyElevatedButton(
             child: 'Approve',
             onTap: () {
-              // TODO: Implement approval logic here
-              // Update payment approval status
-              // Update invoice payment status and balance
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Payment approved successfully'),
-                  backgroundColor: Colors.green,
-                ),
+              controller.approveInvoice(
+                invoiceId is int ? invoiceId : int.parse(invoiceId.toString()),
+                step is int ? step : int.parse(step.toString()),
               );
-              setState(() {
-                // Refresh the list
-              });
             },
           ),
         ],
@@ -776,8 +697,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     );
   }
 
-  void _handleRejectPayment(Payment payment, Invoice invoice) {
+  void _handleRejectPayment(
+      dynamic invoiceId, dynamic step, Map<String, dynamic> invoice) {
     final reasonController = TextEditingController();
+    final invoiceNumber = invoice['invoice_number'] ?? '';
+    final balance = ((invoice['balance'] ?? 0) as num).toDouble();
 
     showDialog(
       context: context,
@@ -797,10 +721,10 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Amount: ₦${NumberFormat('#,###').format(payment.amount)}',
+              'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            Text('Invoice: ${invoice.invoiceNumber}'),
+            Text('Invoice: $invoiceNumber'),
           ],
         ),
         actions: [
@@ -823,19 +747,12 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 );
                 return;
               }
-              // TODO: Implement rejection logic here
-              // Update payment approval status to rejected
-              // Store rejection reason
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Payment rejected'),
-                  backgroundColor: Colors.red,
-                ),
+              controller.rejectInvoice(
+                invoiceId is int ? invoiceId : int.parse(invoiceId.toString()),
+                step is int ? step : int.parse(step.toString()),
+                reason: reasonController.text,
               );
-              setState(() {
-                // Refresh the list
-              });
             },
           ),
         ],

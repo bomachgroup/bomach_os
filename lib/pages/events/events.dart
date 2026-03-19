@@ -1,11 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/events/controller/event_controller.dart';
 import 'package:bms_front_end/pages/events/widget/add_event_dialog.dart';
 import 'package:bms_front_end/pages/events/widget/view_event_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/services/events/event_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class EventsPage extends StatefulWidget {
@@ -16,154 +19,98 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
+  final controller = Get.put(EventController());
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  Map<DateTime, List<Map<String, dynamic>>> _events = {};
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
-    _loadMockEvents();
-  }
-
-  void _loadMockEvents() {
-    final now = DateTime.now();
-    _events = {
-      DateTime(now.year, now.month, now.day): [
-        {
-          'id': 'EVT-001',
-          'title': 'Team Meeting',
-          'description': 'Weekly team sync-up meeting',
-          'time': '09:00 AM',
-          'duration': '1 hour',
-          'location': 'Conference Room A',
-          'attendees': ['John Doe', 'Sarah Johnson', 'Michael Brown'],
-          'type': 'meeting',
-        },
-        {
-          'id': 'EVT-002',
-          'title': 'Project Deadline',
-          'description': 'CRM Module Phase 1 delivery',
-          'time': '05:00 PM',
-          'duration': 'All day',
-          'location': 'Development Department',
-          'attendees': ['Development Team'],
-          'type': 'deadline',
-        },
-      ],
-      DateTime(now.year, now.month, now.day + 2): [
-        {
-          'id': 'EVT-003',
-          'title': 'Client Presentation',
-          'description': 'Q4 Progress presentation to stakeholders',
-          'time': '02:00 PM',
-          'duration': '2 hours',
-          'location': 'Board Room',
-          'attendees': ['Management Team', 'Stakeholders'],
-          'type': 'presentation',
-        },
-      ],
-      DateTime(now.year, now.month, now.day + 5): [
-        {
-          'id': 'EVT-004',
-          'title': 'Training Session',
-          'description': 'New software tools training',
-          'time': '10:00 AM',
-          'duration': '3 hours',
-          'location': 'Training Center',
-          'attendees': ['All Staff'],
-          'type': 'training',
-        },
-      ],
-      DateTime(now.year, now.month, now.day + 7): [
-        {
-          'id': 'EVT-005',
-          'title': 'Company Event',
-          'description': 'Annual company gathering',
-          'time': '06:00 PM',
-          'duration': '4 hours',
-          'location': 'Main Hall',
-          'attendees': ['All Staff'],
-          'type': 'event',
-        },
-      ],
-    };
-  }
-
-  List<Map<String, dynamic>> _getEventsForDay(DateTime day) {
-    final normalizedDay = DateTime(day.year, day.month, day.day);
-    return _events[normalizedDay] ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedDayEvents = _getEventsForDay(_selectedDay ?? _focusedDay);
+    return Obx(() {
+      final selectedDayEvents =
+          controller.getEventsForDay(_selectedDay ?? _focusedDay);
+      final totalEvents = controller.events.length;
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MyText(
-                          'Events & Calendar',
-                          style: AppText.black_500_32,
-                        ),
-                        SizedBox(height: 8),
-                        MyText(
-                          'Manage and track all company events',
-                          size: 14,
-                          weight: 400,
-                          color: Color(0xFF64748B),
-                        ),
-                      ],
-                    ),
-                    MyElevatedButton(
-                      icon: const Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: AppColors.white,
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MyText(
+                            'Events & Calendar',
+                            style: AppText.black_500_32,
+                          ),
+                          SizedBox(height: 8),
+                          MyText(
+                            'Manage and track all company events',
+                            size: 14,
+                            weight: 400,
+                            color: Color(0xFF64748B),
+                          ),
+                        ],
                       ),
-                      child: "New Event",
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const AddEventDialog();
-                          },
-                        );
-                      },
-                    )
-                  ],
+                      MyElevatedButton(
+                        icon: const Icon(
+                          Icons.add_circle_outline_rounded,
+                          color: AppColors.white,
+                        ),
+                        child: "New Event",
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AddEventDialog();
+                            },
+                          );
+                        },
+                      )
+                    ],
+                  ),
                 ),
-              ),
+              ],
+            ),
+            kSizedBox,
+
+            // Loading indicator
+            if (controller.isLoading.value && controller.events.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else ...[
+              // Calendar Section
+              _buildCalendarSection(totalEvents),
+              kSizedBox,
+
+              // Events List Section
+              _buildEventsListSection(selectedDayEvents),
             ],
-          ),
-          kSizedBox,
-
-          // Calendar Section
-          _buildCalendarSection(),
-          kSizedBox,
-
-          // Events List Section
-          _buildEventsListSection(selectedDayEvents),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildCalendarSection() {
+  Widget _buildCalendarSection(int totalEvents) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -192,7 +139,7 @@ class _EventsPageState extends State<EventsPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: MyText(
-                    '${_events.values.expand((e) => e).length} Events',
+                    '$totalEvents Events',
                     size: 12,
                     weight: 500,
                     color: AppColors.blue,
@@ -212,7 +159,7 @@ class _EventsPageState extends State<EventsPage> {
                 return isSameDay(_selectedDay, day);
               },
               calendarFormat: CalendarFormat.month,
-              eventLoader: _getEventsForDay,
+              eventLoader: (day) => controller.getEventsForDay(day),
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay;
@@ -258,11 +205,12 @@ class _EventsPageState extends State<EventsPage> {
               spacing: 16,
               runSpacing: 8,
               children: [
-                _buildLegendItem('Meeting', Colors.blue),
-                _buildLegendItem('Deadline', Colors.red),
+                _buildLegendItem('General Meeting', Colors.blue),
+                _buildLegendItem('Board Meeting', Colors.red),
                 _buildLegendItem('Training', Colors.orange),
-                _buildLegendItem('Presentation', Colors.green),
-                _buildLegendItem('Event', Colors.purple),
+                _buildLegendItem('Conference', Colors.green),
+                _buildLegendItem('Social Event', Colors.purple),
+                _buildLegendItem('Other', Colors.grey),
               ],
             ),
           ),
@@ -294,7 +242,7 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 
-  Widget _buildEventsListSection(List<Map<String, dynamic>> events) {
+  Widget _buildEventsListSection(List<Event> events) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -395,8 +343,10 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 
-  Widget _buildEventItem(Map<String, dynamic> event) {
-    Color eventColor = _getEventColor(event['type']);
+  Widget _buildEventItem(Event event) {
+    Color eventColor = _getEventColor(event.eventType);
+    final fromTime = _formatTime(event.eventTimeFrom);
+    final toTime = _formatTime(event.eventTimeTo);
 
     return InkWell(
       onTap: () {
@@ -429,7 +379,7 @@ class _EventsPageState extends State<EventsPage> {
                     children: [
                       Expanded(
                         child: MyText(
-                          event['title'],
+                          event.title,
                           size: 16,
                           weight: 600,
                         ),
@@ -448,7 +398,7 @@ class _EventsPageState extends State<EventsPage> {
                           ),
                         ),
                         child: MyText(
-                          event['type'].toString().toUpperCase(),
+                          _formatEventType(event.eventType),
                           size: 10,
                           weight: 600,
                           color: eventColor,
@@ -466,7 +416,7 @@ class _EventsPageState extends State<EventsPage> {
                       ),
                       const SizedBox(width: 6),
                       MyText(
-                        '${event['time']} • ${event['duration']}',
+                        '$fromTime - $toTime',
                         size: 13,
                         weight: 400,
                         color: const Color(0xFF64748B),
@@ -474,24 +424,26 @@ class _EventsPageState extends State<EventsPage> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: MyText(
-                          event['location'],
-                          size: 13,
-                          weight: 400,
-                          color: const Color(0xFF64748B),
+                  if (event.meetingLocation != null &&
+                      event.meetingLocation!.isNotEmpty)
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 14,
+                          color: Colors.grey.shade600,
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: MyText(
+                            event.meetingLocation!,
+                            size: 13,
+                            weight: 400,
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -503,35 +455,40 @@ class _EventsPageState extends State<EventsPage> {
 
   Color _getEventColor(String type) {
     switch (type) {
-      case 'meeting':
+      case 'GENERAL_MEETING':
         return Colors.blue;
-      case 'deadline':
+      case 'BOARD_MEETING':
         return Colors.red;
-      case 'training':
+      case 'TRAINING':
         return Colors.orange;
-      case 'presentation':
+      case 'CONFERENCE':
         return Colors.green;
-      case 'event':
+      case 'SOCIAL_EVENT':
         return Colors.purple;
-      default:
+      case 'OTHER':
         return Colors.grey;
+      default:
+        return Colors.blue;
     }
+  }
+
+  String _formatEventType(String type) {
+    return type.replaceAll('_', ' ');
+  }
+
+  String _formatTime(String dateTimeStr) {
+    final dt = DateTime.tryParse(dateTimeStr);
+    if (dt == null) return dateTimeStr;
+    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '$hour:$minute $period';
   }
 
   String _formatDate(DateTime date) {
     final months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }

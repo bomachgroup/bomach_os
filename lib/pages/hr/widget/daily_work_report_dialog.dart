@@ -205,29 +205,10 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyTextFormField(
-                            title: 'Operational Base',
-                            controller: _operationalBaseController,
-                            hintText: 'e.g. Head Office, Site A',
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyDropdown(
-                            title: 'Status',
-                            items: const [
-                              'draft',
-                              'submitted',
-                            ],
-                            hintText: _selectedStatus,
-                            onChanged: (val) =>
-                                setState(() => _selectedStatus = val ?? 'draft'),
-                          ),
-                        ),
-                      ],
+                    MyTextFormField(
+                      title: 'Operational Base',
+                      controller: _operationalBaseController,
+                      hintText: 'e.g. Head Office, Site A',
                     ),
                     kSizedBox,
                     MyTextFormField(

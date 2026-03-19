@@ -1,11 +1,13 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/clients_portal/controller/client_portal_controller.dart';
 import 'package:bms_front_end/pages/clients_portal/slides/client_access.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 // Using similar stat card from services
 import '../services/services.dart';
 import 'dialog/new_client.dart';
@@ -22,6 +24,7 @@ class ClientsPortal extends StatefulWidget {
 }
 
 class _ClientsPortalState extends State<ClientsPortal> {
+  final controller = Get.put(ClientPortalController());
   late PageController _pageController;
   late int _currentIndex;
 
@@ -157,34 +160,42 @@ class _ClientsPortalState extends State<ClientsPortal> {
   }
 
   Widget _buildTopStats(BuildContext context, {required bool isMobile}) {
-    final items = [
-      {'label': 'Active Users', 'value': '3'},
-      {'label': 'Totals documents', 'value': '6'},
-      {'label': 'Downloads', 'value': '342'},
-      {'label': 'Unread messages', 'value': '2'},
-    ];
+    return Obx(() {
+      final items = [
+        {
+          'label': 'Active Clients',
+          'value': controller.isLoading.value
+              ? '...'
+              : '${controller.activeClients.value}',
+        },
+        {'label': 'Total Documents', 'value': '\u2014'},
+        {'label': 'Downloads', 'value': '\u2014'},
+        {'label': 'Unread Messages', 'value': '\u2014'},
+      ];
 
-    if (!isMobile) {
-      return Row(
-        spacing: 12,
-        children: items
-            .map((it) => Expanded(
-                  child: StatsHeaderCard(
-                    label: it['label']!,
-                    count: it['value']!,
-                    icon: Icons.person,
-                  ),
-                ))
-            .toList(),
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 12,
-        children: items
-            .map((it) => StatsCard(label: it['label']!, count: it['value']!))
-            .toList(),
-      );
-    }
+      if (!isMobile) {
+        return Row(
+          spacing: 12,
+          children: items
+              .map((it) => Expanded(
+                    child: StatsHeaderCard(
+                      label: it['label']!,
+                      count: it['value']!,
+                      icon: Icons.person,
+                    ),
+                  ))
+              .toList(),
+        );
+      } else {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 12,
+          children: items
+              .map(
+                  (it) => StatsCard(label: it['label']!, count: it['value']!))
+              .toList(),
+        );
+      }
+    });
   }
 }
