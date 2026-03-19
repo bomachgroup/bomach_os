@@ -1,5 +1,6 @@
 import 'dart:developer';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' hide Response;
+import 'package:dio/dio.dart' as dio_pkg show Response;
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -52,11 +53,11 @@ class AnalyticsController extends GetxController {
 
       // Fetch all in parallel
       final results = await Future.wait([
-        _dio.get('/dashboard/overview', options: opts).catchError((_) => Response(
+        _dio.get('/dashboard/overview', options: opts).catchError((_) => dio_pkg.Response(
             requestOptions: RequestOptions(path: ''),
             data: {},
             statusCode: 200)),
-        _dio.get('/dashboard/stats', options: opts).catchError((_) => Response(
+        _dio.get('/dashboard/stats', options: opts).catchError((_) => dio_pkg.Response(
             requestOptions: RequestOptions(path: ''),
             data: {},
             statusCode: 200)),
