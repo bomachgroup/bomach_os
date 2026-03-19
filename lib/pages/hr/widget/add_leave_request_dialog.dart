@@ -76,26 +76,11 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  controller: _ctrl.employeeIdController,
-                                  hintText: 'Enter ID',
-                                  spaceBetweenText: 10,
-                                  title: 'Employee ID',
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: MyTextFormField(
-                                  controller: _ctrl.employeeNameController,
-                                  spaceBetweenText: 10,
-                                  hintText: "Enter Name",
-                                  title: 'Employee Name',
-                                ),
-                              ),
-                            ],
+                          MyTextFormField(
+                            controller: _ctrl.employeeNameController,
+                            spaceBetweenText: 10,
+                            hintText: "Enter Name",
+                            title: 'Employee Name',
                           ),
                           const SizedBox(height: 24),
                           Row(
