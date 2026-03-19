@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../components/text/my_text.dart';
 import '../../src/constants/spaces.dart';
 import '../../src/constants/textstyle.dart';
+import 'controllers/analytics_controller.dart';
 import 'widgets/metrics_card.dart';
 import 'widgets/section_card.dart';
 
@@ -78,72 +80,75 @@ class AnalyticsOverviewPage extends StatelessWidget {
                   ],
                 ),
           kSizedBox,
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              SizedBox(
-                width: cardWidth,
-                child: const AnalyticsMetricCard(
-                  title: "Total Revenue",
-                  value: "₦0.00",
-                  subtitle: "0.0% vs avg",
-                  imgPath: 'assets/icons/dollar.png',
-                  color: Colors.green,
+          Builder(builder: (context) {
+            final controller = Get.put(AnalyticsController());
+            return Obx(() => Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                SizedBox(
+                  width: cardWidth,
+                  child: AnalyticsMetricCard(
+                    title: "Total Employees",
+                    value: controller.totalEmployees.value.toString(),
+                    subtitle: "${controller.newHires30Days.value} new (30d)",
+                    imgPath: 'assets/icons/people.png',
+                    color: Colors.green,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: const AnalyticsMetricCard(
-                  title: "Active Projects",
-                  value: "0",
-                  subtitle: "-50% vs avg",
-                  imgPath: 'assets/icons/points.png',
-                  color: Colors.blue,
+                SizedBox(
+                  width: cardWidth,
+                  child: AnalyticsMetricCard(
+                    title: "Training Programs",
+                    value: controller.trainingPrograms.value.toString(),
+                    subtitle: "Active programs",
+                    imgPath: 'assets/icons/points.png',
+                    color: Colors.blue,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: const AnalyticsMetricCard(
-                  title: "Total Clients",
-                  value: "0",
-                  subtitle: "0.0% vs avg",
-                  imgPath: 'assets/icons/people.png',
-                  color: Colors.orange,
+                SizedBox(
+                  width: cardWidth,
+                  child: AnalyticsMetricCard(
+                    title: "Job Postings",
+                    value: controller.jobPostings.value.toString(),
+                    subtitle: "Open positions",
+                    imgPath: 'assets/icons/achievement.png',
+                    color: Colors.orange,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: const AnalyticsMetricCard(
-                  title: "Project Success Rate",
-                  value: "0.0%",
-                  subtitle: "-60% vs avg",
-                  imgPath: 'assets/icons/achievement.png',
-                  color: Colors.red,
+                SizedBox(
+                  width: cardWidth,
+                  child: AnalyticsMetricCard(
+                    title: "Leave Requests",
+                    value: controller.leaves.value.toString(),
+                    subtitle: "Pending/approved",
+                    imgPath: 'assets/icons/dollar.png',
+                    color: Colors.red,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: const AnalyticsMetricCard(
-                  title: "Employee Productivity",
-                  value: "78/100",
-                  subtitle: "3.0% vs avg",
-                  imgPath: 'assets/icons/chart.png',
-                  color: Colors.green,
+                SizedBox(
+                  width: cardWidth,
+                  child: AnalyticsMetricCard(
+                    title: "Open Roles",
+                    value: controller.openRoles.value.toString(),
+                    subtitle: "Hiring positions",
+                    imgPath: 'assets/icons/chart.png',
+                    color: Colors.green,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: cardWidth,
-                child: const AnalyticsMetricCard(
-                  title: "Client Retention",
-                  value: "85.0%",
-                  subtitle: "-60% vs avg",
-                  imgPath: 'assets/icons/check.png',
-                  color: Colors.red,
+                SizedBox(
+                  width: cardWidth,
+                  child: AnalyticsMetricCard(
+                    title: "New Hires (30d)",
+                    value: controller.newHires30Days.value.toString(),
+                    subtitle: "Recent onboarding",
+                    imgPath: 'assets/icons/check.png',
+                    color: Colors.purple,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ));
+          }),
           kSizedBox,
           MetricsSection(
             title: "Revenue Summary",

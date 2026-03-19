@@ -1,8 +1,9 @@
 import 'package:bms_front_end/components/input/my_dropdown.dart';
-import 'package:bms_front_end/pages/security/model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/text/my_text.dart';
+import '../controllers/security_controller.dart';
 
 class SecurityLogs extends StatelessWidget {
   final bool isMobile;
@@ -10,6 +11,7 @@ class SecurityLogs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(SecurityController());
     final screenWidth = MediaQuery.of(context).size.width;
     final bool mobile = isMobile || screenWidth < 500;
 
@@ -29,7 +31,7 @@ class SecurityLogs extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeaderAndActions(mobile),
+          _buildHeaderAndActions(mobile, controller),
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
@@ -43,24 +45,41 @@ class SecurityLogs extends StatelessWidget {
                 ),
               ],
             ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: mockAuditLogs.length,
-              itemBuilder: (context, index) {
-                return AuditLogTile(
-                  log: mockAuditLogs[index],
-                  isMobile: mobile,
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                    child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: CircularProgressIndicator(),
+                ));
+              }
+              if (controller.auditLogs.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Center(
+                      child: Text('No audit logs found.',
+                          style: TextStyle(color: Colors.grey))),
                 );
-              },
-            ),
+              }
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.auditLogs.length,
+                itemBuilder: (context, index) {
+                  return _AuditLogTileLive(
+                    log: controller.auditLogs[index],
+                    isMobile: mobile,
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderAndActions(bool mobile) {
+  Widget _buildHeaderAndActions(bool mobile, SecurityController controller) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,13 +94,13 @@ class SecurityLogs extends StatelessWidget {
                       color: Colors.black, size: 24),
                   const SizedBox(width: 8),
                   Flexible(
-                    child: MyText(
-                      'Security Audit Logs (${mockAuditLogs.length})',
-                      style: TextStyle(
-                        fontSize: mobile ? 15 : 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: Obx(() => MyText(
+                          'Security Audit Logs (${controller.totalLogs.value})',
+                          style: TextStyle(
+                            fontSize: mobile ? 15 : 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )),
                   ),
                 ],
               ),
@@ -111,6 +130,7 @@ class SecurityLogs extends StatelessWidget {
                     contentPadding:
                         const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                   ),
+                  onChanged: controller.onSearchChanged,
                 ),
               ),
               const SizedBox(width: 8),
@@ -191,19 +211,20 @@ class SecurityLogs extends StatelessWidget {
   }
 }
 
-class AuditLogTile extends StatelessWidget {
-  final SecurityAuditLog log;
+class _AuditLogTileLive extends StatelessWidget {
+  final AuditLogEntry log;
   final bool isMobile;
 
-  const AuditLogTile({super.key, required this.log, this.isMobile = false});
+  const _AuditLogTileLive({required this.log, this.isMobile = false});
 
   Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Success':
+    switch (status.toLowerCase()) {
+      case 'success':
         return Colors.green;
-      case 'Failure':
+      case 'failure':
+      case 'failed':
         return Colors.red;
-      case 'Warning':
+      case 'warning':
         return Colors.orange;
       default:
         return Colors.grey;
@@ -211,39 +232,22 @@ class AuditLogTile extends StatelessWidget {
   }
 
   IconData _getStatusIcon(String status) {
-    switch (status) {
-      case 'Success':
+    switch (status.toLowerCase()) {
+      case 'success':
         return Icons.check_circle_outline;
-      case 'Failure':
+      case 'failure':
+      case 'failed':
         return Icons.cancel_outlined;
-      case 'Warning':
+      case 'warning':
         return Icons.warning_amber_outlined;
       default:
         return Icons.info_outline;
     }
   }
 
-  Widget _buildStatusTag(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(log.status);
+    final statusColor = _getStatusColor(log.auditStatusDisplay);
     final double fontSize = isMobile ? 13 : 15;
     final double metaFontSize = isMobile ? 11 : 13;
     final double iconSize = isMobile ? 16 : 20;
@@ -263,7 +267,7 @@ class AuditLogTile extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: isMobile ? 8.0 : 12.0),
             child: Icon(
-              _getStatusIcon(log.status),
+              _getStatusIcon(log.auditStatusDisplay),
               color: statusColor,
               size: iconSize,
             ),
@@ -273,13 +277,13 @@ class AuditLogTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  log.title,
+                  log.activity,
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: fontSize),
                 ),
                 SizedBox(height: isMobile ? 2 : 4),
                 Text(
-                  'User: ${log.user} • Login from IP: ${log.ipAddress}',
+                  'User: ${log.userFullName ?? 'System'} • Type: ${log.auditTypeDisplay}${log.ipAddress != null ? ' • IP: ${log.ipAddress}' : ''}',
                   style: TextStyle(
                       color: Colors.grey.shade600, fontSize: metaFontSize),
                 ),
@@ -290,12 +294,29 @@ class AuditLogTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                log.timestamp,
+                log.createdAt.length > 16
+                    ? log.createdAt.substring(0, 16).replaceAll('T', ' ')
+                    : log.createdAt,
                 style: TextStyle(
                     color: Colors.grey.shade600, fontSize: metaFontSize),
               ),
               SizedBox(height: isMobile ? 2 : 4),
-              _buildStatusTag(log.status, statusColor),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  log.auditStatusDisplay,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ],
           ),
         ],

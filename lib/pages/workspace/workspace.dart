@@ -4,6 +4,9 @@ import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'controllers/workspace_controller.dart';
 
 class WorkspacePage extends StatefulWidget {
   const WorkspacePage({super.key});
@@ -13,6 +16,8 @@ class WorkspacePage extends StatefulWidget {
 }
 
 class _WorkspacePageState extends State<WorkspacePage> {
+  final WorkspaceController _controller = Get.put(WorkspaceController());
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -86,11 +91,12 @@ class _WorkspacePageState extends State<WorkspacePage> {
   }
 
   Widget _buildTopStats(BuildContext context) {
+    return Obx(() {
     final List<Map<String, dynamic>> items = [
-      {'label': 'Projects', 'count': '20', 'icon': Icons.person},
-      {'label': 'Channels', 'count': '3', 'icon': Icons.person},
-      {'label': 'Documents', 'count': '5', 'icon': Icons.person},
-      {'label': 'Team Members', 'count': '4', 'icon': Icons.person},
+      {'label': 'Projects', 'count': '—', 'icon': Icons.folder_outlined},
+      {'label': 'Meetings', 'count': _controller.totalMeetings.value.toString(), 'icon': Icons.groups_outlined},
+      {'label': 'Documents', 'count': '—', 'icon': Icons.description_outlined},
+      {'label': 'Team Members', 'count': '—', 'icon': Icons.people_outline},
     ];
 
     return LayoutBuilder(
@@ -126,6 +132,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
         }
       },
     );
+    });
   }
 }
 

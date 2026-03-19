@@ -1,7 +1,9 @@
 import 'package:bms_front_end/pages/analytics/widgets/metrics_card.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../components/text/my_text.dart';
+import 'controllers/security_controller.dart';
 import 'dialogs/generate_code.dart';
 import 'model.dart';
 import 'slides/alerts.dart';
