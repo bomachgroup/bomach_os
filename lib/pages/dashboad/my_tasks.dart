@@ -2,20 +2,27 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
-import '../../src/services/operations/tasks_services.dart';
-
 class MyTasksController extends GetxController {
-  final TaskService _service =
-      TaskService(baseUrl: 'https://bomachauth.bgbot.app');
+  final Dio _dio = Dio(BaseOptions(
+    baseUrl: 'https://bomachauth.bgbot.app/api/v1/',
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 15),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  ));
   final _storage = const FlutterSecureStorage();
 
   var tasks = <Task>[].obs;
   var isLoading = false.obs;
   var isUpdating = false.obs;
+  var errorMessage = ''.obs;
   var selectedFilter = 'all'.obs;
 
   Future<String?> _getToken() async {
@@ -27,24 +34,40 @@ class MyTasksController extends GetxController {
     return token.replaceAll('"', '').trim();
   }
 
+  Options _authOptions(String token) =>
+      Options(headers: {'Authorization': 'Bearer $token'});
+
   Future<void> fetchMyTasks() async {
     try {
       isLoading(true);
+      errorMessage('');
       final token = await _getToken();
       if (token == null) return;
 
+      final queryParams = <String, dynamic>{
+        'limit': 100,
+        'offset': 0,
+      };
       final statusFilter =
           selectedFilter.value == 'all' ? null : selectedFilter.value;
+      if (statusFilter != null) queryParams['status'] = statusFilter;
 
-      final result = await _service.getTasks(
-        accessToken: token,
-        status: statusFilter,
-        limit: 100,
-        offset: 0,
+      final response = await _dio.get(
+        'my-tasks',
+        queryParameters: queryParams,
+        options: _authOptions(token),
       );
-      tasks.assignAll(result.items);
+
+      final data = response.data;
+      final List items = data is Map ? (data['items'] ?? []) : (data ?? []);
+      tasks.assignAll(items.map((e) => Task.fromJson(e)).toList());
     } catch (e) {
       debugPrint("Fetch my tasks error: $e");
+      if (e is DioException && e.response?.statusCode == 403) {
+        errorMessage('You do not have permission to view tasks.');
+      } else {
+        errorMessage('Failed to load tasks.');
+      }
     } finally {
       isLoading(false);
     }
@@ -57,25 +80,10 @@ class MyTasksController extends GetxController {
       final token = await _getToken();
       if (token == null) return false;
 
-      final updatedTask = Task(
-        id: task.id,
-        projectId: task.projectId,
-        milestoneId: task.milestoneId,
-        name: task.name,
-        description: task.description,
-        status: newStatus,
-        priority: task.priority,
-        assignedTo: task.assignedTo,
-        dueDate: task.dueDate,
-        estimatedHours: task.estimatedHours,
-        createdAt: task.createdAt,
-        updatedAt: task.updatedAt,
-      );
-
-      await _service.updateTask(
-        accessToken: token,
-        taskId: task.id,
-        task: updatedTask,
+      await _dio.patch(
+        'my-tasks/${task.id}/status',
+        data: {'status': newStatus},
+        options: _authOptions(token),
       );
 
       await fetchMyTasks();
@@ -200,7 +208,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
           .where((t) => t.status.toLowerCase() == 'pending')
           .length;
       final inProgress = controller.tasks
-          .where((t) => t.status.toLowerCase() == 'in progress')
+          .where((t) => t.status.toLowerCase() == 'in_progress')
           .length;
       final completed = controller.tasks
           .where((t) => t.status.toLowerCase() == 'completed')
@@ -286,7 +294,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
         'icon': Icons.hourglass_empty_rounded
       },
       {
-        'key': 'in progress',
+        'key': 'in_progress',
         'label': 'In Progress',
         'icon': Icons.autorenew_rounded
       },
@@ -380,6 +388,40 @@ class _MyTasksPageState extends State<MyTasksPage> {
           return const Padding(
             padding: EdgeInsets.all(40),
             child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (controller.errorMessage.isNotEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(60),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(Icons.error_outline_rounded,
+                        size: 48, color: Color(0xFFEF4444)),
+                  ),
+                  const SizedBox(height: 16),
+                  MyText(controller.errorMessage.value,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFFEF4444))),
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: () => controller.fetchMyTasks(),
+                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
           );
         }
 
@@ -583,7 +625,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
       shadowColor: Colors.black.withValues(alpha: 0.1),
       onSelected: (value) {
         if (value == 'start') {
-          controller.updateTaskStatus(context, task, 'in progress');
+          controller.updateTaskStatus(context, task, 'in_progress');
         } else if (value == 'complete') {
           controller.updateTaskStatus(context, task, 'completed');
         } else if (value == 'details') {
@@ -596,7 +638,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
         if (task.status.toLowerCase() == 'pending')
           _buildMenuItem(Icons.play_circle_rounded, 'Start Task', 'start',
               const Color(0xFF0EA5E9)),
-        if (task.status.toLowerCase() == 'in progress')
+        if (task.status.toLowerCase() == 'in_progress')
           _buildMenuItem(Icons.check_circle_rounded, 'Mark Complete',
               'complete', const Color(0xFF10B981)),
       ],
@@ -783,7 +825,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
     switch (status.toLowerCase()) {
       case 'completed':
         return const Color(0xFF10B981);
-      case 'in progress':
+      case 'in_progress':
         return const Color(0xFF0EA5E9);
       case 'pending':
         return const Color(0xFFF59E0B);
@@ -796,7 +838,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
     switch (status.toLowerCase()) {
       case 'completed':
         return Icons.check_circle_rounded;
-      case 'in progress':
+      case 'in_progress':
         return Icons.autorenew_rounded;
       case 'pending':
         return Icons.hourglass_empty_rounded;

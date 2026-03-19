@@ -10,6 +10,7 @@ import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/model/employees_model.dart';
 import 'package:bms_front_end/src/services/employees_services.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
@@ -257,6 +258,14 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                     ),
                     const SizedBox(height: 24),
 
+                    MyTextFormField(
+                      controller: descCtrl,
+                      title: 'Description',
+                      maxLines: 4,
+                      hintText: 'Task details...',
+                    ),
+                    const SizedBox(height: 24),
+
                     // Assigned To
                     _AssignedToField(
                       projectController: projectController,
@@ -271,14 +280,6 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                           selectedEmployeeIds.add(id);
                         }
                       }),
-                    ),
-                    const SizedBox(height: 24),
-
-                    MyTextFormField(
-                      controller: descCtrl,
-                      title: 'Description',
-                      maxLines: 4,
-                      hintText: 'Task details...',
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -373,21 +374,72 @@ class _AssignedToFieldState extends State<_AssignedToField> {
   String? _filterDepartmentId;
   String? _filterBranchId;
 
+  // Dropdown data
+  List<Map<String, dynamic>> _departments = [];
+  List<Map<String, dynamic>> _branches = [];
+
   @override
   void initState() {
     super.initState();
     _fetchAllEmployees();
+    _fetchDepartments();
+    _fetchBranches();
+  }
+
+  Future<String?> _getToken() async {
+    String? token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    if (token.startsWith("Bearer ")) {
+      token = token.replaceFirst("Bearer ", "");
+    }
+    return token.replaceAll('"', '').trim();
+  }
+
+  Future<void> _fetchDepartments() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      final dio = Dio();
+      final response = await dio.get(
+        'https://bomachauth.bgbot.app/api/v1/employees/department',
+        queryParameters: {'limit': 100},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      final data = response.data;
+      final List items = data is Map ? (data['items'] ?? []) : (data ?? []);
+      setState(() {
+        _departments = items.cast<Map<String, dynamic>>();
+      });
+    } catch (e) {
+      debugPrint("Error fetching departments: $e");
+    }
+  }
+
+  Future<void> _fetchBranches() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      final dio = Dio();
+      final response = await dio.get(
+        'https://bomachauth.bgbot.app/api/v1/branch/branches',
+        queryParameters: {'limit': 100},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      final data = response.data;
+      final List items = data is Map ? (data['items'] ?? []) : (data ?? []);
+      setState(() {
+        _branches = items.cast<Map<String, dynamic>>();
+      });
+    } catch (e) {
+      debugPrint("Error fetching branches: $e");
+    }
   }
 
   Future<void> _fetchAllEmployees() async {
     setState(() => _isLoadingAll = true);
     try {
-      String? token = await _storage.read(key: 'access_token');
+      final token = await _getToken();
       if (token == null) return;
-      if (token.startsWith("Bearer ")) {
-        token = token.replaceFirst("Bearer ", "");
-      }
-      token = token.replaceAll('"', '').trim();
 
       final result = await _employeeService.getEmployees(
         token,
@@ -419,7 +471,9 @@ class _AssignedToFieldState extends State<_AssignedToField> {
           ? employees
           : employees
               .where((e) =>
-                  e.fullName.toLowerCase().contains(widget.query.toLowerCase()) ||
+                  e.fullName
+                      .toLowerCase()
+                      .contains(widget.query.toLowerCase()) ||
                   (e.employeeId ?? '')
                       .toLowerCase()
                       .contains(widget.query.toLowerCase()))
@@ -435,35 +489,40 @@ class _AssignedToFieldState extends State<_AssignedToField> {
           Row(
             children: [
               Expanded(
-                child: MyTextFormField(
-                  title: 'Filter by Department ID',
-                  hintText: 'e.g. 1',
-                  keyboardType: TextInputType.number,
+                child: MyDropdown(
+                  title: 'Filter by Department',
+                  hintText: 'All Departments',
+                  items: _departments
+                      .map((d) => d['name']?.toString() ?? '')
+                      .toList(),
                   onChanged: (val) {
-                    _filterDepartmentId =
-                        val.isNotEmpty ? val : null;
+                    final dept = _departments
+                        .where((d) => d['name'] == val)
+                        .firstOrNull;
+                    _filterDepartmentId = dept?['id']?.toString();
+                    _fetchAllEmployees();
                   },
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: MyTextFormField(
-                  title: 'Filter by Branch ID',
-                  hintText: 'e.g. 1',
-                  keyboardType: TextInputType.number,
+                child: MyDropdown(
+                  title: 'Filter by Branch',
+                  hintText: 'All Branches',
+                  items: _branches
+                      .map((b) =>
+                          b['branch_name']?.toString() ??
+                          b['name']?.toString() ??
+                          '')
+                      .toList(),
                   onChanged: (val) {
-                    _filterBranchId =
-                        val.isNotEmpty ? val : null;
+                    final branch = _branches
+                        .where((b) =>
+                            (b['branch_name'] ?? b['name']) == val)
+                        .firstOrNull;
+                    _filterBranchId = branch?['id']?.toString();
+                    _fetchAllEmployees();
                   },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: IconButton(
-                  icon: const Icon(Icons.filter_list, color: AppColors.blue),
-                  tooltip: 'Apply filters',
-                  onPressed: _fetchAllEmployees,
                 ),
               ),
             ],
@@ -476,19 +535,20 @@ class _AssignedToFieldState extends State<_AssignedToField> {
               spacing: 8,
               runSpacing: 4,
               children: widget.selectedIds.map((id) {
-                final emp =
-                    employees.where((e) => e.tableId.toString() == id || e.id.toString() == id).firstOrNull;
-                final projEmp = projectEmployees
-                    .where((e) => e.id == id)
+                final emp = employees
+                    .where((e) =>
+                        e.tableId.toString() == id || e.id.toString() == id)
                     .firstOrNull;
+                final projEmp =
+                    projectEmployees.where((e) => e.id == id).firstOrNull;
                 final label = emp?.fullName ?? projEmp?.fullName ?? id;
                 return Chip(
                   label: Text(label, style: const TextStyle(fontSize: 12)),
                   deleteIcon: const Icon(Icons.close, size: 14),
                   onDeleted: () => widget.onToggle(id),
                   backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-                  side: BorderSide(
-                      color: AppColors.blue.withValues(alpha: 0.3)),
+                  side:
+                      BorderSide(color: AppColors.blue.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 );

@@ -76,13 +76,6 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          MyTextFormField(
-                            controller: _ctrl.employeeNameController,
-                            spaceBetweenText: 10,
-                            hintText: "Enter Name",
-                            title: 'Employee Name',
-                          ),
-                          const SizedBox(height: 24),
                           Row(
                             children: [
                               Expanded(
@@ -131,43 +124,6 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
                                   spaceBetweenText: 10,
                                   maxLines: 5,
                                   title: 'Reason',
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  controller: _ctrl.approverIdController,
-                                  hintText: 'Approver ID',
-                                  spaceBetweenText: 10,
-                                  title: 'Approver ID',
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              const Expanded(
-                                child: MyTextFormField(
-                                  hintText: "Auto-generated",
-                                  readOnly: true,
-                                  spaceBetweenText: 10,
-                                  title: 'Approval Date',
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  controller: _ctrl.rejectionReasonController,
-                                  hintText:
-                                      "Enter rejection reason if applicable",
-                                  spaceBetweenText: 10,
-                                  maxLines: 3,
-                                  title: 'Rejection Reason',
                                 ),
                               ),
                             ],

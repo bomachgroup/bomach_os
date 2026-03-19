@@ -653,5 +653,4 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         return Icons.circle_outlined;
     }
   }
-
 }
