@@ -9,6 +9,7 @@ import '../../../src/model/branch_model.dart';
 import '../../../src/model/departments_units_model.dart';
 import '../../../src/model/employees_model.dart';
 import '../../../src/model/role_model.dart';
+import '../../../src/services/auth_service.dart';
 import '../../../src/services/branch_service.dart';
 import '../../../src/services/employees_services.dart';
 import '../../../src/services/role_service.dart';
@@ -17,6 +18,7 @@ class EmployeeController extends GetxController {
   final EmployeeService _service = EmployeeService();
   final BranchService _branchService = BranchService();
   final RoleService _roleService = RoleService();
+  final AuthService _authService = AuthService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Loading & Error State ──────────────────────────────────────────
@@ -170,14 +172,34 @@ class EmployeeController extends GetxController {
     }
   }
 
+  // ─── FILE UPLOAD ────────────────────────────────────────────────────
+
+  Future<String?> uploadProfileImage(
+      String token, List<int> fileBytes, String fileName) async {
+    try {
+      return await _authService.uploadFile(token, fileBytes, fileName);
+    } catch (e) {
+      log("Upload Profile Image Error: $e");
+      return null;
+    }
+  }
+
   // ─── CREATE ─────────────────────────────────────────────────────────
 
-  Future<void> createEmployee(
-      BuildContext context, Map<String, dynamic> data) async {
+  Future<void> createEmployee(BuildContext context, Map<String, dynamic> data,
+      {List<int>? imageBytes, String? imageName}) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return;
+
+      // Upload profile image if provided
+      if (imageBytes != null && imageName != null) {
+        final imageUrl = await uploadProfileImage(token, imageBytes, imageName);
+        if (imageUrl != null) {
+          data['profile_picture'] = imageUrl;
+        }
+      }
 
       log("Create Employee payload: $data");
       await _service.createEmployee(token, data);
@@ -213,12 +235,21 @@ class EmployeeController extends GetxController {
 
   // ─── UPDATE ─────────────────────────────────────────────────────────
 
-  Future<void> updateEmployee(
-      BuildContext context, String userId, Map<String, dynamic> data) async {
+  Future<void> updateEmployee(BuildContext context, String userId,
+      Map<String, dynamic> data,
+      {List<int>? imageBytes, String? imageName}) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return;
+
+      // Upload profile image if new one provided
+      if (imageBytes != null && imageName != null) {
+        final imageUrl = await uploadProfileImage(token, imageBytes, imageName);
+        if (imageUrl != null) {
+          data['profile_picture'] = imageUrl;
+        }
+      }
 
       log("Update Employee payload: $data");
       await _service.updateEmployee(token, userId, data);

@@ -289,10 +289,9 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     final String fullAddress =
         "${_streetCtrl.text}, ${_cityCtrl.text}, ${_stateCtrl.text}, ${_countryCtrl.text}";
 
-    // Profile picture: only send existing URL on edit, otherwise null
-    // The API expects a URL string (max 500 chars), not base64 data
+    // Profile picture: keep existing URL on edit if no new image picked
     String? profilePic;
-    if (isEditMode && _existingImageUrl != null) {
+    if (_imageBytes == null && isEditMode && _existingImageUrl != null) {
       profilePic = _existingImageUrl;
     }
 
@@ -359,9 +358,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     }
 
     if (isEditMode) {
-      controller.updateEmployee(context, widget.employee!.id, data);
+      controller.updateEmployee(context, widget.employee!.id, data,
+          imageBytes: _imageBytes, imageName: _imageName);
     } else {
-      controller.createEmployee(context, data);
+      controller.createEmployee(context, data,
+          imageBytes: _imageBytes, imageName: _imageName);
     }
   }
 
