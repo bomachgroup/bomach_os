@@ -120,6 +120,7 @@ class AuthService {
   }
 
   // GET EMPLOYEE ROLES
+  // API returns a single RoleResponseSchema object (not a list)
   Future<List<Role>> getEmployeeRoles(
       {required String accessToken, required int userId}) async {
     try {
@@ -128,13 +129,21 @@ class AuthService {
         options: _authOptions(accessToken),
       );
 
-      if (response.data == null || response.data is! List) {
-        return [];
+      if (response.data == null) return [];
+
+      // API now returns a single role object, wrap in a list
+      if (response.data is Map<String, dynamic>) {
+        return [Role.fromJson(response.data as Map<String, dynamic>)];
       }
 
-      return (response.data as List)
-          .map((json) => Role.fromJson(json))
-          .toList();
+      // Backwards compat: if it's still a list for some reason
+      if (response.data is List) {
+        return (response.data as List)
+            .map((json) => Role.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+
+      return [];
     } on DioException catch (e) {
       throw _handleError(e);
     }
