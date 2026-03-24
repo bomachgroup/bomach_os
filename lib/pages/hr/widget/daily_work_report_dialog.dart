@@ -5,6 +5,8 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/services/auth_service.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -34,8 +36,8 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   late TextEditingController _workActivitiesController;
   late TextEditingController _taskDetailsController;
   late TextEditingController _nextDayPlanController;
-  final TextEditingController _attachmentUrlController = TextEditingController();
   final List<WorkReportAttachment> _attachments = [];
+  bool _isUploading = false;
 
   DateTime _reportDate = DateTime.now();
 
@@ -67,8 +69,33 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     _workActivitiesController.dispose();
     _taskDetailsController.dispose();
     _nextDayPlanController.dispose();
-    _attachmentUrlController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickAndUploadFile() async {
+    final result = await FilePicker.platform.pickFiles(withData: true);
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    if (file.bytes == null) return;
+
+    setState(() => _isUploading = true);
+    try {
+      final authService = AuthService();
+      final url = await authService.uploadFile(
+          widget.token, file.bytes!.toList(), file.name);
+      setState(() {
+        _attachments.add(WorkReportAttachment(fileUrl: url));
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Failed to upload file: $e"),
+            backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
   }
 
   Future<void> _selectDate() async {
@@ -235,62 +262,37 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                     // ─── Attachments Section ───
                     const MyText('Attachments', style: AppText.black_600_14),
                     const SizedBox(height: 4),
-                    Text('Add file URLs for supporting documents',
+                    Text('Upload supporting documents',
                         style: TextStyle(
                             fontSize: 12, color: Colors.grey.shade600)),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _attachmentUrlController,
-                            decoration: InputDecoration(
-                              hintText: 'Paste file URL here...',
-                              hintStyle: const TextStyle(
-                                  fontSize: 14, color: Colors.grey),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                      color: Color(0XFFD5D5D5))),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                      color: Color(0XFFD5D5D5))),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            final url =
-                                _attachmentUrlController.text.trim();
-                            if (url.isNotEmpty) {
-                              setState(() {
-                                _attachments.add(WorkReportAttachment(fileUrl: url));
-                                _attachmentUrlController.clear();
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.add, size: 18),
-                          label: const Text('Add'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.blue,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                          ),
-                        ),
-                      ],
+                    ElevatedButton.icon(
+                      onPressed: _isUploading ? null : _pickAndUploadFile,
+                      icon: _isUploading
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.upload_file, size: 18),
+                      label: Text(_isUploading
+                          ? 'Uploading...'
+                          : 'Choose File'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                      ),
                     ),
                     if (_attachments.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       ..._attachments.asMap().entries.map((entry) {
                         final idx = entry.key;
                         final url = entry.value.fileUrl;
+                        final fileName = Uri.tryParse(url)?.pathSegments.lastOrNull ?? url;
                         return Container(
                           margin: const EdgeInsets.only(bottom: 6),
                           padding: const EdgeInsets.symmetric(
@@ -306,7 +308,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                                   size: 16, color: Colors.grey),
                               const SizedBox(width: 8),
                               Expanded(
-                                child: Text(url,
+                                child: Text(fileName,
                                     style: const TextStyle(fontSize: 13),
                                     overflow: TextOverflow.ellipsis),
                               ),
