@@ -47,6 +47,9 @@ class EmployeeController extends GetxController {
   var allEmployees = <Employee>[].obs; // For "Reporting To" dropdown
   var roles = <Role>[].obs; // For "Role" dropdown
 
+  // ─── Selected Employee (for profile page) ──────────────────────────
+  var selectedEmployee = Rxn<Employee>();
+
   // ─── Documents & Reviews ────────────────────────────────────────────
   var documents = <dynamic>[].obs;
   var reviews = <dynamic>[].obs;
@@ -195,6 +198,19 @@ class EmployeeController extends GetxController {
     }
   }
 
+  // ─── FETCH SINGLE EMPLOYEE ──────────────────────────────────────────
+
+  Future<void> fetchEmployeeById(String userId) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      final emp = await _service.getEmployeeById(token, userId);
+      selectedEmployee.value = emp;
+    } catch (e) {
+      log("Fetch Employee By ID Error: $e");
+    }
+  }
+
   // ─── UPDATE ─────────────────────────────────────────────────────────
 
   Future<void> updateEmployee(
@@ -210,6 +226,8 @@ class EmployeeController extends GetxController {
       if (context.mounted) {
         Navigator.pop(context);
         fetchEmployees(refresh: true);
+        // Refresh the selected employee so the profile page updates
+        fetchEmployeeById(userId);
         _showSnackBar(context, "Employee updated successfully");
       }
     } catch (e) {

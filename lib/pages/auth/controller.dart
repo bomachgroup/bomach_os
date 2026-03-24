@@ -138,8 +138,8 @@ class AuthController extends GetxController {
       _permissionService.loadPermissions(roles);
     } catch (e) {
       log("Fetch Permissions Failed: $e");
-      // Don't throw here, just log. 
-      // User can still browse with minimal/no permissions if profile succeeds.
+      // Load default minimal permissions so user can at least see the dashboard
+      _permissionService.loadDefaultPermissions();
     }
   }
 

@@ -28,26 +28,40 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       : Get.put(EmployeeController());
 
   @override
-  Widget build(BuildContext context) {
-    final employee =
-        widget.e ?? ModalRoute.of(context)?.settings.arguments as Employee?;
-
-    if (employee == null) {
-      return const Scaffold(body: Center(child: Text("Employee not found")));
+  void initState() {
+    super.initState();
+    // Set the initial employee and fetch fresh data
+    final e = widget.e;
+    if (e != null) {
+      controller.selectedEmployee.value = e;
+      controller.fetchEmployeeById(e.id);
     }
+  }
 
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(context, employee),
-          const SizedBox(height: 24),
-          _buildTabs(),
-          const SizedBox(height: 24),
-          _buildBody(employee),
-        ],
-      ),
-    );
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final employee = controller.selectedEmployee.value ??
+          widget.e ??
+          ModalRoute.of(context)?.settings.arguments as Employee?;
+
+      if (employee == null) {
+        return const Scaffold(body: Center(child: Text("Employee not found")));
+      }
+
+      return SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(context, employee),
+            const SizedBox(height: 24),
+            _buildTabs(),
+            const SizedBox(height: 24),
+            _buildBody(employee),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildHeader(BuildContext context, Employee employee) {
