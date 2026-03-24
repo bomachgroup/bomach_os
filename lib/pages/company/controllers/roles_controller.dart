@@ -5,13 +5,13 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:bms_front_end/src/model/role_model.dart';
-import 'package:bms_front_end/src/model/departments_units_model.dart';
+import 'package:bms_front_end/src/model/branch_model.dart';
 import 'package:bms_front_end/src/services/role_service.dart';
-import 'package:bms_front_end/src/services/employees_services.dart';
+import 'package:bms_front_end/src/services/branch_service.dart';
 
 class RolesController extends GetxController {
   final RoleService _roleService = RoleService();
-  final EmployeeService _employeeService = EmployeeService();
+  final BranchService _branchService = BranchService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Observable state ─────────────────────────────────────────────
@@ -23,9 +23,7 @@ class RolesController extends GetxController {
 
   // Dependencies for the create/edit dialog
   var permissionsMap = <String, List<String>>{}.obs;
-  var departments = <Department>[].obs;
-  var departmentUnits = <DepartmentUnit>[].obs;
-  var employeeLevels = <dynamic>[].obs;
+  var branches = <Branch>[].obs;
 
   var isDepsLoading = false.obs;
 
@@ -77,37 +75,17 @@ class RolesController extends GetxController {
 
       final results = await Future.wait([
         _roleService.getPermissionsMap(token),
-        _employeeService.getDepartments(token),
-        _employeeService.getEmployeeLevels(token),
+        _branchService.getBranches(accessToken: token),
       ]);
 
       permissionsMap.assignAll(results[0] as Map<String, List<String>>);
-      departments.assignAll(results[1] as List<Department>);
-      employeeLevels.assignAll(results[2] as List<dynamic>);
+      final branchResult =
+          results[1] as ({List<Branch> items, int total});
+      branches.assignAll(branchResult.items);
     } catch (e) {
       log('Error fetching dependencies: $e');
     } finally {
       isDepsLoading.value = false;
-    }
-  }
-
-  Future<void> fetchUnitsForDepartment(int? departmentId) async {
-    try {
-      if (departmentId == null) {
-        departmentUnits.clear();
-        return;
-      }
-      final token = await _getToken();
-      if (token == null) return;
-
-      final units = await _employeeService.getDepartmentUnits(
-        token,
-        departmentId: departmentId.toString(),
-      );
-      departmentUnits.assignAll(units);
-    } catch (e) {
-      log('Error fetching units: $e');
-      departmentUnits.clear();
     }
   }
 
@@ -116,9 +94,7 @@ class RolesController extends GetxController {
   Future<bool> createRole(
     BuildContext context, {
     required String name,
-    int? levelId,
-    int? departmentId,
-    int? unitId,
+    required List<int> branchIds,
     required Map<String, List<String>> permissions,
   }) async {
     try {
@@ -128,9 +104,7 @@ class RolesController extends GetxController {
 
       await _roleService.createRole(token, {
         'name': name,
-        if (levelId != null) 'level_id': levelId,
-        if (departmentId != null) 'department_id': departmentId,
-        if (unitId != null) 'unit_id': unitId,
+        'branch_ids': branchIds,
         'permissions': permissions,
       });
 
@@ -146,7 +120,8 @@ class RolesController extends GetxController {
     } catch (e) {
       log('Error creating role: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to create role: $e',
+        final msg = _extractErrorMessage(e);
+        Get.snackbar('Error', msg,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
@@ -161,9 +136,7 @@ class RolesController extends GetxController {
     BuildContext context, {
     required int roleId,
     String? name,
-    int? levelId,
-    int? departmentId,
-    int? unitId,
+    List<int>? branchIds,
     Map<String, List<String>>? permissions,
   }) async {
     try {
@@ -173,9 +146,7 @@ class RolesController extends GetxController {
 
       await _roleService.updateRole(token, roleId, {
         if (name != null) 'name': name,
-        'level_id': levelId,
-        'department_id': departmentId,
-        'unit_id': unitId,
+        if (branchIds != null) 'branch_ids': branchIds,
         if (permissions != null) 'permissions': permissions,
       });
 
@@ -191,7 +162,7 @@ class RolesController extends GetxController {
     } catch (e) {
       log('Error updating role: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to update role: $e',
+        Get.snackbar('Error', _extractErrorMessage(e),
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
@@ -220,7 +191,7 @@ class RolesController extends GetxController {
     } catch (e) {
       log('Error deleting role: $e');
       if (context.mounted) {
-        Get.snackbar('Error', 'Failed to delete role: $e',
+        Get.snackbar('Error', _extractErrorMessage(e),
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,
             colorText: Colors.red.shade800);
@@ -244,5 +215,15 @@ class RolesController extends GetxController {
     limit.value = newLimit;
     currentPage.value = 1;
     fetchRoles();
+  }
+
+  String _extractErrorMessage(dynamic error) {
+    final str = error.toString();
+    // Extract the message after the last " - " in "API Error: 400 - ..."
+    final dashIndex = str.lastIndexOf(' - ');
+    if (dashIndex != -1 && dashIndex + 3 < str.length) {
+      return str.substring(dashIndex + 3);
+    }
+    return str.replaceFirst('Exception: ', '');
   }
 }

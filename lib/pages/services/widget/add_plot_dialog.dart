@@ -60,7 +60,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
     if (_formKey.currentState?.validate() ?? false) {
       final plot = EstatePlot(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        estateId: widget.estate.id,
+        estateId: widget.estate.id.toString(),
         estateName: widget.estate.name,
         plotNumber: _plotNumberController.text,
         size: double.tryParse(_sizeController.text) ?? 0,

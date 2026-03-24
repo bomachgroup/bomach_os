@@ -55,32 +55,7 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
 
   void _saveEstate() {
     if (_formKey.currentState?.validate() ?? false) {
-      final totalPlots = int.tryParse(_totalPlotsController.text) ?? 0;
-      final estate = Estate(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _nameController.text,
-        location: _locationController.text,
-        description: _descriptionController.text,
-        developer: _developerController.text,
-        totalArea: double.tryParse(_totalAreaController.text) ?? 0,
-        totalPlots: totalPlots,
-        availablePlots: totalPlots,
-        soldPlots: 0,
-        reservedPlots: 0,
-        status: _selectedStatus,
-        createdDate: DateTime.now(),
-        contactPerson: _contactPersonController.text.isEmpty
-            ? null
-            : _contactPersonController.text,
-        contactPhone: _contactPhoneController.text.isEmpty
-            ? null
-            : _contactPhoneController.text,
-        contactEmail: _contactEmailController.text.isEmpty
-            ? null
-            : _contactEmailController.text,
-      );
-
-      widget.onEstateAdded(estate);
+      // TODO: Connect to EstateService.createEstate() API
       Navigator.of(context).pop();
     }
   }

@@ -87,7 +87,7 @@ class _AddPerformanceInvoiceDialogState
 
       final invoice = PerformanceInvoice(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        estateId: widget.estate?.id ?? '1',
+        estateId: widget.estate?.id.toString() ?? '1',
         estateName: _selectedEstate,
         plotNumber: _plotNumberController.text.isEmpty
             ? null

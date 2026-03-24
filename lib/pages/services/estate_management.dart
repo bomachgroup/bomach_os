@@ -1,143 +1,24 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/cards/real_estate_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
-import 'package:bms_front_end/pages/services/widget/add_estate_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-class EstateManagementPage extends StatefulWidget {
+class EstateManagementPage extends StatelessWidget {
   const EstateManagementPage({super.key});
 
   @override
-  State<EstateManagementPage> createState() => _EstateManagementPageState();
-}
-
-class _EstateManagementPageState extends State<EstateManagementPage> {
-  String _selectedFilter = 'All';
-  String _searchQuery = '';
-
-  // Sample estates data
-  final List<Estate> _estates = [
-    Estate(
-      id: '1',
-      name: 'Aso Villa Estate',
-      location: 'Asokoro, Abuja',
-      description:
-          'Premium residential estate with modern infrastructure and 24/7 security. Features include paved roads, street lights, water supply, and landscaped gardens.',
-      developer: 'Bomach Properties Ltd',
-      totalArea: 50000,
-      totalPlots: 100,
-      availablePlots: 45,
-      soldPlots: 40,
-      reservedPlots: 15,
-      status: 'Active',
-      createdDate: DateTime(2023, 1, 15),
-      images: ['assets/image/man-demo.png'],
-      contactPerson: 'John Doe',
-      contactPhone: '+234 803 123 4567',
-      contactEmail: 'john.doe@bomach.com',
-    ),
-    Estate(
-      id: '2',
-      name: 'Fortress City Estate',
-      location: 'Centenary City, Enugu',
-      description:
-          'Luxury estate development with exceptional amenities including swimming pool, gym, and recreational centers.',
-      developer: 'Fortress Homes',
-      totalArea: 75000,
-      totalPlots: 150,
-      availablePlots: 80,
-      soldPlots: 55,
-      reservedPlots: 15,
-      status: 'Active',
-      createdDate: DateTime(2023, 3, 20),
-      images: ['assets/image/man-demo.png'],
-      contactPerson: 'Jane Smith',
-      contactPhone: '+234 805 987 6543',
-      contactEmail: 'jane.smith@fortress.com',
-    ),
-    Estate(
-      id: '3',
-      name: 'Victoria Gardens',
-      location: 'Trans-Ekulu, Enugu',
-      description:
-          'Affordable housing estate with excellent road network and proximity to major facilities.',
-      developer: 'Victoria Developers',
-      totalArea: 35000,
-      totalPlots: 80,
-      availablePlots: 20,
-      soldPlots: 50,
-      reservedPlots: 10,
-      status: 'Active',
-      createdDate: DateTime(2022, 11, 10),
-      images: ['assets/image/man-demo.png'],
-      contactPerson: 'David Brown',
-      contactPhone: '+234 806 111 2222',
-      contactEmail: 'david@victoria.com',
-    ),
-    Estate(
-      id: '4',
-      name: 'Diamond Heights',
-      location: 'Independence Layout, Enugu',
-      description:
-          'Under development estate with planned commercial and residential sections.',
-      developer: 'Diamond Estates',
-      totalArea: 100000,
-      totalPlots: 200,
-      availablePlots: 180,
-      soldPlots: 10,
-      reservedPlots: 10,
-      status: 'Under Development',
-      createdDate: DateTime(2024, 1, 5),
-      images: ['assets/image/man-demo.png'],
-      contactPerson: 'Sarah Johnson',
-      contactPhone: '+234 807 333 4444',
-      contactEmail: 'sarah@diamond.com',
-    ),
-  ];
-
-  List<Estate> get _filteredEstates {
-    var filtered = _estates;
-
-    // Apply status filter
-    if (_selectedFilter != 'All') {
-      filtered =
-          filtered.where((estate) => estate.status == _selectedFilter).toList();
-    }
-
-    // Apply search filter
-    if (_searchQuery.isNotEmpty) {
-      filtered = filtered
-          .where((estate) =>
-              estate.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              estate.location
-                  .toLowerCase()
-                  .contains(_searchQuery.toLowerCase()) ||
-              estate.developer
-                  .toLowerCase()
-                  .contains(_searchQuery.toLowerCase()))
-          .toList();
-    }
-
-    return filtered;
-  }
-
-  void _addEstate(Estate estate) {
-    setState(() {
-      _estates.add(estate);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final ctrl = Get.put(EstateController());
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -160,7 +41,7 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
                       ),
                       SizedBox(height: 8),
                       MyText(
-                        'Manage your real estate developments and plots',
+                        'Manage your real estate developments',
                         style: AppText.black_400_14,
                       ),
                     ],
@@ -178,9 +59,7 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
                             color: AppColors.grey1.withValues(alpha: 0.5),
                           ),
                           onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value ?? '';
-                            });
+                            ctrl.onSearchChanged(value ?? '');
                           },
                         ),
                       ),
@@ -192,18 +71,11 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
                         ),
                         child: "Add Estate",
                         onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AddEstateDialog(
-                                onEstateAdded: _addEstate,
-                              );
-                            },
-                          );
+                          // TODO: connect add estate dialog to API
                         },
-                      )
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -212,55 +84,73 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
         kSizedBox,
 
         // Stats Cards
-        _buildStatsCards(),
+        Obx(() => _buildStatsCards(ctrl)),
 
         kSizedBox,
 
-        // Filter and View Toggle
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  _buildFilterChip('All'),
-                  _buildFilterChip('Active'),
-                  _buildFilterChip('Under Development'),
-                  _buildFilterChip('Planning'),
-                  _buildFilterChip('Completed'),
-                ],
+        // Filter chips
+        _buildFilterRow(ctrl),
+
+        kSizedBox,
+
+        // Estate list
+        Obx(() {
+          if (ctrl.isLoading.value && ctrl.estates.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(60),
+                child: CircularProgressIndicator(),
               ),
-            ),
-          ],
-        ),
+            );
+          }
 
-        kSizedBox,
+          if (ctrl.estates.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.domain_disabled,
+                      size: 64,
+                      color: AppColors.grey1.withValues(alpha: 0.5),
+                    ),
+                    kSizedBox,
+                    const MyText(
+                      'No estates found',
+                      style: TextStyle(fontSize: 18, color: AppColors.grey1),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
 
-        _buildListView(),
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: ctrl.estates.length,
+            separatorBuilder: (context, index) => kSizedBoxSM,
+            itemBuilder: (context, index) {
+              return _buildEstateListItem(context, ctrl.estates[index]);
+            },
+          );
+        }),
       ],
     );
   }
 
-  Widget _buildStatsCards() {
-    final totalEstates = _estates.length;
-    final totalPlots = _estates.fold<int>(0, (sum, e) => sum + e.totalPlots);
-    final availablePlots =
-        _estates.fold<int>(0, (sum, e) => sum + e.availablePlots);
-    final soldPlots = _estates.fold<int>(0, (sum, e) => sum + e.soldPlots);
+  Widget _buildStatsCards(EstateController ctrl) {
+    final total = ctrl.estateCount.value;
+    final active = ctrl.estates.where((e) => e.isActive).length;
 
     return Wrap(
       spacing: 16,
       runSpacing: 16,
       children: [
+        _buildStatCard('Total Estates', '$total', Icons.domain, AppColors.blue),
         _buildStatCard(
-            'Total Estates', '$totalEstates', Icons.domain, AppColors.blue),
-        _buildStatCard(
-            'Total Plots', '$totalPlots', Icons.grid_on, Colors.purple),
-        _buildStatCard('Available Plots', '$availablePlots', Icons.check_circle,
-            Colors.green),
-        _buildStatCard(
-            'Sold Plots', '$soldPlots', Icons.done_all, Colors.orange),
+            'Active', '$active', Icons.check_circle, Colors.green),
       ],
     );
   }
@@ -291,154 +181,73 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
             child: Icon(icon, color: color, size: 20),
           ),
           kSizedBoxSM,
-          MyText(
-            value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          MyText(value,
+              style:
+                  const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          MyText(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.grey1,
-            ),
-          ),
+          MyText(label,
+              style: const TextStyle(fontSize: 14, color: AppColors.grey1)),
         ],
       ),
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilter == label;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = label;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.blue : AppColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.blue : AppColors.grey4,
-          ),
-        ),
-        child: MyText(
-          label,
-          style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.grey1,
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildFilterRow(EstateController ctrl) {
+    final filters = ['All', 'active', 'under_development', 'completed'];
+    final labels = {
+      'All': 'All',
+      'active': 'Active',
+      'under_development': 'Under Development',
+      'completed': 'Completed',
+    };
 
-  Widget _buildGridView() {
-    if (_filteredEstates.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            children: [
-              Icon(
-                Icons.domain_disabled,
-                size: 64,
-                color: AppColors.grey1.withValues(alpha: 0.5),
-              ),
-              kSizedBox,
-              const MyText(
-                'No estates found',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: AppColors.grey1,
-                ),
-              ),
-            ],
+    return Obx(() {
+      final current = ctrl.statusFilter.value;
+      return Row(
+        children: [
+          Expanded(
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: filters.map((f) {
+                final isSelected =
+                    (f == 'All' && current.isEmpty) || f == current;
+                return GestureDetector(
+                  onTap: () =>
+                      ctrl.onStatusFilterChanged(f == 'All' ? '' : f),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected ? AppColors.blue : AppColors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color:
+                            isSelected ? AppColors.blue : AppColors.grey4,
+                      ),
+                    ),
+                    child: MyText(
+                      labels[f] ?? f,
+                      style: TextStyle(
+                        color: isSelected ? AppColors.white : AppColors.grey1,
+                        fontSize: 14,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
-        ),
+        ],
       );
-    }
-
-    return GridView.count(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      childAspectRatio: isLargeScreen(context)
-          ? 0.86
-          : isMediumScreen(context)
-              ? 0.86
-              : 0.75,
-      shrinkWrap: true,
-      crossAxisCount: isLargeScreen(context)
-          ? 3
-          : isMediumScreen(context)
-              ? 2
-              : 1,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      children: _filteredEstates.map((estate) {
-        return RealEstateCard(
-          image: estate.images.isNotEmpty
-              ? estate.images.first
-              : 'assets/image/man-demo.png',
-          title: estate.name,
-          details:
-              '${estate.location}\n${estate.totalPlots} plots | ${estate.availablePlots} available',
-          buttonText: "Manage Estate",
-          onTap: () {
-            context.go(RouteConstants.estateDetail, extra: estate);
-          },
-        );
-      }).toList(),
-    );
+    });
   }
 
-  Widget _buildListView() {
-    if (_filteredEstates.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            children: [
-              Icon(
-                Icons.domain_disabled,
-                size: 64,
-                color: AppColors.grey1.withValues(alpha: 0.5),
-              ),
-              kSizedBox,
-              const MyText(
-                'No estates found',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: AppColors.grey1,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _filteredEstates.length,
-      separatorBuilder: (context, index) => kSizedBoxSM,
-      itemBuilder: (context, index) {
-        final estate = _filteredEstates[index];
-        return _buildEstateListItem(estate);
-      },
-    );
-  }
-
-  Widget _buildEstateListItem(Estate estate) {
-    final statusColor = _getStatusColor(estate.status);
+  Widget _buildEstateListItem(BuildContext context, Estate estate) {
+    final statusColor = _getStatusColor(estate.estateStatus);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -461,17 +270,15 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Estate Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                estate.images.isNotEmpty
-                    ? estate.images.first
-                    : 'assets/image/man-demo.png',
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
+            // Estate icon placeholder
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: const Icon(Icons.domain, size: 40, color: AppColors.blue),
             ),
             kSizedBoxWidthSM,
             // Estate Details
@@ -484,7 +291,7 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
                     children: [
                       Expanded(
                         child: MyText(
-                          estate.name,
+                          estate.estateName,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -499,7 +306,7 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: MyText(
-                          estate.status,
+                          estate.estateStatusDisplay,
                           style: TextStyle(
                             color: statusColor,
                             fontSize: 12,
@@ -519,39 +326,33 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
                         child: MyText(
                           estate.location,
                           style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.grey1,
-                          ),
+                              fontSize: 14, color: AppColors.grey1),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       const Icon(Icons.business,
                           size: 16, color: AppColors.grey1),
                       const SizedBox(width: 4),
                       MyText(
-                        estate.developer,
+                        estate.developerCompanyName,
                         style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.grey1,
-                        ),
+                            fontSize: 14, color: AppColors.grey1),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      _buildEstateInfo(
-                          Icons.grid_on, '${estate.totalPlots} plots'),
-                      kSizedBoxWidthSM,
-                      _buildEstateInfo(Icons.check_circle,
-                          '${estate.availablePlots} available'),
-                      kSizedBoxWidthSM,
-                      _buildEstateInfo(
-                          Icons.done_all, '${estate.soldPlots} sold'),
+                      _infoChip(estate.estateTypeDisplay),
+                      const SizedBox(width: 8),
+                      if (estate.isOurEstate)
+                        _infoChip('Our Estate',
+                            color: Colors.green.shade700,
+                            bg: Colors.green.shade50),
                     ],
                   ),
                 ],
@@ -563,31 +364,32 @@ class _EstateManagementPageState extends State<EstateManagementPage> {
     );
   }
 
-  Widget _buildEstateInfo(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: AppColors.grey1),
-        const SizedBox(width: 4),
-        MyText(
-          text,
-          style: const TextStyle(
-            fontSize: 13,
-            color: AppColors.grey1,
-          ),
-        ),
-      ],
+  Widget _infoChip(String text, {Color? color, Color? bg}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg ?? const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+            fontSize: 11,
+            color: color ?? const Color(0xFF475569),
+            fontWeight: FontWeight.w500),
+      ),
     );
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Active':
+      case 'active':
         return Colors.green;
-      case 'Under Development':
+      case 'under_development':
         return Colors.orange;
-      case 'Planning':
+      case 'planning':
         return Colors.blue;
-      case 'Completed':
+      case 'completed':
         return Colors.purple;
       default:
         return AppColors.grey1;

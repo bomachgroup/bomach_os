@@ -235,34 +235,31 @@ class RolesPage extends StatelessWidget {
             ),
           ),
 
-          // Scope (level / department / unit)
+          // Scope (branches)
           Expanded(
             flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (role.levelName != null)
-                  Text(role.levelName!,
-                      style: const TextStyle(fontSize: 13),
-                      overflow: TextOverflow.ellipsis),
-                if (role.departmentName != null)
-                  Text(role.departmentName!,
-                      style: const TextStyle(
-                          fontSize: 12, color: Color(0xFF64748B)),
-                      overflow: TextOverflow.ellipsis),
-                if (role.unitName != null)
-                  Text(role.unitName!,
-                      style: const TextStyle(
-                          fontSize: 11, color: Color(0xFF94A3B8)),
-                      overflow: TextOverflow.ellipsis),
-                if (role.levelName == null &&
-                    role.departmentName == null &&
-                    role.unitName == null)
-                  const Text('All',
-                      style:
-                          TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-              ],
-            ),
+            child: role.branches.isEmpty
+                ? const Text('All Branches',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF64748B)))
+                : Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: role.branches.map((b) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          b.branchName,
+                          style: const TextStyle(
+                              fontSize: 11, color: Color(0xFF475569)),
+                        ),
+                      );
+                    }).toList(),
+                  ),
           ),
 
           // Permissions count
@@ -463,9 +460,12 @@ class _CreateEditRoleDialog extends StatefulWidget {
 
 class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
   late final TextEditingController _nameCtrl;
-  int? _selectedLevelId;
-  String? _selectedDepartmentId;
-  String? _selectedUnitId;
+
+  // Branch multi-select
+  late Set<int> _selectedBranchIds;
+
+  // Permission set: 'full' or 'partial'
+  String _permissionSet = 'partial';
 
   // permissions: resource -> Set of selected actions
   late Map<String, Set<String>> _selectedPermissions;
@@ -475,9 +475,12 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     super.initState();
     final role = widget.role;
     _nameCtrl = TextEditingController(text: role?.name ?? '');
-    _selectedLevelId = role?.levelId;
-    _selectedDepartmentId = role?.departmentId?.toString();
-    _selectedUnitId = role?.unitId?.toString();
+
+    // Initialize selected branches from existing role
+    _selectedBranchIds = {};
+    if (role != null) {
+      _selectedBranchIds = role.branches.map((b) => b.id).toSet();
+    }
 
     // Initialize permissions from existing role
     _selectedPermissions = {};
@@ -485,13 +488,29 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
       role.permissions.forEach((resource, actions) {
         _selectedPermissions[resource] = Set<String>.from(actions);
       });
-    }
 
-    // Load units if editing a role with a department
-    if (_selectedDepartmentId != null) {
-      widget.ctrl.fetchUnitsForDepartment(
-          int.tryParse(_selectedDepartmentId!));
+      // Determine if this is "full access" by checking if all permissions are selected
+      _permissionSet = _isFullAccess() ? 'full' : 'partial';
     }
+  }
+
+  bool _isFullAccess() {
+    final permMap = widget.ctrl.permissionsMap;
+    if (permMap.isEmpty) return false;
+    for (final entry in permMap.entries) {
+      final selected = _selectedPermissions[entry.key];
+      if (selected == null || !entry.value.every((a) => selected.contains(a))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _selectAllPermissions() {
+    _selectedPermissions.clear();
+    widget.ctrl.permissionsMap.forEach((resource, actions) {
+      _selectedPermissions[resource] = Set<String>.from(actions);
+    });
   }
 
   @override
@@ -519,12 +538,6 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
 
     final permissions = _buildPermissionsPayload();
     final isEdit = widget.role != null;
-    final deptId = _selectedDepartmentId != null
-        ? int.tryParse(_selectedDepartmentId!)
-        : null;
-    final uId = _selectedUnitId != null
-        ? int.tryParse(_selectedUnitId!)
-        : null;
     bool success;
 
     if (isEdit) {
@@ -532,18 +545,14 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
         context,
         roleId: widget.role!.id,
         name: _nameCtrl.text.trim(),
-        levelId: _selectedLevelId,
-        departmentId: deptId,
-        unitId: uId,
+        branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
     } else {
       success = await widget.ctrl.createRole(
         context,
         name: _nameCtrl.text.trim(),
-        levelId: _selectedLevelId,
-        departmentId: deptId,
-        unitId: uId,
+        branchIds: _selectedBranchIds.toList(),
         permissions: permissions,
       );
     }
@@ -557,7 +566,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 640),
+        constraints: const BoxConstraints(maxWidth: 700),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -605,45 +614,73 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Role name
+                      // 1. Role name
                       _label('Role Name'),
                       MyTextFormField(
                         controller: _nameCtrl,
                         hintText: 'e.g. Branch Manager',
                       ),
-                      const SizedBox(height: 16),
-
-                      // Level dropdown
-                      _label('Employee Level'),
-                      _buildLevelDropdown(),
-                      const SizedBox(height: 16),
-
-                      // Department dropdown
-                      _label('Department'),
-                      _buildDepartmentDropdown(),
-                      const SizedBox(height: 16),
-
-                      // Unit dropdown
-                      _label('Unit'),
-                      _buildUnitDropdown(),
                       const SizedBox(height: 20),
 
-                      // Permissions section
-                      const Text('Permissions',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 15)),
-                      const SizedBox(height: 4),
+                      // 2. Branch multi-select chips
+                      _label('Branches'),
                       const Text(
-                        'Select which permissions this role should have',
+                        'Select which branches this role applies to',
                         style: TextStyle(
                             color: Color(0xFF64748B), fontSize: 12),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
+                      _buildBranchChips(),
+                      const SizedBox(height: 20),
 
-                      ...widget.ctrl.permissionsMap.entries.map((entry) {
-                        return _buildPermissionCategory(
-                            entry.key, entry.value);
-                      }),
+                      // 3. Permission set dropdown
+                      _label('Permission Set'),
+                      _buildPermissionSetDropdown(),
+                      const SizedBox(height: 20),
+
+                      // 4. Module listing (only for partial access)
+                      if (_permissionSet == 'partial') ...[
+                        const Text('Module Permissions',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 15)),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Select which permissions this role should have',
+                          style: TextStyle(
+                              color: Color(0xFF64748B), fontSize: 12),
+                        ),
+                        const SizedBox(height: 12),
+                        ...widget.ctrl.permissionsMap.entries.map((entry) {
+                          return _buildPermissionCategory(
+                              entry.key, entry.value);
+                        }),
+                      ],
+
+                      if (_permissionSet == 'full')
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.green.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.check_circle,
+                                  color: Colors.green.shade700, size: 20),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Full Access — All permissions across all modules will be granted.',
+                                  style: TextStyle(
+                                      color: Colors.green.shade800,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   );
                 }),
@@ -689,7 +726,85 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     );
   }
 
-  Widget _buildDropdownContainer(Widget child) {
+  // ─── Branch multi-select chips ──────────────────────────────────────
+
+  Widget _buildBranchChips() {
+    final branches = widget.ctrl.branches;
+    if (branches.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: const Text('No branches available',
+            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: branches.map((branch) {
+        final isSelected = _selectedBranchIds.contains(branch.id);
+        return InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            setState(() {
+              if (isSelected) {
+                _selectedBranchIds.remove(branch.id);
+              } else {
+                _selectedBranchIds.add(branch.id);
+              }
+            });
+          },
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppColors.blue.withValues(alpha: 0.1)
+                  : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isSelected ? AppColors.blue : const Color(0xFFE2E8F0),
+                width: isSelected ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.check_circle
+                      : Icons.circle_outlined,
+                  size: 16,
+                  color: isSelected ? AppColors.blue : const Color(0xFF94A3B8),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  branch.branchName,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isSelected
+                        ? AppColors.blue
+                        : const Color(0xFF334155),
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ─── Permission set dropdown ────────────────────────────────────────
+
+  Widget _buildPermissionSetDropdown() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -697,88 +812,35 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
         border: Border.all(color: const Color(0xFFE2E8F0)),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: child,
-    );
-  }
-
-  Widget _buildLevelDropdown() {
-    final levels = widget.ctrl.employeeLevels;
-    return _buildDropdownContainer(
-      DropdownButtonHideUnderline(
-        child: DropdownButton<int?>(
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
           isExpanded: true,
-          value: _selectedLevelId,
-          hint: const Text('All Levels'),
-          items: [
-            const DropdownMenuItem<int?>(
-                value: null, child: Text('All Levels')),
-            ...levels.map((level) {
-              final id = level['id'] as int;
-              final name = level['level'] as String;
-              return DropdownMenuItem<int?>(value: id, child: Text(name));
-            }),
-          ],
-          onChanged: (val) => setState(() => _selectedLevelId = val),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDepartmentDropdown() {
-    final depts = widget.ctrl.departments;
-    return _buildDropdownContainer(
-      DropdownButtonHideUnderline(
-        child: DropdownButton<String?>(
-          isExpanded: true,
-          value: _selectedDepartmentId,
-          hint: const Text('All Departments'),
-          items: [
-            const DropdownMenuItem<String?>(
-                value: null, child: Text('All Departments')),
-            ...depts.map((d) => DropdownMenuItem<String?>(
-                value: d.id, child: Text(d.name))),
+          value: _permissionSet,
+          items: const [
+            DropdownMenuItem(
+              value: 'full',
+              child: Text('Full Access'),
+            ),
+            DropdownMenuItem(
+              value: 'partial',
+              child: Text('Partial Access'),
+            ),
           ],
           onChanged: (val) {
+            if (val == null) return;
             setState(() {
-              _selectedDepartmentId = val;
-              _selectedUnitId = null;
+              _permissionSet = val;
+              if (val == 'full') {
+                _selectAllPermissions();
+              }
             });
-            widget.ctrl
-                .fetchUnitsForDepartment(val != null ? int.tryParse(val) : null);
           },
         ),
       ),
     );
   }
 
-  Widget _buildUnitDropdown() {
-    return Obx(() {
-      final units = widget.ctrl.departmentUnits;
-      return _buildDropdownContainer(
-        DropdownButtonHideUnderline(
-          child: DropdownButton<String?>(
-            isExpanded: true,
-            value: units.any((u) => u.id == _selectedUnitId)
-                ? _selectedUnitId
-                : null,
-            hint: Text(_selectedDepartmentId == null
-                ? 'Select a department first'
-                : 'All Units'),
-            items: [
-              if (_selectedDepartmentId != null)
-                const DropdownMenuItem<String?>(
-                    value: null, child: Text('All Units')),
-              ...units.map((u) => DropdownMenuItem<String?>(
-                  value: u.id, child: Text(u.name))),
-            ],
-            onChanged: _selectedDepartmentId == null
-                ? null
-                : (val) => setState(() => _selectedUnitId = val),
-          ),
-        ),
-      );
-    });
-  }
+  // ─── Permission category grid ───────────────────────────────────────
 
   Widget _buildPermissionCategory(
       String resource, List<String> actions) {

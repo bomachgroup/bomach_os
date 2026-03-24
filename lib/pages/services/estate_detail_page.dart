@@ -44,7 +44,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       _plots.add(
         EstatePlot(
           id: i.toString(),
-          estateId: widget.estate.id,
+          estateId: widget.estate.id.toString(),
           estateName: widget.estate.name,
           plotNumber: 'Plot ${i.toString().padLeft(3, '0')}',
           blockNumber: 'Block ${String.fromCharCode(65 + i ~/ 4)}',
@@ -319,14 +319,10 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                   'Developer', widget.estate.developer, Icons.business),
               _buildInfoItem(
                   'Total Area',
-                  '${widget.estate.totalArea.toStringAsFixed(0)} sqm',
+                  '${widget.estate.totalArea?.toStringAsFixed(0) ?? '0'} sqm',
                   Icons.square_foot),
-              if (widget.estate.contactPerson != null)
-                _buildInfoItem(
-                    'Contact', widget.estate.contactPerson!, Icons.person),
-              if (widget.estate.contactPhone != null)
-                _buildInfoItem(
-                    'Phone', widget.estate.contactPhone!, Icons.phone),
+              _buildInfoItem(
+                  'Location', widget.estate.location, Icons.location_on),
             ],
           ),
         ],

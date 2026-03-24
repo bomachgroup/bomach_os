@@ -1,150 +1,101 @@
-import 'package:bms_front_end/components/button/sort_filter_bar2.dart';
 import 'package:bms_front_end/components/cards/real_estate_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../components/button/icon_button.dart';
-import '../../src/constants/colors.dart';
-
-class RealEstateScreen extends StatefulWidget {
+class RealEstateScreen extends StatelessWidget {
   const RealEstateScreen({super.key});
 
   @override
-  State<RealEstateScreen> createState() => _RealEstateScreenState();
-}
-
-class _RealEstateScreenState extends State<RealEstateScreen> {
-  @override
   Widget build(BuildContext context) {
+    final ctrl = Get.put(EstateController());
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //header
-            const MyText(
-              "Services",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
+        const MyText(
+          "Services",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        ),
+        kSizedBox,
+        SizedBox(
+          width: isSmallScreen(context) ? null : 200,
+          child: MyTextFormField(
+            hintText: "Search...",
+            leading: Icon(
+              Icons.search,
+              color: AppColors.grey1.withValues(alpha: 0.5),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/plus.svg"),
-                  colorBackground: const Color(0xFF0055FF),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AddInvoiceDialog();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/note2.svg"),
-                  colorBackground: const Color(0xFF0055FF),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const InvoiceContent();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/notification.svg"),
-                  colorBackground: const Color(0xFF0055FF),
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
+            onChanged: (value) => ctrl.onSearchChanged(value ?? ''),
+          ),
         ),
-        //search
-        const SizedBox(
-          height: 20,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 15,
-                runSpacing: 15,
-                children: [
-                  SizedBox(
-                    width: isSmallScreen(context) ? null : 200,
-                    child: MyTextFormField(
-                      hintText: "Search...",
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  const SortFilterBar2(),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        //real estate header
+        const SizedBox(height: 15),
         const Align(
           alignment: Alignment.centerLeft,
           child: MyText(
-            "Real Estate development",
+            "Real Estate Development",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
           ),
         ),
+        kSizedBoxSM,
+        Obx(() {
+          if (ctrl.isLoading.value && ctrl.estates.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
 
-        //body
-        GridView.count(
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          childAspectRatio: isLargeScreen(context)
-              ? 0.86
-              : isMediumScreen(context)
-                  ? 0.86
-                  : 0.75,
-          shrinkWrap: true,
-          crossAxisCount: isLargeScreen(context)
-              ? 3
-              : isMediumScreen(context)
-                  ? 2
-                  : 1,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          children: List.generate(
-            6,
-            (index) => RealEstateCard(
-              image: "assets/image/man-demo.png",
-              title: "Aso villa Estate",
-              details:
-                  "If you're visiting this page, you're likely here because you're searching for a random sentence...",
-              buttonText: "View estate Properties",
-              onTap: () {
-                context.push(RouteConstants.realEstateDetail);
-              },
-            ),
-          ),
-        )
+          if (ctrl.estates.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40),
+                child: MyText(
+                  'No estates found',
+                  style: TextStyle(fontSize: 16, color: AppColors.grey1),
+                ),
+              ),
+            );
+          }
+
+          return GridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            childAspectRatio: isLargeScreen(context)
+                ? 0.86
+                : isMediumScreen(context)
+                    ? 0.86
+                    : 0.75,
+            shrinkWrap: true,
+            crossAxisCount: isLargeScreen(context)
+                ? 3
+                : isMediumScreen(context)
+                    ? 2
+                    : 1,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            children: ctrl.estates.map((estate) {
+              return RealEstateCard(
+                image: "assets/image/man-demo.png",
+                title: estate.estateName,
+                details: '${estate.location}\n${estate.estateTypeDisplay}',
+                buttonText: "View Estate",
+                onTap: () {
+                  context.go(RouteConstants.estateDetail, extra: estate);
+                },
+              );
+            }).toList(),
+          );
+        }),
       ],
     );
   }

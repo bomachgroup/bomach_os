@@ -311,6 +311,13 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       profilePic = _existingImageUrl!;
     }
 
+    final branchId = int.tryParse(_selectedBranchId ?? '');
+    final deptId = int.tryParse(_selectedDeptId ?? '');
+    final unitId = int.tryParse(_selectedUnitId ?? '');
+    final levelId = int.tryParse(_selectedLevelId ?? '');
+    final roleId = int.tryParse(_selectedRoleId ?? '');
+    final reportingToId = int.tryParse(_selectedReportingToId ?? '');
+
     final Map<String, dynamic> data = {
       'email': _workEmailCtrl.text.trim(),
       'first_name': _firstNameCtrl.text.trim(),
@@ -335,18 +342,18 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       'designation': _designationCtrl.text,
       'employment_type': _selectedEmpType,
       'employment_status': _selectedStatus,
-      'branch_id': int.tryParse(_selectedBranchId ?? '0') ?? 0,
-      'department_id': int.tryParse(_selectedDeptId ?? '0') ?? 0,
-      'department_unit_id': int.tryParse(_selectedUnitId ?? '0') ?? 0,
-      'level_id': int.tryParse(_selectedLevelId ?? '0') ?? 0,
-      'role_id': int.tryParse(_selectedRoleId ?? '0') ?? 0,
+      if (branchId != null) 'branch_id': branchId,
+      if (deptId != null) 'department_id': deptId,
+      if (unitId != null) 'department_unit_ids': [unitId],
+      if (levelId != null) 'level_id': levelId,
+      if (roleId != null) 'role_id': roleId,
       'location': _locationCtrl.text,
-      'reporting_to_id': int.tryParse(_selectedReportingToId ?? '0') ?? 0,
+      if (reportingToId != null) 'reporting_to_id': reportingToId,
       'start_date': DateFormat('yyyy-MM-dd').format(_joinDate!),
-      'probation_period': int.tryParse(_probationCtrl.text) ?? 0,
+      'probation_period': int.tryParse(_probationCtrl.text),
       'work_schedule': _workScheduleCtrl.text,
       'is_active': _selectedStatus == 'active',
-      'gross_salary': double.tryParse(_basicSalaryCtrl.text) ?? 0,
+      'gross_salary': double.tryParse(_basicSalaryCtrl.text),
       'salary_frequency': _selectedSalaryFrequency,
       'allowances': {},
       'bank_name': _bankNameCtrl.text,
@@ -355,7 +362,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       'pension_number': _pensionNumberCtrl.text,
       'pfa_provider': _pfaProviderCtrl.text,
       'rsa_number': _rsaNumberCtrl.text,
-      'employer_contribution': double.tryParse(_employerContribCtrl.text) ?? 0,
+      'employer_contribution': double.tryParse(_employerContribCtrl.text),
       'hmo_current_plan': _hmoPlanCtrl.text,
       'hmo_id_number': _hmoIdCtrl.text,
       'hmo_dependents_covered': int.tryParse(_hmoDependentsCtrl.text) ?? 0,
