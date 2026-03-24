@@ -7,7 +7,7 @@ import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'controller/leave_request_controller.dart';
+import 'package:bms_front_end/pages/hr/controller/leave_request_controller.dart';
 import 'controller/my_leaves_controller.dart';
 
 class LeavesPage extends StatefulWidget {
@@ -20,14 +20,13 @@ class LeavesPage extends StatefulWidget {
 class _LeavesPageState extends State<LeavesPage> {
   final ScrollController _scrollController = ScrollController();
   final MyLeavesController _ctrl = Get.put(MyLeavesController());
-  // LeaveRequestController is needed by AddLeaveRequestDialog
-  final LeaveRequestController _leaveReqCtrl = Get.isRegistered<LeaveRequestController>()
-      ? Get.find<LeaveRequestController>()
-      : Get.put(LeaveRequestController());
-
   @override
   void initState() {
     super.initState();
+    // Ensure LeaveRequestController is registered for AddLeaveRequestDialog
+    if (!Get.isRegistered<LeaveRequestController>()) {
+      Get.put(LeaveRequestController());
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ctrl.fetchMyLeaves(context);
     });
