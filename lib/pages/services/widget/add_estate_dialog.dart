@@ -1,22 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/input/upload_file.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/services/models/estate_models.dart';
+import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class AddEstateDialog extends StatefulWidget {
-  final Function(Estate) onEstateAdded;
-
-  const AddEstateDialog({
-    super.key,
-    required this.onEstateAdded,
-  });
+  const AddEstateDialog({super.key});
 
   @override
   State<AddEstateDialog> createState() => _AddEstateDialogState();
@@ -24,421 +16,316 @@ class AddEstateDialog extends StatefulWidget {
 
 class _AddEstateDialogState extends State<AddEstateDialog> {
   final _formKey = GlobalKey<FormState>();
-  bool _showOptionalFields = false;
+  final EstateController _ctrl = Get.find<EstateController>();
 
-  // Form controllers
-  final _nameController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _developerController = TextEditingController();
-  final _totalAreaController = TextEditingController();
-  final _totalPlotsController = TextEditingController();
-  final _contactPersonController = TextEditingController();
-  final _contactPhoneController = TextEditingController();
-  final _contactEmailController = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController();
+  final _developerCtrl = TextEditingController();
+  final _descriptionCtrl = TextEditingController();
+  final _stateCtrl = TextEditingController();
+  final _cityCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _pricePerSqmCtrl = TextEditingController();
+  final _totalAreaCtrl = TextEditingController();
 
-  String _selectedStatus = 'Active';
+  String? _selectedEstateType;
+  String? _selectedEstateStatus;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _locationController.dispose();
-    _descriptionController.dispose();
-    _developerController.dispose();
-    _totalAreaController.dispose();
-    _totalPlotsController.dispose();
-    _contactPersonController.dispose();
-    _contactPhoneController.dispose();
-    _contactEmailController.dispose();
+    _nameCtrl.dispose();
+    _codeCtrl.dispose();
+    _developerCtrl.dispose();
+    _descriptionCtrl.dispose();
+    _stateCtrl.dispose();
+    _cityCtrl.dispose();
+    _addressCtrl.dispose();
+    _pricePerSqmCtrl.dispose();
+    _totalAreaCtrl.dispose();
     super.dispose();
   }
 
-  void _saveEstate() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // TODO: Connect to EstateService.createEstate() API
-      Navigator.of(context).pop();
-    }
+  void _save() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final payload = {
+      'estate_name': _nameCtrl.text.trim(),
+      'estate_code': _codeCtrl.text.trim(),
+      'estate_type': _selectedEstateType,
+      'developer_company_name': _developerCtrl.text.trim(),
+      'estate_description': _descriptionCtrl.text.trim(),
+      'country_id': 1, // Default Nigeria
+      'state': _stateCtrl.text.trim(),
+      'city_town': _cityCtrl.text.trim(),
+      'precise_address': _addressCtrl.text.trim(),
+      'price_per_sqm': double.tryParse(_pricePerSqmCtrl.text) ?? 0,
+      'estate_status': _selectedEstateStatus,
+      if (_totalAreaCtrl.text.isNotEmpty)
+        'total_area': double.tryParse(_totalAreaCtrl.text),
+    };
+
+    final success = await _ctrl.createEstate(context, payload);
+    if (success && mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+        constraints: const BoxConstraints(maxWidth: 700),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               // Header
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const MyText(
-                      'Add New Estate',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const Expanded(
+                      child: Text('Add New Estate',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600)),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
               ),
+              const Divider(height: 1),
 
-              // Form fields
-              Expanded(
+              // Form body
+              Flexible(
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Estate Name
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _nameController,
-                                        hintText: 'Enter estate name',
-                                        spaceBetweenText: 10,
-                                        title: 'Estate Name*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter estate name';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                      // Row 1: Name + Code
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _nameCtrl,
+                              title: 'Estate Name *',
+                              hintText: 'e.g. Aso Villa Estate',
+                              validator: _requiredValidator,
                             ),
-                            const SizedBox(height: 24),
-
-                            // Location
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  controller: _locationController,
-                                  hintText: 'Enter full location/address',
-                                  spaceBetweenText: 10,
-                                  title: 'Location*',
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter location';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _codeCtrl,
+                              title: 'Estate Code *',
+                              hintText: 'e.g. AVE-001',
+                              validator: _requiredValidator,
                             ),
-                            const SizedBox(height: 24),
-
-                            // Developer and Status
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _developerController,
-                                        hintText: 'Enter developer name',
-                                        spaceBetweenText: 10,
-                                        title: 'Developer/Company*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter developer';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyDropdown(
-                                        items: const [
-                                          'Active',
-                                          'Under Development',
-                                          'Planning',
-                                          'Completed'
-                                        ],
-                                        hintText: 'Select status',
-                                        spaceBetweenText: 10,
-                                        title: 'Status*',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedStatus = value ?? 'Active';
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Total Area and Total Plots
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _totalAreaController,
-                                        hintText: 'Enter total area',
-                                        spaceBetweenText: 10,
-                                        title: 'Total Area (sqm)*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter total area';
-                                          }
-                                          if (double.tryParse(value) == null) {
-                                            return 'Enter a valid number';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _totalPlotsController,
-                                        spaceBetweenText: 10,
-                                        hintText: 'Enter number of plots',
-                                        title: 'Total Plots*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter total plots';
-                                          }
-                                          if (int.tryParse(value) == null) {
-                                            return 'Enter a valid number';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Description
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  controller: _descriptionController,
-                                  maxLines: 4,
-                                  hintText: 'Enter estate description',
-                                  spaceBetweenText: 10,
-                                  title: 'Description*',
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter description';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      kSizedBox,
 
-                      // Optional Section
-                      const Divider(
-                        color: AppColors.card,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _showOptionalFields = !_showOptionalFields;
-                                });
-                              },
-                              child: Row(
-                                children: [
-                                  const Flexible(
-                                    child: MyText(
-                                      'Contact Information (Optional)',
-                                      size: 18,
-                                      weight: 600,
-                                    ),
-                                  ),
-                                  kSizedBoxWidthSM,
-                                  Icon(
-                                    _showOptionalFields
-                                        ? Icons.keyboard_arrow_up_rounded
-                                        : Icons.keyboard_arrow_down_rounded,
-                                    size: 28,
-                                  )
-                                ],
-                              ),
-                            ),
-                            if (_showOptionalFields) ...[
-                              kSizedBox,
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _contactPersonController,
-                                          hintText: 'Contact person name',
-                                          spaceBetweenText: 10,
-                                          title: 'Contact Person',
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _contactPhoneController,
-                                          spaceBetweenText: 10,
-                                          hintText: 'Phone number',
-                                          title: 'Phone',
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              kSizedBox,
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _contactEmailController,
-                                          hintText: 'Email address',
-                                          spaceBetweenText: 10,
-                                          title: 'Email',
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              kSizedBox,
-                              const MyText(
-                                'Upload Estate Images',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                      // Row 2: Type + Status (from API choices)
+                      Obx(() => Row(
+                            children: [
+                              Expanded(
+                                child: _buildChoiceDropdown(
+                                  'Estate Type *',
+                                  _selectedEstateType,
+                                  _ctrl.estateTypes,
+                                  (v) => setState(
+                                      () => _selectedEstateType = v),
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              const UploadFile(),
-                              kSizedBox,
-                              const MyText(
-                                'Upload Documents (Layout Plan, Approval, etc.)',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildChoiceDropdown(
+                                  'Estate Status *',
+                                  _selectedEstateStatus,
+                                  _ctrl.estateStatuses,
+                                  (v) => setState(
+                                      () => _selectedEstateStatus = v),
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              const UploadFile(),
                             ],
-                          ],
-                        ),
+                          )),
+                      kSizedBox,
+
+                      // Developer
+                      MyTextFormField(
+                        controller: _developerCtrl,
+                        title: 'Developer / Company *',
+                        hintText: 'e.g. Bomach Properties Ltd',
+                        validator: _requiredValidator,
+                      ),
+                      kSizedBox,
+
+                      // Row 3: State + City
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _stateCtrl,
+                              title: 'State *',
+                              hintText: 'e.g. Enugu',
+                              validator: _requiredValidator,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _cityCtrl,
+                              title: 'City / Town *',
+                              hintText: 'e.g. Enugu',
+                              validator: _requiredValidator,
+                            ),
+                          ),
+                        ],
+                      ),
+                      kSizedBox,
+
+                      // Address
+                      MyTextFormField(
+                        controller: _addressCtrl,
+                        title: 'Precise Address *',
+                        hintText: 'Full address',
+                        validator: _requiredValidator,
+                      ),
+                      kSizedBox,
+
+                      // Row 4: Price per sqm + Total Area
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _pricePerSqmCtrl,
+                              title: 'Price per sqm *',
+                              hintText: '0.00',
+                              validator: (v) {
+                                if (v == null || v.isEmpty) {
+                                  return 'Required';
+                                }
+                                if (double.tryParse(v) == null) {
+                                  return 'Enter a valid number';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _totalAreaCtrl,
+                              title: 'Total Area (sqm)',
+                              hintText: 'Optional',
+                            ),
+                          ),
+                        ],
+                      ),
+                      kSizedBox,
+
+                      // Description
+                      MyTextFormField(
+                        controller: _descriptionCtrl,
+                        title: 'Description *',
+                        hintText: 'Describe the estate...',
+                        maxLines: 3,
+                        validator: _requiredValidator,
                       ),
                     ],
                   ),
                 ),
               ),
 
-              // Action Buttons
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
-                      borderColor: null,
-                      child: 'Cancel',
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    MyElevatedButton(
-                      icon: SvgPicture.asset(
-                        "assets/svg/check.svg",
-                        colorFilter: const ColorFilter.mode(
-                            AppColors.white, BlendMode.srcIn),
-                      ),
-                      child: 'Save Estate',
-                      onTap: _saveEstate,
-                    ),
-                  ],
-                ),
+              const Divider(height: 1),
+
+              // Footer
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Obx(() => Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        MyOutlinedButton(
+                          textColor: AppColors.darkGrey1,
+                          borderColor: null,
+                          child: 'Cancel',
+                          onTap: () => Navigator.pop(context),
+                        ),
+                        const SizedBox(width: 12),
+                        MyElevatedButton(
+                          height: 40,
+                          child: _ctrl.isSaving.value
+                              ? 'Saving...'
+                              : 'Save Estate',
+                          onTap:
+                              _ctrl.isSaving.value ? null : _save,
+                        ),
+                      ],
+                    )),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  String? _requiredValidator(String? v) {
+    if (v == null || v.trim().isEmpty) return 'Required';
+    return null;
+  }
+
+  Widget _buildChoiceDropdown(
+    String label,
+    String? value,
+    List<Map<String, dynamic>> choices,
+    ValueChanged<String?> onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(label,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w500, fontSize: 13)),
+        ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: value,
+              hint: Text('Select ${label.replaceAll(' *', '')}'),
+              items: choices.map((c) {
+                return DropdownMenuItem<String>(
+                  value: c['value']?.toString() ?? '',
+                  child: Text(c['display_name']?.toString() ?? ''),
+                );
+              }).toList(),
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

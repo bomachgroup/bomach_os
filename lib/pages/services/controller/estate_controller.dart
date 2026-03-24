@@ -14,6 +14,12 @@ class EstateController extends GetxController {
   var estates = <Estate>[].obs;
   var estateCount = 0.obs;
   var isLoading = false.obs;
+  var isSaving = false.obs;
+
+  // Field choices for dropdowns
+  var estateTypes = <Map<String, dynamic>>[].obs;
+  var estateStatuses = <Map<String, dynamic>>[].obs;
+  var areaUnits = <Map<String, dynamic>>[].obs;
 
   var searchQuery = ''.obs;
   var statusFilter = ''.obs;
@@ -24,6 +30,7 @@ class EstateController extends GetxController {
   void onInit() {
     super.onInit();
     fetchEstates();
+    fetchFieldChoices();
   }
 
   Future<String?> _getToken() => _storage.read(key: 'access_token');
@@ -48,6 +55,55 @@ class EstateController extends GetxController {
       log('Error fetching estates: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchFieldChoices() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+
+      final choices = await _service.getFieldChoices(token);
+      estateTypes.assignAll(choices['estate_type'] ?? []);
+      estateStatuses.assignAll(choices['estate_status'] ?? []);
+      areaUnits.assignAll(choices['area_unit'] ?? []);
+    } catch (e) {
+      log('Error fetching field choices: $e');
+    }
+  }
+
+  Future<bool> createEstate(
+      BuildContext context, Map<String, dynamic> payload) async {
+    try {
+      isSaving.value = true;
+      final token = await _getToken();
+      if (token == null) return false;
+
+      await _service.createEstate(token, payload);
+      await fetchEstates();
+
+      if (context.mounted) {
+        Get.snackbar('Success', 'Estate created successfully',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.shade50,
+            colorText: Colors.green.shade800);
+      }
+      return true;
+    } catch (e) {
+      log('Error creating estate: $e');
+      if (context.mounted) {
+        final msg = e.toString();
+        final dashIdx = msg.lastIndexOf(' - ');
+        final cleanMsg =
+            dashIdx != -1 ? msg.substring(dashIdx + 3) : msg.replaceFirst('Exception: ', '');
+        Get.snackbar('Error', cleanMsg,
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.shade50,
+            colorText: Colors.red.shade800);
+      }
+      return false;
+    } finally {
+      isSaving.value = false;
     }
   }
 

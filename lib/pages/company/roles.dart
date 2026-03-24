@@ -460,15 +460,20 @@ class _CreateEditRoleDialog extends StatefulWidget {
 
 class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
   late final TextEditingController _nameCtrl;
+  final TextEditingController _permSearchCtrl = TextEditingController();
+
+  // Stepper
+  int _currentStep = 0;
+  static const _steps = ['Role Details', 'Permissions'];
 
   // Branch multi-select
   late Set<int> _selectedBranchIds;
 
-  // Permission set: 'full' or 'partial'
-  String _permissionSet = 'partial';
-
   // permissions: resource -> Set of selected actions
   late Map<String, Set<String>> _selectedPermissions;
+
+  // Permission search query
+  String _permSearch = '';
 
   @override
   void initState() {
@@ -476,48 +481,28 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     final role = widget.role;
     _nameCtrl = TextEditingController(text: role?.name ?? '');
 
-    // Initialize selected branches from existing role
     _selectedBranchIds = {};
     if (role != null) {
       _selectedBranchIds = role.branches.map((b) => b.id).toSet();
     }
 
-    // Initialize permissions from existing role
     _selectedPermissions = {};
     if (role != null) {
       role.permissions.forEach((resource, actions) {
         _selectedPermissions[resource] = Set<String>.from(actions);
       });
-
-      // Determine if this is "full access" by checking if all permissions are selected
-      _permissionSet = _isFullAccess() ? 'full' : 'partial';
     }
-  }
-
-  bool _isFullAccess() {
-    final permMap = widget.ctrl.permissionsMap;
-    if (permMap.isEmpty) return false;
-    for (final entry in permMap.entries) {
-      final selected = _selectedPermissions[entry.key];
-      if (selected == null || !entry.value.every((a) => selected.contains(a))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  void _selectAllPermissions() {
-    _selectedPermissions.clear();
-    widget.ctrl.permissionsMap.forEach((resource, actions) {
-      _selectedPermissions[resource] = Set<String>.from(actions);
-    });
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _permSearchCtrl.dispose();
     super.dispose();
   }
+
+  int get _totalSelectedCount =>
+      _selectedPermissions.values.fold(0, (sum, s) => sum + s.length);
 
   Map<String, List<String>> _buildPermissionsPayload() {
     final result = <String, List<String>>{};
@@ -533,6 +518,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     if (_nameCtrl.text.trim().isEmpty) {
       Get.snackbar('Validation', 'Role name is required',
           snackPosition: SnackPosition.BOTTOM);
+      setState(() => _currentStep = 0);
       return;
     }
 
@@ -564,156 +550,256 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.role != null;
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.white,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 700),
+        width: 700,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title bar
-            Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 24, vertical: 16),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      isEdit ? 'Edit Role' : 'Create New Role',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isEdit ? 'Edit Role' : 'Create New Role',
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        isEdit
+                            ? 'Update role details and permissions.'
+                            : 'Define a new role with branch scoping and permissions.',
+                        style: TextStyle(
+                            color: Colors.grey.shade600, fontSize: 13),
+                      ),
+                    ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: Colors.grey),
                   ),
                 ],
               ),
             ),
             const Divider(height: 1),
 
-            // Body — scrollable
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Obx(() {
-                  if (widget.ctrl.isDepsLoading.value) {
-                    return const Center(
-                        child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: CircularProgressIndicator(),
-                    ));
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. Role name
-                      _label('Role Name'),
-                      MyTextFormField(
-                        controller: _nameCtrl,
-                        hintText: 'e.g. Branch Manager',
-                      ),
-                      const SizedBox(height: 20),
-
-                      // 2. Branch multi-select chips
-                      _label('Branches'),
-                      const Text(
-                        'Select which branches this role applies to',
-                        style: TextStyle(
-                            color: Color(0xFF64748B), fontSize: 12),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildBranchChips(),
-                      const SizedBox(height: 20),
-
-                      // 3. Permission set dropdown
-                      _label('Permission Set'),
-                      _buildPermissionSetDropdown(),
-                      const SizedBox(height: 20),
-
-                      // 4. Module listing (only for partial access)
-                      if (_permissionSet == 'partial') ...[
-                        const Text('Module Permissions',
+            // Stepper tabs
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                children: List.generate(_steps.length, (index) {
+                  final isActive = index == _currentStep;
+                  return GestureDetector(
+                    onTap: () => setState(() => _currentStep = index),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 32.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            _steps[index],
                             style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 15)),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Select which permissions this role should have',
-                          style: TextStyle(
-                              color: Color(0xFF64748B), fontSize: 12),
-                        ),
-                        const SizedBox(height: 12),
-                        ...widget.ctrl.permissionsMap.entries.map((entry) {
-                          return _buildPermissionCategory(
-                              entry.key, entry.value);
-                        }),
-                      ],
-
-                      if (_permissionSet == 'full')
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.green.shade200),
+                              color: isActive
+                                  ? const Color(0xFF0055FF)
+                                  : Colors.grey.shade600,
+                              fontWeight:
+                                  isActive ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 14,
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.check_circle,
-                                  color: Colors.green.shade700, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Full Access — All permissions across all modules will be granted.',
-                                  style: TextStyle(
-                                      color: Colors.green.shade800,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: 6),
+                          Container(
+                            height: 2,
+                            width: 80,
+                            color: isActive
+                                ? const Color(0xFF0055FF)
+                                : Colors.transparent,
                           ),
-                        ),
-                    ],
+                        ],
+                      ),
+                    ),
                   );
                 }),
               ),
             ),
+            const Divider(height: 1),
+
+            // Body
+            Expanded(
+              child: Obx(() {
+                if (widget.ctrl.isDepsLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: _currentStep == 0
+                      ? _buildStep1RoleDetails()
+                      : _buildStep2Permissions(),
+                );
+              }),
+            ),
 
             const Divider(height: 1),
 
-            // Footer buttons
+            // Footer
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Obx(() => Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      if (_currentStep > 0)
+                        OutlinedButton(
+                          onPressed: () =>
+                              setState(() => _currentStep--),
+                          child: const Text('Previous'),
+                        ),
+                      const Spacer(),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                            foregroundColor: Colors.red.shade600),
                         child: const Text('Cancel'),
                       ),
                       const SizedBox(width: 12),
-                      MyElevatedButton(
-                        height: 40,
-                        child: widget.ctrl.isSaving.value
-                            ? 'Saving...'
-                            : (isEdit ? 'Save Changes' : 'Create Role'),
-                        onTap:
-                            widget.ctrl.isSaving.value ? null : _onSave,
-                      ),
+                      if (_currentStep < _steps.length - 1)
+                        MyElevatedButton(
+                          height: 40,
+                          child: 'Next Step',
+                          onTap: () => setState(() => _currentStep++),
+                        )
+                      else
+                        MyElevatedButton(
+                          height: 40,
+                          child: widget.ctrl.isSaving.value
+                              ? 'Saving...'
+                              : (isEdit ? 'Save Changes' : 'Create Role'),
+                          onTap: widget.ctrl.isSaving.value ? null : _onSave,
+                        ),
                     ],
                   )),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // ─── Step 1: Role Details ───────────────────────────────────────────
+
+  Widget _buildStep1RoleDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label('Role Name'),
+        MyTextFormField(
+          controller: _nameCtrl,
+          hintText: 'e.g. Branch Manager',
+        ),
+        const SizedBox(height: 20),
+        _label('Branches'),
+        const Text(
+          'Select which branches this role applies to',
+          style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+        ),
+        const SizedBox(height: 8),
+        _buildBranchChips(),
+      ],
+    );
+  }
+
+  // ─── Step 2: Permissions ────────────────────────────────────────────
+
+  Widget _buildStep2Permissions() {
+    // Filter permissions by search
+    final query = _permSearch.toLowerCase();
+    final filteredEntries = widget.ctrl.permissionsMap.entries.where((entry) {
+      if (query.isEmpty) return true;
+      final resourceLabel = entry.key.replaceAll('_', ' ').toLowerCase();
+      if (resourceLabel.contains(query)) return true;
+      return entry.value
+          .any((a) => a.replaceAll('_', ' ').toLowerCase().contains(query));
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Search + Unselect All row
+        Row(
+          children: [
+            Expanded(
+              child: MyTextFormField(
+                controller: _permSearchCtrl,
+                hintText: 'Search permissions...',
+                leading:
+                    const Icon(Icons.search, color: Colors.grey, size: 20),
+                onChanged: (v) => setState(() => _permSearch = v ?? ''),
+              ),
+            ),
+            const SizedBox(width: 12),
+            _totalSelectedCount > 0
+                ? TextButton.icon(
+                    onPressed: () {
+                      setState(() => _selectedPermissions.clear());
+                    },
+                    icon: const Icon(Icons.deselect, size: 18),
+                    label: const Text('Unselect All'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red.shade600,
+                    ),
+                  )
+                : TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        widget.ctrl.permissionsMap.forEach((resource, actions) {
+                          _selectedPermissions[resource] =
+                              Set<String>.from(actions);
+                        });
+                      });
+                    },
+                    icon: const Icon(Icons.select_all, size: 18),
+                    label: const Text('Select All'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.blue,
+                    ),
+                  ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        if (_totalSelectedCount > 0)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              '$_totalSelectedCount permissions selected',
+              style: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500),
+            ),
+          ),
+
+        if (filteredEntries.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(
+              child: Text('No matching permissions found',
+                  style: TextStyle(color: Color(0xFF94A3B8))),
+            ),
+          )
+        else
+          ...filteredEntries.map((entry) {
+            return _buildPermissionCategory(entry.key, entry.value);
+          }),
+      ],
     );
   }
 
@@ -799,44 +885,6 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
           ),
         );
       }).toList(),
-    );
-  }
-
-  // ─── Permission set dropdown ────────────────────────────────────────
-
-  Widget _buildPermissionSetDropdown() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: _permissionSet,
-          items: const [
-            DropdownMenuItem(
-              value: 'full',
-              child: Text('Full Access'),
-            ),
-            DropdownMenuItem(
-              value: 'partial',
-              child: Text('Partial Access'),
-            ),
-          ],
-          onChanged: (val) {
-            if (val == null) return;
-            setState(() {
-              _permissionSet = val;
-              if (val == 'full') {
-                _selectAllPermissions();
-              }
-            });
-          },
-        ),
-      ),
     );
   }
 

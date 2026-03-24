@@ -29,6 +29,27 @@ class EstateService {
     return Options(headers: {'Authorization': 'Bearer $token'});
   }
 
+  /// Get field choices for dropdowns (estate_type, estate_status, area_unit)
+  Future<Map<String, List<Map<String, dynamic>>>> getFieldChoices(
+      String token) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/estates/choices/fields',
+        options: _authOptions(token),
+      );
+      final data = response.data as Map<String, dynamic>;
+      final result = <String, List<Map<String, dynamic>>>{};
+      data.forEach((key, value) {
+        if (value is List) {
+          result[key] = value.cast<Map<String, dynamic>>();
+        }
+      });
+      return result;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// List all estates with optional filters and pagination
   Future<({List<Estate> items, int count})> getEstates(
     String token, {
