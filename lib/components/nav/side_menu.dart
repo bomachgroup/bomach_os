@@ -339,12 +339,6 @@ class _SideMenuState extends State<SideMenu> {
         ],
         children: [
           SubMenuItemData(
-            id: SubMenuItem.hrDashboad,
-            label: 'Dashboard',
-            route: RouteConstants.hr,
-            resources: [PermissionConstants.resDashboard],
-          ),
-          SubMenuItemData(
             id: SubMenuItem.employees,
             label: 'Employees',
             route: RouteConstants.employees,
@@ -385,12 +379,6 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Benefits',
             route: RouteConstants.benefits,
             resources: [PermissionConstants.resPayroll],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.attendance,
-            label: 'Attendance',
-            route: RouteConstants.attendance,
-            resources: [PermissionConstants.resEmployees],
           ),
           SubMenuItemData(
             id: SubMenuItem.performance,

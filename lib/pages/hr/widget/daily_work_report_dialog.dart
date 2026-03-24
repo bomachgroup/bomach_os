@@ -34,6 +34,8 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   late TextEditingController _workActivitiesController;
   late TextEditingController _taskDetailsController;
   late TextEditingController _nextDayPlanController;
+  final TextEditingController _attachmentUrlController = TextEditingController();
+  final List<WorkReportAttachment> _attachments = [];
 
   DateTime _reportDate = DateTime.now();
 
@@ -53,6 +55,9 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
         TextEditingController(text: r?.planNextDay ?? '');
 
     _reportDate = r?.day ?? DateTime.now();
+    if (r?.attachments != null) {
+      _attachments.addAll(r!.attachments);
+    }
   }
 
   @override
@@ -62,6 +67,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
     _workActivitiesController.dispose();
     _taskDetailsController.dispose();
     _nextDayPlanController.dispose();
+    _attachmentUrlController.dispose();
     super.dispose();
   }
 
@@ -105,7 +111,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       status: 'draft',
       rating: widget.existingReport?.rating,
       feedback: widget.existingReport?.feedback,
-      attachments: widget.existingReport?.attachments ?? [],
+      attachments: _attachments,
     );
 
     bool success;
@@ -225,6 +231,96 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                         controller: _nextDayPlanController,
                         maxLines: 3,
                         hintText: 'What do you plan to work on tomorrow...'),
+                    kSizedBox,
+                    // ─── Attachments Section ───
+                    const MyText('Attachments', style: AppText.black_600_14),
+                    const SizedBox(height: 4),
+                    Text('Add file URLs for supporting documents',
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey.shade600)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _attachmentUrlController,
+                            decoration: InputDecoration(
+                              hintText: 'Paste file URL here...',
+                              hintStyle: const TextStyle(
+                                  fontSize: 14, color: Colors.grey),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Color(0XFFD5D5D5))),
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Color(0XFFD5D5D5))),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            final url =
+                                _attachmentUrlController.text.trim();
+                            if (url.isNotEmpty) {
+                              setState(() {
+                                _attachmentUrls.add(url);
+                                _attachmentUrlController.clear();
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Add'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.blue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_attachmentUrls.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      ..._attachmentUrls.asMap().entries.map((entry) {
+                        final idx = entry.key;
+                        final url = entry.value;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.attach_file,
+                                  size: 16, color: Colors.grey),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(url,
+                                    style: const TextStyle(fontSize: 13),
+                                    overflow: TextOverflow.ellipsis),
+                              ),
+                              InkWell(
+                                onTap: () => setState(
+                                    () => _attachmentUrls.removeAt(idx)),
+                                child: const Icon(Icons.close,
+                                    size: 16, color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
                   ],
                 ),
               ),
