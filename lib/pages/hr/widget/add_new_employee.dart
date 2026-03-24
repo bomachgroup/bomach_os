@@ -723,25 +723,6 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         ]),
         kSizedBox,
         _buildRow([
-          // Level dropdown from API
-          Obx(
-            () => _buildApiDropdown(
-              "Level",
-              _selectedLevelId,
-              controller.levels
-                  .map(
-                    (l) => DropdownMenuItem(
-                      value: l['id']?.toString() ?? '',
-                      child: Text(
-                        l['name']?.toString() ?? '',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              (v) => setState(() => _selectedLevelId = v),
-            ),
-          ),
           _buildField("Location", _locationCtrl),
         ]),
         kSizedBox,
