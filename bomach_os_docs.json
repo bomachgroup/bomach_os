@@ -13989,7 +13989,7 @@
           }
         ]
       },
-      "put": {
+      "patch": {
         "operationId": "hr_api_v1_leave_requests_update_leave_request",
         "summary": "Update Leave Request",
         "parameters": [
@@ -14025,7 +14025,7 @@
             }
           }
         },
-        "description": "Update a leave request (full update).",
+        "description": "Update a leave request.",
         "tags": ["Leave Requests"],
         "requestBody": {
           "content": {
@@ -18040,76 +18040,6 @@
         ]
       }
     },
-    "/api/v1/analysis/employee/{employee_id}/analysis": {
-      "get": {
-        "operationId": "hr_api_v1_analysis_v2_get_employee_work_report_summary",
-        "summary": "Get Employee Work Report Summary",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "employee_id",
-            "schema": {
-              "title": "Employee Id",
-              "type": "integer"
-            },
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "date_from",
-            "schema": {
-              "anyOf": [
-                {
-                  "format": "date",
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Date From"
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "date_to",
-            "schema": {
-              "anyOf": [
-                {
-                  "format": "date",
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Date To"
-            },
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkReportSummarySchema"
-                }
-              }
-            }
-          }
-        },
-        "description": "Get work report summary statistics for a specific employee.",
-        "tags": ["Analysis"],
-        "security": [
-          {
-            "JWTAuthenticator": []
-          }
-        ]
-      }
-    },
     "/api/v1/projects": {
       "get": {
         "operationId": "operations_api_v1_projects_list_projects",
@@ -18679,6 +18609,156 @@
         },
         "description": "Delete a task",
         "tags": ["Tasks"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/my-tasks": {
+      "get": {
+        "operationId": "operations_api_v1_my_tasks_list_my_tasks",
+        "summary": "List My Tasks",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "title": "Status",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedTaskOutSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "List tasks assigned to the logged-in employee, with optional status filter.",
+        "tags": ["My Tasks"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/my-tasks/{task_id}": {
+      "get": {
+        "operationId": "operations_api_v1_my_tasks_get_my_task",
+        "summary": "Get My Task",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "schema": {
+              "title": "Task Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOutSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get a specific task assigned to the logged-in employee.",
+        "tags": ["My Tasks"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/my-tasks/{task_id}/status": {
+      "patch": {
+        "operationId": "operations_api_v1_my_tasks_update_my_task_status",
+        "summary": "Update My Task Status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "schema": {
+              "title": "Task Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOutSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "description": "Update only the status of a task assigned to the logged-in employee.",
+        "tags": ["My Tasks"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskStatusUpdateSchema"
+              }
+            }
+          },
+          "required": true
+        },
         "security": [
           {
             "JWTAuthenticator": []
@@ -24362,6 +24442,910 @@
           }
         },
         "tags": ["Statistics"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/departments/{dept_id}/sops": {
+      "get": {
+        "operationId": "user_api_v1_sops_list_department_sops",
+        "summary": "List Department Sops",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dept_id",
+            "schema": {
+              "title": "Dept Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SOPOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "List all SOPs for a specific department.",
+        "tags": ["Department SOPs"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "user_api_v1_sops_create_department_sop",
+        "summary": "Create Department Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dept_id",
+            "schema": {
+              "title": "Dept Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SOPOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new SOP for a department.",
+        "tags": ["Department SOPs"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SOPIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/departments/{dept_id}/sops/{sop_id}": {
+      "get": {
+        "operationId": "user_api_v1_sops_get_department_sop",
+        "summary": "Get Department Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dept_id",
+            "schema": {
+              "title": "Dept Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "sop_id",
+            "schema": {
+              "title": "Sop Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SOPOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve a specific department SOP.",
+        "tags": ["Department SOPs"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "user_api_v1_sops_update_department_sop",
+        "summary": "Update Department Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dept_id",
+            "schema": {
+              "title": "Dept Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "sop_id",
+            "schema": {
+              "title": "Sop Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SOPOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Update an existing department SOP.",
+        "tags": ["Department SOPs"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SOPIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "user_api_v1_sops_delete_department_sop",
+        "summary": "Delete Department Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dept_id",
+            "schema": {
+              "title": "Dept Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "sop_id",
+            "schema": {
+              "title": "Sop Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a department SOP.",
+        "tags": ["Department SOPs"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/departments/{dept_id}/sops/priority/{priority}": {
+      "get": {
+        "operationId": "user_api_v1_sops_filter_sops_by_priority",
+        "summary": "Filter Sops By Priority",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dept_id",
+            "schema": {
+              "title": "Dept Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "priority",
+            "schema": {
+              "title": "Priority",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SOPOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Filter department SOPs by priority level.",
+        "tags": ["Department SOPs"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/units/{unit_id}/sops": {
+      "get": {
+        "operationId": "user_api_v1_sops_list_unit_sops",
+        "summary": "List Unit Sops",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "unit_id",
+            "schema": {
+              "title": "Unit Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SOPOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "List all SOPs for a specific unit.",
+        "tags": ["Unit SOPs"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "user_api_v1_sops_create_unit_sop",
+        "summary": "Create Unit Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "unit_id",
+            "schema": {
+              "title": "Unit Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SOPOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new SOP for a unit.",
+        "tags": ["Unit SOPs"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SOPIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/units/{unit_id}/sops/{sop_id}": {
+      "get": {
+        "operationId": "user_api_v1_sops_get_unit_sop",
+        "summary": "Get Unit Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "unit_id",
+            "schema": {
+              "title": "Unit Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "sop_id",
+            "schema": {
+              "title": "Sop Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SOPOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve a specific unit SOP.",
+        "tags": ["Unit SOPs"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "user_api_v1_sops_update_unit_sop",
+        "summary": "Update Unit Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "unit_id",
+            "schema": {
+              "title": "Unit Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "sop_id",
+            "schema": {
+              "title": "Sop Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SOPOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Update an existing unit SOP.",
+        "tags": ["Unit SOPs"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SOPIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "user_api_v1_sops_delete_unit_sop",
+        "summary": "Delete Unit Sop",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "unit_id",
+            "schema": {
+              "title": "Unit Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "sop_id",
+            "schema": {
+              "title": "Sop Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a unit SOP.",
+        "tags": ["Unit SOPs"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/responsibilities/my/{user_id}": {
+      "get": {
+        "operationId": "user_api_v1_sops_list_my_responsibilities",
+        "summary": "List My Responsibilities",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ResponsibilityOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "List all responsibilities for the authenticated user.",
+        "tags": ["Core Responsibilities"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "user_api_v1_sops_create_my_responsibility",
+        "summary": "Create My Responsibility",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponsibilityOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new responsibility for the authenticated user.",
+        "tags": ["Core Responsibilities"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsibilityIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/responsibilities/my/sop/{resp_id}": {
+      "get": {
+        "operationId": "user_api_v1_sops_get_my_responsibility",
+        "summary": "Get My Responsibility",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resp_id",
+            "schema": {
+              "title": "Resp Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponsibilityOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve a specific responsibility belonging to the user.",
+        "tags": ["Core Responsibilities"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/responsibilities/edit/sop/{resp_id}": {
+      "put": {
+        "operationId": "user_api_v1_sops_update_my_responsibility",
+        "summary": "Update My Responsibility",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resp_id",
+            "schema": {
+              "title": "Resp Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponsibilityOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Update an existing responsibility.",
+        "tags": ["Core Responsibilities"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsibilityIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/responsibilities/my/{resp_id}": {
+      "delete": {
+        "operationId": "user_api_v1_sops_delete_my_responsibility",
+        "summary": "Delete My Responsibility",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resp_id",
+            "schema": {
+              "title": "Resp Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a responsibility.",
+        "tags": ["Core Responsibilities"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/dashboard/summary/{user_id}": {
+      "get": {
+        "operationId": "user_api_v1_sops_get_dashboard_summary",
+        "summary": "Get Dashboard Summary",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get summary statistics for the dashboard.",
+        "tags": ["Dashboard"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sop/dashboard/recent-activity": {
+      "get": {
+        "operationId": "user_api_v1_sops_get_recent_activity",
+        "summary": "Get Recent Activity",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Dashboard"],
         "security": [
           {
             "JWTAuthenticator": []
@@ -40561,10 +41545,6 @@
       "LeaveRequestCreateSchema": {
         "description": "Schema for creating a new leave request",
         "properties": {
-          "employee_id": {
-            "title": "Employee Id",
-            "type": "integer"
-          },
           "leave_type": {
             "description": "Type of leave",
             "enum": [
@@ -40598,30 +41578,13 @@
             "type": "string"
           }
         },
-        "required": [
-          "employee_id",
-          "leave_type",
-          "start_date",
-          "end_date",
-          "reason"
-        ],
+        "required": ["leave_type", "start_date", "end_date", "reason"],
         "title": "LeaveRequestCreateSchema",
         "type": "object"
       },
       "LeaveRequestUpdateSchema": {
         "description": "Schema for updating a leave request",
         "properties": {
-          "employee_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Employee Id"
-          },
           "leave_type": {
             "anyOf": [
               {
@@ -40676,52 +41639,6 @@
               }
             ],
             "title": "Reason"
-          },
-          "status": {
-            "anyOf": [
-              {
-                "enum": ["pending", "approved", "rejected", "cancelled"],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Status"
-          },
-          "approver_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Approver Id"
-          },
-          "approval_date": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Approval Date"
-          },
-          "rejection_reason": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Rejection Reason"
           }
         },
         "title": "LeaveRequestUpdateSchema",
@@ -40735,18 +41652,6 @@
             "enum": ["pending", "approved", "rejected", "cancelled"],
             "title": "Status",
             "type": "string"
-          },
-          "approver_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "ID of the approver",
-            "title": "Approver Id"
           },
           "approval_date": {
             "anyOf": [
@@ -44968,34 +45873,6 @@
         "title": "OfferLetterUpdateSchema",
         "type": "object"
       },
-      "WorkReportSummarySchema": {
-        "properties": {
-          "Reports_Submitted": {
-            "title": "Reports Submitted",
-            "type": "integer"
-          },
-          "Approved": {
-            "title": "Approved",
-            "type": "integer"
-          },
-          "Average_Rating": {
-            "title": "Average Rating",
-            "type": "string"
-          },
-          "Total_Approval_Percentage": {
-            "title": "Total Approval Percentage",
-            "type": "number"
-          }
-        },
-        "required": [
-          "Reports_Submitted",
-          "Approved",
-          "Average_Rating",
-          "Total_Approval_Percentage"
-        ],
-        "title": "WorkReportSummarySchema",
-        "type": "object"
-      },
       "PagedProjectOutSchema": {
         "properties": {
           "items": {
@@ -45782,6 +46659,17 @@
           }
         },
         "title": "TaskUpdateSchema",
+        "type": "object"
+      },
+      "TaskStatusUpdateSchema": {
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": ["status"],
+        "title": "TaskStatusUpdateSchema",
         "type": "object"
       },
       "PagedWorksiteOutSchema": {
@@ -50675,6 +51563,257 @@
           "total_invoices"
         ],
         "title": "ServiceStatsOut",
+        "type": "object"
+      },
+      "SOPOut": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "ID"
+          },
+          "title": {
+            "description": "SOP title / name",
+            "maxLength": 200,
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Full procedure / content",
+            "title": "Description"
+          },
+          "version": {
+            "default": "v1.0",
+            "description": "e.g. v1.2, 2025-03",
+            "maxLength": 20,
+            "title": "Version",
+            "type": "string"
+          },
+          "priority": {
+            "default": "Medium",
+            "maxLength": 20,
+            "title": "Priority",
+            "type": "string"
+          },
+          "is_up_to_date": {
+            "default": true,
+            "description": "Still current",
+            "title": "Is Up To Date",
+            "type": "boolean"
+          },
+          "created_at": {
+            "description": "When this record was created",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "When this record was last updated",
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": ["title", "created_at", "updated_at"],
+        "title": "SOPOut",
+        "type": "object"
+      },
+      "MessageOut": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": ["message"],
+        "title": "MessageOut",
+        "type": "object"
+      },
+      "SOPIn": {
+        "properties": {
+          "title": {
+            "description": "SOP title / name",
+            "maxLength": 200,
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Full procedure / content",
+            "title": "Description"
+          },
+          "version": {
+            "default": "v1.0",
+            "description": "e.g. v1.2, 2025-03",
+            "maxLength": 20,
+            "title": "Version",
+            "type": "string"
+          },
+          "priority": {
+            "default": "Medium",
+            "maxLength": 20,
+            "title": "Priority",
+            "type": "string"
+          },
+          "is_up_to_date": {
+            "default": true,
+            "description": "Still current",
+            "title": "Is Up To Date",
+            "type": "boolean"
+          }
+        },
+        "required": ["title"],
+        "title": "SOPIn",
+        "type": "object"
+      },
+      "ResponsibilityOut": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "ID"
+          },
+          "title": {
+            "maxLength": 200,
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "priority": {
+            "default": "Medium",
+            "maxLength": 20,
+            "title": "Priority",
+            "type": "string"
+          },
+          "frequency": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frequency"
+          },
+          "kpi_target": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kpi Target"
+          },
+          "created_at": {
+            "description": "When this record was created",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "When this record was last updated",
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": ["title", "created_at", "updated_at"],
+        "title": "ResponsibilityOut",
+        "type": "object"
+      },
+      "ResponsibilityIn": {
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "priority": {
+            "default": "Medium",
+            "maxLength": 20,
+            "title": "Priority",
+            "type": "string"
+          },
+          "frequency": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frequency"
+          },
+          "kpi_target": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kpi Target"
+          }
+        },
+        "required": ["title"],
+        "title": "ResponsibilityIn",
         "type": "object"
       }
     },
