@@ -277,13 +277,6 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       return;
     }
 
-    // Profile picture is compulsory for new employees
-    if (!isEditMode && _imageBytes == null) {
-      _showSnackBar(context, "Profile picture is required", isError: true);
-      if (_currentStep != 0) setState(() => _currentStep = 0);
-      return;
-    }
-
     if (_dob == null || _joinDate == null) {
       _showSnackBar(
         context,
@@ -296,19 +289,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     final String fullAddress =
         "${_streetCtrl.text}, ${_cityCtrl.text}, ${_stateCtrl.text}, ${_countryCtrl.text}";
 
-    // Build profile picture value
-    String profilePic = '';
-    if (_imageBytes != null) {
-      // Convert to base64 data URI for the API
-      final base64Str = Uri.dataFromBytes(
-        _imageBytes!,
-        mimeType: _imageName?.toLowerCase().endsWith('.png') == true
-            ? 'image/png'
-            : 'image/jpeg',
-      ).toString();
-      profilePic = base64Str;
-    } else if (isEditMode && _existingImageUrl != null) {
-      profilePic = _existingImageUrl!;
+    // Profile picture: only send existing URL on edit, otherwise null
+    // The API expects a URL string (max 500 chars), not base64 data
+    String? profilePic;
+    if (isEditMode && _existingImageUrl != null) {
+      profilePic = _existingImageUrl;
     }
 
     final branchId = int.tryParse(_selectedBranchId ?? '');
