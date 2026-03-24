@@ -268,7 +268,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                                 _attachmentUrlController.text.trim();
                             if (url.isNotEmpty) {
                               setState(() {
-                                _attachmentUrls.add(url);
+                                _attachments.add(WorkReportAttachment(fileUrl: url));
                                 _attachmentUrlController.clear();
                               });
                             }
@@ -286,11 +286,11 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                         ),
                       ],
                     ),
-                    if (_attachmentUrls.isNotEmpty) ...[
+                    if (_attachments.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      ..._attachmentUrls.asMap().entries.map((entry) {
+                      ..._attachments.asMap().entries.map((entry) {
                         final idx = entry.key;
-                        final url = entry.value;
+                        final url = entry.value.fileUrl;
                         return Container(
                           margin: const EdgeInsets.only(bottom: 6),
                           padding: const EdgeInsets.symmetric(
@@ -312,7 +312,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                               ),
                               InkWell(
                                 onTap: () => setState(
-                                    () => _attachmentUrls.removeAt(idx)),
+                                    () => _attachments.removeAt(idx)),
                                 child: const Icon(Icons.close,
                                     size: 16, color: Colors.red),
                               ),
