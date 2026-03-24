@@ -8,12 +8,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../src/model/branch_model.dart';
 import '../../../src/model/departments_units_model.dart';
 import '../../../src/model/employees_model.dart';
+import '../../../src/model/role_model.dart';
 import '../../../src/services/branch_service.dart';
 import '../../../src/services/employees_services.dart';
+import '../../../src/services/role_service.dart';
 
 class EmployeeController extends GetxController {
   final EmployeeService _service = EmployeeService();
   final BranchService _branchService = BranchService();
+  final RoleService _roleService = RoleService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Loading & Error State ──────────────────────────────────────────
@@ -42,6 +45,7 @@ class EmployeeController extends GetxController {
   var branches = <Branch>[].obs;
   var levels = <dynamic>[].obs;
   var allEmployees = <Employee>[].obs; // For "Reporting To" dropdown
+  var roles = <Role>[].obs; // For "Role" dropdown
 
   // ─── Documents & Reviews ────────────────────────────────────────────
   var documents = <dynamic>[].obs;
@@ -67,6 +71,7 @@ class EmployeeController extends GetxController {
       _fetchBranches(token),
       _fetchLevels(token),
       _fetchAllEmployees(token),
+      _fetchRoles(token),
       fetchEmployees(),
     ]);
   }
@@ -105,6 +110,15 @@ class EmployeeController extends GetxController {
       allEmployees.assignAll(result.list);
     } catch (e) {
       log("Error fetching all employees: $e");
+    }
+  }
+
+  Future<void> _fetchRoles(String token) async {
+    try {
+      final result = await _roleService.listRoles(token, limit: 200);
+      roles.assignAll(result.list);
+    } catch (e) {
+      log("Error fetching roles: $e");
     }
   }
 

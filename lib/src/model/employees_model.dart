@@ -50,6 +50,7 @@ class Employee {
   final String? departmentUnitName;
   final int? levelId;
   final String? employeeLevel; // From API (e.g., "head", "ceo")
+  final int? roleId;
   final String? location;
   final int? reportingToId;
   final String? reportingToName;
@@ -119,6 +120,7 @@ class Employee {
     this.departmentUnitName,
     this.levelId,
     this.employeeLevel,
+    this.roleId,
     this.location,
     this.reportingToId,
     this.reportingToName,
@@ -200,6 +202,7 @@ class Employee {
 
       levelId: json['level_id'] is String ? int.tryParse(json['level_id']) : json['level_id'],
       employeeLevel: json['employee_level'],
+      roleId: json['role_id'] is String ? int.tryParse(json['role_id']) : json['role_id'],
 
       location: json['location'],
       reportingToId: json['reporting_to_id'] is String ? int.tryParse(json['reporting_to_id']) : json['reporting_to_id'],

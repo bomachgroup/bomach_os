@@ -10789,7 +10789,7 @@
             }
           }
         },
-        "description": "Create a new role with permissions.",
+        "description": "Create a new role with permissions and branch scoping.",
         "tags": ["Roles"],
         "requestBody": {
           "content": {
@@ -10899,7 +10899,7 @@
             }
           }
         },
-        "description": "Update a role's name, scoping, or permissions.",
+        "description": "Update a role's name, branch scoping, or permissions.",
         "tags": ["Roles"],
         "requestBody": {
           "content": {
@@ -10964,8 +10964,8 @@
     },
     "/api/v1/roles/employees/{user_id}": {
       "get": {
-        "operationId": "user_api_v1_role_get_employee_roles",
-        "summary": "Get Employee Roles",
+        "operationId": "user_api_v1_role_get_employee_role",
+        "summary": "Get Employee Role",
         "parameters": [
           {
             "in": "path",
@@ -10983,11 +10983,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RoleResponseSchema"
-                  },
-                  "title": "Response",
-                  "type": "array"
+                  "$ref": "#/components/schemas/RoleResponseSchema"
                 }
               }
             }
@@ -11003,7 +10999,7 @@
             }
           }
         },
-        "description": "Get all roles that apply to an employee based on their level and unit.",
+        "description": "Get the role assigned to an employee.",
         "tags": ["Roles"],
         "security": [
           {
@@ -27182,6 +27178,17 @@
             ],
             "title": "Level Id"
           },
+          "role_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Id"
+          },
           "location": {
             "default": "",
             "title": "Location",
@@ -27634,6 +27641,17 @@
               }
             ],
             "title": "Level Id"
+          },
+          "role_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Id"
           },
           "location": {
             "anyOf": [
@@ -38359,6 +38377,21 @@
         "title": "PermissionsMapSchema",
         "type": "object"
       },
+      "BranchMinimalSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "branch_name": {
+            "title": "Branch Name",
+            "type": "string"
+          }
+        },
+        "required": ["id", "branch_name"],
+        "title": "BranchMinimalSchema",
+        "type": "object"
+      },
       "PagedRoleResponseSchema": {
         "properties": {
           "items": {
@@ -38387,71 +38420,13 @@
             "title": "Name",
             "type": "string"
           },
-          "level_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Level Id"
-          },
-          "level_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Level Name"
-          },
-          "department_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Department Id"
-          },
-          "department_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Department Name"
-          },
-          "unit_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unit Id"
-          },
-          "unit_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unit Name"
+          "branches": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BranchMinimalSchema"
+            },
+            "title": "Branches",
+            "type": "array"
           },
           "permissions": {
             "additionalProperties": {
@@ -38484,38 +38459,13 @@
             "title": "Name",
             "type": "string"
           },
-          "level_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Level Id"
-          },
-          "department_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Department Id"
-          },
-          "unit_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unit Id"
+          "branch_ids": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Branch Ids",
+            "type": "array"
           },
           "permissions": {
             "additionalProperties": {
@@ -38546,38 +38496,19 @@
             ],
             "title": "Name"
           },
-          "level_id": {
+          "branch_ids": {
             "anyOf": [
               {
-                "type": "integer"
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Level Id"
-          },
-          "department_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Department Id"
-          },
-          "unit_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unit Id"
+            "title": "Branch Ids"
           },
           "permissions": {
             "anyOf": [

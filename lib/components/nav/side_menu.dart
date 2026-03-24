@@ -357,8 +357,14 @@ class _SideMenuState extends State<SideMenu> {
             resources: [PermissionConstants.resJobPostings],
           ),
           SubMenuItemData(
+            id: SubMenuItem.leaves,
+            label: 'My Leaves',
+            route: RouteConstants.leaves,
+            resources: [PermissionConstants.resLeaveRequests],
+          ),
+          SubMenuItemData(
             id: SubMenuItem.leaveRequest,
-            label: 'Leaves',
+            label: 'Leave Requests',
             route: RouteConstants.leaveRequest,
             resources: [PermissionConstants.resLeaveRequests],
           ),
@@ -528,15 +534,7 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.budget,
             resources: [PermissionConstants.resBudgets],
           ),
-          SubMenuItemData(
-            id: SubMenuItem.vendorContributor,
-            label: 'Vendor/Contributor',
-            route: RouteConstants.contractPayment,
-            resources: [
-              PermissionConstants.resContracts,
-              PermissionConstants.resPayments,
-            ],
-          ),
+          // Vendor/Contributor — hidden (no dedicated vendor-payments API yet)
         ],
       ),
       const MenuItem(
@@ -577,38 +575,45 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.propertyList,
             resources: [PermissionConstants.resProperties],
           ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.workspace,
-        label: 'Workspace',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resDocuments,
-          PermissionConstants.resContent,
-        ],
-        children: [
           SubMenuItemData(
-            id: SubMenuItem.workspace,
-            label: 'Overview',
-            route: RouteConstants.workspace,
-            resources: [
-              PermissionConstants.resDocuments,
-              PermissionConstants.resContent,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.workspaceDashboard,
-            label: 'Dashboard',
-            route: RouteConstants.workspaceDashboard,
-            resources: [
-              PermissionConstants.resDocuments,
-              PermissionConstants.resContent,
-            ],
+            id: SubMenuItem.estateManagement,
+            label: 'Estate Management',
+            route: RouteConstants.estateManagement,
+            resources: [PermissionConstants.resEstates],
           ),
         ],
       ),
+      // Workspace — temporarily hidden (uses dummy data, no API connection yet)
+      // const MenuItem(
+      //   id: MainMenuItem.workspace,
+      //   label: 'Workspace',
+      //   iconPath: 'assets/svg/sidebar/joined-square.svg',
+      //   isExpandable: true,
+      //   resources: [
+      //     PermissionConstants.resDocuments,
+      //     PermissionConstants.resContent,
+      //   ],
+      //   children: [
+      //     SubMenuItemData(
+      //       id: SubMenuItem.workspace,
+      //       label: 'Overview',
+      //       route: RouteConstants.workspace,
+      //       resources: [
+      //         PermissionConstants.resDocuments,
+      //         PermissionConstants.resContent,
+      //       ],
+      //     ),
+      //     SubMenuItemData(
+      //       id: SubMenuItem.workspaceDashboard,
+      //       label: 'Dashboard',
+      //       route: RouteConstants.workspaceDashboard,
+      //       resources: [
+      //         PermissionConstants.resDocuments,
+      //         PermissionConstants.resContent,
+      //       ],
+      //     ),
+      //   ],
+      // ),
       const MenuItem(
         id: MainMenuItem.analytics,
         label: 'Analytics & Insights',
@@ -622,36 +627,7 @@ class _SideMenuState extends State<SideMenu> {
             route: RouteConstants.analyticsOverview,
             resources: [PermissionConstants.resStats],
           ),
-          SubMenuItemData(
-            id: SubMenuItem.revenue,
-            label: 'Revenue',
-            route: RouteConstants.analyticsRevenue,
-            resources: [PermissionConstants.resStats],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.projects,
-            label: 'Projects',
-            route: RouteConstants.analyticsProjects,
-            resources: [
-              PermissionConstants.resProjects,
-              PermissionConstants.resStats,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.analyticsPerformance,
-            label: 'Performance',
-            route: RouteConstants.analyticsPerformance,
-            resources: [PermissionConstants.resStats],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.branchPerformance,
-            label: 'Branch Performance',
-            route: RouteConstants.branchPerformanceAnalysis,
-            resources: [
-              PermissionConstants.resBranches,
-              PermissionConstants.resStats,
-            ],
-          ),
+          // Revenue, Projects, Performance — hidden (dummy data, no dedicated API endpoints)
         ],
       ),
       const MenuItem(

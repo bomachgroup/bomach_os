@@ -79,6 +79,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   String? _selectedUnitId;
   String? _selectedLevelId;
   String? _selectedReportingToId;
+  String? _selectedRoleId;
 
   // Step 4: Compensation
   final _basicSalaryCtrl = TextEditingController();
@@ -157,11 +158,14 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
     if (e.departmentId != null) _selectedDeptId = e.departmentId.toString();
     if (e.branchId != null) _selectedBranchId = e.branchId.toString();
-    if (e.departmentUnitId != null)
+    if (e.departmentUnitId != null) {
       _selectedUnitId = e.departmentUnitId.toString();
+    }
     if (e.levelId != null) _selectedLevelId = e.levelId.toString();
-    if (e.reportingToId != null)
+    if (e.roleId != null) _selectedRoleId = e.roleId.toString();
+    if (e.reportingToId != null) {
       _selectedReportingToId = e.reportingToId.toString();
+    }
 
     // Load units for selected department
     if (_selectedDeptId != null) {
@@ -170,8 +174,9 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
     // 4. Compensation
     _basicSalaryCtrl.text = e.grossSalary?.toString() ?? '';
-    if (e.salaryFrequency != null)
+    if (e.salaryFrequency != null) {
       _selectedSalaryFrequency = e.salaryFrequency!;
+    }
     _bankNameCtrl.text = e.bankName ?? '';
     _accountNumberCtrl.text = e.accountNumber ?? '';
     _taxIdCtrl.text = e.taxId ?? '';
@@ -239,9 +244,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   Future<void> _selectDate(bool isDob) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: isDob
-          ? (_dob ?? DateTime(1990))
-          : (_joinDate ?? DateTime.now()),
+      initialDate:
+          isDob ? (_dob ?? DateTime(1990)) : (_joinDate ?? DateTime.now()),
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
     );
@@ -335,6 +339,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       'department_id': int.tryParse(_selectedDeptId ?? '0') ?? 0,
       'department_unit_id': int.tryParse(_selectedUnitId ?? '0') ?? 0,
       'level_id': int.tryParse(_selectedLevelId ?? '0') ?? 0,
+      'role_id': int.tryParse(_selectedRoleId ?? '0') ?? 0,
       'location': _locationCtrl.text,
       'reporting_to_id': int.tryParse(_selectedReportingToId ?? '0') ?? 0,
       'start_date': DateFormat('yyyy-MM-dd').format(_joinDate!),
@@ -450,9 +455,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                               color: isActive
                                   ? const Color(0xFF0055FF)
                                   : Colors.grey.shade600,
-                              fontWeight: isActive
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
+                              fontWeight:
+                                  isActive ? FontWeight.bold : FontWeight.w500,
                               fontSize: 14,
                             ),
                           ),
@@ -508,10 +512,10 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     () => MyElevatedButton(
                       child: _currentStep == 3
                           ? (controller.isSaving.value
-                                ? (isEditMode ? 'Updating...' : 'Creating...')
-                                : (isEditMode
-                                      ? 'Update Profile'
-                                      : 'Create Profile'))
+                              ? (isEditMode ? 'Updating...' : 'Creating...')
+                              : (isEditMode
+                                  ? 'Update Profile'
+                                  : 'Create Profile'))
                           : 'Next Step',
                       onTap: controller.isSaving.value ? null : _nextStep,
                       bgColor: const Color(0xFF0055FF),
@@ -562,10 +566,14 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         ]),
         kSizedBox,
         _buildRow([
-          _buildDropdown("Gender", _selectedGender, [
-            'male',
-            'female',
-          ], (v) => setState(() => _selectedGender = v!)),
+          _buildDropdown(
+              "Gender",
+              _selectedGender,
+              [
+                'male',
+                'female',
+              ],
+              (v) => setState(() => _selectedGender = v!)),
           _buildDropdown(
             "Marital Status",
             _selectedMaritalStatus,
@@ -574,11 +582,15 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
           ),
         ]),
         kSizedBox,
-        _buildDropdown("Nationality", _nationality, [
-          'Nigerian',
-          'Ghanaian',
-          'Other',
-        ], (v) => setState(() => _nationality = v!)),
+        _buildDropdown(
+            "Nationality",
+            _nationality,
+            [
+              'Nigerian',
+              'Ghanaian',
+              'Other',
+            ],
+            (v) => setState(() => _nationality = v!)),
         if (!isEditMode) ...[
           kSizedBox,
           _buildField("Default Password", _passwordCtrl),
@@ -726,25 +738,46 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
           _buildField("Location", _locationCtrl),
         ]),
         kSizedBox,
-        // Reporting To dropdown from allEmployees
-        Obx(
-          () => _buildApiDropdown(
-            "Reporting To",
-            _selectedReportingToId,
-            controller.allEmployees
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e.id,
-                    child: Text(
-                      e.fullName,
-                      style: const TextStyle(fontSize: 14),
+        _buildRow([
+          // Reporting To dropdown from allEmployees
+          Obx(
+            () => _buildApiDropdown(
+              "Reporting To",
+              _selectedReportingToId,
+              controller.allEmployees
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e.id,
+                      child: Text(
+                        e.fullName,
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ),
-                  ),
-                )
-                .toList(),
-            (v) => setState(() => _selectedReportingToId = v),
+                  )
+                  .toList(),
+              (v) => setState(() => _selectedReportingToId = v),
+            ),
           ),
-        ),
+          // Role dropdown from API
+          Obx(
+            () => _buildApiDropdown(
+              "Role",
+              _selectedRoleId,
+              controller.roles
+                  .map(
+                    (r) => DropdownMenuItem(
+                      value: r.id.toString(),
+                      child: Text(
+                        r.name,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              (v) => setState(() => _selectedRoleId = v),
+            ),
+          ),
+        ]),
         kSizedBox,
         const MyText('Employment', weight: 600, size: 14),
         const SizedBox(height: 16),
@@ -755,10 +788,14 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
             ['full-time', 'part-time', 'contract'],
             (v) => setState(() => _selectedEmpType = v!),
           ),
-          _buildDropdown("Status", _selectedStatus, [
-            'active',
-            'inactive',
-          ], (v) => setState(() => _selectedStatus = v!)),
+          _buildDropdown(
+              "Status",
+              _selectedStatus,
+              [
+                'active',
+                'inactive',
+              ],
+              (v) => setState(() => _selectedStatus = v!)),
         ]),
         kSizedBox,
         _buildRow([
@@ -1034,9 +1071,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   ) {
     // Ensure selected value is in items, otherwise null
     final validValues = items.map((i) => i.value).toSet();
-    final safeValue = validValues.contains(selectedValue)
-        ? selectedValue
-        : null;
+    final safeValue =
+        validValues.contains(selectedValue) ? selectedValue : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
