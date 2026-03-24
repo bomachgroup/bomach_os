@@ -18,7 +18,7 @@ class OperationsPage extends StatefulWidget {
 }
 
 class _OperationsPageState extends State<OperationsPage> {
-  final DashboardController controller = Get.put(DashboardController());
+  final OperationsDashboardController controller = Get.put(OperationsDashboardController());
 
   @override
   void initState() {
