@@ -7,15 +7,16 @@ class PermissionService extends GetxService {
   final RxMap<String, Set<String>> _userPermissions = <String, Set<String>>{}.obs;
 
   void loadPermissions(List<Role> roles) {
-    _userPermissions.clear();
+    final newPermissions = <String, Set<String>>{};
     for (var role in roles) {
       role.permissions.forEach((resource, actions) {
-        if (!_userPermissions.containsKey(resource)) {
-          _userPermissions[resource] = <String>{}.obs;
-        }
-        _userPermissions[resource]!.addAll(actions);
+        newPermissions.putIfAbsent(resource, () => <String>{});
+        newPermissions[resource]!.addAll(actions);
       });
     }
+    _userPermissions.clear();
+    _userPermissions.addAll(newPermissions);
+    _userPermissions.refresh();
   }
 
   bool hasPermission(String resource, String action) {
