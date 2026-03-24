@@ -57,8 +57,7 @@ class RolesPage extends StatelessWidget {
             ),
             search: MyTextFormField(
               hintText: 'Search roles',
-              leading:
-                  const Icon(Icons.search, color: Colors.grey, size: 20),
+              leading: const Icon(Icons.search, color: Colors.grey, size: 20),
               onChanged: ctrl.onSearchChanged,
             ),
             action: MyElevatedButton(
@@ -140,8 +139,8 @@ class RolesPage extends StatelessWidget {
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: const BoxDecoration(
                   color: Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.only(
@@ -213,8 +212,7 @@ class RolesPage extends StatelessWidget {
     });
   }
 
-  Widget _buildRoleRow(
-      BuildContext context, RolesController ctrl, Role role) {
+  Widget _buildRoleRow(BuildContext context, RolesController ctrl, Role role) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -229,8 +227,7 @@ class RolesPage extends StatelessWidget {
             flex: 2,
             child: Text(
               role.name,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -270,8 +267,8 @@ class RolesPage extends StatelessWidget {
               runSpacing: 4,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -325,9 +322,7 @@ class RolesPage extends StatelessWidget {
             Text(
               isActive ? 'Active' : 'Inactive',
               style: TextStyle(
-                  color: color,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500),
+                  color: color, fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -386,8 +381,7 @@ class RolesPage extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: const Text('Delete Role'),
         content: Text('Are you sure you want to delete "${role.name}"?'),
         actions: [
@@ -396,8 +390,7 @@ class RolesPage extends StatelessWidget {
               child: const Text('Cancel')),
           TextButton(
               onPressed: () => Navigator.pop(c, true),
-              child:
-                  const Text('Delete', style: TextStyle(color: Colors.red))),
+              child: const Text('Delete', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -423,8 +416,7 @@ class RolesPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const Text('No roles found',
-                style:
-                    TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             const Text(
               'Create a new role to manage permissions and access control.',
@@ -462,18 +454,16 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
   late final TextEditingController _nameCtrl;
   final TextEditingController _permSearchCtrl = TextEditingController();
 
-  // Stepper
-  int _currentStep = 0;
-  static const _steps = ['Role Details', 'Permissions'];
-
   // Branch multi-select
   late Set<int> _selectedBranchIds;
 
   // permissions: resource -> Set of selected actions
   late Map<String, Set<String>> _selectedPermissions;
 
-  // Permission search query
+  // Permission search & pagination
   String _permSearch = '';
+  int _permPage = 0;
+  static const int _permPageSize = 8;
 
   @override
   void initState() {
@@ -484,6 +474,15 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     _selectedBranchIds = {};
     if (role != null) {
       _selectedBranchIds = role.branches.map((b) => b.id).toSet();
+    } else {
+      // Select first branch by default for new roles
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (widget.ctrl.branches.isNotEmpty && _selectedBranchIds.isEmpty) {
+          setState(() {
+            _selectedBranchIds.add(widget.ctrl.branches.first.id);
+          });
+        }
+      });
     }
 
     _selectedPermissions = {};
@@ -504,6 +503,18 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
   int get _totalSelectedCount =>
       _selectedPermissions.values.fold(0, (sum, s) => sum + s.length);
 
+  List<MapEntry<String, List<String>>> get _filteredPermEntries {
+    final query = _permSearch.toLowerCase();
+    return widget.ctrl.permissionsMap.entries.where((entry) {
+      if (query.isEmpty) return true;
+      final resourceLabel = entry.key.replaceAll('_', ' ').toLowerCase();
+      if (resourceLabel.contains(query)) return true;
+      return entry.value
+          .any((a) => a.replaceAll('_', ' ').toLowerCase().contains(query));
+    }).toList();
+  }
+
+
   Map<String, List<String>> _buildPermissionsPayload() {
     final result = <String, List<String>>{};
     _selectedPermissions.forEach((resource, actions) {
@@ -518,7 +529,11 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     if (_nameCtrl.text.trim().isEmpty) {
       Get.snackbar('Validation', 'Role name is required',
           snackPosition: SnackPosition.BOTTOM);
-      setState(() => _currentStep = 0);
+      return;
+    }
+    if (_selectedBranchIds.isEmpty) {
+      Get.snackbar('Validation', 'Select at least one branch',
+          snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -567,23 +582,25 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isEdit ? 'Edit Role' : 'Create New Role',
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isEdit
-                            ? 'Update role details and permissions.'
-                            : 'Define a new role with branch scoping and permissions.',
-                        style: TextStyle(
-                            color: Colors.grey.shade600, fontSize: 13),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isEdit ? 'Edit Role' : 'Create New Role',
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          isEdit
+                              ? 'Update role details and permissions.'
+                              : 'Define a new role with branch scoping and permissions.',
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 13),
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
@@ -594,58 +611,181 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
             ),
             const Divider(height: 1),
 
-            // Stepper tabs
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                children: List.generate(_steps.length, (index) {
-                  final isActive = index == _currentStep;
-                  return GestureDetector(
-                    onTap: () => setState(() => _currentStep = index),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 32.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            _steps[index],
-                            style: TextStyle(
-                              color: isActive
-                                  ? const Color(0xFF0055FF)
-                                  : Colors.grey.shade600,
-                              fontWeight:
-                                  isActive ? FontWeight.bold : FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Container(
-                            height: 2,
-                            width: 80,
-                            color: isActive
-                                ? const Color(0xFF0055FF)
-                                : Colors.transparent,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            const Divider(height: 1),
-
-            // Body
+            // Body — single scrollable page
             Expanded(
               child: Obx(() {
                 if (widget.ctrl.isDepsLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 }
+
+                final filtered = _filteredPermEntries;
+                final totalPages = (filtered.length / _permPageSize).ceil();
+                // Clamp page
+                if (_permPage >= totalPages && totalPages > 0) {
+                  _permPage = totalPages - 1;
+                }
+                final pageStart = _permPage * _permPageSize;
+                final pageEntries =
+                    filtered.skip(pageStart).take(_permPageSize).toList();
+
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
-                  child: _currentStep == 0
-                      ? _buildStep1RoleDetails()
-                      : _buildStep2Permissions(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ── Role Details section ──
+                      _label('Role Name'),
+                      MyTextFormField(
+                        controller: _nameCtrl,
+                        hintText: 'e.g. Branch Manager',
+                      ),
+                      const SizedBox(height: 20),
+
+                      _label('Branches'),
+                      const Text(
+                        'Select which branches this role applies to (at least one required)',
+                        style:
+                            TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildBranchChips(),
+
+                      const SizedBox(height: 28),
+                      const Divider(),
+                      const SizedBox(height: 16),
+
+                      // ── Permissions section ──
+                      // Search bar + Select/Unselect All
+                      Row(
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _permSearchCtrl,
+                              hintText: 'Search permissions...',
+                              leading: const Icon(Icons.search,
+                                  color: Colors.grey, size: 20),
+                              onChanged: (v) => setState(() {
+                                _permSearch = v;
+                                _permPage = 0;
+                              }),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          _totalSelectedCount > 0
+                              ? TextButton.icon(
+                                  onPressed: () => setState(
+                                      () => _selectedPermissions.clear()),
+                                  icon: const Icon(Icons.deselect, size: 18),
+                                  label: const Text('Unselect All'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.red.shade600,
+                                  ),
+                                )
+                              : TextButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      widget.ctrl.permissionsMap
+                                          .forEach((resource, actions) {
+                                        _selectedPermissions[resource] =
+                                            Set<String>.from(actions);
+                                      });
+                                    });
+                                  },
+                                  icon: const Icon(Icons.select_all, size: 18),
+                                  label: const Text('Select All'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.blue,
+                                  ),
+                                ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      if (_totalSelectedCount > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            '$_totalSelectedCount permissions selected',
+                            style: const TextStyle(
+                                color: Color(0xFF64748B),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+
+                      // Permission modules for current page
+                      if (filtered.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Center(
+                            child: Text('No matching permissions found',
+                                style: TextStyle(color: Color(0xFF94A3B8))),
+                          ),
+                        )
+                      else ...[
+                        ...pageEntries.map((entry) =>
+                            _buildPermissionCategory(entry.key, entry.value)),
+
+                        // Pagination controls
+                        if (totalPages > 1)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: _permPage > 0
+                                      ? () => setState(() => _permPage--)
+                                      : null,
+                                  icon: const Icon(Icons.chevron_left),
+                                  iconSize: 20,
+                                ),
+                                ...List.generate(totalPages, (i) {
+                                  final isActive = i == _permPage;
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(6),
+                                      onTap: () =>
+                                          setState(() => _permPage = i),
+                                      child: Container(
+                                        width: 32,
+                                        height: 32,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: isActive
+                                              ? AppColors.blue
+                                              : Colors.transparent,
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          '${i + 1}',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: isActive
+                                                ? Colors.white
+                                                : const Color(0xFF64748B),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                IconButton(
+                                  onPressed: _permPage < totalPages - 1
+                                      ? () => setState(() => _permPage++)
+                                      : null,
+                                  icon: const Icon(Icons.chevron_right),
+                                  iconSize: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
                 );
               }),
             ),
@@ -656,14 +796,8 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Obx(() => Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (_currentStep > 0)
-                        OutlinedButton(
-                          onPressed: () =>
-                              setState(() => _currentStep--),
-                          child: const Text('Previous'),
-                        ),
-                      const Spacer(),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         style: TextButton.styleFrom(
@@ -671,20 +805,13 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                         child: const Text('Cancel'),
                       ),
                       const SizedBox(width: 12),
-                      if (_currentStep < _steps.length - 1)
-                        MyElevatedButton(
-                          height: 40,
-                          child: 'Next Step',
-                          onTap: () => setState(() => _currentStep++),
-                        )
-                      else
-                        MyElevatedButton(
-                          height: 40,
-                          child: widget.ctrl.isSaving.value
-                              ? 'Saving...'
-                              : (isEdit ? 'Save Changes' : 'Create Role'),
-                          onTap: widget.ctrl.isSaving.value ? null : _onSave,
-                        ),
+                      MyElevatedButton(
+                        height: 40,
+                        child: widget.ctrl.isSaving.value
+                            ? 'Saving...'
+                            : (isEdit ? 'Save Changes' : 'Create Role'),
+                        onTap: widget.ctrl.isSaving.value ? null : _onSave,
+                      ),
                     ],
                   )),
             ),
@@ -694,121 +821,11 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     );
   }
 
-  // ─── Step 1: Role Details ───────────────────────────────────────────
-
-  Widget _buildStep1RoleDetails() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _label('Role Name'),
-        MyTextFormField(
-          controller: _nameCtrl,
-          hintText: 'e.g. Branch Manager',
-        ),
-        const SizedBox(height: 20),
-        _label('Branches'),
-        const Text(
-          'Select which branches this role applies to',
-          style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
-        ),
-        const SizedBox(height: 8),
-        _buildBranchChips(),
-      ],
-    );
-  }
-
-  // ─── Step 2: Permissions ────────────────────────────────────────────
-
-  Widget _buildStep2Permissions() {
-    // Filter permissions by search
-    final query = _permSearch.toLowerCase();
-    final filteredEntries = widget.ctrl.permissionsMap.entries.where((entry) {
-      if (query.isEmpty) return true;
-      final resourceLabel = entry.key.replaceAll('_', ' ').toLowerCase();
-      if (resourceLabel.contains(query)) return true;
-      return entry.value
-          .any((a) => a.replaceAll('_', ' ').toLowerCase().contains(query));
-    }).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Search + Unselect All row
-        Row(
-          children: [
-            Expanded(
-              child: MyTextFormField(
-                controller: _permSearchCtrl,
-                hintText: 'Search permissions...',
-                leading:
-                    const Icon(Icons.search, color: Colors.grey, size: 20),
-                onChanged: (v) => setState(() => _permSearch = v ?? ''),
-              ),
-            ),
-            const SizedBox(width: 12),
-            _totalSelectedCount > 0
-                ? TextButton.icon(
-                    onPressed: () {
-                      setState(() => _selectedPermissions.clear());
-                    },
-                    icon: const Icon(Icons.deselect, size: 18),
-                    label: const Text('Unselect All'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red.shade600,
-                    ),
-                  )
-                : TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        widget.ctrl.permissionsMap.forEach((resource, actions) {
-                          _selectedPermissions[resource] =
-                              Set<String>.from(actions);
-                        });
-                      });
-                    },
-                    icon: const Icon(Icons.select_all, size: 18),
-                    label: const Text('Select All'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.blue,
-                    ),
-                  ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        if (_totalSelectedCount > 0)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              '$_totalSelectedCount permissions selected',
-              style: const TextStyle(
-                  color: Color(0xFF64748B),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500),
-            ),
-          ),
-
-        if (filteredEntries.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(24),
-            child: Center(
-              child: Text('No matching permissions found',
-                  style: TextStyle(color: Color(0xFF94A3B8))),
-            ),
-          )
-        else
-          ...filteredEntries.map((entry) {
-            return _buildPermissionCategory(entry.key, entry.value);
-          }),
-      ],
-    );
-  }
-
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(text,
-          style:
-              const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
     );
   }
 
@@ -846,8 +863,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
             });
           },
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
                   ? AppColors.blue.withValues(alpha: 0.1)
@@ -862,9 +878,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  isSelected
-                      ? Icons.check_circle
-                      : Icons.circle_outlined,
+                  isSelected ? Icons.check_circle : Icons.circle_outlined,
                   size: 16,
                   color: isSelected ? AppColors.blue : const Color(0xFF94A3B8),
                 ),
@@ -873,11 +887,9 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                   branch.branchName,
                   style: TextStyle(
                     fontSize: 13,
-                    color: isSelected
-                        ? AppColors.blue
-                        : const Color(0xFF334155),
-                    fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.w400,
+                    color:
+                        isSelected ? AppColors.blue : const Color(0xFF334155),
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
               ],
@@ -890,8 +902,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
 
   // ─── Permission category grid ───────────────────────────────────────
 
-  Widget _buildPermissionCategory(
-      String resource, List<String> actions) {
+  Widget _buildPermissionCategory(String resource, List<String> actions) {
     final selected = _selectedPermissions[resource] ?? <String>{};
     final allSelected =
         actions.isNotEmpty && actions.every((a) => selected.contains(a));
@@ -926,9 +937,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
             child: Row(
               children: [
                 Icon(
-                  allSelected
-                      ? Icons.check_box
-                      : Icons.check_box_outline_blank,
+                  allSelected ? Icons.check_box : Icons.check_box_outline_blank,
                   size: 20,
                   color: allSelected ? AppColors.blue : Colors.grey,
                 ),
@@ -968,26 +977,23 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.blue.withValues(alpha: 0.1)
                         : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: isSelected
-                          ? AppColors.blue
-                          : const Color(0xFFE2E8F0),
+                      color:
+                          isSelected ? AppColors.blue : const Color(0xFFE2E8F0),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isSelected
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
+                        isSelected ? Icons.check_circle : Icons.circle_outlined,
                         size: 14,
                         color: isSelected ? AppColors.blue : Colors.grey,
                       ),
@@ -999,9 +1005,8 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                           color: isSelected
                               ? AppColors.blue
                               : const Color(0xFF64748B),
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w400,
                         ),
                       ),
                     ],
