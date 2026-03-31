@@ -13,11 +13,11 @@ const List<double> revenueData = [
   65000000
 ];
 
-double max_y_clients = 60;
-double max_y_revenue = 80000000;
-double min_y = 0;
+double maxYClients = 60;
+double maxYRevenue = 80000000;
+double minY = 0;
 
-double revenue_scale_factor = max_y_revenue / max_y_clients;
+double revenueScaleFactor = maxYRevenue / maxYClients;
 
 class MonthlyPerformanceChart extends StatelessWidget {
   const MonthlyPerformanceChart({super.key});
@@ -106,7 +106,7 @@ class MonthlyPerformanceChart extends StatelessWidget {
             reservedSize: 60,
             getTitlesWidget: (value, meta) {
               // Secondary Y-Axis
-              final actualRevenue = (value * revenue_scale_factor);
+              final actualRevenue = (value * revenueScaleFactor);
 
               String formatNumber(double number) {
                 // A simple way to format, you might use intl package for real formatting but i dont like using too much packages
@@ -158,8 +158,8 @@ class MonthlyPerformanceChart extends StatelessWidget {
       ),
       minX: 0,
       maxX: newClientsData.length.toDouble() - 1,
-      minY: min_y,
-      maxY: max_y_clients,
+      minY: minY,
+      maxY: maxYClients,
       lineBarsData: [
         _buildLineBarData(
             newClientsData,
@@ -192,7 +192,7 @@ class MonthlyPerformanceChart extends StatelessWidget {
 
   LineChartBarData _buildRevenueLineBarData() {
     final scaledRevenueData =
-        revenueData.map((rev) => rev / revenue_scale_factor).toList();
+        revenueData.map((rev) => rev / revenueScaleFactor).toList();
 
     return LineChartBarData(
       spots: List.generate(scaledRevenueData.length,

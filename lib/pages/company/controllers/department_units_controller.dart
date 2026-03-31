@@ -63,7 +63,7 @@ class DepartmentsUnitsController extends GetxController {
 
       resetPagination();
     } catch (e) {
-      print("Error fetching data: $e");
+      log("Error fetching data: $e");
     } finally {
       isLoading.value = false;
     }

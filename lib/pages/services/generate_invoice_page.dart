@@ -358,11 +358,11 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                     padding: const EdgeInsets.all(16),
                                     child: Row(
                                       children: [
-                                        Radio<String>(
-                                          value: lead.id,
+                                        RadioGroup<String>(
                                           groupValue: selectedLeadId,
                                           onChanged: (value) =>
                                               _loadLeadData(lead),
+                                          child: Radio<String>(value: lead.id),
                                         ),
                                         Expanded(
                                           child: Column(

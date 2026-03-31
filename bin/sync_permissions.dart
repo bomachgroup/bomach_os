@@ -1,4 +1,5 @@
 import 'dart:io';
+// ignore_for_file: avoid_print
 import 'package:dio/dio.dart';
 
 /// A script to synchronize the PermissionConstants in the frontend with the backend's permission map.

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'
     show FlutterSecureStorage;
@@ -50,7 +51,7 @@ class PayrollController extends GetxController {
       payrollList.assignAll(result);
     } catch (e) {
       errorMessage('Failed to load payrolls: $e');
-      print(e);
+      log('$e');
     } finally {
       isLoading(false);
     }
@@ -67,7 +68,7 @@ class PayrollController extends GetxController {
       await fetchPayrolls();
       return true;
     } catch (e) {
-      print('Create Error: $e');
+      log('Create Error: $e');
       return false;
     } finally {
       isSaving(false);
@@ -85,7 +86,7 @@ class PayrollController extends GetxController {
       await fetchPayrolls(); 
       return true;
     } catch (e) {
-      print('Update Error: $e');
+      log('Update Error: $e');
       return false;
     } finally {
       isSaving(false);
@@ -120,7 +121,7 @@ class PayrollController extends GetxController {
       }
       return true;
     } catch (e) {
-      print('Status Update Error: $e');
+      log('Status Update Error: $e');
       fetchPayrolls();
       return false;
     }
@@ -136,7 +137,7 @@ class PayrollController extends GetxController {
       payrollList.removeWhere((p) => p.id == id);
       return true;
     } catch (e) {
-      print('Delete Error: $e');
+      log('Delete Error: $e');
       return false;
     }
   }

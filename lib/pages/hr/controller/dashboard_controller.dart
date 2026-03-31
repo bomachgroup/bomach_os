@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:bms_front_end/src/services/hr/hr_services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -37,7 +38,7 @@ class HRController extends GetxController {
       stats.value = result;
     } catch (e) {
       errorMessage.value = e.toString();
-      print('Error in HRController: $e');
+      log('Error in HRController: $e');
     } finally {
       isLoading.value = false;
     }

@@ -810,8 +810,8 @@ class OffboardingTab extends StatelessWidget {
     final bool isCompleted = e.status == 'Completed';
     final Color statusColor = isCompleted ? Colors.green : Colors.amber;
     final Color statusBg = isCompleted
-        ? Colors.green.withOpacity(0.1)
-        : Colors.amber.withOpacity(0.1);
+        ? Colors.green.withValues(alpha: 0.1)
+        : Colors.amber.withValues(alpha: 0.1);
 
     return DataRow(cells: [
       DataCell(Row(children: [

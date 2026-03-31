@@ -5,7 +5,7 @@ class MyDropdown2 extends StatefulWidget {
   const MyDropdown2({super.key});
 
   @override
-  _MyDropdown2State createState() => _MyDropdown2State();
+  State<MyDropdown2> createState() => _MyDropdown2State();
 }
 
 class _MyDropdown2State extends State<MyDropdown2> {

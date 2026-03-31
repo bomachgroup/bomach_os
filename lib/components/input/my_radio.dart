@@ -32,10 +32,10 @@ class MyRadio<T> extends StatelessWidget {
                 return AppColors.darkGrey2; // inactive border
               }),
             ),
-            child: Radio<T>(
-              value: value,
+            child: RadioGroup<T>(
               groupValue: groupValue,
               onChanged: onChanged,
+              child: Radio<T>(value: value),
             ),
           ),
           MyText(

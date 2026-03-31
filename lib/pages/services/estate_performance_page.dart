@@ -137,7 +137,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
 
     // Apply estate-specific filter from widget
     if (widget.estate != null) {
-      filtered = filtered.where((inv) => inv.estateId == widget.estate!.id).toList();
+      filtered = filtered.where((inv) => inv.estateId == widget.estate!.id.toString()).toList();
     }
 
     // Apply date filter
