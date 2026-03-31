@@ -432,30 +432,6 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
     );
   }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 16),
-      label: MyText(
-        label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-      ),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.blue,
-        side: const BorderSide(color: AppColors.blue),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
-  }
-
   Widget _buildBigScoreCard({
     required String score,
     required String label,

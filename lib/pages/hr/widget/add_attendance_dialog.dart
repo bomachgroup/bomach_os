@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../controller/biometrics_controller.dart';
-import '../models/attendance_models.dart';
 
 class AddAttendanceDialog extends StatefulWidget {
   final String token;
@@ -30,17 +29,17 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final combinedTimestamp = DateTime(_selectedDate.year, _selectedDate.month,
-        _selectedDate.day, _selectedTime.hour, _selectedTime.minute);
+    // final combinedTimestamp = DateTime(_selectedDate.year, _selectedDate.month,
+    //     _selectedDate.day, _selectedTime.hour, _selectedTime.minute);
 
-    final record = BiometricAttendanceRecord(
-      id: 0,
-      employeeId: _employeeIdCtrl.text,
-      attendanceType: _attendanceType,
-      timestamp: combinedTimestamp,
-      verificationMethod: 'MANUAL',
-      notes: _notesCtrl.text.isEmpty ? null : _notesCtrl.text,
-    );
+    // final record = BiometricAttendanceRecord(
+    //   id: 0,
+    //   employeeId: _employeeIdCtrl.text,
+    //   attendanceType: _attendanceType,
+    //   timestamp: combinedTimestamp,
+    //   verificationMethod: 'MANUAL',
+    //   notes: _notesCtrl.text.isEmpty ? null : _notesCtrl.text,
+    // );
 
     // final success = await controller.createManualAttendance(widget.token, record);
 
@@ -68,14 +67,12 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
             children: [
               const MyText('Add Manual Entry', size: 20, weight: 600),
               const SizedBox(height: 24),
-
               MyTextFormField(
                 title: 'Employee ID',
                 controller: _employeeIdCtrl,
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-
               const MyText('Type', size: 14, weight: 500),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
@@ -89,7 +86,6 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
                 onChanged: (val) => setState(() => _attendanceType = val!),
               ),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -133,7 +129,6 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
                 controller: _notesCtrl,
                 maxLines: 2,
               ),
-
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,

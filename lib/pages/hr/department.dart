@@ -74,7 +74,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
                   color: AppColors.grey1.withValues(alpha: 0.5),
                 ),
                 onChanged: (value) {
-                  controller.onSearch(context, value ?? '');
+                  controller.onSearch(context, value);
                 },
               ),
             ),

@@ -489,7 +489,7 @@ All prices are in Nigerian Naira (₦).''';
                                           onChanged: (value) {
                                             setState(() {
                                               _taxRate = double.tryParse(
-                                                      value ?? '7.5') ??
+                                                      value) ??
                                                   7.5;
                                             });
                                           },
@@ -518,7 +518,7 @@ All prices are in Nigerian Naira (₦).''';
                                           onChanged: (value) {
                                             setState(() {
                                               _discount = double.tryParse(
-                                                      value ?? '0') ??
+                                                      value) ??
                                                   0;
                                             });
                                           },

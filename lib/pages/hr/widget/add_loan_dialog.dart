@@ -326,8 +326,6 @@ class _DashedBorderPainter extends CustomPainter {
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
-    const double dashWidth = 6;
-    const double dashSpace = 4;
     final Path path = Path();
 
     // Simple rect path logic for brevity

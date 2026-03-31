@@ -65,25 +65,6 @@ void main() {
     'payment_link': null,
   };
 
-  final samplePropertyJson = {
-    'id': 40,
-    'name': 'Lekki Phase 1 Apartment',
-    'property_type': 'apartment',
-    'category': 'sale',
-    'location': 'Lekki Phase 1, Lagos',
-    'price': '85000000',
-    'size': '250',
-    'bedrooms': 3,
-    'bathrooms': 3,
-    'parking_spaces': 2,
-    'description': 'Luxury 3-bedroom apartment',
-    'images': ['img1.jpg', 'img2.jpg'],
-    'status': 'available',
-    'client_id': '50',
-    'created_at': '2026-02-01T00:00:00Z',
-    'updated_at': '2026-03-01T00:00:00Z',
-  };
-
   setUp(() {
     dio = Dio(BaseOptions(baseUrl: baseUrl));
     dioAdapter = DioAdapter(dio: dio);

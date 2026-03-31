@@ -326,7 +326,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                           ),
                           onChanged: (value) {
                             setState(() {
-                              _searchQuery = value ?? '';
+                              _searchQuery = value;
                             });
                           },
                         ),

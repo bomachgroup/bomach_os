@@ -1,11 +1,9 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/lead_controller.dart';
 import 'package:bms_front_end/pages/services/controller/service_controller.dart';
 import 'package:bms_front_end/pages/services/service_leads.dart';
-import 'package:bms_front_end/pages/services/widget/add_invoice_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/create_order_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/create_quote_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
@@ -767,74 +765,6 @@ class _ServicesPageState extends State<ServicesPage> {
         ],
       );
     });
-  }
-
-  Widget _billing() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title + subtitle
-                      Text('Service Billing',
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 8),
-                      Text('Manage billing and invoicing for service',
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      MyOutlinedButton(
-                        textColor: AppColors.grey1,
-                        borderColor: AppColors.grey2,
-                        child: 'Filter',
-                        onTap: () {},
-                      ),
-                      const SizedBox(width: 12),
-                      MyElevatedButton(
-                        child: 'Create Invoice',
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AddInvoiceDialog();
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        ListView.separated(
-          shrinkWrap: true,
-          itemCount: 5,
-          separatorBuilder: (_, __) => const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            return const InvoiceCard();
-          },
-        ),
-      ],
-    );
   }
 
   Widget _buildTopStats(BuildContext context) {

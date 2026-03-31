@@ -610,35 +610,4 @@ class _PerformanceLeaderboardPageState
     );
   }
 
-  Widget _buildActionLink({
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.lightBlue,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.blue),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 6,
-          children: [
-            const Icon(Icons.download, size: 14, color: AppColors.blue),
-            MyText(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.blue,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

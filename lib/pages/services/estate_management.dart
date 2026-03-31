@@ -60,7 +60,7 @@ class EstateManagementPage extends StatelessWidget {
                             color: AppColors.grey1.withValues(alpha: 0.5),
                           ),
                           onChanged: (value) {
-                            ctrl.onSearchChanged(value ?? '');
+                            ctrl.onSearchChanged(value);
                           },
                         ),
                       ),

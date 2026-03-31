@@ -64,13 +64,11 @@ class PerformanceReviewController extends GetxController {
         _showSnackBar(context, 'Error', 'Authentication token not found');
         return false;
       }
-      final createdReview =
-          await _service.createPerformanceReview(token, review);
+      await _service.createPerformanceReview(token, review);
       await fetchPerformanceReviews();
       _showSnackBar(
           context, 'Success', 'Performance review created successfully');
       return true;
-          return false;
     } catch (e) {
       final context = Get.context;
       if (context != null) {

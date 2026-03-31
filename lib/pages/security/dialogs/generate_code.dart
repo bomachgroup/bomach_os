@@ -11,10 +11,6 @@ class GenerateSecurityCodeDialog extends StatefulWidget {
 
 class _GenerateSecurityCodeDialogState
     extends State<GenerateSecurityCodeDialog> {
-  String? _selectedCodeType;
-  String? _selectedAssignedTo;
-  String? _selectedExpiresIn;
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -69,7 +65,7 @@ class _GenerateSecurityCodeDialogState
         MyDropdown(
           hintText: 'Access Code',
           items: const ['Access Code', 'API Key', 'Two-Factor Token'],
-          onChanged: (val) => setState(() => _selectedCodeType = val),
+          onChanged: (val) {},
         ),
         const SizedBox(height: 24),
         _buildLabel('Description'),
@@ -82,14 +78,14 @@ class _GenerateSecurityCodeDialogState
         MyDropdown(
           hintText: 'Select Person',
           items: const ['John Doe', 'Sarah Okwu', 'System Admin'],
-          onChanged: (val) => setState(() => _selectedAssignedTo = val),
+          onChanged: (val) {},
         ),
         const SizedBox(height: 24),
         _buildLabel('Expires in (days)'),
         MyDropdown(
           hintText: '30 days',
           items: const ['7 days', '30 days', '90 days', 'Never'],
-          onChanged: (val) => setState(() => _selectedExpiresIn = val),
+          onChanged: (val) {},
         ),
         const SizedBox(height: 24),
       ],

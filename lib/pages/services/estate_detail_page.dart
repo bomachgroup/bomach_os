@@ -164,7 +164,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                           ),
                           onChanged: (value) {
                             setState(() {
-                              _searchQuery = value ?? '';
+                              _searchQuery = value;
                             });
                           },
                         ),

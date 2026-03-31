@@ -13,7 +13,6 @@ class ProjectOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.sizeOf(context);
     final double percent =
         (project.progress > 100 ? 100 : project.progress) / 100;
 

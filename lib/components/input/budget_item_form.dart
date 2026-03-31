@@ -36,7 +36,6 @@ class _BudgetTableState extends State<BudgetTable> {
   }
 
   Widget _buildRow(int index) {
-    final item = items[index];
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       child: Row(

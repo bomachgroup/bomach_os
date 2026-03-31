@@ -43,7 +43,6 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
 
   // Form values
   String? _selectedServiceType;
-  String? _selectedOrder;
   DateTime _issueDate = DateTime.now();
   DateTime _dueDate = DateTime.now().add(const Duration(days: 30));
   double _taxRate = 7.5;
@@ -154,11 +153,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                               hintText: 'Select order (optional)',
                               title: 'Link to Order',
                               spaceBetweenText: 8,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedOrder = value;
-                                });
-                              },
+                              onChanged: (value) {},
                             ),
                           ),
                         ],
@@ -274,7 +269,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                               onChanged: (value) {
                                 setState(() {
                                   _taxRate =
-                                      double.tryParse(value ?? "") ?? 7.5;
+                                      double.tryParse(value) ?? 7.5;
                                 });
                               },
                             ),
@@ -405,7 +400,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
               spaceBetweenText: 8,
               onChanged: (value) {
                 setState(() {
-                  item.description = value ?? "";
+                  item.description = value;
                 });
               },
               validator: (value) {
@@ -429,7 +424,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: (value) {
                       setState(() {
-                        item.quantity = int.tryParse(value ?? "") ?? 1;
+                        item.quantity = int.tryParse(value) ?? 1;
                       });
                     },
                   ),
@@ -445,7 +440,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
-                        item.unitPrice = double.tryParse(value ?? "") ?? 0;
+                        item.unitPrice = double.tryParse(value) ?? 0;
                       });
                     },
                   ),

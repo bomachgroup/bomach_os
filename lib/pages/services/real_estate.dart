@@ -33,7 +33,7 @@ class RealEstateScreen extends StatelessWidget {
               Icons.search,
               color: AppColors.grey1.withValues(alpha: 0.5),
             ),
-            onChanged: (value) => ctrl.onSearchChanged(value ?? ''),
+            onChanged: (value) => ctrl.onSearchChanged(value),
           ),
         ),
         const SizedBox(height: 15),
