@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../../src/model/employees_model.dart';
 import '../../../src/services/hr/asset_services.dart';
 import '../../../src/services/employees_services.dart';
 import '../models/assets_model.dart';
@@ -27,6 +28,7 @@ class AssetController extends GetxController {
   var departments = <Map<String, String>>[
     {'id': 'All', 'name': 'All Departments'}
   ].obs;
+  var allEmployees = <Employee>[].obs;
   final branches = ['All', 'Enugu Branch', 'Lagos Branch', 'Abuja Branch'];
   final statuses = ['All', 'active', 'in-use', 'maintenance', 'retired'];
 
@@ -44,9 +46,21 @@ class AssetController extends GetxController {
   Future<void> _loadInitialData() async {
     final token = await _getToken();
     if (token != null) {
-      await fetchDepartments(token);
+      await Future.wait([
+        fetchDepartments(token),
+        _fetchAllEmployees(token),
+      ]);
     }
     await fetchAssets();
+  }
+
+  Future<void> _fetchAllEmployees(String token) async {
+    try {
+      final result = await _employeeService.getEmployees(token, limit: 500);
+      allEmployees.assignAll(result.list);
+    } catch (e) {
+      log("Error fetching employees for dropdown: $e");
+    }
   }
 
   // ─── FETCH ────────────────────────────────────────────────────────

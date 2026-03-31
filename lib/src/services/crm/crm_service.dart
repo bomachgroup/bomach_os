@@ -298,8 +298,9 @@ class CrmService {
         final data = error.response?.data;
         log("SERVER ERROR: $data");
         if (data is Map<String, dynamic>) {
-          if (data.containsKey('detail')) msg = data['detail'];
-          else if (data.containsKey('message')) msg = data['message'];
+          if (data.containsKey('detail')) {
+            msg = data['detail'];
+          } else if (data.containsKey('message')) msg = data['message'];
         }
       } else {
         msg = "Connection error. Please check your internet.";

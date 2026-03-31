@@ -16,12 +16,14 @@ class MyDropdown extends StatelessWidget {
     this.height,
     this.width,
     this.spaceBetweenText,
+    this.initialSelection,
   });
 
   final List<String> items;
   final String? title;
   final TextEditingController? controller;
   final String hintText;
+  final String? initialSelection;
   final Function(String? value)? onChanged;
   final String? Function(String?)? validator;
   final Color? fillColor;
@@ -74,9 +76,12 @@ class MyDropdown extends StatelessWidget {
                       Icons.keyboard_arrow_up_rounded,
                     ),
                     controller: controller,
+                    initialSelection: initialSelection,
                     onSelected: (value) {
-                      controller?.text = value?.toString() ?? '';
-                      state.didChange(controller?.text);
+                      if (controller != null) {
+                        controller?.text = value?.toString() ?? '';
+                      }
+                      state.didChange(value);
                       if (onChanged != null) {
                         onChanged!(value);
                       }

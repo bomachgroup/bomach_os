@@ -6,7 +6,9 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/board_model.dart';
+import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:bms_front_end/src/model/employees_model.dart';
+import 'package:bms_front_end/src/model/partner_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +16,8 @@ import 'package:intl/intl.dart';
 import 'controllers/board_controller.dart';
 import 'controllers/company_controller.dart';
 import 'company.dart';
+import 'widget/add_partner_dialog.dart';
+import 'widget/add_shareholder_dialog.dart';
 import 'widget/board_meeting_dialogs.dart';
 import 'widget/board_resolution_dialogs.dart';
 
@@ -948,21 +952,234 @@ class _InvestorsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _EmployeeListTab(
-      controller: controller,
-      tabLabel: 'Investors',
-      subtitle: 'Manage company investors',
-      emptyIcon: Icons.account_balance_outlined,
-      emptyTitle: 'No investors found',
-      emptySubtitle: 'Investors will appear here once added.',
-      isLoading: controller.isLoadingInvestors,
-      employeeList: controller.investorList,
-      totalItems: controller.investorTotalItems,
-      limit: controller.investorLimit,
-      currentPage: controller.investorCurrentPage,
-      onSearchChanged: controller.onInvestorSearchChanged,
-      onPageChanged: controller.investorGoToPage,
-      onLimitChanged: controller.investorSetLimit,
+    final companyCtrl = Get.find<CompanyController>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header with Create button
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyText('Shareholders', style: AppText.black_600_16),
+                SizedBox(height: 2),
+                Text('Manage company shareholders and investors',
+                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+              ],
+            ),
+            MyElevatedButton(
+              child: '+ Create Shareholder',
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => const AddShareholderDialog(),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Table
+        Obx(() {
+          if (companyCtrl.isShareholdersLoading.value &&
+              companyCtrl.shareholders.isEmpty) {
+            return const Center(
+                child: Padding(
+                    padding: EdgeInsets.all(60),
+                    child: CircularProgressIndicator()));
+          }
+
+          if (companyCtrl.shareholders.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 60),
+                child: Column(children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                        color: Color(0xFFF1F5F9), shape: BoxShape.circle),
+                    child: const Icon(Icons.account_balance_outlined,
+                        size: 48, color: Color(0xFF94A3B8)),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('No shareholders found',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  const Text('Add shareholders using the button above.',
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+                ]),
+              ),
+            );
+          }
+
+          return ResponsiveTableWrapper(
+            child: Card(
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(children: [
+                // Table Header
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12)),
+                  ),
+                  child: const Row(children: [
+                    Expanded(
+                        flex: 3,
+                        child: Text('Name',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 3,
+                        child: Text('Email',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 2,
+                        child: Text('Title',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 1,
+                        child: Text('Share %',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 1,
+                        child: Text('Board',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    SizedBox(
+                        width: 80,
+                        child: Text('Action',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                  ]),
+                ),
+                const Divider(height: 1),
+                // Rows
+                ...companyCtrl.shareholders
+                    .map((s) => _buildShareholderRow(context, s, companyCtrl)),
+              ]),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildShareholderRow(
+      BuildContext context, Shareholder s, CompanyController ctrl) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey.shade100))),
+      child: Row(children: [
+        Expanded(
+          flex: 3,
+          child: Row(children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: const Color(0xFFE8EAF6),
+              child: Text(s.firstName.isNotEmpty ? s.firstName[0] : '?',
+                  style: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600)),
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+                child: Text(s.fullName,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis)),
+          ]),
+        ),
+        Expanded(
+            flex: 3,
+            child: Text(s.email,
+                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                overflow: TextOverflow.ellipsis)),
+        Expanded(
+            flex: 2,
+            child: Text(s.titleDisplay,
+                style:
+                    const TextStyle(fontSize: 13, color: Color(0xFF64748B)))),
+        Expanded(
+            flex: 1,
+            child: Text('${s.sharePercentage}%',
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
+        Expanded(
+          flex: 1,
+          child: Icon(
+              s.isBoardMember ? Icons.check_circle : Icons.cancel_outlined,
+              size: 18,
+              color: s.isBoardMember ? Colors.green : Colors.grey.shade400),
+        ),
+        SizedBox(
+          width: 80,
+          child: Row(children: [
+            InkWell(
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => AddShareholderDialog(shareholder: s),
+              ),
+              child: const Icon(Icons.edit_outlined,
+                  size: 18, color: Color(0xFF64748B)),
+            ),
+            const SizedBox(width: 12),
+            InkWell(
+              onTap: () => _confirmDelete(context, ctrl, s),
+              child:
+                  const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  void _confirmDelete(
+      BuildContext context, CompanyController ctrl, Shareholder s) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Shareholder'),
+        content: Text('Are you sure you want to remove ${s.fullName}?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ctrl.deleteShareholder(context, s.id);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -999,9 +1216,7 @@ class _AssociatesTab extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  PARTNERS TAB
-//  TODO: The employment_type filter value 'partner' is a placeholder.
-//  Replace with the correct API filter key/value once confirmed.
+//  PARTNERS TAB — uses dedicated /api/v1/partners/ endpoints
 // ═══════════════════════════════════════════════════════════════════
 
 class _PartnersTab extends StatelessWidget {
@@ -1010,21 +1225,265 @@ class _PartnersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _EmployeeListTab(
-      controller: controller,
-      tabLabel: 'Partners',
-      subtitle: 'Manage company partners',
-      emptyIcon: Icons.handshake_outlined,
-      emptyTitle: 'No partners found',
-      emptySubtitle: 'Partners will appear here once added.',
-      isLoading: controller.isLoadingPartners,
-      employeeList: controller.partnerList,
-      totalItems: controller.partnerTotalItems,
-      limit: controller.partnerLimit,
-      currentPage: controller.partnerCurrentPage,
-      onSearchChanged: controller.onPartnerSearchChanged,
-      onPageChanged: controller.partnerGoToPage,
-      onLimitChanged: controller.partnerSetLimit,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyText('Partners', style: AppText.black_600_16),
+                SizedBox(height: 2),
+                Text('Manage company partners and agreements',
+                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+              ],
+            ),
+            Row(children: [
+              SizedBox(
+                width: 220,
+                child: MyTextFormField(
+                  hintText: 'Search partners...',
+                  leading:
+                      const Icon(Icons.search, color: Colors.grey, size: 20),
+                  onChanged: controller.onPartnerSearchChanged,
+                ),
+              ),
+              const SizedBox(width: 12),
+              MyElevatedButton(
+                child: '+ Add Partner',
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (_) => const AddPartnerDialog(),
+                ),
+              ),
+            ]),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Obx(() {
+          if (controller.isLoadingPartners.value &&
+              controller.partnerList.isEmpty) {
+            return const Center(
+                child: Padding(
+                    padding: EdgeInsets.all(60),
+                    child: CircularProgressIndicator()));
+          }
+
+          if (controller.partnerList.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 60),
+                child: Column(children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                        color: Color(0xFFF1F5F9), shape: BoxShape.circle),
+                    child: const Icon(Icons.handshake_outlined,
+                        size: 48, color: Color(0xFF94A3B8)),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('No partners found',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  const Text('Add partners using the button above.',
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+                ]),
+              ),
+            );
+          }
+
+          return ResponsiveTableWrapper(
+            child: Card(
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12)),
+                  ),
+                  child: const Row(children: [
+                    Expanded(
+                        flex: 3,
+                        child: Text('Name',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 3,
+                        child: Text('Email',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 2,
+                        child: Text('Category',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 2,
+                        child: Text('Status',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    Expanded(
+                        flex: 1,
+                        child: Text('Agreements',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                    SizedBox(
+                        width: 80,
+                        child: Text('Action',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF64748B)))),
+                  ]),
+                ),
+                const Divider(height: 1),
+                ...controller.partnerList
+                    .map((p) => _buildPartnerRow(context, p)),
+              ]),
+            ),
+          );
+        }),
+        const SizedBox(height: 16),
+        Obx(() => PaginatorFooter(
+              currentPage: controller.partnerCurrentPage.value,
+              totalItems: controller.partnerTotalItems.value,
+              limit: controller.partnerLimit.value,
+              onPageChanged: controller.partnerGoToPage,
+              onLimitChanged: controller.partnerSetLimit,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildPartnerRow(BuildContext context, Partner p) {
+    final isActive = p.status == 'active';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey.shade100))),
+      child: Row(children: [
+        Expanded(
+          flex: 3,
+          child: Row(children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: const Color(0xFFE8EAF6),
+              child: Text(p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600)),
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+                child: Text(p.name,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis)),
+          ]),
+        ),
+        Expanded(
+            flex: 3,
+            child: Text(p.email,
+                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                overflow: TextOverflow.ellipsis)),
+        Expanded(
+            flex: 2,
+            child: Text(p.categoryDisplay,
+                style:
+                    const TextStyle(fontSize: 13, color: Color(0xFF64748B)))),
+        Expanded(
+          flex: 2,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? Colors.green.withValues(alpha: 0.1)
+                  : Colors.grey.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isActive ? Colors.green : Colors.grey)),
+              const SizedBox(width: 6),
+              Text(p.statusDisplay,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: isActive ? Colors.green : Colors.grey,
+                      fontWeight: FontWeight.w500)),
+            ]),
+          ),
+        ),
+        Expanded(
+            flex: 1,
+            child: Text('${p.agreementCount}',
+                style: const TextStyle(fontSize: 13))),
+        SizedBox(
+          width: 80,
+          child: Row(children: [
+            InkWell(
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => AddPartnerDialog(partner: p),
+              ),
+              child: const Icon(Icons.edit_outlined,
+                  size: 18, color: Color(0xFF64748B)),
+            ),
+            const SizedBox(width: 12),
+            InkWell(
+              onTap: () => _confirmDelete(context, p),
+              child:
+                  const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, Partner p) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Partner'),
+        content: Text(
+            'Are you sure you want to delete "${p.name}"? This will also delete all associated agreements.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.deletePartner(context, p.id);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }

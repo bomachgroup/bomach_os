@@ -4,11 +4,14 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:async';
 
+import '../../../src/model/employees_model.dart';
+import '../../../src/services/employees_services.dart';
 import '../../../src/services/hr/loan_service.dart';
 import '../models/loans_model.dart';
 
 class LoanController extends GetxController {
   final LoanService _service = LoanService();
+  final EmployeeService _employeeService = EmployeeService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   // --- State Variables ---
@@ -35,6 +38,9 @@ class LoanController extends GetxController {
   var currentPage = 1.obs;
   var itemsPerPage = 10.obs;
 
+  // Employee dropdown data
+  var allEmployees = <Employee>[].obs;
+
   // Form Controllers
   final loanAmountController = TextEditingController();
   final repaymentDateController = TextEditingController();
@@ -46,6 +52,25 @@ class LoanController extends GetxController {
   DateTime? selectedRepaymentDate;
 
   Timer? _debounce;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _fetchEmployees();
+  }
+
+  Future<void> _fetchEmployees() async {
+    try {
+      String? token = await _storage.read(key: 'access_token');
+      if (token == null) return;
+      if (token.startsWith('Bearer ')) token = token.replaceFirst('Bearer ', '');
+      token = token.replaceAll('"', '').trim();
+      final result = await _employeeService.getEmployees(token, limit: 500);
+      allEmployees.assignAll(result.list);
+    } catch (e) {
+      log("Error fetching employees for loan dropdown: $e");
+    }
+  }
 
   @override
   void onClose() {

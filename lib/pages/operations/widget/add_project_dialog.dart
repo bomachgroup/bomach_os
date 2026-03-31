@@ -25,16 +25,19 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   final shortCodeCtrl = TextEditingController();
   final startDateCtrl = TextEditingController();
   final deadlineCtrl = TextEditingController();
-  final categoryCtrl = TextEditingController();
-  final departmentCtrl = TextEditingController();
   final locationCtrl = TextEditingController();
   final summaryCtrl = TextEditingController();
   final budgetCtrl = TextEditingController();
+  final categoryCtrl = TextEditingController();
+  final departmentCtrl = TextEditingController();
+  final priorityCtrl = TextEditingController();
+  final statusCtrl = TextEditingController();
 
+  String? selectedCategory;
+  String? selectedDepartmentId;
   String? selectedStatus;
   String? selectedPriority;
-  String?
-      selectedClientId; 
+  String? selectedClientId;
 
   @override
   Widget build(BuildContext context) {
@@ -96,16 +99,47 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
 
                     Row(children: [
                       Expanded(
-                          child: MyTextFormField(
-                              controller: categoryCtrl,
-                              title: 'Category',
-                              hintText: 'e.g. Development')),
+                          child: MyDropdown(
+                        controller: categoryCtrl,
+                        title: 'Category',
+                        hintText: 'Select category',
+                        initialSelection: selectedCategory,
+                        items: const [
+                          'Development',
+                          'Construction',
+                          'Consulting',
+                          'Real Estate',
+                          'Marketing',
+                          'Operations',
+                          'Other',
+                        ],
+                        onChanged: (val) =>
+                            setState(() => selectedCategory = val),
+                      )),
                       const SizedBox(width: 16),
                       Expanded(
-                          child: MyTextFormField(
+                        child: Obx(() => MyDropdown(
                               controller: departmentCtrl,
                               title: 'Department',
-                              hintText: 'e.g. IT')),
+                              hintText: 'Select department',
+                              initialSelection: selectedDepartmentId != null
+                                  ? controller.departments
+                                      .firstWhereOrNull((d) =>
+                                          d.id.toString() ==
+                                          selectedDepartmentId)
+                                      ?.name
+                                  : null,
+                              items: controller.departments
+                                  .map((d) => d.name)
+                                  .toList(),
+                              onChanged: (val) {
+                                final dept = controller.departments
+                                    .firstWhereOrNull((d) => d.name == val);
+                                setState(() => selectedDepartmentId =
+                                    dept?.id.toString());
+                              },
+                            )),
+                      ),
                     ]),
                     const SizedBox(height: 24),
 
@@ -127,8 +161,10 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                     Row(children: [
                       Expanded(
                           child: MyDropdown(
+                        controller: priorityCtrl,
                         title: 'Priority',
                         hintText: 'Select',
+                        initialSelection: selectedPriority,
                         items: const ['Low', 'Medium', 'High'],
                         onChanged: (val) =>
                             setState(() => selectedPriority = val),
@@ -136,8 +172,10 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       const SizedBox(width: 16),
                       Expanded(
                           child: MyDropdown(
+                        controller: statusCtrl,
                         title: 'Status',
                         hintText: 'Select',
+                        initialSelection: selectedStatus,
                         items: const ['Pending', 'In Progress', 'Completed'],
                         onChanged: (val) =>
                             setState(() => selectedStatus = val),
@@ -187,22 +225,28 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   void _saveProject() {
     if (nameCtrl.text.isEmpty) return;
 
+    final dept = selectedDepartmentId != null
+        ? controller.departments
+            .firstWhereOrNull((d) => d.id == selectedDepartmentId)
+            ?.name ?? ''
+        : '';
+
     final newProject = Project(
-      id: 0, 
+      id: 0,
       name: nameCtrl.text,
       shortCode: shortCodeCtrl.text,
-      category: categoryCtrl.text,
-      department: departmentCtrl.text,
-      clientId: 1, 
+      category: categoryCtrl.text.isEmpty ? (selectedCategory ?? '') : categoryCtrl.text,
+      department: dept,
+      clientId: 1,
       location: locationCtrl.text,
-      priority: selectedPriority ?? 'Medium',
-      status: selectedStatus ?? 'Pending',
+      priority: priorityCtrl.text.isEmpty ? (selectedPriority?.toLowerCase() ?? 'medium') : priorityCtrl.text.toLowerCase(),
+      status: statusCtrl.text.isEmpty ? (selectedStatus?.toLowerCase() ?? 'pending') : statusCtrl.text.toLowerCase().replaceAll(' ', '_'),
       summary: summaryCtrl.text,
       budget: double.tryParse(budgetCtrl.text) ?? 0.0,
       progress: 0.0,
       startDate: startDateCtrl.text,
       deadline: deadlineCtrl.text,
-      fileUrl: '', 
+      fileUrl: '',
     );
 
     controller.createProject(context, newProject);

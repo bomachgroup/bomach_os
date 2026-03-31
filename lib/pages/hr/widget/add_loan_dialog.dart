@@ -22,7 +22,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
   final LoanController controller = Get.find();
 
   // Controllers
-  late TextEditingController employeeCtrl;
+  String? selectedEmployeeId;
   late TextEditingController amountCtrl;
   late TextEditingController repaymentDateCtrl;
   late TextEditingController reasonCtrl;
@@ -33,7 +33,12 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
   void initState() {
     super.initState();
     final l = widget.loanToEdit;
-    employeeCtrl = TextEditingController(text: l?.employeeName ?? '');
+    // Try to find matching employee by name for edit mode
+    if (l != null && l.employeeName.isNotEmpty) {
+      final match = controller.allEmployees
+          .firstWhereOrNull((e) => '${e.firstName} ${e.lastName}' == l.employeeName);
+      selectedEmployeeId = match?.id;
+    }
     amountCtrl = TextEditingController(text: l?.loanAmount ?? '');
     repaymentDateCtrl = TextEditingController(text: l?.repaymentDate ?? '');
     reasonCtrl = TextEditingController(text: l?.reason ?? '');
@@ -43,7 +48,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
 
   @override
   void dispose() {
-    employeeCtrl.dispose();
+    // selectedEmployeeId is not a controller
     amountCtrl.dispose();
     repaymentDateCtrl.dispose();
     reasonCtrl.dispose();
@@ -126,12 +131,41 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Employee Name
-                    MyTextFormField(
-                      title: 'Employee Name',
-                      controller: employeeCtrl,
-                      hintText: 'Select',
-                      spaceBetweenText: 8,
-                    ),
+                    const Text('Employee Name',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Obx(() {
+                      final employees = controller.allEmployees;
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: employees.any((e) =>
+                                    e.id == selectedEmployeeId)
+                                ? selectedEmployeeId
+                                : null,
+                            hint: const Text('Select employee',
+                                style: TextStyle(
+                                    color: Color(0xFF94A3B8), fontSize: 14)),
+                            items: employees
+                                .map((e) => DropdownMenuItem<String>(
+                                    value: e.id,
+                                    child: Text(
+                                        '${e.firstName} ${e.lastName}')))
+                                .toList(),
+                            onChanged: (val) =>
+                                setState(() => selectedEmployeeId = val),
+                          ),
+                        ),
+                      );
+                    }),
                     const SizedBox(height: 20),
 
                     // Loan Amount

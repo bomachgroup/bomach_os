@@ -25,7 +25,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _serialCtrl;
   late final TextEditingController _manufacturerCtrl;
-  late final TextEditingController _assignedToCtrl;
+  String? _selectedAssignedTo;
   late final TextEditingController _purchaseDateCtrl;
   late final TextEditingController _valueCtrl;
   late final TextEditingController _vendorCtrl;
@@ -62,7 +62,9 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     _nameCtrl = TextEditingController(text: a?.name ?? '');
     _serialCtrl = TextEditingController(text: a?.serialNumber ?? '');
     _manufacturerCtrl = TextEditingController(text: a?.manufacturer ?? '');
-    _assignedToCtrl = TextEditingController(text: a?.assignedToId ?? '');
+    if (a != null && a.assignedToId.isNotEmpty) {
+      _selectedAssignedTo = a.assignedToId;
+    }
     _purchaseDateCtrl = TextEditingController(
         text: a != null
             ? DateFormat('yyyy-MM-dd').format(a.purchaseDate)
@@ -89,7 +91,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
     _nameCtrl.dispose();
     _serialCtrl.dispose();
     _manufacturerCtrl.dispose();
-    _assignedToCtrl.dispose();
+    // _selectedAssignedTo is not a controller, no dispose needed
     _purchaseDateCtrl.dispose();
     _valueCtrl.dispose();
     _vendorCtrl.dispose();
@@ -120,7 +122,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       'serial_number': _serialCtrl.text.trim(),
       'manufacturer': _manufacturerCtrl.text.trim(),
       'branch': _selectedBranch ?? '',
-      'assigned_to_id': _assignedToCtrl.text.trim(),
+      if (_selectedAssignedTo != null) 'assigned_to_id': _selectedAssignedTo,
       'department_id': _selectedDepartmentId ?? '',
       'purchase_date': _purchaseDateCtrl.text.trim(),
       'value': double.tryParse(_valueCtrl.text.trim()) ?? 0.0,
@@ -253,14 +255,26 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                     ),
                     const SizedBox(height: 16),
 
-                    const Text('Assigned To ID',
+                    const Text('Assigned To',
                         style: TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 13)),
                     const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _assignedToCtrl,
-                      hintText: 'Type here',
-                    ),
+                    Obx(() {
+                      final employees = controller.allEmployees;
+                      return _buildDropdown(
+                        value: _selectedAssignedTo,
+                        hint: 'Select employee',
+                        items: employees
+                            .map((e) => e.id.toString())
+                            .toList(),
+                        labels: employees
+                            .map((e) =>
+                                '${e.firstName} ${e.lastName}')
+                            .toList(),
+                        onChanged: (val) =>
+                            setState(() => _selectedAssignedTo = val),
+                      );
+                    }),
                     const SizedBox(height: 16),
 
                     const Text('Department',

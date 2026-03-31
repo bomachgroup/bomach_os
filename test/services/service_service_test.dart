@@ -1,4 +1,3 @@
-import 'package:bms_front_end/pages/services/models/property_model.dart';
 import 'package:bms_front_end/pages/services/models/service_model.dart';
 import 'package:bms_front_end/src/services/service_service.dart';
 import 'package:dio/dio.dart';

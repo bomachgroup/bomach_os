@@ -5,12 +5,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:bms_front_end/src/model/board_model.dart';
 import 'package:bms_front_end/src/model/employees_model.dart';
+import 'package:bms_front_end/src/model/partner_model.dart';
 import 'package:bms_front_end/src/services/board_service.dart';
 import 'package:bms_front_end/src/services/employees_services.dart';
+import 'package:bms_front_end/src/services/partner_service.dart';
 
 class BoardController extends GetxController {
   final BoardService _boardService = BoardService();
   final EmployeeService _employeeService = EmployeeService();
+  final PartnerService _partnerService = PartnerService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Current tab ───────────────────────────────────────────────
@@ -52,7 +55,8 @@ class BoardController extends GetxController {
 
   // ─── Partners state ───────────────────────────────────────────
   var isLoadingPartners = true.obs;
-  var partnerList = <Employee>[].obs;
+  var isSavingPartner = false.obs;
+  var partnerList = <Partner>[].obs;
   var partnerSearchQuery = ''.obs;
   var partnerCurrentPage = 1.obs;
   var partnerLimit = 10.obs;
@@ -415,9 +419,6 @@ class BoardController extends GetxController {
     }
   }
 
-  /// Fetches partners from employees API.
-  /// TODO: Replace 'partner' with the correct employment_type filter value
-  /// once the actual API filter key/value is confirmed.
   Future<void> fetchPartners({bool refresh = false}) async {
     try {
       if (!refresh) isLoadingPartners.value = true;
@@ -427,10 +428,8 @@ class BoardController extends GetxController {
 
       final offset = (partnerCurrentPage.value - 1) * partnerLimit.value;
 
-      final result = await _employeeService.getEmployees(
-        token,
-        // TODO: Replace 'partner' with the correct filter value for partners
-        employmentType: 'partner',
+      final result = await _partnerService.getPartners(
+        accessToken: token,
         search: partnerSearchQuery.value.isNotEmpty
             ? partnerSearchQuery.value
             : null,
@@ -438,12 +437,88 @@ class BoardController extends GetxController {
         offset: offset,
       );
 
-      partnerList.assignAll(result.list);
+      partnerList.assignAll(result.items);
       partnerTotalItems.value = result.count;
     } catch (e) {
       log("Error fetching partners: $e");
     } finally {
       isLoadingPartners.value = false;
+    }
+  }
+
+  Future<void> createPartner(
+      BuildContext context, Map<String, dynamic> data) async {
+    try {
+      isSavingPartner.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _partnerService.createPartner(accessToken: token, data: data);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchPartners(refresh: true);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Partner created"), backgroundColor: Colors.green));
+      }
+    } catch (e) {
+      log("Create partner error: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Failed: $e"), backgroundColor: Colors.red));
+      }
+    } finally {
+      isSavingPartner.value = false;
+    }
+  }
+
+  Future<void> updatePartner(
+      BuildContext context, int id, Map<String, dynamic> data) async {
+    try {
+      isSavingPartner.value = true;
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _partnerService.updatePartner(
+          accessToken: token, partnerId: id, data: data);
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        fetchPartners(refresh: true);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Partner updated"), backgroundColor: Colors.green));
+      }
+    } catch (e) {
+      log("Update partner error: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Failed: $e"), backgroundColor: Colors.red));
+      }
+    } finally {
+      isSavingPartner.value = false;
+    }
+  }
+
+  Future<void> deletePartner(BuildContext context, int id) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+
+      await _partnerService.deletePartner(accessToken: token, partnerId: id);
+
+      partnerList.removeWhere((p) => p.id == id);
+      partnerTotalItems.value = partnerTotalItems.value - 1;
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Partner deleted"), backgroundColor: Colors.green));
+      }
+    } catch (e) {
+      log("Delete partner error: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Failed: $e"), backgroundColor: Colors.red));
+      }
     }
   }
 
