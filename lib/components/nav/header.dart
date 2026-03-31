@@ -488,7 +488,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                           hint: 'e.g. 1990-01-15'),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
-                        value: _selectedGender,
+                        initialValue: _selectedGender,
                         decoration: const InputDecoration(
                           labelText: 'Gender',
                           border: OutlineInputBorder(),
@@ -503,7 +503,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
-                        value: _selectedMaritalStatus,
+                        initialValue: _selectedMaritalStatus,
                         decoration: const InputDecoration(
                           labelText: 'Marital Status',
                           border: OutlineInputBorder(),
