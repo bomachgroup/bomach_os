@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
+import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
@@ -226,24 +230,48 @@ class UserProfileDialog extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
-            // 4. Logout Button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Get.find<AuthController>().logout();
-                },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: const BorderSide(color: Colors.red),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+            // 4. Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      showDialog(
+                        context: context,
+                        builder: (_) => EditProfileDialog(user: user),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.blue,
+                      side: const BorderSide(color: AppColors.blue),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
+                    icon: const Icon(Icons.edit, size: 16),
+                    label: const Text("Edit Profile"),
+                  ),
                 ),
-                child: const Text("Log Out"),
-              ),
-            )
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Get.find<AuthController>().logout();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text("Log Out"),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -311,6 +339,230 @@ class UserProfileDialog extends StatelessWidget {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+// ─── EDIT PROFILE DIALOG ─────────────────────────────────────────────────────
+
+class EditProfileDialog extends StatefulWidget {
+  final User user;
+  const EditProfileDialog({super.key, required this.user});
+
+  @override
+  State<EditProfileDialog> createState() => _EditProfileDialogState();
+}
+
+class _EditProfileDialogState extends State<EditProfileDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _authService = AuthService();
+  final _storage = const FlutterSecureStorage();
+
+  late final TextEditingController _usernameCtrl;
+  late final TextEditingController _phoneCtrl;
+  late final TextEditingController _addressCtrl;
+  late final TextEditingController _dobCtrl;
+
+  String? _selectedGender;
+  String? _selectedMaritalStatus;
+  bool _saving = false;
+
+  static const _genders = ['Male', 'Female', 'Other'];
+  static const _maritalStatuses = ['Single', 'Married', 'Divorced', 'Widowed'];
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameCtrl = TextEditingController(text: widget.user.username);
+    _phoneCtrl = TextEditingController(text: widget.user.phoneNumber ?? '');
+    _addressCtrl = TextEditingController(text: widget.user.address ?? '');
+    _dobCtrl = TextEditingController(text: widget.user.dateOfBirth ?? '');
+    _selectedGender = _genders.contains(widget.user.gender)
+        ? widget.user.gender
+        : null;
+    _selectedMaritalStatus =
+        _maritalStatuses.contains(widget.user.maritalStatus)
+            ? widget.user.maritalStatus
+            : null;
+  }
+
+  @override
+  void dispose() {
+    _usernameCtrl.dispose();
+    _phoneCtrl.dispose();
+    _addressCtrl.dispose();
+    _dobCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<String?> _getToken() async {
+    final token = await _storage.read(key: 'access_token');
+    if (token == null) return null;
+    return token.startsWith('Bearer ')
+        ? token.replaceFirst('Bearer ', '')
+        : token.replaceAll('"', '').trim();
+  }
+
+  Future<void> _save() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() => _saving = true);
+
+    try {
+      final token = await _getToken();
+      if (token == null || !mounted) return;
+
+      final updatedUser = await _authService.updateMe(
+        accessToken: token,
+        employeeId: widget.user.id,
+        username: _usernameCtrl.text.trim(),
+        phoneNumber: _phoneCtrl.text.trim(),
+        address: _addressCtrl.text.trim(),
+        dateOfBirth:
+            _dobCtrl.text.trim().isNotEmpty ? _dobCtrl.text.trim() : null,
+        gender: _selectedGender,
+        maritalStatus: _selectedMaritalStatus,
+      );
+
+      // Update the cached current user in the auth controller
+      Get.find<AuthController>().currentUser.value = updatedUser;
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Profile updated successfully'),
+          backgroundColor: Colors.green,
+        ));
+      }
+    } catch (e) {
+      log('Update profile error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to update profile: $e'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.white,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 600),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const MyText("Edit Profile",
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context)),
+              ],
+            ),
+            const Divider(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      _buildField("Username", _usernameCtrl),
+                      const SizedBox(height: 12),
+                      _buildField("Phone Number", _phoneCtrl,
+                          keyboardType: TextInputType.phone),
+                      const SizedBox(height: 12),
+                      _buildField("Address", _addressCtrl, maxLines: 2),
+                      const SizedBox(height: 12),
+                      _buildField("Date of Birth (YYYY-MM-DD)", _dobCtrl,
+                          hint: 'e.g. 1990-01-15'),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: const InputDecoration(
+                          labelText: 'Gender',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
+                        ),
+                        items: _genders
+                            .map((g) => DropdownMenuItem(
+                                value: g, child: Text(g)))
+                            .toList(),
+                        onChanged: (v) => setState(() => _selectedGender = v),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: _selectedMaritalStatus,
+                        decoration: const InputDecoration(
+                          labelText: 'Marital Status',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
+                        ),
+                        items: _maritalStatuses
+                            .map((s) => DropdownMenuItem(
+                                value: s, child: Text(s)))
+                            .toList(),
+                        onChanged: (v) =>
+                            setState(() => _selectedMaritalStatus = v),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saving ? null : _save,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: _saving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : const Text('Save Changes',
+                        style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildField(String label, TextEditingController ctrl,
+      {TextInputType keyboardType = TextInputType.text,
+      int maxLines = 1,
+      String? hint}) {
+    return TextFormField(
+      controller: ctrl,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        border: const OutlineInputBorder(),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       ),
     );
   }

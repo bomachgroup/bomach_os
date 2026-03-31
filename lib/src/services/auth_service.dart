@@ -225,6 +225,44 @@ class AuthService {
     }
   }
 
+  // UPDATE PROFILE (/auth/me)
+  Future<User> updateMe({
+    required String accessToken,
+    required int employeeId,
+    String? phoneNumber,
+    String? gender,
+    String? maritalStatus,
+    String? dateOfBirth,
+    String? address,
+    String? username,
+  }) async {
+    try {
+      final payload = <String, dynamic>{};
+      if (phoneNumber != null) payload['phone_number'] = phoneNumber;
+      if (gender != null) payload['gender'] = gender;
+      if (maritalStatus != null) payload['marital_status'] = maritalStatus;
+      if (dateOfBirth != null && dateOfBirth.isNotEmpty) {
+        payload['date_of_birth'] = dateOfBirth;
+      }
+      if (address != null) payload['address'] = address;
+      if (username != null) payload['username'] = username;
+
+      final response = await _dio.patch(
+        '/api/v1/employees/employees/$employeeId',
+        data: payload,
+        options: _authOptions(accessToken),
+      );
+
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        throw AuthException(message: 'Invalid response from server');
+      }
+
+      return User.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // LOGOUT
   Future<void> logout({required String accessToken}) async {
     try {
