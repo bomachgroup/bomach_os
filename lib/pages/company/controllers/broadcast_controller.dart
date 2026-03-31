@@ -4,11 +4,17 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:bms_front_end/src/model/board_model.dart';
+import 'package:bms_front_end/src/model/branch_model.dart';
 import 'package:bms_front_end/src/model/broadcast_model.dart';
+import 'package:bms_front_end/src/model/departments_units_model.dart';
+import 'package:bms_front_end/src/services/branch_service.dart';
 import 'package:bms_front_end/src/services/broadcast_service.dart';
+import 'package:bms_front_end/src/services/employees_services.dart';
 
 class BroadcastController extends GetxController {
   final BroadcastService _broadcastService = BroadcastService();
+  final BranchService _branchService = BranchService();
+  final EmployeeService _employeeService = EmployeeService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Current tab ───────────────────────────────────────────────
@@ -41,13 +47,33 @@ class BroadcastController extends GetxController {
   // ─── Field choices ────────────────────────────────────────────
   var announcementChoices = Rxn<AnnouncementFieldChoices>();
 
+  // ─── Branch & Department data for targeting ───────────────────
+  var branches = <Branch>[].obs;
+  var departments = <Department>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchAnnouncements();
     fetchEvents();
     loadAnnouncementChoices();
+    _fetchBranchesAndDepartments();
     loadDummyNotifications();
+  }
+
+  Future<void> _fetchBranchesAndDepartments() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return;
+      final results = await Future.wait([
+        _branchService.getBranches(accessToken: token, limit: 200),
+        _employeeService.getDepartments(token, limit: 200),
+      ]);
+      branches.assignAll((results[0] as ({List<Branch> items, int total})).items);
+      departments.assignAll(results[1] as List<Department>);
+    } catch (e) {
+      log("Error fetching branches/departments for broadcast: $e");
+    }
   }
 
   // ─── ANNOUNCEMENTS CRUD ───────────────────────────────────────
@@ -280,9 +306,8 @@ class BroadcastController extends GetxController {
     }
   }
 
-  // ─── NOTIFICATIONS (UI-only, dummy data) ──────────────────────
+  // ─── NOTIFICATIONS (UI-only, no API endpoint yet) ────────────
 
-  /// TODO: Replace with real API integration when notification endpoints are available
   void loadDummyNotifications() {
     final dummyData = <NotificationItem>[
       NotificationItem(
@@ -345,7 +370,6 @@ class BroadcastController extends GetxController {
   }
 
   void markAllRead() {
-    // TODO: Call real API when available
     unreadCount.value = 0;
   }
 

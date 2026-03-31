@@ -111,7 +111,6 @@ class _LegalsPageState extends State<LegalsPage> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        ///TODO: Consider changing the layout to 700 for mobile
         final isMobile = constraints.maxWidth < 600;
         final isTablet =
             constraints.maxWidth < 1000 && constraints.maxWidth >= 600;

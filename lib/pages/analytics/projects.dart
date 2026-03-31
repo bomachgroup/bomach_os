@@ -422,7 +422,6 @@ class _TeamPerformanceRow extends StatelessWidget {
   }
 }
 
-/// TODO: Remove redundant codes
 class ProjectStatus {
   final String label;
   final int count;

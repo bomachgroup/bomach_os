@@ -33,7 +33,6 @@ class DashboardData extends ChangeNotifier {
   }
 }
 
-// TODO: Remove redundant code
 class DynamicSummaryRow extends StatelessWidget {
   final DashboardData dashboardData;
 

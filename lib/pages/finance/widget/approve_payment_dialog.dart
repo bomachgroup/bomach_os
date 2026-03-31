@@ -1,3 +1,4 @@
+import 'package:web/web.dart' as web;
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -315,7 +316,7 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                                   trailing: IconButton(
                                     icon: const Icon(Icons.visibility),
                                     onPressed: () {
-                                      // TODO: Implement file preview
+                                      web.window.open(proof, '_blank');
                                     },
                                   ),
                                 );

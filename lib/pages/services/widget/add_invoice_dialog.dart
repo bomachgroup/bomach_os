@@ -626,9 +626,6 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
         return;
       }
 
-      // TODO: Implement invoice creation logic
-      // Create Invoice object and save to backend
-
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -144,8 +144,7 @@ class BroadcastEvent {
 
 // ─── NOTIFICATION ITEM (UI-only) ────────────────────────────────
 
-/// Display model for notification cards. No API — static/dummy data for now.
-/// TODO: Implement real Notifications API when endpoints become available.
+/// Display model for notification cards. No API endpoint available yet.
 class NotificationItem {
   final String title;
   final String subtitle;

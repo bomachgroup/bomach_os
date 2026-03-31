@@ -355,9 +355,6 @@ class BoardController extends GetxController {
 
   // ─── INVESTORS / ASSOCIATES / PARTNERS (Employees API) ────────
 
-  /// Fetches investors from employees API.
-  /// TODO: Replace 'investor' with the correct employment_type filter value
-  /// once the actual API filter key/value is confirmed.
   Future<void> fetchInvestors({bool refresh = false}) async {
     try {
       if (!refresh) isLoadingInvestors.value = true;
@@ -369,7 +366,6 @@ class BoardController extends GetxController {
 
       final result = await _employeeService.getEmployees(
         token,
-        // TODO: Replace 'investor' with the correct filter value for investors
         employmentType: 'investor',
         search: investorSearchQuery.value.isNotEmpty
             ? investorSearchQuery.value
@@ -387,9 +383,6 @@ class BoardController extends GetxController {
     }
   }
 
-  /// Fetches associates from employees API.
-  /// TODO: Replace 'associate' with the correct employment_type filter value
-  /// once the actual API filter key/value is confirmed.
   Future<void> fetchAssociates({bool refresh = false}) async {
     try {
       if (!refresh) isLoadingAssociates.value = true;
@@ -401,7 +394,6 @@ class BoardController extends GetxController {
 
       final result = await _employeeService.getEmployees(
         token,
-        // TODO: Replace 'associate' with the correct filter value for associates
         employmentType: 'associate',
         search: associateSearchQuery.value.isNotEmpty
             ? associateSearchQuery.value

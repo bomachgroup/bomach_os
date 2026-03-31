@@ -34,10 +34,8 @@ class _CreateEditAnnouncementDialogState
   String? selectedPriority;
   bool isActive = true;
 
-  // Branch & department IDs — for now we use checkboxes with labels
-  // TODO: Load actual branches/departments from API
   Set<int> selectedBranchIds = {};
-  Set<int> selectedDepartmentIds = {};
+  Set<String> selectedDepartmentIds = {};
 
   bool get isEdit => widget.announcement != null;
 
@@ -61,7 +59,7 @@ class _CreateEditAnnouncementDialogState
       selectedPriority = a.priority.isNotEmpty ? a.priority : null;
       isActive = a.isActive;
       selectedBranchIds = a.branchIds.toSet();
-      selectedDepartmentIds = a.departmentIds.toSet();
+      selectedDepartmentIds = a.departmentIds.map((id) => id.toString()).toSet();
     } else {
       selectedAnnouncementType = 'general';
       selectedPriority = 'normal';
@@ -226,6 +224,66 @@ class _CreateEditAnnouncementDialogState
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+
+                // Target Branches
+                _fieldLabel('Target Branches (optional)'),
+                Obx(() {
+                  final branches = controller.branches;
+                  if (branches.isEmpty) return const SizedBox.shrink();
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: branches.map((branch) {
+                      final selected = selectedBranchIds.contains(branch.id);
+                      return FilterChip(
+                        label: Text(branch.branchName,
+                            style: const TextStyle(fontSize: 13)),
+                        selected: selected,
+                        onSelected: (val) => setState(() {
+                          if (val) {
+                            selectedBranchIds.add(branch.id);
+                          } else {
+                            selectedBranchIds.remove(branch.id);
+                          }
+                        }),
+                        selectedColor:
+                            const Color(0xFF1976D2).withValues(alpha: 0.15),
+                        checkmarkColor: const Color(0xFF1976D2),
+                      );
+                    }).toList(),
+                  );
+                }),
+                const SizedBox(height: 16),
+
+                // Target Departments
+                _fieldLabel('Target Departments (optional)'),
+                Obx(() {
+                  final depts = controller.departments;
+                  if (depts.isEmpty) return const SizedBox.shrink();
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: depts.map((dept) {
+                      final selected = selectedDepartmentIds.contains(dept.id);
+                      return FilterChip(
+                        label: Text(dept.name,
+                            style: const TextStyle(fontSize: 13)),
+                        selected: selected,
+                        onSelected: (val) => setState(() {
+                          if (val) {
+                            selectedDepartmentIds.add(dept.id);
+                          } else {
+                            selectedDepartmentIds.remove(dept.id);
+                          }
+                        }),
+                        selectedColor:
+                            const Color(0xFF1976D2).withValues(alpha: 0.15),
+                        checkmarkColor: const Color(0xFF1976D2),
+                      );
+                    }).toList(),
+                  );
+                }),
                 const SizedBox(height: 24),
 
                 // Action buttons
@@ -390,7 +448,10 @@ class _CreateEditAnnouncementDialogState
       'announcement_type': selectedAnnouncementType ?? 'general',
       'priority': selectedPriority ?? 'normal',
       'branch_ids': selectedBranchIds.toList(),
-      'department_ids': selectedDepartmentIds.toList(),
+      'department_ids': selectedDepartmentIds
+          .map((id) => int.tryParse(id) ?? 0)
+          .where((id) => id > 0)
+          .toList(),
       'is_active': isActive,
       'publish_at': apiPublishAt,
       'expires_at': apiExpiresAt,

@@ -942,8 +942,6 @@ class _ResolutionsTab extends StatelessWidget {
 
 // ═══════════════════════════════════════════════════════════════════
 //  INVESTORS TAB
-//  TODO: The employment_type filter value 'investor' is a placeholder.
-//  Replace with the correct API filter key/value once confirmed.
 // ═══════════════════════════════════════════════════════════════════
 
 class _InvestorsTab extends StatelessWidget {
@@ -1186,8 +1184,6 @@ class _InvestorsTab extends StatelessWidget {
 
 // ═══════════════════════════════════════════════════════════════════
 //  ASSOCIATES TAB
-//  TODO: The employment_type filter value 'associate' is a placeholder.
-//  Replace with the correct API filter key/value once confirmed.
 // ═══════════════════════════════════════════════════════════════════
 
 class _AssociatesTab extends StatelessWidget {

@@ -62,14 +62,28 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
   void _onSave() {
     if (_nameCtrl.text.trim().isEmpty) return;
 
-    // TODO: Verify field names match actual API create/update schema
+    final steps = _selectedApprovers.isEmpty
+        ? [
+            {
+              'step_order': 1,
+              'step_name': 'Approval Step',
+              'required_level': _selectedLevels ?? '',
+            }
+          ]
+        : _selectedApprovers.toList().asMap().entries.map((entry) {
+            return {
+              'step_order': entry.key + 1,
+              'step_name': 'Step ${entry.key + 1}',
+              'required_level': entry.value,
+            };
+          }).toList();
+
     final data = <String, dynamic>{
       'name': _nameCtrl.text.trim(),
-      'action': _selectedAction ?? '',
-      'levels': int.tryParse(_selectedLevels ?? '') ?? 1,
-      'approvers': _selectedApprovers.toList(),
-      'status': _selectedStatus ?? 'active',
-      'notes': _notesCtrl.text.trim(),
+      'action_type': _selectedAction ?? '',
+      'description': _notesCtrl.text.trim(),
+      'is_active': (_selectedStatus ?? 'active') == 'active',
+      'steps': steps,
     };
 
     if (isEdit) {

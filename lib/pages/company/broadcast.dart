@@ -898,8 +898,6 @@ class _EventsTab extends StatelessWidget {
 
 // ═══════════════════════════════════════════════════════════════════
 //  NOTIFICATIONS TAB
-//  TODO: Replace dummy data with real API when notification endpoints
-//  become available.
 // ═══════════════════════════════════════════════════════════════════
 
 class _NotificationsTab extends StatelessWidget {

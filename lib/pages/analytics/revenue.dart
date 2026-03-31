@@ -16,8 +16,6 @@ class RevenueAnalyticsPage extends StatelessWidget {
       final screenWidth = constraints.maxWidth;
       final bool isMobile = constraints.maxWidth < 700;
 
-      ///TODO: Find way to use a similar logic as the one already used in previous codes later on
-      ///This one dey stressful
       // subtract sidebar (300) and horizontal padding (32 * 2 = 64)
       final availableWidth = screenWidth - 300 - 64;
 
@@ -132,7 +130,6 @@ class RevenueAnalyticsPage extends StatelessWidget {
           ),
           kSizedBox,
 
-          ///TODO: Remove redundant codes
           isMobile
               ? Wrap(
                   children: [
