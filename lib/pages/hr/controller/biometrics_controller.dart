@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 
 import '../models/attendance_models.dart';
 
