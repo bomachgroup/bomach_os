@@ -51,10 +51,8 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
         TextEditingController(text: r?.operationalBase ?? '');
     _workActivitiesController =
         TextEditingController(text: r?.workActivities ?? '');
-    _taskDetailsController =
-        TextEditingController(text: r?.taskDetails ?? '');
-    _nextDayPlanController =
-        TextEditingController(text: r?.planNextDay ?? '');
+    _taskDetailsController = TextEditingController(text: r?.taskDetails ?? '');
+    _nextDayPlanController = TextEditingController(text: r?.planNextDay ?? '');
 
     _reportDate = r?.day ?? DateTime.now();
     if (r?.attachments != null) {
@@ -173,11 +171,10 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(color: Colors.grey.shade300))),
+                  border:
+                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -275,9 +272,8 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
                           : const Icon(Icons.upload_file, size: 18),
-                      label: Text(_isUploading
-                          ? 'Uploading...'
-                          : 'Choose File'),
+                      label:
+                          Text(_isUploading ? 'Uploading...' : 'Choose File'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.blue,
                         foregroundColor: Colors.white,
@@ -292,7 +288,8 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                       ..._attachments.asMap().entries.map((entry) {
                         final idx = entry.key;
                         final url = entry.value.fileUrl;
-                        final fileName = Uri.tryParse(url)?.pathSegments.lastOrNull ?? url;
+                        final fileName =
+                            Uri.tryParse(url)?.pathSegments.lastOrNull ?? url;
                         return Container(
                           margin: const EdgeInsets.only(bottom: 6),
                           padding: const EdgeInsets.symmetric(
@@ -313,8 +310,8 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                                     overflow: TextOverflow.ellipsis),
                               ),
                               InkWell(
-                                onTap: () => setState(
-                                    () => _attachments.removeAt(idx)),
+                                onTap: () =>
+                                    setState(() => _attachments.removeAt(idx)),
                                 child: const Icon(Icons.close,
                                     size: 16, color: Colors.red),
                               ),
@@ -328,11 +325,9 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                  border:
-                      Border(top: BorderSide(color: Colors.grey.shade300))),
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

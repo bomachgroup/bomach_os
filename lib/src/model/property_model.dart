@@ -23,7 +23,8 @@ class PropertyModel {
   final PropertyAgent? agent;
   final DateTime listedDate;
   final DateTime? lastUpdated;
-  final String? titleStatus; // Certificate of Occupancy, Deed of Assignment, etc.
+  final String?
+      titleStatus; // Certificate of Occupancy, Deed of Assignment, etc.
   final PropertyLocation? coordinates;
 
   PropertyModel({
@@ -120,7 +121,8 @@ class PropertyModel {
               .toList() ??
           [],
       documents: (json['documents'] as List<dynamic>?)
-              ?.map((doc) => PropertyDocument.fromJson(doc as Map<String, dynamic>))
+              ?.map((doc) =>
+                  PropertyDocument.fromJson(doc as Map<String, dynamic>))
               .toList() ??
           [],
       agent: json['agent'] != null
@@ -132,7 +134,8 @@ class PropertyModel {
           : null,
       titleStatus: json['titleStatus'] as String?,
       coordinates: json['coordinates'] != null
-          ? PropertyLocation.fromJson(json['coordinates'] as Map<String, dynamic>)
+          ? PropertyLocation.fromJson(
+              json['coordinates'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -311,7 +314,8 @@ class PropertyHistoryEvent {
   final String title;
   final String description;
   final DateTime date;
-  final String eventType; // Listed, Price Change, Status Change, Viewing, Offer, etc.
+  final String
+      eventType; // Listed, Price Change, Status Change, Viewing, Offer, etc.
 
   PropertyHistoryEvent({
     required this.id,

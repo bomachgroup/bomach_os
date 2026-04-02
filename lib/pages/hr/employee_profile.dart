@@ -136,7 +136,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                             color: Colors.grey.shade600, size: 14),
                         const SizedBox(width: 8),
                         Container(
-                          width: 4, height: 4,
+                          width: 4,
+                          height: 4,
                           decoration: const BoxDecoration(
                               color: Colors.grey, shape: BoxShape.circle),
                         ),
@@ -153,7 +154,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                           child: MyText(
                             isActive ? 'Active' : 'Inactive',
                             color: isActive ? Colors.green : Colors.red,
-                            size: 11, weight: 600,
+                            size: 11,
+                            weight: 600,
                           ),
                         )
                       ],
@@ -178,8 +180,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       onTap: () {
                         showDialog(
                           context: context,
-                          builder: (_) =>
-                              AddEmployeeDialog(employee: employee),
+                          builder: (_) => AddEmployeeDialog(employee: employee),
                         );
                       },
                     ),
@@ -187,7 +188,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                     MyElevatedButton(
                       child: 'Give Review',
                       bgColor: const Color(0xFFD500F9),
-                      icon: const Icon(Icons.star, color: Colors.white, size: 16),
+                      icon:
+                          const Icon(Icons.star, color: Colors.white, size: 16),
                       height: 40,
                       onTap: () {
                         showDialog(
@@ -232,7 +234,8 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                 const SizedBox(height: 6),
                 if (isSelected)
                   Container(
-                    height: 2, width: 20,
+                    height: 2,
+                    width: 20,
                     color: const Color(0xFF0055FF),
                   )
               ],
@@ -248,11 +251,9 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
       case 0:
         return _ProfileTab(employee: employee);
       case 1:
-        return _DocumentsTab(
-            controller: controller, userId: employee.id);
+        return _DocumentsTab(controller: controller, userId: employee.id);
       case 2:
-        return _ReviewsTab(
-            controller: controller, employee: employee);
+        return _ReviewsTab(controller: controller, employee: employee);
       case 3:
         return _BenefitsTab(employee: employee);
       default:
@@ -300,7 +301,9 @@ class _ProfileTab extends StatelessWidget {
           width: isDesktop ? 0.66 : 1.0,
           isGrid: true,
           children: [
-            _DataField(label: "Employee ID", value: employee.employeeId ?? employee.id),
+            _DataField(
+                label: "Employee ID",
+                value: employee.employeeId ?? employee.id),
             _DataField(
                 label: "Date of Birth",
                 value: employee.dateOfBirth != null
@@ -309,7 +312,8 @@ class _ProfileTab extends StatelessWidget {
             _DataField(label: "Gender", value: employee.gender ?? '-'),
             _DataField(
                 label: "Marital Status", value: employee.maritalStatus ?? '-'),
-            _DataField(label: "Nationality", value: employee.nationality ?? '-'),
+            _DataField(
+                label: "Nationality", value: employee.nationality ?? '-'),
           ],
         ),
 
@@ -337,8 +341,7 @@ class _ProfileTab extends StatelessWidget {
                   children: [
                     MyText(employee.reportingToName ?? "Not Assigned",
                         weight: 600, size: 14),
-                    MyText("Manager",
-                        size: 12, color: Colors.grey.shade600),
+                    MyText("Manager", size: 12, color: Colors.grey.shade600),
                   ],
                 )
               ],
@@ -351,17 +354,23 @@ class _ProfileTab extends StatelessWidget {
           isGrid: true,
           children: [
             _DataField(label: "Work Email", value: employee.email),
-            _DataField(label: "Personal Email", value: employee.personalEmail ?? '-'),
+            _DataField(
+                label: "Personal Email", value: employee.personalEmail ?? '-'),
             _DataField(label: "Phone", value: employee.phoneNumber ?? '-'),
-            _DataField(label: "Other Phone", value: employee.otherPhoneNumber ?? '-'),
+            _DataField(
+                label: "Other Phone", value: employee.otherPhoneNumber ?? '-'),
             _DataField(
                 label: "Street Address",
                 value: employee.streetAddress ?? employee.address ?? '-'),
             _DataField(label: "City", value: employee.city ?? '-'),
             _DataField(label: "State", value: employee.state ?? '-'),
             _DataField(label: "Zip Code", value: employee.zipCode ?? '-'),
-            _DataField(label: "Emergency Contact", value: employee.emergencyContactName ?? '-'),
-            _DataField(label: "Relationship", value: employee.emergencyContactRelationship ?? '-'),
+            _DataField(
+                label: "Emergency Contact",
+                value: employee.emergencyContactName ?? '-'),
+            _DataField(
+                label: "Relationship",
+                value: employee.emergencyContactRelationship ?? '-'),
           ],
         ),
 
@@ -371,18 +380,24 @@ class _ProfileTab extends StatelessWidget {
           width: 1.0,
           isGrid: true,
           children: [
-            _DataField(label: "Designation", value: employee.designation ?? employee.role),
+            _DataField(
+                label: "Designation",
+                value: employee.designation ?? employee.role),
             _DataField(
                 label: "Department",
-                value: employee.departmentName ?? employee.departmentId?.toString() ?? '-'),
-            _DataField(label: "Unit", value: employee.departmentUnitName ?? '-'),
+                value: employee.departmentName ??
+                    employee.departmentId?.toString() ??
+                    '-'),
+            _DataField(
+                label: "Unit", value: employee.departmentUnitName ?? '-'),
             _DataField(
                 label: "Branch",
-                value: employee.branchName ?? employee.branchId?.toString() ?? '-'),
+                value: employee.branchName ??
+                    employee.branchId?.toString() ??
+                    '-'),
             _DataField(label: "Location", value: employee.location ?? '-'),
             _DataField(
-                label: "Reporting To",
-                value: employee.reportingToName ?? '-'),
+                label: "Reporting To", value: employee.reportingToName ?? '-'),
             _DataField(
                 label: "Employment Type",
                 value: employee.employmentType ?? '-'),
@@ -428,11 +443,15 @@ class _ProfileTab extends StatelessWidget {
                 value: employee.grossSalary != null
                     ? "₦${employee.grossSalary}"
                     : "₦0.00"),
-            _DataField(label: "Payment Frequency", value: employee.salaryFrequency ?? '-'),
+            _DataField(
+                label: "Payment Frequency",
+                value: employee.salaryFrequency ?? '-'),
             _DataField(label: "Bank Name", value: employee.bankName ?? '-'),
-            _DataField(label: "Account Number", value: employee.accountNumber ?? '-'),
+            _DataField(
+                label: "Account Number", value: employee.accountNumber ?? '-'),
             _DataField(label: "Tax ID", value: employee.taxId ?? '-'),
-            _DataField(label: "Pension Number", value: employee.pensionNumber ?? '-'),
+            _DataField(
+                label: "Pension Number", value: employee.pensionNumber ?? '-'),
           ],
         ),
       ],
@@ -513,8 +532,8 @@ class _DocumentsTabState extends State<_DocumentsTab> {
                     flex: 1,
                     child: Align(
                         alignment: Alignment.centerRight,
-                        child: MyText("Action",
-                            weight: 600, color: Colors.grey))),
+                        child:
+                            MyText("Action", weight: 600, color: Colors.grey))),
               ],
             ),
           ),
@@ -551,7 +570,8 @@ class _DocumentsTabState extends State<_DocumentsTab> {
     );
   }
 
-  Widget _buildDocRow(String title, String type, String uploader, String docId) {
+  Widget _buildDocRow(
+      String title, String type, String uploader, String docId) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -571,13 +591,12 @@ class _DocumentsTabState extends State<_DocumentsTab> {
                 icon: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
                 onSelected: (value) {
                   if (value == 'delete' && docId.isNotEmpty) {
-                    widget.controller.deleteDocument(
-                        context, widget.userId, docId);
+                    widget.controller
+                        .deleteDocument(context, widget.userId, docId);
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
-                      value: 'delete', child: Text('Delete')),
+                  const PopupMenuItem(value: 'delete', child: Text('Delete')),
                 ],
               ),
             ),
@@ -635,8 +654,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     flex: 1,
                     child: Align(
                         alignment: Alignment.centerRight,
-                        child: MyText("Action",
-                            weight: 600, color: Colors.grey))),
+                        child:
+                            MyText("Action", weight: 600, color: Colors.grey))),
               ],
             ),
           ),
@@ -661,7 +680,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                 final reviewerName =
                     review['reviewer_name'] ?? review['from'] ?? 'Unknown';
                 final date = review['created_at'] ?? review['date'] ?? '-';
-                final rating = review['rating'] ?? review['overall_rating'] ?? 0;
+                final rating =
+                    review['rating'] ?? review['overall_rating'] ?? 0;
                 final reviewId = review['id']?.toString() ?? '';
 
                 return _buildReviewRow(reviewerName, date, rating, reviewId);
@@ -673,8 +693,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    MyText(
-                        "Showing ${widget.controller.reviews.length}",
+                    MyText("Showing ${widget.controller.reviews.length}",
                         color: Colors.grey),
                     const SizedBox(),
                   ],
@@ -689,7 +708,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
       String reviewer, String date, dynamic rating, String reviewId) {
     final int ratingInt =
         rating is int ? rating : (int.tryParse(rating.toString()) ?? 0);
-    final String formattedDate = date.length > 10 ? date.substring(0, 10) : date;
+    final String formattedDate =
+        date.length > 10 ? date.substring(0, 10) : date;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -704,7 +724,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                   backgroundColor: Colors.grey.shade200,
                   child: Text(
                     reviewer.isNotEmpty ? reviewer[0] : '?',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -712,9 +733,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
               ],
             ),
           ),
-          Expanded(
-              flex: 2,
-              child: MyText(formattedDate, color: Colors.grey)),
+          Expanded(flex: 2, child: MyText(formattedDate, color: Colors.grey)),
           Expanded(
             flex: 2,
             child: Row(
@@ -735,13 +754,12 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                 icon: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
                 onSelected: (value) {
                   if (value == 'delete' && reviewId.isNotEmpty) {
-                    widget.controller.deleteReview(
-                        context, widget.employee.id, reviewId);
+                    widget.controller
+                        .deleteReview(context, widget.employee.id, reviewId);
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
-                      value: 'delete', child: Text('Delete')),
+                  const PopupMenuItem(value: 'delete', child: Text('Delete')),
                 ],
               ),
             ),
@@ -951,7 +969,8 @@ class _InfoRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1), shape: BoxShape.circle),
+                color: Colors.green.withValues(alpha: 0.1),
+                shape: BoxShape.circle),
             child: Icon(icon, color: Colors.green, size: 16),
           ),
           const SizedBox(width: 12),

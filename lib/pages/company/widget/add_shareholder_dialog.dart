@@ -249,8 +249,7 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                  border:
-                      Border(top: BorderSide(color: Colors.grey.shade300))),
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

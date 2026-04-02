@@ -1,8 +1,10 @@
 import 'dart:developer';
+
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 
 import '../models/department_model.dart';
 
@@ -10,7 +12,7 @@ class DepartmentController extends GetxController {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://bomachauth.bgbot.app',
+    baseUrl: ApiConstants.baseUrl,
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {

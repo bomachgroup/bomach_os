@@ -95,8 +95,7 @@ class CompliancePageView extends StatelessWidget {
                                 hintText: 'Search compliance...',
                                 leading: Icon(
                                   Icons.search,
-                                  color:
-                                      AppColors.grey1.withValues(alpha: 0.5),
+                                  color: AppColors.grey1.withValues(alpha: 0.5),
                                 ),
                                 onChanged: controller.onSearchChanged,
                               ),
@@ -150,10 +149,8 @@ class CompliancePageView extends StatelessWidget {
                                 'Days Until Expiry':
                                     record.daysUntilExpiry.toString(),
                                 'Description': record.description ?? 'N/A',
-                                'Contact Person':
-                                    record.contactPerson ?? 'N/A',
-                                'Contact Email':
-                                    record.contactEmail ?? 'N/A',
+                                'Contact Person': record.contactPerson ?? 'N/A',
+                                'Contact Email': record.contactEmail ?? 'N/A',
                                 'Cost': record.cost ?? 'N/A',
                               },
                             ),
@@ -176,8 +173,7 @@ class CompliancePageView extends StatelessWidget {
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(c);
-                                  controller.deleteRecord(
-                                      context, record.id);
+                                  controller.deleteRecord(context, record.id);
                                 },
                                 child: const Text('Delete',
                                     style: TextStyle(color: Colors.red)),
@@ -264,8 +260,7 @@ class _ComplianceRecordCard extends StatelessWidget {
                           children: [
                             MyText(record.fullName,
                                 style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600)),
+                                    fontSize: 16, fontWeight: FontWeight.w600)),
                             StatusTag(
                                 text: record.status,
                                 color: _statusColor(record.status)),
@@ -275,8 +270,7 @@ class _ComplianceRecordCard extends StatelessWidget {
                             if (record.priorityLevel != null)
                               StatusTag(
                                   text: record.priorityLevel!,
-                                  color: _priorityColor(
-                                      record.priorityLevel)),
+                                  color: _priorityColor(record.priorityLevel)),
                             if (record.isExpired)
                               const StatusTag(
                                   text: 'Expired', color: Colors.red),
@@ -285,8 +279,8 @@ class _ComplianceRecordCard extends StatelessWidget {
                         const SizedBox(height: 10),
                         _buildField('Authority', record.issuingAuthority),
                         _buildField('Type', record.complianceType),
-                        _buildField('Reference',
-                            record.referenceNumber ?? 'N/A'),
+                        _buildField(
+                            'Reference', record.referenceNumber ?? 'N/A'),
                         _buildField('Expiry', record.expiryDate),
                         _buildField('Days Until Expiry',
                             record.daysUntilExpiry.toString()),
@@ -294,11 +288,10 @@ class _ComplianceRecordCard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            _actionButton(Icons.remove_red_eye_outlined,
-                                'View', onView),
-                            const SizedBox(width: 8),
                             _actionButton(
-                                Icons.edit_outlined, 'Edit', onEdit),
+                                Icons.remove_red_eye_outlined, 'View', onView),
+                            const SizedBox(width: 8),
+                            _actionButton(Icons.edit_outlined, 'Edit', onEdit),
                             const SizedBox(width: 8),
                             _actionButton(
                                 Icons.delete_outline, 'Delete', onDelete,
@@ -322,8 +315,7 @@ class _ComplianceRecordCard extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   StatusTag(
                                       text: record.status,
-                                      color:
-                                          _statusColor(record.status)),
+                                      color: _statusColor(record.status)),
                                   const SizedBox(width: 8),
                                   StatusTag(
                                       text: record.complianceType,
@@ -338,8 +330,7 @@ class _ComplianceRecordCard extends StatelessWidget {
                                   if (record.isExpired) ...[
                                     const SizedBox(width: 8),
                                     const StatusTag(
-                                        text: 'Expired',
-                                        color: Colors.red),
+                                        text: 'Expired', color: Colors.red),
                                   ],
                                 ],
                               ),
@@ -353,11 +344,10 @@ class _ComplianceRecordCard extends StatelessWidget {
                                       children: [
                                         _buildField('Authority',
                                             record.issuingAuthority),
-                                        _buildField('Type',
-                                            record.complianceType),
+                                        _buildField(
+                                            'Type', record.complianceType),
                                         _buildField('Reference',
-                                            record.referenceNumber ??
-                                                'N/A'),
+                                            record.referenceNumber ?? 'N/A'),
                                       ],
                                     ),
                                   ),
@@ -369,12 +359,10 @@ class _ComplianceRecordCard extends StatelessWidget {
                                       children: [
                                         _buildField('Date of Issue',
                                             record.dateOfIssue),
-                                        _buildField('Expiry Date',
-                                            record.expiryDate),
                                         _buildField(
-                                            'Days Until Expiry',
-                                            record.daysUntilExpiry
-                                                .toString()),
+                                            'Expiry Date', record.expiryDate),
+                                        _buildField('Days Until Expiry',
+                                            record.daysUntilExpiry.toString()),
                                       ],
                                     ),
                                   ),
@@ -385,11 +373,10 @@ class _ComplianceRecordCard extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            _actionButton(Icons.remove_red_eye_outlined,
-                                'View', onView),
-                            const SizedBox(width: 8),
                             _actionButton(
-                                Icons.edit_outlined, 'Edit', onEdit),
+                                Icons.remove_red_eye_outlined, 'View', onView),
+                            const SizedBox(width: 8),
+                            _actionButton(Icons.edit_outlined, 'Edit', onEdit),
                             const SizedBox(width: 8),
                             _actionButton(
                                 Icons.delete_outline, 'Delete', onDelete,

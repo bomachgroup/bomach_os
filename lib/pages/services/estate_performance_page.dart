@@ -47,9 +47,19 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
     // Generate sample invoices for the last 6 months
     for (int i = 0; i < 30; i++) {
       final date = now.subtract(Duration(days: i * 5));
-      final estates = ['Aso Villa Estate', 'Fortress City Estate', 'Victoria Gardens', 'Diamond Heights'];
+      final estates = [
+        'Aso Villa Estate',
+        'Fortress City Estate',
+        'Victoria Gardens',
+        'Diamond Heights'
+      ];
       final estateName = estates[i % estates.length];
-      final serviceTypes = ['Real Estate', 'Land Survey', 'Property Management', 'Estate Management'];
+      final serviceTypes = [
+        'Real Estate',
+        'Land Survey',
+        'Property Management',
+        'Estate Management'
+      ];
       final serviceType = serviceTypes[i % serviceTypes.length];
       final types = ['Sale', 'Reservation', 'Payment', 'Commission'];
       final type = types[i % types.length];
@@ -57,7 +67,9 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
       final status = statuses[i % statuses.length];
 
       final amount = 5000000.0 + (i * 100000.0);
-      final amountPaid = status == 'Paid' ? amount : (status == 'Partial' ? amount * 0.6 : 0.0);
+      final amountPaid = status == 'Paid'
+          ? amount
+          : (status == 'Partial' ? amount * 0.6 : 0.0);
 
       _allInvoices.add(
         PerformanceInvoice(
@@ -127,17 +139,22 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
 
     // Apply service type filter
     if (_selectedServiceType != 'All Services') {
-      filtered = filtered.where((inv) => inv.serviceType == _selectedServiceType).toList();
+      filtered = filtered
+          .where((inv) => inv.serviceType == _selectedServiceType)
+          .toList();
     }
 
     // Apply estate filter
     if (_selectedEstate != 'All Estates' && widget.estate == null) {
-      filtered = filtered.where((inv) => inv.estateName == _selectedEstate).toList();
+      filtered =
+          filtered.where((inv) => inv.estateName == _selectedEstate).toList();
     }
 
     // Apply estate-specific filter from widget
     if (widget.estate != null) {
-      filtered = filtered.where((inv) => inv.estateId == widget.estate!.id.toString()).toList();
+      filtered = filtered
+          .where((inv) => inv.estateId == widget.estate!.id.toString())
+          .toList();
     }
 
     // Apply date filter
@@ -147,7 +164,8 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
             ? inv.transactionDate.isAfter(_startDate!)
             : true;
         final isBeforeEnd = _endDate != null
-            ? inv.transactionDate.isBefore(_endDate!.add(const Duration(days: 1)))
+            ? inv.transactionDate
+                .isBefore(_endDate!.add(const Duration(days: 1)))
             : true;
         return isAfterStart && isBeforeEnd;
       }).toList();
@@ -175,7 +193,8 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
     return filtered;
   }
 
-  PerformanceStats get _stats => PerformanceStats.fromInvoices(_filteredInvoices);
+  PerformanceStats get _stats =>
+      PerformanceStats.fromInvoices(_filteredInvoices);
 
   void _addInvoice(PerformanceInvoice invoice) {
     setState(() {
@@ -554,8 +573,8 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                         LinearProgressIndicator(
                           value: percentage / 100,
                           backgroundColor: AppColors.grey4,
-                          valueColor:
-                              const AlwaysStoppedAnimation<Color>(AppColors.blue),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.blue),
                           minHeight: 8,
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -710,7 +729,8 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _filteredInvoices.length > 10 ? 10 : _filteredInvoices.length,
+            itemCount:
+                _filteredInvoices.length > 10 ? 10 : _filteredInvoices.length,
             separatorBuilder: (context, index) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final invoice = _filteredInvoices[index];
@@ -791,7 +811,8 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
             if (isLargeScreen(context))
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -861,7 +882,8 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => ViewPerformanceInvoiceDialog(invoice: invoice),
+                  builder: (context) =>
+                      ViewPerformanceInvoiceDialog(invoice: invoice),
                 );
               },
               tooltip: 'View Invoice',

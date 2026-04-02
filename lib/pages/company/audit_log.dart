@@ -108,69 +108,70 @@ class _AuditLogPageState extends State<AuditLogPage> {
                             SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                minWidth: constraints.maxWidth),
+                            constraints:
+                                BoxConstraints(minWidth: constraints.maxWidth),
                             child: DataTable(
-                          headingRowColor: WidgetStateProperty.all(
-                              Colors.grey.shade50),
-                          columnSpacing: 24,
-                          dataRowMinHeight: 52,
-                          dataRowMaxHeight: 64,
-                          columns: const [
-                            DataColumn(label: Text('User')),
-                            DataColumn(label: Text('Activity')),
-                            DataColumn(label: Text('Type')),
-                            DataColumn(label: Text('Status')),
-                            DataColumn(label: Text('IP Address')),
-                            DataColumn(label: Text('Date & Time')),
-                          ],
-                          rows: filtered.map((log) {
-                            return DataRow(cells: [
-                              // User
-                              DataCell(Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(log.userFullName,
+                              headingRowColor:
+                                  WidgetStateProperty.all(Colors.grey.shade50),
+                              columnSpacing: 24,
+                              dataRowMinHeight: 52,
+                              dataRowMaxHeight: 64,
+                              columns: const [
+                                DataColumn(label: Text('User')),
+                                DataColumn(label: Text('Activity')),
+                                DataColumn(label: Text('Type')),
+                                DataColumn(label: Text('Status')),
+                                DataColumn(label: Text('IP Address')),
+                                DataColumn(label: Text('Date & Time')),
+                              ],
+                              rows: filtered.map((log) {
+                                return DataRow(cells: [
+                                  // User
+                                  DataCell(Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(log.userFullName,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13)),
+                                      Text(log.userEmail,
+                                          style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF64748B))),
+                                    ],
+                                  )),
+                                  // Activity
+                                  DataCell(SizedBox(
+                                      width: 240,
+                                      child: Text(log.activity,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style:
+                                              const TextStyle(fontSize: 13)))),
+                                  // Type badge
+                                  DataCell(_TypeBadge(
+                                      log.auditTypeDisplay, log.auditType)),
+                                  // Status badge
+                                  DataCell(_StatusBadge(
+                                      log.auditStatusDisplay, log.auditStatus)),
+                                  // IP
+                                  DataCell(Text(log.ipAddress,
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13)),
-                                  Text(log.userEmail,
+                                          fontFamily: 'monospace',
+                                          fontSize: 12))),
+                                  // Date
+                                  DataCell(Text(_formatDate(log.createdAt),
                                       style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF64748B))),
-                                ],
-                              )),
-                              // Activity
-                              DataCell(SizedBox(
-                                  width: 240,
-                                  child: Text(log.activity,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
-                                      style:
-                                          const TextStyle(fontSize: 13)))),
-                              // Type badge
-                              DataCell(_TypeBadge(log.auditTypeDisplay,
-                                  log.auditType)),
-                              // Status badge
-                              DataCell(_StatusBadge(log.auditStatusDisplay,
-                                  log.auditStatus)),
-                              // IP
-                              DataCell(Text(log.ipAddress,
-                                  style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 12))),
-                              // Date
-                              DataCell(Text(_formatDate(log.createdAt),
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF64748B)))),
-                            ]);
-                          }).toList(),
+                                          fontSize: 12,
+                                          color: Color(0xFF64748B)))),
+                                ]);
+                              }).toList(),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
               ),
 
               // Pagination
@@ -214,8 +215,8 @@ class _TypeBadge extends StatelessWidget {
       decoration:
           BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
       child: Text(label,
-          style: TextStyle(
-              color: fg, fontSize: 11, fontWeight: FontWeight.w600)),
+          style:
+              TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w600)),
     );
   }
 }
@@ -231,7 +232,10 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg) = switch (status) {
       'success' => (const Color(0xFFF0FDF4), const Color(0xFF16A34A)),
-      'failure' || 'failed' => (const Color(0xFFFFF1F2), const Color(0xFFE11D48)),
+      'failure' || 'failed' => (
+          const Color(0xFFFFF1F2),
+          const Color(0xFFE11D48)
+        ),
       _ => (const Color(0xFFFFFBEB), const Color(0xFFD97706)),
     };
     return Row(mainAxisSize: MainAxisSize.min, children: [
@@ -251,4 +255,3 @@ class _StatusBadge extends StatelessWidget {
     ]);
   }
 }
-

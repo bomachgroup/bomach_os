@@ -219,8 +219,9 @@ class _CreateUnitDialogState extends State<CreateUnitDialog> {
                     title: "Unit Name",
                     hintText: "Enter Name",
                     controller: nameCtrl,
-                    validator: (val) =>
-                        (val == null || val.isEmpty) ? 'Name is required' : null,
+                    validator: (val) => (val == null || val.isEmpty)
+                        ? 'Name is required'
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 24),
@@ -363,8 +364,7 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF005CE8))),
                           SizedBox(width: 4),
-                          Icon(Icons.trending_up,
-                              color: Colors.green, size: 16)
+                          Icon(Icons.trending_up, color: Colors.green, size: 16)
                         ],
                       )
                     ],
@@ -429,8 +429,7 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                   children: [
                     _buildBudgetMetric("Allocated", "₦12,500,000", Colors.blue),
                     _buildBudgetMetric("Spent", "₦10,937,500", Colors.orange),
-                    _buildBudgetMetric(
-                        "Remaining", "₦1,562,500", Colors.green),
+                    _buildBudgetMetric("Remaining", "₦1,562,500", Colors.green),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -440,8 +439,7 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                     value: 0.875,
                     minHeight: 6,
                     backgroundColor: Colors.grey.shade100,
-                    valueColor:
-                        const AlwaysStoppedAnimation(Colors.black87),
+                    valueColor: const AlwaysStoppedAnimation(Colors.black87),
                   ),
                 ),
                 const SizedBox(height: 4),

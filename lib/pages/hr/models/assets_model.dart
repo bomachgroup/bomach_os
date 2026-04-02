@@ -3,7 +3,8 @@ class Asset {
   final String name;
   final String assetType;
   final String branch;
-  final String assignedToId; // Changed to non-nullable based on "must be filled up"
+  final String
+      assignedToId; // Changed to non-nullable based on "must be filled up"
   final String departmentId; // Changed to non-nullable
   final String status;
   final DateTime purchaseDate; // Changed to non-nullable
@@ -52,20 +53,24 @@ class Asset {
       assignedToId: json['assigned_to_id']?.toString() ?? '',
       departmentId: json['department_id']?.toString() ?? '',
       status: json['status'] ?? 'available',
-      purchaseDate: json['purchase_date'] != null 
+      purchaseDate: json['purchase_date'] != null
           ? DateTime.tryParse(json['purchase_date']) ?? DateTime.now()
           : DateTime.now(),
       value: parseDouble(json['value']),
       vendor: json['vendor'] ?? '',
       invoiceNumber: json['invoice_number'] ?? '',
-      warrantyExpiryDate: json['warranty_expiry_date'] != null 
+      warrantyExpiryDate: json['warranty_expiry_date'] != null
           ? DateTime.tryParse(json['warranty_expiry_date']) ?? DateTime.now()
           : DateTime.now(),
       serialNumber: json['serial_number'] ?? '',
       manufacturer: json['manufacturer'] ?? '',
       notes: json['notes'] ?? '',
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
     );
   }
 
@@ -81,7 +86,8 @@ class Asset {
       'value': value,
       'vendor': vendor,
       'invoice_number': invoiceNumber,
-      'warranty_expiry_date': warrantyExpiryDate.toIso8601String().split('T').first,
+      'warranty_expiry_date':
+          warrantyExpiryDate.toIso8601String().split('T').first,
       'serial_number': serialNumber,
       'manufacturer': manufacturer,
       'notes': notes,

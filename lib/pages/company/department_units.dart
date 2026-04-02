@@ -131,8 +131,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                         totalItems: filteredCount,
                         limit: controller.itemsPerPage.value,
                         currentPage: controller.currentPage.value + 1,
-                        onPageChanged: (page) =>
-                            controller.goToPage(page - 1),
+                        onPageChanged: (page) => controller.goToPage(page - 1),
                         onLimitChanged: (newLimit) =>
                             controller.setLimit(newLimit),
                       );
@@ -415,8 +414,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                     PopupMenuItem(
                       value: 'edit',
                       child: Row(children: [
-                        Icon(Icons.edit_outlined,
-                            size: 18, color: Colors.grey),
+                        Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
                         SizedBox(width: 8),
                         Text('Edit'),
                       ]),
@@ -549,8 +547,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                   PopupMenuItem(
                     value: 'edit',
                     child: Row(children: [
-                      Icon(Icons.edit_outlined,
-                          size: 18, color: Colors.grey),
+                      Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
                       SizedBox(width: 8),
                       Text('Edit'),
                     ]),

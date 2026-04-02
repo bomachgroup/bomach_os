@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../model/partner_model.dart';
 
 class PartnerService {
   final Dio _dio;
-  static const baseUrl = "https://bomachauth.bgbot.app";
+  static const baseUrl = ApiConstants.baseUrl;
 
   PartnerService({
     Dio? dioOverride,
@@ -56,12 +57,12 @@ class PartnerService {
       );
 
       final data = response.data;
-      final items = (data['items'] as List)
-          .map((e) => Partner.fromJson(e))
-          .toList();
+      final items =
+          (data['items'] as List).map((e) => Partner.fromJson(e)).toList();
       return (items: items, count: (data['count'] as int?) ?? 0);
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['detail'] ?? 'Failed to fetch partners');
+      throw Exception(
+          e.response?.data?['detail'] ?? 'Failed to fetch partners');
     }
   }
 
@@ -92,7 +93,8 @@ class PartnerService {
       );
       return Partner.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['detail'] ?? 'Failed to create partner');
+      throw Exception(
+          e.response?.data?['detail'] ?? 'Failed to create partner');
     }
   }
 
@@ -109,7 +111,8 @@ class PartnerService {
       );
       return Partner.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['detail'] ?? 'Failed to update partner');
+      throw Exception(
+          e.response?.data?['detail'] ?? 'Failed to update partner');
     }
   }
 
@@ -123,7 +126,8 @@ class PartnerService {
         options: _authOptions(accessToken),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data?['detail'] ?? 'Failed to delete partner');
+      throw Exception(
+          e.response?.data?['detail'] ?? 'Failed to delete partner');
     }
   }
 

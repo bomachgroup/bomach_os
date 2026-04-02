@@ -1,8 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/hr/models/awards_model.dart' 
-;
+import 'package:bms_front_end/pages/hr/models/awards_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,8 +10,6 @@ import 'package:intl/intl.dart';
 
 import '../controller/awards_controller.dart';
 import 'add_award_widget.dart';
-
-
 
 class ViewAwardDialog extends StatelessWidget {
   final Award award;
@@ -41,7 +38,8 @@ class ViewAwardDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
+                  border: Border(
+                      bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -56,8 +54,6 @@ class ViewAwardDialog extends StatelessWidget {
                   ],
                 ),
               ),
-
-          
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -68,21 +64,22 @@ class ViewAwardDialog extends StatelessWidget {
                     _buildInfoRow('Rank / Level', award.rankLevel),
                     const SizedBox(height: 12),
                     _buildInfoRow(
-                      'Date Awarded', 
-                      award.dateAwarded != null 
-                          ? DateFormat('MMMM dd, yyyy').format(award.dateAwarded!) 
-                          : 'N/A'
-                    ),
+                        'Date Awarded',
+                        award.dateAwarded != null
+                            ? DateFormat('MMMM dd, yyyy')
+                                .format(award.dateAwarded!)
+                            : 'N/A'),
                     const Divider(height: 32),
-                    const MyText('Description', size: 14, weight: 600, color: Colors.grey),
+                    const MyText('Description',
+                        size: 14, weight: 600, color: Colors.grey),
                     const SizedBox(height: 8),
                     MyText(award.description, size: 16),
                   ],
                 ),
               ),
-
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border(top: BorderSide(color: Colors.grey.shade300)),
                 ),
@@ -99,8 +96,12 @@ class ViewAwardDialog extends StatelessWidget {
                             title: const Text("Delete Award"),
                             content: const Text("Are you sure?"),
                             actions: [
-                              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text("No")),
-                              TextButton(onPressed: () => Navigator.pop(c, true), child: const Text("Yes")),
+                              TextButton(
+                                  onPressed: () => Navigator.pop(c, false),
+                                  child: const Text("No")),
+                              TextButton(
+                                  onPressed: () => Navigator.pop(c, true),
+                                  child: const Text("Yes")),
                             ],
                           ),
                         );
@@ -108,9 +109,11 @@ class ViewAwardDialog extends StatelessWidget {
                         if (confirm == true) {
                           await controller.deleteAward(token, award.id);
                           if (context.mounted) {
-                            Navigator.pop(context); 
+                            Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Award Deleted"), backgroundColor: Colors.red),
+                              const SnackBar(
+                                  content: Text("Award Deleted"),
+                                  backgroundColor: Colors.red),
                             );
                           }
                         }
@@ -118,13 +121,16 @@ class ViewAwardDialog extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                     MyElevatedButton(
-                      icon: SvgPicture.asset("assets/svg/edit-pencil.svg", colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn)),
+                      icon: SvgPicture.asset("assets/svg/edit-pencil.svg",
+                          colorFilter: const ColorFilter.mode(
+                              AppColors.white, BlendMode.srcIn)),
                       child: 'Edit',
                       onTap: () {
                         Navigator.pop(context);
                         showDialog(
                           context: context,
-                          builder: (c) => AddAwardDialog(token: token, awardToEdit: award),
+                          builder: (c) =>
+                              AddAwardDialog(token: token, awardToEdit: award),
                         );
                       },
                     ),
@@ -144,7 +150,8 @@ class ViewAwardDialog extends StatelessWidget {
       children: [
         SizedBox(
           width: 120,
-          child: MyText(label, size: 14, weight: 400, color: const Color(0xFF64748B)),
+          child: MyText(label,
+              size: 14, weight: 400, color: const Color(0xFF64748B)),
         ),
         Expanded(
           child: MyText(value, size: 14, weight: 500),

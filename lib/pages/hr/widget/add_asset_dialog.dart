@@ -66,11 +66,9 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       _selectedAssignedTo = a.assignedToId;
     }
     _purchaseDateCtrl = TextEditingController(
-        text: a != null
-            ? DateFormat('yyyy-MM-dd').format(a.purchaseDate)
-            : '');
-    _valueCtrl = TextEditingController(
-        text: a != null ? a.value.toString() : '');
+        text: a != null ? DateFormat('yyyy-MM-dd').format(a.purchaseDate) : '');
+    _valueCtrl =
+        TextEditingController(text: a != null ? a.value.toString() : '');
     _vendorCtrl = TextEditingController(text: a?.vendor ?? '');
     _invoiceCtrl = TextEditingController(text: a?.invoiceNumber ?? '');
     _warrantyDateCtrl = TextEditingController(
@@ -151,8 +149,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
           children: [
             // Title bar
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
                 color: Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.only(
@@ -247,11 +244,9 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                     _buildDropdown(
                       value: _selectedBranch,
                       hint: 'Select branch',
-                      items: controller.branches
-                          .where((b) => b != 'All')
-                          .toList(),
-                      onChanged: (val) =>
-                          setState(() => _selectedBranch = val),
+                      items:
+                          controller.branches.where((b) => b != 'All').toList(),
+                      onChanged: (val) => setState(() => _selectedBranch = val),
                     ),
                     const SizedBox(height: 16),
 
@@ -264,12 +259,9 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                       return _buildDropdown(
                         value: _selectedAssignedTo,
                         hint: 'Select employee',
-                        items: employees
-                            .map((e) => e.id.toString())
-                            .toList(),
+                        items: employees.map((e) => e.id.toString()).toList(),
                         labels: employees
-                            .map((e) =>
-                                '${e.firstName} ${e.lastName}')
+                            .map((e) => '${e.firstName} ${e.lastName}')
                             .toList(),
                         onChanged: (val) =>
                             setState(() => _selectedAssignedTo = val),
@@ -362,8 +354,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                       value: _selectedStatus,
                       hint: 'Select status',
                       items: _statuses,
-                      onChanged: (val) =>
-                          setState(() => _selectedStatus = val),
+                      onChanged: (val) => setState(() => _selectedStatus = val),
                     ),
                     const SizedBox(height: 16),
 
@@ -451,8 +442,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
           isExpanded: true,
           value: items.contains(value) ? value : null,
           hint: Text(hint,
-              style:
-                  const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
           items: List.generate(items.length, (i) {
             return DropdownMenuItem(
               value: items[i],

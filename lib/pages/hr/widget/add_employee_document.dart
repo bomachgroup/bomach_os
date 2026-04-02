@@ -140,10 +140,11 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Obx(() => MyElevatedButton(
-                  child: controller.isSaving.value ? 'Uploading...' : 'Upload',
-                  bgColor: const Color(0xFF0055FF),
-                  onTap: controller.isSaving.value ? null : _onUpload,
-                )),
+                      child:
+                          controller.isSaving.value ? 'Uploading...' : 'Upload',
+                      bgColor: const Color(0xFF0055FF),
+                      onTap: controller.isSaving.value ? null : _onUpload,
+                    )),
               ],
             )
           ],
@@ -207,8 +208,8 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               const SizedBox(height: 8),
               Text(
                 _fileName!,
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w600),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
@@ -245,8 +246,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               ),
               const SizedBox(height: 4),
               Text("Supported formats: doc, pdf, png, jpg",
-                  style:
-                      TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
             ],
           ],
         ),

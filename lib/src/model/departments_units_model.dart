@@ -7,7 +7,6 @@ class Department {
     required this.id,
     required this.name,
     required this.description,
-   
   });
 
   factory Department.fromJson(Map<String, dynamic> json) {
@@ -15,7 +14,6 @@ class Department {
       id: json['id']?.toString() ?? '',
       name: json['name'] ?? '',
       description: json['description'] ?? '',
-     
     );
   }
 }

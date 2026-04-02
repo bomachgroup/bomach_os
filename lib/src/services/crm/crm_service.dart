@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 class CrmClient {
@@ -117,7 +118,7 @@ class CrmLead {
 class CrmService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   CrmService({Dio? dioOverride})
       : _dio = dioOverride ??
@@ -166,21 +167,18 @@ class CrmService {
       );
       final data = response.data;
       if (data is Map && data.containsKey('items')) {
-        final items = (data['items'] as List)
-            .map((j) => CrmLead.fromJson(j))
-            .toList();
+        final items =
+            (data['items'] as List).map((j) => CrmLead.fromJson(j)).toList();
         return (items: items, total: (data['count'] ?? items.length) as int);
       }
-      final items =
-          (data as List).map((j) => CrmLead.fromJson(j)).toList();
+      final items = (data as List).map((j) => CrmLead.fromJson(j)).toList();
       return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  Future<CrmLead> createLead(
-      String token, Map<String, dynamic> data) async {
+  Future<CrmLead> createLead(String token, Map<String, dynamic> data) async {
     try {
       log("CrmService: Creating lead...");
       final response = await _dio.post(
@@ -249,13 +247,11 @@ class CrmService {
       );
       final data = response.data;
       if (data is Map && data.containsKey('items')) {
-        final items = (data['items'] as List)
-            .map((j) => CrmClient.fromJson(j))
-            .toList();
+        final items =
+            (data['items'] as List).map((j) => CrmClient.fromJson(j)).toList();
         return (items: items, total: (data['count'] ?? items.length) as int);
       }
-      final items =
-          (data as List).map((j) => CrmClient.fromJson(j)).toList();
+      final items = (data as List).map((j) => CrmClient.fromJson(j)).toList();
       return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);

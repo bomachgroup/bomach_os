@@ -299,7 +299,8 @@ final goRouter = GoRouter(
     final permissionService = Get.find<PermissionService>();
     final requiredPermission = PermissionService.routePermissions[location];
 
-    if (requiredPermission != null && !permissionService.canAccess(requiredPermission)) {
+    if (requiredPermission != null &&
+        !permissionService.canAccess(requiredPermission)) {
       debugPrint('Access Denied to $location. Required: $requiredPermission');
       return permissionService.getFirstPermittedRoute();
     }

@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../model/role_model.dart';
 
 class RoleService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app';
+  static const String _baseUrl = ApiConstants.baseUrl;
 
   RoleService({Dio? dioOverride})
       : _dio = dioOverride ??
@@ -52,8 +53,9 @@ class RoleService {
       final data = response.data;
       final List<dynamic> items =
           (data is Map && data.containsKey('items')) ? data['items'] : data;
-      final int count =
-          (data is Map && data.containsKey('count')) ? data['count'] : items.length;
+      final int count = (data is Map && data.containsKey('count'))
+          ? data['count']
+          : items.length;
 
       return (
         list: items.map((json) => Role.fromJson(json)).toList(),

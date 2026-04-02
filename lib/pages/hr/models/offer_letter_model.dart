@@ -25,7 +25,9 @@ class OfferLetter {
 
   factory OfferLetter.fromJson(Map<String, dynamic> json) {
     return OfferLetter(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? ''),
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? ''),
       applicantId: json['applicant_id'] is int
           ? json['applicant_id']
           : int.tryParse(json['applicant_id']?.toString() ?? '') ?? 0,

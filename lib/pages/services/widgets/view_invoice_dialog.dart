@@ -92,7 +92,8 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: widget.invoice.status.getStatusColor()
+                            color: widget.invoice.status
+                                .getStatusColor()
                                 .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -138,8 +139,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 widget.invoice.clientName,
@@ -225,8 +225,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Service Type:',
@@ -291,8 +290,8 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                           widget.invoice.items.length,
                           (index) {
                             final item = widget.invoice.items[index];
-                            final isLast = index ==
-                                widget.invoice.items.length - 1;
+                            final isLast =
+                                index == widget.invoice.items.length - 1;
                             return Column(
                               children: [
                                 Container(
@@ -311,8 +310,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                                       const SizedBox(height: 8),
                                       Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .spaceBetween,
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             '${item.quantity} × ${_formatCurrency(item.unitPrice)}',
@@ -366,8 +364,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                       child: Column(
                         children: [
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Subtotal:',
@@ -377,15 +374,14 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                               ),
                               Text(
                                 _formatCurrency(widget.invoice.subtotal),
-                                style:
-                                    const TextStyle(fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Tax (${widget.invoice.taxRate.toStringAsFixed(1)}%):',
@@ -395,16 +391,15 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                               ),
                               Text(
                                 _formatCurrency(widget.invoice.taxAmount),
-                                style:
-                                    const TextStyle(fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
                           if (widget.invoice.discount > 0) ...[
                             const SizedBox(height: 8),
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Discount:',
@@ -424,8 +419,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                           ],
                           const Divider(height: 16),
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const MyText(
                                 'Total:',
@@ -562,37 +556,31 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                                   return Column(
                                     children: [
                                       Container(
-                                        padding:
-                                            const EdgeInsets.all(12),
+                                        padding: const EdgeInsets.all(12),
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .spaceBetween,
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
                                               child: Column(
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment
-                                                        .start,
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    payment
-                                                        .paymentMethod,
+                                                    payment.paymentMethod,
                                                     style: const TextStyle(
                                                       fontSize: 13,
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     ),
                                                   ),
-                                                  const SizedBox(
-                                                      height: 4),
+                                                  const SizedBox(height: 4),
                                                   Text(
-                                                    _formatDate(payment
-                                                        .paymentDate),
+                                                    _formatDate(
+                                                        payment.paymentDate),
                                                     style: TextStyle(
                                                       fontSize: 12,
-                                                      color:
-                                                          Colors.grey[700],
+                                                      color: Colors.grey[700],
                                                     ),
                                                   ),
                                                 ],
@@ -607,8 +595,7 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                                                       payment.amount),
                                                   style: const TextStyle(
                                                     fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.w600,
+                                                    fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
                                                 const SizedBox(height: 4),
@@ -618,19 +605,17 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                                                     horizontal: 8,
                                                     vertical: 2,
                                                   ),
-                                                  decoration:
-                                                      BoxDecoration(
+                                                  decoration: BoxDecoration(
                                                     color: Colors.green[50],
                                                     borderRadius:
-                                                        BorderRadius
-                                                            .circular(4),
+                                                        BorderRadius.circular(
+                                                            4),
                                                   ),
                                                   child: Text(
                                                     payment.status,
                                                     style: TextStyle(
                                                       fontSize: 11,
-                                                      color:
-                                                          Colors.green[700],
+                                                      color: Colors.green[700],
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     ),

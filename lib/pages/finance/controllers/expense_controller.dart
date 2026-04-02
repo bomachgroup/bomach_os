@@ -80,8 +80,7 @@ class ExpenseController extends GetxController {
     } catch (e) {
       log("Create Expense Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create expense: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create expense: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

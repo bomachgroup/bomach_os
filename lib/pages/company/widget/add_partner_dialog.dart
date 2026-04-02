@@ -239,8 +239,7 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                  border:
-                      Border(top: BorderSide(color: Colors.grey.shade300))),
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -253,9 +252,8 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                         child: _controller.isSavingPartner.value
                             ? 'Saving...'
                             : (isEdit ? 'Update' : 'Create'),
-                        onTap: _controller.isSavingPartner.value
-                            ? () {}
-                            : _submit,
+                        onTap:
+                            _controller.isSavingPartner.value ? () {} : _submit,
                       )),
                 ],
               ),

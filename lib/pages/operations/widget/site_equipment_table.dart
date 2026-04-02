@@ -92,8 +92,7 @@ class _SiteEquipmentTableState extends State<SiteEquipmentTable> {
   List<DataColumn> _createColumns() {
     return const [
       DataColumn(
-          headingRowAlignment: MainAxisAlignment.start,
-          label: MyText("S/N")),
+          headingRowAlignment: MainAxisAlignment.start, label: MyText("S/N")),
       DataColumn(label: MyText("Equipment Name")),
       DataColumn(label: MyText("Unit Value")),
       DataColumn(label: MyText("Action")),
@@ -111,8 +110,8 @@ class _SiteEquipmentTableState extends State<SiteEquipmentTable> {
             children: [
               SvgPicture.asset(
                 "assets/svg/note2.svg",
-                colorFilter: const ColorFilter.mode(
-                    AppColors.black, BlendMode.srcIn),
+                colorFilter:
+                    const ColorFilter.mode(AppColors.black, BlendMode.srcIn),
               ),
               kSizedBoxWidth,
               MyText(eq.name, size: 16, weight: 400, isSelectable: false),
@@ -175,8 +174,8 @@ class _AddEquipmentDialogState extends State<AddEquipmentDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const MyText('Add Equipment',
-                      style: TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(context).pop(),
@@ -205,8 +204,8 @@ class _AddEquipmentDialogState extends State<AddEquipmentDialog> {
             ),
             Container(
               padding: const EdgeInsets.all(24),
-              decoration:
-                  BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade300))),
+              decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

@@ -117,8 +117,7 @@ class ApprovalWorkflowPage extends StatelessWidget {
           return InkWell(
             onTap: () => controller.currentTab.value = tab,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.blue : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
@@ -165,8 +164,7 @@ class _WorkflowsTab extends StatelessWidget {
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading:
-                const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
             onChanged: controller.onFlowSearchChanged,
           ),
           action: MyElevatedButton(
@@ -183,8 +181,7 @@ class _WorkflowsTab extends StatelessWidget {
 
         // Table
         Obx(() {
-          if (controller.isLoadingFlows.value &&
-              controller.flowList.isEmpty) {
+          if (controller.isLoadingFlows.value && controller.flowList.isEmpty) {
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(60),
@@ -198,8 +195,7 @@ class _WorkflowsTab extends StatelessWidget {
               context,
               icon: Icons.approval_outlined,
               title: 'No workflows yet',
-              subtitle:
-                  'Create a new approval workflow to get started.',
+              subtitle: 'Create a new approval workflow to get started.',
               buttonLabel: 'New workflow',
               onAdd: () => showDialog(
                 context: context,
@@ -210,96 +206,96 @@ class _WorkflowsTab extends StatelessWidget {
 
           return ResponsiveTableWrapper(
             child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  // Table Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 40),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Workflow Name',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Action',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text('Levels',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Text('Approvers',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text('Status',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        SizedBox(
+                          width: 48,
+                          child: Text('Action',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Workflow Name',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text('Levels',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Approvers',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                ...controller.flowList
-                    .map((flow) => _buildFlowRow(context, flow)),
+                  const Divider(height: 1),
+                  ...controller.flowList
+                      .map((flow) => _buildFlowRow(context, flow)),
 
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems: controller.flowTotalItems.value,
-                        limit: controller.flowLimit.value,
-                        currentPage: controller.flowCurrentPage.value,
-                        onPageChanged: controller.flowGoToPage,
-                        onLimitChanged: controller.flowSetLimit,
-                      )),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(() => PaginatorFooter(
+                          totalItems: controller.flowTotalItems.value,
+                          limit: controller.flowLimit.value,
+                          currentPage: controller.flowCurrentPage.value,
+                          onPageChanged: controller.flowGoToPage,
+                          onLimitChanged: controller.flowSetLimit,
+                        )),
+                  ),
+                ],
+              ),
             ),
-          ),
           );
         }),
       ],
@@ -327,8 +323,7 @@ class _WorkflowsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               flow.name,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -336,9 +331,7 @@ class _WorkflowsTab extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Text(
-              flow.actionDisplay.isNotEmpty
-                  ? flow.actionDisplay
-                  : flow.action,
+              flow.actionDisplay.isNotEmpty ? flow.actionDisplay : flow.action,
               style: const TextStyle(fontSize: 13),
               overflow: TextOverflow.ellipsis,
             ),
@@ -368,9 +361,7 @@ class _WorkflowsTab extends StatelessWidget {
           Expanded(
             flex: 1,
             child: _buildStatusBadge(
-              flow.statusDisplay.isNotEmpty
-                  ? flow.statusDisplay
-                  : flow.status,
+              flow.statusDisplay.isNotEmpty ? flow.statusDisplay : flow.status,
             ),
           ),
           // Action menu
@@ -420,9 +411,7 @@ class _WorkflowsTab extends StatelessWidget {
             const SizedBox(width: 5),
             Text(status,
                 style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500)),
+                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -454,8 +443,8 @@ class _WorkflowsTab extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 title: const Text('Deactivate Workflow'),
-                content: Text(
-                    'Are you sure you want to deactivate "${flow.name}"?'),
+                content:
+                    Text('Are you sure you want to deactivate "${flow.name}"?'),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(c, false),
@@ -525,12 +514,11 @@ class _WorkflowsTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
@@ -571,8 +559,7 @@ class _RequestsTab extends StatelessWidget {
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading:
-                const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
             onChanged: controller.onRequestSearchChanged,
           ),
         ),
@@ -612,8 +599,7 @@ class _RequestsTab extends StatelessWidget {
                     const SizedBox(height: 8),
                     const Text(
                       'Approval requests will appear here when submitted.',
-                      style:
-                          TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
                     ),
                   ],
                 ),
@@ -623,98 +609,96 @@ class _RequestsTab extends StatelessWidget {
 
           return ResponsiveTableWrapper(
             child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  // Table Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 40),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Workflow',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Request Type',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Requested By',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text('Status',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Date',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: Text('Actions',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Workflow',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Request Type',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Requested By',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Date',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      SizedBox(
-                        width: 100,
-                        child: Text('Actions',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                ...controller.requestList
-                    .map((req) => _buildRequestRow(context, req)),
+                  const Divider(height: 1),
+                  ...controller.requestList
+                      .map((req) => _buildRequestRow(context, req)),
 
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems:
-                            controller.requestTotalItems.value,
-                        limit: controller.requestLimit.value,
-                        currentPage:
-                            controller.requestCurrentPage.value,
-                        onPageChanged: controller.requestGoToPage,
-                        onLimitChanged: controller.requestSetLimit,
-                      )),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(() => PaginatorFooter(
+                          totalItems: controller.requestTotalItems.value,
+                          limit: controller.requestLimit.value,
+                          currentPage: controller.requestCurrentPage.value,
+                          onPageChanged: controller.requestGoToPage,
+                          onLimitChanged: controller.requestSetLimit,
+                        )),
+                  ),
+                ],
+              ),
             ),
-          ),
           );
         }),
       ],
@@ -752,8 +736,7 @@ class _RequestsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               req.flowName.isNotEmpty ? req.flowName : 'Flow #${req.flowId}',
-              style: const TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -783,16 +766,13 @@ class _RequestsTab extends StatelessWidget {
           Expanded(
             flex: 1,
             child: _buildRequestStatusBadge(
-              req.statusDisplay.isNotEmpty
-                  ? req.statusDisplay
-                  : req.status,
+              req.statusDisplay.isNotEmpty ? req.statusDisplay : req.status,
             ),
           ),
           // Date
           Expanded(
             flex: 2,
-            child: Text(displayDate,
-                style: const TextStyle(fontSize: 13)),
+            child: Text(displayDate, style: const TextStyle(fontSize: 13)),
           ),
           // Actions
           SizedBox(
@@ -801,8 +781,7 @@ class _RequestsTab extends StatelessWidget {
                 ? Row(
                     children: [
                       InkWell(
-                        onTap: () =>
-                            controller.approveRequest(context, req.id),
+                        onTap: () => controller.approveRequest(context, req.id),
                         borderRadius: BorderRadius.circular(6),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -820,8 +799,7 @@ class _RequestsTab extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       InkWell(
-                        onTap: () =>
-                            controller.rejectRequest(context, req.id),
+                        onTap: () => controller.rejectRequest(context, req.id),
                         borderRadius: BorderRadius.circular(6),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -839,8 +817,7 @@ class _RequestsTab extends StatelessWidget {
                       ),
                     ],
                   )
-                : const Text('–',
-                    style: TextStyle(color: Color(0xFF94A3B8))),
+                : const Text('–', style: TextStyle(color: Color(0xFF94A3B8))),
           ),
         ],
       ),
@@ -881,9 +858,7 @@ class _RequestsTab extends StatelessWidget {
             const SizedBox(width: 5),
             Text(status,
                 style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500)),
+                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
       ),

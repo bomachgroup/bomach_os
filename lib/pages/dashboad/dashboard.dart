@@ -144,8 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.12)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: Row(
                 children: [
@@ -639,9 +638,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w500)),
             MyText(value,
                 style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: color)),
+                    fontSize: 13, fontWeight: FontWeight.w700, color: color)),
           ],
         ),
         const SizedBox(height: 8),
@@ -658,8 +655,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildInfoRow(
-      IconData icon, String label, String value, Color color) {
+  Widget _buildInfoRow(IconData icon, String label, String value, Color color) {
     return Row(
       children: [
         Icon(icon, size: 16, color: color.withValues(alpha: 0.7)),
@@ -733,24 +729,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   SizedBox(
                       width: cardWidth,
-                      child: _buildOverviewCard('Total Employees',
-                          '${ov.totalEmployees}', Icons.people_rounded,
+                      child: _buildOverviewCard(
+                          'Total Employees',
+                          '${ov.totalEmployees}',
+                          Icons.people_rounded,
                           const Color(0xFF6366F1))),
                   SizedBox(
                       width: cardWidth,
-                      child: _buildOverviewCard('New (30 days)',
-                          '${ov.newHires30Days}', Icons.person_add_rounded,
+                      child: _buildOverviewCard(
+                          'New (30 days)',
+                          '${ov.newHires30Days}',
+                          Icons.person_add_rounded,
                           const Color(0xFF0EA5E9))),
                   SizedBox(
                       width: cardWidth,
-                      child: _buildOverviewCard('Hired Today',
-                          '${ov.newHiresToday}', Icons.today_rounded,
+                      child: _buildOverviewCard(
+                          'Hired Today',
+                          '${ov.newHiresToday}',
+                          Icons.today_rounded,
                           const Color(0xFF10B981))),
                   SizedBox(
                       width: cardWidth,
-                      child: _buildOverviewCard('Open Roles',
-                          '${ov.openRoles}', Icons.work_outline_rounded,
-                          const Color(0xFFF59E0B))),
+                      child: _buildOverviewCard('Open Roles', '${ov.openRoles}',
+                          Icons.work_outline_rounded, const Color(0xFFF59E0B))),
                 ],
               );
             },

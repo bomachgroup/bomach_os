@@ -99,7 +99,8 @@ class BiometricService {
       if (!isBiometricAvailable || _auth == null) {
         return BiometricResult(
           isAuthenticated: false,
-          errorMessage: 'Biometric authentication is not available on this device',
+          errorMessage:
+              'Biometric authentication is not available on this device',
           errorCode: 'biometric_not_available',
         );
       }
@@ -109,7 +110,8 @@ class BiometricService {
       if (availableBiometrics.isEmpty) {
         return BiometricResult(
           isAuthenticated: false,
-          errorMessage: 'No biometric enrolled. Please enroll a biometric first.',
+          errorMessage:
+              'No biometric enrolled. Please enroll a biometric first.',
           errorCode: 'no_biometric_enrolled',
         );
       }

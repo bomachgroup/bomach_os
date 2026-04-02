@@ -96,18 +96,19 @@ class ForgotPasswordScreen extends StatelessWidget {
                                 // Call controller logic
                                 await authController.forgotPassword(
                                     context, emailCtrl.text.trim());
-                                
+
                                 // Pre-fill email for next screen
-                                authController.emailController.text = emailCtrl.text.trim();
-                                
+                                authController.emailController.text =
+                                    emailCtrl.text.trim();
+
                                 // Navigate to Reset Screen if no error thrown inside controller
                                 // Note: In a real app, check success before navigating
                                 if (context.mounted) {
-                                   context.push(RouteConstants.resetPassword);
+                                  context.push(RouteConstants.resetPassword);
                                 }
                               },
                         child: authController.isLoading.value
-                            ?  'loading...'
+                            ? 'loading...'
                             : "Send Reset Code",
                       ),
                     )),

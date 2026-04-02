@@ -84,8 +84,7 @@ class BudgetController extends GetxController {
     } catch (e) {
       log("Create Budget Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create budget: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create budget: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

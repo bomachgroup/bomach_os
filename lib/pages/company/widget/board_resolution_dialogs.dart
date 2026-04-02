@@ -54,11 +54,9 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
 
     // Set type/status from existing resolution
     if (r != null) {
-      selectedType = r.resolutionTypeDisplay.isNotEmpty
-          ? r.resolutionTypeDisplay
-          : null;
-      selectedStatus =
-          r.statusDisplay.isNotEmpty ? r.statusDisplay : null;
+      selectedType =
+          r.resolutionTypeDisplay.isNotEmpty ? r.resolutionTypeDisplay : null;
+      selectedStatus = r.statusDisplay.isNotEmpty ? r.statusDisplay : null;
     } else {
       selectedStatus = 'Pending';
     }
@@ -138,10 +136,9 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
                             trailing: const Icon(Icons.calendar_today,
                                 size: 18, color: Colors.grey),
                             onTap: _pickDate,
-                            validator: (val) =>
-                                (val == null || val.isEmpty)
-                                    ? 'Required'
-                                    : null,
+                            validator: (val) => (val == null || val.isEmpty)
+                                ? 'Required'
+                                : null,
                           ),
                         ],
                       ),
@@ -218,8 +215,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
   }
 
   Widget _buildTypeDropdown() {
-    final choices =
-        controller.resolutionChoices.value?.resolutionTypes ?? [];
+    final choices = controller.resolutionChoices.value?.resolutionTypes ?? [];
     final typeLabels = choices.map((e) => e.label).toList();
 
     return Container(
@@ -258,8 +254,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value:
-              statusLabels.contains(selectedStatus) ? selectedStatus : null,
+          value: statusLabels.contains(selectedStatus) ? selectedStatus : null,
           hint: const Text('Pending',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
@@ -397,8 +392,7 @@ class ViewResolutionDialog extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Text('Attachment',
-                      style:
-                          TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
                 ),
                 Container(
                   padding:
@@ -413,8 +407,7 @@ class ViewResolutionDialog extends StatelessWidget {
                     children: [
                       Icon(Icons.attach_file, size: 16, color: Colors.grey),
                       SizedBox(width: 6),
-                      Text('View Attachment',
-                          style: TextStyle(fontSize: 13)),
+                      Text('View Attachment', style: TextStyle(fontSize: 13)),
                     ],
                   ),
                 ),
@@ -439,8 +432,7 @@ class ViewResolutionDialog extends StatelessWidget {
                       final confirmed = await _showArchiveConfirmation(
                           context, resolution.title);
                       if (confirmed == true && context.mounted) {
-                        controller.archiveResolution(
-                            context, resolution.id);
+                        controller.archiveResolution(context, resolution.id);
                       }
                     },
                   ),
@@ -475,13 +467,12 @@ class ViewResolutionDialog extends StatelessWidget {
           SizedBox(
             width: 110,
             child: Text(label,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 14)),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
           ),
         ],
       ),
@@ -576,8 +567,8 @@ class ViewResolutionDialog extends StatelessWidget {
               child: const Text('Cancel')),
           TextButton(
               onPressed: () => Navigator.pop(c, true),
-              child: const Text('Archive',
-                  style: TextStyle(color: Colors.red))),
+              child:
+                  const Text('Archive', style: TextStyle(color: Colors.red))),
         ],
       ),
     );

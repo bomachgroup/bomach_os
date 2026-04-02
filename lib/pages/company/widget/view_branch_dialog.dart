@@ -114,8 +114,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                         controller.loadFilterResources();
                         showDialog(
                           context: context,
-                          builder: (_) =>
-                              AddBranchDialog(branchToEdit: branch),
+                          builder: (_) => AddBranchDialog(branchToEdit: branch),
                         );
                       },
                     ),
@@ -193,10 +192,15 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
           _buildDetailGrid([
             _DetailItem("Branch Name", branch.branchName),
             _DetailItem("Branch Type", branch.branchRoleDisplay),
-            _DetailItem("Branch ID", branch.branchId.isNotEmpty ? branch.branchId : "#${branch.id}"),
-            _DetailItem("Status", branch.operationalStatusDisplay.isNotEmpty
-                ? branch.operationalStatusDisplay
-                : (branch.isOperational ? "Operational" : "Non-Operational")),
+            _DetailItem("Branch ID",
+                branch.branchId.isNotEmpty ? branch.branchId : "#${branch.id}"),
+            _DetailItem(
+                "Status",
+                branch.operationalStatusDisplay.isNotEmpty
+                    ? branch.operationalStatusDisplay
+                    : (branch.isOperational
+                        ? "Operational"
+                        : "Non-Operational")),
             if (branch.createdAt.isNotEmpty)
               _DetailItem("Created", branch.createdAt.split('T').first),
             if (branch.updatedAt.isNotEmpty)
@@ -272,10 +276,30 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
   // ─── DEPARTMENTS TAB (Mock) ───
   Widget _buildDepartmentsTab() {
     final mockDepartments = [
-      {"name": "Operations", "head": "John Doe", "employees": 12, "status": "Active"},
-      {"name": "Finance", "head": "Jane Smith", "employees": 8, "status": "Active"},
-      {"name": "Human Resources", "head": "Mike Johnson", "employees": 5, "status": "Active"},
-      {"name": "Marketing", "head": "Sarah Williams", "employees": 6, "status": "Active"},
+      {
+        "name": "Operations",
+        "head": "John Doe",
+        "employees": 12,
+        "status": "Active"
+      },
+      {
+        "name": "Finance",
+        "head": "Jane Smith",
+        "employees": 8,
+        "status": "Active"
+      },
+      {
+        "name": "Human Resources",
+        "head": "Mike Johnson",
+        "employees": 5,
+        "status": "Active"
+      },
+      {
+        "name": "Marketing",
+        "head": "Sarah Williams",
+        "employees": 6,
+        "status": "Active"
+      },
     ];
 
     return SingleChildScrollView(
@@ -288,7 +312,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
             children: [
               _buildSectionTitle("Departments"),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -341,8 +366,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                       ),
                     ),
                     Text("${dept["employees"]} staff",
-                        style: const TextStyle(
-                            color: Colors.grey, fontSize: 12)),
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12)),
                     const SizedBox(width: 12),
                     _buildStatusBadge(dept["status"] as String),
                   ],
@@ -358,9 +383,24 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
   // ─── PROJECTS TAB (Mock) ───
   Widget _buildProjectsTab() {
     final mockProjects = [
-      {"name": "Office Renovation", "status": "In Progress", "progress": 0.65, "deadline": "Mar 30, 2026"},
-      {"name": "IT Infrastructure Upgrade", "status": "Planning", "progress": 0.2, "deadline": "Apr 15, 2026"},
-      {"name": "Client Onboarding Portal", "status": "Completed", "progress": 1.0, "deadline": "Feb 28, 2026"},
+      {
+        "name": "Office Renovation",
+        "status": "In Progress",
+        "progress": 0.65,
+        "deadline": "Mar 30, 2026"
+      },
+      {
+        "name": "IT Infrastructure Upgrade",
+        "status": "Planning",
+        "progress": 0.2,
+        "deadline": "Apr 15, 2026"
+      },
+      {
+        "name": "Client Onboarding Portal",
+        "status": "Completed",
+        "progress": 1.0,
+        "deadline": "Feb 28, 2026"
+      },
     ];
 
     return SingleChildScrollView(
@@ -422,8 +462,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                   ),
                   const SizedBox(height: 6),
                   Text("Deadline: ${proj["deadline"]}",
-                      style: const TextStyle(
-                          color: Colors.grey, fontSize: 12)),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
             );
@@ -448,10 +487,14 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
             spacing: 12,
             runSpacing: 12,
             children: [
-              _buildFinancialCard("Revenue", "N12,500,000", Icons.trending_up, Colors.green),
-              _buildFinancialCard("Expenses", "N8,200,000", Icons.trending_down, Colors.red),
-              _buildFinancialCard("Profit", "N4,300,000", Icons.account_balance, Colors.blue),
-              _buildFinancialCard("Budget", "N15,000,000", Icons.pie_chart, Colors.orange),
+              _buildFinancialCard(
+                  "Revenue", "N12,500,000", Icons.trending_up, Colors.green),
+              _buildFinancialCard(
+                  "Expenses", "N8,200,000", Icons.trending_down, Colors.red),
+              _buildFinancialCard(
+                  "Profit", "N4,300,000", Icons.account_balance, Colors.blue),
+              _buildFinancialCard(
+                  "Budget", "N15,000,000", Icons.pie_chart, Colors.orange),
             ],
           ),
           const SizedBox(height: 24),
@@ -467,10 +510,30 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
 
   List<Widget> _buildMockTransactions() {
     final transactions = [
-      {"desc": "Office Supplies Purchase", "amount": "-N45,000", "date": "Mar 10, 2026", "type": "expense"},
-      {"desc": "Client Payment - ABC Corp", "amount": "+N1,200,000", "date": "Mar 08, 2026", "type": "income"},
-      {"desc": "Staff Salary Payment", "amount": "-N3,500,000", "date": "Mar 01, 2026", "type": "expense"},
-      {"desc": "Service Revenue - XYZ Ltd", "amount": "+N800,000", "date": "Feb 28, 2026", "type": "income"},
+      {
+        "desc": "Office Supplies Purchase",
+        "amount": "-N45,000",
+        "date": "Mar 10, 2026",
+        "type": "expense"
+      },
+      {
+        "desc": "Client Payment - ABC Corp",
+        "amount": "+N1,200,000",
+        "date": "Mar 08, 2026",
+        "type": "income"
+      },
+      {
+        "desc": "Staff Salary Payment",
+        "amount": "-N3,500,000",
+        "date": "Mar 01, 2026",
+        "type": "expense"
+      },
+      {
+        "desc": "Service Revenue - XYZ Ltd",
+        "amount": "+N800,000",
+        "date": "Feb 28, 2026",
+        "type": "income"
+      },
     ];
 
     return transactions.map((tx) {
@@ -508,8 +571,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                       style: const TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w500)),
                   Text(tx["date"]!,
-                      style:
-                          const TextStyle(fontSize: 11, color: Colors.grey)),
+                      style: const TextStyle(fontSize: 11, color: Colors.grey)),
                 ],
               ),
             ),
@@ -530,8 +592,17 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
   // ─── PEOPLE TAB ───
   Widget _buildPeopleTab(Branch branch) {
     final mockPeople = [
-      {"name": branch.managerName.isNotEmpty ? branch.managerName : "Unassigned", "role": "Branch Manager", "status": "Active"},
-      {"name": "Assistant Manager", "role": "Asst. Branch Manager", "status": "Active"},
+      {
+        "name":
+            branch.managerName.isNotEmpty ? branch.managerName : "Unassigned",
+        "role": "Branch Manager",
+        "status": "Active"
+      },
+      {
+        "name": "Assistant Manager",
+        "role": "Asst. Branch Manager",
+        "status": "Active"
+      },
       {"name": "Front Desk Officer", "role": "Reception", "status": "Active"},
       {"name": "Security Officer", "role": "Security", "status": "Active"},
     ];
@@ -546,7 +617,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
             children: [
               _buildSectionTitle("Staff"),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -590,7 +662,9 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                           ? (person["name"] as String)[0].toUpperCase()
                           : "?",
                       style: TextStyle(
-                          color: color, fontWeight: FontWeight.bold, fontSize: 14),
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -704,7 +778,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               ],
             ),
           ),
-          _buildStatusBadge(branch.managerName.isNotEmpty ? "Assigned" : "Unassigned"),
+          _buildStatusBadge(
+              branch.managerName.isNotEmpty ? "Assigned" : "Unassigned"),
         ],
       ),
     );
@@ -738,12 +813,11 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
             ],
           ),
           const SizedBox(height: 10),
-          Text(label,
-              style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
           const SizedBox(height: 4),
           Text(value,
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold)),
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -775,8 +849,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
       ),
       child: Text(
         status,
-        style: TextStyle(
-            color: color, fontSize: 11, fontWeight: FontWeight.w600),
+        style:
+            TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
       ),
     );
   }

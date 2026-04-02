@@ -1,7 +1,7 @@
 class Branch {
   final int id;
   final String branchName;
-  final String branchId; 
+  final String branchId;
   final int countryId;
   final String countryName;
   final int stateId;
@@ -9,9 +9,9 @@ class Branch {
   final String lga;
   final String officeAddress;
   final String fullAddress;
-  final String operationalStatus; 
-  final String operationalStatusDisplay; 
-  final String branchRole; 
+  final String operationalStatus;
+  final String operationalStatusDisplay;
+  final String branchRole;
   final String branchRoleDisplay;
   final String contactEmail;
   final String contactPhone;
@@ -98,13 +98,17 @@ class Branch {
   }
 }
 
-class Country { 
+class Country {
   final int id;
   final String name;
   final String code;
   final bool isActive;
 
-  Country({required this.id, required this.name, required this.code, required this.isActive});
+  Country(
+      {required this.id,
+      required this.name,
+      required this.code,
+      required this.isActive});
 
   factory Country.fromJson(Map<String, dynamic> json) {
     return Country(
@@ -116,13 +120,17 @@ class Country {
   }
 }
 
-class StateModel { 
+class StateModel {
   final int id;
   final int countryId;
   final String name;
   final String code;
 
-  StateModel({required this.id, required this.countryId, required this.name, required this.code});
+  StateModel(
+      {required this.id,
+      required this.countryId,
+      required this.name,
+      required this.code});
 
   factory StateModel.fromJson(Map<String, dynamic> json) {
     return StateModel(
@@ -134,20 +142,23 @@ class StateModel {
   }
 }
 
-class BranchFieldChoices { 
+class BranchFieldChoices {
   final List<FieldOption> operationalStatus;
   final List<FieldOption> branchRole;
 
-  BranchFieldChoices({required this.operationalStatus, required this.branchRole});
+  BranchFieldChoices(
+      {required this.operationalStatus, required this.branchRole});
 
   factory BranchFieldChoices.fromJson(Map<String, dynamic> json) {
     return BranchFieldChoices(
       operationalStatus: (json['operational_status'] as List?)
               ?.map((e) => FieldOption.fromJson(e))
-              .toList() ?? [],
+              .toList() ??
+          [],
       branchRole: (json['branch_role'] as List?)
               ?.map((e) => FieldOption.fromJson(e))
-              .toList() ?? [],
+              .toList() ??
+          [],
     );
   }
 }
@@ -183,7 +194,8 @@ class BranchPerformance {
     return BranchPerformance(
       metrics: json['metrics'] ?? {},
       keyInsights: List<Map<String, dynamic>>.from(json['key_insights'] ?? []),
-      revenueTrend: List<Map<String, dynamic>>.from(json['revenue_trend'] ?? []),
+      revenueTrend:
+          List<Map<String, dynamic>>.from(json['revenue_trend'] ?? []),
       branchDetails: json['branch_details'] ?? {},
     );
   }

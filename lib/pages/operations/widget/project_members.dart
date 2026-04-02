@@ -121,8 +121,7 @@ class _ProjectMembersState extends State<ProjectMembers> {
         DataCell(MyText(emp.position)),
         DataCell(
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
                 border: Border.all(
                     width: 0.6,
@@ -130,7 +129,8 @@ class _ProjectMembersState extends State<ProjectMembers> {
                 color: getRandomColorFromList(emp.employmentType)
                     .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6)),
-            child: MyText(emp.employmentType.isEmpty ? '-' : emp.employmentType),
+            child:
+                MyText(emp.employmentType.isEmpty ? '-' : emp.employmentType),
           ),
         ),
       ]);

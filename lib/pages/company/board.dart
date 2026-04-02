@@ -154,7 +154,6 @@ class BoardPage extends StatelessWidget {
       ),
     );
   }
-
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -226,90 +225,90 @@ class _MeetingsTab extends StatelessWidget {
 
           return ResponsiveTableWrapper(
             child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  // Table Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 40),
+                        Expanded(
+                          flex: 3,
+                          child: Text('Title',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Date & Time',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Text('Agenda',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Status',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        SizedBox(
+                          width: 48,
+                          child: Text('Action',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Title',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Date & Time',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Agenda',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                // Rows
-                ...controller.meetingList
-                    .map((m) => _buildMeetingRow(context, m)),
+                  const Divider(height: 1),
+                  // Rows
+                  ...controller.meetingList
+                      .map((m) => _buildMeetingRow(context, m)),
 
-                // Paginator
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems: controller.meetingTotalItems.value,
-                        limit: controller.meetingLimit.value,
-                        currentPage: controller.meetingCurrentPage.value,
-                        onPageChanged: controller.meetingGoToPage,
-                        onLimitChanged: controller.meetingSetLimit,
-                      )),
-                ),
-              ],
+                  // Paginator
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(() => PaginatorFooter(
+                          totalItems: controller.meetingTotalItems.value,
+                          limit: controller.meetingLimit.value,
+                          currentPage: controller.meetingCurrentPage.value,
+                          onPageChanged: controller.meetingGoToPage,
+                          onLimitChanged: controller.meetingSetLimit,
+                        )),
+                  ),
+                ],
+              ),
             ),
-          ),
           );
         }),
       ],
@@ -357,8 +356,7 @@ class _MeetingsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               meeting.title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -367,8 +365,7 @@ class _MeetingsTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(displayDate,
-                    style: const TextStyle(fontSize: 13)),
+                Text(displayDate, style: const TextStyle(fontSize: 13)),
                 if (meeting.meetingTime.isNotEmpty)
                   Text(displayTime,
                       style: const TextStyle(
@@ -466,8 +463,8 @@ class _MeetingsTab extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 title: const Text('Cancel Meeting'),
-                content: Text(
-                    'Are you sure you want to cancel "${meeting.title}"?'),
+                content:
+                    Text('Are you sure you want to cancel "${meeting.title}"?'),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(c, false),
@@ -537,12 +534,11 @@ class _MeetingsTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
@@ -626,98 +622,97 @@ class _ResolutionsTab extends StatelessWidget {
 
           return ResponsiveTableWrapper(
             child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  // Table Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 40),
+                        Expanded(
+                          flex: 3,
+                          child: Text('Title',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Type',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Date',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Status',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        SizedBox(
+                          width: 48,
+                          child: Text('Action',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Title',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Type',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Date',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                // Rows
-                ...controller.resolutionList
-                    .map((r) => _buildResolutionRow(context, r)),
+                  const Divider(height: 1),
+                  // Rows
+                  ...controller.resolutionList
+                      .map((r) => _buildResolutionRow(context, r)),
 
-                // Paginator
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems: controller.resolutionTotalItems.value,
-                        limit: controller.resolutionLimit.value,
-                        currentPage: controller.resolutionCurrentPage.value,
-                        onPageChanged: controller.resolutionGoToPage,
-                        onLimitChanged: controller.resolutionSetLimit,
-                      )),
-                ),
-              ],
+                  // Paginator
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(() => PaginatorFooter(
+                          totalItems: controller.resolutionTotalItems.value,
+                          limit: controller.resolutionLimit.value,
+                          currentPage: controller.resolutionCurrentPage.value,
+                          onPageChanged: controller.resolutionGoToPage,
+                          onLimitChanged: controller.resolutionSetLimit,
+                        )),
+                  ),
+                ],
+              ),
             ),
-          ),
           );
         }),
       ],
     );
   }
 
-  Widget _buildResolutionRow(
-      BuildContext context, BoardResolution resolution) {
+  Widget _buildResolutionRow(BuildContext context, BoardResolution resolution) {
     // Format date
     String displayDate = resolution.resolutionDate;
     try {
@@ -746,8 +741,7 @@ class _ResolutionsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               resolution.title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -821,8 +815,7 @@ class _ResolutionsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildActionMenu(
-      BuildContext context, BoardResolution resolution) {
+  Widget _buildActionMenu(BuildContext context, BoardResolution resolution) {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, size: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -831,15 +824,13 @@ class _ResolutionsTab extends StatelessWidget {
           case 'view':
             showDialog(
               context: context,
-              builder: (_) =>
-                  ViewResolutionDialog(resolution: resolution),
+              builder: (_) => ViewResolutionDialog(resolution: resolution),
             );
             break;
           case 'edit':
             showDialog(
               context: context,
-              builder: (_) =>
-                  NewResolutionDialog(resolution: resolution),
+              builder: (_) => NewResolutionDialog(resolution: resolution),
             );
             break;
           case 'delete':
@@ -920,12 +911,11 @@ class _ResolutionsTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
@@ -1127,8 +1117,8 @@ class _InvestorsTab extends StatelessWidget {
         Expanded(
             flex: 1,
             child: Text('${s.sharePercentage}%',
-                style:
-                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w500))),
         Expanded(
           flex: 1,
           child: Icon(
@@ -1534,14 +1524,13 @@ class _EmployeeListTab extends StatelessWidget {
               MyText(tabLabel, style: AppText.black_600_16),
               const SizedBox(height: 2),
               Text(subtitle,
-                  style: const TextStyle(
-                      color: Color(0xFF64748B), fontSize: 13)),
+                  style:
+                      const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading:
-                const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
             onChanged: onSearchChanged,
           ),
         ),
@@ -1590,98 +1579,97 @@ class _EmployeeListTab extends StatelessWidget {
 
           return ResponsiveTableWrapper(
             child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  // Table Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 48),
+                        Expanded(
+                          flex: 3,
+                          child: Text('Name',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Text('Email',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Phone',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Department',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Status',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        SizedBox(
+                          width: 48,
+                          child: Text('Action',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 48),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Name',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Email',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Phone',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Department',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                // Rows
-                ...employeeList
-                    .map((e) => _buildEmployeeRow(context, e)),
+                  const Divider(height: 1),
+                  // Rows
+                  ...employeeList.map((e) => _buildEmployeeRow(context, e)),
 
-                // Paginator
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems: totalItems.value,
-                        limit: limit.value,
-                        currentPage: currentPage.value,
-                        onPageChanged: onPageChanged,
-                        onLimitChanged: onLimitChanged,
-                      )),
-                ),
-              ],
+                  // Paginator
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(() => PaginatorFooter(
+                          totalItems: totalItems.value,
+                          limit: limit.value,
+                          currentPage: currentPage.value,
+                          onPageChanged: onPageChanged,
+                          onLimitChanged: onLimitChanged,
+                        )),
+                  ),
+                ],
+              ),
             ),
-          ),
           );
         }),
       ],
@@ -1738,8 +1726,8 @@ class _EmployeeListTab extends StatelessWidget {
                 if (employee.role.isNotEmpty)
                   Text(
                     employee.role,
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF64748B)),
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                     overflow: TextOverflow.ellipsis,
                   ),
               ],
@@ -1749,8 +1737,7 @@ class _EmployeeListTab extends StatelessWidget {
             flex: 3,
             child: Text(
               employee.email,
-              style:
-                  const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1814,8 +1801,7 @@ class _EmployeeListTab extends StatelessWidget {
   Widget _buildActionMenu(BuildContext context, Employee employee) {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, size: 20),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         switch (value) {
           case 'view':
@@ -1846,8 +1832,7 @@ class _EmployeeListTab extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           constraints: const BoxConstraints(maxWidth: 520),
           padding: const EdgeInsets.all(24),
@@ -1876,10 +1861,8 @@ class _EmployeeListTab extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor:
-                          AppColors.blue.withValues(alpha: 0.1),
-                      backgroundImage: employee.profilePicture !=
-                                  null &&
+                      backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+                      backgroundImage: employee.profilePicture != null &&
                               employee.profilePicture!.isNotEmpty &&
                               employee.profilePicture != 'string'
                           ? NetworkImage(employee.profilePicture!)
@@ -1905,13 +1888,11 @@ class _EmployeeListTab extends StatelessWidget {
                         children: [
                           Text(employee.fullName,
                               style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600)),
+                                  fontSize: 18, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 2),
                           Text(employee.role,
                               style: const TextStyle(
-                                  color: Color(0xFF64748B),
-                                  fontSize: 14)),
+                                  color: Color(0xFF64748B), fontSize: 14)),
                         ],
                       ),
                     ),
@@ -1923,15 +1904,12 @@ class _EmployeeListTab extends StatelessWidget {
 
                 _detailRow('Email', employee.email),
                 _detailRow('Phone', employee.phoneNumber ?? '–'),
-                _detailRow(
-                    'Department', employee.departmentName ?? '–'),
+                _detailRow('Department', employee.departmentName ?? '–'),
                 _detailRow('Branch', employee.branchName ?? '–'),
                 _detailRow('Join Date', joinDate),
-                _detailRow('Status',
-                    employee.isActive ? 'Active' : 'Inactive'),
+                _detailRow('Status', employee.isActive ? 'Active' : 'Inactive'),
                 if (employee.employmentType != null)
-                  _detailRow(
-                      'Employment Type', employee.employmentType!),
+                  _detailRow('Employment Type', employee.employmentType!),
 
                 const SizedBox(height: 16),
               ],
@@ -1951,13 +1929,12 @@ class _EmployeeListTab extends StatelessWidget {
           SizedBox(
             width: 130,
             child: Text(label,
-                style: const TextStyle(
-                    color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 14)),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
           ),
         ],
       ),

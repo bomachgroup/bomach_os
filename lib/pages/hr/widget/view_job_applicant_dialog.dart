@@ -37,8 +37,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
   List<OfferLetter> _offerLetters = [];
   bool _offersLoading = false;
 
-  int get _applicantIdInt =>
-      int.tryParse(widget.applicant.id) ?? 0;
+  int get _applicantIdInt => int.tryParse(widget.applicant.id) ?? 0;
 
   Future<String?> _getToken() async {
     final token = await _storage.read(key: 'access_token');
@@ -53,7 +52,8 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
     try {
       final token = await _getToken();
       if (token == null) return;
-      final result = await _interviewService.getInterviews(token, _applicantIdInt);
+      final result =
+          await _interviewService.getInterviews(token, _applicantIdInt);
       setState(() => _interviews = result.items);
     } catch (e) {
       log('Load interviews error: $e');
@@ -67,7 +67,8 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
     try {
       final token = await _getToken();
       if (token == null) return;
-      final result = await _offerLetterService.getOfferLetters(token, _applicantIdInt);
+      final result =
+          await _offerLetterService.getOfferLetters(token, _applicantIdInt);
       setState(() => _offerLetters = result.items);
     } catch (e) {
       log('Load offer letters error: $e');
@@ -123,11 +124,9 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
           children: [
             // Header
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(color: Color(0xFFEEEEEE)))),
+                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -185,8 +184,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               decoration: const BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(color: Color(0xFFEEEEEE)))),
+                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
               child: Row(
                 children: [
                   _buildTab("Overview", 0),
@@ -264,10 +262,8 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                     border: Border.all(color: Colors.grey.shade200),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: MyText(
-                      widget.applicant.notes ?? "No notes available.",
-                      size: 13,
-                      color: Colors.grey.shade700),
+                  child: MyText(widget.applicant.notes ?? "No notes available.",
+                      size: 13, color: Colors.grey.shade700),
                 )
               ],
             ),
@@ -307,8 +303,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                       AppColors.red,
                       () => _controller.rejectApplicant(
                           context, widget.applicant.id)),
-                ] else if (stage == 'interview' ||
-                    stage == 'interviewed') ...[
+                ] else if (stage == 'interview' || stage == 'interviewed') ...[
                   _buildActionButton(
                       "Hire Candidate",
                       Colors.green,
@@ -325,8 +320,8 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                     Navigator.pop(context);
                     showDialog(
                         context: context,
-                        builder: (_) => AddCandidateDialog(
-                            applicant: widget.applicant));
+                        builder: (_) =>
+                            AddCandidateDialog(applicant: widget.applicant));
                   }),
                 ],
                 const SizedBox(height: 32),
@@ -539,14 +534,13 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
         backgroundColor: statusColor.withValues(alpha: 0.1),
         child: Icon(Icons.description, color: statusColor, size: 20),
       ),
-      title: MyText(
-          offer.template.isNotEmpty ? offer.template : 'Offer Letter',
-          size: 14,
-          weight: 600),
+      title: MyText(offer.template.isNotEmpty ? offer.template : 'Offer Letter',
+          size: 14, weight: 600),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MyText('Salary: ₦${offer.annualSalary}', size: 12, color: Colors.grey),
+          MyText('Salary: ₦${offer.annualSalary}',
+              size: 12, color: Colors.grey),
           if (offer.startDate.isNotEmpty)
             MyText('Start: ${offer.startDate}', size: 12, color: Colors.grey),
         ],
@@ -607,8 +601,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),
         onPressed: onTap,
@@ -708,16 +701,15 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
 
       final interview = Interview(
         applicantId: widget.applicantId,
-        interviewerId:
-            int.tryParse(_interviewerIdCtrl.text.trim()) ?? 0,
+        interviewerId: int.tryParse(_interviewerIdCtrl.text.trim()) ?? 0,
         scheduledAt: scheduledAt.toUtc().toIso8601String(),
         meetingLink: _meetingLinkCtrl.text.trim().isEmpty
             ? null
             : _meetingLinkCtrl.text.trim(),
       );
 
-      await widget.interviewService.createInterview(
-          token, widget.applicantId, interview);
+      await widget.interviewService
+          .createInterview(token, widget.applicantId, interview);
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -814,8 +806,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
                   height: 16,
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: Colors.white))
-              : const Text('Schedule',
-                  style: TextStyle(color: Colors.white)),
+              : const Text('Schedule', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
@@ -892,8 +883,8 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
         letterContent: _contentCtrl.text.trim(),
       );
 
-      await widget.offerLetterService.createOfferLetter(
-          token, widget.applicantId, offer);
+      await widget.offerLetterService
+          .createOfferLetter(token, widget.applicantId, offer);
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -983,16 +974,14 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
         ),
         ElevatedButton(
           onPressed: _saving ? null : _save,
-          style:
-              ElevatedButton.styleFrom(backgroundColor: Colors.green),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           child: _saving
               ? const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(
                       strokeWidth: 2, color: Colors.white))
-              : const Text('Create',
-                  style: TextStyle(color: Colors.white)),
+              : const Text('Create', style: TextStyle(color: Colors.white)),
         ),
       ],
     );

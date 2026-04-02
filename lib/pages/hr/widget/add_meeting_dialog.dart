@@ -280,8 +280,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                  border:
-                      Border(top: BorderSide(color: Colors.grey.shade300))),
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -402,16 +401,15 @@ class _AttendeesField extends StatelessWidget {
                 final emp = employees
                     .where((e) => int.tryParse(e.id) == id)
                     .firstOrNull;
-                final label = emp != null
-                    ? '${emp.firstName} ${emp.lastName}'
-                    : '$id';
+                final label =
+                    emp != null ? '${emp.firstName} ${emp.lastName}' : '$id';
                 return Chip(
                   label: Text(label, style: const TextStyle(fontSize: 12)),
                   deleteIcon: const Icon(Icons.close, size: 14),
                   onDeleted: () => onToggle(id),
                   backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-                  side: BorderSide(
-                      color: AppColors.blue.withValues(alpha: 0.3)),
+                  side:
+                      BorderSide(color: AppColors.blue.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 );
@@ -510,8 +508,7 @@ class _AttendeesField extends StatelessWidget {
                                               '${emp.firstName} ${emp.lastName}',
                                               style: const TextStyle(
                                                   fontSize: 14,
-                                                  fontWeight:
-                                                      FontWeight.w500),
+                                                  fontWeight: FontWeight.w500),
                                             ),
                                             Text(
                                               emp.id,

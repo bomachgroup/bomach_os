@@ -114,8 +114,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
           return Column(
             children: [
               ...pageItems.asMap().entries.map(
-                    (entry) =>
-                        _buildBoardMemberCard(entry.value, entry.key),
+                    (entry) => _buildBoardMemberCard(entry.value, entry.key),
                   ),
               const SizedBox(height: 16),
               PaginatorFooter(
@@ -305,8 +304,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
             tooltip: 'Edit',
             onTap: () => showDialog(
               context: context,
-              builder: (c) =>
-                  AddEditShareholderDialog(shareholder: member),
+              builder: (c) => AddEditShareholderDialog(shareholder: member),
             ),
           ),
           const SizedBox(width: 8),
@@ -346,5 +344,4 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
       controller.deleteShareholder(context, member.id);
     }
   }
-
 }

@@ -37,7 +37,7 @@ class BranchController extends GetxController {
   var searchQuery = ''.obs;
   var filterStateId = Rxn<int>();
   var filterBranchRole = Rxn<String>(); // For "All Types"
-  var filterStatus = Rxn<String>();     // For "Status" dropdown
+  var filterStatus = Rxn<String>(); // For "Status" dropdown
 
   // --- Pagination ---
   var currentPage = 1.obs;
@@ -49,7 +49,7 @@ class BranchController extends GetxController {
     super.onInit();
     // Load initial data
     fetchBranches();
-    loadFilterResources(); 
+    loadFilterResources();
   }
 
   // --- Data Fetching ---
@@ -95,7 +95,8 @@ class BranchController extends GetxController {
 
       final results = await Future.wait([
         _branchService.getBranch(accessToken: token, branchId: branchId),
-        _branchService.getBranchPerformance(accessToken: token, branchId: branchId),
+        _branchService.getBranchPerformance(
+            accessToken: token, branchId: branchId),
       ]);
 
       currentBranch.value = results[0] as Branch;
@@ -183,7 +184,8 @@ class BranchController extends GetxController {
       final token = await _getToken();
       if (token == null) return;
 
-      final states = await _branchService.getStates(accessToken: token, countryId: countryId);
+      final states = await _branchService.getStates(
+          accessToken: token, countryId: countryId);
       stateList.assignAll(states);
     } catch (e) {
       log("Error fetching states: $e");
@@ -194,14 +196,15 @@ class BranchController extends GetxController {
 
   // --- CRUD Operations ---
 
-  Future<void> createBranch(BuildContext context, Map<String, dynamic> data) async {
+  Future<void> createBranch(
+      BuildContext context, Map<String, dynamic> data) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return;
 
       await _branchService.createBranch(accessToken: token, branchData: data);
-      
+
       if (context.mounted) {
         Navigator.pop(context);
         fetchBranches(refresh: true);
@@ -209,20 +212,24 @@ class BranchController extends GetxController {
       }
     } catch (e) {
       log("Create Error: $e");
-      if (context.mounted) _showDialog(context, "Error", "Failed to create branch: ${e.toString()}");
+      if (context.mounted)
+        _showDialog(
+            context, "Error", "Failed to create branch: ${e.toString()}");
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<void> updateBranch(BuildContext context, int branchId, Map<String, dynamic> data) async {
+  Future<void> updateBranch(
+      BuildContext context, int branchId, Map<String, dynamic> data) async {
     try {
       isSaving.value = true;
       final token = await _getToken();
       if (token == null) return;
 
-      await _branchService.updateBranch(accessToken: token, branchId: branchId, updateData: data);
-      
+      await _branchService.updateBranch(
+          accessToken: token, branchId: branchId, updateData: data);
+
       if (context.mounted) {
         Navigator.pop(context);
         fetchBranches(refresh: true);
@@ -230,7 +237,8 @@ class BranchController extends GetxController {
       }
     } catch (e) {
       log("Update Error: $e");
-      if (context.mounted) _showDialog(context, "Error", "Failed to update branch");
+      if (context.mounted)
+        _showDialog(context, "Error", "Failed to update branch");
     } finally {
       isSaving.value = false;
     }
@@ -248,7 +256,8 @@ class BranchController extends GetxController {
     if (stateName == 'All States' || stateName == null) {
       filterStateId.value = null;
     } else {
-      final state = stateList.firstWhere((s) => s.name == stateName, orElse: () => StateModel(id: 0, name: '', countryId: 0, code: ''));
+      final state = stateList.firstWhere((s) => s.name == stateName,
+          orElse: () => StateModel(id: 0, name: '', countryId: 0, code: ''));
       if (state.id != 0) filterStateId.value = state.id;
     }
     currentPage.value = 1;
@@ -304,7 +313,8 @@ class BranchController extends GetxController {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.green));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.green));
   }
 
   void _showDialog(BuildContext context, String title, String message) {
@@ -313,7 +323,9 @@ class BranchController extends GetxController {
       builder: (c) => AlertDialog(
         title: Text(title),
         content: Text(message),
-        actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text("OK"))],
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text("OK"))
+        ],
       ),
     );
   }

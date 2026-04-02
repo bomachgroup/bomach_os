@@ -96,8 +96,7 @@ class LeaderboardResponse {
               ?.map((e) => LeaderboardEntry.fromJson(e))
               .toList() ??
           [],
-      avgScore:
-          double.tryParse(json['avg_score']?.toString() ?? '0') ?? 0,
+      avgScore: double.tryParse(json['avg_score']?.toString() ?? '0') ?? 0,
       totalParticipants: json['total_participants'] is int
           ? json['total_participants']
           : int.tryParse(json['total_participants']?.toString() ?? '0') ?? 0,

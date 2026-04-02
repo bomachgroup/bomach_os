@@ -24,13 +24,20 @@ class PermissionService extends GetxService {
   /// see the dashboard and basic self-service pages when the roles endpoint
   /// returns 403 (user lacks roles:view_own permission).
   void loadDefaultPermissions() {
-    if (_userPermissions.isNotEmpty) return; // Don't overwrite if already loaded
+    if (_userPermissions.isNotEmpty)
+      return; // Don't overwrite if already loaded
     _userPermissions.clear();
     _userPermissions.addAll({
       'dashboard': {'view'},
       'employees': {'view_own'},
       'work_reports': {'create', 'view_own', 'list_own', 'update_own'},
-      'leave_requests': {'create', 'view_own', 'list_own', 'update_own', 'delete_own'},
+      'leave_requests': {
+        'create',
+        'view_own',
+        'list_own',
+        'update_own',
+        'delete_own'
+      },
       'tasks': {'view_own', 'list_own', 'update_own'},
     });
     _userPermissions.refresh();

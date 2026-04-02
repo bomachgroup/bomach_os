@@ -1,6 +1,6 @@
 class BiometricAttendanceRecord {
   final int id;
-  final String? employeeId; 
+  final String? employeeId;
   final String attendanceType; // 'CLOCK_IN' or 'CLOCK_OUT'
   final DateTime timestamp;
   final String verificationMethod;
@@ -41,7 +41,7 @@ class BiometricAttendanceRecord {
 class DailyAttendance {
   final String date;
   final String employeeName; // Placeholder, as API might only give ID
-  final String role;         // Placeholder
+  final String role; // Placeholder
   final String? clockInTime;
   final String? clockOutTime;
   final String hoursWorked;

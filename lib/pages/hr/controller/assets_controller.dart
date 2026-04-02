@@ -95,8 +95,7 @@ class AssetController extends GetxController {
 
   Future<void> fetchDepartments(String token) async {
     try {
-      final deptList =
-          await _employeeService.getDepartments(token, limit: 100);
+      final deptList = await _employeeService.getDepartments(token, limit: 100);
       departments.assignAll([
         {'id': 'All', 'name': 'All Departments'},
         ...deptList.map((d) => {'id': d.id, 'name': d.name}),
@@ -126,8 +125,7 @@ class AssetController extends GetxController {
     } catch (e) {
       log("Create Asset Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create asset: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create asset: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

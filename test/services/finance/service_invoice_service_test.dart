@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/finance/models/service_invoice_model_api.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/services/finance/service_invoice_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ void main() {
   late ServiceInvoiceService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleInvoiceItemJson = {
     'id': 1,
@@ -307,8 +308,7 @@ void main() {
         data: sampleCreatePayload,
       );
 
-      final result =
-          await service.updateInvoice(token, 1, sampleCreatePayload);
+      final result = await service.updateInvoice(token, 1, sampleCreatePayload);
 
       expect(result, isA<ServiceInvoice>());
       expect(result.status, 'paid');

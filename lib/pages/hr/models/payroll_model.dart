@@ -46,13 +46,17 @@ class Payroll {
       netSalary: parseDouble(json['net_salary']),
       totalDeductions: parseDouble(json['total_deductions']),
       totalAllowances: parseDouble(json['total_allowances']),
-      disbursementDate: json['disbursement_date'] != null 
-          ? DateTime.tryParse(json['disbursement_date']) 
+      disbursementDate: json['disbursement_date'] != null
+          ? DateTime.tryParse(json['disbursement_date'])
           : null,
       deductions: json['deductions'],
       additions: json['additions'], // Map<String, dynamic>
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
     );
   }
 

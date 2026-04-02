@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../../../pages/hr/models/interview_model.dart';
 
 class InterviewService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   InterviewService({
     Dio? dioOverride,

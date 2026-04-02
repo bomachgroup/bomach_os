@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 class MarketingCampaign {
@@ -58,8 +59,9 @@ class MarketingCampaign {
       budgetAllocated: json['budget_allocated']?.toString() ?? '0.00',
       budgetSpent: json['budget_spent']?.toString() ?? '0.00',
       budgetRemaining: json['budget_remaining']?.toString() ?? '0.00',
-      budgetUtilizationPercentage:
-          double.tryParse(json['budget_utilization_percentage']?.toString() ?? '0') ?? 0,
+      budgetUtilizationPercentage: double.tryParse(
+              json['budget_utilization_percentage']?.toString() ?? '0') ??
+          0,
       isOverBudget: json['is_over_budget'] ?? false,
       clicks: json['clicks'] ?? 0,
       startDate: json['start_date'],
@@ -129,7 +131,7 @@ class MarketingContent {
 class MarketingService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   MarketingService({Dio? dioOverride})
       : _dio = dioOverride ??
@@ -182,9 +184,8 @@ class MarketingService {
             .toList();
         return (items: items, total: (data['count'] ?? items.length) as int);
       }
-      final items = (data as List)
-          .map((j) => MarketingCampaign.fromJson(j))
-          .toList();
+      final items =
+          (data as List).map((j) => MarketingCampaign.fromJson(j)).toList();
       return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);
@@ -261,9 +262,8 @@ class MarketingService {
             .toList();
         return (items: items, total: (data['count'] ?? items.length) as int);
       }
-      final items = (data as List)
-          .map((j) => MarketingContent.fromJson(j))
-          .toList();
+      final items =
+          (data as List).map((j) => MarketingContent.fromJson(j)).toList();
       return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);

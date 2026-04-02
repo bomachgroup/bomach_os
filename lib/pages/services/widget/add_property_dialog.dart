@@ -103,10 +103,10 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
     _categoryController =
         TextEditingController(text: _categoryReverse[p?.category] ?? '');
     _locationController = TextEditingController(text: p?.location ?? '');
-    _priceController = TextEditingController(
-        text: p != null && p.price != '0' ? p.price : '');
-    _sizeController = TextEditingController(
-        text: p != null && p.size != '0' ? p.size : '');
+    _priceController =
+        TextEditingController(text: p != null && p.price != '0' ? p.price : '');
+    _sizeController =
+        TextEditingController(text: p != null && p.size != '0' ? p.size : '');
     _bedroomsController = TextEditingController(
         text: p != null && p.bedrooms > 0 ? '${p.bedrooms}' : '');
     _bathroomsController = TextEditingController(
@@ -269,8 +269,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
       'description': _descriptionController.text.trim(),
       'images': _imageUrls,
       'status': status,
-      if (_selectedClient != null)
-        'client_id': _selectedClient!.id.toString(),
+      if (_selectedClient != null) 'client_id': _selectedClient!.id.toString(),
     };
 
     bool success;
@@ -602,8 +601,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                   color: Colors.grey.withValues(alpha: 0.05),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color:
-                                        Colors.grey.withValues(alpha: 0.2),
+                                    color: Colors.grey.withValues(alpha: 0.2),
                                   ),
                                 ),
                                 child: Row(
@@ -620,8 +618,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                           height: 56,
                                           color: AppColors.blue
                                               .withValues(alpha: 0.1),
-                                          child: const Icon(
-                                              Icons.broken_image,
+                                          child: const Icon(Icons.broken_image,
                                               size: 24),
                                         ),
                                       ),

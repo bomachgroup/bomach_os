@@ -76,8 +76,7 @@ class _MeetingsState extends State<Meetings> {
                         child: MyTextFormField(
                           hintText: 'Search...',
                           leading: Icon(Icons.search,
-                              color:
-                                  AppColors.grey1.withValues(alpha: 0.5)),
+                              color: AppColors.grey1.withValues(alpha: 0.5)),
                           onChanged: (val) => _loadData(search: val),
                         ),
                       ),
@@ -129,26 +128,25 @@ class _MeetingsState extends State<Meetings> {
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
                     child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minWidth: bodySpace(context)),
+                      constraints: BoxConstraints(minWidth: bodySpace(context)),
                       child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      showBottomBorder: true,
-                      columns: const [
-                        DataColumn(label: MyText('Title')),
-                        DataColumn(label: MyText('Date')),
-                        DataColumn(label: MyText('Time')),
-                        DataColumn(label: MyText('Duration')),
-                        DataColumn(label: MyText('Location')),
-                        DataColumn(label: MyText('Attendees')),
-                        DataColumn(label: MyText('Status')),
-                        DataColumn(label: MyText('Action')),
-                      ],
-                      rows: _buildRows(context, controller.meetings),
-                    ),
+                        dataRowMinHeight: 68,
+                        dataRowMaxHeight: 68,
+                        columnSpacing: 24,
+                        horizontalMargin: 12,
+                        showBottomBorder: true,
+                        columns: const [
+                          DataColumn(label: MyText('Title')),
+                          DataColumn(label: MyText('Date')),
+                          DataColumn(label: MyText('Time')),
+                          DataColumn(label: MyText('Duration')),
+                          DataColumn(label: MyText('Location')),
+                          DataColumn(label: MyText('Attendees')),
+                          DataColumn(label: MyText('Status')),
+                          DataColumn(label: MyText('Action')),
+                        ],
+                        rows: _buildRows(context, controller.meetings),
+                      ),
                     ),
                   ),
                 ),
@@ -187,8 +185,7 @@ class _MeetingsState extends State<Meetings> {
         DataCell(MyText('${m.attendeeCount}')),
         DataCell(
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: _statusColor(m.status).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
@@ -211,8 +208,7 @@ class _MeetingsState extends State<Meetings> {
               ),
             ),
             PopupMenuItem(
-              child: const Text('Cancel',
-                  style: TextStyle(color: Colors.red)),
+              child: const Text('Cancel', style: TextStyle(color: Colors.red)),
               onTap: () => controller.deleteMeeting(context, m.id),
             ),
           ],

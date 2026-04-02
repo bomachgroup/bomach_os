@@ -45,9 +45,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
     agendaCtrl = TextEditingController(text: m?.agenda ?? '');
     locationCtrl = TextEditingController(text: m?.location ?? '');
     durationCtrl = TextEditingController(
-        text: m != null && m.durationMinutes > 0
-            ? '${m.durationMinutes}'
-            : '');
+        text: m != null && m.durationMinutes > 0 ? '${m.durationMinutes}' : '');
     notesCtrl = TextEditingController(text: m?.notes ?? '');
     attendeeCtrl = TextEditingController();
 
@@ -167,10 +165,9 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
                             trailing: const Icon(Icons.calendar_today,
                                 size: 18, color: Colors.grey),
                             onTap: _pickDate,
-                            validator: (val) =>
-                                (val == null || val.isEmpty)
-                                    ? 'Required'
-                                    : null,
+                            validator: (val) => (val == null || val.isEmpty)
+                                ? 'Required'
+                                : null,
                           ),
                         ],
                       ),
@@ -380,8 +377,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
         return Chip(
           label: Text(entry.value, style: const TextStyle(fontSize: 13)),
           deleteIcon: const Icon(Icons.close, size: 16),
-          onDeleted: () =>
-              setState(() => attendeeNames.removeAt(entry.key)),
+          onDeleted: () => setState(() => attendeeNames.removeAt(entry.key)),
           backgroundColor: AppColors.blue.withValues(alpha: 0.1),
           side: BorderSide(color: AppColors.blue.withValues(alpha: 0.3)),
           shape:
@@ -542,8 +538,7 @@ class ViewMeetingDialog extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 12),
                   child: Text('Attendees',
-                      style:
-                          TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
                 ),
                 Wrap(
                   spacing: 6,
@@ -597,8 +592,7 @@ class ViewMeetingDialog extends StatelessWidget {
                       Navigator.pop(context);
                       showDialog(
                         context: context,
-                        builder: (_) =>
-                            ScheduleMeetingDialog(meeting: meeting),
+                        builder: (_) => ScheduleMeetingDialog(meeting: meeting),
                       );
                     },
                   ),
@@ -620,13 +614,12 @@ class ViewMeetingDialog extends StatelessWidget {
           SizedBox(
             width: 110,
             child: Text(label,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 14)),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
           ),
         ],
       ),

@@ -1,4 +1,3 @@
-
 class ActivityItem {
   final String title;
   final String metadata;

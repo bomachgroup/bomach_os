@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../../../pages/hr/models/monthly_scorecard_models.dart';
 import '../../../pages/hr/models/performance_leaderboard_models.dart';
@@ -6,7 +7,7 @@ import '../../../pages/hr/models/performance_leaderboard_models.dart';
 class MonthlyScorecardService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   MonthlyScorecardService({
     Dio? dioOverride,
@@ -89,10 +90,14 @@ class MonthlyScorecardService {
     try {
       final data = <String, dynamic>{};
       if (attendanceScore != null) data['attendance_score'] = attendanceScore;
-      if (taskDeliveryScore != null) data['task_delivery_score'] = taskDeliveryScore;
-      if (reportAccuracyScore != null) data['report_accuracy_score'] = reportAccuracyScore;
-      if (brandContributionScore != null) data['brand_contribution_score'] = brandContributionScore;
-      if (trainingProgressScore != null) data['training_progress_score'] = trainingProgressScore;
+      if (taskDeliveryScore != null)
+        data['task_delivery_score'] = taskDeliveryScore;
+      if (reportAccuracyScore != null)
+        data['report_accuracy_score'] = reportAccuracyScore;
+      if (brandContributionScore != null)
+        data['brand_contribution_score'] = brandContributionScore;
+      if (trainingProgressScore != null)
+        data['training_progress_score'] = trainingProgressScore;
       if (targetScore != null) data['target_score'] = targetScore;
       if (notes != null) data['notes'] = notes;
 

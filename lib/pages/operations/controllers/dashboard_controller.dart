@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import '../../../src/services/operations/operations_services.dart';
 
 class OperationsDashboardController extends GetxController {
   final DashboardService _service =
-      DashboardService(baseUrl: 'https://bomachauth.bgbot.app');
+      DashboardService(baseUrl: ApiConstants.baseUrl);
   final _storage = const FlutterSecureStorage();
 
   var stats = Rxn<DashboardStats>();

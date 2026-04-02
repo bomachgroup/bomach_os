@@ -154,8 +154,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
       ),
       titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 16.0, 16.0),
       actionsPadding: const EdgeInsets.all(16.0),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       contentPadding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 0.0),
       content: SingleChildScrollView(
         child: SizedBox(
@@ -167,8 +166,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildFormLabel('Full Name *'),
-                _buildTextInput(
-                    controller: _fullNameCtrl, hint: 'Full name'),
+                _buildTextInput(controller: _fullNameCtrl, hint: 'Full name'),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -190,8 +188,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
                         children: [
                           _buildFormLabel('Phone *'),
                           _buildTextInput(
-                              controller: _phoneCtrl,
-                              hint: '+234...'),
+                              controller: _phoneCtrl, hint: '+234...'),
                         ],
                       ),
                     ),
@@ -230,14 +227,9 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
                           _buildFormLabel('Priority Level'),
                           MyDropdown(
                             hintText: _priorityLevel,
-                            items: const [
-                              'Critical',
-                              'High',
-                              'Medium',
-                              'Low'
-                            ],
-                            onChanged: (val) =>
-                                setState(() => _priorityLevel = val ?? 'Medium'),
+                            items: const ['Critical', 'High', 'Medium', 'Low'],
+                            onChanged: (val) => setState(
+                                () => _priorityLevel = val ?? 'Medium'),
                           ),
                         ],
                       ),
@@ -247,8 +239,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
                 const SizedBox(height: 12),
                 _buildFormLabel('Issuing Authority *'),
                 _buildTextInput(
-                    controller: _authorityCtrl,
-                    hint: 'Regulatory Authority'),
+                    controller: _authorityCtrl, hint: 'Regulatory Authority'),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -267,8 +258,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildFormLabel('Expiry Date *'),
-                          _buildDateField(
-                              _expiryDate, () => _pickDate(false)),
+                          _buildDateField(_expiryDate, () => _pickDate(false)),
                         ],
                       ),
                     ),
@@ -302,8 +292,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildFormLabel('Cost'),
-                          _buildTextInput(
-                              controller: _costCtrl, hint: '0.00'),
+                          _buildTextInput(controller: _costCtrl, hint: '0.00'),
                         ],
                       ),
                     ),
@@ -311,8 +300,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
                 ),
                 const SizedBox(height: 12),
                 _buildFormLabel('Reference Number'),
-                _buildTextInput(
-                    controller: _referenceCtrl, hint: 'REF-001'),
+                _buildTextInput(controller: _referenceCtrl, hint: 'REF-001'),
                 const SizedBox(height: 12),
                 _buildFormLabel('Description'),
                 _buildMultiLineTextInput(controller: _descriptionCtrl),
@@ -325,8 +313,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
                         children: [
                           _buildFormLabel('Contact Person'),
                           _buildTextInput(
-                              controller: _contactPersonCtrl,
-                              hint: 'Name'),
+                              controller: _contactPersonCtrl, hint: 'Name'),
                         ],
                       ),
                     ),
@@ -361,8 +348,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
             onPressed: controller.isSaving.value ? null : _submit,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.blue,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0)),
             ),
@@ -411,8 +397,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
     );
   }
 
-  Widget _buildMultiLineTextInput(
-      {required TextEditingController controller}) {
+  Widget _buildMultiLineTextInput({required TextEditingController controller}) {
     return TextFormField(
       controller: controller,
       maxLines: 4,
@@ -450,8 +435,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
         ),
         child: Text(
           _formatDate(date),
-          style: TextStyle(
-              color: date == null ? Colors.grey : Colors.black),
+          style: TextStyle(color: date == null ? Colors.grey : Colors.black),
         ),
       ),
     );

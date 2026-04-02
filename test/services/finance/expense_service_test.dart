@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/finance/models/expense_model.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/services/finance/expense_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ void main() {
   late ExpenseService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleExpenseJson = {
     'id': 1,
@@ -231,8 +232,7 @@ void main() {
         data: sampleCreatePayload,
       );
 
-      final result =
-          await service.updateExpense(token, 1, sampleCreatePayload);
+      final result = await service.updateExpense(token, 1, sampleCreatePayload);
 
       expect(result, isA<Expense>());
       expect(result.amount, '25000.00');

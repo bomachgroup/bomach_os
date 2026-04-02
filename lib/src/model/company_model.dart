@@ -252,9 +252,11 @@ class EquityInfo {
 
   factory EquityInfo.fromJson(Map<String, dynamic> json) {
     return EquityInfo(
-      authorizedShares: int.tryParse(json['authorized_shares']?.toString() ?? '') ?? 0,
+      authorizedShares:
+          int.tryParse(json['authorized_shares']?.toString() ?? '') ?? 0,
       issuedShares: int.tryParse(json['issued_shares']?.toString() ?? '') ?? 0,
-      unissuedShares: int.tryParse(json['unissued_shares']?.toString() ?? '') ?? 0,
+      unissuedShares:
+          int.tryParse(json['unissued_shares']?.toString() ?? '') ?? 0,
     );
   }
 }

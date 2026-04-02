@@ -75,8 +75,8 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
     descriptionCtrl = TextEditingController(text: c?.description ?? '');
     contactPersonCtrl = TextEditingController(text: c?.contactPerson ?? '');
     contactEmailCtrl = TextEditingController(text: c?.contactEmail ?? '');
-    costCtrl = TextEditingController(
-        text: c != null && c.cost > 0 ? '${c.cost}' : '');
+    costCtrl =
+        TextEditingController(text: c != null && c.cost > 0 ? '${c.cost}' : '');
     priorityCtrl = TextEditingController(text: c?.priorityLevel ?? '');
 
     if (c != null) {
@@ -335,12 +335,10 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
                               hintText: 'Select',
                               controller: priorityCtrl,
                               items: const ['low', 'medium', 'high'],
-                              onChanged: (val) =>
-                                  priorityCtrl.text = val ?? '',
-                              validator: (val) =>
-                                  (val == null || val.isEmpty)
-                                      ? 'Required'
-                                      : null,
+                              onChanged: (val) => priorityCtrl.text = val ?? '',
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
                             ),
                           ),
                         ],
@@ -372,9 +370,8 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
                                 child: controller.isSaving.value
                                     ? 'Saving...'
                                     : 'Save',
-                                onTap: controller.isSaving.value
-                                    ? () {}
-                                    : _onSave,
+                                onTap:
+                                    controller.isSaving.value ? () {} : _onSave,
                               )),
                         ],
                       ),

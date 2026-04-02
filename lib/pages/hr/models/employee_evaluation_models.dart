@@ -188,8 +188,7 @@ class EmployeeEvaluationForm {
   double getKPIAchievementRate() {
     if (kpiReviews.isEmpty) return 0;
     final onTargetCount = kpiReviews
-        .where((kpi) =>
-            kpi.status == 'On Target' || kpi.status == 'Exceeded')
+        .where((kpi) => kpi.status == 'On Target' || kpi.status == 'Exceeded')
         .length;
     return (onTargetCount / kpiReviews.length) * 100;
   }
@@ -208,8 +207,7 @@ class EmployeeEvaluationForm {
       'evaluatorName': evaluatorName,
       'averageScore': averageScore,
       'totalScore': totalScore,
-      'coreCompetencies':
-          coreCompetencies.map((c) => c.toJson()).toList(),
+      'coreCompetencies': coreCompetencies.map((c) => c.toJson()).toList(),
       'kpiReviews': kpiReviews.map((k) => k.toJson()).toList(),
       'managerComments': managerComments,
       'recommendation': recommendation.toJson(),
@@ -224,7 +222,8 @@ class EvaluationSummary {
   final int completedEvaluations;
   final int pendingEvaluations;
   final double averagePerformanceScore;
-  final Map<String, int> performanceDistribution; // Excellent: 10, Good: 20, etc.
+  final Map<String, int>
+      performanceDistribution; // Excellent: 10, Good: 20, etc.
 
   EvaluationSummary({
     required this.totalEvaluations,

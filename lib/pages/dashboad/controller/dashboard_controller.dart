@@ -62,10 +62,7 @@ class DashboardController extends GetxController {
               overallScore: 0,
               rankText: '',
               workReport: WorkReportStats(
-                  score: 0,
-                  reportsSubmitted: 0,
-                  approved: 0,
-                  averageRating: 0),
+                  score: 0, reportsSubmitted: 0, approved: 0, averageRating: 0),
               punctualityReport: PunctualityReport(
                   score: 0,
                   totalDays: 0,

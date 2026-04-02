@@ -1,11 +1,12 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 import '../model/board_model.dart';
 
 class BoardService {
   final Dio _dio;
-  static const baseUrl = "https://bomachauth.bgbot.app";
+  static const baseUrl = ApiConstants.baseUrl;
 
   BoardService({
     Dio? dioOverride,

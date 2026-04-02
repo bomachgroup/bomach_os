@@ -172,8 +172,7 @@ class _EachProjectsState extends State<EachProjects> {
     switch (index) {
       case 1:
         showDialog(
-            context: context,
-            builder: (_) => const AddProjectMemberDialog());
+            context: context, builder: (_) => const AddProjectMemberDialog());
         break;
       case 2:
         showDialog(

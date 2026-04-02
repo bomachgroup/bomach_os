@@ -163,7 +163,8 @@ class _ClientListPageState extends State<ClientListPage> {
                         contentPadding: const EdgeInsets.all(16),
                         leading: CircleAvatar(
                           radius: 28,
-                          backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+                          backgroundColor:
+                              AppColors.blue.withValues(alpha: 0.1),
                           backgroundImage: client.profilePicture != null &&
                                   client.profilePicture!.isNotEmpty &&
                                   client.profilePicture != 'string'
@@ -259,10 +260,12 @@ class _ClientListPageState extends State<ClientListPage> {
                 // Pagination Controls
                 Obx(() {
                   final currentPage = _controller.currentPage.value;
-                  final hasNextPage = _controller.clients.length >= _controller.limit;
+                  final hasNextPage =
+                      _controller.clients.length >= _controller.limit;
 
                   // Calculate page range to show
-                  final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+                  final totalPages =
+                      hasNextPage ? currentPage + 1 : currentPage;
                   int endPage = totalPages.clamp(1, totalPages);
                   int startPage = (endPage - 4).clamp(1, endPage);
 
@@ -283,9 +286,8 @@ class _ClientListPageState extends State<ClientListPage> {
                           backgroundColor: currentPage > 1
                               ? AppColors.blue
                               : Colors.grey[300],
-                          foregroundColor: currentPage > 1
-                              ? Colors.white
-                              : Colors.grey[600],
+                          foregroundColor:
+                              currentPage > 1 ? Colors.white : Colors.grey[600],
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -348,12 +350,10 @@ class _ClientListPageState extends State<ClientListPage> {
                             : null,
                         icon: const Icon(Icons.chevron_right),
                         style: IconButton.styleFrom(
-                          backgroundColor: hasNextPage
-                              ? AppColors.blue
-                              : Colors.grey[300],
-                          foregroundColor: hasNextPage
-                              ? Colors.white
-                              : Colors.grey[600],
+                          backgroundColor:
+                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                          foregroundColor:
+                              hasNextPage ? Colors.white : Colors.grey[600],
                         ),
                       ),
                     ],
@@ -550,8 +550,8 @@ class _ClientListPageState extends State<ClientListPage> {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
-                                              content:
-                                                  Text('Error: ${e.toString()}'),
+                                              content: Text(
+                                                  'Error: ${e.toString()}'),
                                               backgroundColor: Colors.red,
                                             ),
                                           );

@@ -92,46 +92,54 @@ class _WorkspacePageState extends State<WorkspacePage> {
 
   Widget _buildTopStats(BuildContext context) {
     return Obx(() {
-    final List<Map<String, dynamic>> items = [
-      {'label': 'Projects', 'count': '—', 'icon': Icons.folder_outlined},
-      {'label': 'Meetings', 'count': _controller.totalMeetings.value.toString(), 'icon': Icons.groups_outlined},
-      {'label': 'Documents', 'count': '—', 'icon': Icons.description_outlined},
-      {'label': 'Team Members', 'count': '—', 'icon': Icons.people_outline},
-    ];
+      final List<Map<String, dynamic>> items = [
+        {'label': 'Projects', 'count': '—', 'icon': Icons.folder_outlined},
+        {
+          'label': 'Meetings',
+          'count': _controller.totalMeetings.value.toString(),
+          'icon': Icons.groups_outlined
+        },
+        {
+          'label': 'Documents',
+          'count': '—',
+          'icon': Icons.description_outlined
+        },
+        {'label': 'Team Members', 'count': '—', 'icon': Icons.people_outline},
+      ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        double width = constraints.maxWidth;
-        if (width > 900) {
-          return Row(
-            spacing: 18,
-            children: items
-                .map((it) => Expanded(
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          double width = constraints.maxWidth;
+          if (width > 900) {
+            return Row(
+              spacing: 18,
+              children: items
+                  .map((it) => Expanded(
+                        child: StatsHeaderCard(
+                          label: it['label']!,
+                          count: it['count']!,
+                          icon: it['icon']! as IconData,
+                        ),
+                      ))
+                  .toList(),
+            );
+          } else {
+            return Wrap(
+              spacing: 18,
+              runSpacing: 18,
+              children: items
+                  .map((it) => SizedBox(
+                      width: (width - 18) / 2,
                       child: StatsHeaderCard(
                         label: it['label']!,
                         count: it['count']!,
                         icon: it['icon']! as IconData,
-                      ),
-                    ))
-                .toList(),
-          );
-        } else {
-          return Wrap(
-            spacing: 18,
-            runSpacing: 18,
-            children: items
-                .map((it) => SizedBox(
-                    width: (width - 18) / 2,
-                    child: StatsHeaderCard(
-                      label: it['label']!,
-                      count: it['count']!,
-                      icon: it['icon']! as IconData,
-                    )))
-                .toList(),
-          );
-        }
-      },
-    );
+                      )))
+                  .toList(),
+            );
+          }
+        },
+      );
     });
   }
 }

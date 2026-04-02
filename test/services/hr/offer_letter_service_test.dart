@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/hr/models/offer_letter_model.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/services/hr/offer_letter_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ void main() {
   late OfferLetterService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
   const applicantId = 42;
 
   final sampleOfferLetterJson = {
@@ -201,8 +202,7 @@ void main() {
         (server) => server.reply(200, sampleOfferLetterJson),
       );
 
-      final result =
-          await service.getOfferLetterById(token, applicantId, 1);
+      final result = await service.getOfferLetterById(token, applicantId, 1);
 
       expect(result, isA<OfferLetter>());
       expect(result.id, 1);
@@ -214,8 +214,7 @@ void main() {
     test('should throw on 404 error', () async {
       dioAdapter.onGet(
         '/applicants/$applicantId/offer-letters/999',
-        (server) =>
-            server.reply(404, {'message': 'Offer letter not found'}),
+        (server) => server.reply(404, {'message': 'Offer letter not found'}),
       );
 
       expect(

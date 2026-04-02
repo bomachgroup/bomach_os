@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/legal/models/legal_case_model.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/services/legal/legal_case_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ void main() {
   late LegalCaseService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleCaseJson = {
     'id': 1,

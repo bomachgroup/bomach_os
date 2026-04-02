@@ -115,8 +115,7 @@ class PaymentsPage extends StatelessWidget {
                     controller: scrollController,
                     scrollDirection: Axis.horizontal,
                     child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minWidth: bodySpace(context)),
+                      constraints: BoxConstraints(minWidth: bodySpace(context)),
                       child: DataTable(
                         dataRowMinHeight: 68,
                         dataRowMaxHeight: 68,
@@ -133,8 +132,7 @@ class PaymentsPage extends StatelessWidget {
                         rows: controller.paymentList.map((payment) {
                           return DataRow(cells: [
                             DataCell(MyText(payment.paymentReference)),
-                            DataCell(
-                                MyText(payment.invoiceId.toString())),
+                            DataCell(MyText(payment.invoiceId.toString())),
                             DataCell(MyText(payment.amount)),
                             DataCell(MyText(payment.paymentMethod)),
                             DataCell(MyText(payment.paymentDate)),
@@ -151,8 +149,7 @@ class PaymentsPage extends StatelessWidget {
                                   const PopupMenuItem(
                                       value: 'delete',
                                       child: Text('Delete',
-                                          style:
-                                              TextStyle(color: Colors.red))),
+                                          style: TextStyle(color: Colors.red))),
                                 ],
                               ),
                             ),

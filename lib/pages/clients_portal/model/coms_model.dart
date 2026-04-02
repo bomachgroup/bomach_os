@@ -1,12 +1,11 @@
-
 class Communication {
   final String title;
   final String content;
   final String type;
-  final String priority; 
-  final String status; 
+  final String priority;
+  final String status;
   final String recipient;
-  final String sender; 
+  final String sender;
   final String date;
   final int attachments;
 
@@ -22,7 +21,6 @@ class Communication {
     this.attachments = 0,
   });
 }
-
 
 final List<Communication> mockCommunications = [
   Communication(

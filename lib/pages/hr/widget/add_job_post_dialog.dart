@@ -6,13 +6,13 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 
 import '../controller/jobposting_control.dart';
 import '../models/job_posting.dart';
 
 class AddJobPostDialog extends StatefulWidget {
-  final JobPosting? job; 
+  final JobPosting? job;
   const AddJobPostDialog({super.key, this.job});
 
   @override
@@ -28,7 +28,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
     if (widget.job != null) {
       controller.populateForm(widget.job!);
       if (widget.job!.deadline != null) {
-        controller.deadlineController.text = 
+        controller.deadlineController.text =
             DateFormat('yyyy-MM-dd').format(widget.job!.deadline!);
       }
     } else {
@@ -39,7 +39,8 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: controller.selectedDeadline ?? DateTime.now().add(const Duration(days: 30)),
+      initialDate: controller.selectedDeadline ??
+          DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
       builder: (context, child) {
@@ -47,8 +48,8 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
               primary: Color(0xFF0055FF), // Blue header
-              onPrimary: Colors.white, 
-              onSurface: Colors.black, 
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
           ),
           child: child!,
@@ -58,7 +59,8 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
     if (picked != null) {
       setState(() {
         controller.selectedDeadline = picked;
-        controller.deadlineController.text = DateFormat('yyyy-MM-dd').format(picked);
+        controller.deadlineController.text =
+            DateFormat('yyyy-MM-dd').format(picked);
       });
     }
   }
@@ -80,8 +82,11 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyText(
-                    widget.job == null ? 'Create New Job Posting' : 'Edit Job Posting',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    widget.job == null
+                        ? 'Create New Job Posting'
+                        : 'Edit Job Posting',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.grey),
@@ -120,7 +125,8 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                         Expanded(
                           child: MyTextFormField(
                             controller: controller.branchController,
-                            hintText: 'Select', // In real app, make this a dropdown
+                            hintText:
+                                'Select', // In real app, make this a dropdown
                             title: 'Location',
                           ),
                         ),
@@ -133,11 +139,16 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                       children: [
                         Expanded(
                           child: Obx(() => MyDropdown(
-                                items: const ['Full-Time', 'Part-Time', 'Contract'],
+                                items: const [
+                                  'Full-Time',
+                                  'Part-Time',
+                                  'Contract'
+                                ],
                                 hintText: controller.selectedJobType.value,
                                 title: 'Employment Type',
                                 onChanged: (val) {
-                                  if(val != null) controller.selectedJobType.value = val;
+                                  if (val != null)
+                                    controller.selectedJobType.value = val;
                                 },
                               )),
                         ),
@@ -185,7 +196,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () => _selectDate(context),
-                            child: AbsorbPointer( 
+                            child: AbsorbPointer(
                               child: MyTextFormField(
                                 controller: controller.deadlineController,
                                 hintText: 'dd/mm/yyyy',
@@ -201,7 +212,8 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                                 hintText: controller.selectedStatus.value,
                                 title: 'Status',
                                 onChanged: (val) {
-                                  if(val != null) controller.selectedStatus.value = val;
+                                  if (val != null)
+                                    controller.selectedStatus.value = val;
                                 },
                               )),
                         ),
@@ -257,10 +269,13 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                   Obx(() => MyElevatedButton(
                         width: 140,
                         bgColor: const Color(0xFF0055FF),
-                        child: controller.isSaving.value ? 'Saving...' : 'Save changes',
+                        child: controller.isSaving.value
+                            ? 'Saving...'
+                            : 'Save changes',
                         onTap: controller.isSaving.value
-                            ? () {} 
-                            : () => controller.saveJob(context, id: widget.job?.id),
+                            ? () {}
+                            : () =>
+                                controller.saveJob(context, id: widget.job?.id),
                       )),
                 ],
               ),

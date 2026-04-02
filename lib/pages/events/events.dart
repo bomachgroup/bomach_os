@@ -322,21 +322,16 @@ class _EventsPageState extends State<EventsPage> {
                   ),
                 )
               : Column(
-                  children: events
-                      .asMap()
-                      .entries
-                      .map((entry) {
-                        final index = entry.key;
-                        final event = entry.value;
-                        return Column(
-                          children: [
-                            _buildEventItem(event),
-                            if (index < events.length - 1)
-                              const Divider(height: 1),
-                          ],
-                        );
-                      })
-                      .toList(),
+                  children: events.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final event = entry.value;
+                    return Column(
+                      children: [
+                        _buildEventItem(event),
+                        if (index < events.length - 1) const Divider(height: 1),
+                      ],
+                    );
+                  }).toList(),
                 ),
         ],
       ),
@@ -487,8 +482,18 @@ class _EventsPageState extends State<EventsPage> {
 
   String _formatDate(DateTime date) {
     final months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }

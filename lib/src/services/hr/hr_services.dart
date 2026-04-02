@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 
 import 'applicants_service.dart';
@@ -30,7 +31,7 @@ class HRServices {
   late final MonthlyScorecardService scorecards;
   late final EmployeeEvaluationService evaluations;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   HRServices({Dio? dioOverride})
       : _dio = dioOverride ??

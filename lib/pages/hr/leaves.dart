@@ -138,8 +138,7 @@ class _LeavesPageState extends State<LeavesPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: const Color(0xFF0055FF),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               elevation: 0,
@@ -206,8 +205,7 @@ class _LeavesPageState extends State<LeavesPage> {
         children: cards
             .map((c) => Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                        right: c == cards.last ? 0 : 12),
+                    padding: EdgeInsets.only(right: c == cards.last ? 0 : 12),
                     child: _buildStatCard(c),
                   ),
                 ))
@@ -331,8 +329,8 @@ class _LeavesPageState extends State<LeavesPage> {
                 leading: const Icon(Icons.search, color: Colors.grey, size: 20),
               ),
               action: Obx(() => Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       borderRadius: BorderRadius.circular(8),
@@ -345,8 +343,7 @@ class _LeavesPageState extends State<LeavesPage> {
                             .map((s) =>
                                 DropdownMenuItem(value: s, child: Text(s)))
                             .toList(),
-                        onChanged: (v) =>
-                            _ctrl.updateStatusFilter(v, context),
+                        onChanged: (v) => _ctrl.updateStatusFilter(v, context),
                       ),
                     ),
                   )),
@@ -436,8 +433,8 @@ class _LeavesPageState extends State<LeavesPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
               ),
@@ -466,8 +463,7 @@ class _LeavesPageState extends State<LeavesPage> {
               columnSpacing: 28,
               horizontalMargin: 20,
               showBottomBorder: false,
-              headingRowColor: WidgetStateProperty.all(
-                  const Color(0xFFF8FAFC)),
+              headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
               headingTextStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -539,8 +535,8 @@ class _LeavesPageState extends State<LeavesPage> {
 
                   // Duration
                   DataCell(Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFF6366F1).withValues(alpha: 0.07),
                       borderRadius: BorderRadius.circular(8),
@@ -678,9 +674,8 @@ class _LeavesPageState extends State<LeavesPage> {
     return type
         .replaceAll('_', ' ')
         .split(' ')
-        .map((w) => w.isNotEmpty
-            ? '${w[0].toUpperCase()}${w.substring(1)}'
-            : '')
+        .map(
+            (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
         .join(' ');
   }
 }

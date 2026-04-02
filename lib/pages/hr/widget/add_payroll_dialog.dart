@@ -12,7 +12,6 @@ import 'package:intl/intl.dart';
 import '../controller/pay_roll_controller.dart';
 import '../models/payroll_model.dart';
 
-
 class AddPayRollDialog extends StatefulWidget {
   final Payroll? payrollToEdit;
   const AddPayRollDialog({super.key, this.payrollToEdit});
@@ -34,13 +33,25 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
   late TextEditingController statusCtrl;
 
   final Map<String, bool> allowancesMap = {
-    "Housing": false, "Car": false, "Transport": false, "Feeding": false,
-    "Electricity": false, "Water": false, "Internet": false, "Healthcare": false,
-    "Insurance": false, "Education": false, "Entertainment": false, "Clothing": false, "Savings": false
+    "Housing": false,
+    "Car": false,
+    "Transport": false,
+    "Feeding": false,
+    "Electricity": false,
+    "Water": false,
+    "Internet": false,
+    "Healthcare": false,
+    "Insurance": false,
+    "Education": false,
+    "Entertainment": false,
+    "Clothing": false,
+    "Savings": false
   };
 
   final Map<String, bool> deductionsMap = {
-    "Tax": false, "Pension": false, "Loan": false
+    "Tax": false,
+    "Pension": false,
+    "Loan": false
   };
 
   @override
@@ -50,14 +61,18 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
 
     employeeIdCtrl = TextEditingController(text: p?.employeeId ?? '');
     payrollPeriodCtrl = TextEditingController(text: p?.payrollPeriod ?? '');
-    grossSalaryCtrl = TextEditingController(text: p?.grossSalary.toString() ?? '');
+    grossSalaryCtrl =
+        TextEditingController(text: p?.grossSalary.toString() ?? '');
     netSalaryCtrl = TextEditingController(text: p?.netSalary.toString() ?? '');
-    totalDeductionsCtrl = TextEditingController(text: p?.totalDeductions.toString() ?? '');
-    totalAllowancesCtrl = TextEditingController(text: p?.totalAllowances.toString() ?? '');
+    totalDeductionsCtrl =
+        TextEditingController(text: p?.totalDeductions.toString() ?? '');
+    totalAllowancesCtrl =
+        TextEditingController(text: p?.totalAllowances.toString() ?? '');
     statusCtrl = TextEditingController(text: p?.status ?? 'pending');
     disbursementDateCtrl = TextEditingController(
-      text: p?.disbursementDate != null ? DateFormat('yyyy-MM-dd').format(p!.disbursementDate!) : ''
-    );
+        text: p?.disbursementDate != null
+            ? DateFormat('yyyy-MM-dd').format(p!.disbursementDate!)
+            : '');
 
     if (p?.additions != null) {
       p!.additions!.forEach((key, value) {
@@ -99,7 +114,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
   void _save() async {
     Map<String, dynamic> finalAdditions = {};
     allowancesMap.forEach((key, value) {
-      if (value) finalAdditions[key] = true; 
+      if (value) finalAdditions[key] = true;
     });
 
     Map<String, dynamic> finalDeductions = {};
@@ -108,7 +123,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
     });
 
     final newPayroll = Payroll(
-      id: widget.payrollToEdit?.id ?? '', 
+      id: widget.payrollToEdit?.id ?? '',
       employeeId: employeeIdCtrl.text,
       payrollPeriod: payrollPeriodCtrl.text,
       status: statusCtrl.text.isEmpty ? 'pending' : statusCtrl.text,
@@ -123,7 +138,8 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
 
     bool success;
     if (widget.payrollToEdit != null) {
-      success = await controller.updatePayroll(widget.payrollToEdit!.id, newPayroll);
+      success =
+          await controller.updatePayroll(widget.payrollToEdit!.id, newPayroll);
     } else {
       success = await controller.createPayroll(newPayroll);
     }
@@ -132,11 +148,15 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
     if (success) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Payroll saved successfully"), backgroundColor: Colors.green),
+        const SnackBar(
+            content: Text("Payroll saved successfully"),
+            backgroundColor: Colors.green),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to save payroll"), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text("Failed to save payroll"),
+            backgroundColor: Colors.red),
       );
     }
   }
@@ -156,8 +176,11 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyText(
-                    widget.payrollToEdit == null ? 'New Payroll' : 'Edit Payroll',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    widget.payrollToEdit == null
+                        ? 'New Payroll'
+                        : 'Edit Payroll',
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -166,58 +189,76 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                 ],
               ),
             ),
-            
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyTextFormField(title: 'Employee ID', controller: employeeIdCtrl),
+                    MyTextFormField(
+                        title: 'Employee ID', controller: employeeIdCtrl),
                     const SizedBox(height: 16),
                     Row(children: [
-                      Expanded(child: MyTextFormField(title: 'Payroll Period (e.g. 2025-07)', controller: payrollPeriodCtrl)),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Payroll Period (e.g. 2025-07)',
+                              controller: payrollPeriodCtrl)),
                       const SizedBox(width: 16),
-                      Expanded(child: MyTextFormField(title: 'Status (pending/paid)', controller: statusCtrl)),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Status (pending/paid)',
+                              controller: statusCtrl)),
                     ]),
                     const SizedBox(height: 16),
                     Row(children: [
-                      Expanded(child: MyTextFormField(title: 'Gross Salary', controller: grossSalaryCtrl)),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Gross Salary',
+                              controller: grossSalaryCtrl)),
                       const SizedBox(width: 16),
-                      Expanded(child: MyTextFormField(title: 'Net Salary', controller: netSalaryCtrl)),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Net Salary', controller: netSalaryCtrl)),
                     ]),
                     const SizedBox(height: 16),
                     Row(children: [
-                      Expanded(child: MyTextFormField(title: 'Total Allowances', controller: totalAllowancesCtrl)),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Total Allowances',
+                              controller: totalAllowancesCtrl)),
                       const SizedBox(width: 16),
-                      Expanded(child: MyTextFormField(title: 'Total Deductions', controller: totalDeductionsCtrl)),
+                      Expanded(
+                          child: MyTextFormField(
+                              title: 'Total Deductions',
+                              controller: totalDeductionsCtrl)),
                     ]),
                     const SizedBox(height: 24),
-                    
                     const MyText("Allowances (Check active)"),
                     kSizedBoxSM,
                     _buildCheckboxGroup(allowancesMap),
                     kSizedBox,
-
                     const MyText("Deductions (Check active)"),
                     kSizedBoxSM,
                     _buildCheckboxGroup(deductionsMap),
                     kSizedBox,
-
                     InkWell(
                       onTap: _selectDate,
                       child: IgnorePointer(
-                        child: MyTextFormField(title: 'Disbursement Date', controller: disbursementDateCtrl, hintText: 'YYYY-MM-DD'),
+                        child: MyTextFormField(
+                            title: 'Disbursement Date',
+                            controller: disbursementDateCtrl,
+                            hintText: 'YYYY-MM-DD'),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade300))),
+              decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -228,10 +269,12 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                   ),
                   const SizedBox(width: 16),
                   Obx(() => MyElevatedButton(
-                    child: controller.isSaving.value ? 'Saving...' : 'Save', 
-                    onTap: controller.isSaving.value ? () {} : _save,
-                    icon: SvgPicture.asset("assets/svg/check.svg", colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn)),
-                  )),
+                        child: controller.isSaving.value ? 'Saving...' : 'Save',
+                        onTap: controller.isSaving.value ? () {} : _save,
+                        icon: SvgPicture.asset("assets/svg/check.svg",
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.white, BlendMode.srcIn)),
+                      )),
                 ],
               ),
             ),

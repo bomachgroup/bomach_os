@@ -18,7 +18,8 @@ class OperationsPage extends StatefulWidget {
 }
 
 class _OperationsPageState extends State<OperationsPage> {
-  final OperationsDashboardController controller = Get.put(OperationsDashboardController());
+  final OperationsDashboardController controller =
+      Get.put(OperationsDashboardController());
 
   @override
   void initState() {
@@ -48,13 +49,16 @@ class _OperationsPageState extends State<OperationsPage> {
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        MyText('Operations Dashboard', style: AppText.black_500_32),
+                        MyText('Operations Dashboard',
+                            style: AppText.black_500_32),
                         SizedBox(height: 8),
-                        MyText('Overview & Projects', style: AppText.black_400_14),
+                        MyText('Overview & Projects',
+                            style: AppText.black_400_14),
                       ],
                     ),
                     MyElevatedButton(
-                      icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.white),
+                      icon: const Icon(Icons.add_circle_outline_rounded,
+                          color: AppColors.white),
                       child: "Add Project",
                       onTap: () {
                         showDialog(
@@ -73,7 +77,10 @@ class _OperationsPageState extends State<OperationsPage> {
           // --- Stats Section ---
           Obx(() {
             if (controller.isLoadingStats.value) {
-              return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
+              return const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator()));
             }
             final stats = controller.stats.value;
             if (stats == null) return const SizedBox();
@@ -82,27 +89,39 @@ class _OperationsPageState extends State<OperationsPage> {
               children: [
                 Row(
                   children: [
-                    Expanded(child: _buildStatCard("Active Projects", stats.activeProjects.toString(), Colors.blue)),
+                    Expanded(
+                        child: _buildStatCard("Active Projects",
+                            stats.activeProjects.toString(), Colors.blue)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildStatCard("Total Budget", "₦${stats.totalBudget}", Colors.green)),
+                    Expanded(
+                        child: _buildStatCard("Total Budget",
+                            "₦${stats.totalBudget}", Colors.green)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildStatCard("Budget Util.", "${stats.budgetUtilization}%", Colors.orange)),
+                    Expanded(
+                        child: _buildStatCard("Budget Util.",
+                            "${stats.budgetUtilization}%", Colors.orange)),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(child: _buildStatCard("Worksites", stats.totalWorksites.toString(), Colors.purple)),
+                    Expanded(
+                        child: _buildStatCard("Worksites",
+                            stats.totalWorksites.toString(), Colors.purple)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildStatCard("Contracts", stats.totalContracts.toString(), Colors.teal)),
+                    Expanded(
+                        child: _buildStatCard("Contracts",
+                            stats.totalContracts.toString(), Colors.teal)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildStatCard("Timelines", stats.totalTimelines.toString(), Colors.red)),
+                    Expanded(
+                        child: _buildStatCard("Timelines",
+                            stats.totalTimelines.toString(), Colors.red)),
                   ],
                 ),
               ],
             );
           }),
-          
+
           kSizedBoxBG,
           const Divider(),
           kSizedBox,
@@ -115,8 +134,10 @@ class _OperationsPageState extends State<OperationsPage> {
                 width: 200,
                 child: MyTextFormField(
                   hintText: 'Search Projects...',
-                  leading: Icon(Icons.search, color: AppColors.grey1.withValues(alpha: 0.5)),
-                  onChanged: (val) => controller.fetchProjects(context, search: val),
+                  leading: Icon(Icons.search,
+                      color: AppColors.grey1.withValues(alpha: 0.5)),
+                  onChanged: (val) =>
+                      controller.fetchProjects(context, search: val),
                 ),
               ),
             ],
@@ -127,9 +148,10 @@ class _OperationsPageState extends State<OperationsPage> {
             if (controller.isLoadingProjects.value) {
               return const Center(child: CircularProgressIndicator());
             }
-            
+
             if (controller.projects.isEmpty) {
-              return const Center(child: Padding(
+              return const Center(
+                  child: Padding(
                 padding: EdgeInsets.all(40),
                 child: Text("No projects found"),
               ));
@@ -155,23 +177,25 @@ class _OperationsPageState extends State<OperationsPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ]
-      ),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MyText(title, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+          MyText(title,
+              style: TextStyle(color: Colors.grey[600], fontSize: 14)),
           const SizedBox(height: 8),
-          MyText(value, style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.bold)),
+          MyText(value,
+              style: TextStyle(
+                  color: color, fontSize: 24, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -194,7 +218,8 @@ class _OperationsPageState extends State<OperationsPage> {
               color: AppColors.blue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Center(child: Icon(Icons.folder, color: AppColors.blue)),
+            child:
+                const Center(child: Icon(Icons.folder, color: AppColors.blue)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -203,7 +228,8 @@ class _OperationsPageState extends State<OperationsPage> {
               children: [
                 MyText(project.name, style: AppText.black_500_16),
                 const SizedBox(height: 4),
-                MyText("${project.shortCode} • ${project.status}", style: AppText.black_400_14),
+                MyText("${project.shortCode} • ${project.status}",
+                    style: AppText.black_400_14),
               ],
             ),
           ),

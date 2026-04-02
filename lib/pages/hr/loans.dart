@@ -143,8 +143,7 @@ class _LoanPageState extends State<LoanPage> {
                     child: DataTable(
                       headingRowColor:
                           WidgetStateProperty.all(Colors.transparent),
-                      dataRowColor:
-                          WidgetStateProperty.all(Colors.transparent),
+                      dataRowColor: WidgetStateProperty.all(Colors.transparent),
                       columnSpacing: 20,
                       horizontalMargin: 0,
                       headingTextStyle: const TextStyle(
@@ -211,12 +210,13 @@ class _LoanPageState extends State<LoanPage> {
                                         loan: loan,
                                       ));
                             },
-                            onTapEdit:   () {
-                    // Standard Flutter Dialog
-                    showDialog(
-                        context: context,
-                        builder: (ctx) =>  AddLoanDialog(loanToEdit: loan));
-                  },
+                            onTapEdit: () {
+                              // Standard Flutter Dialog
+                              showDialog(
+                                  context: context,
+                                  builder: (ctx) =>
+                                      AddLoanDialog(loanToEdit: loan));
+                            },
                           )),
                         ]);
                       }).toList(),
@@ -235,7 +235,8 @@ class _LoanPageState extends State<LoanPage> {
                     limit: _ctrl.itemsPerPage.value,
                     currentPage: _ctrl.currentPage.value,
                     onPageChanged: (page) => _ctrl.changePage(page, context),
-                    onLimitChanged: (limit) => _ctrl.changeLimit(limit, context),
+                    onLimitChanged: (limit) =>
+                        _ctrl.changeLimit(limit, context),
                   )),
             ],
           ),

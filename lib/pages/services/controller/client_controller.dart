@@ -95,7 +95,8 @@ class ClientController extends GetxController {
     }
   }
 
-  Future<bool> updateClient(int clientId, Map<String, dynamic> clientData) async {
+  Future<bool> updateClient(
+      int clientId, Map<String, dynamic> clientData) async {
     try {
       isSaving(true);
 

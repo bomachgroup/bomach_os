@@ -180,7 +180,8 @@ class ContractPageState extends State<ContractPage> {
             context.push(RouteConstants.operationsContractDetail,
                 extra: contract);
           },
-          MyText(contract.name.isEmpty ? '-' : contract.name, size: 16, weight: 500),
+          MyText(contract.name.isEmpty ? '-' : contract.name,
+              size: 16, weight: 500),
         ),
         DataCell(
           MyText(contract.contractNumber),

@@ -83,7 +83,7 @@ class PayrollController extends GetxController {
       final token = await _getToken(context);
       if (token == null) return false;
       await _service.updatePayroll(token, id, payroll);
-      await fetchPayrolls(); 
+      await fetchPayrolls();
       return true;
     } catch (e) {
       log('Update Error: $e');

@@ -76,7 +76,12 @@ class CreateApprovalWorkflowDialog extends StatelessWidget {
         _buildLabel('Approver Role'),
         MyDropdown(
           hintText: 'Manager',
-          items: const ['Manager', 'Director', 'System Admin', 'Financial Officer'],
+          items: const [
+            'Manager',
+            'Director',
+            'System Admin',
+            'Financial Officer'
+          ],
           onChanged: (String? newValue) {},
         ),
         const SizedBox(height: 24),

@@ -44,8 +44,10 @@ class BranchPerformanceMetric {
   }
 
   String getPerformanceRating() {
-    final avgMetrics =
-        (getRevenueAchievementPercentage() + customerSatisfaction + operationalEfficiency) / 3;
+    final avgMetrics = (getRevenueAchievementPercentage() +
+            customerSatisfaction +
+            operationalEfficiency) /
+        3;
     if (avgMetrics >= 90) return 'Excellent';
     if (avgMetrics >= 75) return 'Good';
     if (avgMetrics >= 60) return 'Satisfactory';

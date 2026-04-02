@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 import '../../../pages/finance/models/service_invoice_model_api.dart';
@@ -6,7 +7,7 @@ import '../../../pages/finance/models/service_invoice_model_api.dart';
 class ServiceInvoiceService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   ServiceInvoiceService({
     Dio? dioOverride,
@@ -66,9 +67,8 @@ class ServiceInvoiceService {
       }
 
       // Fallback: data is a plain list
-      final items = (data as List)
-          .map((json) => ServiceInvoice.fromJson(json))
-          .toList();
+      final items =
+          (data as List).map((json) => ServiceInvoice.fromJson(json)).toList();
       return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);

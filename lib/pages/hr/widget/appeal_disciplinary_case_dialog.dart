@@ -43,11 +43,12 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const MyText('Case Details', size: 20, weight: 600),
-                    IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                    IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context)),
                   ],
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -55,20 +56,28 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                     _buildRow('Employee ID', kase.employeeId),
                     _buildRow('Violation Title', kase.violationTitle),
                     _buildRow('Category', kase.violationCategory),
-                    _buildRow('Action Type', kase.actionType, isHighlight: true),
-                    _buildRow('Action Date', kase.actionDate != null ? DateFormat('yyyy-MM-dd').format(kase.actionDate!) : '-'),
+                    _buildRow('Action Type', kase.actionType,
+                        isHighlight: true),
+                    _buildRow(
+                        'Action Date',
+                        kase.actionDate != null
+                            ? DateFormat('yyyy-MM-dd').format(kase.actionDate!)
+                            : '-'),
                     const SizedBox(height: 16),
                     _buildSection('Description', kase.violationDescription),
-                    _buildSection('Investigation Details', kase.investigationDetails ?? 'None provided'),
+                    _buildSection('Investigation Details',
+                        kase.investigationDetails ?? 'None provided'),
                     if (kase.severancePaymentDue)
-                      _buildRow('Severance Amount', kase.severanceAmount?.toStringAsFixed(2) ?? '0.00'),
+                      _buildRow('Severance Amount',
+                          kase.severanceAmount?.toStringAsFixed(2) ?? '0.00'),
                   ],
                 ),
               ),
-
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade300))),
+                decoration: BoxDecoration(
+                    border:
+                        Border(top: BorderSide(color: Colors.grey.shade300))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -80,10 +89,15 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                           context: context,
                           builder: (c) => AlertDialog(
                             title: const Text('Delete Case'),
-                            content: const Text('Are you sure you want to delete this case?'),
+                            content: const Text(
+                                'Are you sure you want to delete this case?'),
                             actions: [
-                              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('No')),
-                              TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Yes')),
+                              TextButton(
+                                  onPressed: () => Navigator.pop(c, false),
+                                  child: const Text('No')),
+                              TextButton(
+                                  onPressed: () => Navigator.pop(c, true),
+                                  child: const Text('Yes')),
                             ],
                           ),
                         );
@@ -101,7 +115,8 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                         Navigator.pop(context);
                         showDialog(
                           context: context,
-                          builder: (c) => AddDisciplinaryCaseDialog(token: token, caseToEdit: kase),
+                          builder: (c) => AddDisciplinaryCaseDialog(
+                              token: token, caseToEdit: kase),
                         );
                       },
                     ),

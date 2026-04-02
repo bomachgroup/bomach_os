@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -10,7 +11,7 @@ import '../../../src/services/operations/operations_services.dart';
 
 class ProjectController extends GetxController {
   final DashboardService _service =
-      DashboardService(baseUrl: 'https://bomachauth.bgbot.app');
+      DashboardService(baseUrl: ApiConstants.baseUrl);
   final EmployeeService _employeeService = EmployeeService();
   final _storage = const FlutterSecureStorage();
 
@@ -37,8 +38,11 @@ class ProjectController extends GetxController {
     try {
       final token = await _storage.read(key: 'access_token');
       if (token == null) return;
-      final t = token.startsWith("Bearer ") ? token.replaceFirst("Bearer ", "") : token;
-      final result = await _employeeService.getDepartments(t.replaceAll('"', '').trim(), limit: 200);
+      final t = token.startsWith("Bearer ")
+          ? token.replaceFirst("Bearer ", "")
+          : token;
+      final result = await _employeeService
+          .getDepartments(t.replaceAll('"', '').trim(), limit: 200);
       departments.assignAll(result);
     } catch (e) {
       log("Error fetching departments: $e");

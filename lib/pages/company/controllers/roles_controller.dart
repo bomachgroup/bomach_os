@@ -79,8 +79,7 @@ class RolesController extends GetxController {
       ]);
 
       permissionsMap.assignAll(results[0] as Map<String, List<String>>);
-      final branchResult =
-          results[1] as ({List<Branch> items, int total});
+      final branchResult = results[1] as ({List<Branch> items, int total});
       branches.assignAll(branchResult.items);
     } catch (e) {
       log('Error fetching dependencies: $e');

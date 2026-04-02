@@ -7,6 +7,7 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/controllers/milestone_controller.dart';
 import 'package:bms_front_end/pages/operations/controllers/project_controller.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/model/employees_model.dart';
 import 'package:bms_front_end/src/services/employees_services.dart';
@@ -401,7 +402,7 @@ class _AssignedToFieldState extends State<_AssignedToField> {
       if (token == null) return;
       final dio = Dio();
       final response = await dio.get(
-        'https://bomachauth.bgbot.app/api/v1/employees/department',
+        '${ApiConstants.baseUrl}/api/v1/employees/department',
         queryParameters: {'limit': 100},
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -421,7 +422,7 @@ class _AssignedToFieldState extends State<_AssignedToField> {
       if (token == null) return;
       final dio = Dio();
       final response = await dio.get(
-        'https://bomachauth.bgbot.app/api/v1/branch/branches',
+        '${ApiConstants.baseUrl}/api/v1/branch/branches',
         queryParameters: {'limit': 100},
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -496,9 +497,8 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                       .map((d) => d['name']?.toString() ?? '')
                       .toList(),
                   onChanged: (val) {
-                    final dept = _departments
-                        .where((d) => d['name'] == val)
-                        .firstOrNull;
+                    final dept =
+                        _departments.where((d) => d['name'] == val).firstOrNull;
                     _filterDepartmentId = dept?['id']?.toString();
                     _fetchAllEmployees();
                   },
@@ -517,8 +517,7 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                       .toList(),
                   onChanged: (val) {
                     final branch = _branches
-                        .where((b) =>
-                            (b['branch_name'] ?? b['name']) == val)
+                        .where((b) => (b['branch_name'] ?? b['name']) == val)
                         .firstOrNull;
                     _filterBranchId = branch?['id']?.toString();
                     _fetchAllEmployees();

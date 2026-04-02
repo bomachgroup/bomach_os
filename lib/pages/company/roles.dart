@@ -514,7 +514,6 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     }).toList();
   }
 
-
   Map<String, List<String>> _buildPermissionsPayload() {
     final result = <String, List<String>>{};
     _selectedPermissions.forEach((resource, actions) {

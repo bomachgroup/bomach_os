@@ -99,7 +99,7 @@ class AuthController extends GetxController {
       await _storage.write(key: 'access_token', value: response.accessToken);
       await _storage.write(key: 'refresh_token', value: response.refreshToken);
       await _storage.write(key: 'user_id', value: response.userId.toString());
-      
+
       // Fetch permissions
       await _fetchUserPermissions(response.accessToken, response.userId);
 

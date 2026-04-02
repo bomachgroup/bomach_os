@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/services/biometric_api_service.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
@@ -9,7 +10,7 @@ void main() {
   late BiometricApiService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   setUp(() {
     dio = Dio(BaseOptions(baseUrl: baseUrl));
@@ -175,8 +176,7 @@ void main() {
     test('should throw on 404 error', () async {
       dioAdapter.onPost(
         '/biometric/remove',
-        (server) =>
-            server.reply(404, {'detail': 'No biometric data found'}),
+        (server) => server.reply(404, {'detail': 'No biometric data found'}),
         data: {'biometric_type': 'face'},
       );
 
@@ -319,8 +319,7 @@ void main() {
     test('should throw on 400 error', () async {
       dioAdapter.onPost(
         '/biometric/clockin',
-        (server) =>
-            server.reply(400, {'detail': 'Invalid attendance type'}),
+        (server) => server.reply(400, {'detail': 'Invalid attendance type'}),
         data: {
           'biometric_data': 'data',
           'biometric_type': 'fingerprint',

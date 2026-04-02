@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/services/legal/compliance_service.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
@@ -11,7 +12,7 @@ void main() {
 
   setUp(() {
     dio = Dio(BaseOptions(
-      baseUrl: 'https://bomachauth.bgbot.app/api/v1',
+      baseUrl: '${ApiConstants.baseUrl}/api/v1',
     ));
     dioAdapter = DioAdapter(dio: dio);
     service = ComplianceService(dioOverride: dio);

@@ -46,15 +46,19 @@ class DisciplinaryCase {
       violationCategory: json['violation_category'] ?? '',
       violationTitle: json['violation_title'] ?? '',
       violationDescription: json['violation_description'] ?? '',
-      actionDate: json['action_date'] != null 
-          ? DateTime.tryParse(json['action_date']) 
+      actionDate: json['action_date'] != null
+          ? DateTime.tryParse(json['action_date'])
           : null,
       actionType: json['action_type'] ?? '',
       investigationDetails: json['investigation_details'],
       severancePaymentDue: json['severance_payment_due'] ?? false,
       severanceAmount: parseDouble(json['severance_amount']),
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
       actionTypeColor: json['action_type_color'],
     );
   }
@@ -66,7 +70,8 @@ class DisciplinaryCase {
       'violation_category': violationCategory,
       'violation_title': violationTitle,
       'violation_description': violationDescription,
-      'action_date': actionDate?.toIso8601String().split('T').first, // Format YYYY-MM-DD
+      'action_date':
+          actionDate?.toIso8601String().split('T').first, // Format YYYY-MM-DD
       'action_type': actionType,
       'investigation_details': investigationDetails,
       'severance_payment_due': severancePaymentDue,

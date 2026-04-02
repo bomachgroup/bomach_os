@@ -80,8 +80,7 @@ class ServiceInvoiceController extends GetxController {
     } catch (e) {
       log("Create Invoice Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create invoice: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create invoice: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

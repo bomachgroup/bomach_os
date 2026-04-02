@@ -49,9 +49,8 @@ class LegalCaseController extends GetxController {
       final result = await _service.getCases(
         token,
         search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
-        caseType: selectedCaseType.value.isNotEmpty
-            ? selectedCaseType.value
-            : null,
+        caseType:
+            selectedCaseType.value.isNotEmpty ? selectedCaseType.value : null,
         status: selectedStatus.value.isNotEmpty ? selectedStatus.value : null,
         limit: limit.value,
         offset: offset,
@@ -86,8 +85,7 @@ class LegalCaseController extends GetxController {
     } catch (e) {
       log("Create Case Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create case: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create case: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

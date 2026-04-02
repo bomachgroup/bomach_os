@@ -233,7 +233,13 @@ class _LeadsTableLive extends StatelessWidget {
                 width: 150,
                 child: MyDropdown(
                   hintText: 'All Status',
-                  items: const ['All Status', 'new', 'qualified', 'proposal', 'converted'],
+                  items: const [
+                    'All Status',
+                    'new',
+                    'qualified',
+                    'proposal',
+                    'converted'
+                  ],
                   onChanged: (val) {
                     controller.onLeadStatusFilterChanged(
                         val == 'All Status' ? null : val);
@@ -324,13 +330,12 @@ class _LeadDataTableLive extends StatelessWidget {
                       style: const TextStyle(
                           fontWeight: FontWeight.w600, fontSize: 14)),
                   Text(lead.interestedServices,
-                      style:
-                          const TextStyle(color: Colors.grey, fontSize: 12)),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               )),
               DataCell(Text(lead.email, style: const TextStyle(fontSize: 12))),
-              DataCell(
-                  Text(lead.phoneNumber ?? '—', style: const TextStyle(fontSize: 12))),
+              DataCell(Text(lead.phoneNumber ?? '—',
+                  style: const TextStyle(fontSize: 12))),
               DataCell(Text(lead.companyName ?? '—')),
               DataCell(_buildTag(lead.source,
                   backgroundColor: const Color(0xFFF7F7F7),
@@ -350,8 +355,7 @@ class _LeadDataTableLive extends StatelessWidget {
                     icon: const Icon(Icons.delete_outline,
                         size: 18, color: Colors.red),
                     tooltip: 'Delete',
-                    onPressed: () =>
-                        controller.deleteLead(context, lead.id),
+                    onPressed: () => controller.deleteLead(context, lead.id),
                   ),
                 ],
               )),

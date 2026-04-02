@@ -83,71 +83,72 @@ class AnalyticsOverviewPage extends StatelessWidget {
           Builder(builder: (context) {
             final controller = Get.put(AnalyticsController());
             return Obx(() => Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: [
-                SizedBox(
-                  width: cardWidth,
-                  child: AnalyticsMetricCard(
-                    title: "Total Employees",
-                    value: controller.totalEmployees.value.toString(),
-                    subtitle: "${controller.newHires30Days.value} new (30d)",
-                    imgPath: 'assets/icons/people.png',
-                    color: Colors.green,
-                  ),
-                ),
-                SizedBox(
-                  width: cardWidth,
-                  child: AnalyticsMetricCard(
-                    title: "Training Programs",
-                    value: controller.trainingPrograms.value.toString(),
-                    subtitle: "Active programs",
-                    imgPath: 'assets/icons/points.png',
-                    color: Colors.blue,
-                  ),
-                ),
-                SizedBox(
-                  width: cardWidth,
-                  child: AnalyticsMetricCard(
-                    title: "Job Postings",
-                    value: controller.jobPostings.value.toString(),
-                    subtitle: "Open positions",
-                    imgPath: 'assets/icons/achievement.png',
-                    color: Colors.orange,
-                  ),
-                ),
-                SizedBox(
-                  width: cardWidth,
-                  child: AnalyticsMetricCard(
-                    title: "Leave Requests",
-                    value: controller.leaves.value.toString(),
-                    subtitle: "Pending/approved",
-                    imgPath: 'assets/icons/dollar.png',
-                    color: Colors.red,
-                  ),
-                ),
-                SizedBox(
-                  width: cardWidth,
-                  child: AnalyticsMetricCard(
-                    title: "Open Roles",
-                    value: controller.openRoles.value.toString(),
-                    subtitle: "Hiring positions",
-                    imgPath: 'assets/icons/chart.png',
-                    color: Colors.green,
-                  ),
-                ),
-                SizedBox(
-                  width: cardWidth,
-                  child: AnalyticsMetricCard(
-                    title: "New Hires (30d)",
-                    value: controller.newHires30Days.value.toString(),
-                    subtitle: "Recent onboarding",
-                    imgPath: 'assets/icons/check.png',
-                    color: Colors.purple,
-                  ),
-                ),
-              ],
-            ));
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    SizedBox(
+                      width: cardWidth,
+                      child: AnalyticsMetricCard(
+                        title: "Total Employees",
+                        value: controller.totalEmployees.value.toString(),
+                        subtitle:
+                            "${controller.newHires30Days.value} new (30d)",
+                        imgPath: 'assets/icons/people.png',
+                        color: Colors.green,
+                      ),
+                    ),
+                    SizedBox(
+                      width: cardWidth,
+                      child: AnalyticsMetricCard(
+                        title: "Training Programs",
+                        value: controller.trainingPrograms.value.toString(),
+                        subtitle: "Active programs",
+                        imgPath: 'assets/icons/points.png',
+                        color: Colors.blue,
+                      ),
+                    ),
+                    SizedBox(
+                      width: cardWidth,
+                      child: AnalyticsMetricCard(
+                        title: "Job Postings",
+                        value: controller.jobPostings.value.toString(),
+                        subtitle: "Open positions",
+                        imgPath: 'assets/icons/achievement.png',
+                        color: Colors.orange,
+                      ),
+                    ),
+                    SizedBox(
+                      width: cardWidth,
+                      child: AnalyticsMetricCard(
+                        title: "Leave Requests",
+                        value: controller.leaves.value.toString(),
+                        subtitle: "Pending/approved",
+                        imgPath: 'assets/icons/dollar.png',
+                        color: Colors.red,
+                      ),
+                    ),
+                    SizedBox(
+                      width: cardWidth,
+                      child: AnalyticsMetricCard(
+                        title: "Open Roles",
+                        value: controller.openRoles.value.toString(),
+                        subtitle: "Hiring positions",
+                        imgPath: 'assets/icons/chart.png',
+                        color: Colors.green,
+                      ),
+                    ),
+                    SizedBox(
+                      width: cardWidth,
+                      child: AnalyticsMetricCard(
+                        title: "New Hires (30d)",
+                        value: controller.newHires30Days.value.toString(),
+                        subtitle: "Recent onboarding",
+                        imgPath: 'assets/icons/check.png',
+                        color: Colors.purple,
+                      ),
+                    ),
+                  ],
+                ));
           }),
           kSizedBox,
           MetricsSection(
@@ -184,7 +185,7 @@ class AnalyticsActions extends StatelessWidget {
         // Considering 800 as breakpoint but 600 for now...
         // account for sidebar + horizontal padding
         final availableWidth = constraints.maxWidth - 300 - 64;
-        final isWide = availableWidth > 600; 
+        final isWide = availableWidth > 600;
 
         final dropdown = SizedBox(
           height: 40,

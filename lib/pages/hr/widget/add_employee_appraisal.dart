@@ -41,9 +41,14 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
   }
 
   void _onSubmit() {
-    final overallRating =
-        ((jobKnowledge + communication + problemSolving + teamwork + initiative + qualityOfWork) / 6)
-            .round();
+    final overallRating = ((jobKnowledge +
+                communication +
+                problemSolving +
+                teamwork +
+                initiative +
+                qualityOfWork) /
+            6)
+        .round();
 
     final data = {
       'review_period': _selectedPeriod,
@@ -88,8 +93,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                       size: 18, weight: 700),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon:
-                        const Icon(Icons.close, size: 20, color: Colors.grey),
+                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
                   )
                 ],
               ),
@@ -104,13 +108,14 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Review Period
-                    _buildDropdownField("Review Period", _selectedPeriod,
+                    _buildDropdownField(
+                        "Review Period",
+                        _selectedPeriod,
                         ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025', 'Q1 2026'],
                         (v) => setState(() => _selectedPeriod = v!)),
                     const SizedBox(height: 24),
 
-                    const MyText('Performance Ratings',
-                        size: 14, weight: 600),
+                    const MyText('Performance Ratings', size: 14, weight: 600),
                     const SizedBox(height: 16),
                     _buildRatingRow("Job Knowledge", jobKnowledge,
                         (v) => setState(() => jobKnowledge = v)),
@@ -126,14 +131,14 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                         (v) => setState(() => qualityOfWork = v)),
 
                     const SizedBox(height: 24),
-                    _buildTextArea("Key Achievements",
-                        "Write the details here", _achievementsCtrl),
+                    _buildTextArea("Key Achievements", "Write the details here",
+                        _achievementsCtrl),
                     const SizedBox(height: 16),
                     _buildTextArea("Areas for Improvement",
                         "Write the details here", _improvementsCtrl),
                     const SizedBox(height: 16),
-                    _buildTextArea("Development Plan",
-                        "Write the details here", _developmentCtrl),
+                    _buildTextArea("Development Plan", "Write the details here",
+                        _developmentCtrl),
                   ],
                 ),
               ),
@@ -155,12 +160,12 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Obx(() => MyElevatedButton(
-                      child: controller.isSaving.value
-                          ? 'Submitting...'
-                          : 'Add Review',
-                      bgColor: const Color(0xFF0055FF),
-                      onTap: controller.isSaving.value ? null : _onSubmit,
-                    )),
+                          child: controller.isSaving.value
+                              ? 'Submitting...'
+                              : 'Add Review',
+                          bgColor: const Color(0xFF0055FF),
+                          onTap: controller.isSaving.value ? null : _onSubmit,
+                        )),
                   ),
                 ],
               ),
@@ -207,8 +212,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         children: [
-          SizedBox(
-              width: 140, child: MyText(label, size: 13, weight: 500)),
+          SizedBox(width: 140, child: MyText(label, size: 13, weight: 500)),
           Row(
             children: List.generate(5, (index) {
               return InkWell(
@@ -229,8 +233,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
     );
   }
 
-  Widget _buildTextArea(
-      String label, String hint, TextEditingController ctrl) {
+  Widget _buildTextArea(String label, String hint, TextEditingController ctrl) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -248,8 +251,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
             maxLines: null,
             decoration: InputDecoration.collapsed(
               hintText: hint,
-              hintStyle:
-                  TextStyle(color: Colors.grey.shade400, fontSize: 13),
+              hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
             ),
           ),
         ),

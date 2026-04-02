@@ -16,7 +16,7 @@ class ViewJobPostDialog extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start, 
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 200,
@@ -31,7 +31,7 @@ class ViewJobPostDialog extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              value.isEmpty ? 'N/A' : value, 
+              value.isEmpty ? 'N/A' : value,
               style: TextStyle(
                 fontSize: 14,
                 color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
@@ -51,9 +51,10 @@ class ViewJobPostDialog extends StatelessWidget {
 
   String _formatEnum(String text) {
     if (text.isEmpty) return 'N/A';
-    return text.split('_').map((word) => 
-      word[0].toUpperCase() + word.substring(1).toLowerCase()
-    ).join(' ');
+    return text
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
+        .join(' ');
   }
 
   @override
@@ -73,7 +74,6 @@ class ViewJobPostDialog extends StatelessWidget {
         ),
         child: Column(
           children: [
-     
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
@@ -108,10 +108,7 @@ class ViewJobPostDialog extends StatelessWidget {
                 ],
               ),
             ),
-
             const Divider(height: 1, color: Color(0xFFE5E5E5)),
-
-           
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
@@ -123,23 +120,21 @@ class ViewJobPostDialog extends StatelessWidget {
                     _buildDetailRow('Branch ID', job.branchId),
                     _buildDetailRow('Job Type', _formatEnum(job.jobType)),
                     _buildDetailRow('Salary Range', job.salaryRange),
-                    _buildDetailRow('Application Deadline', _formatDate(job.deadline)),
-                    
-                    const SizedBox(height: 16), 
-                    
+                    _buildDetailRow(
+                        'Application Deadline', _formatDate(job.deadline)),
+                    const SizedBox(height: 16),
                     _buildDetailRow('Description', job.description),
                     _buildDetailRow('Responsibilities', job.responsibilities),
                     _buildDetailRow('Requirements', job.requirements),
-                    
-                    _buildDetailRow('Status', _formatEnum(job.status), isBlue: true),
-                    _buildDetailRow('Applicants Count', job.applicantsCount.toString()),
-
+                    _buildDetailRow('Status', _formatEnum(job.status),
+                        isBlue: true),
+                    _buildDetailRow(
+                        'Applicants Count', job.applicantsCount.toString()),
                     const SizedBox(height: 50),
                   ],
                 ),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
@@ -151,12 +146,14 @@ class ViewJobPostDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Obx(() => MyElevatedButton(
-                    bgColor: AppColors.red,
-                    child: controller.isLoading.value ? 'Deleting...' : 'Delete',
-                    onTap: controller.isLoading.value 
-                        ? () {} 
-                        : () => controller.deleteJob(context, job.id),
-                  )),
+                        bgColor: AppColors.red,
+                        child: controller.isLoading.value
+                            ? 'Deleting...'
+                            : 'Delete',
+                        onTap: controller.isLoading.value
+                            ? () {}
+                            : () => controller.deleteJob(context, job.id),
+                      )),
                   const SizedBox(width: 15),
                   MyElevatedButton(
                     child: 'Edit',

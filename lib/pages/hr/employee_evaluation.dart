@@ -12,8 +12,7 @@ class EmployeeEvaluationPage extends StatefulWidget {
   const EmployeeEvaluationPage({super.key});
 
   @override
-  State<EmployeeEvaluationPage> createState() =>
-      _EmployeeEvaluationPageState();
+  State<EmployeeEvaluationPage> createState() => _EmployeeEvaluationPageState();
 }
 
 class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
@@ -67,8 +66,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                 Expanded(
                   child: _buildFilterDropdown(
                     label: 'Month',
-                    value:
-                        _monthNames[_controller.selectedMonth.value - 1],
+                    value: _monthNames[_controller.selectedMonth.value - 1],
                     items: _monthNames,
                     onChanged: (value) {
                       final monthIndex = _monthNames.indexOf(value) + 1;
@@ -114,8 +112,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                     children: [
                       Text(
                         _controller.errorMessage.value,
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.red),
+                        style: const TextStyle(fontSize: 16, color: Colors.red),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -212,8 +209,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             items: items
                 .map((item) => DropdownMenuItem(
                       value: item,
-                      child:
-                          MyText(item, style: const TextStyle(fontSize: 13)),
+                      child: MyText(item, style: const TextStyle(fontSize: 13)),
                     ))
                 .toList(),
           ),
@@ -296,8 +292,8 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                 spacing: 4,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: scoreColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
@@ -486,10 +482,9 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
     final numValue = double.tryParse(value.replaceAll('#', ''));
     final isGood = numValue != null && numValue >= 75;
 
-    final statusLabel =
-        numValue != null && numValue >= 100
-            ? 'Exceeded'
-            : (isGood ? 'On Target' : 'Below Target');
+    final statusLabel = numValue != null && numValue >= 100
+        ? 'Exceeded'
+        : (isGood ? 'On Target' : 'Below Target');
     final statusColor = numValue != null && numValue >= 100
         ? const Color(0xFF16A34A)
         : (isGood ? const Color(0xFF3B82F6) : const Color(0xFFEC2623));

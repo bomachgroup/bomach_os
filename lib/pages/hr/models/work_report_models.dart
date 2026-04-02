@@ -116,7 +116,8 @@ class WorkActivity {
   final String id;
   final String taskTitle;
   final String description;
-  final String taskCategory; // Development, Testing, Bug Fix, Documentation, Meeting, etc.
+  final String
+      taskCategory; // Development, Testing, Bug Fix, Documentation, Meeting, etc.
   final double hoursSpent;
   final bool completed;
   final List<String> tags; // Optional tags for categorization

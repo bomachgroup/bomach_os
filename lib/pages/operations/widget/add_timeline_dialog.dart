@@ -172,7 +172,7 @@ class _AddTimelineDialogState extends State<AddTimelineDialog> {
 
     final timeline = TimelineModel(
       id: widget.timeline?.id ?? 0,
-      projectId: widget.timeline?.projectId??0,
+      projectId: widget.timeline?.projectId ?? 0,
       name: nameCtrl.text,
       description: descCtrl.text,
       status: selectedStatus,

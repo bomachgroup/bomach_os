@@ -28,8 +28,8 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
-  final _grossSalaryCtrl = TextEditingController(); 
-  
+  final _grossSalaryCtrl = TextEditingController();
+
   String? _selectedRole;
 
   final List<String> _associateRoles = [
@@ -53,7 +53,7 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
   void _submit() async {
     if (_formKey.currentState!.validate() && _selectedRole != null) {
       final newAssociate = Employee(
-        id: '', 
+        id: '',
         email: _emailCtrl.text,
         firstName: _firstNameCtrl.text,
         lastName: _lastNameCtrl.text,
@@ -65,19 +65,24 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
       );
 
       final success = await controller.createAssociate(
-        widget.token, 
+        widget.token,
         newAssociate,
-        password: 'Password123!',  
+        password: 'Password123!',
       );
 
       if (success && mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Associate added successfully"), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Associate added successfully"),
+            backgroundColor: Colors.green));
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to add associate"), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Failed to add associate"),
+            backgroundColor: Colors.red));
       }
     } else if (_selectedRole == null) {
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a role"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please select a role"), backgroundColor: Colors.red));
     }
   }
 
@@ -92,19 +97,24 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-             Container(
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade300))),
+              decoration: BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText('Add New Associate', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  const MyText('Add New Associate',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context)),
                 ],
               ),
             ),
-
-             Expanded(
+            Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Form(
@@ -114,9 +124,15 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
                     children: [
                       Row(
                         children: [
-                          Expanded(child: MyTextFormField(title: 'First Name', controller: _firstNameCtrl)),
+                          Expanded(
+                              child: MyTextFormField(
+                                  title: 'First Name',
+                                  controller: _firstNameCtrl)),
                           const SizedBox(width: 16),
-                          Expanded(child: MyTextFormField(title: 'Last Name', controller: _lastNameCtrl)),
+                          Expanded(
+                              child: MyTextFormField(
+                                  title: 'Last Name',
+                                  controller: _lastNameCtrl)),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -124,31 +140,38 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Expanded(child: MyTextFormField(title: 'Phone', controller: _phoneCtrl)),
+                          Expanded(
+                              child: MyTextFormField(
+                                  title: 'Phone', controller: _phoneCtrl)),
                           const SizedBox(width: 16),
                           Expanded(
                             child: MyDropdown(
                               title: 'Role',
                               items: _associateRoles,
                               hintText: _selectedRole ?? 'Select Role',
-                              onChanged: (val) => setState(() => _selectedRole = val),
+                              onChanged: (val) =>
+                                  setState(() => _selectedRole = val),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      MyTextFormField(title: 'Address', controller: _addressCtrl),
+                      MyTextFormField(
+                          title: 'Address', controller: _addressCtrl),
                       const SizedBox(height: 16),
-                      MyTextFormField(title: 'Contract Value / Salary', controller: _grossSalaryCtrl, keyboardType: TextInputType.number),
+                      MyTextFormField(
+                          title: 'Contract Value / Salary',
+                          controller: _grossSalaryCtrl,
+                          keyboardType: TextInputType.number),
                     ],
                   ),
                 ),
               ),
             ),
-
-             Container(
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade300))),
+              decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -159,10 +182,14 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
                   ),
                   const SizedBox(width: 16),
                   Obx(() => MyElevatedButton(
-                    icon: SvgPicture.asset("assets/svg/check.svg", colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn)),
-                    child: controller.isSaving.value ? 'Saving...' : 'Add Associate',
-                    onTap: controller.isSaving.value ? () {} : _submit,
-                  )),
+                        icon: SvgPicture.asset("assets/svg/check.svg",
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.white, BlendMode.srcIn)),
+                        child: controller.isSaving.value
+                            ? 'Saving...'
+                            : 'Add Associate',
+                        onTap: controller.isSaving.value ? () {} : _submit,
+                      )),
                 ],
               ),
             ),

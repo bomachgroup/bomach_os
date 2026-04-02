@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/hr/models/interview_model.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/services/hr/interview_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ void main() {
   late InterviewService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
   const applicantId = 42;
 
   final sampleInterviewJson = {
@@ -71,8 +72,7 @@ void main() {
       expect(result.items.first.applicantId, applicantId);
       expect(result.items.first.interviewerId, 5);
       expect(result.items.first.scheduledAt, '2026-04-01T10:00:00Z');
-      expect(
-          result.items.first.meetingLink, 'https://meet.example.com/abc123');
+      expect(result.items.first.meetingLink, 'https://meet.example.com/abc123');
       expect(result.items.first.status, 'scheduled');
     });
 
@@ -154,8 +154,8 @@ void main() {
         data: sampleCreatePayload,
       );
 
-      final result =
-          await service.createInterview(token, applicantId, sampleCreateInterview);
+      final result = await service.createInterview(
+          token, applicantId, sampleCreateInterview);
 
       expect(result, isA<Interview>());
       expect(result.id, 1);
@@ -171,7 +171,8 @@ void main() {
       );
 
       expect(
-        () => service.createInterview(token, applicantId, sampleCreateInterview),
+        () =>
+            service.createInterview(token, applicantId, sampleCreateInterview),
         throwsA(isA<Exception>()),
       );
     });
@@ -184,7 +185,8 @@ void main() {
       );
 
       expect(
-        () => service.createInterview(token, applicantId, sampleCreateInterview),
+        () =>
+            service.createInterview(token, applicantId, sampleCreateInterview),
         throwsA(isA<Exception>()),
       );
     });

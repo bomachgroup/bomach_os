@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 import '../../../pages/finance/models/expense_model.dart';
@@ -6,7 +7,7 @@ import '../../../pages/finance/models/expense_model.dart';
 class ExpenseService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   ExpenseService({
     Dio? dioOverride,
@@ -79,8 +80,7 @@ class ExpenseService {
   }
 
   /// POST /api/v1/expenses — Create Expense
-  Future<Expense> createExpense(
-      String token, Map<String, dynamic> data) async {
+  Future<Expense> createExpense(String token, Map<String, dynamic> data) async {
     try {
       log("ExpenseService: Creating expense...");
       final response = await _dio.post(

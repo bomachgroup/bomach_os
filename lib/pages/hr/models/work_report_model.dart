@@ -53,8 +53,8 @@ class WorkReport {
     final rawAttachments = json['attachments'];
     final attachmentsList = rawAttachments is List
         ? rawAttachments
-            .map((a) =>
-                WorkReportAttachment.fromJson(a as Map<String, dynamic>))
+            .map(
+                (a) => WorkReportAttachment.fromJson(a as Map<String, dynamic>))
             .toList()
         : <WorkReportAttachment>[];
 

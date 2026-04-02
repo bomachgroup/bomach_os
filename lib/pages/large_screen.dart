@@ -25,7 +25,6 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
             width: 300,
             child: SideMenu(),
           ),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

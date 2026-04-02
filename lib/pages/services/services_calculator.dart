@@ -508,8 +508,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
-                            title: const Text(
-                                'Technical Drawings (+₦100,000)'),
+                            title: const Text('Technical Drawings (+₦100,000)'),
                             subtitle: const Text(
                                 'CAD drawings and technical illustrations'),
                             value: _includeTechnicalDrawings,

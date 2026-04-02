@@ -34,7 +34,6 @@ class JobPostController extends GetxController {
   var selectedStatus = 'Draft'.obs;
   var selectedJobType = 'Full Time'.obs;
 
-
   Future<void> fetchJobPostings(BuildContext context,
       {bool refresh = false}) async {
     try {

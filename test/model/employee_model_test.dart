@@ -220,18 +220,30 @@ void main() {
 
   group('Employee helpers', () {
     test('fullName concatenates first and last name', () {
-      final e = Employee(id: '1', email: 'e@e.com', firstName: 'Ada', lastName: 'Lovelace');
+      final e = Employee(
+          id: '1', email: 'e@e.com', firstName: 'Ada', lastName: 'Lovelace');
       expect(e.fullName, 'Ada Lovelace');
     });
 
     test('role returns employeeLevel first, then designation, then Staff', () {
-      final withLevel = Employee(id: '1', email: 'e@e.com', firstName: 'A', lastName: 'B', employeeLevel: 'CEO');
+      final withLevel = Employee(
+          id: '1',
+          email: 'e@e.com',
+          firstName: 'A',
+          lastName: 'B',
+          employeeLevel: 'CEO');
       expect(withLevel.role, 'CEO');
 
-      final withDesignation = Employee(id: '1', email: 'e@e.com', firstName: 'A', lastName: 'B', designation: 'Manager');
+      final withDesignation = Employee(
+          id: '1',
+          email: 'e@e.com',
+          firstName: 'A',
+          lastName: 'B',
+          designation: 'Manager');
       expect(withDesignation.role, 'Manager');
 
-      final noRole = Employee(id: '1', email: 'e@e.com', firstName: 'A', lastName: 'B');
+      final noRole =
+          Employee(id: '1', email: 'e@e.com', firstName: 'A', lastName: 'B');
       expect(noRole.role, 'Staff');
     });
   });

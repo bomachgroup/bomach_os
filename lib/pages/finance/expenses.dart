@@ -116,8 +116,7 @@ class ExpensesPage extends StatelessWidget {
                     controller: scrollController,
                     scrollDirection: Axis.horizontal,
                     child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minWidth: bodySpace(context)),
+                      constraints: BoxConstraints(minWidth: bodySpace(context)),
                       child: DataTable(
                         dataRowMinHeight: 68,
                         dataRowMaxHeight: 68,
@@ -155,19 +154,15 @@ class ExpensesPage extends StatelessWidget {
                                 },
                                 itemBuilder: (context) => [
                                   const PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text('Edit')),
+                                      value: 'edit', child: Text('Edit')),
                                   const PopupMenuItem(
-                                      value: 'approve',
-                                      child: Text('Approve')),
+                                      value: 'approve', child: Text('Approve')),
                                   const PopupMenuItem(
-                                      value: 'reject',
-                                      child: Text('Reject')),
+                                      value: 'reject', child: Text('Reject')),
                                   const PopupMenuItem(
                                       value: 'delete',
                                       child: Text('Delete',
-                                          style:
-                                              TextStyle(color: Colors.red))),
+                                          style: TextStyle(color: Colors.red))),
                                 ],
                               ),
                             ),

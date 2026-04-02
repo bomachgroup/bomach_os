@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 class EmployeeEvaluationService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   EmployeeEvaluationService({
     Dio? dioOverride,
@@ -110,8 +111,10 @@ class EmployeeEvaluationService {
     try {
       final data = <String, dynamic>{};
       if (managerComments != null) data['manager_comments'] = managerComments;
-      if (promotionRequired != null) data['promotion_required'] = promotionRequired;
-      if (trainingRequired != null) data['training_required'] = trainingRequired;
+      if (promotionRequired != null)
+        data['promotion_required'] = promotionRequired;
+      if (trainingRequired != null)
+        data['training_required'] = trainingRequired;
       if (salaryIncrease != null) data['salary_increase'] = salaryIncrease;
 
       final response = await _dio.put(

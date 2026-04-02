@@ -67,9 +67,8 @@ class ComplianceRecord {
       daysUntilExpiry: json['days_until_expiry'] ?? 0,
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
-      documents: json['documents'] != null
-          ? List<String>.from(json['documents'])
-          : [],
+      documents:
+          json['documents'] != null ? List<String>.from(json['documents']) : [],
     );
   }
 

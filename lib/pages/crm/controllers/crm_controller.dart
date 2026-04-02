@@ -42,8 +42,7 @@ class CrmController extends GetxController {
 
       final result = await _service.getClients(
         token,
-        search:
-            clientSearch.value.isNotEmpty ? clientSearch.value : null,
+        search: clientSearch.value.isNotEmpty ? clientSearch.value : null,
       );
       clientList.assignAll(result.items);
       totalClients.value = result.total;
@@ -89,9 +88,8 @@ class CrmController extends GetxController {
       final result = await _service.getLeads(
         token,
         search: leadSearch.value.isNotEmpty ? leadSearch.value : null,
-        status: leadStatusFilter.value.isNotEmpty
-            ? leadStatusFilter.value
-            : null,
+        status:
+            leadStatusFilter.value.isNotEmpty ? leadStatusFilter.value : null,
       );
       leadList.assignAll(result.items);
       totalLeads.value = result.total;
@@ -145,8 +143,7 @@ class CrmController extends GetxController {
     }
   }
 
-  Future<void> convertLeadToClient(
-      BuildContext context, int leadId) async {
+  Future<void> convertLeadToClient(BuildContext context, int leadId) async {
     try {
       final token = await _getToken();
       if (token == null) return;

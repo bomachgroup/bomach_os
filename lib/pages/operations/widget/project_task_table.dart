@@ -54,8 +54,7 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
         if (controller.tasks.isEmpty) {
           return const Center(
               child: Padding(
-                  padding: EdgeInsets.all(40),
-                  child: Text("No tasks found.")));
+                  padding: EdgeInsets.all(40), child: Text("No tasks found.")));
         }
 
         return Column(
@@ -106,8 +105,7 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
       return DataRow(cells: <DataCell>[
         DataCell(MyText("#${task.id}")),
         DataCell(
-          MyText(task.name,
-              isSelectable: false, size: 16, weight: 400),
+          MyText(task.name, isSelectable: false, size: 16, weight: 400),
         ),
         DataCell(MyText(task.dueDate.isEmpty ? '-' : task.dueDate)),
         DataCell(Container(
@@ -140,14 +138,14 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
               child: const Text("Edit"),
               onTap: () => showDialog(
                 context: context,
-                builder: (_) => AddTaskDialog(
-                    task: task, projectId: widget.projectId),
+                builder: (_) =>
+                    AddTaskDialog(task: task, projectId: widget.projectId),
               ),
             ),
             PopupMenuItem(
               child: const Text("Delete"),
-              onTap: () => controller.deleteTask(
-                  context, task.id, widget.projectId),
+              onTap: () =>
+                  controller.deleteTask(context, task.id, widget.projectId),
             ),
           ],
           child: const Icon(Icons.more_vert),

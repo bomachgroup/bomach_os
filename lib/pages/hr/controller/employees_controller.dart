@@ -92,8 +92,8 @@ class EmployeeController extends GetxController {
 
   Future<void> _fetchBranches(String token) async {
     try {
-      final result = await _branchService.getBranches(
-          accessToken: token, limit: 200);
+      final result =
+          await _branchService.getBranches(accessToken: token, limit: 200);
       branches.assignAll(result.items);
     } catch (e) {
       log("Error fetching branches: $e");
@@ -212,8 +212,7 @@ class EmployeeController extends GetxController {
     } catch (e) {
       log("Create Employee Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create employee: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create employee: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;
@@ -235,8 +234,8 @@ class EmployeeController extends GetxController {
 
   // ─── UPDATE ─────────────────────────────────────────────────────────
 
-  Future<void> updateEmployee(BuildContext context, String userId,
-      Map<String, dynamic> data,
+  Future<void> updateEmployee(
+      BuildContext context, String userId, Map<String, dynamic> data,
       {List<int>? imageBytes, String? imageName}) async {
     try {
       isSaving.value = true;

@@ -33,8 +33,9 @@ void main(List<String> args) async {
       exit(1);
     }
 
-    final Map<String, dynamic> permissionsMap = response.data['permissions_map'] ?? {};
-    
+    final Map<String, dynamic> permissionsMap =
+        response.data['permissions_map'] ?? {};
+
     if (permissionsMap.isEmpty) {
       print('Error: Received empty permissions map');
       exit(1);
@@ -50,7 +51,7 @@ void main(List<String> args) async {
     for (final resource in resources) {
       final String constantName = _toCamelCase('res_$resource');
       buffer.writeln("  static const String $constantName = '$resource';");
-      
+
       final List<dynamic> actions = permissionsMap[resource] ?? [];
       for (final action in actions) {
         allActions.add(action.toString());
@@ -65,13 +66,15 @@ void main(List<String> args) async {
     }
 
     buffer.writeln('\n  // Combined permission strings for convenience');
-    buffer.writeln("  static String perm(String resource, String action) => '\$resource:\$action';");
+    buffer.writeln(
+        "  static String perm(String resource, String action) => '\$resource:\$action';");
     buffer.writeln('}');
 
     final File file = File(targetFile);
     await file.writeAsString(buffer.toString());
 
-    print('Successfully synchronized $targetFile with ${resources.length} resources and ${allActions.length} unique actions.');
+    print(
+        'Successfully synchronized $targetFile with ${resources.length} resources and ${allActions.length} unique actions.');
   } catch (e) {
     print('Failed to synchronize permissions: $e');
     exit(1);

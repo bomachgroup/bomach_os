@@ -63,7 +63,8 @@ class LoanController extends GetxController {
     try {
       String? token = await _storage.read(key: 'access_token');
       if (token == null) return;
-      if (token.startsWith('Bearer ')) token = token.replaceFirst('Bearer ', '');
+      if (token.startsWith('Bearer '))
+        token = token.replaceFirst('Bearer ', '');
       token = token.replaceAll('"', '').trim();
       final result = await _employeeService.getEmployees(token, limit: 500);
       allEmployees.assignAll(result.list);
@@ -207,7 +208,8 @@ class LoanController extends GetxController {
     } catch (e) {
       log('Create loan error: $e');
       if (context.mounted) {
-        _showDialog(context, 'Error', 'Failed to create loan request. Please try again.');
+        _showDialog(context, 'Error',
+            'Failed to create loan request. Please try again.');
       }
     } finally {
       isSaving.value = false;
@@ -237,7 +239,8 @@ class LoanController extends GetxController {
     } catch (e) {
       log('Approve loan error: $e');
       if (context.mounted) {
-        _showDialog(context, 'Error', 'Failed to approve loan. Please try again.');
+        _showDialog(
+            context, 'Error', 'Failed to approve loan. Please try again.');
       }
     } finally {
       isSaving.value = false;
@@ -267,7 +270,8 @@ class LoanController extends GetxController {
     } catch (e) {
       log('Reject loan error: $e');
       if (context.mounted) {
-        _showDialog(context, 'Error', 'Failed to reject loan. Please try again.');
+        _showDialog(
+            context, 'Error', 'Failed to reject loan. Please try again.');
       }
     } finally {
       isSaving.value = false;
@@ -289,7 +293,8 @@ class LoanController extends GetxController {
   Future<void> pickRepaymentDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: selectedRepaymentDate ?? DateTime.now().add(const Duration(days: 30)),
+      initialDate:
+          selectedRepaymentDate ?? DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
     );

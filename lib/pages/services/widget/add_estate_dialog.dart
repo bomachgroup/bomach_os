@@ -82,8 +82,8 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 decoration: const BoxDecoration(
                   color: Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.only(
@@ -146,8 +146,8 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
                                   'Estate Type *',
                                   _selectedEstateType,
                                   _ctrl.estateTypes,
-                                  (v) => setState(
-                                      () => _selectedEstateType = v),
+                                  (v) =>
+                                      setState(() => _selectedEstateType = v),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -156,8 +156,8 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
                                   'Estate Status *',
                                   _selectedEstateStatus,
                                   _ctrl.estateStatuses,
-                                  (v) => setState(
-                                      () => _selectedEstateStatus = v),
+                                  (v) =>
+                                      setState(() => _selectedEstateStatus = v),
                                 ),
                               ),
                             ],
@@ -270,8 +270,7 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
                           child: _ctrl.isSaving.value
                               ? 'Saving...'
                               : 'Save Estate',
-                          onTap:
-                              _ctrl.isSaving.value ? null : _save,
+                          onTap: _ctrl.isSaving.value ? null : _save,
                         ),
                       ],
                     )),
@@ -300,8 +299,8 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
           child: Text(label,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 13)),
+              style:
+                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
         ),
         Container(
           width: double.infinity,

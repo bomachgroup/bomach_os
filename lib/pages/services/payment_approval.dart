@@ -427,8 +427,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
               final description =
                   (item['description'] ?? item['name'] ?? '').toString();
               final quantity = item['quantity'] ?? 1;
-              final unitPrice =
-                  ((item['unit_price'] ?? 0) as num).toDouble();
+              final unitPrice = ((item['unit_price'] ?? 0) as num).toDouble();
               return Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
@@ -478,8 +477,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     );
   }
 
-  Widget _buildApprovalStep(
-      dynamic approval, Map<String, dynamic> invoice) {
+  Widget _buildApprovalStep(dynamic approval, Map<String, dynamic> invoice) {
     final step = approval['step'] ?? 0;
     final stepName = (approval['step_name'] ?? 'Step $step').toString();
     final decision = (approval['decision'] ?? '').toString();
@@ -526,8 +524,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                   ),
                 ),
               ),
-              if (!isPending)
-                _buildDecisionBadge(decision),
+              if (!isPending) _buildDecisionBadge(decision),
             ],
           ),
           if (decidedBy.isNotEmpty) ...[
@@ -557,11 +554,9 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 ),
                 const SizedBox(width: 12),
                 MyElevatedButton(
-                  icon:
-                      const Icon(Icons.check, color: Colors.white, size: 18),
+                  icon: const Icon(Icons.check, color: Colors.white, size: 18),
                   child: 'Approve',
-                  onTap: () =>
-                      _handleApprovePayment(invoiceId, step, invoice),
+                  onTap: () => _handleApprovePayment(invoiceId, step, invoice),
                 ),
               ],
             ),

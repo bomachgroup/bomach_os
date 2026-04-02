@@ -27,7 +27,9 @@ class LoanRequest {
 
   factory LoanRequest.fromJson(Map<String, dynamic> json) {
     return LoanRequest(
-      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? ''),
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? ''),
       loanAmount: json['loan_amount']?.toString() ?? '0',
       repaymentDate: json['repayment_date']?.toString() ?? '',
       reason: json['reason']?.toString() ?? '',

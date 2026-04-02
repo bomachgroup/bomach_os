@@ -352,7 +352,8 @@ class _JobOpeningTable extends StatelessWidget {
             MyText(job.branchId, size: 14, weight: 600, color: Colors.black87)),
         DataCell(MyText(_formatEnum(job.jobType),
             size: 14, weight: 600, color: Colors.black87)),
-        const DataCell(MyText("2", size: 14, weight: 600, color: Colors.black87)),
+        const DataCell(
+            MyText("2", size: 14, weight: 600, color: Colors.black87)),
         DataCell(
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

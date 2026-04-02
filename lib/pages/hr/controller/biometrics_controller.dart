@@ -1,8 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
 
 import '../models/attendance_models.dart';
 
@@ -20,7 +21,7 @@ class BiometricsController extends GetxController {
   var successMessage = ''.obs;
 
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://bomachauth.bgbot.app',
+    baseUrl: ApiConstants.baseUrl,
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},

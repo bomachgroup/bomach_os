@@ -1,16 +1,16 @@
 class JobPosting {
   final String id;
   final String title;
-  final String departmentId; 
+  final String departmentId;
   final String branchId;
   final String jobType;
   final String status;
   final String description;
   final String requirements;
   final String responsibilities;
-  final String salaryRange; 
-  final DateTime? deadline; 
-  final bool isActive; 
+  final String salaryRange;
+  final DateTime? deadline;
+  final bool isActive;
   final int applicantsCount;
   final DateTime? createdAt;
 
@@ -43,12 +43,15 @@ class JobPosting {
       requirements: json['requirements'] ?? '',
       responsibilities: json['responsibilities'] ?? '',
       salaryRange: json['salary_range'] ?? '',
-      deadline: json['deadline'] != null ? DateTime.tryParse(json['deadline']) : null,
+      deadline:
+          json['deadline'] != null ? DateTime.tryParse(json['deadline']) : null,
       isActive: json['is_active'] ?? true,
-      applicantsCount: json['applicants_count'] is int 
-          ? json['applicants_count'] 
+      applicantsCount: json['applicants_count'] is int
+          ? json['applicants_count']
           : int.tryParse(json['applicants_count']?.toString() ?? '0') ?? 0,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
     );
   }
 

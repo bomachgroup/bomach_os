@@ -35,15 +35,17 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
     final l = widget.loanToEdit;
     // Try to find matching employee by name for edit mode
     if (l != null && l.employeeName.isNotEmpty) {
-      final match = controller.allEmployees
-          .firstWhereOrNull((e) => '${e.firstName} ${e.lastName}' == l.employeeName);
+      final match = controller.allEmployees.firstWhereOrNull(
+          (e) => '${e.firstName} ${e.lastName}' == l.employeeName);
       selectedEmployeeId = match?.id;
     }
     amountCtrl = TextEditingController(text: l?.loanAmount ?? '');
     repaymentDateCtrl = TextEditingController(text: l?.repaymentDate ?? '');
     reasonCtrl = TextEditingController(text: l?.reason ?? '');
-    emergencyNameCtrl = TextEditingController(text: l?.emergencyContactName ?? '');
-    emergencyPhoneCtrl = TextEditingController(text: l?.emergencyContactPhone ?? '');
+    emergencyNameCtrl =
+        TextEditingController(text: l?.emergencyContactName ?? '');
+    emergencyPhoneCtrl =
+        TextEditingController(text: l?.emergencyContactPhone ?? '');
   }
 
   @override
@@ -88,8 +90,10 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
     controller.loanAmountController.text = amountCtrl.text.trim();
     controller.repaymentDateController.text = repaymentDateCtrl.text.trim();
     controller.reasonController.text = reasonCtrl.text.trim();
-    controller.emergencyContactNameController.text = emergencyNameCtrl.text.trim();
-    controller.emergencyContactPhoneController.text = emergencyPhoneCtrl.text.trim();
+    controller.emergencyContactNameController.text =
+        emergencyNameCtrl.text.trim();
+    controller.emergencyContactPhoneController.text =
+        emergencyPhoneCtrl.text.trim();
     controller.createLoan(context);
   }
 
@@ -147,18 +151,18 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             isExpanded: true,
-                            value: employees.any((e) =>
-                                    e.id == selectedEmployeeId)
-                                ? selectedEmployeeId
-                                : null,
+                            value:
+                                employees.any((e) => e.id == selectedEmployeeId)
+                                    ? selectedEmployeeId
+                                    : null,
                             hint: const Text('Select employee',
                                 style: TextStyle(
                                     color: Color(0xFF94A3B8), fontSize: 14)),
                             items: employees
                                 .map((e) => DropdownMenuItem<String>(
                                     value: e.id,
-                                    child: Text(
-                                        '${e.firstName} ${e.lastName}')))
+                                    child:
+                                        Text('${e.firstName} ${e.lastName}')))
                                 .toList(),
                             onChanged: (val) =>
                                 setState(() => selectedEmployeeId = val),

@@ -213,7 +213,8 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                           if (invoice.plotNumber != null)
                             _buildDetailRow('Plot Number', invoice.plotNumber!),
                           if (invoice.description != null)
-                            _buildDetailRow('Description', invoice.description!),
+                            _buildDetailRow(
+                                'Description', invoice.description!),
                         ],
                       ),
                     ),
@@ -236,7 +237,8 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                         child: Column(
                           children: [
                             if (invoice.clientName != null)
-                              _buildDetailRow('Client Name', invoice.clientName!),
+                              _buildDetailRow(
+                                  'Client Name', invoice.clientName!),
                             if (invoice.clientPhone != null)
                               _buildDetailRow(
                                   'Phone Number', invoice.clientPhone!),
@@ -256,7 +258,8 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.blue.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.blue.withValues(alpha: 0.2)),
+                        border: Border.all(
+                            color: AppColors.blue.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         children: [
@@ -267,7 +270,8 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                                 'Amount Paid', invoice.amountPaid!,
                                 color: Colors.green),
                           ],
-                          if (invoice.balance != null && invoice.balance! > 0) ...[
+                          if (invoice.balance != null &&
+                              invoice.balance! > 0) ...[
                             const Divider(height: 24),
                             _buildFinancialRow('Balance', invoice.balance!,
                                 color: Colors.orange),
@@ -367,12 +371,14 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                     children: [
                       MyElevatedButton(
                         bgColor: AppColors.blue,
-                        icon: const Icon(Icons.download, color: AppColors.white),
+                        icon:
+                            const Icon(Icons.download, color: AppColors.white),
                         child: 'Download PDF',
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('PDF download functionality coming soon'),
+                              content: Text(
+                                  'PDF download functionality coming soon'),
                               duration: Duration(seconds: 2),
                             ),
                           );

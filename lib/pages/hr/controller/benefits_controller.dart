@@ -32,7 +32,8 @@ class BenefitsController extends GetxController {
 
   // --- Fetch Benefits from Payroll Data ---
 
-  Future<void> fetchBenefits(BuildContext context, {bool refresh = false}) async {
+  Future<void> fetchBenefits(BuildContext context,
+      {bool refresh = false}) async {
     try {
       if (!refresh) isLoading.value = true;
       hasError.value = false;

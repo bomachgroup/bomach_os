@@ -211,12 +211,10 @@ class ViewEventDialog extends StatelessWidget {
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color:
-                                    AppColors.blue.withValues(alpha: 0.1),
+                                color: AppColors.blue.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: AppColors.blue
-                                      .withValues(alpha: 0.3),
+                                  color: AppColors.blue.withValues(alpha: 0.3),
                                 ),
                               ),
                               child: MyText(
@@ -237,8 +235,7 @@ class ViewEventDialog extends StatelessWidget {
 
             // Action Buttons
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(color: Colors.grey.shade300),
@@ -347,8 +344,18 @@ class ViewEventDialog extends StatelessWidget {
     final dt = DateTime.tryParse(dateTimeStr);
     if (dt == null) return dateTimeStr;
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
     final period = dt.hour >= 12 ? 'PM' : 'AM';

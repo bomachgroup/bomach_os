@@ -70,13 +70,11 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
                       items: controller.worksites
                           .map((ws) => DropdownMenuItem(
                                 value: ws,
-                                child: Text(
-                                    "${ws.name} — ${ws.location}",
+                                child: Text("${ws.name} — ${ws.location}",
                                     overflow: TextOverflow.ellipsis),
                               ))
                           .toList(),
-                      onChanged: (ws) =>
-                          setState(() => selectedWorksite = ws),
+                      onChanged: (ws) => setState(() => selectedWorksite = ws),
                     ),
                   ),
                 ],
@@ -97,28 +95,25 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
                         activeIcon:
                             SvgPicture.asset("assets/svg/person-filled.svg"),
                         title: 'Employees',
-                        onTap: () =>
-                            setState(() => selectionStepperState = 0),
+                        onTap: () => setState(() => selectionStepperState = 0),
                       ),
                       kSizedBoxWidth,
                       EmployeeInfoStepper(
                         isActive: selectionStepperState == 1,
                         icon: SvgPicture.asset("assets/svg/settings.svg"),
-                        activeIcon: SvgPicture.asset(
-                            "assets/svg/settings-filled.svg"),
+                        activeIcon:
+                            SvgPicture.asset("assets/svg/settings-filled.svg"),
                         title: 'Site Equipments',
-                        onTap: () =>
-                            setState(() => selectionStepperState = 1),
+                        onTap: () => setState(() => selectionStepperState = 1),
                       ),
                       kSizedBoxWidth,
                       EmployeeInfoStepper(
                         isActive: selectionStepperState == 2,
                         icon: SvgPicture.asset("assets/svg/document.svg"),
-                        activeIcon: SvgPicture.asset(
-                            "assets/svg/document-filled.svg"),
+                        activeIcon:
+                            SvgPicture.asset("assets/svg/document-filled.svg"),
                         title: 'Site Task',
-                        onTap: () =>
-                            setState(() => selectionStepperState = 2),
+                        onTap: () => setState(() => selectionStepperState = 2),
                       ),
                     ],
                   ),
@@ -127,7 +122,7 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
               kSizedBoxBG,
 
               // Sub-tab content
-              if (selectionStepperState == 0)  Container(),
+              if (selectionStepperState == 0) Container(),
               if (selectionStepperState == 1 && selectedWorksite != null)
                 SiteEquipmentTable(worksiteId: selectedWorksite!.id),
               if (selectionStepperState == 1 && selectedWorksite == null)

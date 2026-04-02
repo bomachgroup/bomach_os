@@ -150,10 +150,9 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
       if (_includeReport) additionalCosts += 40000;
 
       // Final calculation
-      _calculatedCost = (baseCost + areaCost) *
-              landTypeMultiplier *
-              urgencyMultiplier +
-          additionalCosts;
+      _calculatedCost =
+          (baseCost + areaCost) * landTypeMultiplier * urgencyMultiplier +
+              additionalCosts;
 
       setState(() {
         _showEstimate = true;
@@ -370,8 +369,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
-                            title:
-                                const Text('GPS Coordinates (+₦30,000)'),
+                            title: const Text('GPS Coordinates (+₦30,000)'),
                             subtitle: const Text(
                                 'Precise GPS coordinates for all survey points'),
                             value: _includeCoordinates,

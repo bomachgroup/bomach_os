@@ -221,8 +221,8 @@ class _AddEventDialogState extends State<AddEventDialog> {
                           title: 'Event Type*',
                           onChanged: (value) {
                             if (value != null) {
-                              final idx = _eventTypes.indexWhere((t) =>
-                                  _formatEventTypeLabel(t) == value);
+                              final idx = _eventTypes.indexWhere(
+                                  (t) => _formatEventTypeLabel(t) == value);
                               if (idx >= 0) {
                                 setState(() {
                                   _selectedEventType = _eventTypes[idx];
@@ -315,8 +315,8 @@ class _AddEventDialogState extends State<AddEventDialog> {
                         _buildCheckbox(
                           'All Branches',
                           _targetAllBranches,
-                          (v) => setState(
-                              () => _targetAllBranches = v ?? false),
+                          (v) =>
+                              setState(() => _targetAllBranches = v ?? false),
                         ),
                         _buildCheckbox(
                           'All Departments',
@@ -327,20 +327,17 @@ class _AddEventDialogState extends State<AddEventDialog> {
                         _buildCheckbox(
                           'Associates',
                           _targetAssociates,
-                          (v) => setState(
-                              () => _targetAssociates = v ?? false),
+                          (v) => setState(() => _targetAssociates = v ?? false),
                         ),
                         _buildCheckbox(
                           'Investors',
                           _targetInvestors,
-                          (v) => setState(
-                              () => _targetInvestors = v ?? false),
+                          (v) => setState(() => _targetInvestors = v ?? false),
                         ),
                         _buildCheckbox(
                           'Partners',
                           _targetPartners,
-                          (v) => setState(
-                              () => _targetPartners = v ?? false),
+                          (v) => setState(() => _targetPartners = v ?? false),
                         ),
                       ],
                     ),

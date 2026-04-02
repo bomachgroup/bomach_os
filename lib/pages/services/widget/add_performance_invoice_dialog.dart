@@ -283,7 +283,8 @@ class _AddPerformanceInvoiceDialogState
                                         title: 'Service Type*',
                                         onChanged: (value) {
                                           setState(() {
-                                            _selectedServiceType = value ?? 'Real Estate';
+                                            _selectedServiceType =
+                                                value ?? 'Real Estate';
                                           });
                                         },
                                       ),

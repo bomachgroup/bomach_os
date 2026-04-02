@@ -48,7 +48,12 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
   ];
 
   final List<String> _priorityList = ['Low', 'Medium', 'High'];
-  final List<String> _statusList = ['Pending', 'In Progress', 'Completed', 'On Hold'];
+  final List<String> _statusList = [
+    'Pending',
+    'In Progress',
+    'Completed',
+    'On Hold'
+  ];
 
   @override
   void initState() {
@@ -446,8 +451,9 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: _getPriorityColor(_selectedPriority)
-                                          .withValues(alpha: 0.2),
+                                      color:
+                                          _getPriorityColor(_selectedPriority)
+                                              .withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: MyText(
@@ -478,8 +484,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        color:
-                                            _getStatusColor(_selectedStatus),
+                                        color: _getStatusColor(_selectedStatus),
                                       ),
                                     ),
                                   ),

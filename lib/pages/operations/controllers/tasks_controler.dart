@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -6,8 +7,7 @@ import 'package:get/get.dart';
 import '../../../src/services/operations/tasks_services.dart';
 
 class TaskController extends GetxController {
-  final TaskService _service =
-      TaskService(baseUrl: 'https://bomachauth.bgbot.app');
+  final TaskService _service = TaskService(baseUrl: ApiConstants.baseUrl);
   final _storage = const FlutterSecureStorage();
 
   var tasks = <Task>[].obs;

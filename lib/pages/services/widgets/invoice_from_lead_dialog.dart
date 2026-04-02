@@ -57,7 +57,8 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
         defaultPrice = widget.lead.estimatedValue;
         break;
       case 'Property Management':
-        defaultDescription = 'Property Management Service - ${widget.lead.property}';
+        defaultDescription =
+            'Property Management Service - ${widget.lead.property}';
         defaultPrice = widget.lead.estimatedValue / 12; // Monthly
         break;
       default:
@@ -78,7 +79,8 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
 
   double get subtotal => ServiceInvoice.calculateSubtotal(invoiceItems);
   double get taxAmount => ServiceInvoice.calculateTax(subtotal, taxRate);
-  double get total => ServiceInvoice.calculateTotal(subtotal, taxAmount, discount);
+  double get total =>
+      ServiceInvoice.calculateTotal(subtotal, taxAmount, discount);
 
   void _addInvoiceItem() {
     if (itemDescriptionController.text.isEmpty ||
@@ -145,7 +147,8 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
       dueDate: DateTime.now().add(Duration(days: daysUntilDue)),
       createdBy: 'Current User',
       createdDate: DateTime.now(),
-      termsAndConditions: 'Payment is due within $daysUntilDue days from the invoice date.\n'
+      termsAndConditions:
+          'Payment is due within $daysUntilDue days from the invoice date.\n'
           'Late payments may incur additional charges.\n'
           'All prices are in Nigerian Naira (₦).',
     );
@@ -153,7 +156,8 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Invoice ${invoice.invoiceNumber} generated successfully'),
+        content:
+            Text('Invoice ${invoice.invoiceNumber} generated successfully'),
         backgroundColor: Colors.green,
       ),
     );
@@ -283,14 +287,13 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                             decoration: BoxDecoration(
                               border: index < invoiceItems.length - 1
                                   ? Border(
-                                      bottom: BorderSide(
-                                          color: Colors.grey[300]!),
+                                      bottom:
+                                          BorderSide(color: Colors.grey[300]!),
                                     )
                                   : null,
                             ),
                             child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: Column(
@@ -320,8 +323,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                                 IconButton(
                                   icon: const Icon(Icons.close,
                                       size: 20, color: Colors.red),
-                                  onPressed: () =>
-                                      _removeInvoiceItem(index),
+                                  onPressed: () => _removeInvoiceItem(index),
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                 ),

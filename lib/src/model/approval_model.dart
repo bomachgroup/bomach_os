@@ -45,8 +45,10 @@ class ApprovalFlow {
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       action: json['action_type'] ?? json['action'] ?? '',
-      actionDisplay:
-          json['action_type_display'] ?? json['action_type'] ?? json['action'] ?? '',
+      actionDisplay: json['action_type_display'] ??
+          json['action_type'] ??
+          json['action'] ??
+          '',
       isActive: json['is_active'] ?? true,
       description: json['description'] ?? json['notes'] ?? '',
       steps: parsedSteps,
@@ -157,9 +159,7 @@ class ApprovalFlowChoices {
           if (e is Map<String, dynamic>) {
             return BoardFieldOption(
               value: e['value']?.toString() ?? '',
-              label: e['label']?.toString() ??
-                  e['display']?.toString() ??
-                  '',
+              label: e['label']?.toString() ?? e['display']?.toString() ?? '',
             );
           }
           final str = e.toString();
@@ -172,8 +172,7 @@ class ApprovalFlowChoices {
     return ApprovalFlowChoices(
       actions: parseOptions(
           json['action_types'] ?? json['actions'] ?? json['action']),
-      approverTypes:
-          parseOptions(json['approver_types'] ?? json['approvers']),
+      approverTypes: parseOptions(json['approver_types'] ?? json['approvers']),
       statuses: parseOptions(json['statuses'] ?? json['status']),
       levels: parseOptions(json['levels']),
     );

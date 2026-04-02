@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../../src/services/hr/disciplinary_cases_services.dart';
 import '../models/disciplinary_cases_model.dart';
 
-
 class DisciplinaryController extends GetxController {
   final DisciplinaryCaseService _service = DisciplinaryCaseService();
 
@@ -48,7 +47,8 @@ class DisciplinaryController extends GetxController {
     }
   }
 
-  Future<bool> updateCase(String token, String id, DisciplinaryCase kase) async {
+  Future<bool> updateCase(
+      String token, String id, DisciplinaryCase kase) async {
     try {
       isSaving(true);
       await _service.updateDisciplinaryCase(token, id, kase);

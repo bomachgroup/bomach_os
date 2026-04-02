@@ -135,7 +135,8 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
 
   double get subtotal => ServiceInvoice.calculateSubtotal(invoiceItems);
   double get taxAmount => ServiceInvoice.calculateTax(subtotal, taxRate);
-  double get total => ServiceInvoice.calculateTotal(subtotal, taxAmount, discount);
+  double get total =>
+      ServiceInvoice.calculateTotal(subtotal, taxAmount, discount);
 
   void _addInvoiceItem() {
     if (itemDescriptionController.text.isEmpty ||
@@ -230,14 +231,16 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
       createdBy: 'Current User',
       createdDate: DateTime.now(),
       notes: notesController.text,
-      termsAndConditions: 'Payment is due within $daysUntilDue days from the invoice date.\n'
+      termsAndConditions:
+          'Payment is due within $daysUntilDue days from the invoice date.\n'
           'Late payments may incur additional charges.\n'
           'All prices are in Nigerian Naira (₦).',
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Invoice ${invoice.invoiceNumber} generated successfully!'),
+        content:
+            Text('Invoice ${invoice.invoiceNumber} generated successfully!'),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 2),
       ),
@@ -539,7 +542,8 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                         const SizedBox(height: 16),
                         MyTextFormField(
                           controller: propertyDetailsController,
-                          hintText: 'Enter property details (size, location, etc.)',
+                          hintText:
+                              'Enter property details (size, location, etc.)',
                           title: 'Property Details (Optional)',
                           maxLines: 2,
                         ),
@@ -592,8 +596,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                                 maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                               const SizedBox(height: 8),
                                               Text(
@@ -613,8 +616,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                           onPressed: () =>
                                               _removeInvoiceItem(index),
                                           padding: EdgeInsets.zero,
-                                          constraints:
-                                              const BoxConstraints(),
+                                          constraints: const BoxConstraints(),
                                         ),
                                       ],
                                     ),
@@ -738,8 +740,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                 onChanged: (value) {
                                   if (value.isNotEmpty) {
                                     setState(() {
-                                      taxRate =
-                                          double.tryParse(value) ?? 7.5;
+                                      taxRate = double.tryParse(value) ?? 7.5;
                                     });
                                   }
                                 },
@@ -771,8 +772,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                 onChanged: (value) {
                                   if (value.isNotEmpty) {
                                     setState(() {
-                                      daysUntilDue =
-                                          int.tryParse(value) ?? 30;
+                                      daysUntilDue = int.tryParse(value) ?? 30;
                                     });
                                   }
                                 },

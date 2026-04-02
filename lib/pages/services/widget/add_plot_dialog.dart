@@ -86,8 +86,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
             ? null
             : _surveyPlanController.text,
         createdDate: DateTime.now(),
-        reservationDate:
-            _selectedStatus == 'Reserved' ? DateTime.now() : null,
+        reservationDate: _selectedStatus == 'Reserved' ? DateTime.now() : null,
         saleDate: _selectedStatus == 'Sold' ? DateTime.now() : null,
       );
 

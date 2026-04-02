@@ -46,7 +46,8 @@ class MilestoneService {
       };
       if (projectId != null) queryParams['project_id'] = projectId;
       if (status != null && status.isNotEmpty) queryParams['status'] = status;
-      if (priority != null && priority.isNotEmpty) queryParams['priority'] = priority;
+      if (priority != null && priority.isNotEmpty)
+        queryParams['priority'] = priority;
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
       final response = await _dio.get(

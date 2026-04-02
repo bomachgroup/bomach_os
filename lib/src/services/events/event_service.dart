@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 class Event {
@@ -63,7 +64,7 @@ class Event {
 class EventService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   EventService({
     Dio? dioOverride,
@@ -119,8 +120,7 @@ class EventService {
       }
 
       // Fallback: data is a plain list
-      final items =
-          (data as List).map((json) => Event.fromJson(json)).toList();
+      final items = (data as List).map((json) => Event.fromJson(json)).toList();
       return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);
@@ -128,8 +128,7 @@ class EventService {
   }
 
   /// POST /api/v1/events/ — Create Event
-  Future<Event> createEvent(
-      String token, Map<String, dynamic> data) async {
+  Future<Event> createEvent(String token, Map<String, dynamic> data) async {
     try {
       log("EventService: Creating event...");
       final response = await _dio.post(

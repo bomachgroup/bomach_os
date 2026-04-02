@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 import '../../../pages/legal/models/audit_model.dart';
@@ -6,7 +7,7 @@ import '../../../pages/legal/models/audit_model.dart';
 class AuditService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   AuditService({
     Dio? dioOverride,
@@ -82,8 +83,7 @@ class AuditService {
       }
 
       // Fallback: data is a plain list
-      final items =
-          (data as List).map((json) => Audit.fromJson(json)).toList();
+      final items = (data as List).map((json) => Audit.fromJson(json)).toList();
       return (items: items, total: items.length);
     } catch (e) {
       throw _handleError(e);
@@ -91,8 +91,7 @@ class AuditService {
   }
 
   /// POST /api/v1/audits/ — Create Audit
-  Future<Audit> createAudit(
-      String token, Map<String, dynamic> data) async {
+  Future<Audit> createAudit(String token, Map<String, dynamic> data) async {
     try {
       log("AuditService: Creating audit...");
       final response = await _dio.post(
@@ -178,8 +177,7 @@ class AuditService {
   }
 
   /// PATCH /api/v1/audits/{id}/score/ — Update Audit Score
-  Future<Audit> updateAuditScore(
-      String token, int auditId, int score) async {
+  Future<Audit> updateAuditScore(String token, int auditId, int score) async {
     try {
       log("AuditService: Updating audit $auditId score to $score...");
       final response = await _dio.patch(

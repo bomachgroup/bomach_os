@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../../../pages/hr/models/work_report_model.dart';
 
 class WorkReportService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   WorkReportService({
     Dio? dioOverride,

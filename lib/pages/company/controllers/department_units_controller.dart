@@ -142,14 +142,18 @@ class DepartmentsUnitsController extends GetxController {
         Navigator.pop(context);
         fetchData();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Department created successfully'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Department created successfully'),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       log('Failed to create department: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create department: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Failed to create department: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -174,14 +178,18 @@ class DepartmentsUnitsController extends GetxController {
         Navigator.pop(context);
         fetchData();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Department updated successfully'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Department updated successfully'),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       log('Failed to update department: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update department: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Failed to update department: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -208,14 +216,18 @@ class DepartmentsUnitsController extends GetxController {
         Navigator.pop(context);
         fetchData();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unit created successfully'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Unit created successfully'),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       log('Failed to create unit: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create unit: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Failed to create unit: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -243,14 +255,18 @@ class DepartmentsUnitsController extends GetxController {
         Navigator.pop(context);
         fetchData();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unit updated successfully'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Unit updated successfully'),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       log('Failed to update unit: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update unit: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Failed to update unit: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {

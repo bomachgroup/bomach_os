@@ -38,15 +38,13 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.flow?.name ?? '');
     _notesCtrl = TextEditingController(text: widget.flow?.notes ?? '');
-    _selectedAction = widget.flow?.action.isNotEmpty == true
-        ? widget.flow!.action
-        : null;
+    _selectedAction =
+        widget.flow?.action.isNotEmpty == true ? widget.flow!.action : null;
     _selectedLevels = widget.flow != null && widget.flow!.levels > 0
         ? widget.flow!.levels.toString()
         : null;
-    _selectedStatus = widget.flow?.status.isNotEmpty == true
-        ? widget.flow!.status
-        : 'active';
+    _selectedStatus =
+        widget.flow?.status.isNotEmpty == true ? widget.flow!.status : 'active';
     if (widget.flow != null) {
       _selectedApprovers.addAll(widget.flow!.approvers);
     }
@@ -104,8 +102,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
           children: [
             // Title bar
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
                 color: Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.only(
@@ -200,8 +197,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                             });
                           },
                           child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Row(
                               children: [
                                 Container(
@@ -211,8 +207,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                                     color: isChecked
                                         ? AppColors.blue
                                         : Colors.transparent,
-                                    borderRadius:
-                                        BorderRadius.circular(4),
+                                    borderRadius: BorderRadius.circular(4),
                                     border: Border.all(
                                       color: isChecked
                                           ? AppColors.blue
@@ -222,14 +217,12 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                                   ),
                                   child: isChecked
                                       ? const Icon(Icons.check,
-                                          size: 14,
-                                          color: Colors.white)
+                                          size: 14, color: Colors.white)
                                       : null,
                                 ),
                                 const SizedBox(width: 10),
                                 Text(approver.label,
-                                    style:
-                                        const TextStyle(fontSize: 14)),
+                                    style: const TextStyle(fontSize: 14)),
                               ],
                             ),
                           ),
@@ -298,9 +291,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                             : const Icon(Icons.check,
                                 size: 16, color: Colors.white),
                         child: isEdit ? 'Save' : 'Create',
-                        onTap: controller.isSavingFlow.value
-                            ? null
-                            : _onSave,
+                        onTap: controller.isSavingFlow.value ? null : _onSave,
                       )),
                 ],
               ),
@@ -331,8 +322,8 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
           hint: Text(hint,
               style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
           items: items
-              .map((opt) => DropdownMenuItem(
-                  value: opt.value, child: Text(opt.label)))
+              .map((opt) =>
+                  DropdownMenuItem(value: opt.value, child: Text(opt.label)))
               .toList(),
           onChanged: onChanged,
         ),
@@ -360,8 +351,7 @@ class ViewWorkflowDialog extends StatelessWidget {
           children: [
             // Title bar
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
                 color: Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.only(
@@ -397,17 +387,19 @@ class ViewWorkflowDialog extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDetailRow('Action', flow.actionDisplay.isNotEmpty
-                      ? flow.actionDisplay
-                      : flow.action),
+                  _buildDetailRow(
+                      'Action',
+                      flow.actionDisplay.isNotEmpty
+                          ? flow.actionDisplay
+                          : flow.action),
                   _buildDetailRow('Levels', '${flow.levels}'),
                   if (flow.notes.isNotEmpty)
                     _buildDetailRow('Notes', flow.notes),
                   _buildDetailRow('Created', flow.createdAt),
                   const SizedBox(height: 12),
                   const Text('Approvers',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -459,8 +451,8 @@ class ViewWorkflowDialog extends StatelessWidget {
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500)),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ),
         ],
       ),

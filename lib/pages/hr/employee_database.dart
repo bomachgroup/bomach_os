@@ -120,7 +120,8 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                                   MyText(controller.errorMessage.value,
                                       color: Colors.red),
                                   TextButton(
-                                    onPressed: () => controller.fetchEmployees(),
+                                    onPressed: () =>
+                                        controller.fetchEmployees(),
                                     child: const Text("Retry"),
                                   )
                                 ],
@@ -435,8 +436,10 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
           ),
           DataCell(MyText(emp.designation ?? emp.role,
               weight: 600, size: 14, color: Colors.black54)),
-          DataCell(MyText(emp.departmentName ?? emp.departmentId?.toString() ?? '-',
-              weight: 600, size: 14)),
+          DataCell(MyText(
+              emp.departmentName ?? emp.departmentId?.toString() ?? '-',
+              weight: 600,
+              size: 14)),
           DataCell(
               MyText(emp.employmentType ?? 'Full-time', weight: 600, size: 14)),
           DataCell(

@@ -72,8 +72,7 @@ class ComplianceController extends GetxController {
     } catch (e) {
       log("Create Compliance Record Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create record: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create record: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

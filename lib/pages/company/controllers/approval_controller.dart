@@ -56,9 +56,7 @@ class ApprovalController extends GetxController {
 
       final result = await _approvalService.getFlows(
         accessToken: token,
-        search: flowSearchQuery.value.isNotEmpty
-            ? flowSearchQuery.value
-            : null,
+        search: flowSearchQuery.value.isNotEmpty ? flowSearchQuery.value : null,
         limit: flowLimit.value,
         offset: offset,
       );
@@ -90,8 +88,7 @@ class ApprovalController extends GetxController {
     } catch (e) {
       log("Create Flow Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create workflow: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create workflow: ${e.toString()}");
       }
     } finally {
       isSavingFlow.value = false;

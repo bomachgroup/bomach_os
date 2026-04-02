@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/legal/models/audit_model.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/services/legal/audit_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ void main() {
   late AuditService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleAuditJson = {
     'id': 1,
@@ -191,8 +192,7 @@ void main() {
 
       expect(result, isA<Audit>());
       expect(result.id, 1);
-      expect(result.auditName,
-          'ISO 9001:2015 Quality Management System Audit');
+      expect(result.auditName, 'ISO 9001:2015 Quality Management System Audit');
     });
 
     test('should throw on 400 error', () async {
@@ -269,8 +269,7 @@ void main() {
 
       expect(result, isA<Audit>());
       expect(result.id, 1);
-      expect(result.auditName,
-          'ISO 9001:2015 Quality Management System Audit');
+      expect(result.auditName, 'ISO 9001:2015 Quality Management System Audit');
     });
 
     test('should throw on 404 error', () async {
@@ -312,8 +311,7 @@ void main() {
         data: sampleCreatePayload,
       );
 
-      final result =
-          await service.updateAudit(token, 1, sampleCreatePayload);
+      final result = await service.updateAudit(token, 1, sampleCreatePayload);
 
       expect(result, isA<Audit>());
       expect(result.score, 92);
@@ -399,8 +397,7 @@ void main() {
         data: {'status': 'in_progress'},
       );
 
-      final result =
-          await service.updateAuditStatus(token, 1, 'in_progress');
+      final result = await service.updateAuditStatus(token, 1, 'in_progress');
 
       expect(result, isA<Audit>());
       expect(result.status, 'in_progress');

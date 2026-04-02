@@ -1,13 +1,15 @@
 import 'dart:developer';
-import 'package:dio/dio.dart' hide Response;
+
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart' as dio_pkg show Response;
-import 'package:get/get.dart';
+import 'package:dio/dio.dart' hide Response;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 
 class AnalyticsController extends GetxController {
   final _storage = const FlutterSecureStorage();
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://bomachauth.bgbot.app/api/v1',
+    baseUrl: '${ApiConstants.baseUrl}/api/v1',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {
@@ -53,14 +55,16 @@ class AnalyticsController extends GetxController {
 
       // Fetch all in parallel
       final results = await Future.wait([
-        _dio.get('/dashboard/overview', options: opts).catchError((_) => dio_pkg.Response(
-            requestOptions: RequestOptions(path: ''),
-            data: {},
-            statusCode: 200)),
-        _dio.get('/dashboard/stats', options: opts).catchError((_) => dio_pkg.Response(
-            requestOptions: RequestOptions(path: ''),
-            data: {},
-            statusCode: 200)),
+        _dio.get('/dashboard/overview', options: opts).catchError((_) =>
+            dio_pkg.Response(
+                requestOptions: RequestOptions(path: ''),
+                data: {},
+                statusCode: 200)),
+        _dio.get('/dashboard/stats', options: opts).catchError((_) =>
+            dio_pkg.Response(
+                requestOptions: RequestOptions(path: ''),
+                data: {},
+                statusCode: 200)),
       ]);
 
       // HR Overview
@@ -70,8 +74,8 @@ class AnalyticsController extends GetxController {
         newHires30Days.value = overview['new_hires_30_days'] ?? 0;
         openRoles.value = overview['open_roles'] ?? 0;
         if (overview['headcount_by_department'] is List) {
-          headcountByDept.assignAll(
-              List<Map<String, dynamic>>.from(overview['headcount_by_department']));
+          headcountByDept.assignAll(List<Map<String, dynamic>>.from(
+              overview['headcount_by_department']));
         }
       }
 

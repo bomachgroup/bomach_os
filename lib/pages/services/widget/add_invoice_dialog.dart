@@ -268,8 +268,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                               keyboardType: TextInputType.number,
                               onChanged: (value) {
                                 setState(() {
-                                  _taxRate =
-                                      double.tryParse(value) ?? 7.5;
+                                  _taxRate = double.tryParse(value) ?? 7.5;
                                 });
                               },
                             ),

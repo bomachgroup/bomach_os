@@ -53,10 +53,13 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                           children: [
                             SvgPicture.asset(
                               "assets/svg/arrow-left.svg",
-                              colorFilter: const ColorFilter.mode(AppColors.black, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.black, BlendMode.srcIn),
                             ),
                             kSizedBoxWidthSM,
-                            const MyText('Back', style: AppText.black_500_20, isSelectable: false),
+                            const MyText('Back',
+                                style: AppText.black_500_20,
+                                isSelectable: false),
                           ],
                         ),
                       ),
@@ -78,12 +81,11 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                     spacing: 10,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      MyElevatedButton(child: 'Edit', onTap: () {}), 
+                      MyElevatedButton(child: 'Edit', onTap: () {}),
                       MyElevatedButton(
                         bgColor: AppColors.red,
                         child: 'Delete',
-                        onTap: () {
-                        },
+                        onTap: () {},
                       ),
                     ],
                   ),
@@ -93,7 +95,6 @@ class TaskDetailPageState extends State<TaskDetailPage> {
           ],
         ),
         kSizedBox,
-
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
@@ -106,32 +107,35 @@ class TaskDetailPageState extends State<TaskDetailPage> {
               RowText(label: "Task ID", value: "#${task.id}"),
               RowText(label: "Description", value: task.description),
               kSizedBoxTiny,
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const MyText("Assigned To", style: AppText.black_300_16),
                   Container(
                     width: 300,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.grey4),
-                      borderRadius: BorderRadius.circular(8)
-                    ),
+                        border: Border.all(color: AppColors.grey4),
+                        borderRadius: BorderRadius.circular(8)),
                     child: Row(
                       children: [
                         Container(
-                          decoration: const BoxDecoration(shape: BoxShape.circle),
+                          decoration:
+                              const BoxDecoration(shape: BoxShape.circle),
                           width: 36,
                           height: 36,
-                          child: const Icon(Icons.person), 
+                          child: const Icon(Icons.person),
                         ),
                         kSizedBoxWidth,
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              MyText("Employee IDs: ${task.assignedTo.join(', ')}", weight: 400, size: 16),
+                              MyText(
+                                  "Employee IDs: ${task.assignedTo.join(', ')}",
+                                  weight: 400,
+                                  size: 16),
                             ],
                           ),
                         ),
@@ -141,11 +145,12 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                 ],
               ),
               kSizedBoxTiny,
-              
               RowText(label: "Status", value: task.status),
               RowText(label: "Priority", value: task.priority),
               RowText(label: "Due Date", value: task.dueDate),
-              RowText(label: "Estimated Hours", value: task.estimatedHours.toString()),
+              RowText(
+                  label: "Estimated Hours",
+                  value: task.estimatedHours.toString()),
             ],
           ),
         )

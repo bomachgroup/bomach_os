@@ -362,8 +362,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                   const CircleAvatar(
                       radius: 20,
                       backgroundColor: Color(0xFFE3F2FD),
-                      child:
-                          Icon(Icons.person, color: Color(0xFF1976D2))),
+                      child: Icon(Icons.person, color: Color(0xFF1976D2))),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,8 +438,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                     const CircleAvatar(
                         radius: 20,
                         backgroundColor: Color(0xFFE3F2FD),
-                        child:
-                            Icon(Icons.person, color: Color(0xFF1976D2))),
+                        child: Icon(Icons.person, color: Color(0xFF1976D2))),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

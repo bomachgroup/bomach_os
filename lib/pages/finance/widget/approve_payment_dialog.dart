@@ -142,8 +142,9 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final canApprove = widget.payment.approvalStatus == PaymentApprovalStatus.pending ||
-        widget.payment.approvalStatus == PaymentApprovalStatus.underReview;
+    final canApprove =
+        widget.payment.approvalStatus == PaymentApprovalStatus.pending ||
+            widget.payment.approvalStatus == PaymentApprovalStatus.underReview;
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
@@ -260,7 +261,8 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
 
                       // Bank/Depositor Information (for cash/bank transfers)
                       if (widget.payment.method == PaymentMethod.cash ||
-                          widget.payment.method == PaymentMethod.bankTransfer) ...[
+                          widget.payment.method ==
+                              PaymentMethod.bankTransfer) ...[
                         _buildSectionHeader('Deposit Information'),
                         const SizedBox(height: 16),
                         Container(
@@ -347,7 +349,8 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                       ],
 
                       // Approval/Rejection Information
-                      if (widget.payment.approvalStatus == PaymentApprovalStatus.approved) ...[
+                      if (widget.payment.approvalStatus ==
+                          PaymentApprovalStatus.approved) ...[
                         _buildSectionHeader('Approval Details'),
                         const SizedBox(height: 16),
                         Container(
@@ -355,7 +358,8 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                           decoration: BoxDecoration(
                             color: Colors.green.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+                            border: Border.all(
+                                color: Colors.green.withValues(alpha: 0.2)),
                           ),
                           child: Column(
                             children: [
@@ -374,7 +378,8 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                         ),
                       ],
 
-                      if (widget.payment.approvalStatus == PaymentApprovalStatus.rejected) ...[
+                      if (widget.payment.approvalStatus ==
+                          PaymentApprovalStatus.rejected) ...[
                         _buildSectionHeader('Rejection Details'),
                         const SizedBox(height: 16),
                         Container(
@@ -382,7 +387,8 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                           decoration: BoxDecoration(
                             color: Colors.red.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
+                            border: Border.all(
+                                color: Colors.red.withValues(alpha: 0.2)),
                           ),
                           child: Column(
                             children: [
@@ -454,7 +460,8 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                         const SizedBox(width: 16),
                         MyElevatedButton(
                           bgColor: Colors.green,
-                          icon: const Icon(Icons.check_circle, color: Colors.white),
+                          icon: const Icon(Icons.check_circle,
+                              color: Colors.white),
                           child: 'Approve Payment',
                           onTap: _approvePayment,
                         ),

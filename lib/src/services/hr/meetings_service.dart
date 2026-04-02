@@ -1,10 +1,11 @@
 import 'package:bms_front_end/pages/hr/models/meeting_model.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 class MeetingsService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   MeetingsService({Dio? dioOverride})
       : _dio = dioOverride ??
@@ -42,9 +43,8 @@ class MeetingsService {
       final data = response.data;
       if (data is Map && data.containsKey('items')) {
         return (
-          items: (data['items'] as List)
-              .map((j) => Meeting.fromJson(j))
-              .toList(),
+          items:
+              (data['items'] as List).map((j) => Meeting.fromJson(j)).toList(),
           count: (data['count'] as num?)?.toInt() ?? 0,
         );
       }
@@ -71,8 +71,7 @@ class MeetingsService {
     }
   }
 
-  Future<Meeting> updateMeeting(
-      String token, int id, Meeting meeting) async {
+  Future<Meeting> updateMeeting(String token, int id, Meeting meeting) async {
     try {
       final response = await _dio.put(
         '/meetings/$id',

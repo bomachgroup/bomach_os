@@ -23,7 +23,8 @@ class AddDisciplinaryCaseDialog extends StatefulWidget {
   });
 
   @override
-  State<AddDisciplinaryCaseDialog> createState() => _AddDisciplinaryCaseDialogState();
+  State<AddDisciplinaryCaseDialog> createState() =>
+      _AddDisciplinaryCaseDialogState();
 }
 
 class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
@@ -64,12 +65,17 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
     super.initState();
     final c = widget.caseToEdit;
     _employeeIdController = TextEditingController(text: c?.employeeId ?? '');
-    _violationTitleController = TextEditingController(text: c?.violationTitle ?? '');
-    _violationDescController = TextEditingController(text: c?.violationDescription ?? '');
-    _investigationController = TextEditingController(text: c?.investigationDetails ?? '');
-    _severanceController = TextEditingController(text: c?.severanceAmount?.toString() ?? '');
-    _violationTypeController = TextEditingController(text: c?.violationType ?? '');
-    
+    _violationTitleController =
+        TextEditingController(text: c?.violationTitle ?? '');
+    _violationDescController =
+        TextEditingController(text: c?.violationDescription ?? '');
+    _investigationController =
+        TextEditingController(text: c?.investigationDetails ?? '');
+    _severanceController =
+        TextEditingController(text: c?.severanceAmount?.toString() ?? '');
+    _violationTypeController =
+        TextEditingController(text: c?.violationType ?? '');
+
     _selectedActionType = c?.actionType;
     _selectedViolationCategory = c?.violationCategory;
     _actionDate = c?.actionDate ?? DateTime.now();
@@ -89,7 +95,6 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      
       final newCase = DisciplinaryCase(
         id: widget.caseToEdit?.id ?? '',
         employeeId: _employeeIdController.text,
@@ -106,7 +111,8 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
 
       bool success;
       if (widget.caseToEdit != null) {
-        success = await controller.updateCase(widget.token, widget.caseToEdit!.id, newCase);
+        success = await controller.updateCase(
+            widget.token, widget.caseToEdit!.id, newCase);
       } else {
         success = await controller.createCase(widget.token, newCase);
       }
@@ -114,9 +120,11 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
       if (!mounted) return;
       if (success) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Case saved"), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Case saved"), backgroundColor: Colors.green));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to save"), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("Failed to save"), backgroundColor: Colors.red));
       }
     }
   }
@@ -136,14 +144,19 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  MyText(widget.caseToEdit == null ? 'New Disciplinary Case' : 'Edit Case', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  MyText(
+                      widget.caseToEdit == null
+                          ? 'New Disciplinary Case'
+                          : 'Edit Case',
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold)),
+                  IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context)),
                 ],
               ),
             ),
             const Divider(height: 1),
-            
-          
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -153,7 +166,7 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MyTextFormField(
-                        title: 'Employee ID', 
+                        title: 'Employee ID',
                         controller: _employeeIdController,
                         hintText: 'Enter Employee ID',
                       ),
@@ -165,7 +178,8 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
                               title: 'Action Type',
                               items: _actionTypes,
                               hintText: _selectedActionType ?? 'Select Action',
-                              onChanged: (val) => setState(() => _selectedActionType = val),
+                              onChanged: (val) =>
+                                  setState(() => _selectedActionType = val),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -173,33 +187,47 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
                             child: MyDropdown(
                               title: 'Category',
                               items: _categories,
-                              hintText: _selectedViolationCategory ?? 'Select Category',
-                              onChanged: (val) => setState(() => _selectedViolationCategory = val),
+                              hintText: _selectedViolationCategory ??
+                                  'Select Category',
+                              onChanged: (val) => setState(
+                                  () => _selectedViolationCategory = val),
                             ),
                           ),
                         ],
                       ),
                       kSizedBox,
-                      MyTextFormField(title: 'Violation Title', controller: _violationTitleController),
+                      MyTextFormField(
+                          title: 'Violation Title',
+                          controller: _violationTitleController),
                       kSizedBox,
-                      MyTextFormField(title: 'Violation Type', controller: _violationTypeController, hintText: 'e.g. Lateness'),
+                      MyTextFormField(
+                          title: 'Violation Type',
+                          controller: _violationTypeController,
+                          hintText: 'e.g. Lateness'),
                       kSizedBox,
-                      MyTextFormField(title: 'Description', controller: _violationDescController, maxLines: 3),
+                      MyTextFormField(
+                          title: 'Description',
+                          controller: _violationDescController,
+                          maxLines: 3),
                       kSizedBox,
-                      MyTextFormField(title: 'Investigation Details', controller: _investigationController, maxLines: 3),
+                      MyTextFormField(
+                          title: 'Investigation Details',
+                          controller: _investigationController,
+                          maxLines: 3),
                       kSizedBox,
-                      
-                      const MyText('Action Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                      const MyText('Action Date',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 8),
                       InkWell(
                         onTap: () async {
                           final picked = await showDatePicker(
-                            context: context, 
-                            initialDate: _actionDate ?? DateTime.now(),
-                            firstDate: DateTime(2000), 
-                            lastDate: DateTime(2100)
-                          );
-                          if(picked != null) setState(() => _actionDate = picked);
+                              context: context,
+                              initialDate: _actionDate ?? DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100));
+                          if (picked != null)
+                            setState(() => _actionDate = picked);
                         },
                         child: Container(
                           padding: const EdgeInsets.all(12),
@@ -207,40 +235,49 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
                             border: Border.all(color: Colors.grey.shade300),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(_actionDate != null ? DateFormat('yyyy-MM-dd').format(_actionDate!) : 'Select Date'),
+                          child: Text(_actionDate != null
+                              ? DateFormat('yyyy-MM-dd').format(_actionDate!)
+                              : 'Select Date'),
                         ),
                       ),
-                      
                       kSizedBox,
                       Row(
                         children: [
                           Checkbox(
                             value: _severancePaymentDue,
-                            onChanged: (val) => setState(() => _severancePaymentDue = val ?? false),
+                            onChanged: (val) => setState(
+                                () => _severancePaymentDue = val ?? false),
                           ),
                           const MyText('Severance Payment Due?'),
                         ],
                       ),
                       if (_severancePaymentDue)
-                        MyTextFormField(title: 'Severance Amount', controller: _severanceController),
+                        MyTextFormField(
+                            title: 'Severance Amount',
+                            controller: _severanceController),
                     ],
                   ),
                 ),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade300))),
+              decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  MyOutlinedButton(child: 'Cancel', onTap: () => Navigator.pop(context), textColor: Colors.grey),
+                  MyOutlinedButton(
+                      child: 'Cancel',
+                      onTap: () => Navigator.pop(context),
+                      textColor: Colors.grey),
                   const SizedBox(width: 16),
                   Obx(() => MyElevatedButton(
-                    child: controller.isSaving.value ? 'Saving...' : 'Save Case',
-                    onTap: controller.isSaving.value ? () {} : _submitForm,
-                  )),
+                        child: controller.isSaving.value
+                            ? 'Saving...'
+                            : 'Save Case',
+                        onTap: controller.isSaving.value ? () {} : _submitForm,
+                      )),
                 ],
               ),
             ),

@@ -1029,8 +1029,7 @@ class ResponsiveSubheader extends StatelessWidget {
       return Row(
         children: [
           Expanded(child: title),
-          if (search != null)
-            SizedBox(width: 220, child: search!),
+          if (search != null) SizedBox(width: 220, child: search!),
           if (action != null) ...[
             const SizedBox(width: 12),
             action!,

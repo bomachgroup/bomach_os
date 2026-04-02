@@ -1,7 +1,8 @@
 /// Disciplinary Process data models
 class DisciplinaryAction {
   final String id;
-  final String actionType; // Verbal Warning, Written Warning, Suspension, Termination, etc.
+  final String
+      actionType; // Verbal Warning, Written Warning, Suspension, Termination, etc.
   final String severity; // Low, Medium, High, Critical
   final String icon;
   final String color;

@@ -63,7 +63,6 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -83,20 +82,16 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                               hintText: 'PRJ-001')),
                     ]),
                     const SizedBox(height: 24),
-
                     Row(children: [
                       Expanded(
                           child: MyDateField(
-                              controller: startDateCtrl,
-                              title: 'Start Date')),
+                              controller: startDateCtrl, title: 'Start Date')),
                       const SizedBox(width: 16),
                       Expanded(
                           child: MyDateField(
-                              controller: deadlineCtrl,
-                              title: 'Deadline')),
+                              controller: deadlineCtrl, title: 'Deadline')),
                     ]),
                     const SizedBox(height: 24),
-
                     Row(children: [
                       Expanded(
                           child: MyDropdown(
@@ -135,14 +130,13 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                               onChanged: (val) {
                                 final dept = controller.departments
                                     .firstWhereOrNull((d) => d.name == val);
-                                setState(() => selectedDepartmentId =
-                                    dept?.id.toString());
+                                setState(() =>
+                                    selectedDepartmentId = dept?.id.toString());
                               },
                             )),
                       ),
                     ]),
                     const SizedBox(height: 24),
-
                     Row(children: [
                       Expanded(
                           child: MyTextFormField(
@@ -157,7 +151,6 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                               hintText: '0.00')),
                     ]),
                     const SizedBox(height: 24),
-
                     Row(children: [
                       Expanded(
                           child: MyDropdown(
@@ -182,7 +175,6 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       )),
                     ]),
                     const SizedBox(height: 24),
-
                     MyTextFormField(
                         controller: summaryCtrl,
                         title: 'Summary',
@@ -193,7 +185,6 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                 ),
               ),
             ),
-
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -227,20 +218,27 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
 
     final dept = selectedDepartmentId != null
         ? controller.departments
-            .firstWhereOrNull((d) => d.id == selectedDepartmentId)
-            ?.name ?? ''
+                .firstWhereOrNull((d) => d.id == selectedDepartmentId)
+                ?.name ??
+            ''
         : '';
 
     final newProject = Project(
       id: 0,
       name: nameCtrl.text,
       shortCode: shortCodeCtrl.text,
-      category: categoryCtrl.text.isEmpty ? (selectedCategory ?? '') : categoryCtrl.text,
+      category: categoryCtrl.text.isEmpty
+          ? (selectedCategory ?? '')
+          : categoryCtrl.text,
       department: dept,
       clientId: 1,
       location: locationCtrl.text,
-      priority: priorityCtrl.text.isEmpty ? (selectedPriority?.toLowerCase() ?? 'medium') : priorityCtrl.text.toLowerCase(),
-      status: statusCtrl.text.isEmpty ? (selectedStatus?.toLowerCase() ?? 'pending') : statusCtrl.text.toLowerCase().replaceAll(' ', '_'),
+      priority: priorityCtrl.text.isEmpty
+          ? (selectedPriority?.toLowerCase() ?? 'medium')
+          : priorityCtrl.text.toLowerCase(),
+      status: statusCtrl.text.isEmpty
+          ? (selectedStatus?.toLowerCase() ?? 'pending')
+          : statusCtrl.text.toLowerCase().replaceAll(' ', '_'),
       summary: summaryCtrl.text,
       budget: double.tryParse(budgetCtrl.text) ?? 0.0,
       progress: 0.0,

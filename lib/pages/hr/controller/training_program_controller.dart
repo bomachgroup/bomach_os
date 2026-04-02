@@ -16,11 +16,14 @@ class SkillAssessment {
   final String requestedByName;
   final String status;
 
-  SkillAssessment({
-    required this.id, required this.employeeName, required this.employeeRole,
-    required this.gap, required this.priority, required this.requestedByName,
-    required this.status
-  });
+  SkillAssessment(
+      {required this.id,
+      required this.employeeName,
+      required this.employeeRole,
+      required this.gap,
+      required this.priority,
+      required this.requestedByName,
+      required this.status});
 }
 
 class TrainingProgramController extends GetxController {
@@ -41,10 +44,16 @@ class TrainingProgramController extends GetxController {
   var currentPage = 1.obs;
   var itemsPerPage = 10.obs;
   var totalCount = 0.obs;
-  
+
   final searchController = TextEditingController();
   var selectedStatusFilter = 'All Statutes'.obs;
-  final List<String> statusOptions = ['All Statutes', 'Active', 'Inactive', 'Scheduled', 'Pending'];
+  final List<String> statusOptions = [
+    'All Statutes',
+    'Active',
+    'Inactive',
+    'Scheduled',
+    'Pending'
+  ];
 
   // --- Stats ---
   var stats = <String, int>{
@@ -107,7 +116,7 @@ class TrainingProgramController extends GetxController {
     try {
       isLoading(true);
       errorMessage('');
-      
+
       int offset = (currentPage.value - 1) * itemsPerPage.value;
 
       final result = await _service.getTrainingPrograms(
@@ -115,16 +124,17 @@ class TrainingProgramController extends GetxController {
         limit: itemsPerPage.value,
         offset: offset,
         search: searchController.text.trim(),
-        status: selectedStatusFilter.value == 'All Statutes' ? null : selectedStatusFilter.value.toLowerCase(),
+        status: selectedStatusFilter.value == 'All Statutes'
+            ? null
+            : selectedStatusFilter.value.toLowerCase(),
       );
-      
+
       programList.assignAll(result.items);
       totalCount.value = result.count;
-      
+
       // Update mock stats based on fetch
       stats['totalPrograms'] = result.count;
       stats['totalEnrolled'] = 45; // Mock data
-
     } catch (e) {
       errorMessage('Failed to load programs: $e');
       debugPrint("Fetch Error: $e");
@@ -140,17 +150,39 @@ class TrainingProgramController extends GetxController {
 
     // Mock Data
     var mockData = [
-      SkillAssessment(id: '1', employeeName: "Evelyn George", employeeRole: "Software Engineer", gap: "Advanced Cloud Arch.", priority: "High", requestedByName: "Evelyn George", status: "Scheduled"),
-      SkillAssessment(id: '2', employeeName: "Mathew Parker", employeeRole: "Software Engineer", gap: "B2B Negotiation", priority: "Medium", requestedByName: "Evelyn George", status: "Pending"),
-      SkillAssessment(id: '3', employeeName: "Silvia Torres", employeeRole: "Software Engineer", gap: "Safety Compliance", priority: "Low", requestedByName: "Evelyn George", status: "Pending"),
+      SkillAssessment(
+          id: '1',
+          employeeName: "Evelyn George",
+          employeeRole: "Software Engineer",
+          gap: "Advanced Cloud Arch.",
+          priority: "High",
+          requestedByName: "Evelyn George",
+          status: "Scheduled"),
+      SkillAssessment(
+          id: '2',
+          employeeName: "Mathew Parker",
+          employeeRole: "Software Engineer",
+          gap: "B2B Negotiation",
+          priority: "Medium",
+          requestedByName: "Evelyn George",
+          status: "Pending"),
+      SkillAssessment(
+          id: '3',
+          employeeName: "Silvia Torres",
+          employeeRole: "Software Engineer",
+          gap: "Safety Compliance",
+          priority: "Low",
+          requestedByName: "Evelyn George",
+          status: "Pending"),
     ];
 
     // Local Filtering
     String search = searchController.text.toLowerCase();
     var filtered = mockData.where((e) {
-      bool matchesSearch = e.employeeName.toLowerCase().contains(search) || e.gap.toLowerCase().contains(search);
-      bool matchesStatus = selectedStatusFilter.value == 'All Statutes' || 
-                           e.status.toLowerCase() == selectedStatusFilter.value.toLowerCase();
+      bool matchesSearch = e.employeeName.toLowerCase().contains(search) ||
+          e.gap.toLowerCase().contains(search);
+      bool matchesStatus = selectedStatusFilter.value == 'All Statutes' ||
+          e.status.toLowerCase() == selectedStatusFilter.value.toLowerCase();
       return matchesSearch && matchesStatus;
     }).toList();
 
@@ -181,7 +213,7 @@ class TrainingProgramController extends GetxController {
   // --- CRUD (Existing) ---
   Future<bool> createProgram(TrainingProgram program) async {
     final token = await _getToken();
-    if(token == null) return false;
+    if (token == null) return false;
     try {
       isSaving(true);
       await _service.createTrainingProgram(token, program);
@@ -193,6 +225,7 @@ class TrainingProgramController extends GetxController {
       isSaving(false);
     }
   }
+
   Future<bool> updateProgram(
       String token, String id, TrainingProgram program) async {
     try {
@@ -207,9 +240,10 @@ class TrainingProgramController extends GetxController {
       isSaving(false);
     }
   }
+
   Future<bool> deleteProgram(String id) async {
     final token = await _getToken();
-    if(token == null) return false;
+    if (token == null) return false;
     try {
       await _service.deleteTrainingProgram(token, id);
       fetchPrograms(token);

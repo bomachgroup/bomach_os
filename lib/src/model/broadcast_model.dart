@@ -41,7 +41,9 @@ class Announcement {
   factory Announcement.fromJson(Map<String, dynamic> json) {
     List<int> parseIntList(dynamic raw) {
       if (raw is List) {
-        return raw.map((e) => e is int ? e : int.tryParse(e.toString()) ?? 0).toList();
+        return raw
+            .map((e) => e is int ? e : int.tryParse(e.toString()) ?? 0)
+            .toList();
       }
       return [];
     }
@@ -51,7 +53,8 @@ class Announcement {
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       announcementType: json['announcement_type'] ?? '',
-      announcementTypeDisplay: json['announcement_type_display'] ?? json['announcement_type'] ?? '',
+      announcementTypeDisplay:
+          json['announcement_type_display'] ?? json['announcement_type'] ?? '',
       priority: json['priority'] ?? '',
       priorityDisplay: json['priority_display'] ?? json['priority'] ?? '',
       branchIds: parseIntList(json['branch_ids']),
@@ -194,7 +197,8 @@ class AnnouncementFieldChoices {
     }
 
     return AnnouncementFieldChoices(
-      announcementTypes: parseOptions(json['announcement_types'] ?? json['announcement_type']),
+      announcementTypes:
+          parseOptions(json['announcement_types'] ?? json['announcement_type']),
       priorities: parseOptions(json['priorities'] ?? json['priority']),
     );
   }

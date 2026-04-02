@@ -115,8 +115,7 @@ class BudgetPage extends StatelessWidget {
                     controller: scrollController,
                     scrollDirection: Axis.horizontal,
                     child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minWidth: bodySpace(context)),
+                      constraints: BoxConstraints(minWidth: bodySpace(context)),
                       child: DataTable(
                         dataRowMinHeight: 68,
                         dataRowMaxHeight: 68,
@@ -144,19 +143,16 @@ class BudgetPage extends StatelessWidget {
                                 icon: const Icon(Icons.more_vert),
                                 onSelected: (value) {
                                   if (value == 'delete') {
-                                    controller.deleteBudget(
-                                        context, budget.id);
+                                    controller.deleteBudget(context, budget.id);
                                   }
                                 },
                                 itemBuilder: (context) => [
                                   const PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text('Edit')),
+                                      value: 'edit', child: Text('Edit')),
                                   const PopupMenuItem(
                                       value: 'delete',
                                       child: Text('Delete',
-                                          style:
-                                              TextStyle(color: Colors.red))),
+                                          style: TextStyle(color: Colors.red))),
                                 ],
                               ),
                             ),

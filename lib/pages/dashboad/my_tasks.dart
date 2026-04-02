@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:dio/dio.dart';
@@ -9,7 +10,7 @@ import 'package:get/get.dart';
 
 class MyTasksController extends GetxController {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://bomachauth.bgbot.app/api/v1/',
+    baseUrl: '${ApiConstants.baseUrl}/api/v1/',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {

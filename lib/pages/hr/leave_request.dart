@@ -253,8 +253,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                     child: DataTable(
                       headingRowColor:
                           WidgetStateProperty.all(Colors.transparent),
-                      dataRowColor:
-                          WidgetStateProperty.all(Colors.transparent),
+                      dataRowColor: WidgetStateProperty.all(Colors.transparent),
                       columnSpacing: 20,
                       horizontalMargin: 0,
                       headingTextStyle: const TextStyle(

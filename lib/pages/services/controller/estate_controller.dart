@@ -94,8 +94,9 @@ class EstateController extends GetxController {
       if (context.mounted) {
         final msg = e.toString();
         final dashIdx = msg.lastIndexOf(' - ');
-        final cleanMsg =
-            dashIdx != -1 ? msg.substring(dashIdx + 3) : msg.replaceFirst('Exception: ', '');
+        final cleanMsg = dashIdx != -1
+            ? msg.substring(dashIdx + 3)
+            : msg.replaceFirst('Exception: ', '');
         Get.snackbar('Error', cleanMsg,
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red.shade50,

@@ -4,14 +4,17 @@ class PerformanceInvoice {
   final String estateName;
   final String? plotId;
   final String? plotNumber;
-  final String serviceType; // 'Real Estate', 'Land Survey', 'Property Management', 'Estate Management'
-  final String transactionType; // 'Sale', 'Reservation', 'Payment', 'Commission'
+  final String
+      serviceType; // 'Real Estate', 'Land Survey', 'Property Management', 'Estate Management'
+  final String
+      transactionType; // 'Sale', 'Reservation', 'Payment', 'Commission'
   final double amount;
   final DateTime transactionDate;
   final String? clientName;
   final String? clientPhone;
   final String? clientEmail;
-  final String paymentMethod; // 'Cash', 'Bank Transfer', 'Card', 'Cheque', 'Installment'
+  final String
+      paymentMethod; // 'Cash', 'Bank Transfer', 'Card', 'Cheque', 'Installment'
   final String paymentStatus; // 'Paid', 'Pending', 'Partial', 'Failed'
   final double? amountPaid;
   final double? balance;
@@ -210,7 +213,8 @@ class PerformanceStats {
       );
     }
 
-    final totalRevenue = invoices.fold<double>(0, (sum, inv) => sum + inv.amount);
+    final totalRevenue =
+        invoices.fold<double>(0, (sum, inv) => sum + inv.amount);
     final totalPaid = invoices
         .where((inv) => inv.paymentStatus == 'Paid')
         .fold<double>(0, (sum, inv) => sum + (inv.amountPaid ?? inv.amount));
@@ -218,12 +222,10 @@ class PerformanceStats {
         .where((inv) => inv.paymentStatus == 'Pending')
         .fold<double>(0, (sum, inv) => sum + inv.amount);
 
-    final totalSales = invoices
-        .where((inv) => inv.transactionType == 'Sale')
-        .length;
-    final totalReservations = invoices
-        .where((inv) => inv.transactionType == 'Reservation')
-        .length;
+    final totalSales =
+        invoices.where((inv) => inv.transactionType == 'Sale').length;
+    final totalReservations =
+        invoices.where((inv) => inv.transactionType == 'Reservation').length;
 
     final totalCommissions = invoices.fold<double>(
         0, (sum, inv) => sum + (inv.commissionAmount ?? 0));

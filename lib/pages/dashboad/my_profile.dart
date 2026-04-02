@@ -138,8 +138,7 @@ class MyProfilePage extends StatelessWidget {
                     child: Image.network(
                       user.profilePicture!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          _buildAvatarText(fullName),
+                      errorBuilder: (_, __, ___) => _buildAvatarText(fullName),
                     ),
                   )
                 : _buildAvatarText(fullName),
@@ -256,15 +255,13 @@ class MyProfilePage extends StatelessWidget {
         _buildFieldRow(
           [
             _ProfileField('Employee ID', user.employeeId ?? 'N/A'),
-            _ProfileField(
-                'Date of Birth', _formatDate(user.dateOfBirth)),
+            _ProfileField('Date of Birth', _formatDate(user.dateOfBirth)),
           ],
         ),
         _buildFieldRow(
           [
             _ProfileField('Gender', _capitalize(user.gender)),
-            _ProfileField(
-                'Marital Status', _capitalize(user.maritalStatus)),
+            _ProfileField('Marital Status', _capitalize(user.maritalStatus)),
           ],
         ),
       ],
@@ -278,8 +275,7 @@ class MyProfilePage extends StatelessWidget {
       icon: Icons.contact_mail_rounded,
       color: const Color(0xFF0EA5E9),
       children: [
-        _buildInfoTile(
-            Icons.email_rounded, 'Email Address', user.email,
+        _buildInfoTile(Icons.email_rounded, 'Email Address', user.email,
             const Color(0xFFEF4444)),
         const SizedBox(height: 12),
         _buildInfoTile(
@@ -310,8 +306,7 @@ class MyProfilePage extends StatelessWidget {
       children: [
         _buildFieldRow(
           [
-            _ProfileField(
-                'Employment Type', _capitalize(user.employmentType)),
+            _ProfileField('Employment Type', _capitalize(user.employmentType)),
             _ProfileField('Branch ID', '${user.branchId}'),
           ],
         ),
@@ -323,10 +318,8 @@ class MyProfilePage extends StatelessWidget {
         ),
         _buildFieldRow(
           [
-            _ProfileField(
-                'Start Date', _formatDate(user.startDate)),
-            _ProfileField('Status',
-                user.isActive ? 'Active' : 'Inactive',
+            _ProfileField('Start Date', _formatDate(user.startDate)),
+            _ProfileField('Status', user.isActive ? 'Active' : 'Inactive',
                 valueColor: user.isActive
                     ? const Color(0xFF10B981)
                     : const Color(0xFFEF4444)),
@@ -346,8 +339,7 @@ class MyProfilePage extends StatelessWidget {
         _buildFieldRow(
           [
             _ProfileField('Username', user.username),
-            _ProfileField(
-                'Verified', user.isVerified ? 'Yes' : 'No',
+            _ProfileField('Verified', user.isVerified ? 'Yes' : 'No',
                 valueColor: user.isVerified
                     ? const Color(0xFF10B981)
                     : const Color(0xFFEF4444)),
@@ -356,8 +348,7 @@ class MyProfilePage extends StatelessWidget {
         _buildFieldRow(
           [
             _ProfileField('User ID', '${user.userId}'),
-            _ProfileField(
-                'Created', _formatDate(user.createdAt)),
+            _ProfileField('Created', _formatDate(user.createdAt)),
           ],
         ),
       ],

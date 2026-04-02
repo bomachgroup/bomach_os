@@ -185,8 +185,7 @@ class BoardController extends GetxController {
       final token = await _getToken();
       if (token == null) return;
 
-      final offset =
-          (resolutionCurrentPage.value - 1) * resolutionLimit.value;
+      final offset = (resolutionCurrentPage.value - 1) * resolutionLimit.value;
 
       final result = await _boardService.getResolutions(
         accessToken: token,
@@ -256,8 +255,7 @@ class BoardController extends GetxController {
     }
   }
 
-  Future<void> archiveResolution(
-      BuildContext context, int resolutionId) async {
+  Future<void> archiveResolution(BuildContext context, int resolutionId) async {
     try {
       final token = await _getToken();
       if (token == null) return;
@@ -277,8 +275,7 @@ class BoardController extends GetxController {
     }
   }
 
-  Future<void> approveResolution(
-      BuildContext context, int resolutionId) async {
+  Future<void> approveResolution(BuildContext context, int resolutionId) async {
     try {
       final token = await _getToken();
       if (token == null) return;
@@ -456,8 +453,8 @@ class BoardController extends GetxController {
     } catch (e) {
       log("Create partner error: $e");
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Failed: $e"), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed: $e"), backgroundColor: Colors.red));
       }
     } finally {
       isSavingPartner.value = false;
@@ -483,8 +480,8 @@ class BoardController extends GetxController {
     } catch (e) {
       log("Update partner error: $e");
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Failed: $e"), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed: $e"), backgroundColor: Colors.red));
       }
     } finally {
       isSavingPartner.value = false;
@@ -508,8 +505,8 @@ class BoardController extends GetxController {
     } catch (e) {
       log("Delete partner error: $e");
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Failed: $e"), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed: $e"), backgroundColor: Colors.red));
       }
     }
   }

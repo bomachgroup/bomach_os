@@ -8,7 +8,8 @@ class Invoice {
   final String? clientAddress;
 
   // Service/Order reference
-  final String? serviceType; // 'Real Estate', 'Land Survey', 'Property Management', etc.
+  final String?
+      serviceType; // 'Real Estate', 'Land Survey', 'Property Management', etc.
   final String? serviceId; // Reference to service order
   final String? projectId; // Reference to project if applicable
 
@@ -141,12 +142,15 @@ class Invoice {
       currency: json['currency'] ?? '₦',
       issueDate: DateTime.parse(json['issueDate']),
       dueDate: DateTime.parse(json['dueDate']),
-      paidDate: json['paidDate'] != null ? DateTime.parse(json['paidDate']) : null,
+      paidDate:
+          json['paidDate'] != null ? DateTime.parse(json['paidDate']) : null,
       status: InvoiceStatus.values.firstWhere((e) => e.name == json['status']),
-      paymentStatus: PaymentStatus.values.firstWhere((e) => e.name == json['paymentStatus']),
+      paymentStatus: PaymentStatus.values
+          .firstWhere((e) => e.name == json['paymentStatus']),
       payments: (json['payments'] as List?)
-          ?.map((p) => Payment.fromJson(p))
-          .toList() ?? [],
+              ?.map((p) => Payment.fromJson(p))
+              .toList() ??
+          [],
       amountPaid: json['amountPaid'],
       balance: json['balance'],
       notes: json['notes'],

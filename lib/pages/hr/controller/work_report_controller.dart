@@ -37,7 +37,7 @@ class WorkReportController extends GetxController {
     try {
       isSaving(true);
       await _service.createWorkReport(token, report);
-      await fetchReports(token); 
+      await fetchReports(token);
       return true;
     } catch (e) {
       debugPrint("Create Error: $e");
@@ -51,7 +51,7 @@ class WorkReportController extends GetxController {
     try {
       isSaving(true);
       await _service.updateWorkReport(token, id, report);
-      await fetchReports(token); 
+      await fetchReports(token);
       return true;
     } catch (e) {
       debugPrint("Update Error: $e");
@@ -68,7 +68,7 @@ class WorkReportController extends GetxController {
       return true;
     } catch (e) {
       debugPrint("Delete Error: $e");
-      fetchReports(token); 
+      fetchReports(token);
       return false;
     }
   }

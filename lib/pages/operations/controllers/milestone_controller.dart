@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import '../../../src/services/operations/milestone_services.dart';
 
 class MilestoneController extends GetxController {
   final MilestoneService _service =
-      MilestoneService(baseUrl: 'https://bomachauth.bgbot.app');
+      MilestoneService(baseUrl: ApiConstants.baseUrl);
   final _storage = const FlutterSecureStorage();
 
   var milestones = <Milestone>[].obs;

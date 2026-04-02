@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../../pages/services/models/property_model.dart';
 import '../../pages/services/models/service_model.dart';
@@ -6,7 +7,7 @@ import '../../pages/services/models/service_model.dart';
 class ServiceService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   ServiceService({
     Dio? dioOverride,

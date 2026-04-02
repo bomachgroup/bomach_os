@@ -191,8 +191,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 12,
           children: items
-              .map(
-                  (it) => StatsCard(label: it['label']!, count: it['value']!))
+              .map((it) => StatsCard(label: it['label']!, count: it['value']!))
               .toList(),
         );
       }

@@ -129,17 +129,13 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
 
       if (success && mounted) {
         Navigator.of(context).pop();
-        _showSuccessSnackbar(
-          _isEditMode
+        _showSuccessSnackbar(_isEditMode
             ? 'Service updated successfully'
-            : 'Service created successfully'
-        );
+            : 'Service created successfully');
       } else if (mounted) {
-        _showErrorSnackbar(
-          _isEditMode
+        _showErrorSnackbar(_isEditMode
             ? 'Failed to update service. Please try again.'
-            : 'Failed to create service. Please try again.'
-        );
+            : 'Failed to create service. Please try again.');
       }
     } catch (e) {
       if (mounted) {
@@ -206,7 +202,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -231,7 +228,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -286,7 +284,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                               if (value != null) {
                                 // Find the category by matching formatted name
                                 final selectedCategory = controller.categories
-                                    .firstWhere((cat) => _formatCategoryName(cat.name) == value);
+                                    .firstWhere((cat) =>
+                                        _formatCategoryName(cat.name) == value);
                                 setState(() {
                                   _selectedCategoryId = selectedCategory.id;
                                 });
@@ -361,7 +360,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                           title: 'Status*',
                           onChanged: (value) {
                             setState(() {
-                              _selectedStatus = value?.toLowerCase() ?? 'active';
+                              _selectedStatus =
+                                  value?.toLowerCase() ?? 'active';
                             });
                           },
                         ),
@@ -373,7 +373,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
 
               // Action Buttons
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(color: Colors.grey.shade300),

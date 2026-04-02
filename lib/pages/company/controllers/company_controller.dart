@@ -383,16 +383,14 @@ class CompanyController extends GetxController {
     }
   }
 
-  Future<void> updateEquityValue(
-      BuildContext context, int shares) async {
+  Future<void> updateEquityValue(BuildContext context, int shares) async {
     try {
       isSaving.value = true;
       // Try API first
       final token = await _storage.read(key: 'access_token');
       if (token != null) {
         try {
-          final result =
-              await _companyService.updateEquityInfo(token, shares);
+          final result = await _companyService.updateEquityInfo(token, shares);
           authorizedShares.value = result.authorizedShares;
         } catch (_) {
           // API not available — save locally

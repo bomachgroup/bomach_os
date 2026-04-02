@@ -58,8 +58,7 @@ class _AddNewClientDialogState extends State<AddNewClientDialog> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 16.0, 16.0),
       actionsPadding: const EdgeInsets.all(16.0),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       contentPadding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 0.0),
       content: SingleChildScrollView(
         child: SizedBox(
@@ -77,8 +76,7 @@ class _AddNewClientDialogState extends State<AddNewClientDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _label('First Name *'),
-                          _input(_firstNameCtrl, 'First name',
-                              required: true),
+                          _input(_firstNameCtrl, 'First name', required: true),
                         ],
                       ),
                     ),
@@ -88,8 +86,7 @@ class _AddNewClientDialogState extends State<AddNewClientDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _label('Last Name *'),
-                          _input(_lastNameCtrl, 'Last name',
-                              required: true),
+                          _input(_lastNameCtrl, 'Last name', required: true),
                         ],
                       ),
                     ),
@@ -140,8 +137,7 @@ class _AddNewClientDialogState extends State<AddNewClientDialog> {
             onPressed: controller.isSaving.value ? null : _submit,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.blue,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0)),
             ),
@@ -162,8 +158,7 @@ class _AddNewClientDialogState extends State<AddNewClientDialog> {
   Widget _label(String text) => Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: Text(text,
-            style:
-                const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
       );
 
   Widget _input(TextEditingController ctrl, String hint,

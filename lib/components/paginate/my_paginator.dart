@@ -6,13 +6,13 @@ class PaginatorFooter extends StatelessWidget {
   final int totalItems;
   final int limit;
   final int currentPage;
-  
+
   // Made nullable. If null, the widget shrinks.
   final Function(int newPage)? onPageChanged;
-  
+
   // Made nullable. If null, the dropdown is disabled.
   final Function(int newLimit)? onLimitChanged;
-  
+
   final bool isMobile;
   final List<int> limitOptions;
 
@@ -21,7 +21,7 @@ class PaginatorFooter extends StatelessWidget {
     required this.totalItems,
     required this.limit,
     required this.currentPage,
-    this.onPageChanged, 
+    this.onPageChanged,
     this.onLimitChanged,
     this.isMobile = false,
     this.limitOptions = const [10, 20, 50, 100],
@@ -36,7 +36,7 @@ class PaginatorFooter extends StatelessWidget {
 
     // 1. Calculate Total Pages
     final int totalPages = (totalItems / limit).ceil();
-    
+
     // 2. Calculate Display Range (e.g., "1 to 10")
     final int startItem = totalItems == 0 ? 0 : ((currentPage - 1) * limit) + 1;
     final int endItem = min(currentPage * limit, totalItems);
@@ -69,7 +69,9 @@ class PaginatorFooter extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(8),
-                color: onLimitChanged == null ? Colors.grey.shade100 : Colors.white,
+                color: onLimitChanged == null
+                    ? Colors.grey.shade100
+                    : Colors.white,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -78,11 +80,11 @@ class PaginatorFooter extends StatelessWidget {
                   const SizedBox(width: 8),
                   MyText('$limit', weight: 600),
                   const SizedBox(width: 8),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 18, 
-                    color: onLimitChanged == null ? Colors.grey.shade300 : Colors.grey.shade600
-                  )
+                  Icon(Icons.keyboard_arrow_down,
+                      size: 18,
+                      color: onLimitChanged == null
+                          ? Colors.grey.shade300
+                          : Colors.grey.shade600)
                 ],
               ),
             ),
@@ -103,9 +105,8 @@ class PaginatorFooter extends StatelessWidget {
           children: [
             // Previous Button
             IconButton(
-              onPressed: canGoPrev
-                  ? () => onPageChanged!(currentPage - 1)
-                  : null,
+              onPressed:
+                  canGoPrev ? () => onPageChanged!(currentPage - 1) : null,
               icon: Icon(
                 Icons.chevron_left,
                 size: 20,
@@ -124,15 +125,12 @@ class PaginatorFooter extends StatelessWidget {
 
             // Next Button
             IconButton(
-              onPressed: canGoNext
-                  ? () => onPageChanged!(currentPage + 1)
-                  : null, 
+              onPressed:
+                  canGoNext ? () => onPageChanged!(currentPage + 1) : null,
               icon: Icon(
                 Icons.chevron_right,
                 size: 20,
-                color: canGoNext
-                    ? Colors.black
-                    : Colors.grey.shade300,
+                color: canGoNext ? Colors.black : Colors.grey.shade300,
               ),
             ),
           ],

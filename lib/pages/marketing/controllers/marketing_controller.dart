@@ -66,8 +66,7 @@ class MarketingController extends GetxController {
     } catch (e) {
       log("Create Campaign Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create campaign: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create campaign: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;
@@ -85,7 +84,8 @@ class MarketingController extends GetxController {
       }
     } catch (e) {
       log("Delete Campaign Error: $e");
-      if (context.mounted) _showErrorDialog(context, "Failed to delete campaign");
+      if (context.mounted)
+        _showErrorDialog(context, "Failed to delete campaign");
     }
   }
 
@@ -127,8 +127,7 @@ class MarketingController extends GetxController {
     } catch (e) {
       log("Create Content Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create content: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create content: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;
@@ -146,7 +145,8 @@ class MarketingController extends GetxController {
       }
     } catch (e) {
       log("Delete Content Error: $e");
-      if (context.mounted) _showErrorDialog(context, "Failed to delete content");
+      if (context.mounted)
+        _showErrorDialog(context, "Failed to delete content");
     }
   }
 

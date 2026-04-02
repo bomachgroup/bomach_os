@@ -22,8 +22,7 @@ class ViewAssetDialog extends StatelessWidget {
 
     String warrantyDate = '';
     try {
-      warrantyDate =
-          DateFormat('MMM d, yyyy').format(asset.warrantyExpiryDate);
+      warrantyDate = DateFormat('MMM d, yyyy').format(asset.warrantyExpiryDate);
     } catch (_) {
       warrantyDate = '–';
     }
@@ -37,8 +36,7 @@ class ViewAssetDialog extends StatelessWidget {
           children: [
             // Title bar
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
                 color: Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.only(
@@ -79,10 +77,16 @@ class ViewAssetDialog extends StatelessWidget {
                             fontWeight: FontWeight.w600, fontSize: 14)),
                     const SizedBox(height: 12),
                     _buildDetailRow('Type', asset.assetType),
-                    _buildDetailRow('Serial Number',
-                        asset.serialNumber.isNotEmpty ? asset.serialNumber : '–'),
-                    _buildDetailRow('Manufacturer',
-                        asset.manufacturer.isNotEmpty ? asset.manufacturer : '–'),
+                    _buildDetailRow(
+                        'Serial Number',
+                        asset.serialNumber.isNotEmpty
+                            ? asset.serialNumber
+                            : '–'),
+                    _buildDetailRow(
+                        'Manufacturer',
+                        asset.manufacturer.isNotEmpty
+                            ? asset.manufacturer
+                            : '–'),
 
                     const Divider(height: 32),
 
@@ -92,11 +96,13 @@ class ViewAssetDialog extends StatelessWidget {
                             fontWeight: FontWeight.w600, fontSize: 14)),
                     const SizedBox(height: 12),
                     _buildDetailRow('Branch', asset.branch),
-                    _buildDetailRow('Assigned To',
+                    _buildDetailRow(
+                        'Assigned To',
                         asset.assignedToId.isNotEmpty
                             ? asset.assignedToId
                             : 'Unassigned'),
-                    _buildDetailRow('Department',
+                    _buildDetailRow(
+                        'Department',
                         asset.departmentId.isNotEmpty
                             ? asset.departmentId
                             : '–'),
@@ -110,9 +116,10 @@ class ViewAssetDialog extends StatelessWidget {
                     const SizedBox(height: 12),
                     _buildDetailRow('Purchase Date', displayDate),
                     _buildDetailRow('Value', asset.value.toStringAsFixed(2)),
-                    _buildDetailRow('Vendor',
-                        asset.vendor.isNotEmpty ? asset.vendor : '–'),
-                    _buildDetailRow('Invoice Number',
+                    _buildDetailRow(
+                        'Vendor', asset.vendor.isNotEmpty ? asset.vendor : '–'),
+                    _buildDetailRow(
+                        'Invoice Number',
                         asset.invoiceNumber.isNotEmpty
                             ? asset.invoiceNumber
                             : '–'),
@@ -168,8 +175,8 @@ class ViewAssetDialog extends StatelessWidget {
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500)),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -178,8 +185,9 @@ class ViewAssetDialog extends StatelessWidget {
 
   Widget _buildStatusBadge(String status) {
     final Color color = _getStatusColor(status);
-    final String display =
-        status.isNotEmpty ? status[0].toUpperCase() + status.substring(1) : status;
+    final String display = status.isNotEmpty
+        ? status[0].toUpperCase() + status.substring(1)
+        : status;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

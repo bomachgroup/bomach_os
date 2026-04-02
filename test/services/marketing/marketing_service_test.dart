@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/services/marketing/marketing_service.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
@@ -10,8 +11,7 @@ void main() {
   const token = 'test-token';
 
   setUp(() {
-    dio = Dio(BaseOptions(
-        baseUrl: 'https://bomachauth.bgbot.app/api/v1'));
+    dio = Dio(BaseOptions(baseUrl: '${ApiConstants.baseUrl}/api/v1'));
     dioAdapter = DioAdapter(dio: dio);
     service = MarketingService(dioOverride: dio);
   });

@@ -1,7 +1,9 @@
 import 'dart:developer';
+
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 
 class AuditLogEntry {
   final int id;
@@ -49,7 +51,7 @@ class AuditLogEntry {
 class SecurityController extends GetxController {
   final _storage = const FlutterSecureStorage();
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://bomachauth.bgbot.app/api/v1',
+    baseUrl: '${ApiConstants.baseUrl}/api/v1',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {

@@ -1,4 +1,3 @@
-
 class Document {
   final String title;
   final String category; // e.g., Report, Contract, Invoice, Proposal
@@ -24,7 +23,6 @@ class Document {
     required this.downloads,
   });
 }
-
 
 final List<Document> mockDocuments = [
   Document(

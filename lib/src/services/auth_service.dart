@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import 'package:dio/dio.dart';
 
@@ -11,7 +12,7 @@ class AuthService {
   final Dio _dio;
 
   AuthService({
-    String baseUrl = 'https://bomachauth.bgbot.app',
+    String baseUrl = ApiConstants.baseUrl,
     Dio? dioOverride,
   }) : _dio = dioOverride ??
             Dio(BaseOptions(

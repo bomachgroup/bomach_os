@@ -35,7 +35,8 @@ class BenefitRecord {
     // Extract benefit names from the additions/allowances map
     final benefits = <String>[];
     if (payroll.additions != null) {
-      benefits.addAll(payroll.additions!.keys.map((k) => _formatBenefitName(k)));
+      benefits
+          .addAll(payroll.additions!.keys.map((k) => _formatBenefitName(k)));
     }
 
     return BenefitRecord(
@@ -56,8 +57,9 @@ class BenefitRecord {
   static String _formatBenefitName(String key) {
     return key
         .split('_')
-        .map((word) =>
-            word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '')
+        .map((word) => word.isNotEmpty
+            ? '${word[0].toUpperCase()}${word.substring(1)}'
+            : '')
         .join(' ');
   }
 }

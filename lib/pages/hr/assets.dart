@@ -118,8 +118,7 @@ class _AssetsContent extends StatelessWidget {
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading:
-                const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
             onChanged: controller.onSearchChanged,
           ),
           action: MyElevatedButton(
@@ -161,104 +160,104 @@ class _AssetsContent extends StatelessWidget {
 
           return ResponsiveTableWrapper(
             child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  // Table Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 40),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Asset Name',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text('Type',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text('Branch',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text('Purchase Date',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text('Value',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text('Status',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                        SizedBox(
+                          width: 48,
+                          child: Text('Action',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Color(0xFF64748B))),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Asset Name',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text('Type',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Branch',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text('Purchase Date',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text('Value',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B))),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                ...controller.assetList
-                    .map((asset) => _buildAssetRow(context, asset)),
+                  const Divider(height: 1),
+                  ...controller.assetList
+                      .map((asset) => _buildAssetRow(context, asset)),
 
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems: controller.totalItems.value,
-                        limit: controller.limit.value,
-                        currentPage: controller.currentPage.value,
-                        onPageChanged: controller.goToPage,
-                        onLimitChanged: controller.setLimit,
-                      )),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(() => PaginatorFooter(
+                          totalItems: controller.totalItems.value,
+                          limit: controller.limit.value,
+                          currentPage: controller.currentPage.value,
+                          onPageChanged: controller.goToPage,
+                          onLimitChanged: controller.setLimit,
+                        )),
+                  ),
+                ],
+              ),
             ),
-          ),
           );
         }),
       ],
@@ -293,8 +292,7 @@ class _AssetsContent extends StatelessWidget {
             flex: 2,
             child: Text(
               asset.name,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -304,11 +302,9 @@ class _AssetsContent extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: _getTypeColor(asset.assetType)
-                      .withValues(alpha: 0.1),
+                  color: _getTypeColor(asset.assetType).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     width: 0.6,
@@ -345,8 +341,7 @@ class _AssetsContent extends StatelessWidget {
           // Purchase Date
           Expanded(
             flex: 1,
-            child: Text(displayDate,
-                style: const TextStyle(fontSize: 13)),
+            child: Text(displayDate, style: const TextStyle(fontSize: 13)),
           ),
           // Value
           Expanded(
@@ -376,8 +371,9 @@ class _AssetsContent extends StatelessWidget {
 
   Widget _buildStatusBadge(String status) {
     final Color color = _getStatusColor(status);
-    final String display =
-        status.isNotEmpty ? status[0].toUpperCase() + status.substring(1) : status;
+    final String display = status.isNotEmpty
+        ? status[0].toUpperCase() + status.substring(1)
+        : status;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -394,9 +390,7 @@ class _AssetsContent extends StatelessWidget {
             const SizedBox(width: 5),
             Text(display,
                 style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500)),
+                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -428,8 +422,8 @@ class _AssetsContent extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 title: const Text('Delete Asset'),
-                content: Text(
-                    'Are you sure you want to delete "${asset.name}"?'),
+                content:
+                    Text('Are you sure you want to delete "${asset.name}"?'),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(c, false),
@@ -499,12 +493,11 @@ class _AssetsContent extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(

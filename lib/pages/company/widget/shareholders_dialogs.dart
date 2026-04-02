@@ -81,8 +81,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
     setState(() {
       for (final r in rows) {
         final shares = int.tryParse(r.sharesCtrl.text) ?? 0;
-        r.percentage =
-            (shares / totalAuthorized * 100).toStringAsFixed(2);
+        r.percentage = (shares / totalAuthorized * 100).toStringAsFixed(2);
       }
     });
   }
@@ -142,8 +141,8 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const MyText("Ownership Records",
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 16),
 
                 // Table header
@@ -198,11 +197,26 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
       ),
       child: const Row(
         children: [
-          SizedBox(width: 40, child: Text("S/N", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-          Expanded(flex: 3, child: Text("Name", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-          Expanded(flex: 2, child: Text("Role", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-          Expanded(flex: 2, child: Text("Shares", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-          Expanded(flex: 1, child: Text("Percentage", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+          SizedBox(
+              width: 40,
+              child: Text("S/N",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+          Expanded(
+              flex: 3,
+              child: Text("Name",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+          Expanded(
+              flex: 2,
+              child: Text("Role",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+          Expanded(
+              flex: 2,
+              child: Text("Shares",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+          Expanded(
+              flex: 1,
+              child: Text("Percentage",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
         ],
       ),
     );
@@ -220,8 +234,8 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
         children: [
           SizedBox(
               width: 40,
-              child: Text("${index + 1}",
-                  style: const TextStyle(fontSize: 13))),
+              child:
+                  Text("${index + 1}", style: const TextStyle(fontSize: 13))),
           Expanded(
             flex: 3,
             child: Padding(
@@ -232,17 +246,15 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
                 decoration: InputDecoration(
                   hintText: "Full name",
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.card),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.card),
                   ),
                 ),
                 validator: (v) =>
@@ -255,28 +267,26 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: DropdownButtonFormField<String>(
-                initialValue: _roleOptions.contains(row.role)
-                    ? row.role
-                    : 'Investor',
+                initialValue:
+                    _roleOptions.contains(row.role) ? row.role : 'Investor',
                 isDense: true,
                 decoration: InputDecoration(
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.card),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.card),
                   ),
                 ),
                 items: _roleOptions
-                    .map((r) =>
-                        DropdownMenuItem(value: r, child: Text(r, style: const TextStyle(fontSize: 13))))
+                    .map((r) => DropdownMenuItem(
+                        value: r,
+                        child: Text(r, style: const TextStyle(fontSize: 13))))
                     .toList(),
                 onChanged: (v) {
                   if (v != null) setState(() => row.role = v);
@@ -296,30 +306,27 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
                 decoration: InputDecoration(
                   hintText: "0",
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.card),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.card),
                   ),
                 ),
                 onChanged: (_) => _recalcPercentages(),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Required' : null,
+                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
               ),
             ),
           ),
           Expanded(
             flex: 1,
             child: Text("${row.percentage}%",
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500)),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -389,12 +396,12 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
     lastNameCtrl = TextEditingController(text: s?.lastName ?? '');
     emailCtrl = TextEditingController(text: s?.email ?? '');
     phoneCtrl = TextEditingController(text: s?.phoneNumber ?? '');
-    sharesCtrl = TextEditingController(text: s != null ? '${s.shareCount}' : '');
+    sharesCtrl =
+        TextEditingController(text: s != null ? '${s.shareCount}' : '');
     notesCtrl = TextEditingController(text: s?.notes ?? '');
     if (s != null) {
-      selectedRole = _roleOptions.contains(s.titleDisplay)
-          ? s.titleDisplay
-          : 'Investor';
+      selectedRole =
+          _roleOptions.contains(s.titleDisplay) ? s.titleDisplay : 'Investor';
       isBoardMember = s.isBoardMember;
     }
   }
@@ -606,8 +613,7 @@ class _EditEquityDialogState extends State<EditEquityDialog> {
 // ==============================================================================
 // DELETE CONFIRMATION DIALOG
 // ==============================================================================
-Future<bool?> showDeleteShareholderDialog(
-    BuildContext context, String name) {
+Future<bool?> showDeleteShareholderDialog(BuildContext context, String name) {
   return showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(

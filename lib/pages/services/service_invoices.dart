@@ -321,8 +321,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
             itemBuilder: (context, index) {
               final invoice = _filteredInvoices[index];
               final statusColor = invoice.status.getStatusColor();
-              final paymentStatusColor =
-                  invoice.paymentStatus.getStatusColor();
+              final paymentStatusColor = invoice.paymentStatus.getStatusColor();
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -395,8 +394,8 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: paymentStatusColor
-                                      .withValues(alpha: 0.1),
+                                  color:
+                                      paymentStatusColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -423,8 +422,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Service: ${invoice.serviceType}',
@@ -444,8 +442,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
                             ),
                             const SizedBox(height: 8),
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Due: ${_formatDate(invoice.dueDate)}',
@@ -474,8 +471,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'Payment Progress',
@@ -498,8 +494,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(4),
                               child: LinearProgressIndicator(
-                                value:
-                                    invoice.amountPaid / invoice.totalAmount,
+                                value: invoice.amountPaid / invoice.totalAmount,
                                 minHeight: 6,
                                 backgroundColor: Colors.grey[200],
                                 valueColor: AlwaysStoppedAnimation(

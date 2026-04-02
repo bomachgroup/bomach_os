@@ -191,21 +191,33 @@ class Employee {
       employmentStatus: json['employment_status'],
 
       // Branch/Dept (Handle nulls safely)
-      branchId: json['branch_id'] is String ? int.tryParse(json['branch_id']) : json['branch_id'],
+      branchId: json['branch_id'] is String
+          ? int.tryParse(json['branch_id'])
+          : json['branch_id'],
       branchName: json['branch_name'],
 
-      departmentId: json['department_id'] is String ? int.tryParse(json['department_id']) : json['department_id'],
+      departmentId: json['department_id'] is String
+          ? int.tryParse(json['department_id'])
+          : json['department_id'],
       departmentName: json['department_name'],
 
-      departmentUnitId: json['department_unit_id'] is String ? int.tryParse(json['department_unit_id']) : json['department_unit_id'],
+      departmentUnitId: json['department_unit_id'] is String
+          ? int.tryParse(json['department_unit_id'])
+          : json['department_unit_id'],
       departmentUnitName: json['department_unit_name'],
 
-      levelId: json['level_id'] is String ? int.tryParse(json['level_id']) : json['level_id'],
+      levelId: json['level_id'] is String
+          ? int.tryParse(json['level_id'])
+          : json['level_id'],
       employeeLevel: json['employee_level'],
-      roleId: json['role_id'] is String ? int.tryParse(json['role_id']) : json['role_id'],
+      roleId: json['role_id'] is String
+          ? int.tryParse(json['role_id'])
+          : json['role_id'],
 
       location: json['location'],
-      reportingToId: json['reporting_to_id'] is String ? int.tryParse(json['reporting_to_id']) : json['reporting_to_id'],
+      reportingToId: json['reporting_to_id'] is String
+          ? int.tryParse(json['reporting_to_id'])
+          : json['reporting_to_id'],
       reportingToName: json['reporting_to_name'],
 
       startDate: json['start_date'] != null
@@ -216,10 +228,13 @@ class Employee {
 
       // Compensation
       grossSalary: json['gross_salary'] != null
-          ? (json['gross_salary'] is num ? (json['gross_salary'] as num).toDouble() : double.tryParse(json['gross_salary'].toString()))
+          ? (json['gross_salary'] is num
+              ? (json['gross_salary'] as num).toDouble()
+              : double.tryParse(json['gross_salary'].toString()))
           : 0.0,
       salaryFrequency: json['salary_frequency'],
-      allowances: json['allowances'] is Map<String, dynamic> ? json['allowances'] : {},
+      allowances:
+          json['allowances'] is Map<String, dynamic> ? json['allowances'] : {},
       bankName: json['bank_name'],
       accountNumber: json['account_number'],
       taxId: json['tax_id'],
@@ -227,7 +242,9 @@ class Employee {
       pfaProvider: json['pfa_provider'],
       rsaNumber: json['rsa_number'],
       employerContribution: json['employer_contribution'] != null
-          ? (json['employer_contribution'] is num ? (json['employer_contribution'] as num).toDouble() : double.tryParse(json['employer_contribution'].toString()))
+          ? (json['employer_contribution'] is num
+              ? (json['employer_contribution'] as num).toDouble()
+              : double.tryParse(json['employer_contribution'].toString()))
           : null,
       hmoPlan: json['hmo_current_plan'],
       hmoIdNumber: json['hmo_id_number'],
@@ -235,8 +252,12 @@ class Employee {
           ? int.tryParse(json['hmo_dependents_covered'])
           : json['hmo_dependents_covered'],
 
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
     );
   }
 
@@ -250,8 +271,11 @@ class Employee {
       'gender': gender ?? 'male',
       'marital_status': maritalStatus ?? 'single',
       'nationality': nationality ?? 'Nigerian',
-      'date_of_birth': dateOfBirth?.toIso8601String().split('T').first ?? DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      'profile_picture': (profilePicture != null && profilePicture != 'string') ? profilePicture : '',
+      'date_of_birth': dateOfBirth?.toIso8601String().split('T').first ??
+          DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      'profile_picture': (profilePicture != null && profilePicture != 'string')
+          ? profilePicture
+          : '',
       'phone_number': phoneNumber ?? '',
       'other_phone': otherPhoneNumber ?? '',
       'personal_email': personalEmail ?? '',
@@ -272,7 +296,8 @@ class Employee {
       'level_id': levelId ?? 0,
       'location': location ?? '',
       'reporting_to_id': reportingToId ?? 0,
-      'start_date': startDate?.toIso8601String().split('T').first ?? DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      'start_date': startDate?.toIso8601String().split('T').first ??
+          DateFormat('yyyy-MM-dd').format(DateTime.now()),
       'probation_period': int.tryParse(probationPeriod ?? '0') ?? 0,
       'work_schedule': workSchedule ?? '',
       'is_active': isActive,

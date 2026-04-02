@@ -77,8 +77,7 @@ class LeaveRequest {
       'employee_id': employeeId,
       'leave_type': leaveType,
       'start_date': startDate?.toIso8601String().split('T').first,
-      'end_date':
-          endDate?.toIso8601String().split('T').first,
+      'end_date': endDate?.toIso8601String().split('T').first,
       'reason': reason,
     }..removeWhere((key, value) => value == null);
   }

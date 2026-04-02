@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import '../../../src/services/operations/timeline_services.dart';
 
 class TimelineController extends GetxController {
   final TimelineService _service =
-      TimelineService(baseUrl: 'https://bomachauth.bgbot.app');
+      TimelineService(baseUrl: ApiConstants.baseUrl);
   final _storage = const FlutterSecureStorage();
 
   var timelines = <TimelineModel>[].obs;

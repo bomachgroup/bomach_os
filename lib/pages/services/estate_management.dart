@@ -153,8 +153,7 @@ class EstateManagementPage extends StatelessWidget {
       runSpacing: 16,
       children: [
         _buildStatCard('Total Estates', '$total', Icons.domain, AppColors.blue),
-        _buildStatCard(
-            'Active', '$active', Icons.check_circle, Colors.green),
+        _buildStatCard('Active', '$active', Icons.check_circle, Colors.green),
       ],
     );
   }
@@ -217,18 +216,15 @@ class EstateManagementPage extends StatelessWidget {
                 final isSelected =
                     (f == 'All' && current.isEmpty) || f == current;
                 return GestureDetector(
-                  onTap: () =>
-                      ctrl.onStatusFilterChanged(f == 'All' ? '' : f),
+                  onTap: () => ctrl.onStatusFilterChanged(f == 'All' ? '' : f),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color:
-                          isSelected ? AppColors.blue : AppColors.white,
+                      color: isSelected ? AppColors.blue : AppColors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color:
-                            isSelected ? AppColors.blue : AppColors.grey4,
+                        color: isSelected ? AppColors.blue : AppColors.grey4,
                       ),
                     ),
                     child: MyText(

@@ -127,10 +127,13 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildDetail('Operational Base', widget.report.operationalBase),
-                    _buildDetail('Work Activities', widget.report.workActivities),
+                    _buildDetail(
+                        'Operational Base', widget.report.operationalBase),
+                    _buildDetail(
+                        'Work Activities', widget.report.workActivities),
                     _buildDetail('Task Details', widget.report.taskDetails),
-                    _buildDetail('Plan for Next Day', widget.report.planNextDay),
+                    _buildDetail(
+                        'Plan for Next Day', widget.report.planNextDay),
                     const Divider(height: 32),
                     const MyText('Manager Review', style: AppText.black_600_16),
                     const SizedBox(height: 16),

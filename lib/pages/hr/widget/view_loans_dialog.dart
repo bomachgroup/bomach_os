@@ -214,7 +214,8 @@ class ViewLoanDialog extends StatelessWidget {
                             height: 48,
                             child: ElevatedButton(
                               onPressed: loan.id != null
-                                  ? () => controller.approveLoan(context, loan.id!)
+                                  ? () =>
+                                      controller.approveLoan(context, loan.id!)
                                   : null,
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: greenColor,
@@ -235,7 +236,8 @@ class ViewLoanDialog extends StatelessWidget {
                             height: 48,
                             child: ElevatedButton(
                               onPressed: loan.id != null
-                                  ? () => controller.rejectLoan(context, loan.id!)
+                                  ? () =>
+                                      controller.rejectLoan(context, loan.id!)
                                   : null,
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: redColor,

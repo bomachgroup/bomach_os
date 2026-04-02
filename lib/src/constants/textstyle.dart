@@ -58,5 +58,4 @@ class AppText {
       fontSize: 14, fontWeight: FontWeight.w300, color: AppColors.blue);
   static const sideMBlueText_400_14 = TextStyle(
       fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.blue);
-
 }

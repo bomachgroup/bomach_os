@@ -64,7 +64,6 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
@@ -81,8 +80,6 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
               ),
             ),
             const Divider(height: 1),
-
-
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -116,8 +113,6 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
                 ],
               ),
             ),
-
-
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(

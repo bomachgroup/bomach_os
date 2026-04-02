@@ -134,7 +134,8 @@ class ServiceInvoice {
   final String? clientAddress;
 
   // Service Information
-  final String serviceType; // 'Real Estate', 'Land Survey', 'Property Management', etc.
+  final String
+      serviceType; // 'Real Estate', 'Land Survey', 'Property Management', etc.
   final String? propertyAddress;
   final String? propertyDetails;
 
@@ -312,7 +313,8 @@ class ServicePayment {
   final String invoiceId;
   final double amount;
   final DateTime paymentDate;
-  final String paymentMethod; // 'Cash', 'Bank Transfer', 'Card', 'Cheque', 'Mobile Wallet'
+  final String
+      paymentMethod; // 'Cash', 'Bank Transfer', 'Card', 'Cheque', 'Mobile Wallet'
   final String status; // 'Pending', 'Approved', 'Rejected'
   final String? transactionReference;
   final String? bankingDetails;

@@ -129,7 +129,6 @@ class RevenueAnalyticsPage extends StatelessWidget {
             ),
           ),
           kSizedBox,
-
           isMobile
               ? Wrap(
                   children: [

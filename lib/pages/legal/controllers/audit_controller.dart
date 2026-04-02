@@ -49,9 +49,8 @@ class AuditController extends GetxController {
       final result = await _service.getAudits(
         token,
         search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
-        auditType: selectedAuditType.value.isNotEmpty
-            ? selectedAuditType.value
-            : null,
+        auditType:
+            selectedAuditType.value.isNotEmpty ? selectedAuditType.value : null,
         status: selectedStatus.value.isNotEmpty ? selectedStatus.value : null,
         department: selectedDepartment.value.isNotEmpty
             ? selectedDepartment.value
@@ -89,8 +88,7 @@ class AuditController extends GetxController {
     } catch (e) {
       log("Create Audit Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create audit: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create audit: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;
@@ -169,8 +167,7 @@ class AuditController extends GetxController {
 
   // ─── UPDATE SCORE ─────────────────────────────────────────────────
 
-  Future<void> updateAuditScore(
-      BuildContext context, int id, int score) async {
+  Future<void> updateAuditScore(BuildContext context, int id, int score) async {
     try {
       final token = await _getToken();
       if (token == null) return;

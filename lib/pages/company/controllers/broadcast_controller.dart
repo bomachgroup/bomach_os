@@ -69,7 +69,8 @@ class BroadcastController extends GetxController {
         _branchService.getBranches(accessToken: token, limit: 200),
         _employeeService.getDepartments(token, limit: 200),
       ]);
-      branches.assignAll((results[0] as ({List<Branch> items, int total})).items);
+      branches
+          .assignAll((results[0] as ({List<Branch> items, int total})).items);
       departments.assignAll(results[1] as List<Department>);
     } catch (e) {
       log("Error fetching branches/departments for broadcast: $e");
@@ -163,8 +164,7 @@ class BroadcastController extends GetxController {
       final token = await _getToken();
       if (token == null) return;
 
-      await _broadcastService.deleteAnnouncement(
-          accessToken: token, id: id);
+      await _broadcastService.deleteAnnouncement(accessToken: token, id: id);
 
       if (context.mounted) {
         fetchAnnouncements(refresh: true);
@@ -191,9 +191,8 @@ class BroadcastController extends GetxController {
 
       final result = await _broadcastService.getEvents(
         accessToken: token,
-        search: eventSearchQuery.value.isNotEmpty
-            ? eventSearchQuery.value
-            : null,
+        search:
+            eventSearchQuery.value.isNotEmpty ? eventSearchQuery.value : null,
         limit: eventLimit.value,
         offset: offset,
       );
@@ -225,8 +224,7 @@ class BroadcastController extends GetxController {
     } catch (e) {
       log("Create Event Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create event: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create event: ${e.toString()}");
       }
     } finally {
       isSavingEvent.value = false;
@@ -355,8 +353,7 @@ class BroadcastController extends GetxController {
     ];
     notifications.assignAll(dummyData);
     filteredNotifications.assignAll(dummyData);
-    unreadCount.value =
-        dummyData.where((n) => !n.isRead).length;
+    unreadCount.value = dummyData.where((n) => !n.isRead).length;
   }
 
   void filterNotifications(String category) {

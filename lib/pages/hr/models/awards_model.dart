@@ -24,13 +24,17 @@ class Award {
       id: json['id']?.toString() ?? '',
       title: json['title'] ?? '',
       category: json['category'] ?? '',
-      dateAwarded: json['date_awarded'] != null 
-          ? DateTime.tryParse(json['date_awarded']) 
+      dateAwarded: json['date_awarded'] != null
+          ? DateTime.tryParse(json['date_awarded'])
           : null,
       rankLevel: json['rank_level']?.toString() ?? '',
       description: json['description'] ?? '',
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
     );
   }
 
@@ -38,7 +42,8 @@ class Award {
     return {
       'title': title,
       'category': category,
-      'date_awarded': dateAwarded?.toIso8601String().split('T').first, // Format YYYY-MM-DD
+      'date_awarded':
+          dateAwarded?.toIso8601String().split('T').first, // Format YYYY-MM-DD
       'rank_level': rankLevel,
       'description': description,
     };

@@ -76,8 +76,7 @@ class PaymentController extends GetxController {
     } catch (e) {
       log("Create Payment Error: $e");
       if (context.mounted) {
-        _showErrorDialog(
-            context, "Failed to create payment: ${e.toString()}");
+        _showErrorDialog(context, "Failed to create payment: ${e.toString()}");
       }
     } finally {
       isSaving.value = false;

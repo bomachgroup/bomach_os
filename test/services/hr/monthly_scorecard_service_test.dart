@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/hr/models/monthly_scorecard_models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/pages/hr/models/performance_leaderboard_models.dart';
 import 'package:bms_front_end/src/services/hr/monthly_scorecard_service.dart';
 import 'package:dio/dio.dart';
@@ -11,7 +12,7 @@ void main() {
   late MonthlyScorecardService service;
 
   const token = 'test-token-123';
-  const baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleScorecardJson = {
     'id': 1,

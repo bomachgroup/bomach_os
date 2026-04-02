@@ -63,8 +63,6 @@ class LeaveRequestController extends GetxController {
 
   Timer? _debounce;
 
-
-
   @override
   void onClose() {
     searchController.dispose();

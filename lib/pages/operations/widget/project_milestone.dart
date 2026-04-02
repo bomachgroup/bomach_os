@@ -132,8 +132,8 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
             ),
             PopupMenuItem(
               child: const Text("Delete"),
-              onTap: () => controller.deleteMilestone(
-                  context, m.id, widget.projectId),
+              onTap: () =>
+                  controller.deleteMilestone(context, m.id, widget.projectId),
             ),
           ],
           child: const Icon(Icons.more_vert),
@@ -146,7 +146,8 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
 class AddMileStoneDialog extends StatefulWidget {
   final int projectId;
   final Milestone? milestone;
-  const AddMileStoneDialog({super.key, required this.projectId, this.milestone});
+  const AddMileStoneDialog(
+      {super.key, required this.projectId, this.milestone});
 
   @override
   State<AddMileStoneDialog> createState() => _AddMileStoneDialogState();
@@ -268,13 +269,11 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                     Row(children: [
                       Expanded(
                           child: MyDateField(
-                              controller: startDateCtrl,
-                              title: 'Start Date')),
+                              controller: startDateCtrl, title: 'Start Date')),
                       const SizedBox(width: 16),
                       Expanded(
                           child: MyDateField(
-                              controller: endDateCtrl,
-                              title: 'End Date')),
+                              controller: endDateCtrl, title: 'End Date')),
                     ]),
                     const SizedBox(height: 24),
                     MyTextFormField(

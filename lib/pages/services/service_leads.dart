@@ -428,228 +428,230 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                     final statusColor = _getStatusColor(lead.status);
 
                     return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12.withValues(alpha: 0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        lead.fullName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        lead.email,
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        lead.phoneNumber,
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    lead.status.capitalizeFirst ?? lead.status,
+                                    style: TextStyle(
+                                      color: statusColor,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    lead.fullName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    lead.email,
-                                    style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    lead.phoneNumber,
-                                    style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: statusColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                lead.status.capitalizeFirst ?? lead.status,
-                                style: TextStyle(
-                                  color: statusColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (lead.interestedServices.isNotEmpty)
-                                Row(
-                                  children: [
-                                    const Icon(Icons.business,
-                                        size: 16, color: Colors.grey),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        lead.interestedServices,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              if (lead.assignedToName.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.person,
-                                        size: 16, color: Colors.grey),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Assigned to: ${lead.assignedToName}',
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        if (lead.notes.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Text(
-                              'Notes: ${lead.notes}',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 13,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            if (lead.status.toLowerCase() != 'converted')
-                              MyElevatedButton(
-                                child: 'Convert to Client',
-                                bgColor: AppColors.blue,
-                                onTap: () async {
-                                  // Show confirmation dialog
-                                  final confirmed = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title:
-                                          const Text('Convert Lead to Client'),
-                                      content: Text(
-                                        'Are you sure you want to convert ${lead.fullName} to a client?',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.blue,
-                                          ),
-                                          child: const Text(
-                                            'Convert',
+                                  if (lead.interestedServices.isNotEmpty)
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.business,
+                                            size: 16, color: Colors.grey),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            lead.interestedServices,
                                             style: TextStyle(
-                                                color: AppColors.white),
+                                              color: Colors.grey[700],
+                                              fontSize: 13,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                  );
-
-                                  if (confirmed == true && mounted) {
-                                    final success = await _controller
-                                        .convertLeadToClient(lead.id);
-
-                                    if (success && mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            '${lead.fullName} successfully converted to client',
+                                  if (lead.assignedToName.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.person,
+                                            size: 16, color: Colors.grey),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Assigned to: ${lead.assignedToName}',
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 13,
                                           ),
-                                          backgroundColor: Colors.green,
                                         ),
-                                      );
-                                    } else if (mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Failed to convert lead. Please try again.',
-                                          ),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
+                                      ],
+                                    ),
+                                  ],
+                                ],
                               ),
-                            if (lead.status.toLowerCase() == 'converted')
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green[50],
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.green[300]!),
-                                ),
+                            ),
+                            const SizedBox(height: 12),
+                            if (lead.notes.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
                                 child: Text(
-                                  'Converted to Client',
+                                  'Notes: ${lead.notes}',
                                   style: TextStyle(
-                                    color: Colors.green[700],
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                    fontStyle: FontStyle.italic,
                                   ),
                                 ),
                               ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (lead.status.toLowerCase() != 'converted')
+                                  MyElevatedButton(
+                                    child: 'Convert to Client',
+                                    bgColor: AppColors.blue,
+                                    onTap: () async {
+                                      // Show confirmation dialog
+                                      final confirmed = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text(
+                                              'Convert Lead to Client'),
+                                          content: Text(
+                                            'Are you sure you want to convert ${lead.fullName} to a client?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppColors.blue,
+                                              ),
+                                              child: const Text(
+                                                'Convert',
+                                                style: TextStyle(
+                                                    color: AppColors.white),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirmed == true && mounted) {
+                                        final success = await _controller
+                                            .convertLeadToClient(lead.id);
+
+                                        if (success && mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                '${lead.fullName} successfully converted to client',
+                                              ),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                        } else if (mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Failed to convert lead. Please try again.',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                  ),
+                                if (lead.status.toLowerCase() == 'converted')
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                      border:
+                                          Border.all(color: Colors.green[300]!),
+                                    ),
+                                    child: Text(
+                                      'Converted to Client',
+                                      style: TextStyle(
+                                        color: Colors.green[700],
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
                     );
                   },
                 ),
@@ -657,9 +659,11 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                 // Pagination Controls
                 Obx(() {
                   final currentPage = _controller.currentPage.value;
-                  final hasNextPage = _controller.leads.length >= _controller.limit;
+                  final hasNextPage =
+                      _controller.leads.length >= _controller.limit;
 
-                  final totalPages = hasNextPage ? currentPage + 1 : currentPage;
+                  final totalPages =
+                      hasNextPage ? currentPage + 1 : currentPage;
                   int endPage = totalPages.clamp(1, totalPages);
                   int startPage = (endPage - 4).clamp(1, endPage);
 
@@ -679,9 +683,8 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                           backgroundColor: currentPage > 1
                               ? AppColors.blue
                               : Colors.grey[300],
-                          foregroundColor: currentPage > 1
-                              ? Colors.white
-                              : Colors.grey[600],
+                          foregroundColor:
+                              currentPage > 1 ? Colors.white : Colors.grey[600],
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -742,12 +745,10 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                             : null,
                         icon: const Icon(Icons.chevron_right),
                         style: IconButton.styleFrom(
-                          backgroundColor: hasNextPage
-                              ? AppColors.blue
-                              : Colors.grey[300],
-                          foregroundColor: hasNextPage
-                              ? Colors.white
-                              : Colors.grey[600],
+                          backgroundColor:
+                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                          foregroundColor:
+                              hasNextPage ? Colors.white : Colors.grey[600],
                         ),
                       ),
                     ],

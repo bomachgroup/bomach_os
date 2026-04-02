@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 
 class EstateService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app';
+  static const String _baseUrl = ApiConstants.baseUrl;
 
   EstateService({Dio? dioOverride})
       : _dio = dioOverride ??
@@ -74,10 +75,9 @@ class EstateService {
       final data = response.data;
       final List<dynamic> items =
           (data is Map && data.containsKey('items')) ? data['items'] : [];
-      final int count =
-          (data is Map && data.containsKey('count'))
-              ? data['count']
-              : items.length;
+      final int count = (data is Map && data.containsKey('count'))
+          ? data['count']
+          : items.length;
 
       return (
         items: items.map((json) => Estate.fromJson(json)).toList(),

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../model/departments_units_model.dart';
 import '../model/employees_model.dart';
@@ -6,7 +7,7 @@ import '../model/employees_model.dart';
 class EmployeeService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app';
+  static const String _baseUrl = ApiConstants.baseUrl;
 
   EmployeeService({
     Dio? dioOverride,
@@ -74,7 +75,8 @@ class EmployeeService {
     }
   }
 
-  Future<Employee> createEmployee(String token, Map<String, dynamic> data) async {
+  Future<Employee> createEmployee(
+      String token, Map<String, dynamic> data) async {
     try {
       final response = await _dio.post(
         '/api/v1/employees/employees',
@@ -258,7 +260,8 @@ class EmployeeService {
 
   // ─── EMPLOYEE DOCUMENTS ─────────────────────────────────────────────
 
-  Future<List<dynamic>> getEmployeeDocuments(String token, String userId) async {
+  Future<List<dynamic>> getEmployeeDocuments(
+      String token, String userId) async {
     try {
       final response = await _dio.get(
         '/api/v1/employees/employees/$userId/documents',

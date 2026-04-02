@@ -138,9 +138,7 @@ class ServiceInvoice {
       order: json['order'] != null
           ? ServiceOrderOut.fromJson(json['order'])
           : null,
-      lead: json['lead'] != null
-          ? ServiceLeadOut.fromJson(json['lead'])
-          : null,
+      lead: json['lead'] != null ? ServiceLeadOut.fromJson(json['lead']) : null,
       issueDate: json['issue_date'] ?? '',
       dueDate: json['due_date'] ?? '',
       subtotal: json['subtotal']?.toString() ?? '0.00',

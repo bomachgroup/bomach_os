@@ -33,8 +33,7 @@ class Ranking {
   factory Ranking.fromJson(Map<String, dynamic> json) {
     return Ranking(
       rank: int.tryParse(json['rank']?.toString() ?? '0') ?? 0,
-      totalMembers:
-          int.tryParse(json['total_members']?.toString() ?? '0') ?? 0,
+      totalMembers: int.tryParse(json['total_members']?.toString() ?? '0') ?? 0,
     );
   }
 }
@@ -188,12 +187,11 @@ class DashboardOverview {
       newHiresToday:
           int.tryParse(json['new_hires_today']?.toString() ?? '0') ?? 0,
       openRoles: int.tryParse(json['open_roles']?.toString() ?? '0') ?? 0,
-      headcountByDepartment:
-          (json['headcount_by_department'] as List<dynamic>?)
-                  ?.map((e) =>
-                      DepartmentHeadcount.fromJson(e as Map<String, dynamic>))
-                  .toList() ??
-              [],
+      headcountByDepartment: (json['headcount_by_department'] as List<dynamic>?)
+              ?.map((e) =>
+                  DepartmentHeadcount.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }

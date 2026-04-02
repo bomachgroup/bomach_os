@@ -32,8 +32,7 @@ class BroadcastPage extends StatelessWidget {
           // Header
           const MyText('Broadcast', style: AppText.black_600_32),
           const SizedBox(height: 8),
-          const Text(
-              'Manage Announcements, Events, Notifications',
+          const Text('Manage Announcements, Events, Notifications',
               style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
           const SizedBox(height: 24),
 
@@ -117,8 +116,7 @@ class BroadcastPage extends StatelessWidget {
           return InkWell(
             onTap: () => controller.currentTab.value = tab,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.blue : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
@@ -160,14 +158,12 @@ class _AnnouncementsTab extends StatelessWidget {
               MyText('Announcement', style: AppText.black_600_16),
               SizedBox(height: 2),
               Text('Bomach Group of Companies',
-                  style:
-                      TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading:
-                const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
             onChanged: controller.onAnnouncementSearchChanged,
           ),
           action: MyElevatedButton(
@@ -219,8 +215,8 @@ class _AnnouncementsTab extends StatelessWidget {
               children: [
                 // Table Header
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: const BoxDecoration(
                     color: Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.only(
@@ -281,11 +277,9 @@ class _AnnouncementsTab extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Obx(() => PaginatorFooter(
-                        totalItems:
-                            controller.announcementTotalItems.value,
+                        totalItems: controller.announcementTotalItems.value,
                         limit: controller.announcementLimit.value,
-                        currentPage:
-                            controller.announcementCurrentPage.value,
+                        currentPage: controller.announcementCurrentPage.value,
                         onPageChanged: controller.announcementGoToPage,
                         onLimitChanged: controller.announcementSetLimit,
                       )),
@@ -330,8 +324,7 @@ class _AnnouncementsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               announcement.title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -401,9 +394,7 @@ class _AnnouncementsTab extends StatelessWidget {
             const SizedBox(width: 5),
             Text(status,
                 style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500)),
+                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -426,8 +417,8 @@ class _AnnouncementsTab extends StatelessWidget {
           case 'edit':
             showDialog(
               context: context,
-              builder: (_) => CreateEditAnnouncementDialog(
-                  announcement: announcement),
+              builder: (_) =>
+                  CreateEditAnnouncementDialog(announcement: announcement),
             );
             break;
           case 'delete':
@@ -508,12 +499,11 @@ class _AnnouncementsTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
@@ -549,14 +539,12 @@ class _EventsTab extends StatelessWidget {
               MyText('Events', style: AppText.black_600_16),
               SizedBox(height: 2),
               Text('Bomach Group of Companies',
-                  style:
-                      TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading:
-                const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
             onChanged: controller.onEventSearchChanged,
           ),
           action: MyElevatedButton(
@@ -608,8 +596,8 @@ class _EventsTab extends StatelessWidget {
               children: [
                 // Table Header
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: const BoxDecoration(
                     color: Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.only(
@@ -664,8 +652,7 @@ class _EventsTab extends StatelessWidget {
                   ),
                 ),
                 const Divider(height: 1),
-                ...controller.eventList
-                    .map((e) => _buildEventRow(context, e)),
+                ...controller.eventList.map((e) => _buildEventRow(context, e)),
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -715,8 +702,7 @@ class _EventsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               event.title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -805,8 +791,8 @@ class _EventsTab extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 title: const Text('Delete Event'),
-                content: Text(
-                    'Are you sure you want to delete "${event.title}"?'),
+                content:
+                    Text('Are you sure you want to delete "${event.title}"?'),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(c, false),
@@ -876,12 +862,11 @@ class _EventsTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
@@ -1013,12 +998,11 @@ class _NotificationsTab extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text('$count',
-              style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold)),
+              style:
+                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(label,
-              style:
-                  const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
         ],
       ),
     );
@@ -1027,17 +1011,15 @@ class _NotificationsTab extends StatelessWidget {
   Widget _buildFilterChip(String label, String activeFilter) {
     final isActive = activeFilter == label;
     return InkWell(
-      onTap: () => controller
-          .filterNotifications(isActive ? '' : label),
+      onTap: () => controller.filterNotifications(isActive ? '' : label),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isActive ? const Color(0xFF1E293B) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: isActive
-                  ? const Color(0xFF1E293B)
-                  : const Color(0xFFE2E8F0)),
+              color:
+                  isActive ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
         ),
         child: Text(
           label,
@@ -1076,22 +1058,21 @@ class _NotificationsTab extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   notification.subtitle,
-                  style: const TextStyle(
-                      color: Color(0xFF64748B), fontSize: 13),
+                  style:
+                      const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   notification.description,
-                  style: const TextStyle(
-                      color: Color(0xFF94A3B8), fontSize: 13),
+                  style:
+                      const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                 ),
               ],
             ),
           ),
           Text(
             notification.time,
-            style:
-                const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
           ),
         ],
       ),

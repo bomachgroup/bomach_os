@@ -378,9 +378,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     _phoneCtrl = TextEditingController(text: widget.user.phoneNumber ?? '');
     _addressCtrl = TextEditingController(text: widget.user.address ?? '');
     _dobCtrl = TextEditingController(text: widget.user.dateOfBirth ?? '');
-    _selectedGender = _genders.contains(widget.user.gender)
-        ? widget.user.gender
-        : null;
+    _selectedGender =
+        _genders.contains(widget.user.gender) ? widget.user.gender : null;
     _selectedMaritalStatus =
         _maritalStatuses.contains(widget.user.maritalStatus)
             ? widget.user.maritalStatus
@@ -462,8 +461,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const MyText("Edit Profile",
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context)),
@@ -496,8 +495,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                               horizontal: 12, vertical: 14),
                         ),
                         items: _genders
-                            .map((g) => DropdownMenuItem(
-                                value: g, child: Text(g)))
+                            .map((g) =>
+                                DropdownMenuItem(value: g, child: Text(g)))
                             .toList(),
                         onChanged: (v) => setState(() => _selectedGender = v),
                       ),
@@ -511,8 +510,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                               horizontal: 12, vertical: 14),
                         ),
                         items: _maritalStatuses
-                            .map((s) => DropdownMenuItem(
-                                value: s, child: Text(s)))
+                            .map((s) =>
+                                DropdownMenuItem(value: s, child: Text(s)))
                             .toList(),
                         onChanged: (v) =>
                             setState(() => _selectedMaritalStatus = v),

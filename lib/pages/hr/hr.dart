@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
 
-
 class HRPage extends StatefulWidget {
   const HRPage({super.key});
 

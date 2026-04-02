@@ -94,8 +94,7 @@ class BranchListPage extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
+              border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
             ),
             child: Column(
               children: [
@@ -118,8 +117,7 @@ class BranchListPage extends StatelessWidget {
                             const MyText('No branches found',
                                 size: 14, color: Colors.grey),
                             const SizedBox(height: 8),
-                            const MyText(
-                                'Create a new branch to get started',
+                            const MyText('Create a new branch to get started',
                                 size: 12, color: Colors.grey),
                           ],
                         ),
@@ -194,8 +192,7 @@ class BranchListPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: MyText(branch.branchName,
-                        weight: 600, size: 14),
+                    child: MyText(branch.branchName, weight: 600, size: 14),
                   ),
                   _buildStatusBadge(branch.operationalStatusDisplay),
                 ],
@@ -260,8 +257,7 @@ class BranchListPage extends StatelessWidget {
                       controller.loadFilterResources();
                       showDialog(
                         context: context,
-                        builder: (_) =>
-                            AddBranchDialog(branchToEdit: branch),
+                        builder: (_) => AddBranchDialog(branchToEdit: branch),
                       );
                     },
                   ),
@@ -308,9 +304,10 @@ class BranchListPage extends StatelessWidget {
               hint: "All Types",
               value: controller.filterBranchRole.value != null
                   ? controller.fieldChoices.value?.branchRole
-                        .firstWhereOrNull(
-                            (e) => e.value == controller.filterBranchRole.value)
-                        ?.label ?? "All Types"
+                          .firstWhereOrNull((e) =>
+                              e.value == controller.filterBranchRole.value)
+                          ?.label ??
+                      "All Types"
                   : "All Types",
               items: [
                 "All Types",
@@ -325,14 +322,10 @@ class BranchListPage extends StatelessWidget {
               value: controller.stateList
                       .any((s) => s.id == controller.filterStateId.value)
                   ? controller.stateList
-                      .firstWhere(
-                          (s) => s.id == controller.filterStateId.value)
+                      .firstWhere((s) => s.id == controller.filterStateId.value)
                       .name
                   : "All States",
-              items: [
-                "All States",
-                ...controller.stateList.map((s) => s.name)
-              ],
+              items: ["All States", ...controller.stateList.map((s) => s.name)],
               onChanged: controller.onStateFilterChanged,
             ),
             const SizedBox(width: 12),
@@ -340,9 +333,10 @@ class BranchListPage extends StatelessWidget {
               hint: "Status",
               value: controller.filterStatus.value != null
                   ? controller.fieldChoices.value?.operationalStatus
-                        .firstWhereOrNull(
-                            (e) => e.value == controller.filterStatus.value)
-                        ?.label ?? "All Status"
+                          .firstWhereOrNull(
+                              (e) => e.value == controller.filterStatus.value)
+                          ?.label ??
+                      "All Status"
                   : "All Status",
               items: [
                 "All Status",
@@ -396,16 +390,14 @@ class BranchListPage extends StatelessWidget {
                 : branch.branchRole,
             size: 13)),
         DataCell(MyText(
-            branch.stateName.isNotEmpty
-                ? branch.stateName
-                : branch.countryName,
+            branch.stateName.isNotEmpty ? branch.stateName : branch.countryName,
             size: 13)),
         DataCell(_buildStatusBadge(branch.operationalStatusDisplay)),
         DataCell(
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, size: 20),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onSelected: (value) {
               switch (value) {
                 case 'view':
@@ -428,8 +420,7 @@ class BranchListPage extends StatelessWidget {
               PopupMenuItem(
                 value: 'view',
                 child: Row(children: [
-                  Icon(Icons.visibility_outlined,
-                      size: 18, color: Colors.grey),
+                  Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
                   SizedBox(width: 8),
                   Text('View Details'),
                 ]),

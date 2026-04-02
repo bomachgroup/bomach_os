@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import '../../../pages/hr/models/loans_model.dart';
 
 class LoanService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   LoanService({
     Dio? dioOverride,
@@ -75,8 +76,7 @@ class LoanService {
   }
 
   /// POST /loans — create a new loan request
-  Future<LoanRequest> createLoan(
-      String token, LoanRequest loan) async {
+  Future<LoanRequest> createLoan(String token, LoanRequest loan) async {
     try {
       final response = await _dio.post(
         '/loans',

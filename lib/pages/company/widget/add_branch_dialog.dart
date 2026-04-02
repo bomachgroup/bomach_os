@@ -94,8 +94,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
           children: [
             // Header
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -144,10 +143,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                               controller: nameCtrl,
                               title: "Branch Name",
                               hintText: "Enter branch name",
-                              validator: (val) =>
-                                  (val == null || val.isEmpty)
-                                      ? 'Required'
-                                      : null,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -170,8 +168,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           Expanded(
                             child: Obx(() => MyDropdown(
                                   title: "Branch Type",
-                                  hintText: _getRoleDisplayLabel() ??
-                                      "Select type",
+                                  hintText:
+                                      _getRoleDisplayLabel() ?? "Select type",
                                   items: controller
                                           .fieldChoices.value?.branchRole
                                           .map((e) => e.label)
@@ -202,18 +200,17 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                                           .toList() ??
                                       [],
                                   onChanged: (val) {
-                                    final choice = controller.fieldChoices
-                                        .value?.operationalStatus
+                                    final choice = controller
+                                        .fieldChoices.value?.operationalStatus
                                         .firstWhere((e) => e.label == val);
                                     if (choice != null) {
                                       setState(
                                           () => selectedStatus = choice.value);
                                     }
                                   },
-                                  validator: (val) =>
-                                      selectedStatus == null
-                                          ? 'Required'
-                                          : null,
+                                  validator: (val) => selectedStatus == null
+                                      ? 'Required'
+                                      : null,
                                 )),
                           ),
                         ],
@@ -230,8 +227,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           Expanded(
                             child: Obx(() => MyDropdown(
                                   title: "Country",
-                                  hintText:
-                                      displayCountry ?? "Select country",
+                                  hintText: displayCountry ?? "Select country",
                                   items: controller.countryList
                                       .map((e) => e.name)
                                       .toList(),
@@ -256,8 +252,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           Expanded(
                             child: Obx(() => MyDropdown(
                                   title: "State",
-                                  hintText:
-                                      displayState ?? "Select state",
+                                  hintText: displayState ?? "Select state",
                                   items: controller.stateList
                                       .map((e) => e.name)
                                       .toList(),
@@ -293,10 +288,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                               controller: addressCtrl,
                               title: "Office Address",
                               hintText: "Enter full address",
-                              validator: (val) =>
-                                  (val == null || val.isEmpty)
-                                      ? 'Required'
-                                      : null,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
                             ),
                           ),
                         ],
@@ -316,10 +310,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                               title: "Contact Email",
                               hintText: "email@example.com",
                               keyboardType: TextInputType.emailAddress,
-                              validator: (val) =>
-                                  (val == null || val.isEmpty)
-                                      ? 'Required'
-                                      : null,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -329,10 +322,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                               title: "Contact Phone",
                               hintText: "+234...",
                               keyboardType: TextInputType.phone,
-                              validator: (val) =>
-                                  (val == null || val.isEmpty)
-                                      ? 'Required'
-                                      : null,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
                             ),
                           ),
                         ],
@@ -349,8 +341,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           Expanded(
                             child: Obx(() => MyDropdown(
                                   title: "Branch Manager",
-                                  hintText:
-                                      displayManager ?? "Select manager",
+                                  hintText: displayManager ?? "Select manager",
                                   items: controller.allEmployees
                                       .map((e) => e.fullName)
                                       .toList(),
@@ -419,8 +410,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
             // Footer
             const Divider(height: 1),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -432,11 +422,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                   const SizedBox(width: 12),
                   Obx(() => MyElevatedButton(
                         width: 120,
-                        child: controller.isSaving.value
-                            ? "Saving..."
-                            : "Save",
-                        onTap:
-                            controller.isSaving.value ? () {} : _onSave,
+                        child: controller.isSaving.value ? "Saving..." : "Save",
+                        onTap: controller.isSaving.value ? () {} : _onSave,
                       )),
                 ],
               ),

@@ -47,19 +47,19 @@ class _CreateEditAnnouncementDialogState
     contentCtrl = TextEditingController(text: a?.content ?? '');
 
     // Format dates
-    publishAtCtrl = TextEditingController(
-        text: _formatDateForDisplay(a?.publishAt ?? ''));
-    expiresAtCtrl = TextEditingController(
-        text: _formatDateForDisplay(a?.expiresAt ?? ''));
+    publishAtCtrl =
+        TextEditingController(text: _formatDateForDisplay(a?.publishAt ?? ''));
+    expiresAtCtrl =
+        TextEditingController(text: _formatDateForDisplay(a?.expiresAt ?? ''));
 
     if (a != null) {
-      selectedAnnouncementType = a.announcementType.isNotEmpty
-          ? a.announcementType
-          : null;
+      selectedAnnouncementType =
+          a.announcementType.isNotEmpty ? a.announcementType : null;
       selectedPriority = a.priority.isNotEmpty ? a.priority : null;
       isActive = a.isActive;
       selectedBranchIds = a.branchIds.toSet();
-      selectedDepartmentIds = a.departmentIds.map((id) => id.toString()).toSet();
+      selectedDepartmentIds =
+          a.departmentIds.map((id) => id.toString()).toSet();
     } else {
       selectedAnnouncementType = 'general';
       selectedPriority = 'normal';
@@ -351,8 +351,7 @@ class _CreateEditAnnouncementDialogState
                   child: Text(_capitalize(t),
                       style: const TextStyle(fontSize: 14))))
               .toList(),
-          onChanged: (val) =>
-              setState(() => selectedAnnouncementType = val),
+          onChanged: (val) => setState(() => selectedAnnouncementType = val),
         ),
       ),
     );
@@ -428,15 +427,13 @@ class _CreateEditAnnouncementDialogState
     String apiPublishAt = '';
     String apiExpiresAt = '';
     try {
-      final parsedFrom =
-          DateFormat('MMM d, yyyy').parse(publishAtCtrl.text);
+      final parsedFrom = DateFormat('MMM d, yyyy').parse(publishAtCtrl.text);
       apiPublishAt = parsedFrom.toUtc().toIso8601String();
     } catch (_) {
       apiPublishAt = publishAtCtrl.text;
     }
     try {
-      final parsedTo =
-          DateFormat('MMM d, yyyy').parse(expiresAtCtrl.text);
+      final parsedTo = DateFormat('MMM d, yyyy').parse(expiresAtCtrl.text);
       apiExpiresAt = parsedTo.toUtc().toIso8601String();
     } catch (_) {
       apiExpiresAt = expiresAtCtrl.text;
@@ -529,8 +526,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
                       final confirmed = await _showDeleteConfirmation(
                           context, announcement.title);
                       if (confirmed == true && context.mounted) {
-                        controller.deleteAnnouncement(
-                            context, announcement.id);
+                        controller.deleteAnnouncement(context, announcement.id);
                       }
                     },
                   ),
@@ -575,13 +571,12 @@ class ViewAnnouncementDialog extends StatelessWidget {
           SizedBox(
             width: 130,
             child: Text(label,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 14)),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
           ),
         ],
       ),
@@ -661,8 +656,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
               child: const Text('Cancel')),
           TextButton(
               onPressed: () => Navigator.pop(c, true),
-              child: const Text('Delete',
-                  style: TextStyle(color: Colors.red))),
+              child: const Text('Delete', style: TextStyle(color: Colors.red))),
         ],
       ),
     );

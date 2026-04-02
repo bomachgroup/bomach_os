@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import '../../../src/services/operations/works_services.dart';
 
 class WorksiteController extends GetxController {
   final WorksiteService _service =
-      WorksiteService(baseUrl: 'https://bomachauth.bgbot.app');
+      WorksiteService(baseUrl: ApiConstants.baseUrl);
   final _storage = const FlutterSecureStorage();
 
   var worksites = <Worksite>[].obs;

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 import '../../../pages/legal/models/compliance_record_model.dart';
@@ -6,7 +7,7 @@ import '../../../pages/legal/models/compliance_record_model.dart';
 class ComplianceService {
   final Dio _dio;
 
-  static const String _baseUrl = 'https://bomachauth.bgbot.app/api/v1';
+  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   ComplianceService({
     Dio? dioOverride,

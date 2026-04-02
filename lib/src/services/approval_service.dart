@@ -1,11 +1,12 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 import '../model/approval_model.dart';
 
 class ApprovalService {
   final Dio _dio;
-  static const baseUrl = "https://bomachauth.bgbot.app";
+  static const baseUrl = ApiConstants.baseUrl;
 
   ApprovalService({
     Dio? dioOverride,

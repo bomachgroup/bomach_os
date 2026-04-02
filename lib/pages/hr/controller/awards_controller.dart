@@ -38,7 +38,7 @@ class AwardsController extends GetxController {
     try {
       isSaving(true);
       await _service.createAward(token, award);
-      await fetchAwards(token); 
+      await fetchAwards(token);
       return true;
     } catch (e) {
       debugPrint("Create Error: $e");
@@ -47,7 +47,6 @@ class AwardsController extends GetxController {
       isSaving(false);
     }
   }
-
 
   Future<bool> updateAward(String token, String id, Award award) async {
     try {

@@ -242,8 +242,8 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                       setState(() => targetAllDepartments = val ?? false),
                 ),
                 CheckboxListTile(
-                  title: const Text('Associates',
-                      style: TextStyle(fontSize: 14)),
+                  title:
+                      const Text('Associates', style: TextStyle(fontSize: 14)),
                   value: targetAssociates,
                   activeColor: AppColors.blue,
                   dense: true,
@@ -253,8 +253,8 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                       setState(() => targetAssociates = val ?? false),
                 ),
                 CheckboxListTile(
-                  title: const Text('Investors',
-                      style: TextStyle(fontSize: 14)),
+                  title:
+                      const Text('Investors', style: TextStyle(fontSize: 14)),
                   value: targetInvestors,
                   activeColor: AppColors.blue,
                   dense: true,
@@ -264,8 +264,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                       setState(() => targetInvestors = val ?? false),
                 ),
                 CheckboxListTile(
-                  title: const Text('Partners',
-                      style: TextStyle(fontSize: 14)),
+                  title: const Text('Partners', style: TextStyle(fontSize: 14)),
                   value: targetPartners,
                   activeColor: AppColors.blue,
                   dense: true,
@@ -312,8 +311,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                     ),
                     const SizedBox(width: 12),
                     Obx(() => MyElevatedButton(
-                          child:
-                              isEdit ? 'Update Event' : 'Create Event',
+                          child: isEdit ? 'Update Event' : 'Create Event',
                           isLoading: controller.isSavingEvent.value,
                           onTap: _onSave,
                           icon: const Icon(Icons.check,
@@ -349,9 +347,8 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: typeValues.contains(selectedEventType)
-              ? selectedEventType
-              : null,
+          value:
+              typeValues.contains(selectedEventType) ? selectedEventType : null,
           hint: const Text('Select event type',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
@@ -359,8 +356,8 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
           items: eventTypes
               .map((t) => DropdownMenuItem(
                   value: t['value'],
-                  child: Text(t['label']!,
-                      style: const TextStyle(fontSize: 14))))
+                  child:
+                      Text(t['label']!, style: const TextStyle(fontSize: 14))))
               .toList(),
           onChanged: (val) => setState(() => selectedEventType = val),
         ),
@@ -389,8 +386,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                   child: Text(r['label'] as String,
                       style: const TextStyle(fontSize: 14))))
               .toList(),
-          onChanged: (val) =>
-              setState(() => reminderOffset = val ?? 0),
+          onChanged: (val) => setState(() => reminderOffset = val ?? 0),
         ),
       ),
     );
@@ -419,8 +415,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                   child: Text(_recurrenceLabel(r),
                       style: const TextStyle(fontSize: 14))))
               .toList(),
-          onChanged: (val) =>
-              setState(() => selectedRecurrence = val),
+          onChanged: (val) => setState(() => selectedRecurrence = val),
         ),
       ),
     );
@@ -493,8 +488,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
       apiFromDt = dateFromCtrl.text;
     }
     try {
-      final parsedTo =
-          DateFormat('MM-dd-yyyy, hh:mma').parse(dateToCtrl.text);
+      final parsedTo = DateFormat('MM-dd-yyyy, hh:mma').parse(dateToCtrl.text);
       apiToDt =
           DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(parsedTo.toUtc());
     } catch (_) {
@@ -576,8 +570,7 @@ class ViewEventDialog extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Text('Target Audience',
-                      style:
-                          TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
                 ),
                 Wrap(
                   spacing: 6,
@@ -591,10 +584,12 @@ class ViewEventDialog extends StatelessWidget {
 
               if (event.recurrence.isNotEmpty &&
                   event.recurrence != 'DOES_NOT_REPEAT')
-                _buildDetailRow('Recurrence', _recurrenceLabel(event.recurrence)),
+                _buildDetailRow(
+                    'Recurrence', _recurrenceLabel(event.recurrence)),
 
               if (event.reminderOffset > 0)
-                _buildDetailRow('Reminder', _reminderLabel(event.reminderOffset)),
+                _buildDetailRow(
+                    'Reminder', _reminderLabel(event.reminderOffset)),
 
               const SizedBox(height: 24),
 
@@ -607,8 +602,8 @@ class ViewEventDialog extends StatelessWidget {
                     color: Colors.red,
                     onTap: () async {
                       Navigator.pop(context);
-                      final confirmed = await _showDeleteConfirmation(
-                          context, event.title);
+                      final confirmed =
+                          await _showDeleteConfirmation(context, event.title);
                       if (confirmed == true && context.mounted) {
                         controller.deleteEvent(context, event.id);
                       }
@@ -622,8 +617,7 @@ class ViewEventDialog extends StatelessWidget {
                       Navigator.pop(context);
                       showDialog(
                         context: context,
-                        builder: (_) =>
-                            CreateEditEventDialog(event: event),
+                        builder: (_) => CreateEditEventDialog(event: event),
                       );
                     },
                   ),
@@ -682,13 +676,12 @@ class ViewEventDialog extends StatelessWidget {
           SizedBox(
             width: 150,
             child: Text(label,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 14)),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
           ),
         ],
       ),
@@ -751,8 +744,7 @@ class ViewEventDialog extends StatelessWidget {
               child: const Text('Cancel')),
           TextButton(
               onPressed: () => Navigator.pop(c, true),
-              child: const Text('Delete',
-                  style: TextStyle(color: Colors.red))),
+              child: const Text('Delete', style: TextStyle(color: Colors.red))),
         ],
       ),
     );

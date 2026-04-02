@@ -302,8 +302,7 @@ class _AuditLogTileLive extends StatelessWidget {
               ),
               SizedBox(height: isMobile ? 2 : 4),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),

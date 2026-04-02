@@ -181,5 +181,4 @@ class CreateNewLegalCaseDialog extends StatelessWidget {
       ),
     );
   }
-
 }

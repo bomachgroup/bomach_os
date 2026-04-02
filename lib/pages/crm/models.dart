@@ -116,11 +116,12 @@ class SalesLead {
     required this.nextFollowUp,
   });
 }
+
 class ClientInteraction {
   final String client;
   final String type;
   final String subject;
-  final String details; 
+  final String details;
   final String priority;
   final String status;
   final String date;
@@ -163,7 +164,8 @@ final List<ClientInteraction> interactionsMock = [
     client: 'Federal Capital Development Authority',
     type: 'Email',
     subject: 'FCDA District Master Plan Survey Requirements',
-    details: 'Received detailed requirements for the Central Business District.',
+    details:
+        'Received detailed requirements for the Central Business District.',
     priority: 'High',
     status: 'Pending',
     date: '22 Jan 2024',
