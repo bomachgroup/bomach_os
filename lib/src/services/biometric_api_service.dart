@@ -113,14 +113,85 @@ class BiometricApiService {
     required String biometricData,
     required String biometricType,
     required String attendanceType,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final data = <String, dynamic>{
+        'biometric_data': biometricData,
+        'biometric_type': biometricType,
+        'attendance_type': attendanceType,
+      };
+      if (latitude != null) data['latitude'] = latitude;
+      if (longitude != null) data['longitude'] = longitude;
+
+      final response = await _dio.post(
+        '/biometric/clockin',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ── Workspace Management ─────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> setupWorkspace(
+    String token, {
+    required double latitude,
+    required double longitude,
+    required String workspaceName,
+    required int radiusMeters,
   }) async {
     try {
       final response = await _dio.post(
-        '/biometric/clockin',
+        '/biometric/setup-workspace',
         data: {
-          'biometric_data': biometricData,
-          'biometric_type': biometricType,
-          'attendance_type': attendanceType,
+          'latitude': latitude,
+          'longitude': longitude,
+          'workspace_name': workspaceName,
+          'radius_meters': radiusMeters,
+        },
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>?> getWorkspace(String token) async {
+    try {
+      final response = await _dio.get(
+        '/biometric/workspace',
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) return null;
+      throw _handleError(e);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> updateWorkspace(
+    String token, {
+    required double latitude,
+    required double longitude,
+    required String workspaceName,
+    required int radiusMeters,
+  }) async {
+    try {
+      final response = await _dio.put(
+        '/biometric/workspace',
+        data: {
+          'latitude': latitude,
+          'longitude': longitude,
+          'workspace_name': workspaceName,
+          'radius_meters': radiusMeters,
         },
         options: _authOptions(token),
       );

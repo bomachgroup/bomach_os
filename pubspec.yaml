@@ -36,6 +36,8 @@ dependencies:
   file_picker: ^8.0.0
   collection: ^1.18.0
   web: any
+  geolocator: ^13.0.2
+  geolocator_web: ^4.1.1
 
 dev_dependencies:
   flutter_test:

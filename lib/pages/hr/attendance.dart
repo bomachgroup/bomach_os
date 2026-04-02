@@ -8,6 +8,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 
 import 'controller/biometrics_controller.dart';
+import 'widget/setup_workspace_dialog.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -21,7 +22,6 @@ class AttendancePageState extends State<AttendancePage> {
   final _storage = const FlutterSecureStorage();
   final ScrollController _scrollController = ScrollController();
 
-  // Helper stream for live clock
   Stream<String> get _timeStream => Stream.periodic(
         const Duration(seconds: 1),
         (_) => DateFormat('HH:mm:ss').format(DateTime.now()),
@@ -43,7 +43,10 @@ class AttendancePageState extends State<AttendancePage> {
   Future<void> _refreshData() async {
     final token = await _getToken(context);
     if (token != null) {
-      await controller.fetchAttendanceHistory(token);
+      await Future.wait([
+        controller.fetchAttendanceHistory(token),
+        controller.fetchWorkspace(token),
+      ]);
     }
   }
 
@@ -63,6 +66,15 @@ class AttendancePageState extends State<AttendancePage> {
     }
   }
 
+  Future<void> _openWorkspaceSetup() async {
+    final token = await _getToken(context);
+    if (token == null || !mounted) return;
+    showDialog(
+      context: context,
+      builder: (_) => SetupWorkspaceDialog(token: token),
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -75,9 +87,89 @@ class AttendancePageState extends State<AttendancePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- Title ---
-          const MyText('Attendance Management', style: AppText.black_500_32),
+          // --- Title + Workspace Status ---
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Expanded(
+                child:
+                    MyText('Attendance Management', style: AppText.black_500_32),
+              ),
+              Obx(() => _buildWorkspaceChip()),
+            ],
+          ),
           kSizedBox,
+
+          // --- Workspace Warning Banner ---
+          Obx(() {
+            if (controller.workspace.value != null ||
+                controller.isFetchingWorkspace.value) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: const Color(0xFFFFCC02).withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.warning_amber_rounded,
+                          color: Colors.orange, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Workspace Not Configured',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF4A3800),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Set up your workspace location to enable face-verified clock-in.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.brown.shade400),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _openWorkspaceSetup,
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('Setup Now',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 13)),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
 
           // --- 1. Action Cards (Clock In / Clock Out) ---
           Row(
@@ -85,7 +177,7 @@ class AttendancePageState extends State<AttendancePage> {
               Expanded(
                 child: _buildTimeCard(
                   title: "Time In",
-                  buttonColor: const Color(0xFF00C853), // Green
+                  buttonColor: const Color(0xFF00C853),
                   buttonText: "Clock In",
                   onTap: () => _handleClockAction(true),
                 ),
@@ -94,7 +186,7 @@ class AttendancePageState extends State<AttendancePage> {
               Expanded(
                 child: _buildTimeCard(
                   title: "Time Out",
-                  buttonColor: const Color(0xFF2962FF), // Blue
+                  buttonColor: const Color(0xFF2962FF),
                   buttonText: "Clock Out",
                   onTap: () => _handleClockAction(false),
                 ),
@@ -103,7 +195,7 @@ class AttendancePageState extends State<AttendancePage> {
           ),
           kSizedBox,
 
-          // --- 2. Graph Section (Dummy Visual) ---
+          // --- 2. Graph Section ---
           Container(
             height: 300,
             padding: const EdgeInsets.all(24),
@@ -247,6 +339,69 @@ class AttendancePageState extends State<AttendancePage> {
     );
   }
 
+  // ── Workspace status chip ──────────────────────────────────────────────
+
+  Widget _buildWorkspaceChip() {
+    final ws = controller.workspace.value;
+    final loading = controller.isFetchingWorkspace.value;
+
+    if (loading) {
+      return const SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    return InkWell(
+      onTap: _openWorkspaceSetup,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: ws != null
+              ? const Color(0xFF10B981).withValues(alpha: 0.1)
+              : Colors.orange.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: ws != null
+                ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                : Colors.orange.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              ws != null ? Icons.location_on_rounded : Icons.location_off_rounded,
+              size: 14,
+              color: ws != null ? const Color(0xFF10B981) : Colors.orange,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              ws != null ? ws.workspaceName : 'No workspace',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: ws != null ? const Color(0xFF10B981) : Colors.orange,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.settings_rounded,
+              size: 12,
+              color: ws != null
+                  ? const Color(0xFF10B981).withValues(alpha: 0.7)
+                  : Colors.orange.withValues(alpha: 0.7),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Time card with step feedback ───────────────────────────────────────
+
   Widget _buildTimeCard({
     required String title,
     required Color buttonColor,
@@ -285,15 +440,32 @@ class AttendancePageState extends State<AttendancePage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              child: Obx(() => controller.isAuthenticating.value
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2))
-                  : Text(buttonText,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold))),
+              child: Obx(() {
+                if (controller.isAuthenticating.value) {
+                  final step = controller.clockStepMessage.value;
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
+                      ),
+                      if (step.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(step,
+                              style: const TextStyle(
+                                  color: Colors.white70, fontSize: 9)),
+                        ),
+                    ],
+                  );
+                }
+                return Text(buttonText,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold));
+              }),
             ),
           )
         ],
@@ -339,7 +511,8 @@ class _SimpleChartPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final dotPaint = Paint()..color = const Color(0xFF00C853);
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);
+    canvas.drawCircle(
+        Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);
     canvas.drawCircle(Offset(size.width, size.height * 0.2), 4, dotPaint);
   }
 

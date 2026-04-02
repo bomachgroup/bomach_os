@@ -1,13 +1,23 @@
-import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:bms_front_end/src/services/biometric_api_service.dart';
+import 'package:bms_front_end/src/services/location_service.dart';
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../models/attendance_models.dart';
+import '../models/workspace_model.dart';
 
 class BiometricsController extends GetxController {
+  final BiometricApiService _api = BiometricApiService();
+  final LocationService _location = LocationService();
+  final ImagePicker _picker = ImagePicker();
+
   var isLoading = false.obs;
   var isAuthenticating = false.obs;
 
@@ -20,40 +30,85 @@ class BiometricsController extends GetxController {
   var errorMessage = ''.obs;
   var successMessage = ''.obs;
 
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: ApiConstants.baseUrl,
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-  ));
+  // Workspace
+  var workspace = Rxn<WorkspaceConfig>();
+  var isFetchingWorkspace = false.obs;
+  var isSettingUpWorkspace = false.obs;
 
-  Options _authOptions(String token) =>
-      Options(headers: {'Authorization': 'Bearer $token'});
+  // Clock-in step feedback
+  var clockStepMessage = ''.obs;
+
+  // --- Workspace Management ---
+
+  Future<void> fetchWorkspace(String token) async {
+    try {
+      isFetchingWorkspace(true);
+      final data = await _api.getWorkspace(token);
+      if (data != null) {
+        workspace.value = WorkspaceConfig.fromJson(data);
+      } else {
+        workspace.value = null;
+      }
+    } catch (e) {
+      log('Fetch workspace error: $e');
+      workspace.value = null;
+    } finally {
+      isFetchingWorkspace(false);
+    }
+  }
+
+  Future<bool> saveWorkspace(
+    String token, {
+    required double latitude,
+    required double longitude,
+    required String workspaceName,
+    required int radiusMeters,
+  }) async {
+    try {
+      isSettingUpWorkspace(true);
+      errorMessage('');
+
+      Map<String, dynamic> result;
+      if (workspace.value != null) {
+        result = await _api.updateWorkspace(
+          token,
+          latitude: latitude,
+          longitude: longitude,
+          workspaceName: workspaceName,
+          radiusMeters: radiusMeters,
+        );
+      } else {
+        result = await _api.setupWorkspace(
+          token,
+          latitude: latitude,
+          longitude: longitude,
+          workspaceName: workspaceName,
+          radiusMeters: radiusMeters,
+        );
+      }
+
+      workspace.value = WorkspaceConfig.fromJson(result);
+      return true;
+    } catch (e) {
+      errorMessage.value = e.toString();
+      return false;
+    } finally {
+      isSettingUpWorkspace(false);
+    }
+  }
 
   // --- Fetch & Process History ---
+
   Future<void> fetchAttendanceHistory(String token, {int limit = 100}) async {
     try {
       isLoading(true);
       errorMessage('');
 
-      final response = await _dio.get(
-        '/api/v1/biometric/attendance/my-records',
-        queryParameters: {'limit': limit},
-        options: _authOptions(token),
-      );
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-        final List<dynamic> list = (data is Map && data.containsKey('items'))
-            ? data['items']
-            : (data is List ? data : []);
-
-        final records =
-            list.map((e) => BiometricAttendanceRecord.fromJson(e)).toList();
-        rawRecords.assignAll(records);
-
-        _processDailyAttendance(records);
-      }
+      final records = await _api.getMyAttendanceRecords(token, limit: limit);
+      final parsed =
+          records.map((e) => BiometricAttendanceRecord.fromJson(e)).toList();
+      rawRecords.assignAll(parsed);
+      _processDailyAttendance(parsed);
     } catch (e) {
       _handleError(e);
     } finally {
@@ -61,11 +116,9 @@ class BiometricsController extends GetxController {
     }
   }
 
-  // Group raw logs by Date to create Table Rows (Clock In + Clock Out)
   void _processDailyAttendance(List<BiometricAttendanceRecord> records) {
     Map<String, List<BiometricAttendanceRecord>> grouped = {};
 
-    // Group by YYYY-MM-DD
     for (var r in records) {
       String dateKey = DateFormat('yyyy-MM-dd').format(r.timestamp);
       if (!grouped.containsKey(dateKey)) grouped[dateKey] = [];
@@ -74,7 +127,6 @@ class BiometricsController extends GetxController {
 
     List<DailyAttendance> result = [];
     grouped.forEach((date, events) {
-      // Sort by time to find first and last
       events.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
       BiometricAttendanceRecord? inRecord =
@@ -89,7 +141,6 @@ class BiometricsController extends GetxController {
           ? DateFormat('hh:mm a').format(outRecord.timestamp)
           : '--:--';
 
-      // Calculate Hours
       String duration = '--:--';
       if (inRecord != null && outRecord != null) {
         Duration diff = outRecord.timestamp.difference(inRecord.timestamp);
@@ -99,66 +150,121 @@ class BiometricsController extends GetxController {
       result.add(DailyAttendance(
         date: date,
         employeeName: "Current User",
-        role: "Software Engineer",
+        role: "Employee",
         clockInTime: inTime,
         clockOutTime: outTime,
         hoursWorked: duration,
       ));
     });
 
-    // Sort by date descending
     result.sort((a, b) => b.date.compareTo(a.date));
     dailyAttendanceList.assignAll(result);
   }
 
-  // --- Clock In / Out Action (Manual) ---
+  // --- Clock In / Out with Face + GPS ---
+
   Future<bool> performClockAction(String token,
       {required bool isClockIn}) async {
     isAuthenticating(true);
     errorMessage('');
     successMessage('');
+    clockStepMessage('');
 
-    String type = isClockIn ? "clock_in" : "clock_out";
+    final type = isClockIn ? 'clock_in' : 'clock_out';
 
     try {
-      // Payload for Manual Entry
-      final Map<String, dynamic> payload = {
-        "biometric_data": "MANUAL_ENTRY", // Explicit manual data
-        "biometric_type": "face", // Explicit type
-        "attendance_type": type
-      };
-
-      final response = await _dio.post(
-        '/api/v1/biometric/clockin',
-        data: payload,
-        options: _authOptions(token),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        successMessage.value =
-            "${isClockIn ? "Clocked In" : "Clocked Out"} successfully!";
-        await fetchAttendanceHistory(token); // Refresh table
-        return true;
-      } else {
-        errorMessage.value = "Server rejected request";
+      // 1. Check workspace
+      if (workspace.value == null) {
+        errorMessage.value = 'Please set up your workspace location first.';
         return false;
       }
+
+      // 2. Get location
+      clockStepMessage.value = 'Getting your location...';
+
+      final hasPermission = await _location.ensurePermission();
+      if (!hasPermission) {
+        errorMessage.value =
+            'Location permission is required. Please enable it in your browser settings.';
+        return false;
+      }
+
+      late Position position;
+      try {
+        position = await _location.getCurrentPosition();
+      } catch (e) {
+        errorMessage.value = 'Unable to get your location. Please try again.';
+        return false;
+      }
+
+      // 3. Client-side geofence check
+      final ws = workspace.value!;
+      final withinRange = _location.isWithinRadius(
+        position,
+        ws.latitude,
+        ws.longitude,
+        ws.radiusMeters,
+      );
+
+      if (!withinRange) {
+        final distance =
+            _location.getDistance(position, ws.latitude, ws.longitude);
+        errorMessage.value =
+            'You are ${distance.toInt()}m away from your workspace "${ws.workspaceName}". '
+            'You need to be within ${ws.radiusMeters}m to clock ${isClockIn ? 'in' : 'out'}.';
+        return false;
+      }
+
+      // 4. Capture face
+      clockStepMessage.value = 'Capturing face...';
+
+      final photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        maxWidth: 640,
+        maxHeight: 480,
+        imageQuality: 80,
+      );
+
+      if (photo == null) {
+        errorMessage.value = 'Face capture was cancelled.';
+        return false;
+      }
+
+      // 5. Encode
+      clockStepMessage.value = 'Processing...';
+      final bytes = await photo.readAsBytes();
+      final base64Face = base64Encode(bytes);
+
+      // 6. Send to backend
+      clockStepMessage.value = 'Verifying...';
+
+      await _api.biometricClockIn(
+        token,
+        biometricData: base64Face,
+        biometricType: 'face',
+        attendanceType: type,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      successMessage.value =
+          '${isClockIn ? "Clocked In" : "Clocked Out"} successfully!';
+      await fetchAttendanceHistory(token);
+      return true;
     } catch (e) {
       _handleError(e);
       return false;
     } finally {
       isAuthenticating(false);
+      clockStepMessage('');
     }
   }
 
   void _handleError(dynamic error) {
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data != null && data is Map) {
-        errorMessage.value = data['detail'] ?? data['message'] ?? 'API Error';
-      } else {
-        errorMessage.value = error.message ?? 'Connection Error';
-      }
+    if (error is Exception) {
+      final msg = error.toString().replaceFirst('Exception: ', '');
+      errorMessage.value = msg;
     } else {
       errorMessage.value = error.toString();
     }
