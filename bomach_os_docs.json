@@ -31,7 +31,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TwoFactorRequiredResponse"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/LoginResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TwoFactorRequiredResponse"
+                    }
+                  ],
+                  "title": "Response"
                 }
               }
             }
@@ -68,6 +76,151 @@
           },
           "required": true
         }
+      }
+    },
+    "/api/v1/auth/2fa/status": {
+      "get": {
+        "operationId": "user_api_v1_auth_two_factor_status",
+        "summary": "Two Factor Status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Authentication"],
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/2fa/enable": {
+      "post": {
+        "operationId": "user_api_v1_auth_enable_two_factor",
+        "summary": "Enable Two Factor",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Authentication"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorToggleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/2fa/disable": {
+      "post": {
+        "operationId": "user_api_v1_auth_disable_two_factor",
+        "summary": "Disable Two Factor",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Authentication"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorToggleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuthenticator": []
+          }
+        ]
       }
     },
     "/api/v1/auth/verify-2fa": {
@@ -26932,6 +27085,35 @@
   },
   "components": {
     "schemas": {
+      "LoginResponse": {
+        "properties": {
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          },
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "detail": {
+            "default": "Login successful",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": ["access_token", "refresh_token", "user_id"],
+        "title": "LoginResponse",
+        "type": "object"
+      },
       "TwoFactorRequiredResponse": {
         "properties": {
           "success": {
@@ -26983,6 +27165,33 @@
         },
         "required": ["email", "password"],
         "title": "LoginRequest",
+        "type": "object"
+      },
+      "TwoFactorStatusResponse": {
+        "properties": {
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          },
+          "two_factor_enabled": {
+            "title": "Two Factor Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": ["two_factor_enabled"],
+        "title": "TwoFactorStatusResponse",
+        "type": "object"
+      },
+      "TwoFactorToggleRequest": {
+        "properties": {
+          "password": {
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": ["password"],
+        "title": "TwoFactorToggleRequest",
         "type": "object"
       },
       "TwoFactorVerifyResponse": {
@@ -30321,35 +30530,6 @@
         },
         "required": ["biometric_type"],
         "title": "RemoveBiometricRequest",
-        "type": "object"
-      },
-      "LoginResponse": {
-        "properties": {
-          "success": {
-            "default": true,
-            "title": "Success",
-            "type": "boolean"
-          },
-          "access_token": {
-            "title": "Access Token",
-            "type": "string"
-          },
-          "refresh_token": {
-            "title": "Refresh Token",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "integer"
-          },
-          "detail": {
-            "default": "Login successful",
-            "title": "Detail",
-            "type": "string"
-          }
-        },
-        "required": ["access_token", "refresh_token", "user_id"],
-        "title": "LoginResponse",
         "type": "object"
       },
       "BiometricLoginRequest": {

@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
-
 import 'package:bms_front_end/components/button/signin_button.dart';
 import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -10,6 +6,9 @@ import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 import 'controller.dart';
 
@@ -104,13 +103,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         kSizedBox,
 
-                        // User ID Field
+                        // Username Field
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30.0),
                           child: MyTextFormField(
                             controller: authController.emailController,
-                            title: "User ID",
-                            hintText: "Enter User ID",
+                            title: "Username",
+                            hintText: "Enter Username",
                             textColor: AppColors.white,
                             borderRadius: BorderRadius.circular(30),
                             spaceBetweenText: 10,
@@ -118,13 +117,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         kSizedBox,
 
-                        // PIN/Password Field with Obscure Toggle
+                        // Password Field with Obscure Toggle
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30.0),
                           child: MyTextFormField(
                             controller: authController.passwordController,
-                            title: "PIN",
-                            hintText: "Enter PIN/password",
+                            title: "Password",
+                            hintText: "Enter Password",
                             textColor: AppColors.white,
                             borderRadius: BorderRadius.circular(30),
                             spaceBetweenText: 10,

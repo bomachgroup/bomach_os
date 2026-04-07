@@ -21,6 +21,7 @@ class User {
   final String? startDate;
   final String createdAt;
   final String? updatedAt;
+  final bool? twoFactorEnabled;
 
   User({
     required this.userId,
@@ -45,6 +46,7 @@ class User {
     this.startDate,
     required this.createdAt,
     this.updatedAt,
+    this.twoFactorEnabled,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -70,6 +72,7 @@ class User {
         levelId: json['level_id'] ?? 0,
         startDate: json['start_date'] ?? '',
         createdAt: json['created_at'] ?? '',
-        updatedAt: json['updated_at'] ?? '');
+        updatedAt: json['updated_at'] ?? '',
+        twoFactorEnabled: json['two_factor_enabled'] ?? false);
   }
 }

@@ -24,6 +24,8 @@ class AuthController extends GetxController {
   final resetCodeController = TextEditingController();
   final newPasswordController = TextEditingController();
   final twoFactorCodeController = TextEditingController();
+  var isPending2Fa = false.obs;
+  var is2FaEnabled = false.obs;
   String? currentSessionToken;
 
   @override
@@ -99,8 +101,11 @@ class AuthController extends GetxController {
         password: passwordController.text,
       );
 
-      if (response.requires2Fa && response.sessionToken.isNotEmpty) {
-        currentSessionToken = response.sessionToken;
+      if (response.requires2Fa) {
+        // Pending 2FA
+        isPending2Fa.value = true;
+        _storage.write(key: 'session_token', value: response.sessionToken);
+
         if (context.mounted) {
           _showSnackBar(context, response.detail.isNotEmpty ? response.detail : '2FA code sent to your email');
           context.push(RouteConstants.twoFactorVerify);
@@ -108,7 +113,7 @@ class AuthController extends GetxController {
         return;
       }
 
-      // If 2FA is somehow disabled and it returns access token right away
+      // If 2FA is disabled and it returns access token right away
       if (response.accessToken.isNotEmpty) {
         await _storage.write(key: 'access_token', value: response.accessToken);
         await _storage.write(key: 'refresh_token', value: response.refreshToken);
@@ -117,6 +122,7 @@ class AuthController extends GetxController {
         // Fetch permissions
         await _fetchUserPermissions(response.accessToken, response.userId);
 
+        // Fetch profile
         await _fetchUserProfile(response.accessToken, response.userId);
 
         if (context.mounted) {
@@ -138,13 +144,44 @@ class AuthController extends GetxController {
     }
   }
 
+  /// Toggle 2FA Setting
+  Future<void> toggle2Fa(BuildContext context, bool isEnabled) async {
+    try {
+      final token = await _storage.read(key: 'access_token');
+      if (token == null || currentUser.value == null) return;
+
+      bool newStatus;
+      if (isEnabled) {
+        newStatus = await _authService.enable2Fa(token);
+      } else {
+        newStatus = await _authService.disable2Fa(token);
+      }
+
+      is2FaEnabled.value = newStatus;
+      
+      if (context.mounted) {
+        _showSnackBar(context, newStatus ? '2FA Enabled' : '2FA Disabled');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, 'Failed to update 2FA setting: $e', isError: true);
+      }
+    }
+  }
+
   Future<void> _fetchUserProfile(String token, int userId) async {
     try {
       final user =
           await _authService.getCurrentUser(accessToken: token, userId: userId);
       currentUser.value = user;
+
+      try {
+        is2FaEnabled.value = await _authService.get2FaStatus(token);
+      } catch (e) {
+        log('Failed to fetch 2FA status: $e');
+      }
     } catch (e) {
-      log("Fetch Profile Failed: $e");
+      log("Failed to fetch user profile: $e");
       // If profile fetch fails (e.g. not an employee), we MUST logout the user
       // so they aren't stuck in a partially authenticated state.
       await logout();

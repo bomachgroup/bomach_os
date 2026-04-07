@@ -311,6 +311,54 @@ class AuthService {
     }
   }
 
+  // ──────────────────── 2FA SETTINGS ────────────────────
+  Future<bool> get2FaStatus(String accessToken) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/auth/2fa/status',
+        options: _authOptions(accessToken),
+      );
+      if (response.data is Map<String, dynamic>) {
+        return response.data['is_enabled'] ?? response.data['enabled'] ?? response.data['status'] ?? false;
+      }
+      return false;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<bool> enable2Fa(String accessToken) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/auth/2fa/enable',
+        data: {}, // Handled by backend schema possibly requiring password someday, but trying empty
+        options: _authOptions(accessToken),
+      );
+      if (response.data is Map<String, dynamic>) {
+        return response.data['is_enabled'] ?? response.data['enabled'] ?? response.data['status'] ?? true;
+      }
+      return true;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<bool> disable2Fa(String accessToken) async {
+    try {
+      final response = await _dio.post(
+        '/api/v1/auth/2fa/disable',
+        data: {}, // Handled by backend
+        options: _authOptions(accessToken),
+      );
+      if (response.data is Map<String, dynamic>) {
+        return response.data['is_enabled'] ?? response.data['enabled'] ?? response.data['status'] ?? false;
+      }
+      return false;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // LOGOUT
   Future<void> logout({required String accessToken}) async {
     try {
