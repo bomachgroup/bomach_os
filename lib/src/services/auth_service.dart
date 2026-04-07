@@ -327,11 +327,11 @@ class AuthService {
     }
   }
 
-  Future<bool> enable2Fa(String accessToken) async {
+  Future<bool> enable2Fa(String accessToken, String password) async {
     try {
       final response = await _dio.post(
         '/api/v1/auth/2fa/enable',
-        data: {}, // Handled by backend schema possibly requiring password someday, but trying empty
+        data: {'password': password},
         options: _authOptions(accessToken),
       );
       if (response.data is Map<String, dynamic>) {
@@ -343,11 +343,11 @@ class AuthService {
     }
   }
 
-  Future<bool> disable2Fa(String accessToken) async {
+  Future<bool> disable2Fa(String accessToken, String password) async {
     try {
       final response = await _dio.post(
         '/api/v1/auth/2fa/disable',
-        data: {}, // Handled by backend
+        data: {'password': password},
         options: _authOptions(accessToken),
       );
       if (response.data is Map<String, dynamic>) {

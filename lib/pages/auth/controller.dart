@@ -144,17 +144,68 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<String?> _showPasswordDialog(BuildContext context) async {
+    final TextEditingController passwordController = TextEditingController();
+    bool isObscure = true;
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Confirm Password'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Please enter your password to proceed with 2FA changes.'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: isObscure,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(isObscure ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setState(() => isObscure = !isObscure),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, passwordController.text),
+              child: const Text('Confirm'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Toggle 2FA Setting
   Future<void> toggle2Fa(BuildContext context, bool isEnabled) async {
+    final password = await _showPasswordDialog(context);
+    if (password == null || password.isEmpty) {
+      if (context.mounted) {
+         _showSnackBar(context, 'Password is required to change 2FA settings', isError: true);
+      }
+      return;
+    }
+
     try {
       final token = await _storage.read(key: 'access_token');
       if (token == null || currentUser.value == null) return;
 
       bool newStatus;
       if (isEnabled) {
-        newStatus = await _authService.enable2Fa(token);
+        newStatus = await _authService.enable2Fa(token, password);
       } else {
-        newStatus = await _authService.disable2Fa(token);
+        newStatus = await _authService.disable2Fa(token, password);
       }
 
       is2FaEnabled.value = newStatus;
