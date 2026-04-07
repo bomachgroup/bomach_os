@@ -352,39 +352,6 @@ class MyProfilePage extends StatelessWidget {
             _ProfileField('Created', _formatDate(user.createdAt)),
           ],
         ),
-        const Divider(height: 32, color: Color(0xFFF1F5F9)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const MyText('Two-Factor Authentication',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B))),
-                const SizedBox(height: 2),
-                MyText(
-                    user.twoFactorEnabled == true
-                        ? 'Your account is secured with 2FA'
-                        : 'Enable 2FA for extra security',
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF94A3B8))),
-              ],
-            ),
-            Transform.scale(
-              scale: 0.8,
-              child: Switch.adaptive(
-                value: authController.is2FaEnabled.value,
-                activeColor: const Color(0xFF10B981),
-                onChanged: (val) {
-                  authController.toggle2Fa(context, val);
-                },
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }

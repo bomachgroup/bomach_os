@@ -224,6 +224,49 @@ class UserProfileDialog extends StatelessWidget {
                     _buildSectionHeader("System Status"),
                     _buildStatusRow("Verified", user.isVerified),
                     _buildStatusRow("Active", user.isActive),
+
+                    const SizedBox(height: 16),
+
+                    // Security Settings
+                    _buildSectionHeader("Security Settings"),
+                    Obx(() {
+                      final authController = Get.find<AuthController>();
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const MyText('Two-Factor Authentication',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF1E293B))),
+                                const SizedBox(height: 2),
+                                MyText(
+                                    authController.is2FaEnabled.value
+                                        ? 'Your account is secured with 2FA'
+                                        : 'Enable 2FA for extra security',
+                                    style: const TextStyle(
+                                        fontSize: 11, color: Color(0xFF94A3B8))),
+                              ],
+                            ),
+                            Transform.scale(
+                              scale: 0.8,
+                              child: Switch.adaptive(
+                                value: authController.is2FaEnabled.value,
+                                activeColor: const Color(0xFF10B981),
+                                onChanged: (val) {
+                                  authController.toggle2Fa(context, val);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
