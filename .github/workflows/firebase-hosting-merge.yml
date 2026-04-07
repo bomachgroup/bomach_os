@@ -19,3 +19,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BOMACH_OS_APP }}'
           channelId: live
           projectId: bomach-os-app
+          target: live

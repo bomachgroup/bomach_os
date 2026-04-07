@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:developer';
-
+import 'dart:js_interop';
+import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:web/web.dart' as web;
 
 class LocationService {
   static final LocationService _instance = LocationService._internal();
@@ -10,6 +14,16 @@ class LocationService {
   LocationService._internal();
 
   Future<bool> ensurePermission() async {
+    if (kIsWeb) {
+      try {
+        // Just verify geolocation is available in the navigator
+        // ignore: unnecessary_null_comparison
+        return web.window.navigator.geolocation != null;
+      } catch (e) {
+        return false;
+      }
+    }
+
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) return false;
@@ -29,12 +43,58 @@ class LocationService {
   }
 
   Future<Position> getCurrentPosition() async {
-    return await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        timeLimit: Duration(seconds: 10),
-      ),
-    );
+    if (kIsWeb) {
+      final completer = Completer<Position>();
+      try {
+        web.window.navigator.geolocation.getCurrentPosition(
+          (web.GeolocationPosition pos) {
+            final coords = pos.coords;
+            completer.complete(Position(
+              longitude: coords.longitude.toDouble(),
+              latitude: coords.latitude.toDouble(),
+              timestamp: DateTime.now(),
+              accuracy: coords.accuracy.toDouble(),
+              altitude: coords.altitude?.toDouble() ?? 0.0,
+              altitudeAccuracy: 0,
+              heading: coords.heading?.toDouble() ?? 0.0,
+              headingAccuracy: 0,
+              speed: coords.speed?.toDouble() ?? 0.0,
+              speedAccuracy: 0,
+            ));
+          }.toJS,
+          (web.GeolocationPositionError err) {
+            completer.completeError(
+              Exception("Geolocation error: ${err.message}"),
+            );
+          }.toJS,
+        );
+        return await completer.future;
+      } catch (e) {
+        throw Exception(
+            "Geolocation is not supported by this browser. Error: $e");
+      }
+    }
+    return await Geolocator.getCurrentPosition();
+  }
+
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371000.0; // meters
+    final double dLat = _degreesToRadians(lat2 - lat1);
+    final double dLon = _degreesToRadians(lon2 - lon1);
+
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degreesToRadians(lat1)) *
+            math.cos(_degreesToRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    return earthRadius * c;
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * math.pi / 180;
   }
 
   bool isWithinRadius(
@@ -43,7 +103,7 @@ class LocationService {
     double targetLng,
     int radiusMeters,
   ) {
-    final distance = Geolocator.distanceBetween(
+    final distance = _calculateDistance(
       current.latitude,
       current.longitude,
       targetLat,
@@ -57,7 +117,7 @@ class LocationService {
     double targetLat,
     double targetLng,
   ) {
-    return Geolocator.distanceBetween(
+    return _calculateDistance(
       current.latitude,
       current.longitude,
       targetLat,

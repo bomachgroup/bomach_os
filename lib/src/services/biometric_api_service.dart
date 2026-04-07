@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
 
 class BiometricApiService {
@@ -48,6 +50,10 @@ class BiometricApiService {
 
   Future<Map<String, dynamic>> setupFace(
       String token, String biometricData) async {
+    if (_baseUrl.contains('bomachauthtest')) {
+      await Future.delayed(const Duration(seconds: 1)); // simulate network latency
+      return {'success': true, 'message': 'Face registered successfully in test environment'};
+    }
     try {
       final response = await _dio.post(
         '/biometric/setup-face',
@@ -136,6 +142,8 @@ class BiometricApiService {
     }
   }
 
+  final _storage = const FlutterSecureStorage();
+
   // ── Workspace Management ─────────────────────────────────────────────
 
   Future<Map<String, dynamic>> setupWorkspace(
@@ -145,13 +153,27 @@ class BiometricApiService {
     required String workspaceName,
     required int radiusMeters,
   }) async {
+    if (_baseUrl.contains('bomachauthtest')) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      final mockData = {
+        'id': 999,
+        'latitude': latitude,
+        'longitude': longitude,
+        'name': workspaceName,
+        'radius_meters': radiusMeters,
+        'is_verified': true,
+      };
+      await _storage.write(key: 'mock_workspace', value: jsonEncode(mockData));
+      return mockData;
+    }
+
     try {
       final response = await _dio.post(
-        '/biometric/setup-workspace',
+        '/biometric/location/whitelisted',
         data: {
           'latitude': latitude,
           'longitude': longitude,
-          'workspace_name': workspaceName,
+          'name': workspaceName,
           'radius_meters': radiusMeters,
         },
         options: _authOptions(token),
@@ -163,12 +185,24 @@ class BiometricApiService {
   }
 
   Future<Map<String, dynamic>?> getWorkspace(String token) async {
+    if (_baseUrl.contains('bomachauthtest')) {
+      final cached = await _storage.read(key: 'mock_workspace');
+      if (cached != null) {
+        return Map<String, dynamic>.from(jsonDecode(cached));
+      }
+      return null;
+    }
+
     try {
       final response = await _dio.get(
-        '/biometric/workspace',
+        '/biometric/location/whitelisted',
         options: _authOptions(token),
       );
-      return Map<String, dynamic>.from(response.data);
+      final data = response.data;
+      if (data != null && data['items'] != null && (data['items'] as List).isNotEmpty) {
+        return Map<String, dynamic>.from(data['items'].first);
+      }
+      return null;
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) return null;
       throw _handleError(e);
@@ -179,18 +213,33 @@ class BiometricApiService {
 
   Future<Map<String, dynamic>> updateWorkspace(
     String token, {
+    required int locationId,
     required double latitude,
     required double longitude,
     required String workspaceName,
     required int radiusMeters,
   }) async {
+    if (_baseUrl.contains('bomachauthtest')) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      final mockData = {
+        'id': locationId,
+        'latitude': latitude,
+        'longitude': longitude,
+        'name': workspaceName,
+        'radius_meters': radiusMeters,
+        'is_verified': true,
+      };
+      await _storage.write(key: 'mock_workspace', value: jsonEncode(mockData));
+      return mockData;
+    }
+
     try {
-      final response = await _dio.put(
-        '/biometric/workspace',
+      final response = await _dio.patch(
+        '/biometric/location/whitelisted/$locationId',
         data: {
           'latitude': latitude,
           'longitude': longitude,
-          'workspace_name': workspaceName,
+          'name': workspaceName,
           'radius_meters': radiusMeters,
         },
         options: _authOptions(token),
@@ -211,7 +260,12 @@ class BiometricApiService {
         queryParameters: {'limit': limit},
         options: _authOptions(token),
       );
-      return List<Map<String, dynamic>>.from(response.data);
+      final data = response.data;
+      if (data == null) return [];
+      if (data is List) {
+        return data.whereType<Map<String, dynamic>>().toList();
+      }
+      return List<Map<String, dynamic>>.from(data);
     } catch (e) {
       throw _handleError(e);
     }

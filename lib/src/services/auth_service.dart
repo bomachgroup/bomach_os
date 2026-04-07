@@ -104,8 +104,8 @@ class AuthService {
   Future<User> getCurrentUser(
       {required String accessToken, required int userId}) async {
     try {
-      // Use /auth/me instead of /employees/employees/$userId to successfully fetch
-      // profile data even if the user doesn't have an employee profile yet (e.g. admin).
+      // Use the generic /auth/me endpoint instead of employee-specific one
+      // this ensures super-admins and non-employee users can also fetch their profile.
       final response = await _dio.get(
         '/api/v1/auth/me',
         options: _authOptions(accessToken),
@@ -117,21 +117,23 @@ class AuthService {
 
       return User.fromJson(response.data);
     } on DioException catch (e) {
-      // Fallback: If /auth/me fails, try /employees/employees/$userId as a legacy fallback
-      try {
-        final response = await _dio.get(
-          '/api/v1/employees/employees/$userId',
-          options: _authOptions(accessToken),
-        );
-        return User.fromJson(response.data);
-      } catch (_) {
-        throw _handleError(e);
+      // Fallback: If /auth/me fails, try calling the employee-specific one just in case
+      if (e.response?.statusCode == 404 || e.response?.statusCode == 405) {
+        try {
+          final response = await _dio.get(
+            '/api/v1/employees/employees/$userId',
+            options: _authOptions(accessToken),
+          );
+          return User.fromJson(response.data);
+        } catch (_) {
+          throw _handleError(e);
+        }
       }
+      throw _handleError(e);
     }
   }
 
   // GET EMPLOYEE ROLES
-  // API returns a single RoleResponseSchema object (not a list)
   Future<List<Role>> getEmployeeRoles(
       {required String accessToken, required int userId}) async {
     try {
@@ -142,12 +144,10 @@ class AuthService {
 
       if (response.data == null) return [];
 
-      // API now returns a single role object, wrap in a list
       if (response.data is Map<String, dynamic>) {
         return [Role.fromJson(response.data as Map<String, dynamic>)];
       }
 
-      // Backwards compat: if it's still a list for some reason
       if (response.data is List) {
         return (response.data as List)
             .map((json) => Role.fromJson(json as Map<String, dynamic>))
@@ -156,14 +156,16 @@ class AuthService {
 
       return [];
     } on DioException catch (e) {
-      // Return empty list on 403 or 404 for roles, as it indicates a non-employee user (like super admin)
+      // If employee record is not found (403/404), return empty roles list
+      // instead of throwing an exception that blocks login.
       if (e.response?.statusCode == 403 || e.response?.statusCode == 404) {
-        log("AuthService: Non-employee user detected, returning empty roles list.");
+        log("AuthService: No employee profile found for user $userId. Returning empty roles.");
         return [];
       }
       throw _handleError(e);
     }
   }
+
 
   // REFRESH TOKEN
   Future<String> refreshToken({required String refreshToken}) async {

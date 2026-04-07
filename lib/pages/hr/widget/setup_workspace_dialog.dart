@@ -20,7 +20,6 @@ class SetupWorkspaceDialog extends StatefulWidget {
 class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
-  final _radiusCtrl = TextEditingController(text: '100');
   final _location = LocationService();
 
   Position? _position;
@@ -34,14 +33,12 @@ class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
     final ws = controller.workspace.value;
     if (ws != null) {
       _nameCtrl.text = ws.workspaceName;
-      _radiusCtrl.text = ws.radiusMeters.toString();
     }
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _radiusCtrl.dispose();
     super.dispose();
   }
 
@@ -78,21 +75,13 @@ class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
     }
 
     final controller = Get.find<BiometricsController>();
-    final radius = int.tryParse(_radiusCtrl.text.trim());
-    if (radius == null || radius < 10) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Radius must be at least 10 meters'),
-        backgroundColor: Colors.red,
-      ));
-      return;
-    }
 
     final success = await controller.saveWorkspace(
       widget.token,
       latitude: _position!.latitude,
       longitude: _position!.longitude,
       workspaceName: _nameCtrl.text.trim(),
-      radiusMeters: radius,
+      radiusMeters: 50,
     );
 
     if (mounted) {
@@ -288,38 +277,9 @@ class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
                             (v == null || v.trim().isEmpty) ? 'Required' : null,
                       ),
 
-                      const SizedBox(height: 20),
-
-                      // Radius
-                      const MyText('Allowed Radius (meters)',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF64748B))),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _radiusCtrl,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          hintText: 'e.g., 100',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 14),
-                          suffixText: 'meters',
-                        ),
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) return 'Required';
-                          final n = int.tryParse(v.trim());
-                          if (n == null || n < 10) {
-                            return 'Minimum 10 meters';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                       const Text(
-                        'Employees must be within this radius of the GPS coordinates to clock in/out.',
+                        'Employees must be within 50 meters of the GPS coordinates to clock in/out.',
                         style: TextStyle(
                             fontSize: 11, color: Color(0xFF94A3B8)),
                       ),

@@ -8,6 +8,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 
 import 'controller/biometrics_controller.dart';
+import 'models/attendance_models.dart';
 import 'widget/setup_workspace_dialog.dart';
 
 class AttendancePage extends StatefulWidget {
@@ -52,17 +53,21 @@ class AttendancePageState extends State<AttendancePage> {
 
   Future<void> _handleClockAction(bool isClockIn) async {
     final token = await _getToken(context);
-    if (token != null) {
-      await controller.performClockAction(token, isClockIn: isClockIn);
-      if (controller.errorMessage.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(controller.errorMessage.value),
-            backgroundColor: Colors.red));
-      } else if (controller.successMessage.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(controller.successMessage.value),
-            backgroundColor: Colors.green));
-      }
+    if (token == null || !mounted) return;
+    await controller.performClockAction(
+      token,
+      isClockIn: isClockIn,
+      context: context,
+    );
+    if (!mounted) return;
+    if (controller.errorMessage.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(controller.errorMessage.value),
+          backgroundColor: Colors.red));
+    } else if (controller.successMessage.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(controller.successMessage.value),
+          backgroundColor: Colors.green));
     }
   }
 
@@ -172,27 +177,7 @@ class AttendancePageState extends State<AttendancePage> {
           }),
 
           // --- 1. Action Cards (Clock In / Clock Out) ---
-          Row(
-            children: [
-              Expanded(
-                child: _buildTimeCard(
-                  title: "Time In",
-                  buttonColor: const Color(0xFF00C853),
-                  buttonText: "Clock In",
-                  onTap: () => _handleClockAction(true),
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: _buildTimeCard(
-                  title: "Time Out",
-                  buttonColor: const Color(0xFF2962FF),
-                  buttonText: "Clock Out",
-                  onTap: () => _handleClockAction(false),
-                ),
-              ),
-            ],
-          ),
+          _buildLiveClockCard(),
           kSizedBox,
 
           // --- 2. Graph Section ---
@@ -400,16 +385,11 @@ class AttendancePageState extends State<AttendancePage> {
     );
   }
 
-  // ── Time card with step feedback ───────────────────────────────────────
+  // ── Unified Time Card ───────────────────────────────────────
 
-  Widget _buildTimeCard({
-    required String title,
-    required Color buttonColor,
-    required String buttonText,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildLiveClockCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -417,58 +397,146 @@ class AttendancePageState extends State<AttendancePage> {
       ),
       child: Column(
         children: [
-          MyText(title, color: const Color(0xFF2E7D32), weight: 600, size: 14),
-          const SizedBox(height: 16),
+          const MyText("Current Time",
+              style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14)),
+          const SizedBox(height: 8),
           StreamBuilder<String>(
             stream: _timeStream,
             builder: (context, snapshot) {
               return MyText(
                 snapshot.data ?? "--:--:--",
-                style:
-                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2),
               );
             },
           ),
+          const SizedBox(height: 8),
+          Text(DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now()),
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 16)),
+          const SizedBox(height: 32),
+          const Divider(),
           const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: onTap,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: buttonColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+          Obx(() {
+            final todayDateStr =
+                DateFormat('yyyy-MM-dd').format(DateTime.now());
+            // Need to import collection for firstWhereOrNull, but let's just use firstWhere with orElse
+            final todayRecord = controller.dailyAttendanceList.firstWhere(
+              (r) => r.date == todayDateStr,
+              orElse: () => DailyAttendance(date: todayDateStr),
+            );
+
+            final timeIn = todayRecord.clockInTime ?? '--:--';
+            final timeOut = todayRecord.clockOutTime ?? '--:--';
+
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildTimeStatusItem("Time In", timeIn, Icons.login,
+                    const Color(0xFF00C853)),
+                Container(width: 1, height: 40, color: const Color(0xFFE0E0E0)),
+                _buildTimeStatusItem("Time Out", timeOut, Icons.logout,
+                    const Color(0xFF2962FF)),
+              ],
+            );
+          }),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  buttonText: "Clock In",
+                  buttonColor: const Color(0xFF00C853),
+                  onTap: () => _handleClockAction(true),
+                ),
               ),
-              child: Obx(() {
-                if (controller.isAuthenticating.value) {
-                  final step = controller.clockStepMessage.value;
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2),
-                      ),
-                      if (step.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(step,
-                              style: const TextStyle(
-                                  color: Colors.white70, fontSize: 9)),
-                        ),
-                    ],
-                  );
-                }
-                return Text(buttonText,
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold));
-              }),
-            ),
-          )
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildActionButton(
+                  buttonText: "Clock Out",
+                  buttonColor: const Color(0xFF2962FF),
+                  onTap: () => _handleClockAction(false),
+                ),
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTimeStatusItem(
+      String label, String value, IconData icon, Color color) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Text(label,
+                style: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(
+      {required String buttonText,
+      required Color buttonColor,
+      required VoidCallback onTap}) {
+    return SizedBox(
+      height: 54,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: buttonColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        child: Obx(() {
+          final expectedType = buttonText == "Clock In" ? 'clock_in' : 'clock_out';
+          if (controller.isAuthenticating.value && controller.authActionType.value == expectedType) {
+            final step = controller.clockStepMessage.value;
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2),
+                ),
+                if (step.isNotEmpty) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      step,
+                      style: const TextStyle(
+                          color: Colors.white70, fontSize: 11),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                ]
+              ],
+            );
+          }
+          return Text(buttonText,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15));
+        }),
       ),
     );
   }

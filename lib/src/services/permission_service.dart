@@ -24,7 +24,8 @@ class PermissionService extends GetxService {
   /// see the dashboard and basic self-service pages when the roles endpoint
   /// returns 403 (user lacks roles:view_own permission).
   void loadDefaultPermissions() {
-    if (_userPermissions.isNotEmpty) return; // Don't overwrite if already loaded
+    if (_userPermissions.isNotEmpty)
+      return; // Don't overwrite if already loaded
     _userPermissions.clear();
     _userPermissions.addAll({
       'dashboard': {'view'},
@@ -42,27 +43,16 @@ class PermissionService extends GetxService {
     _userPermissions.refresh();
   }
 
-  /// Grants full access to all known resources.
-  /// Used for super-admin users (like the initial admin account).
+  /// Grants full unrestricted access to all resources and actions.
   void loadSuperAdminPermissions() {
     _userPermissions.clear();
-    // Using a wildcard for all resources and operations
-    _userPermissions['*'] = {'all', '*'};
-
-    // To be safe and ensure sidebar items show up (which might check specific resource keys),
-    // we also explicitly list the major ones or just use the wildcard logic in canAccess.
-    // However, canAccessResources and hasAnyPermissionForResource check for specific keys.
-    // So we'll add a 'super_admin' flag or just fill some common keys.
-    _userPermissions['all'] = {'all'};
+    _userPermissions['*'] = {'*'};
     _userPermissions.refresh();
   }
 
   bool hasPermission(String resource, String action) {
-    // Super-admin wildcard check: if user has permissions for '*' or 'all' resource
-    final wildcards = _userPermissions['*'] ?? _userPermissions['all'];
-    if (wildcards != null && (wildcards.contains('all') || wildcards.contains('*'))) {
-      return true;
-    }
+    // Check for global super-admin wildcard
+    if (_userPermissions.containsKey('*')) return true;
 
     final actions = _userPermissions[resource];
     if (actions == null) return false;
@@ -70,7 +60,6 @@ class PermissionService extends GetxService {
         actions.contains('*') ||
         actions.contains('all');
   }
-
 
   /// Checks if the user has access based on a permission string in the format "resource:action"
   /// Returns true if permission is null (public access)
@@ -83,10 +72,9 @@ class PermissionService extends GetxService {
 
   /// Returns true if user has any permission at all for a given resource
   bool hasAnyPermissionForResource(String resource) {
-    // Super-admin logic: if user has '*' or 'all' top-level resource, they have access to everything
-    if (_userPermissions.containsKey('*') || _userPermissions.containsKey('all')) {
-      return true;
-    }
+    // Check for global super-admin wildcard
+    if (_userPermissions.containsKey('*')) return true;
+
     return _userPermissions.containsKey(resource) &&
         _userPermissions[resource]!.isNotEmpty;
   }
@@ -120,6 +108,8 @@ class PermissionService extends GetxService {
   /// Centralised here so the sidebar can hide items the user cannot navigate to.
   static final Map<String, String> routePermissions = {
     RouteConstants.employees: PermissionConstants.perm(
+        PermissionConstants.resEmployees, PermissionConstants.actList),
+    RouteConstants.attendance: PermissionConstants.perm(
         PermissionConstants.resEmployees, PermissionConstants.actList),
     RouteConstants.roles: PermissionConstants.perm(
         PermissionConstants.resRoles, PermissionConstants.actList),

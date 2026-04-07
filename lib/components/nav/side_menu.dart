@@ -345,6 +345,12 @@ class _SideMenuState extends State<SideMenu> {
             resources: [PermissionConstants.resEmployees],
           ),
           SubMenuItemData(
+            id: SubMenuItem.attendance,
+            label: 'Attendance',
+            route: RouteConstants.attendance,
+            resources: [PermissionConstants.resEmployees],
+          ),
+          SubMenuItemData(
             id: SubMenuItem.jobPost,
             label: 'Recruitment',
             route: RouteConstants.jobPost,

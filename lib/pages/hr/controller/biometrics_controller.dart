@@ -1,14 +1,14 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bms_front_end/src/services/biometric_api_service.dart';
 import 'package:bms_front_end/src/services/location_service.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
+import '../widget/face_liveness_dialog.dart';
 
 import '../models/attendance_models.dart';
 import '../models/workspace_model.dart';
@@ -16,10 +16,10 @@ import '../models/workspace_model.dart';
 class BiometricsController extends GetxController {
   final BiometricApiService _api = BiometricApiService();
   final LocationService _location = LocationService();
-  final ImagePicker _picker = ImagePicker();
 
   var isLoading = false.obs;
   var isAuthenticating = false.obs;
+  var authActionType = ''.obs;
 
   // Raw logs from API
   var rawRecords = <BiometricAttendanceRecord>[].obs;
@@ -69,9 +69,10 @@ class BiometricsController extends GetxController {
       errorMessage('');
 
       Map<String, dynamic> result;
-      if (workspace.value != null) {
+      if (workspace.value != null && workspace.value!.id != null) {
         result = await _api.updateWorkspace(
           token,
+          locationId: workspace.value!.id!,
           latitude: latitude,
           longitude: longitude,
           workspaceName: workspaceName,
@@ -109,8 +110,8 @@ class BiometricsController extends GetxController {
           records.map((e) => BiometricAttendanceRecord.fromJson(e)).toList();
       rawRecords.assignAll(parsed);
       _processDailyAttendance(parsed);
-    } catch (e) {
-      _handleError(e);
+    } catch (e, s) {
+      _handleError(e, s);
     } finally {
       isLoading(false);
     }
@@ -163,14 +164,18 @@ class BiometricsController extends GetxController {
 
   // --- Clock In / Out with Face + GPS ---
 
-  Future<bool> performClockAction(String token,
-      {required bool isClockIn}) async {
+  Future<bool> performClockAction(
+    String token, {
+    required bool isClockIn,
+    required BuildContext context,
+  }) async {
     isAuthenticating(true);
     errorMessage('');
     successMessage('');
     clockStepMessage('');
 
     final type = isClockIn ? 'clock_in' : 'clock_out';
+    authActionType(type);
 
     try {
       // 1. Check workspace
@@ -215,33 +220,31 @@ class BiometricsController extends GetxController {
         return false;
       }
 
-      // 4. Capture face
-      clockStepMessage.value = 'Capturing face...';
+      // 4. Capture face (Liveness Dialog)
+      clockStepMessage.value = 'Capturing active face...';
 
-      final photo = await _picker.pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
-        maxWidth: 640,
-        maxHeight: 480,
-        imageQuality: 80,
+      if (!context.mounted) {
+        errorMessage.value = 'Page closed. Please try again.';
+        return false;
+      }
+
+      final base64FaceString = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const FaceLivenessDialog(),
       );
 
-      if (photo == null) {
+      if (base64FaceString == null || base64FaceString.isEmpty) {
         errorMessage.value = 'Face capture was cancelled.';
         return false;
       }
 
-      // 5. Encode
-      clockStepMessage.value = 'Processing...';
-      final bytes = await photo.readAsBytes();
-      final base64Face = base64Encode(bytes);
-
-      // 6. Send to backend
+      // 5. Send to backend
       clockStepMessage.value = 'Verifying...';
 
       await _api.biometricClockIn(
         token,
-        biometricData: base64Face,
+        biometricData: base64FaceString,
         biometricType: 'face',
         attendanceType: type,
         latitude: position.latitude,
@@ -252,6 +255,51 @@ class BiometricsController extends GetxController {
           '${isClockIn ? "Clocked In" : "Clocked Out"} successfully!';
       await fetchAttendanceHistory(token);
       return true;
+    } catch (e, s) {
+      _handleError(e, s);
+      return false;
+    } finally {
+      isAuthenticating(false);
+      authActionType('');
+      clockStepMessage('');
+    }
+  }
+
+  // --- Face Registration ---
+  Future<bool> performFaceSetup(
+    String token, {
+    required BuildContext context,
+  }) async {
+    isAuthenticating(true);
+    errorMessage('');
+    successMessage('');
+    clockStepMessage('');
+
+    try {
+      clockStepMessage.value = 'Capturing active face for registration...';
+
+      if (!context.mounted) {
+        errorMessage.value = 'Page closed. Please try again.';
+        return false;
+      }
+
+      final base64FaceString = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const FaceLivenessDialog(),
+      );
+
+      if (base64FaceString == null || base64FaceString.isEmpty) {
+        errorMessage.value = 'Face capture was cancelled.';
+        return false;
+      }
+
+      clockStepMessage.value = 'Registering face...';
+
+      await _api.setupFace(token, base64FaceString);
+
+      successMessage.value = 'Face registered successfully!';
+      return true;
     } catch (e) {
       _handleError(e);
       return false;
@@ -261,13 +309,13 @@ class BiometricsController extends GetxController {
     }
   }
 
-  void _handleError(dynamic error) {
+  void _handleError(dynamic error, [StackTrace? stackTrace]) {
     if (error is Exception) {
       final msg = error.toString().replaceFirst('Exception: ', '');
       errorMessage.value = msg;
     } else {
       errorMessage.value = error.toString();
     }
-    debugPrint("BiometricController Error: ${errorMessage.value}");
+    debugPrint("BiometricController Error: ${errorMessage.value}\nTrace: ${stackTrace ?? StackTrace.current}");
   }
 }

@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "bomach-os-app"
+  },
+  "targets": {
+    "bomach-os-app": {
+      "hosting": {
+        "live": [
+          "bomach-os-app"
+        ],
+        "test": [
+          "bomach-os-test"
+        ]
+      }
+    }
   }
 }

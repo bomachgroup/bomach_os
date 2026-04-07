@@ -4,6 +4,7 @@ class WorkspaceConfig {
   final double longitude;
   final String workspaceName;
   final int radiusMeters;
+  final bool isVerified;
   final String? createdAt;
   final String? updatedAt;
 
@@ -13,6 +14,7 @@ class WorkspaceConfig {
     required this.longitude,
     required this.workspaceName,
     required this.radiusMeters,
+    this.isVerified = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -28,10 +30,11 @@ class WorkspaceConfig {
       longitude: (json['longitude'] is num)
           ? json['longitude'].toDouble()
           : double.tryParse(json['longitude']?.toString() ?? '') ?? 0.0,
-      workspaceName: json['workspace_name']?.toString() ?? '',
+      workspaceName: json['name']?.toString() ?? json['workspace_name']?.toString() ?? '',
       radiusMeters: json['radius_meters'] is int
           ? json['radius_meters']
           : int.tryParse(json['radius_meters']?.toString() ?? '') ?? 100,
+      isVerified: json['is_verified'] ?? false,
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
     );
@@ -41,7 +44,7 @@ class WorkspaceConfig {
     return {
       'latitude': latitude,
       'longitude': longitude,
-      'workspace_name': workspaceName,
+      'name': workspaceName,
       'radius_meters': radiusMeters,
     };
   }

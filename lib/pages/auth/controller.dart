@@ -101,8 +101,7 @@ class AuthController extends GetxController {
       await _storage.write(key: 'user_id', value: response.userId.toString());
 
       // Fetch permissions
-      await _fetchUserPermissions(response.accessToken, response.userId,
-          email: emailController.text.trim());
+      await _fetchUserPermissions(response.accessToken, response.userId);
 
       await _fetchUserProfile(response.accessToken, response.userId);
 
@@ -127,52 +126,38 @@ class AuthController extends GetxController {
           await _authService.getCurrentUser(accessToken: token, userId: userId);
       currentUser.value = user;
     } catch (e) {
-      log("AuthController: Fetch Profile Failed: $e");
-      // If we couldn't fetch the full profile, we still have the userId from login.
-      // We set a minimal user object to allow the app to proceed to the dashboard.
-      currentUser.value = User(
-        userId: userId,
-        username: 'User $userId',
-        email: '',
-        firstName: 'System',
-        lastName: 'User',
-        isVerified: true,
-        isActive: true,
-        id: 0,
-        branchId: 0,
-        departmentId: 0,
-        levelId: 0,
-        createdAt: DateTime.now().toIso8601String(),
-      );
+      log("Fetch Profile Failed: $e");
+      throw AuthException(message: 'Could not find user');
     }
   }
 
-  Future<void> _fetchUserPermissions(String token, int userId,
-      {String? email}) async {
+  Future<void> _fetchUserPermissions(String token, int userId) async {
     try {
+      // Special check for super-admin (User ID 1)
+      // This grants full platform access to the initial admin account
+      if (userId == 1) {
+        log("AuthController: Super Admin detected (User ID $userId). Granting full permissions.");
+        _permissionService.loadSuperAdminPermissions();
+        return;
+      }
+
       final roles = await _authService.getEmployeeRoles(
           accessToken: token, userId: userId);
 
-      // If roles list is empty and user is admin, grant super-admin permissions
-      if (roles.isEmpty && (email == 'admin@gmail.com' || userId == 1)) {
-        log("AuthController: Granting Super Admin permissions to $email");
-        _permissionService.loadSuperAdminPermissions();
-        return;
+      if (roles.isEmpty) {
+        log("AuthController: No roles found. Loading default permissions.");
+        _permissionService.loadDefaultPermissions();
+      } else {
+        _permissionService.loadPermissions(roles);
       }
-
-      _permissionService.loadPermissions(roles);
     } catch (e) {
       log("Fetch Permissions Failed: $e");
-      // If user is admin (even if request failed with 403), grant super-admin permissions
-      if (email == 'admin@gmail.com' || userId == 1) {
-        log("AuthController: Granting Super Admin permissions after fetch failure.");
-        _permissionService.loadSuperAdminPermissions();
-        return;
-      }
       // Load default minimal permissions so user can at least see the dashboard
       _permissionService.loadDefaultPermissions();
     }
   }
+
+
 
   Future<void> logout() async {
     try {
@@ -242,8 +227,7 @@ class AuthController extends GetxController {
             await _authService.verifyToken(accessToken: accessToken);
 
         if (isValid) {
-          final email = currentUser.value?.email;
-          await _fetchUserPermissions(accessToken, userId, email: email);
+          await _fetchUserPermissions(accessToken, userId);
           await _fetchUserProfile(accessToken, userId);
         } else {
           if (refreshToken != null) {
@@ -273,8 +257,7 @@ class AuthController extends GetxController {
 
       log("Token refreshed successfully.");
 
-      final email = currentUser.value?.email;
-      await _fetchUserPermissions(accessToken, userId, email: email);
+      await _fetchUserPermissions(accessToken, userId);
       await _fetchUserProfile(accessToken, userId);
     } catch (e) {
       log("Token refresh failed: $e");
