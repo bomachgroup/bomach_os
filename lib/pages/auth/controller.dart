@@ -145,7 +145,10 @@ class AuthController extends GetxController {
       currentUser.value = user;
     } catch (e) {
       log("Fetch Profile Failed: $e");
-      throw AuthException(message: 'Could not find user');
+      // If profile fetch fails (e.g. not an employee), we MUST logout the user
+      // so they aren't stuck in a partially authenticated state.
+      await logout();
+      throw AuthException(message: e is AuthException ? e.message : 'Could not find employee profile');
     }
   }
 

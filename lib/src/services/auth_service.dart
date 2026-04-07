@@ -141,30 +141,23 @@ class AuthService {
   Future<User> getCurrentUser(
       {required String accessToken, required int userId}) async {
     try {
-      // Use the generic /auth/me endpoint instead of employee-specific one
-      // this ensures super-admins and non-employee users can also fetch their profile.
+      // Strictly use the employee-specific endpoint.
+      // This ensures that only users with an active employee record can access the system.
       final response = await _dio.get(
-        '/api/v1/auth/me',
+        '/api/v1/employees/employees/$userId',
         options: _authOptions(accessToken),
       );
 
       if (response.data == null || response.data is! Map<String, dynamic>) {
-        throw AuthException(message: 'Server returned invalid user data');
+        throw AuthException(message: 'Server returned invalid employee profile');
       }
 
       return User.fromJson(response.data);
     } on DioException catch (e) {
-      // Fallback: If /auth/me fails, try calling the employee-specific one just in case
-      if (e.response?.statusCode == 404 || e.response?.statusCode == 405) {
-        try {
-          final response = await _dio.get(
-            '/api/v1/employees/employees/$userId',
-            options: _authOptions(accessToken),
-          );
-          return User.fromJson(response.data);
-        } catch (_) {
-          throw _handleError(e);
-        }
+      if (e.response?.statusCode == 404 || e.response?.statusCode == 403) {
+        throw AuthException(
+            message: 'No active employee profile found. Access Denied.',
+            statusCode: e.response?.statusCode ?? 403);
       }
       throw _handleError(e);
     }
