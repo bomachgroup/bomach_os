@@ -43,17 +43,9 @@ class PermissionService extends GetxService {
     _userPermissions.refresh();
   }
 
-  /// Grants full unrestricted access to all resources and actions.
-  void loadSuperAdminPermissions() {
-    _userPermissions.clear();
-    _userPermissions['*'] = {'*'};
-    _userPermissions.refresh();
-  }
+
 
   bool hasPermission(String resource, String action) {
-    // Check for global super-admin wildcard
-    if (_userPermissions.containsKey('*')) return true;
-
     final actions = _userPermissions[resource];
     if (actions == null) return false;
     return actions.contains(action) ||
@@ -72,9 +64,6 @@ class PermissionService extends GetxService {
 
   /// Returns true if user has any permission at all for a given resource
   bool hasAnyPermissionForResource(String resource) {
-    // Check for global super-admin wildcard
-    if (_userPermissions.containsKey('*')) return true;
-
     return _userPermissions.containsKey(resource) &&
         _userPermissions[resource]!.isNotEmpty;
   }

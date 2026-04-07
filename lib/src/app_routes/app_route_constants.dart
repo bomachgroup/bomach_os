@@ -4,6 +4,7 @@ class RouteConstants {
   static const String home = '/dashboard';
   static const String resetPassword = '/reset-password';
   static const String forgotPassword = '/forgot-password';
+  static const String twoFactorVerify = '/two-factor-verify';
 
   static const String company = '/company';
   static const String enugu = '/company/enugu';

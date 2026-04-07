@@ -23,6 +23,8 @@ class AuthController extends GetxController {
   final passwordController = TextEditingController();
   final resetCodeController = TextEditingController();
   final newPasswordController = TextEditingController();
+  final twoFactorCodeController = TextEditingController();
+  String? currentSessionToken;
 
   @override
   void onInit() {
@@ -36,6 +38,7 @@ class AuthController extends GetxController {
     passwordController.dispose();
     resetCodeController.dispose();
     newPasswordController.dispose();
+    twoFactorCodeController.dispose();
     super.onClose();
   }
 
@@ -96,17 +99,32 @@ class AuthController extends GetxController {
         password: passwordController.text,
       );
 
-      await _storage.write(key: 'access_token', value: response.accessToken);
-      await _storage.write(key: 'refresh_token', value: response.refreshToken);
-      await _storage.write(key: 'user_id', value: response.userId.toString());
+      if (response.requires2Fa && response.sessionToken.isNotEmpty) {
+        currentSessionToken = response.sessionToken;
+        if (context.mounted) {
+          _showSnackBar(context, response.detail.isNotEmpty ? response.detail : '2FA code sent to your email');
+          context.push(RouteConstants.twoFactorVerify);
+        }
+        return;
+      }
 
-      // Fetch permissions
-      await _fetchUserPermissions(response.accessToken, response.userId);
+      // If 2FA is somehow disabled and it returns access token right away
+      if (response.accessToken.isNotEmpty) {
+        await _storage.write(key: 'access_token', value: response.accessToken);
+        await _storage.write(key: 'refresh_token', value: response.refreshToken);
+        await _storage.write(key: 'user_id', value: response.userId.toString());
 
-      await _fetchUserProfile(response.accessToken, response.userId);
+        // Fetch permissions
+        await _fetchUserPermissions(response.accessToken, response.userId);
 
-      if (context.mounted) {
-        _showSnackBar(context, 'Login Successful');
+        await _fetchUserProfile(response.accessToken, response.userId);
+
+        if (context.mounted) {
+          _showSnackBar(context, 'Login Successful');
+          context.go(RouteConstants.home);
+        }
+      } else {
+        throw AuthException(message: 'Invalid server response without access token or session token');
       }
     } on AuthException catch (e) {
       if (context.mounted) _showDialog(context, "Error", e.message);
@@ -133,13 +151,7 @@ class AuthController extends GetxController {
 
   Future<void> _fetchUserPermissions(String token, int userId) async {
     try {
-      // Special check for super-admin (User ID 1)
-      // This grants full platform access to the initial admin account
-      if (userId == 1) {
-        log("AuthController: Super Admin detected (User ID $userId). Granting full permissions.");
-        _permissionService.loadSuperAdminPermissions();
-        return;
-      }
+      log("AuthController: Fetching roles for user $userId.");
 
       final roles = await _authService.getEmployeeRoles(
           accessToken: token, userId: userId);
@@ -209,6 +221,54 @@ class AuthController extends GetxController {
       }
     } on AuthException catch (e) {
       if (context.mounted) _showDialog(context, "Error", e.message);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> verify2Fa(BuildContext context) async {
+    if (twoFactorCodeController.text.trim().isEmpty) {
+      _showSnackBar(context, 'Please enter the 6-digit code', isError: true);
+      return;
+    }
+    if (currentSessionToken == null || currentSessionToken!.isEmpty) {
+      _showSnackBar(context, 'Session expired. Please log in again.', isError: true);
+      context.go(RouteConstants.login);
+      return;
+    }
+
+    FocusManager.instance.primaryFocus?.unfocus();
+    isLoading.value = true;
+
+    try {
+      final response = await _authService.verify2Fa(
+        sessionToken: currentSessionToken!,
+        code: twoFactorCodeController.text.trim(),
+      );
+
+      await _storage.write(key: 'access_token', value: response.accessToken);
+      await _storage.write(key: 'refresh_token', value: response.refreshToken);
+      await _storage.write(key: 'user_id', value: response.userId.toString());
+
+      // Fetch permissions
+      await _fetchUserPermissions(response.accessToken, response.userId);
+
+      await _fetchUserProfile(response.accessToken, response.userId);
+
+      currentSessionToken = null;
+      twoFactorCodeController.clear();
+
+      if (context.mounted) {
+        _showSnackBar(context, 'Login Successful');
+        context.go(RouteConstants.home);
+      }
+    } on AuthException catch (e) {
+      if (context.mounted) _showDialog(context, "Error", e.message);
+    } catch (e) {
+      if (context.mounted) {
+        _showDialog(context, "Connection Error",
+            "Please check your internet connection.");
+      }
     } finally {
       isLoading.value = false;
     }

@@ -100,6 +100,43 @@ class AuthService {
     }
   }
 
+  // VERIFY 2FA
+  Future<LoginResponse> verify2Fa({
+    required String sessionToken,
+    required String code,
+  }) async {
+    try {
+      log("AuthService: Attempting 2FA verification");
+
+      final response = await _dio.post(
+        '/api/v1/auth/verify-2fa',
+        data: {
+          'session_token': sessionToken,
+          'code': code,
+        },
+      );
+
+      log("AuthService: 2FA Response received. Status: ${response.statusCode}");
+      log("AuthService: Data: ${response.data}");
+
+      if (response.data == null) {
+        throw AuthException(message: 'Server returned an empty response');
+      }
+
+      if (response.data is! Map<String, dynamic>) {
+        throw AuthException(
+            message: 'Server format error: Expected JSON object');
+      }
+
+      return LoginResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    } catch (e) {
+      log("AuthService: Unknown error during 2FA: $e");
+      throw AuthException(message: 'Unexpected error: $e');
+    }
+  }
+
   // GET CURRENT USER
   Future<User> getCurrentUser(
       {required String accessToken, required int userId}) async {
@@ -482,6 +519,8 @@ class LoginResponse {
   final String refreshToken;
   final int userId;
   final String detail;
+  final bool requires2Fa;
+  final String sessionToken;
 
   LoginResponse({
     required this.success,
@@ -489,6 +528,8 @@ class LoginResponse {
     required this.refreshToken,
     required this.userId,
     required this.detail,
+    this.requires2Fa = false,
+    this.sessionToken = '',
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
@@ -498,6 +539,8 @@ class LoginResponse {
       refreshToken: json['refresh_token'] ?? '',
       userId: json['user_id'] ?? 0,
       detail: json['detail'] ?? '',
+      requires2Fa: json['requires_2fa'] ?? false,
+      sessionToken: json['session_token'] ?? '',
     );
   }
 }

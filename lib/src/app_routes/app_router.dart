@@ -103,6 +103,7 @@ import '../../pages/analytics/branch_performance_analysis.dart';
 import '../../pages/auth/controller.dart';
 import '../../pages/auth/forgot_password.dart';
 import '../../pages/auth/reset_password.dart';
+import '../../pages/auth/two_factor_verify.dart';
 import '../../pages/crm/clients.dart';
 import '../../pages/crm/interactions.dart';
 import '../../pages/crm/lead.dart';
@@ -282,7 +283,8 @@ final goRouter = GoRouter(
     final bool isPublicRoute = location == RouteConstants.login ||
         location == RouteConstants.biometric ||
         location == RouteConstants.forgotPassword ||
-        location == RouteConstants.resetPassword;
+        location == RouteConstants.resetPassword ||
+        location == RouteConstants.twoFactorVerify;
 
     // 2. If NOT logged in and trying to access a PRIVATE route -> Redirect to Login
     if (!isLoggedIn && !isPublicRoute) {
@@ -327,6 +329,10 @@ final goRouter = GoRouter(
     GoRoute(
       path: RouteConstants.biometric,
       builder: (context, state) => const BiometricLoginScreen(),
+    ),
+    GoRoute(
+      path: RouteConstants.twoFactorVerify,
+      builder: (context, state) => const TwoFactorVerifyScreen(),
     ),
 
     // Dashboard with indexed stack navigation
