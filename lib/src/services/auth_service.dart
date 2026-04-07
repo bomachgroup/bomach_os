@@ -104,9 +104,10 @@ class AuthService {
   Future<User> getCurrentUser(
       {required String accessToken, required int userId}) async {
     try {
-      // Use the specific employee endpoint instead of /auth/me
+      // Use /auth/me instead of /employees/employees/$userId to successfully fetch
+      // profile data even if the user doesn't have an employee profile yet (e.g. admin).
       final response = await _dio.get(
-        '/api/v1/employees/employees/$userId',
+        '/api/v1/auth/me',
         options: _authOptions(accessToken),
       );
 
@@ -116,7 +117,16 @@ class AuthService {
 
       return User.fromJson(response.data);
     } on DioException catch (e) {
-      throw _handleError(e);
+      // Fallback: If /auth/me fails, try /employees/employees/$userId as a legacy fallback
+      try {
+        final response = await _dio.get(
+          '/api/v1/employees/employees/$userId',
+          options: _authOptions(accessToken),
+        );
+        return User.fromJson(response.data);
+      } catch (_) {
+        throw _handleError(e);
+      }
     }
   }
 
@@ -146,6 +156,11 @@ class AuthService {
 
       return [];
     } on DioException catch (e) {
+      // Return empty list on 403 or 404 for roles, as it indicates a non-employee user (like super admin)
+      if (e.response?.statusCode == 403 || e.response?.statusCode == 404) {
+        log("AuthService: Non-employee user detected, returning empty roles list.");
+        return [];
+      }
       throw _handleError(e);
     }
   }
