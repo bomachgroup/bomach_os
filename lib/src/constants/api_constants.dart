@@ -5,4 +5,3 @@ class ApiConstants {
       ? 'https://bomachauth.bgbot.app'
       : 'https://bomachauthtest.bgbot.app';
 }
-
