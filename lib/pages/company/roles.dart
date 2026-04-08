@@ -474,15 +474,6 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
     _selectedBranchIds = {};
     if (role != null) {
       _selectedBranchIds = role.branches.map((b) => b.id).toSet();
-    } else {
-      // Select first branch by default for new roles
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (widget.ctrl.branches.isNotEmpty && _selectedBranchIds.isEmpty) {
-          setState(() {
-            _selectedBranchIds.add(widget.ctrl.branches.first.id);
-          });
-        }
-      });
     }
 
     _selectedPermissions = {};
@@ -527,11 +518,6 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
   void _onSave() async {
     if (_nameCtrl.text.trim().isEmpty) {
       Get.snackbar('Validation', 'Role name is required',
-          snackPosition: SnackPosition.BOTTOM);
-      return;
-    }
-    if (_selectedBranchIds.isEmpty) {
-      Get.snackbar('Validation', 'Select at least one branch',
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
