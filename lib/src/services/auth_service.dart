@@ -27,6 +27,7 @@ class AuthService {
     _dio.interceptors.add(LogInterceptor(
       request: true,
       requestHeader: true,
+      requestBody: ApiConstants.enableRequestBodyLogging,
       responseBody: true,
       responseHeader: false,
     ));

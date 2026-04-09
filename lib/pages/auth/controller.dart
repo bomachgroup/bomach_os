@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../src/app_routes/app_route_constants.dart';
@@ -98,7 +98,7 @@ class AuthController extends GetxController {
     try {
       final response = await _authService.login(
         email: emailController.text.trim(),
-        password: passwordController.text,
+        password: passwordController.text.trim(),
       );
 
       if (response.requires2Fa) {
@@ -107,7 +107,11 @@ class AuthController extends GetxController {
         _storage.write(key: 'session_token', value: response.sessionToken);
 
         if (context.mounted) {
-          _showSnackBar(context, response.detail.isNotEmpty ? response.detail : '2FA code sent to your email');
+          _showSnackBar(
+              context,
+              response.detail.isNotEmpty
+                  ? response.detail
+                  : '2FA code sent to your email');
           context.push(RouteConstants.twoFactorVerify);
         }
         return;
@@ -116,7 +120,8 @@ class AuthController extends GetxController {
       // If 2FA is disabled and it returns access token right away
       if (response.accessToken.isNotEmpty) {
         await _storage.write(key: 'access_token', value: response.accessToken);
-        await _storage.write(key: 'refresh_token', value: response.refreshToken);
+        await _storage.write(
+            key: 'refresh_token', value: response.refreshToken);
         await _storage.write(key: 'user_id', value: response.userId.toString());
 
         // Fetch permissions
@@ -130,7 +135,9 @@ class AuthController extends GetxController {
           context.go(RouteConstants.home);
         }
       } else {
-        throw AuthException(message: 'Invalid server response without access token or session token');
+        throw AuthException(
+            message:
+                'Invalid server response without access token or session token');
       }
     } on AuthException catch (e) {
       if (context.mounted) _showDialog(context, "Error", e.message);
@@ -156,7 +163,8 @@ class AuthController extends GetxController {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Please enter your password to proceed with 2FA changes.'),
+              const Text(
+                  'Please enter your password to proceed with 2FA changes.'),
               const SizedBox(height: 16),
               TextField(
                 controller: passwordController,
@@ -165,7 +173,8 @@ class AuthController extends GetxController {
                   labelText: 'Password',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    icon: Icon(isObscure ? Icons.visibility_off : Icons.visibility),
+                    icon: Icon(
+                        isObscure ? Icons.visibility_off : Icons.visibility),
                     onPressed: () => setState(() => isObscure = !isObscure),
                   ),
                 ),
@@ -192,7 +201,8 @@ class AuthController extends GetxController {
     final password = await _showPasswordDialog(context);
     if (password == null || password.isEmpty) {
       if (context.mounted) {
-         _showSnackBar(context, 'Password is required to change 2FA settings', isError: true);
+        _showSnackBar(context, 'Password is required to change 2FA settings',
+            isError: true);
       }
       return;
     }
@@ -209,13 +219,14 @@ class AuthController extends GetxController {
       }
 
       is2FaEnabled.value = newStatus;
-      
+
       if (context.mounted) {
         _showSnackBar(context, newStatus ? '2FA Enabled' : '2FA Disabled');
       }
     } catch (e) {
       if (context.mounted) {
-        _showSnackBar(context, 'Failed to update 2FA setting: $e', isError: true);
+        _showSnackBar(context, 'Failed to update 2FA setting: $e',
+            isError: true);
       }
     }
   }
@@ -233,10 +244,12 @@ class AuthController extends GetxController {
       }
     } catch (e) {
       log("Failed to fetch user profile: $e");
-      // If profile fetch fails (e.g. not an employee), we MUST logout the user
-      // so they aren't stuck in a partially authenticated state.
-      await logout();
-      throw AuthException(message: e is AuthException ? e.message : 'Could not find employee profile');
+      // DISABLED auto-logout to allow troubleshooting
+      // await logout();
+      throw AuthException(
+          message: e is AuthException
+              ? e.message
+              : 'Could not find employee profile');
     }
   }
 
@@ -259,8 +272,6 @@ class AuthController extends GetxController {
       _permissionService.loadDefaultPermissions();
     }
   }
-
-
 
   Future<void> logout() async {
     try {
@@ -323,7 +334,8 @@ class AuthController extends GetxController {
       return;
     }
     if (currentSessionToken == null || currentSessionToken!.isEmpty) {
-      _showSnackBar(context, 'Session expired. Please log in again.', isError: true);
+      _showSnackBar(context, 'Session expired. Please log in again.',
+          isError: true);
       context.go(RouteConstants.login);
       return;
     }
