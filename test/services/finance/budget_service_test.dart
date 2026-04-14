@@ -11,7 +11,7 @@ void main() {
   late BudgetService service;
 
   const token = 'test-token-123';
-  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  final baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleBudgetJson = {
     'id': 1,

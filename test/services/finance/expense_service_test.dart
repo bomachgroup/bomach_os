@@ -11,7 +11,7 @@ void main() {
   late ExpenseService service;
 
   const token = 'test-token-123';
-  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  final baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleExpenseJson = {
     'id': 1,

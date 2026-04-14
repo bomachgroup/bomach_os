@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:dio/dio.dart';
 
 import '../../../pages/hr/models/monthly_scorecard_models.dart';
 import '../../../pages/hr/models/performance_leaderboard_models.dart';
@@ -7,7 +7,7 @@ import '../../../pages/hr/models/performance_leaderboard_models.dart';
 class MonthlyScorecardService {
   final Dio _dio;
 
-  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  static final String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   MonthlyScorecardService({
     Dio? dioOverride,

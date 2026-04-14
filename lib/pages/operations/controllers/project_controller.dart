@@ -11,7 +11,7 @@ import '../../../src/services/operations/operations_services.dart';
 
 class ProjectController extends GetxController {
   final DashboardService _service =
-      DashboardService(baseUrl: ApiConstants.baseUrl);
+      DashboardService(baseUrl: ApiConstants.operationsBaseUrl);
   final EmployeeService _employeeService = EmployeeService();
   final _storage = const FlutterSecureStorage();
 

@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 class MeetingsService {
   final Dio _dio;
 
-  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  static final String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   MeetingsService({Dio? dioOverride})
       : _dio = dioOverride ??

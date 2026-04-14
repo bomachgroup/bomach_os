@@ -6,7 +6,7 @@ import '../../pages/dashboad/models/dashboard_models.dart';
 class DashboardService {
   final Dio _dio;
 
-  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  static final String _baseUrl = '${ApiConstants.operationsBaseUrl}/api/v1';
 
   DashboardService({
     Dio? dioOverride,

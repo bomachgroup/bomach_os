@@ -257,7 +257,7 @@ class UserProfileDialog extends StatelessWidget {
                               scale: 0.8,
                               child: Switch.adaptive(
                                 value: authController.is2FaEnabled.value,
-                                activeColor: const Color(0xFF10B981),
+                                activeTrackColor: const Color(0xFF10B981),
                                 onChanged: (val) {
                                   authController.toggle2Fa(context, val);
                                 },

@@ -1,5 +1,5 @@
-import 'package:bms_front_end/src/services/hr/employee_evaluation_service.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:bms_front_end/src/services/hr/employee_evaluation_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
@@ -10,7 +10,7 @@ void main() {
   late EmployeeEvaluationService service;
 
   const token = 'test-token-123';
-  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  final baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final sampleEvaluation = {
     'id': 1,

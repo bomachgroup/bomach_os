@@ -8,7 +8,7 @@ import '../../../src/services/operations/milestone_services.dart';
 
 class MilestoneController extends GetxController {
   final MilestoneService _service =
-      MilestoneService(baseUrl: ApiConstants.baseUrl);
+      MilestoneService(baseUrl: ApiConstants.operationsBaseUrl);
   final _storage = const FlutterSecureStorage();
 
   var milestones = <Milestone>[].obs;
