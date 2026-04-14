@@ -11,7 +11,7 @@ void main() {
   late PaymentService service;
 
   const token = 'test-token-123';
-  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  final baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   final samplePaymentJson = {
     'id': 1,

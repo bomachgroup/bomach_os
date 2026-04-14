@@ -5,7 +5,7 @@ import 'package:bms_front_end/pages/services/models/estate_models.dart';
 class EstateService {
   final Dio _dio;
 
-  static const String _baseUrl = ApiConstants.baseUrl;
+  static final String _baseUrl = ApiConstants.baseUrl;
 
   EstateService({Dio? dioOverride})
       : _dio = dioOverride ??

@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
@@ -64,7 +65,7 @@ class Event {
 class EventService {
   final Dio _dio;
 
-  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  static final String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   EventService({
     Dio? dioOverride,

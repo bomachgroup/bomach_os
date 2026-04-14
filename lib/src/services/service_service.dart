@@ -7,7 +7,7 @@ import '../../pages/services/models/service_model.dart';
 class ServiceService {
   final Dio _dio;
 
-  static const String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  static final String _baseUrl = '${ApiConstants.baseUrl}/api/v1';
 
   ServiceService({
     Dio? dioOverride,

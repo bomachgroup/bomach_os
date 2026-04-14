@@ -11,7 +11,7 @@ void main() {
   late OfferLetterService service;
 
   const token = 'test-token-123';
-  const baseUrl = '${ApiConstants.baseUrl}/api/v1';
+  final baseUrl = '${ApiConstants.baseUrl}/api/v1';
   const applicantId = 42;
 
   final sampleOfferLetterJson = {

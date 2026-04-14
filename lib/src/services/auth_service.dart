@@ -3,6 +3,7 @@ import 'package:bms_front_end/src/constants/api_constants.dart';
 
 import 'package:dio/dio.dart';
 
+
 import '../../pages/services/models/client_model.dart';
 import '../../pages/services/models/lead_model.dart';
 import '../model/role_model.dart';
@@ -12,11 +13,11 @@ class AuthService {
   final Dio _dio;
 
   AuthService({
-    String baseUrl = ApiConstants.baseUrl,
+    String? baseUrl,
     Dio? dioOverride,
   }) : _dio = dioOverride ??
             Dio(BaseOptions(
-              baseUrl: baseUrl,
+              baseUrl: baseUrl ?? ApiConstants.authBaseUrl,
               connectTimeout: const Duration(seconds: 30),
               receiveTimeout: const Duration(seconds: 30),
               headers: {

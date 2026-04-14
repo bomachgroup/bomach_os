@@ -8,7 +8,7 @@ import '../../../src/services/operations/works_services.dart';
 
 class WorksiteController extends GetxController {
   final WorksiteService _service =
-      WorksiteService(baseUrl: ApiConstants.baseUrl);
+      WorksiteService(baseUrl: ApiConstants.operationsBaseUrl);
   final _storage = const FlutterSecureStorage();
 
   var worksites = <Worksite>[].obs;

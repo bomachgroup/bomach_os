@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/src/constants/api_constants.dart';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -94,12 +96,14 @@ class AuthController extends GetxController {
 
     FocusManager.instance.primaryFocus?.unfocus();
     isLoading.value = true;
+    log("AuthController: Attempting login for ${emailController.text.trim()} at ${ApiConstants.authBaseUrl}");
 
     try {
       final response = await _authService.login(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
 
       if (response.requires2Fa) {
         // Pending 2FA

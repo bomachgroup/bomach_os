@@ -8,7 +8,7 @@ import '../../../src/services/operations/operations_services.dart';
 
 class OperationsDashboardController extends GetxController {
   final DashboardService _service =
-      DashboardService(baseUrl: ApiConstants.baseUrl);
+      DashboardService(baseUrl: ApiConstants.operationsBaseUrl);
   final _storage = const FlutterSecureStorage();
 
   var stats = Rxn<DashboardStats>();

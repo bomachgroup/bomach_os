@@ -1,11 +1,11 @@
-import 'package:dio/dio.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:dio/dio.dart';
 
 import '../model/partner_model.dart';
 
 class PartnerService {
   final Dio _dio;
-  static const baseUrl = ApiConstants.baseUrl;
+  static final baseUrl = ApiConstants.baseUrl;
 
   PartnerService({
     Dio? dioOverride,

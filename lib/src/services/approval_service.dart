@@ -6,7 +6,7 @@ import '../model/approval_model.dart';
 
 class ApprovalService {
   final Dio _dio;
-  static const baseUrl = ApiConstants.baseUrl;
+  static final baseUrl = ApiConstants.baseUrl;
 
   ApprovalService({
     Dio? dioOverride,

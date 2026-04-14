@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
@@ -6,7 +7,7 @@ import '../model/branch_model.dart';
 
 class BranchService {
   final Dio _dio;
-  static const baseUrl = ApiConstants.baseUrl;
+  static final baseUrl = ApiConstants.baseUrl;
   BranchService({
     Dio? dioOverride,
   }) : _dio = dioOverride ??
