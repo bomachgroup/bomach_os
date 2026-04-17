@@ -1,5 +1,7 @@
+import 'package:bms_front_end/components/permission/permission_gate.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/cupertino.dart';
@@ -233,40 +235,46 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                 ),
               ),
               kSizedBoxWidth,
-              ElevatedButton.icon(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => const AddEmployeeDialog(),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0055FF),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                ),
-                icon: const Icon(CupertinoIcons.add,
-                    color: Colors.white, size: 18),
-                label: const Text(
-                  'Add Employee',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w600),
+              PermissionGate(
+                require: Perms.employeesCreate,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => const AddEmployeeDialog(),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0055FF),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 18),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  icon: const Icon(CupertinoIcons.add,
+                      color: Colors.white, size: 18),
+                  label: const Text(
+                    'Add Employee',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
             ],
           )
         else
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => const AddEmployeeDialog(),
-              );
-            },
-            icon: const Icon(CupertinoIcons.add_circled_solid,
-                color: Color(0xFF0055FF), size: 30),
+          PermissionGate(
+            require: Perms.employeesCreate,
+            child: IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const AddEmployeeDialog(),
+                );
+              },
+              icon: const Icon(CupertinoIcons.add_circled_solid,
+                  color: Color(0xFF0055FF), size: 30),
+            ),
           )
       ],
     );

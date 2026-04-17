@@ -62,7 +62,9 @@ class BiometricsController extends GetxController {
     required double latitude,
     required double longitude,
     required String workspaceName,
+    required String locationType,
     required int radiusMeters,
+    String? notes,
   }) async {
     try {
       isSettingUpWorkspace(true);
@@ -76,22 +78,25 @@ class BiometricsController extends GetxController {
           latitude: latitude,
           longitude: longitude,
           workspaceName: workspaceName,
-          radiusMeters: radiusMeters,
+          allowedRadiusMeters: radiusMeters,
+          notes: notes,
         );
       } else {
         result = await _api.setupWorkspace(
           token,
+          workspaceName: workspaceName,
+          locationType: locationType,
           latitude: latitude,
           longitude: longitude,
-          workspaceName: workspaceName,
-          radiusMeters: radiusMeters,
+          allowedRadiusMeters: radiusMeters,
+          notes: notes,
         );
       }
 
       workspace.value = WorkspaceConfig.fromJson(result);
       return true;
     } catch (e) {
-      errorMessage.value = e.toString();
+      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       isSettingUpWorkspace(false);

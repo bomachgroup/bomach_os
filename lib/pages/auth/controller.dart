@@ -258,6 +258,18 @@ class AuthController extends GetxController {
   }
 
   Future<void> _fetchUserPermissions(String token, int userId) async {
+    // Super admin shortcut — user_id == 1 is the platform owner with full
+    // access. Remove this once the backend exposes an explicit is_superuser
+    // flag on the user model.
+    if (userId == 1) {
+      log("AuthController: Super admin detected (user_id=1). "
+          "Granting wildcard permissions.");
+      _permissionService.loadSuperAdminPermissions();
+      // Still do drift validation so devs catch backend changes.
+      _validatePermissionDrift(token);
+      return;
+    }
+
     try {
       log("AuthController: Fetching roles for user $userId.");
 
@@ -272,9 +284,23 @@ class AuthController extends GetxController {
       }
     } catch (e) {
       log("Fetch Permissions Failed: $e");
-      // Load default minimal permissions so user can at least see the dashboard
       _permissionService.loadDefaultPermissions();
     }
+
+    _validatePermissionDrift(token);
+  }
+
+  /// Fire-and-forget check that our declared `Perms.*` constants still
+  /// match what the backend exposes. Logs warnings in debug mode only.
+  void _validatePermissionDrift(String token) {
+    _authService
+        .getPermissionsMap(accessToken: token)
+        .then((map) {
+          if (map.isNotEmpty) {
+            _permissionService.validateAgainstBackendMap(map);
+          }
+        })
+        .catchError((e) => log("Drift check skipped: $e"));
   }
 
   Future<void> logout() async {

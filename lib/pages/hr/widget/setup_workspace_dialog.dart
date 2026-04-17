@@ -20,7 +20,18 @@ class SetupWorkspaceDialog extends StatefulWidget {
 class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
+  final _radiusCtrl = TextEditingController(text: '100');
   final _location = LocationService();
+
+  // Location type choices accepted by the backend.
+  // Any free-form string works, but these are the common ones.
+  static const _locationTypes = <String, String>{
+    'office': 'Office',
+    'remote': 'Remote',
+    'client_site': 'Client Site',
+    'home': 'Home',
+  };
+  String _locationType = 'office';
 
   Position? _position;
   bool _fetchingLocation = false;
@@ -33,12 +44,17 @@ class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
     final ws = controller.workspace.value;
     if (ws != null) {
       _nameCtrl.text = ws.workspaceName;
+      _radiusCtrl.text = ws.radiusMeters.toString();
+      if (_locationTypes.containsKey(ws.locationType)) {
+        _locationType = ws.locationType;
+      }
     }
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _radiusCtrl.dispose();
     super.dispose();
   }
 
@@ -75,13 +91,15 @@ class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
     }
 
     final controller = Get.find<BiometricsController>();
+    final radius = int.tryParse(_radiusCtrl.text.trim()) ?? 100;
 
     final success = await controller.saveWorkspace(
       widget.token,
       latitude: _position!.latitude,
       longitude: _position!.longitude,
       workspaceName: _nameCtrl.text.trim(),
-      radiusMeters: 50,
+      locationType: _locationType,
+      radiusMeters: radius < 10 ? 10 : radius,
     );
 
     if (mounted) {
@@ -108,7 +126,7 @@ class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       backgroundColor: Colors.white,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 560),
+        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 720),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -278,8 +296,62 @@ class _SetupWorkspaceDialogState extends State<SetupWorkspaceDialog> {
                       ),
 
                       const SizedBox(height: 16),
+
+                      // Location type
+                      const MyText('Location Type',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B))),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        initialValue: _locationType,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
+                        ),
+                        items: _locationTypes.entries
+                            .map((e) => DropdownMenuItem(
+                                  value: e.key,
+                                  child: Text(e.value),
+                                ))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) setState(() => _locationType = v);
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Radius
+                      const MyText('Allowed Radius (meters)',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B))),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _radiusCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: 'e.g., 100',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
+                          suffixText: 'meters',
+                        ),
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return 'Required';
+                          final n = int.tryParse(v.trim());
+                          if (n == null || n < 10) return 'Minimum 10 meters';
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 8),
                       const Text(
-                        'Employees must be within 50 meters of the GPS coordinates to clock in/out.',
+                        'Employees must be within this radius of the GPS coordinates to clock in/out.',
                         style: TextStyle(
                             fontSize: 11, color: Color(0xFF94A3B8)),
                       ),

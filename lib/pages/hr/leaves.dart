@@ -1,10 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/permission/permission_gate.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/widget/add_leave_request_dialog.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -133,20 +135,24 @@ class _LeavesPageState extends State<LeavesPage> {
             ),
           ),
           // CTA button
-          ElevatedButton.icon(
-            onPressed: _openRequestDialog,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF0055FF),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              elevation: 0,
-            ),
-            icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text(
-              'Request Leave',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          PermissionGate(
+            require: Perms.leaveRequestsCreate,
+            child: ElevatedButton.icon(
+              onPressed: _openRequestDialog,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF0055FF),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text(
+                'Request Leave',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
             ),
           ),
         ],
@@ -428,19 +434,22 @@ class _LeavesPageState extends State<LeavesPage> {
               style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _openRequestDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue,
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+            PermissionGate(
+              require: Perms.leaveRequestsCreate,
+              child: ElevatedButton.icon(
+                onPressed: _openRequestDialog,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+                icon: const Icon(Icons.add_rounded, size: 16),
+                label: const Text('Request Leave',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
               ),
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: const Text('Request Leave',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
         ),
