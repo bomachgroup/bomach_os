@@ -35,8 +35,45 @@ class BiometricsController extends GetxController {
   var isFetchingWorkspace = false.obs;
   var isSettingUpWorkspace = false.obs;
 
+  // Biometric enrollment status (from GET /biometric/status)
+  var hasFace = false.obs;
+  var hasFingerprint = false.obs;
+  var biometricEnabled = false.obs;
+  var isFetchingStatus = false.obs;
+
   // Clock-in step feedback
   var clockStepMessage = ''.obs;
+
+  // ── Biometric status ──────────────────────────────────────────────────
+
+  Future<void> fetchBiometricStatus(String token) async {
+    try {
+      isFetchingStatus(true);
+      final data = await _api.getBiometricStatus(token);
+      hasFace.value = data['has_face'] == true;
+      hasFingerprint.value = data['has_fingerprint'] == true;
+      biometricEnabled.value = data['biometric_enabled'] == true;
+    } catch (e) {
+      log('Fetch biometric status error: $e');
+    } finally {
+      isFetchingStatus(false);
+    }
+  }
+
+  /// POST /biometric/remove — revokes a biometric enrollment.
+  /// biometricType: 'face' or 'fingerprint'.
+  Future<bool> removeBiometric(String token, {required String biometricType}) async {
+    try {
+      await _api.removeBiometric(token, biometricType);
+      successMessage.value =
+          '${biometricType[0].toUpperCase()}${biometricType.substring(1)} removed.';
+      await fetchBiometricStatus(token);
+      return true;
+    } catch (e) {
+      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    }
+  }
 
   // --- Workspace Management ---
 
@@ -304,6 +341,8 @@ class BiometricsController extends GetxController {
       await _api.setupFace(token, base64FaceString);
 
       successMessage.value = 'Face registered successfully!';
+      // Refresh status so the UI reflects has_face=true without a manual reload.
+      await fetchBiometricStatus(token);
       return true;
     } catch (e) {
       _handleError(e);
