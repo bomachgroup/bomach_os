@@ -1,25 +1,56 @@
+/// Approval lifecycle for a work location. Mirrors backend `status` enum
+/// ("PENDING" | "APPROVED" | "REJECTED") returned by `WorkLocationSchema`.
+enum WorkspaceStatus { pending, approved, rejected, unknown }
+
+extension WorkspaceStatusX on WorkspaceStatus {
+  String get label {
+    switch (this) {
+      case WorkspaceStatus.pending:
+        return 'Pending';
+      case WorkspaceStatus.approved:
+        return 'Approved';
+      case WorkspaceStatus.rejected:
+        return 'Rejected';
+      case WorkspaceStatus.unknown:
+        return 'Unknown';
+    }
+  }
+
+  static WorkspaceStatus parse(dynamic raw) {
+    final s = (raw?.toString() ?? '').toLowerCase();
+    switch (s) {
+      case 'approved':
+        return WorkspaceStatus.approved;
+      case 'pending':
+        return WorkspaceStatus.pending;
+      case 'rejected':
+        return WorkspaceStatus.rejected;
+      default:
+        return WorkspaceStatus.unknown;
+    }
+  }
+}
+
 /// Flutter mirror of the backend `WorkLocationSchema`.
 /// Endpoint: `GET /api/v1/biometric/location/whitelisted`
 ///
-/// Backend field names:
-///   id, name, location_type, latitude, longitude, allowed_radius_meters,
-///   branch_name, is_verified, verified_by_name, verified_at, expires_at,
-///   is_active, is_expired, can_be_used, notes, created_at
+/// The user never edits `radiusMeters` — it's set by the admin at approval
+/// time (default 100m). It's stored here only so the client-side geofence
+/// check at clock-in can use whatever the admin actually approved.
 class WorkspaceConfig {
   final int? id;
   final String workspaceName; // → name
-  final String locationType; // → location_type (e.g. "office", "remote")
   final double latitude;
   final double longitude;
-  final int radiusMeters; // → allowed_radius_meters
+  final int radiusMeters; // → allowed_radius_meters (admin-controlled)
   final String? branchName;
-  final bool isVerified;
+  final WorkspaceStatus status;
+  final String? rejectionReason;
   final String? verifiedByName;
   final String? verifiedAt;
   final String? expiresAt;
   final bool isActive;
   final bool isExpired;
-  final bool canBeUsed;
   final String notes;
   final String? createdAt;
   final String? updatedAt;
@@ -27,22 +58,26 @@ class WorkspaceConfig {
   WorkspaceConfig({
     this.id,
     required this.workspaceName,
-    this.locationType = 'office',
     required this.latitude,
     required this.longitude,
-    required this.radiusMeters,
+    this.radiusMeters = 100,
     this.branchName,
-    this.isVerified = false,
+    this.status = WorkspaceStatus.unknown,
+    this.rejectionReason,
     this.verifiedByName,
     this.verifiedAt,
     this.expiresAt,
     this.isActive = true,
     this.isExpired = false,
-    this.canBeUsed = true,
     this.notes = '',
     this.createdAt,
     this.updatedAt,
   });
+
+  /// True when the workspace is in a state that allows clock-in.
+  /// Client-side guard — the backend is the authoritative check.
+  bool get canClockIn =>
+      status == WorkspaceStatus.approved && isActive && !isExpired;
 
   factory WorkspaceConfig.fromJson(Map<String, dynamic> json) {
     int parseInt(dynamic v, {int fallback = 100}) {
@@ -57,6 +92,17 @@ class WorkspaceConfig {
       return double.tryParse(v.toString()) ?? 0.0;
     }
 
+    // Backwards compat: older mock data may use `is_verified: true` instead
+    // of the new `status: "APPROVED"`. Fold both into the new enum.
+    WorkspaceStatus status;
+    if (json.containsKey('status') && json['status'] != null) {
+      status = WorkspaceStatusX.parse(json['status']);
+    } else if (json['is_verified'] == true) {
+      status = WorkspaceStatus.approved;
+    } else {
+      status = WorkspaceStatus.pending;
+    }
+
     return WorkspaceConfig(
       id: json['id'] is int
           ? json['id']
@@ -64,31 +110,32 @@ class WorkspaceConfig {
       workspaceName: json['name']?.toString() ??
           json['workspace_name']?.toString() ??
           '',
-      locationType: json['location_type']?.toString() ?? 'office',
       latitude: parseDouble(json['latitude']),
       longitude: parseDouble(json['longitude']),
       radiusMeters: parseInt(
         json['allowed_radius_meters'] ?? json['radius_meters'],
       ),
       branchName: json['branch_name']?.toString(),
-      isVerified: json['is_verified'] == true,
-      verifiedByName: json['verified_by_name']?.toString(),
-      verifiedAt: json['verified_at']?.toString(),
-      expiresAt: json['expires_at']?.toString(),
+      status: status,
+      rejectionReason: json['rejection_reason']?.toString(),
+      verifiedByName: json['verified_by_name']?.toString() ??
+          json['approved_by_name']?.toString(),
+      verifiedAt: json['verified_at']?.toString() ??
+          json['approved_at']?.toString(),
+      expiresAt: json['expiry_date']?.toString() ??
+          json['expires_at']?.toString(),
       isActive: json['is_active'] != false, // default true
       isExpired: json['is_expired'] == true,
-      canBeUsed: json['can_be_used'] != false, // default true
       notes: json['notes']?.toString() ?? '',
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
     );
   }
 
-  /// Payload for `POST /biometric/location/whitelisted`.
-  /// Only emits fields the create endpoint accepts.
-  Map<String, dynamic> toCreateJson() => {
+  /// Payload for `POST /biometric/location/whitelisted` — the submit flow.
+  /// Radius is hardcoded by the service layer; notes is optional.
+  Map<String, dynamic> toSubmitJson() => {
         'name': workspaceName,
-        'location_type': locationType,
         'latitude': latitude,
         'longitude': longitude,
         'allowed_radius_meters': radiusMeters,

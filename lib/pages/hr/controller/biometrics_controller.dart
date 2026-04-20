@@ -32,10 +32,22 @@ class BiometricsController extends GetxController {
   var errorMessage = ''.obs;
   var successMessage = ''.obs;
 
-  // Workspace
-  var workspace = Rxn<WorkspaceConfig>();
+  // Workspaces — full list of the user's submissions (any status).
+  var workspaces = <WorkspaceConfig>[].obs;
   var isFetchingWorkspace = false.obs;
   var isSettingUpWorkspace = false.obs;
+  var isDeletingWorkspace = false.obs;
+
+  /// First workspace in an approved & active state — the one used for clock-in.
+  WorkspaceConfig? get approvedWorkspace =>
+      workspaces.firstWhereOrNull((w) => w.canClockIn);
+
+  /// Anything in `PENDING` that hasn't been approved/rejected yet.
+  bool get hasPendingSubmission =>
+      workspaces.any((w) => w.status == WorkspaceStatus.pending);
+
+  /// True if the clock-in/out buttons should be enabled.
+  bool get canClockIn => approvedWorkspace != null;
 
   // Biometric enrollment status (from GET /biometric/status)
   var hasFace = false.obs;
@@ -107,66 +119,74 @@ class BiometricsController extends GetxController {
 
   // --- Workspace Management ---
 
-  Future<void> fetchWorkspace(String token) async {
+  /// Pulls the FULL list of the user's submissions (any status).
+  /// UI then renders each with its status chip and chooses clock-in targeting
+  /// from [approvedWorkspace].
+  Future<void> fetchWorkspaces(String token) async {
     try {
       isFetchingWorkspace(true);
-      final data = await _api.getWorkspace(token);
-      if (data != null) {
-        workspace.value = WorkspaceConfig.fromJson(data);
-      } else {
-        workspace.value = null;
-      }
+      final list = await _api.getWorkspaces(token);
+      workspaces.assignAll(
+        list.map((e) => WorkspaceConfig.fromJson(e)).toList(),
+      );
     } catch (e) {
-      log('Fetch workspace error: $e');
-      workspace.value = null;
+      log('Fetch workspaces error: $e');
+      workspaces.clear();
     } finally {
       isFetchingWorkspace(false);
     }
   }
 
-  Future<bool> saveWorkspace(
+  /// Submit a new workspace for approval. Radius is hardcoded at the service
+  /// layer; this controller never accepts a radius argument.
+  Future<bool> submitWorkspace(
     String token, {
     required double latitude,
     required double longitude,
     required String workspaceName,
-    required String locationType,
-    required int radiusMeters,
     String? notes,
   }) async {
     try {
       isSettingUpWorkspace(true);
       errorMessage('');
 
-      Map<String, dynamic> result;
-      if (workspace.value != null && workspace.value!.id != null) {
-        result = await _api.updateWorkspace(
-          token,
-          locationId: workspace.value!.id!,
-          latitude: latitude,
-          longitude: longitude,
-          workspaceName: workspaceName,
-          allowedRadiusMeters: radiusMeters,
-          notes: notes,
-        );
-      } else {
-        result = await _api.setupWorkspace(
-          token,
-          workspaceName: workspaceName,
-          locationType: locationType,
-          latitude: latitude,
-          longitude: longitude,
-          allowedRadiusMeters: radiusMeters,
-          notes: notes,
-        );
-      }
+      final result = await _api.submitWorkspace(
+        token,
+        workspaceName: workspaceName,
+        latitude: latitude,
+        longitude: longitude,
+        notes: notes,
+      );
 
-      workspace.value = WorkspaceConfig.fromJson(result);
+      // Prepend the newly submitted workspace so the user immediately sees
+      // it as PENDING in their list without waiting for a refetch.
+      workspaces.insert(0, WorkspaceConfig.fromJson(result));
+      successMessage.value = 'Submitted for approval.';
       return true;
     } catch (e) {
       errorMessage.value = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       isSettingUpWorkspace(false);
+    }
+  }
+
+  /// Delete one of the user's own workspace submissions. The backend allows
+  /// this at any status per the approved plan.
+  Future<bool> deleteWorkspace(String token, int locationId) async {
+    try {
+      isDeletingWorkspace(true);
+      errorMessage('');
+
+      await _api.deleteWorkspace(token, locationId);
+      workspaces.removeWhere((w) => w.id == locationId);
+      successMessage.value = 'Workspace removed.';
+      return true;
+    } catch (e) {
+      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      isDeletingWorkspace(false);
     }
   }
 
@@ -250,9 +270,10 @@ class BiometricsController extends GetxController {
     authActionType(type);
 
     try {
-      // 1. Check workspace
-      if (workspace.value == null) {
-        errorMessage.value = 'Please set up your workspace location first.';
+      // 1. Must have at least one APPROVED + active workspace.
+      final ws = approvedWorkspace;
+      if (ws == null) {
+        errorMessage.value = _noApprovedWorkspaceMessage();
         return false;
       }
 
@@ -274,8 +295,7 @@ class BiometricsController extends GetxController {
         return false;
       }
 
-      // 3. Client-side geofence check
-      final ws = workspace.value!;
+      // 3. Client-side geofence check — uses the radius the admin approved.
       final withinRange = _location.isWithinRadius(
         position,
         ws.latitude,
@@ -288,7 +308,7 @@ class BiometricsController extends GetxController {
             _location.getDistance(position, ws.latitude, ws.longitude);
         errorMessage.value =
             'You are ${distance.toInt()}m away from your workspace "${ws.workspaceName}". '
-            'You need to be within ${ws.radiusMeters}m to clock ${isClockIn ? 'in' : 'out'}.';
+            'Get within range to clock ${isClockIn ? 'in' : 'out'}.';
         return false;
       }
 
@@ -335,6 +355,20 @@ class BiometricsController extends GetxController {
       authActionType('');
       clockStepMessage('');
     }
+  }
+
+  /// Tailored error when the user doesn't have an approved workspace.
+  String _noApprovedWorkspaceMessage() {
+    if (workspaces.isEmpty) {
+      return 'Submit a workspace for approval before clocking in.';
+    }
+    if (workspaces.every((w) => w.status == WorkspaceStatus.pending)) {
+      return 'Your workspace submission is awaiting admin approval.';
+    }
+    if (workspaces.every((w) => w.status == WorkspaceStatus.rejected)) {
+      return 'Your workspace submission was rejected. Delete it and submit a new one.';
+    }
+    return 'You need an approved workspace to clock in.';
   }
 
   // --- Face Registration ---

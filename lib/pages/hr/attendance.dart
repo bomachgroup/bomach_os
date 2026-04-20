@@ -2,15 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 
 import 'controller/biometrics_controller.dart';
 import 'models/attendance_models.dart';
-import 'widget/setup_workspace_dialog.dart';
+import 'models/workspace_model.dart';
+import 'widget/submit_workspace_dialog.dart';
+import 'widget/workspace_details_dialog.dart';
 
+/// Attendance page.
+///
+/// Two data boundaries drive the layout:
+///   1) **Clock-in eligibility**: derived from [BiometricsController.canClockIn]
+///      which requires at least one APPROVED workspace. The clock card is
+///      disabled otherwise, with a status-specific sub-label explaining why.
+///   2) **Workspace list**: shows every submission (any status) so the user
+///      can track approvals without guessing. Radius is never shown — it's
+///      admin-controlled at approval time and irrelevant to the employee.
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
 
@@ -21,11 +32,10 @@ class AttendancePage extends StatefulWidget {
 class AttendancePageState extends State<AttendancePage> {
   final BiometricsController controller = Get.put(BiometricsController());
   final _storage = const FlutterSecureStorage();
-  final ScrollController _scrollController = ScrollController();
 
   Stream<String> get _timeStream => Stream.periodic(
         const Duration(seconds: 1),
-        (_) => DateFormat('hh:mm a').format(controller.trustedTime),
+        (_) => DateFormat('hh:mm:ss a').format(controller.trustedTime),
       );
 
   @override
@@ -46,7 +56,7 @@ class AttendancePageState extends State<AttendancePage> {
     if (token != null) {
       await Future.wait([
         controller.fetchAttendanceHistory(token),
-        controller.fetchWorkspace(token),
+        controller.fetchWorkspaces(token),
         controller.fetchBiometricStatus(token),
       ]);
     }
@@ -88,19 +98,28 @@ class AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  Future<void> _openWorkspaceSetup() async {
+  Future<void> _openSubmitWorkspace() async {
     final token = await _getToken(context);
     if (token == null || !mounted) return;
-    showDialog(
+    final submitted = await showDialog<bool>(
       context: context,
-      builder: (_) => SetupWorkspaceDialog(token: token),
+      builder: (_) => SubmitWorkspaceDialog(token: token),
     );
+    // Controller already prepended locally; no need to refetch unless it
+    // reports a failure and we want a clean state.
+    if (submitted == true && mounted) {
+      // Refresh in background to pull server-assigned fields (timestamps, etc).
+      await controller.fetchWorkspaces(token);
+    }
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  Future<void> _openWorkspaceDetails(WorkspaceConfig ws) async {
+    final token = await _getToken(context);
+    if (token == null || !mounted) return;
+    await showDialog(
+      context: context,
+      builder: (_) => WorkspaceDetailsDialog(token: token, workspace: ws),
+    );
   }
 
   @override
@@ -109,335 +128,102 @@ class AttendancePageState extends State<AttendancePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- Title + Workspace Status ---
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Expanded(
-                child:
-                    MyText('Attendance Management', style: AppText.black_500_32),
-              ),
-              Obx(() => _buildFaceChip()),
-              const SizedBox(width: 8),
-              Obx(() => _buildWorkspaceChip()),
-            ],
-          ),
+          // Hero banner
+          _buildHeroBanner(),
           kSizedBox,
 
-          // --- Workspace Warning Banner ---
-          Obx(() {
-            if (controller.workspace.value != null ||
-                controller.isFetchingWorkspace.value) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3E0),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: const Color(0xFFFFCC02).withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.warning_amber_rounded,
-                          color: Colors.orange, size: 22),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Workspace Not Configured',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF4A3800),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Set up your workspace location to enable face-verified clock-in.',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.brown.shade400),
-                          ),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _openWorkspaceSetup,
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Setup Now',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13)),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
+          // Stats row
+          Obx(() => _buildStatsRow(_computeStats(controller.rawRecords))),
+          kSizedBox,
 
-          // --- Face Registration Banner ---
-          Obx(() {
-            if (controller.hasFace.value ||
-                controller.isFetchingStatus.value) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: const Color(0xFF0055FF).withValues(alpha: 0.25)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0055FF).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.face_rounded,
-                          color: Color(0xFF0055FF), size: 22),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Face Not Registered',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0B1F4D),
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Register your face so you can clock in and out with it.',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF476A9E)),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Obx(() => TextButton(
-                          onPressed: controller.isAuthenticating.value
-                              ? null
-                              : _openFaceSetup,
-                          style: TextButton.styleFrom(
-                            backgroundColor: const Color(0xFF0055FF),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                          ),
-                          child: controller.isAuthenticating.value
-                              ? const SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2, color: Colors.white),
-                                )
-                              : const Text('Register Face',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13)),
-                        )),
-                  ],
-                ),
-              ),
-            );
-          }),
-
-          // --- 1. Action Cards (Clock In / Clock Out) ---
+          // Clock In/Out card
           _buildLiveClockCard(),
           kSizedBox,
 
-          // --- 2. Graph Section ---
-          Container(
-            height: 300,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0XFFD5D5D5), width: 0.6),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const MyText("Attendance Graph",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(children: [
-                        Text("This Week", style: TextStyle(fontSize: 12)),
-                        SizedBox(width: 4),
-                        Icon(Icons.keyboard_arrow_down, size: 16)
-                      ]),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: CustomPaint(
-                    size: Size.infinite,
-                    painter: _SimpleChartPainter(),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // My Workspaces card
+          _buildWorkspacesCard(),
           kSizedBox,
 
-          // --- 3. Table Section ---
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Attendance history table
+          _buildHistoryTable(),
+        ],
+      ),
+    );
+  }
+
+  // ── Hero banner ────────────────────────────────────────────────────────
+
+  Widget _buildHeroBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.blue, AppColors.darkBlue2],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.access_time_rounded,
+                    color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 250,
-                      child: MyTextFormField(
-                        hintText: 'Search...',
-                        leading: Icon(Icons.search,
-                            color: Colors.grey.withValues(alpha: 0.5)),
+                    Text(
+                      'Attendance',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
-                    Row(
-                      children: [
-                        _buildFilterBtn("All Staff"),
-                        const SizedBox(width: 12),
-                        _buildFilterBtn("Today"),
-                      ],
-                    )
+                    SizedBox(height: 4),
+                    Text(
+                      'Clock in with face verification and track your attendance.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white70,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                Obx(() {
-                  if (controller.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (controller.dailyAttendanceList.isEmpty) {
-                    return const Center(
-                        child: Padding(
-                      padding: EdgeInsets.all(32.0),
-                      child: Text("No records found."),
-                    ));
-                  }
-
-                  return SizedBox(
-                    width: double.infinity,
-                    child: DataTable(
-                      headingTextStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black87),
-                      columnSpacing: 24,
-                      columns: const [
-                        DataColumn(label: Text('Date')),
-                        DataColumn(label: Text('Employee')),
-                        DataColumn(label: Text('Clock In')),
-                        DataColumn(label: Text('Clock Out')),
-                        DataColumn(label: Text('Hours Worked')),
-                      ],
-                      rows: controller.dailyAttendanceList.map((day) {
-                        return DataRow(cells: [
-                          DataCell(Text(day.date)),
-                          DataCell(Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 14,
-                                backgroundColor: Colors.grey.shade200,
-                                child: const Icon(Icons.person,
-                                    size: 16, color: Colors.grey),
-                              ),
-                              const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(day.employeeName,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13)),
-                                  Text(day.role,
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 11)),
-                                ],
-                              )
-                            ],
-                          )),
-                          DataCell(Text(day.clockInTime ?? '--:--')),
-                          DataCell(Text(day.clockOutTime ?? '--:--')),
-                          DataCell(Text(day.hoursWorked)),
-                        ]);
-                      }).toList(),
-                    ),
-                  );
-                }),
-              ],
-            ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              Obx(() => _buildFaceHeroChip()),
+              Obx(() => _buildWorkspaceHeroChip()),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // ── Face registration chip ─────────────────────────────────────────────
-
-  Widget _buildFaceChip() {
+  Widget _buildFaceHeroChip() {
     if (controller.isFetchingStatus.value) {
-      return const SizedBox(
-        width: 18,
-        height: 18,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
+      return _heroChipSkeleton();
     }
     final registered = controller.hasFace.value;
-    final color =
-        registered ? const Color(0xFF10B981) : Colors.orange;
-
     return PopupMenuButton<String>(
       tooltip: 'Face registration',
       onSelected: (v) async {
@@ -487,109 +273,288 @@ class AttendancePageState extends State<AttendancePage> {
                   Text('Remove Face', style: TextStyle(color: Colors.red))),
         ],
       ],
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              registered ? Icons.face_rounded : Icons.face_retouching_off,
-              size: 14,
-              color: color,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              registered ? 'Face registered' : 'Face not set',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.arrow_drop_down,
-                size: 14, color: color.withValues(alpha: 0.7)),
-          ],
-        ),
+      child: _heroChip(
+        icon: registered ? Icons.face_rounded : Icons.face_retouching_off,
+        label: registered ? 'Face registered' : 'Face not registered',
       ),
     );
   }
 
-  // ── Workspace status chip ──────────────────────────────────────────────
-
-  Widget _buildWorkspaceChip() {
-    final ws = controller.workspace.value;
-    final loading = controller.isFetchingWorkspace.value;
-
-    if (loading) {
-      return const SizedBox(
-        width: 18,
-        height: 18,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
+  Widget _buildWorkspaceHeroChip() {
+    if (controller.isFetchingWorkspace.value) {
+      return _heroChipSkeleton();
     }
 
-    return InkWell(
-      onTap: _openWorkspaceSetup,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: ws != null
-              ? const Color(0xFF10B981).withValues(alpha: 0.1)
-              : Colors.orange.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: ws != null
-                ? const Color(0xFF10B981).withValues(alpha: 0.3)
-                : Colors.orange.withValues(alpha: 0.3),
+    final total = controller.workspaces.length;
+    final approved =
+        controller.workspaces.where((w) => w.canClockIn).length;
+    final pending = controller.workspaces
+        .where((w) => w.status == WorkspaceStatus.pending)
+        .length;
+
+    String label;
+    IconData icon;
+    if (total == 0) {
+      label = 'No workspace submitted';
+      icon = Icons.location_off_rounded;
+    } else if (approved > 0) {
+      label = pending > 0
+          ? '$approved approved · $pending pending'
+          : '$approved approved';
+      icon = Icons.location_on_rounded;
+    } else if (pending > 0) {
+      label = '$pending awaiting approval';
+      icon = Icons.hourglass_top_rounded;
+    } else {
+      label = 'Workspace rejected';
+      icon = Icons.location_off_rounded;
+    }
+
+    return _heroChip(icon: icon, label: label);
+  }
+
+  Widget _heroChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: Colors.white),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              ws != null ? Icons.location_on_rounded : Icons.location_off_rounded,
-              size: 14,
-              color: ws != null ? const Color(0xFF10B981) : Colors.orange,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              ws != null ? ws.workspaceName : 'No workspace',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: ws != null ? const Color(0xFF10B981) : Colors.orange,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.settings_rounded,
-              size: 12,
-              color: ws != null
-                  ? const Color(0xFF10B981).withValues(alpha: 0.7)
-                  : Colors.orange.withValues(alpha: 0.7),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
-  // ── Unified Time Card ───────────────────────────────────────
-
-  Widget _buildLiveClockCard() {
+  Widget _heroChipSkeleton() {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const SizedBox(
+        width: 14,
+        height: 14,
+        child: CircularProgressIndicator(
+            strokeWidth: 2, color: Colors.white),
+      ),
+    );
+  }
+
+  // ── Stats row ──────────────────────────────────────────────────────────
+
+  Widget _buildStatsRow(_AttendanceStats stats) {
+    final cards = [
+      _StatCardData(
+        title: 'This Week',
+        value: '${stats.thisWeekDays}',
+        subtitle: 'days clocked in',
+        icon: Icons.calendar_today_rounded,
+        color: const Color(0xFF10B981),
+      ),
+      _StatCardData(
+        title: 'This Month',
+        value: '${stats.thisMonthDays}',
+        subtitle: 'days clocked in',
+        icon: Icons.event_note_rounded,
+        color: AppColors.blue,
+      ),
+      _StatCardData(
+        title: 'Avg Hours / Day',
+        value: stats.avgHoursLabel,
+        subtitle: 'based on this month',
+        icon: Icons.timelapse_rounded,
+        color: const Color(0xFFF59E0B),
+      ),
+      _StatCardData(
+        title: 'Last Clock-In',
+        value: stats.lastClockInRelative,
+        subtitle: stats.lastClockInExact,
+        icon: Icons.login_rounded,
+        color: const Color(0xFF8B5CF6),
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final perRow = constraints.maxWidth > 1100
+            ? 4
+            : constraints.maxWidth > 720
+                ? 2
+                : 1;
+        const spacing = 16.0;
+        final cardWidth =
+            (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: cards
+              .map((c) => SizedBox(width: cardWidth, child: _statCard(c)))
+              .toList(),
+        );
+      },
+    );
+  }
+
+  Widget _statCard(_StatCardData c) {
+    return Container(
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: c.color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(c.icon, color: c.color, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  c.title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            c.value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            c.subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF94A3B8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _AttendanceStats _computeStats(List<BiometricAttendanceRecord> records) {
+    final now = controller.trustedTime;
+    final weekStart = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    final monthStart = DateTime(now.year, now.month, 1);
+
+    // Group records by day (yyyy-MM-dd) so we count unique days, not events.
+    final Map<String, List<BiometricAttendanceRecord>> byDay = {};
+    for (final r in records) {
+      final key = DateFormat('yyyy-MM-dd').format(r.timestamp);
+      byDay.putIfAbsent(key, () => []).add(r);
+    }
+
+    int thisWeek = 0;
+    int thisMonth = 0;
+    Duration monthTotal = Duration.zero;
+    int monthDaysWithPair = 0;
+    BiometricAttendanceRecord? lastClockIn;
+
+    byDay.forEach((dateKey, events) {
+      events.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      final dayDate = DateTime.parse(dateKey);
+      final hasClockIn = events.any((e) => e.attendanceType == 'CLOCK_IN');
+      if (!hasClockIn) return;
+
+      if (!dayDate.isBefore(weekStart)) thisWeek++;
+      if (!dayDate.isBefore(monthStart)) {
+        thisMonth++;
+        final ci =
+            events.firstWhere((e) => e.attendanceType == 'CLOCK_IN');
+        final co = events.lastWhere(
+            (e) => e.attendanceType == 'CLOCK_OUT',
+            orElse: () => ci);
+        if (co != ci) {
+          monthTotal += co.timestamp.difference(ci.timestamp);
+          monthDaysWithPair++;
+        }
+      }
+    });
+
+    for (final r in records) {
+      if (r.attendanceType != 'CLOCK_IN') continue;
+      if (lastClockIn == null ||
+          r.timestamp.isAfter(lastClockIn.timestamp)) {
+        lastClockIn = r;
+      }
+    }
+
+    String avgLabel = '0h';
+    if (monthDaysWithPair > 0) {
+      final avgMinutes = monthTotal.inMinutes ~/ monthDaysWithPair;
+      final h = avgMinutes ~/ 60;
+      final m = avgMinutes % 60;
+      avgLabel = '${h}h ${m}m';
+    }
+
+    return _AttendanceStats(
+      thisWeekDays: thisWeek,
+      thisMonthDays: thisMonth,
+      avgHoursLabel: avgLabel,
+      lastClockInRelative: lastClockIn == null
+          ? '—'
+          : _relativeTime(lastClockIn.timestamp, now),
+      lastClockInExact: lastClockIn == null
+          ? 'No records yet'
+          : DateFormat('EEE, MMM d · hh:mm a').format(lastClockIn.timestamp),
+    );
+  }
+
+  String _relativeTime(DateTime t, DateTime now) {
+    final diff = now.difference(t);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return DateFormat('MMM d').format(t);
+  }
+
+  // ── Live clock + Clock In/Out card ─────────────────────────────────────
+
+  Widget _buildLiveClockCard() {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         children: [
@@ -597,31 +562,33 @@ class AttendancePageState extends State<AttendancePage> {
               style: TextStyle(
                   color: Color(0xFF64748B),
                   fontWeight: FontWeight.w600,
-                  fontSize: 14)),
+                  fontSize: 13,
+                  letterSpacing: 0.5)),
           const SizedBox(height: 8),
           StreamBuilder<String>(
             stream: _timeStream,
             builder: (context, snapshot) {
-              return MyText(
-                snapshot.data ?? "--:--:--",
+              return Text(
+                snapshot.data ??
+                    DateFormat('hh:mm:ss a').format(controller.trustedTime),
                 style: const TextStyle(
-                    fontSize: 48,
+                    fontSize: 52,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 2),
+                    letterSpacing: 2,
+                    color: Color(0xFF0F172A)),
               );
             },
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
               DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 16)),
-          const SizedBox(height: 32),
-          const Divider(),
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
           const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 20),
           Obx(() {
             final todayDateStr =
                 DateFormat('yyyy-MM-dd').format(controller.trustedTime);
-            // Need to import collection for firstWhereOrNull, but let's just use firstWhere with orElse
             final todayRecord = controller.dailyAttendanceList.firstWhere(
               (r) => r.date == todayDateStr,
               orElse: () => DailyAttendance(date: todayDateStr),
@@ -641,29 +608,96 @@ class AttendancePageState extends State<AttendancePage> {
               ],
             );
           }),
-          const SizedBox(height: 32),
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionButton(
-                  buttonText: "Clock In",
-                  buttonColor: const Color(0xFF00C853),
-                  onTap: () => _handleClockAction(true),
+          const SizedBox(height: 24),
+          Obx(() {
+            final disabledReason = _disabledReason();
+            final enabled = disabledReason == null;
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionButton(
+                        buttonText: "Clock In",
+                        buttonColor: const Color(0xFF00C853),
+                        onTap: enabled
+                            ? () => _handleClockAction(true)
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildActionButton(
+                        buttonText: "Clock Out",
+                        buttonColor: const Color(0xFF2962FF),
+                        onTap: enabled
+                            ? () => _handleClockAction(false)
+                            : null,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildActionButton(
-                  buttonText: "Clock Out",
-                  buttonColor: const Color(0xFF2962FF),
-                  onTap: () => _handleClockAction(false),
-                ),
-              ),
-            ],
-          ),
+                if (disabledReason != null) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                          color: const Color(0xFFFDBA74)
+                              .withValues(alpha: 0.5)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded,
+                            color: Color(0xFFB45309), size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            disabledReason,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF92400E),
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            );
+          }),
         ],
       ),
     );
+  }
+
+  /// Returns null when clock-in is allowed, else a human-readable reason.
+  String? _disabledReason() {
+    if (controller.isFetchingWorkspace.value ||
+        controller.isFetchingStatus.value) {
+      return 'Loading your status…';
+    }
+    if (!controller.hasFace.value) {
+      return 'Register your face before clocking in.';
+    }
+    if (controller.workspaces.isEmpty) {
+      return 'Submit a workspace for approval before clocking in.';
+    }
+    if (controller.approvedWorkspace != null) return null;
+    if (controller.hasPendingSubmission) {
+      return 'Your workspace submission is awaiting admin approval.';
+    }
+    if (controller.workspaces
+        .every((w) => w.status == WorkspaceStatus.rejected)) {
+      return 'Your workspace was rejected. Delete it and submit a new one.';
+    }
+    return 'You need an approved workspace to clock in.';
   }
 
   Widget _buildTimeStatusItem(
@@ -683,7 +717,10 @@ class AttendancePageState extends State<AttendancePage> {
         ),
         const SizedBox(height: 8),
         Text(value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A))),
       ],
     );
   }
@@ -691,19 +728,22 @@ class AttendancePageState extends State<AttendancePage> {
   Widget _buildActionButton(
       {required String buttonText,
       required Color buttonColor,
-      required VoidCallback onTap}) {
+      required VoidCallback? onTap}) {
     return SizedBox(
       height: 54,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: buttonColor,
+          disabledBackgroundColor: const Color(0xFFCBD5E1),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: Obx(() {
-          final expectedType = buttonText == "Clock In" ? 'clock_in' : 'clock_out';
-          if (controller.isAuthenticating.value && controller.authActionType.value == expectedType) {
+          final expectedType =
+              buttonText == "Clock In" ? 'clock_in' : 'clock_out';
+          if (controller.isAuthenticating.value &&
+              controller.authActionType.value == expectedType) {
             final step = controller.clockStepMessage.value;
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -738,49 +778,400 @@ class AttendancePageState extends State<AttendancePage> {
     );
   }
 
-  Widget _buildFilterBtn(String text) {
+  // ── Workspaces card ────────────────────────────────────────────────────
+
+  Widget _buildWorkspacesCard() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300)),
-      child: Row(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(text,
-              style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-          const SizedBox(width: 8),
-          const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey)
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.location_on_rounded,
+                    color: AppColors.blue, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'My Workspaces',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A)),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Submit a location for approval. Admin sets the geofence radius.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _openSubmitWorkspace,
+                icon: const Icon(Icons.add_location_alt_rounded, size: 16),
+                label: const Text('Submit New'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Obx(() {
+            if (controller.isFetchingWorkspace.value &&
+                controller.workspaces.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (controller.workspaces.isEmpty) {
+              return _buildEmptyWorkspaces();
+            }
+            return Column(
+              children: [
+                for (int i = 0; i < controller.workspaces.length; i++) ...[
+                  _buildWorkspaceRow(controller.workspaces[i]),
+                  if (i < controller.workspaces.length - 1)
+                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                ],
+              ],
+            );
+          }),
         ],
       ),
     );
   }
-}
 
-class _SimpleChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF00C853)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-
-    final path = Path();
-    path.moveTo(0, size.height * 0.7);
-    path.cubicTo(size.width * 0.2, size.height * 0.5, size.width * 0.4,
-        size.height * 0.8, size.width * 0.5, size.height * 0.4);
-    path.cubicTo(size.width * 0.6, size.height * 0.1, size.width * 0.8,
-        size.height * 0.6, size.width, size.height * 0.2);
-
-    canvas.drawPath(path, paint);
-
-    final dotPaint = Paint()..color = const Color(0xFF00C853);
-    canvas.drawCircle(
-        Offset(size.width * 0.5, size.height * 0.4), 4, dotPaint);
-    canvas.drawCircle(Offset(size.width, size.height * 0.2), 4, dotPaint);
+  Widget _buildEmptyWorkspaces() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.blue.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.add_location_alt_rounded,
+                color: AppColors.blue, size: 28),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No workspaces yet',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Submit your first workspace to start clocking in.\n'
+            "Admin will review it before it's usable.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: Color(0xFF64748B),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _openSubmitWorkspace,
+            icon: const Icon(Icons.add_location_alt_rounded, size: 16),
+            label: const Text('Submit Your First Workspace'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.blue,
+              foregroundColor: Colors.white,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget _buildWorkspaceRow(WorkspaceConfig ws) {
+    final (statusColor, statusBg, statusIcon) = _statusStyles(ws.status);
+    return InkWell(
+      onTap: () => _openWorkspaceDetails(ws),
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
+          children: [
+            // Status chip
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: statusBg,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(statusIcon, size: 12, color: statusColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    ws.status.label.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: statusColor,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            // Name + coords
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ws.workspaceName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${ws.latitude.toStringAsFixed(5)}, '
+                    '${ws.longitude.toStringAsFixed(5)}'
+                    '${ws.createdAt != null ? ' · submitted ${_shortDate(ws.createdAt!)}' : ''}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: 'View details',
+              icon: const Icon(Icons.chevron_right_rounded,
+                  color: Color(0xFF94A3B8)),
+              onPressed: () => _openWorkspaceDetails(ws),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _shortDate(String raw) {
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      return DateFormat('MMM d').format(dt);
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  (Color, Color, IconData) _statusStyles(WorkspaceStatus s) {
+    switch (s) {
+      case WorkspaceStatus.approved:
+        return (
+          const Color(0xFF10B981),
+          const Color(0xFF10B981).withValues(alpha: 0.12),
+          Icons.check_circle_rounded,
+        );
+      case WorkspaceStatus.pending:
+        return (
+          const Color(0xFFF59E0B),
+          const Color(0xFFF59E0B).withValues(alpha: 0.12),
+          Icons.hourglass_top_rounded,
+        );
+      case WorkspaceStatus.rejected:
+        return (
+          const Color(0xFFEF4444),
+          const Color(0xFFEF4444).withValues(alpha: 0.12),
+          Icons.cancel_rounded,
+        );
+      case WorkspaceStatus.unknown:
+        return (
+          const Color(0xFF64748B),
+          const Color(0xFF64748B).withValues(alpha: 0.12),
+          Icons.help_outline_rounded,
+        );
+    }
+  }
+
+  // ── History table ──────────────────────────────────────────────────────
+
+  Widget _buildHistoryTable() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.history_rounded,
+                    color: AppColors.blue, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Attendance History',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Obx(() {
+            if (controller.isLoading.value &&
+                controller.dailyAttendanceList.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (controller.dailyAttendanceList.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Text(
+                    'No attendance records yet.',
+                    style: TextStyle(color: Color(0xFF94A3B8)),
+                  ),
+                ),
+              );
+            }
+            return SizedBox(
+              width: double.infinity,
+              child: DataTable(
+                headingTextStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF475569),
+                  fontSize: 12,
+                  letterSpacing: 0.5,
+                ),
+                headingRowColor: WidgetStateProperty.all(
+                    const Color(0xFFF8FAFC)),
+                columnSpacing: 24,
+                columns: const [
+                  DataColumn(label: Text('DATE')),
+                  DataColumn(label: Text('CLOCK IN')),
+                  DataColumn(label: Text('CLOCK OUT')),
+                  DataColumn(label: Text('HOURS')),
+                ],
+                rows: controller.dailyAttendanceList.map((day) {
+                  return DataRow(cells: [
+                    DataCell(Text(
+                      _prettyDate(day.date),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F172A),
+                        fontSize: 13,
+                      ),
+                    )),
+                    DataCell(Text(day.clockInTime ?? '--:--',
+                        style: const TextStyle(fontSize: 13))),
+                    DataCell(Text(day.clockOutTime ?? '--:--',
+                        style: const TextStyle(fontSize: 13))),
+                    DataCell(Text(
+                      day.hoursWorked,
+                      style: AppText.black_600_14,
+                    )),
+                  ]);
+                }).toList(),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  String _prettyDate(String raw) {
+    try {
+      final dt = DateTime.parse(raw);
+      return DateFormat('EEE, MMM d').format(dt);
+    } catch (_) {
+      return raw;
+    }
+  }
+}
+
+class _StatCardData {
+  final String title;
+  final String value;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  _StatCardData({
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class _AttendanceStats {
+  final int thisWeekDays;
+  final int thisMonthDays;
+  final String avgHoursLabel;
+  final String lastClockInRelative;
+  final String lastClockInExact;
+  _AttendanceStats({
+    required this.thisWeekDays,
+    required this.thisMonthDays,
+    required this.avgHoursLabel,
+    required this.lastClockInRelative,
+    required this.lastClockInExact,
+  });
 }
