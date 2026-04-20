@@ -32,14 +32,20 @@ extension WorkspaceStatusX on WorkspaceStatus {
 }
 
 /// Flutter mirror of the backend `WorkLocationSchema`.
-/// Endpoint: `GET /api/v1/biometric/location/whitelisted`
+/// Endpoint: `GET /api/v1/biometric/location/whitelisted` (employee self)
+/// and `GET /api/v1/biometric/location/pending` (admin all-pending).
 ///
 /// The user never edits `radiusMeters` — it's set by the admin at approval
 /// time (default 100m). It's stored here only so the client-side geofence
 /// check at clock-in can use whatever the admin actually approved.
+///
+/// Clock-in eligibility is the backend-authoritative `can_be_used` field.
+/// We still derive a client-side [canClockIn] fallback for defensiveness
+/// when the backend response omits it.
 class WorkspaceConfig {
   final int? id;
   final String workspaceName; // → name
+  final String locationType; // → location_type (required by backend)
   final double latitude;
   final double longitude;
   final int radiusMeters; // → allowed_radius_meters (admin-controlled)
@@ -51,13 +57,17 @@ class WorkspaceConfig {
   final String? expiresAt;
   final bool isActive;
   final bool isExpired;
+  final bool canBeUsed; // backend's authoritative clock-in gate
   final String notes;
+  final int? employeeId; // admin-view: who submitted it
+  final String? employeeName;
   final String? createdAt;
   final String? updatedAt;
 
   WorkspaceConfig({
     this.id,
     required this.workspaceName,
+    this.locationType = 'office',
     required this.latitude,
     required this.longitude,
     this.radiusMeters = 100,
@@ -69,15 +79,23 @@ class WorkspaceConfig {
     this.expiresAt,
     this.isActive = true,
     this.isExpired = false,
+    this.canBeUsed = false,
     this.notes = '',
+    this.employeeId,
+    this.employeeName,
     this.createdAt,
     this.updatedAt,
   });
 
   /// True when the workspace is in a state that allows clock-in.
-  /// Client-side guard — the backend is the authoritative check.
-  bool get canClockIn =>
-      status == WorkspaceStatus.approved && isActive && !isExpired;
+  /// Prefers backend's `can_be_used`; falls back to a conservative
+  /// client-side derivation if the field is missing.
+  bool get canClockIn {
+    if (canBeUsed) return true;
+    // Defensive fallback for older responses that don't include can_be_used:
+    // only grant eligibility when we have a positive approval signal.
+    return status == WorkspaceStatus.approved && isActive && !isExpired;
+  }
 
   factory WorkspaceConfig.fromJson(Map<String, dynamic> json) {
     int parseInt(dynamic v, {int fallback = 100}) {
@@ -110,6 +128,8 @@ class WorkspaceConfig {
       workspaceName: json['name']?.toString() ??
           json['workspace_name']?.toString() ??
           '',
+      locationType:
+          json['location_type']?.toString() ?? 'office',
       latitude: parseDouble(json['latitude']),
       longitude: parseDouble(json['longitude']),
       radiusMeters: parseInt(
@@ -122,23 +142,18 @@ class WorkspaceConfig {
           json['approved_by_name']?.toString(),
       verifiedAt: json['verified_at']?.toString() ??
           json['approved_at']?.toString(),
-      expiresAt: json['expiry_date']?.toString() ??
-          json['expires_at']?.toString(),
+      expiresAt: json['expires_at']?.toString() ??
+          json['expiry_date']?.toString(),
       isActive: json['is_active'] != false, // default true
       isExpired: json['is_expired'] == true,
+      canBeUsed: json['can_be_used'] == true,
       notes: json['notes']?.toString() ?? '',
+      employeeId: json['employee_id'] is int
+          ? json['employee_id']
+          : int.tryParse(json['employee_id']?.toString() ?? ''),
+      employeeName: json['employee_name']?.toString(),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
     );
   }
-
-  /// Payload for `POST /biometric/location/whitelisted` — the submit flow.
-  /// Radius is hardcoded by the service layer; notes is optional.
-  Map<String, dynamic> toSubmitJson() => {
-        'name': workspaceName,
-        'latitude': latitude,
-        'longitude': longitude,
-        'allowed_radius_meters': radiusMeters,
-        if (notes.isNotEmpty) 'notes': notes,
-      };
 }

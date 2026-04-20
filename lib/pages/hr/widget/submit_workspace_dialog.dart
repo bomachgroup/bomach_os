@@ -31,6 +31,17 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
   final _notesCtrl = TextEditingController();
   final _location = LocationService();
 
+  // `location_type` is required by the backend's SubmitWorkLocationRequest.
+  // Kept as a small fixed set instead of a free-form string to keep the
+  // submission cheap and avoid admin-side noise.
+  static const _locationTypes = <String, String>{
+    'office': 'Office',
+    'home': 'Home',
+    'client_site': 'Client site',
+    'other': 'Other',
+  };
+  String _locationType = 'office';
+
   Position? _position;
   bool _fetchingLocation = false;
   String? _locationError;
@@ -79,6 +90,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
       latitude: _position!.latitude,
       longitude: _position!.longitude,
       workspaceName: _nameCtrl.text.trim(),
+      locationType: _locationType,
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
     );
 
@@ -193,6 +205,36 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                         validator: (v) => (v == null || v.trim().isEmpty)
                             ? 'Workspace name is required'
                             : null,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Location type (required by backend)
+                      const MyText(
+                        'Location Type',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        initialValue: _locationType,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                        ),
+                        items: _locationTypes.entries
+                            .map((e) => DropdownMenuItem(
+                                  value: e.key,
+                                  child: Text(e.value),
+                                ))
+                            .toList(),
+                        onChanged: (v) {
+                          if (v != null) setState(() => _locationType = v);
+                        },
                       ),
 
                       const SizedBox(height: 20),

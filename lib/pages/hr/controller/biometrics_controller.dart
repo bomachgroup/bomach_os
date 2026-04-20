@@ -137,13 +137,14 @@ class BiometricsController extends GetxController {
     }
   }
 
-  /// Submit a new workspace for approval. Radius is hardcoded at the service
-  /// layer; this controller never accepts a radius argument.
+  /// Submit a new workspace for approval. Radius is admin-controlled at
+  /// approval time, not sent by the employee.
   Future<bool> submitWorkspace(
     String token, {
     required double latitude,
     required double longitude,
     required String workspaceName,
+    String locationType = 'office',
     String? notes,
   }) async {
     try {
@@ -155,6 +156,7 @@ class BiometricsController extends GetxController {
         workspaceName: workspaceName,
         latitude: latitude,
         longitude: longitude,
+        locationType: locationType,
         notes: notes,
       );
 

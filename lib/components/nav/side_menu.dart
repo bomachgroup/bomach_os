@@ -51,6 +51,7 @@ enum SubMenuItem {
   broadcast,
   roles,
   approvalWorkflow,
+  workspaceApprovals,
   auditLog,
   compliance,
   enugu,
@@ -305,6 +306,12 @@ class _SideMenuState extends State<SideMenu> {
             label: 'Approval Workflows',
             route: RouteConstants.approvalWorkflow,
             resources: [PermissionConstants.resApprovalFlows],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.workspaceApprovals,
+            label: 'Workspace Approvals',
+            route: RouteConstants.workspaceApprovals,
+            resources: [PermissionConstants.resWorkLocations],
           ),
           SubMenuItemData(
             id: SubMenuItem.department,

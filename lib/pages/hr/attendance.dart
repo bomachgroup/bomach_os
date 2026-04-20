@@ -286,10 +286,17 @@ class AttendancePageState extends State<AttendancePage> {
     }
 
     final total = controller.workspaces.length;
-    final approved =
-        controller.workspaces.where((w) => w.canClockIn).length;
+    // Status-based counts (what shows on the row chips) — NOT clock-in
+    // eligibility, because an APPROVED workspace may be expired/inactive
+    // and should still read as "approved" to the user.
+    final approved = controller.workspaces
+        .where((w) => w.status == WorkspaceStatus.approved)
+        .length;
     final pending = controller.workspaces
         .where((w) => w.status == WorkspaceStatus.pending)
+        .length;
+    final rejected = controller.workspaces
+        .where((w) => w.status == WorkspaceStatus.rejected)
         .length;
 
     String label;
@@ -305,9 +312,12 @@ class AttendancePageState extends State<AttendancePage> {
     } else if (pending > 0) {
       label = '$pending awaiting approval';
       icon = Icons.hourglass_top_rounded;
-    } else {
-      label = 'Workspace rejected';
+    } else if (rejected > 0) {
+      label = rejected == 1 ? 'Workspace rejected' : '$rejected rejected';
       icon = Icons.location_off_rounded;
+    } else {
+      label = '$total submitted';
+      icon = Icons.location_on_rounded;
     }
 
     return _heroChip(icon: icon, label: label);
@@ -690,6 +700,24 @@ class AttendancePageState extends State<AttendancePage> {
       return 'Submit a workspace for approval before clocking in.';
     }
     if (controller.approvedWorkspace != null) return null;
+
+    // At this point there's ≥1 submission but none are clock-in eligible.
+    // Explain the specific blocker so the user knows what to do.
+    final approved = controller.workspaces
+        .where((w) => w.status == WorkspaceStatus.approved)
+        .toList();
+    if (approved.isNotEmpty) {
+      if (approved.any((w) => w.isExpired)) {
+        return 'Your approved workspace has expired. Ask an admin to renew it '
+            'or submit a new one.';
+      }
+      if (approved.any((w) => !w.isActive)) {
+        return 'Your workspace was deactivated by an admin. Submit a new one '
+            'to clock in.';
+      }
+      return 'Your workspace is approved but not currently usable. Contact an '
+          'admin if this seems wrong.';
+    }
     if (controller.hasPendingSubmission) {
       return 'Your workspace submission is awaiting admin approval.';
     }

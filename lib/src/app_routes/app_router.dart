@@ -12,6 +12,7 @@ import 'package:bms_front_end/pages/company/board.dart';
 import 'package:bms_front_end/pages/company/broadcast.dart';
 import 'package:bms_front_end/pages/company/roles.dart';
 import 'package:bms_front_end/pages/company/approval_workflow.dart';
+import 'package:bms_front_end/pages/company/workspace_approvals.dart';
 import 'package:bms_front_end/pages/company/branch.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/pages/company/department_units.dart';
@@ -155,6 +156,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.broadcast: const BroadcastPage(),
   RouteConstants.roles: const RolesPage(),
   RouteConstants.approvalWorkflow: const ApprovalWorkflowPage(),
+  RouteConstants.workspaceApprovals: const WorkspaceApprovalsPage(),
   // RouteConstants.compliance: const CompliancePage(),
   RouteConstants.enugu: const BranchPage(),
   RouteConstants.finance: const FinancePage(),
