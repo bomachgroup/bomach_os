@@ -25,7 +25,7 @@ class AttendancePageState extends State<AttendancePage> {
 
   Stream<String> get _timeStream => Stream.periodic(
         const Duration(seconds: 1),
-        (_) => DateFormat('HH:mm:ss').format(DateTime.now()),
+        (_) => DateFormat('hh:mm a').format(controller.trustedTime),
       );
 
   @override
@@ -612,14 +612,15 @@ class AttendancePageState extends State<AttendancePage> {
             },
           ),
           const SizedBox(height: 8),
-          Text(DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now()),
+          Text(
+              DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
               style: const TextStyle(color: Color(0xFF64748B), fontSize: 16)),
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: 24),
           Obx(() {
             final todayDateStr =
-                DateFormat('yyyy-MM-dd').format(DateTime.now());
+                DateFormat('yyyy-MM-dd').format(controller.trustedTime);
             // Need to import collection for firstWhereOrNull, but let's just use firstWhere with orElse
             final todayRecord = controller.dailyAttendanceList.firstWhere(
               (r) => r.date == todayDateStr,

@@ -62,11 +62,20 @@ class BiometricApiService {
 
   Future<Map<String, dynamic>> getBiometricStatus(String token) async {
     try {
-      final response = await _dio.get(
-        '/biometric/status',
-        options: _authOptions(token),
-      );
+      final response = await getRawStatusResponse(token: token);
       return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Internal helper to get the raw Dio Response (needed for headers)
+  Future<Response> getRawStatusResponse({String? token}) async {
+    try {
+      return await _dio.get(
+        '/biometric/status',
+        options: token != null ? _authOptions(token) : null,
+      );
     } catch (e) {
       throw _handleError(e);
     }

@@ -8,6 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import 'dart:io';
+
 import '../widget/face_liveness_dialog.dart';
 
 import '../models/attendance_models.dart';
@@ -43,6 +45,34 @@ class BiometricsController extends GetxController {
 
   // Clock-in step feedback
   var clockStepMessage = ''.obs;
+
+  // Time synchronization
+  var serverTimeOffset = Duration.zero.obs;
+
+  DateTime get trustedTime => DateTime.now().add(serverTimeOffset.value);
+
+  @override
+  void onInit() {
+    super.onInit();
+    // We try to sync time immediately.
+    // If it fails, we default to Duration.zero (system time).
+    syncTimeWithServer();
+  }
+
+  Future<void> syncTimeWithServer() async {
+    try {
+      // We can fetch the server time from any reliable source.
+      // Easiest is to check the 'date' header from your own backend.
+      final response = await _api.getRawStatusResponse();
+      final dateStr = response.headers.value('date');
+      if (dateStr != null) {
+        final serverTime = HttpDate.parse(dateStr).toLocal();
+        serverTimeOffset.value = serverTime.difference(DateTime.now());
+      }
+    } catch (e) {
+      log('Time synchronization failed: $e');
+    }
+  }
 
   // ── Biometric status ──────────────────────────────────────────────────
 

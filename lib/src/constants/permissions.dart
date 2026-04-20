@@ -514,42 +514,42 @@ const Map<String, List<Permission>> routeRequirements = {
     Perms.payrollList,
     Perms.payrollListOwn,
   ],
-  RouteConstants.employees: [Perms.employeesList, Perms.employeesViewOwn],
+  // ── Admin-only list pages ─────────────────────────────────────────────
+  // Showing "all X" across the org → require the admin `list` action.
+  // Users with only `_own` permissions get the self-service equivalents
+  // on the Dashboard ("My Profile", "My Tasks", "My Work Reports") instead.
+  RouteConstants.employees: [Perms.employeesList],
   RouteConstants.employeeProfile: [Perms.employeesView, Perms.employeesViewOwn],
   RouteConstants.jobPost: [Perms.jobPostingsList],
   RouteConstants.attendance: [Perms.employeesList, Perms.employeesViewOwn],
-  RouteConstants.leaves: [Perms.leaveRequestsListOwn, Perms.leaveRequestsList],
   RouteConstants.leaveRequest: [Perms.leaveRequestsList],
   RouteConstants.trainingProgram: [Perms.trainingProgramsList],
-  RouteConstants.loans: [Perms.loansList, Perms.loansListOwn],
-  RouteConstants.performanceReview: [
-    Perms.performanceReviewsList,
-    Perms.performanceReviewsListOwn,
-  ],
-  RouteConstants.workReport: [Perms.workReportsList, Perms.workReportsListOwn],
-  RouteConstants.monthlyScorecard: [
-    Perms.monthlyScorecardsList,
-    Perms.monthlyScorecardsListOwn,
-  ],
-  RouteConstants.awardsRecognition: [Perms.awardsList, Perms.awardsListOwn],
+  RouteConstants.performanceReview: [Perms.performanceReviewsList],
+  RouteConstants.workReport: [Perms.workReportsList],
+  RouteConstants.employeeEvaluation: [Perms.employeeEvaluationsList],
+  RouteConstants.disciplinaryProcess: [Perms.disciplinaryCasesList],
   RouteConstants.performanceLeaderboard: [Perms.monthlyScorecardsList],
-  RouteConstants.employeeEvaluation: [
-    Perms.employeeEvaluationsList,
-    Perms.employeeEvaluationsListOwn,
-  ],
-  RouteConstants.disciplinaryProcess: [
-    Perms.disciplinaryCasesList,
-    Perms.disciplinaryCasesListOwn,
-  ],
   RouteConstants.meetings: [Perms.meetingsList],
 
-  // Operations
+  // ── Self-service pages (employees' own records) ───────────────────────
+  // Accept EITHER the `_own` action (normal employee) OR the admin `list`
+  // so an admin landing on the same page still works.
+  RouteConstants.leaves: [Perms.leaveRequestsListOwn, Perms.leaveRequestsList],
+  RouteConstants.loans: [Perms.loansListOwn, Perms.loansList],
+  RouteConstants.monthlyScorecard: [
+    Perms.monthlyScorecardsListOwn,
+    Perms.monthlyScorecardsList,
+  ],
+  RouteConstants.awardsRecognition: [Perms.awardsListOwn, Perms.awardsList],
+
+  // ── Operations (admin list) ───────────────────────────────────────────
   RouteConstants.operations: [Perms.projectsList, Perms.tasksList],
   RouteConstants.projects: [Perms.projectsList],
-  RouteConstants.tasks: [Perms.tasksList, Perms.tasksListOwn],
+  RouteConstants.tasks: [Perms.tasksList],
   RouteConstants.worksite: [Perms.worksitesList],
   RouteConstants.contracts: [Perms.contractsList],
   RouteConstants.operationsProjectDetail: [Perms.projectsList],
+  // Task detail — opened from "My Tasks" too, so allow list_own.
   RouteConstants.operationsTaskDetail: [Perms.tasksList, Perms.tasksListOwn],
   RouteConstants.operationsWorksiteDetail: [Perms.worksitesList],
   RouteConstants.operationsContractDetail: [Perms.contractsList],
