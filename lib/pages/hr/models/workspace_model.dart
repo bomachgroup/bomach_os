@@ -67,7 +67,7 @@ class WorkspaceConfig {
   WorkspaceConfig({
     this.id,
     required this.workspaceName,
-    this.locationType = 'office',
+    this.locationType = 'branch',
     required this.latitude,
     required this.longitude,
     this.radiusMeters = 100,
@@ -129,7 +129,7 @@ class WorkspaceConfig {
           json['workspace_name']?.toString() ??
           '',
       locationType:
-          json['location_type']?.toString() ?? 'office',
+          json['location_type']?.toString() ?? 'branch',
       latitude: parseDouble(json['latitude']),
       longitude: parseDouble(json['longitude']),
       radiusMeters: parseInt(

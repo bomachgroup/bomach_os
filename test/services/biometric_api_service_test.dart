@@ -18,55 +18,6 @@ void main() {
     service = BiometricApiService(dioOverride: dio);
   });
 
-  group('setupFingerprint', () {
-    test('should return result on success', () async {
-      dioAdapter.onPost(
-        '/biometric/setup-fingerprint',
-        (server) => server.reply(200, {
-          'status': 'success',
-          'message': 'Fingerprint enrolled successfully',
-          'biometric_id': 'bio-fp-001',
-        }),
-        data: {'biometric_data': 'encoded-fingerprint-data'},
-      );
-
-      final result = await service.setupFingerprint(
-        token,
-        'encoded-fingerprint-data',
-      );
-
-      expect(result, isA<Map<String, dynamic>>());
-      expect(result['status'], 'success');
-      expect(result['biometric_id'], 'bio-fp-001');
-    });
-
-    test('should throw on 400 error', () async {
-      dioAdapter.onPost(
-        '/biometric/setup-fingerprint',
-        (server) => server.reply(400, {'detail': 'Invalid biometric data'}),
-        data: {'biometric_data': ''},
-      );
-
-      expect(
-        () => service.setupFingerprint(token, ''),
-        throwsA(isA<Exception>()),
-      );
-    });
-
-    test('should throw on 500 error', () async {
-      dioAdapter.onPost(
-        '/biometric/setup-fingerprint',
-        (server) => server.reply(500, {'detail': 'Server error'}),
-        data: {'biometric_data': 'data'},
-      );
-
-      expect(
-        () => service.setupFingerprint(token, 'data'),
-        throwsA(isA<Exception>()),
-      );
-    });
-  });
-
   group('setupFace', () {
     test('should return result on success', () async {
       dioAdapter.onPost(
@@ -187,81 +138,10 @@ void main() {
     });
   });
 
-  group('biometricLogin', () {
-    test('should return login result on success', () async {
-      dioAdapter.onPost(
-        '/biometric/login',
-        (server) => server.reply(200, {
-          'access_token': 'new-jwt-token',
-          'token_type': 'bearer',
-          'user_id': '42',
-          'email': 'user@example.com',
-        }),
-        data: {
-          'email': 'user@example.com',
-          'biometric_data': 'encoded-fp-data',
-          'biometric_type': 'fingerprint',
-        },
-      );
-
-      final result = await service.biometricLogin(
-        token,
-        email: 'user@example.com',
-        biometricData: 'encoded-fp-data',
-        biometricType: 'fingerprint',
-      );
-
-      expect(result, isA<Map<String, dynamic>>());
-      expect(result['access_token'], 'new-jwt-token');
-      expect(result['email'], 'user@example.com');
-    });
-
-    test('should throw on 401 error (bad biometric)', () async {
-      dioAdapter.onPost(
-        '/biometric/login',
-        (server) => server.reply(401, {'detail': 'Biometric mismatch'}),
-        data: {
-          'email': 'user@example.com',
-          'biometric_data': 'wrong-data',
-          'biometric_type': 'fingerprint',
-        },
-      );
-
-      expect(
-        () => service.biometricLogin(
-          token,
-          email: 'user@example.com',
-          biometricData: 'wrong-data',
-          biometricType: 'fingerprint',
-        ),
-        throwsA(isA<Exception>()),
-      );
-    });
-
-    test('should throw on 500 error', () async {
-      dioAdapter.onPost(
-        '/biometric/login',
-        (server) => server.reply(500, {'detail': 'Server error'}),
-        data: {
-          'email': 'user@example.com',
-          'biometric_data': 'data',
-          'biometric_type': 'face',
-        },
-      );
-
-      expect(
-        () => service.biometricLogin(
-          token,
-          email: 'user@example.com',
-          biometricData: 'data',
-          biometricType: 'face',
-        ),
-        throwsA(isA<Exception>()),
-      );
-    });
-  });
-
   group('biometricClockIn', () {
+    const lat = 6.42957;
+    const lng = 7.51856;
+
     test('should return clock-in result on success', () async {
       dioAdapter.onPost(
         '/biometric/clockin',
@@ -272,17 +152,21 @@ void main() {
           'employee_id': '42',
         }),
         data: {
-          'biometric_data': 'encoded-fp-data',
-          'biometric_type': 'fingerprint',
+          'biometric_data': 'encoded-face-data',
+          'biometric_type': 'face',
           'attendance_type': 'clock_in',
+          'latitude': lat,
+          'longitude': lng,
         },
       );
 
       final result = await service.biometricClockIn(
         token,
-        biometricData: 'encoded-fp-data',
-        biometricType: 'fingerprint',
+        biometricData: 'encoded-face-data',
+        biometricType: 'face',
         attendanceType: 'clock_in',
+        latitude: lat,
+        longitude: lng,
       );
 
       expect(result, isA<Map<String, dynamic>>());
@@ -300,17 +184,21 @@ void main() {
           'employee_id': '42',
         }),
         data: {
-          'biometric_data': 'encoded-fp-data',
-          'biometric_type': 'fingerprint',
+          'biometric_data': 'encoded-face-data',
+          'biometric_type': 'face',
           'attendance_type': 'clock_out',
+          'latitude': lat,
+          'longitude': lng,
         },
       );
 
       final result = await service.biometricClockIn(
         token,
-        biometricData: 'encoded-fp-data',
-        biometricType: 'fingerprint',
+        biometricData: 'encoded-face-data',
+        biometricType: 'face',
         attendanceType: 'clock_out',
+        latitude: lat,
+        longitude: lng,
       );
 
       expect(result['attendance_type'], 'clock_out');
@@ -322,8 +210,10 @@ void main() {
         (server) => server.reply(400, {'detail': 'Invalid attendance type'}),
         data: {
           'biometric_data': 'data',
-          'biometric_type': 'fingerprint',
+          'biometric_type': 'face',
           'attendance_type': 'invalid',
+          'latitude': lat,
+          'longitude': lng,
         },
       );
 
@@ -331,8 +221,10 @@ void main() {
         () => service.biometricClockIn(
           token,
           biometricData: 'data',
-          biometricType: 'fingerprint',
+          biometricType: 'face',
           attendanceType: 'invalid',
+          latitude: lat,
+          longitude: lng,
         ),
         throwsA(isA<Exception>()),
       );
@@ -346,6 +238,8 @@ void main() {
           'biometric_data': 'data',
           'biometric_type': 'face',
           'attendance_type': 'clock_in',
+          'latitude': lat,
+          'longitude': lng,
         },
       );
 
@@ -355,6 +249,8 @@ void main() {
           biometricData: 'data',
           biometricType: 'face',
           attendanceType: 'clock_in',
+          latitude: lat,
+          longitude: lng,
         ),
         throwsA(isA<Exception>()),
       );

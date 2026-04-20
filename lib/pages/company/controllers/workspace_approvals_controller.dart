@@ -6,15 +6,37 @@ import 'package:get/get.dart';
 import 'package:bms_front_end/pages/hr/models/workspace_model.dart';
 import 'package:bms_front_end/src/services/biometric_api_service.dart';
 
+/// Which slice of submissions the admin is looking at.
+///
+/// `pending` hits `GET /biometric/location/pending` and only lists rows
+/// still awaiting a decision.
+///
+/// Every other value hits the broad `GET /biometric/location/whitelisted`
+/// endpoint — which returns *all* locations when the caller has the admin
+/// `list` permission — and filters in-memory. The broad endpoint is the
+/// only way to see already-approved or rejected rows org-wide today.
+enum ApprovalsView { pending, approved, rejected, all }
+
+extension ApprovalsViewX on ApprovalsView {
+  String get label {
+    switch (this) {
+      case ApprovalsView.pending:
+        return 'Pending';
+      case ApprovalsView.approved:
+        return 'Approved';
+      case ApprovalsView.rejected:
+        return 'Rejected';
+      case ApprovalsView.all:
+        return 'All';
+    }
+  }
+}
+
 /// Admin-facing controller for the Workspace Approvals page.
 ///
-/// Scope is narrow: list every pending submission, approve one (optionally
-/// overriding the radius), reject one (with a required reason), or force
-/// delete. Each mutation refreshes the list so the table reflects server
-/// truth. We deliberately do NOT keep a parallel RxList of approved/rejected
-/// submissions — the backend's `/pending` endpoint is the authoritative
-/// view for this page and trying to merge historical state locally is a
-/// footgun.
+/// Holds one source of truth ([submissions]) for whatever slice the admin
+/// is currently viewing. Each mutation refreshes the list so the table
+/// reflects server truth after approve/reject/update/delete.
 class WorkspaceApprovalsController extends GetxController {
   final BiometricApiService _api = BiometricApiService();
   final _storage = const FlutterSecureStorage();
@@ -24,26 +46,37 @@ class WorkspaceApprovalsController extends GetxController {
   final errorMessage = ''.obs;
   final successMessage = ''.obs;
 
-  /// Every pending submission across the org. Reset on every [fetchPending].
-  final pending = <WorkspaceConfig>[].obs;
+  /// Current filter — switches the endpoint we hit on the next fetch.
+  final view = ApprovalsView.pending.obs;
 
-  /// Free-text search across workspace name + employee name.
+  /// Submissions matching the current [view]. Pending view = backend's
+  /// pending endpoint; every other view filters the broad admin list.
+  final submissions = <WorkspaceConfig>[].obs;
+
+  /// Free-text search across workspace name + employee + branch.
   final searchQuery = ''.obs;
 
-  List<WorkspaceConfig> get filteredPending {
+  List<WorkspaceConfig> get filtered {
     final q = searchQuery.value.trim().toLowerCase();
-    if (q.isEmpty) return pending;
-    return pending.where((w) {
+    if (q.isEmpty) return submissions;
+    return submissions.where((w) {
       return w.workspaceName.toLowerCase().contains(q) ||
           (w.employeeName ?? '').toLowerCase().contains(q) ||
           (w.branchName ?? '').toLowerCase().contains(q);
     }).toList();
   }
 
+  /// Counts for the tab badges — computed off the pending endpoint only
+  /// for the pending count (cheapest, most accurate), and off the broad
+  /// endpoint for approved/rejected when it's already loaded.
+  int get pendingCountInView => submissions
+      .where((w) => w.status == WorkspaceStatus.pending)
+      .length;
+
   @override
   void onInit() {
     super.onInit();
-    fetchPending();
+    fetch();
   }
 
   Future<String?> _getToken() async {
@@ -53,7 +86,14 @@ class WorkspaceApprovalsController extends GetxController {
     return t.replaceAll('"', '').trim();
   }
 
-  Future<void> fetchPending() async {
+  /// Switch view and refetch. Safe to call with the same value — behaves
+  /// like a refresh.
+  Future<void> setView(ApprovalsView v) async {
+    view.value = v;
+    await fetch();
+  }
+
+  Future<void> fetch() async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
@@ -62,68 +102,117 @@ class WorkspaceApprovalsController extends GetxController {
         errorMessage.value = 'Not authenticated.';
         return;
       }
-      final raw = await _api.getPendingWorkspaces(token);
-      pending.assignAll(
-        raw.map((e) => WorkspaceConfig.fromJson(e)).toList(),
-      );
+
+      final raw = view.value == ApprovalsView.pending
+          ? await _api.getPendingWorkspaces(token)
+          : await _api.getWorkspaces(token);
+
+      final parsed =
+          raw.map((e) => WorkspaceConfig.fromJson(e)).toList();
+
+      // Filter the broad list in-memory to the selected slice.
+      final filtered = switch (view.value) {
+        ApprovalsView.pending => parsed,
+        ApprovalsView.approved =>
+          parsed.where((w) => w.status == WorkspaceStatus.approved).toList(),
+        ApprovalsView.rejected =>
+          parsed.where((w) => w.status == WorkspaceStatus.rejected).toList(),
+        ApprovalsView.all => parsed,
+      };
+
+      submissions.assignAll(filtered);
     } catch (e) {
-      log('Fetch pending workspaces error: $e');
+      log('Fetch workspaces (${view.value}) error: $e');
       errorMessage.value = e.toString().replaceFirst('Exception: ', '');
-      pending.clear();
+      submissions.clear();
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// Approve a pending submission. [allowedRadiusMeters] is optional — when
-  /// null, the backend keeps whatever radius is on the record (the UI will
-  /// pre-fill with 100 as the suggested default).
+  // ── Mutations ──────────────────────────────────────────────────────
+
+  /// Approve a pending submission. [allowedRadiusMeters] is optional —
+  /// when null, the backend keeps whatever radius is on the record.
   Future<bool> approve(int locationId, {int? allowedRadiusMeters}) async {
-    try {
-      isMutating.value = true;
-      errorMessage.value = '';
-      final token = await _getToken();
-      if (token == null) {
-        errorMessage.value = 'Not authenticated.';
-        return false;
-      }
+    return _run(() async {
+      final token = await _requireToken();
       await _api.approveWorkspace(
         token,
         locationId,
         allowedRadiusMeters: allowedRadiusMeters,
       );
       successMessage.value = 'Workspace approved.';
-      // Pending list shrinks by one — drop locally AND refetch so the page
-      // reflects concurrent admin activity too.
-      pending.removeWhere((w) => w.id == locationId);
-      await fetchPending();
-      return true;
-    } catch (e) {
-      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
-      return false;
-    } finally {
-      isMutating.value = false;
-    }
+    });
   }
 
-  /// Reject a pending submission. [reason] is required by the backend.
+  /// Reject a pending submission. Reason is required by the backend.
   Future<bool> reject(int locationId, {required String reason}) async {
     if (reason.trim().isEmpty) {
       errorMessage.value = 'A rejection reason is required.';
       return false;
     }
+    return _run(() async {
+      final token = await _requireToken();
+      await _api.rejectWorkspace(token, locationId, reason: reason.trim());
+      successMessage.value = 'Workspace rejected.';
+    });
+  }
+
+  /// Admin edit of an already-existing location. Only non-null fields are
+  /// sent. Used to fix radius mistakes, extend expiry, or deactivate a
+  /// site without deleting history.
+  ///
+  /// Named `adminUpdate` (not `update`) because `GetxController` already
+  /// defines a no-arg `update()` method.
+  Future<bool> adminUpdate(
+    int locationId, {
+    String? name,
+    double? latitude,
+    double? longitude,
+    int? allowedRadiusMeters,
+    bool? isActive,
+    String? expiresAt,
+    String? notes,
+  }) async {
+    return _run(() async {
+      final token = await _requireToken();
+      await _api.adminUpdateWorkspace(
+        token,
+        locationId,
+        name: name,
+        latitude: latitude,
+        longitude: longitude,
+        allowedRadiusMeters: allowedRadiusMeters,
+        isActive: isActive,
+        expiresAt: expiresAt,
+        notes: notes,
+      );
+      successMessage.value = 'Workspace updated.';
+    });
+  }
+
+  /// Admin force-delete. Works for any status and any owner.
+  Future<bool> forceDelete(int locationId) async {
+    return _run(() async {
+      final token = await _requireToken();
+      await _api.adminForceDeleteWorkspace(token, locationId);
+      successMessage.value = 'Workspace deleted.';
+    });
+  }
+
+  // ── Shared plumbing for mutations ──────────────────────────────────
+
+  /// Wrap a mutation in the standard spinner + refetch cycle. Every
+  /// approve/reject/update/delete pulls the list again so the admin always
+  /// sees server truth — the alternative (local mutation only) drifts fast
+  /// when two admins work at once.
+  Future<bool> _run(Future<void> Function() body) async {
     try {
       isMutating.value = true;
       errorMessage.value = '';
-      final token = await _getToken();
-      if (token == null) {
-        errorMessage.value = 'Not authenticated.';
-        return false;
-      }
-      await _api.rejectWorkspace(token, locationId, reason: reason.trim());
-      successMessage.value = 'Workspace rejected.';
-      pending.removeWhere((w) => w.id == locationId);
-      await fetchPending();
+      await body();
+      await fetch();
       return true;
     } catch (e) {
       errorMessage.value = e.toString().replaceFirst('Exception: ', '');
@@ -133,26 +222,11 @@ class WorkspaceApprovalsController extends GetxController {
     }
   }
 
-  /// Admin force-delete. Works for any status and any owner. Used here only
-  /// if an admin wants to clear a pending row without routing a decision.
-  Future<bool> forceDelete(int locationId) async {
-    try {
-      isMutating.value = true;
-      errorMessage.value = '';
-      final token = await _getToken();
-      if (token == null) {
-        errorMessage.value = 'Not authenticated.';
-        return false;
-      }
-      await _api.adminForceDeleteWorkspace(token, locationId);
-      successMessage.value = 'Workspace deleted.';
-      pending.removeWhere((w) => w.id == locationId);
-      return true;
-    } catch (e) {
-      errorMessage.value = e.toString().replaceFirst('Exception: ', '');
-      return false;
-    } finally {
-      isMutating.value = false;
+  Future<String> _requireToken() async {
+    final t = await _getToken();
+    if (t == null) {
+      throw Exception('Not authenticated.');
     }
+    return t;
   }
 }

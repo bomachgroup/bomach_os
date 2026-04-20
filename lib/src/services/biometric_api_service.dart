@@ -32,20 +32,6 @@ class BiometricApiService {
     });
   }
 
-  Future<Map<String, dynamic>> setupFingerprint(
-      String token, String biometricData) async {
-    try {
-      final response = await _dio.post(
-        '/biometric/setup-fingerprint',
-        data: {'biometric_data': biometricData},
-        options: _authOptions(token),
-      );
-      return Map<String, dynamic>.from(response.data);
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
   Future<Map<String, dynamic>> setupFace(
       String token, String biometricData) async {
     try {
@@ -95,28 +81,6 @@ class BiometricApiService {
     }
   }
 
-  Future<Map<String, dynamic>> biometricLogin(
-    String token, {
-    required String email,
-    required String biometricData,
-    required String biometricType,
-  }) async {
-    try {
-      final response = await _dio.post(
-        '/biometric/login',
-        data: {
-          'email': email,
-          'biometric_data': biometricData,
-          'biometric_type': biometricType,
-        },
-        options: _authOptions(token),
-      );
-      return Map<String, dynamic>.from(response.data);
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
   /// POST /biometric/clockin
   ///
   /// Backend requires all 5 fields. If [latitude]/[longitude] are not yet
@@ -150,10 +114,6 @@ class BiometricApiService {
 
   // ── Workspace Management ─────────────────────────────────────────────
 
-  /// Radius used for every submitted workspace. Admin-controlled at approval
-  /// time; the user never sets or sees this.
-  static const int defaultWorkspaceRadiusMeters = 100;
-
   /// POST /biometric/location/whitelisted
   ///
   /// Employee submission. Lands in backend as `status = PENDING` until an
@@ -161,15 +121,15 @@ class BiometricApiService {
   /// (ignored server-side if sent), so we do NOT include it here — the
   /// radius is set by the admin at approval time.
   ///
-  /// `location_type` is required by `SubmitWorkLocationRequest`. The UI
-  /// exposes a small picker (home/office/client_site/other); we default to
-  /// "office" if not provided.
+  /// `location_type` is required by `SubmitWorkLocationRequest`. The
+  /// backend accepts one of `branch` | `remote` | `site`; the UI picker
+  /// mirrors that. Defaults to `branch` when not supplied.
   Future<Map<String, dynamic>> submitWorkspace(
     String token, {
     required String workspaceName,
     required double latitude,
     required double longitude,
-    String locationType = 'office',
+    String locationType = 'branch',
     String? notes,
   }) async {
     try {
@@ -319,6 +279,49 @@ class BiometricApiService {
     }
   }
 
+  /// PATCH /biometric/location/whitelisted/{id}
+  ///
+  /// Admin-only edit. Every field is optional — only the ones passed will
+  /// be included in the payload. Useful for tweaking the radius, extending
+  /// an expiry, or deactivating a location without deleting it. Status is
+  /// NOT changed here — use approve/reject for that.
+  ///
+  /// `expiresAt` should be an ISO-8601 string; we pass it through as-is to
+  /// match the backend's `date-time` format.
+  Future<Map<String, dynamic>> adminUpdateWorkspace(
+    String token,
+    int locationId, {
+    String? name,
+    double? latitude,
+    double? longitude,
+    int? allowedRadiusMeters,
+    bool? isActive,
+    String? expiresAt,
+    String? notes,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (name != null) data['name'] = name;
+      if (latitude != null) data['latitude'] = latitude;
+      if (longitude != null) data['longitude'] = longitude;
+      if (allowedRadiusMeters != null) {
+        data['allowed_radius_meters'] = allowedRadiusMeters;
+      }
+      if (isActive != null) data['is_active'] = isActive;
+      if (expiresAt != null) data['expires_at'] = expiresAt;
+      if (notes != null) data['notes'] = notes;
+
+      final response = await _dio.patch(
+        '/biometric/location/whitelisted/$locationId',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// DELETE /biometric/location/whitelisted/{id}/force
   ///
   /// Admin-only. Unlike the employee `deleteWorkspace`, this works for
@@ -329,31 +332,6 @@ class BiometricApiService {
         '/biometric/location/whitelisted/$locationId/force',
         options: _authOptions(token),
       );
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  // ── Attendance location verification ──────────────────────────────────
-
-  /// GET /biometric/location/verify?latitude=..&longitude=..
-  /// Returns a `LocationStatusResponse` telling whether the given position
-  /// is within range of any approved work location.
-  Future<Map<String, dynamic>> verifyLocation(
-    String token, {
-    required double latitude,
-    required double longitude,
-  }) async {
-    try {
-      final response = await _dio.get(
-        '/biometric/location/verify',
-        queryParameters: {
-          'latitude': latitude,
-          'longitude': longitude,
-        },
-        options: _authOptions(token),
-      );
-      return Map<String, dynamic>.from(response.data);
     } catch (e) {
       throw _handleError(e);
     }

@@ -32,15 +32,15 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
   final _location = LocationService();
 
   // `location_type` is required by the backend's SubmitWorkLocationRequest.
-  // Kept as a small fixed set instead of a free-form string to keep the
-  // submission cheap and avoid admin-side noise.
+  // The backend's enum is `branch` | `remote` | `site`; the OpenAPI spec
+  // declares the field as a plain string (no enum constraint), so if the
+  // backend ever broadens its choices we'll need to update this map.
   static const _locationTypes = <String, String>{
-    'office': 'Office',
-    'home': 'Home',
-    'client_site': 'Client site',
-    'other': 'Other',
+    'branch': 'Branch',
+    'remote': 'Remote',
+    'site': 'Site',
   };
-  String _locationType = 'office';
+  String _locationType = 'branch';
 
   Position? _position;
   bool _fetchingLocation = false;

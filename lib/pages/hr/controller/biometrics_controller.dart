@@ -144,7 +144,7 @@ class BiometricsController extends GetxController {
     required double latitude,
     required double longitude,
     required String workspaceName,
-    String locationType = 'office',
+    String locationType = 'branch',
     String? notes,
   }) async {
     try {
