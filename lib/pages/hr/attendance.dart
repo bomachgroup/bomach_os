@@ -25,7 +25,7 @@ class AttendancePageState extends State<AttendancePage> {
 
   Stream<String> get _timeStream => Stream.periodic(
         const Duration(seconds: 1),
-        (_) => DateFormat('HH:mm:ss').format(DateTime.now()),
+        (_) => DateFormat('hh:mm a').format(controller.trustedTime),
       );
 
   @override
@@ -47,7 +47,24 @@ class AttendancePageState extends State<AttendancePage> {
       await Future.wait([
         controller.fetchAttendanceHistory(token),
         controller.fetchWorkspace(token),
+        controller.fetchBiometricStatus(token),
       ]);
+    }
+  }
+
+  Future<void> _openFaceSetup() async {
+    final token = await _getToken(context);
+    if (token == null || !mounted) return;
+    final ok = await controller.performFaceSetup(token, context: context);
+    if (!mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(controller.successMessage.value),
+          backgroundColor: Colors.green));
+    } else if (controller.errorMessage.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(controller.errorMessage.value),
+          backgroundColor: Colors.red));
     }
   }
 
@@ -100,6 +117,8 @@ class AttendancePageState extends State<AttendancePage> {
                 child:
                     MyText('Attendance Management', style: AppText.black_500_32),
               ),
+              Obx(() => _buildFaceChip()),
+              const SizedBox(width: 8),
               Obx(() => _buildWorkspaceChip()),
             ],
           ),
@@ -170,6 +189,87 @@ class AttendancePageState extends State<AttendancePage> {
                           style: TextStyle(
                               fontWeight: FontWeight.w600, fontSize: 13)),
                     ),
+                  ],
+                ),
+              ),
+            );
+          }),
+
+          // --- Face Registration Banner ---
+          Obx(() {
+            if (controller.hasFace.value ||
+                controller.isFetchingStatus.value) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: const Color(0xFF0055FF).withValues(alpha: 0.25)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0055FF).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.face_rounded,
+                          color: Color(0xFF0055FF), size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Face Not Registered',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0B1F4D),
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Register your face so you can clock in and out with it.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF476A9E)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Obx(() => TextButton(
+                          onPressed: controller.isAuthenticating.value
+                              ? null
+                              : _openFaceSetup,
+                          style: TextButton.styleFrom(
+                            backgroundColor: const Color(0xFF0055FF),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: controller.isAuthenticating.value
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Text('Register Face',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13)),
+                        )),
                   ],
                 ),
               ),
@@ -324,6 +424,102 @@ class AttendancePageState extends State<AttendancePage> {
     );
   }
 
+  // ── Face registration chip ─────────────────────────────────────────────
+
+  Widget _buildFaceChip() {
+    if (controller.isFetchingStatus.value) {
+      return const SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+    final registered = controller.hasFace.value;
+    final color =
+        registered ? const Color(0xFF10B981) : Colors.orange;
+
+    return PopupMenuButton<String>(
+      tooltip: 'Face registration',
+      onSelected: (v) async {
+        if (v == 'register' || v == 're-register') {
+          await _openFaceSetup();
+        } else if (v == 'remove') {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (c) => AlertDialog(
+              title: const Text('Remove face registration?'),
+              content: const Text(
+                  'You will need to register again before clocking in with face verification.'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(c, false),
+                    child: const Text('Cancel')),
+                TextButton(
+                    onPressed: () => Navigator.pop(c, true),
+                    child: const Text('Remove',
+                        style: TextStyle(color: Colors.red))),
+              ],
+            ),
+          );
+          if (confirm != true || !mounted) return;
+          final token = await _getToken(context);
+          if (token == null || !mounted) return;
+          final ok = await controller.removeBiometric(token,
+              biometricType: 'face');
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(ok
+                ? controller.successMessage.value
+                : controller.errorMessage.value),
+            backgroundColor: ok ? Colors.green : Colors.red,
+          ));
+        }
+      },
+      itemBuilder: (_) => [
+        if (!registered)
+          const PopupMenuItem(value: 'register', child: Text('Register Face')),
+        if (registered) ...[
+          const PopupMenuItem(
+              value: 're-register', child: Text('Re-register Face')),
+          const PopupMenuItem(
+              value: 'remove',
+              child:
+                  Text('Remove Face', style: TextStyle(color: Colors.red))),
+        ],
+      ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              registered ? Icons.face_rounded : Icons.face_retouching_off,
+              size: 14,
+              color: color,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              registered ? 'Face registered' : 'Face not set',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_drop_down,
+                size: 14, color: color.withValues(alpha: 0.7)),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── Workspace status chip ──────────────────────────────────────────────
 
   Widget _buildWorkspaceChip() {
@@ -416,14 +612,15 @@ class AttendancePageState extends State<AttendancePage> {
             },
           ),
           const SizedBox(height: 8),
-          Text(DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now()),
+          Text(
+              DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
               style: const TextStyle(color: Color(0xFF64748B), fontSize: 16)),
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: 24),
           Obx(() {
             final todayDateStr =
-                DateFormat('yyyy-MM-dd').format(DateTime.now());
+                DateFormat('yyyy-MM-dd').format(controller.trustedTime);
             // Need to import collection for firstWhereOrNull, but let's just use firstWhere with orElse
             final todayRecord = controller.dailyAttendanceList.firstWhere(
               (r) => r.date == todayDateStr,

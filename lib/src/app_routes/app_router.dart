@@ -111,6 +111,7 @@ import '../../pages/events/events.dart';
 import '../../pages/hr/benefits.dart';
 import '../../pages/operations/work_site.dart';
 import '../../pages/security/security.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
 import 'refresh_route.dart';
 
@@ -297,13 +298,19 @@ final goRouter = GoRouter(
       return permissionService.getFirstPermittedRoute();
     }
 
-    // 4. Permission Checking
+    // 4. Permission Checking (typed, centralised in permissions.dart)
     final permissionService = Get.find<PermissionService>();
-    final requiredPermission = PermissionService.routePermissions[location];
 
-    if (requiredPermission != null &&
-        !permissionService.canAccess(requiredPermission)) {
-      debugPrint('Access Denied to $location. Required: $requiredPermission');
+    // Super-admin-only redirect: if this user is the super admin and the
+    // current route is in superAdminHiddenRoutes (e.g., the employee
+    // dashboard), send them to the company admin dashboard instead.
+    if (permissionService.isSuperAdmin &&
+        superAdminHiddenRoutes.contains(location)) {
+      return RouteConstants.company;
+    }
+
+    if (!permissionService.canAccessRouteTyped(location)) {
+      debugPrint('Access Denied to $location');
       return permissionService.getFirstPermittedRoute();
     }
 

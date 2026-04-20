@@ -1,11 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/permission/permission_gate.dart';
 import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/role_model.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -60,11 +63,14 @@ class RolesPage extends StatelessWidget {
               leading: const Icon(Icons.search, color: Colors.grey, size: 20),
               onChanged: ctrl.onSearchChanged,
             ),
-            action: MyElevatedButton(
-              height: 40,
-              icon: const Icon(Icons.add, color: Colors.white, size: 18),
-              child: 'Create Role',
-              onTap: () => _showCreateEditRoleDialog(context, ctrl),
+            action: PermissionGate(
+              require: Perms.rolesCreate,
+              child: MyElevatedButton(
+                height: 40,
+                icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                child: 'Create Role',
+                onTap: () => _showCreateEditRoleDialog(context, ctrl),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -345,24 +351,29 @@ class RolesPage extends StatelessWidget {
             break;
         }
       },
-      itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'edit',
-          child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(children: [
-            Icon(Icons.delete_outline, size: 18, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete', style: TextStyle(color: Colors.red)),
-          ]),
-        ),
-      ],
+      itemBuilder: (_) {
+        final perms = Get.find<PermissionService>();
+        return [
+          if (perms.has(Perms.rolesUpdate))
+            const PopupMenuItem(
+              value: 'edit',
+              child: Row(children: [
+                Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+                SizedBox(width: 8),
+                Text('Edit'),
+              ]),
+            ),
+          if (perms.has(Perms.rolesDelete))
+            const PopupMenuItem(
+              value: 'delete',
+              child: Row(children: [
+                Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                SizedBox(width: 8),
+                Text('Delete', style: TextStyle(color: Colors.red)),
+              ]),
+            ),
+        ];
+      },
     );
   }
 

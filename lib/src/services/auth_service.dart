@@ -198,6 +198,35 @@ class AuthService {
     }
   }
 
+  /// GET PERMISSIONS MAP
+  /// Returns the backend's authoritative list of resources and their valid
+  /// actions: `{ "employees": ["create","view",...], ... }`. Used on the
+  /// frontend for startup drift validation against `Perms.*` constants.
+  Future<Map<String, List<String>>> getPermissionsMap(
+      {required String accessToken}) async {
+    try {
+      final response = await _dio.get(
+        '/api/v1/roles/permissions-map',
+        options: _authOptions(accessToken),
+      );
+
+      final data = response.data;
+      if (data is Map && data['permissions_map'] is Map) {
+        final rawMap = data['permissions_map'] as Map;
+        return rawMap.map<String, List<String>>(
+          (key, value) => MapEntry(
+            key.toString(),
+            (value as List).map((e) => e.toString()).toList(),
+          ),
+        );
+      }
+      return {};
+    } on DioException catch (e) {
+      log("AuthService: Failed to fetch permissions-map: ${e.message}");
+      return {};
+    }
+  }
+
 
   // REFRESH TOKEN
   Future<String> refreshToken({required String refreshToken}) async {

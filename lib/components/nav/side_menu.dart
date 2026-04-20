@@ -886,34 +886,30 @@ class _SideMenuState extends State<SideMenu> {
   Widget _buildMenuItem(MenuItem menuItem) {
     final permissionService = Get.find<PermissionService>();
 
-    // Dynamic resource-based permission check
-    bool isAuthorized =
-        permissionService.canAccessResources(menuItem.resources);
-
-    // MUTUAL EXCLUSIVITY LOGIC:
-    // 1. If this is the Dashboard, hide it if user also has Company Settings access (CEO view)
+    // Super admin / CEO sees the company dashboard instead of the employee
+    // dashboard. Hide the employee Dashboard menu for them.
     if (menuItem.id == MainMenuItem.dashboard &&
-        permissionService.hasAnyPermissionForResource(
-            PermissionConstants.resCompanySettings)) {
-      isAuthorized = false;
-    }
-
-    // 2. If this is Company, it is already gated by company_settings resource
-    // (Which employees lack, so it will be hidden naturally)
-
-    // Hide if not authorized
-    if (!isAuthorized) {
+        (permissionService.isSuperAdmin ||
+            permissionService.hasAnyPermissionForResource(
+                PermissionConstants.resCompanySettings))) {
       return const SizedBox.shrink();
     }
 
-    // Filter sub-items: check route-level permissions first, then resource-based
+    // Filter sub-items via typed route permissions (falls back to resource
+    // check for legacy menu items that still pass a `resources` list).
     final authorizedSubItems = menuItem.children
         .where((subItem) =>
             permissionService.canAccessRoute(subItem.route, subItem.resources))
         .toList();
 
-    // Hide if expandable and no authorized children
+    // Expandable parent with no visible children → hide the parent too.
     if (menuItem.isExpandable && authorizedSubItems.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Non-expandable / clickable parent: gate by its own resource list.
+    if (!menuItem.isExpandable &&
+        !permissionService.canAccessResources(menuItem.resources)) {
       return const SizedBox.shrink();
     }
 
@@ -978,21 +974,26 @@ class _SideMenuState extends State<SideMenu> {
       color: AppColors.sideMenu,
       padding: const EdgeInsets.only(right: 16, left: 16),
       height: MediaQuery.sizeOf(context).height,
-      child: Obx(() => ListView(
-            physics: const BouncingScrollPhysics(),
-            children: [
-              kSizedBoxBG,
-              const Row(
-                children: [
-                  Text('BOMACH', style: AppText.black_500_20),
-                  Text('OS', style: AppText.black_500_32),
-                ],
-              ),
-              const SizedBox(height: 24),
-              ...menuItems.map((menuItem) => _buildMenuItem(menuItem)),
-              kSizedBox,
-            ],
-          )),
+      child: Obx(() {
+        // Subscribe to permission changes so the menu rebuilds on role changes.
+        // ignore: unused_local_variable
+        final _ = Get.find<PermissionService>().version;
+        return ListView(
+          physics: const BouncingScrollPhysics(),
+          children: [
+            kSizedBoxBG,
+            const Row(
+              children: [
+                Text('BOMACH', style: AppText.black_500_20),
+                Text('OS', style: AppText.black_500_32),
+              ],
+            ),
+            const SizedBox(height: 24),
+            ...menuItems.map((menuItem) => _buildMenuItem(menuItem)),
+            kSizedBox,
+          ],
+        );
+      }),
     );
   }
 }
