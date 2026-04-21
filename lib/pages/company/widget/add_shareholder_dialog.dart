@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/avatar_picker.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -7,6 +8,7 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../controllers/company_controller.dart';
 
@@ -32,8 +34,15 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
   String _selectedTitle = 'board_member';
   bool _isBoardMember = false;
   bool _isActive = true;
+  XFile? _pickedAvatar;
 
   bool get isEdit => widget.shareholder != null;
+
+  String _initials() {
+    final f = _firstNameCtrl.text.trim();
+    final l = _lastNameCtrl.text.trim();
+    return '${f.isNotEmpty ? f[0] : ''}${l.isNotEmpty ? l[0] : ''}';
+  }
 
   static const _titleOptions = [
     {'value': 'founder', 'label': 'Founder'},
@@ -95,6 +104,7 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
       'is_board_member': _isBoardMember,
       'is_active': _isActive,
       if (_notesCtrl.text.trim().isNotEmpty) 'notes': _notesCtrl.text.trim(),
+      if (_pickedAvatar != null) 'profile_picture_file': _pickedAvatar!.path,
     };
 
     if (!isEdit && _passwordCtrl.text.isNotEmpty) {
@@ -143,6 +153,15 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Center(
+                      child: AvatarPicker(
+                        currentImageUrl: widget.shareholder?.profilePicture,
+                        initials: _initials(),
+                        pickedFile: _pickedAvatar,
+                        onPicked: (f) => setState(() => _pickedAvatar = f),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     Row(children: [
                       Expanded(
                           child: MyTextFormField(

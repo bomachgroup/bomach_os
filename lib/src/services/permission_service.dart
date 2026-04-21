@@ -72,22 +72,59 @@ class PermissionService extends GetxService {
     _userPermissions
       ..clear()
       ..addAll({
-        'dashboard': {'view'},
-        'employees': {'view_own'},
-        'work_reports': {'create', 'view_own', 'list_own', 'update_own'},
-        'leave_requests': {
-          'create',
-          'view_own',
-          'list_own',
-          'update_own',
-          'delete_own',
-        },
-        'tasks': {'view_own', 'list_own', 'update_own'},
+        for (final e in defaultEmployeePermissions.entries)
+          e.key: Set<String>.from(e.value),
       })
       ..refresh();
     _isSuperAdmin = false;
     _bump();
   }
+
+  /// Baseline permission set every employee should have regardless of role.
+  /// Covers viewing/updating one's own record, submitting self-service
+  /// requests (leave, expenses, loans, work reports), and read access to
+  /// company-wide broadcast content (dashboard, announcements, policies,
+  /// events, meetings).
+  ///
+  /// Role creation pre-ticks these; admins can still untick or extend.
+  static const Map<String, Set<String>> defaultEmployeePermissions = {
+    // Self
+    'employees': {'view_own', 'update_own'},
+    'roles': {'view_own'},
+    'wallet': {'view_own'},
+
+    // Self-service submissions
+    'work_reports': {'create', 'view_own', 'list_own', 'update_own'},
+    'leave_requests': {
+      'create',
+      'view_own',
+      'list_own',
+      'update_own',
+      'delete_own',
+    },
+    'loans': {'create', 'list_own'},
+    'expenses': {'create', 'list_own', 'update_own'},
+    'approval_requests': {'list_own'},
+    'work_locations': {'list_own'},
+
+    // Own records (read-only)
+    'tasks': {'view_own', 'list_own', 'update_own'},
+    'payroll': {'list_own'},
+    'monthly_scorecards': {'list_own'},
+    'employee_evaluations': {'list_own'},
+    'performance_reviews': {'list_own'},
+    'awards': {'list_own'},
+    'disciplinary_cases': {'list_own'},
+    'assets': {'list_own'},
+    'estate_invoices': {'list_own'},
+
+    // Company-wide read
+    'dashboard': {'view'},
+    'announcements': {'list'},
+    'meetings': {'list'},
+    'events': {'list'},
+    'policies': {'list'},
+  };
 
   void clearPermissions() {
     _userPermissions.clear();

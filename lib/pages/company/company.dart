@@ -160,7 +160,7 @@ class CompanyProfilePage extends StatelessWidget {
                 SizedBox(
                     width: double.infinity,
                     child: _buildInfoField(
-                        "Company Addresses", data.companyAddresses)),
+                        "Company Address", data.companyAddresses)),
               ]));
 
               return small

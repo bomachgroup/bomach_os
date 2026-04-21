@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import 'controller/biometrics_controller.dart';
 import 'models/attendance_models.dart';
@@ -250,8 +250,8 @@ class AttendancePageState extends State<AttendancePage> {
           if (confirm != true || !mounted) return;
           final token = await _getToken(context);
           if (token == null || !mounted) return;
-          final ok = await controller.removeBiometric(token,
-              biometricType: 'face');
+          final ok =
+              await controller.removeBiometric(token, biometricType: 'face');
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(ok
@@ -269,8 +269,7 @@ class AttendancePageState extends State<AttendancePage> {
               value: 're-register', child: Text('Re-register Face')),
           const PopupMenuItem(
               value: 'remove',
-              child:
-                  Text('Remove Face', style: TextStyle(color: Colors.red))),
+              child: Text('Remove Face', style: TextStyle(color: Colors.red))),
         ],
       ],
       child: _heroChip(
@@ -359,8 +358,7 @@ class AttendancePageState extends State<AttendancePage> {
       child: const SizedBox(
         width: 14,
         height: 14,
-        child: CircularProgressIndicator(
-            strokeWidth: 2, color: Colors.white),
+        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
       ),
     );
   }
@@ -506,10 +504,8 @@ class AttendancePageState extends State<AttendancePage> {
       if (!dayDate.isBefore(weekStart)) thisWeek++;
       if (!dayDate.isBefore(monthStart)) {
         thisMonth++;
-        final ci =
-            events.firstWhere((e) => e.attendanceType == 'CLOCK_IN');
-        final co = events.lastWhere(
-            (e) => e.attendanceType == 'CLOCK_OUT',
+        final ci = events.firstWhere((e) => e.attendanceType == 'CLOCK_IN');
+        final co = events.lastWhere((e) => e.attendanceType == 'CLOCK_OUT',
             orElse: () => ci);
         if (co != ci) {
           monthTotal += co.timestamp.difference(ci.timestamp);
@@ -520,8 +516,7 @@ class AttendancePageState extends State<AttendancePage> {
 
     for (final r in records) {
       if (r.attendanceType != 'CLOCK_IN') continue;
-      if (lastClockIn == null ||
-          r.timestamp.isAfter(lastClockIn.timestamp)) {
+      if (lastClockIn == null || r.timestamp.isAfter(lastClockIn.timestamp)) {
         lastClockIn = r;
       }
     }
@@ -538,9 +533,8 @@ class AttendancePageState extends State<AttendancePage> {
       thisWeekDays: thisWeek,
       thisMonthDays: thisMonth,
       avgHoursLabel: avgLabel,
-      lastClockInRelative: lastClockIn == null
-          ? '—'
-          : _relativeTime(lastClockIn.timestamp, now),
+      lastClockInRelative:
+          lastClockIn == null ? '—' : _relativeTime(lastClockIn.timestamp, now),
       lastClockInExact: lastClockIn == null
           ? 'No records yet'
           : DateFormat('EEE, MMM d · hh:mm a').format(lastClockIn.timestamp),
@@ -590,8 +584,7 @@ class AttendancePageState extends State<AttendancePage> {
             },
           ),
           const SizedBox(height: 6),
-          Text(
-              DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
+          Text(DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
               style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
           const SizedBox(height: 24),
           const Divider(),
@@ -610,11 +603,11 @@ class AttendancePageState extends State<AttendancePage> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildTimeStatusItem("Time In", timeIn, Icons.login,
-                    const Color(0xFF00C853)),
+                _buildTimeStatusItem(
+                    "Time In", timeIn, Icons.login, const Color(0xFF00C853)),
                 Container(width: 1, height: 40, color: const Color(0xFFE0E0E0)),
-                _buildTimeStatusItem("Time Out", timeOut, Icons.logout,
-                    const Color(0xFF2962FF)),
+                _buildTimeStatusItem(
+                    "Time Out", timeOut, Icons.logout, const Color(0xFF2962FF)),
               ],
             );
           }),
@@ -630,9 +623,7 @@ class AttendancePageState extends State<AttendancePage> {
                       child: _buildActionButton(
                         buttonText: "Clock In",
                         buttonColor: const Color(0xFF00C853),
-                        onTap: enabled
-                            ? () => _handleClockAction(true)
-                            : null,
+                        onTap: enabled ? () => _handleClockAction(true) : null,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -640,9 +631,7 @@ class AttendancePageState extends State<AttendancePage> {
                       child: _buildActionButton(
                         buttonText: "Clock Out",
                         buttonColor: const Color(0xFF2962FF),
-                        onTap: enabled
-                            ? () => _handleClockAction(false)
-                            : null,
+                        onTap: enabled ? () => _handleClockAction(false) : null,
                       ),
                     ),
                   ],
@@ -657,8 +646,8 @@ class AttendancePageState extends State<AttendancePage> {
                       color: const Color(0xFFFFF7ED),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                          color: const Color(0xFFFDBA74)
-                              .withValues(alpha: 0.5)),
+                          color:
+                              const Color(0xFFFDBA74).withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       children: [
@@ -787,8 +776,8 @@ class AttendancePageState extends State<AttendancePage> {
                   Expanded(
                     child: Text(
                       step,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 11),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 11),
                       overflow: TextOverflow.ellipsis,
                     ),
                   )
@@ -857,8 +846,8 @@ class AttendancePageState extends State<AttendancePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ),
@@ -939,8 +928,7 @@ class AttendancePageState extends State<AttendancePage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.blue,
               foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
@@ -961,8 +949,7 @@ class AttendancePageState extends State<AttendancePage> {
           children: [
             // Status chip
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: statusBg,
                 borderRadius: BorderRadius.circular(20),
@@ -1127,8 +1114,8 @@ class AttendancePageState extends State<AttendancePage> {
                   fontSize: 12,
                   letterSpacing: 0.5,
                 ),
-                headingRowColor: WidgetStateProperty.all(
-                    const Color(0xFFF8FAFC)),
+                headingRowColor:
+                    WidgetStateProperty.all(const Color(0xFFF8FAFC)),
                 columnSpacing: 24,
                 columns: const [
                   DataColumn(label: Text('DATE')),

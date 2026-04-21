@@ -1,11 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/input/avatar_picker.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/input/upload_file.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../controllers/company_controller.dart';
 
 // Wrapper to standardise the Dialog look
@@ -109,6 +110,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       sloganCtrl,
       industryCtrl;
 
+  XFile? _pickedLogo;
+
   @override
   void initState() {
     super.initState();
@@ -120,6 +123,14 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     rcCtrl = TextEditingController(text: data.rcNumber);
     sloganCtrl = TextEditingController(text: data.companySlogan);
     industryCtrl = TextEditingController(text: controller.industry.value);
+  }
+
+  String _initials() {
+    final name = nameCtrl.text.trim();
+    if (name.isEmpty) return '';
+    final parts = name.split(RegExp(r'\s+'));
+    if (parts.length == 1) return parts.first.substring(0, 1);
+    return '${parts.first[0]}${parts.last[0]}';
   }
 
   @override
@@ -137,11 +148,24 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               address: addressCtrl.text,
               slogan: sloganCtrl.text,
               industryVal: industryCtrl.text,
+              rcNumber: rcCtrl.text.trim(),
             );
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: AvatarPicker(
+                  label: 'Company Logo',
+                  currentImageUrl:
+                      controller.companySettings.value?.companyLogo,
+                  initials: _initials(),
+                  pickedFile: _pickedLogo,
+                  size: 112,
+                  onPicked: (f) => setState(() => _pickedLogo = f),
+                ),
+              ),
+              const SizedBox(height: 24),
               MyTextFormField(
                   controller: nameCtrl, title: 'Company Name*', hintText: ''),
               const SizedBox(height: 20),
@@ -175,21 +199,14 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                     child: MyTextFormField(
                         controller: rcCtrl,
                         title: 'RC Number',
-                        hintText: '',
-                        readOnly: true,
-                        fillColor: Colors.grey.shade100)),
+                        hintText: 'e.g. RC1234567')),
               ]),
               const SizedBox(height: 20),
               MyTextFormField(
                   controller: addressCtrl,
-                  title: 'Company Addresses',
-                  hintText: '',
+                  title: 'Company Address',
+                  hintText: 'Building, street, city, state, country',
                   maxLines: 3),
-              const SizedBox(height: 20),
-              const Text('Company Logo',
-                  style: TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 8),
-              const UploadFile(),
             ],
           ),
         ));

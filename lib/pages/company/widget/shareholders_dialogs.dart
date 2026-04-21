@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/input/avatar_picker.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -7,6 +8,7 @@ import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../controllers/company_controller.dart';
 import 'edit_company_dialog.dart';
 
@@ -355,8 +357,13 @@ class _ShareholderRow {
 // ==============================================================================
 class AddEditShareholderDialog extends StatefulWidget {
   final Shareholder? shareholder;
+  final bool defaultIsBoardMember;
 
-  const AddEditShareholderDialog({super.key, this.shareholder});
+  const AddEditShareholderDialog({
+    super.key,
+    this.shareholder,
+    this.defaultIsBoardMember = false,
+  });
 
   @override
   State<AddEditShareholderDialog> createState() =>
@@ -375,9 +382,16 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
   late TextEditingController notesCtrl;
 
   String selectedRole = 'Investor';
-  bool isBoardMember = false;
+  late bool isBoardMember = widget.defaultIsBoardMember;
+  XFile? _pickedAvatar;
 
   bool get isEditing => widget.shareholder != null;
+
+  String _initials() {
+    final f = firstNameCtrl.text.trim();
+    final l = lastNameCtrl.text.trim();
+    return '${f.isNotEmpty ? f[0] : ''}${l.isNotEmpty ? l[0] : ''}';
+  }
 
   static const _roleOptions = [
     'Founder',
@@ -430,6 +444,7 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
       'is_board_member': isBoardMember,
       'is_active': true,
       if (notesCtrl.text.trim().isNotEmpty) 'notes': notesCtrl.text.trim(),
+      if (_pickedAvatar != null) 'profile_picture_file': _pickedAvatar!.path,
     };
 
     if (isEditing) {
@@ -451,6 +466,15 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(
+                  child: AvatarPicker(
+                    currentImageUrl: widget.shareholder?.profilePicture,
+                    initials: _initials(),
+                    pickedFile: _pickedAvatar,
+                    onPicked: (f) => setState(() => _pickedAvatar = f),
+                  ),
+                ),
+                const SizedBox(height: 24),
                 Row(children: [
                   Expanded(
                     child: MyTextFormField(

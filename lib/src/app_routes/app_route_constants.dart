@@ -139,6 +139,9 @@ class RouteConstants {
   static const String crmLeads = '/crm/leads';
   static const String crmInteractions = '/crm/interactions';
 
+  // Marketing & CRM combined dashboard
+  static const String marketingCrm = '/marketing-crm';
+
   // Events
   static const String events = '/events';
 

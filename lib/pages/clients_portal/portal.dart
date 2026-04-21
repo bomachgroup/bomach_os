@@ -1,11 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/clients_portal/controller/client_portal_controller.dart';
 import 'package:bms_front_end/pages/clients_portal/slides/client_access.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // Using similar stat card from services
@@ -139,6 +144,8 @@ class _ClientsPortalState extends State<ClientsPortal> {
                   ],
                 ),
           kSizedBox,
+          _buildQuickNav(),
+          kSizedBox,
           _buildTopStats(context, isMobile: isMobile),
           const SizedBox(height: 18),
           SizedBox(
@@ -157,6 +164,57 @@ class _ClientsPortalState extends State<ClientsPortal> {
         ],
       );
     });
+  }
+
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Icons.people_alt_outlined,
+          title: 'Client Access',
+          subtitle: 'Portal users and invites',
+          route: RouteConstants.clientAccess,
+          resources: const [PermissionConstants.resClients],
+        ),
+        card(
+          icon: Icons.folder_shared_outlined,
+          title: 'Document Sharing',
+          subtitle: 'Shared files and folders',
+          route: RouteConstants.documentSharing,
+          resources: const [PermissionConstants.resDocuments],
+        ),
+        card(
+          icon: Icons.forum_outlined,
+          title: 'Communications',
+          subtitle: 'Messages with clients',
+          route: RouteConstants.communications,
+          resources: const [PermissionConstants.resClients],
+        ),
+        card(
+          icon: Icons.insights_outlined,
+          title: 'Portal Analytics',
+          subtitle: 'Usage and engagement',
+          route: RouteConstants.portalAnalytics,
+          resources: const [PermissionConstants.resStats],
+        ),
+      ],
+    );
   }
 
   Widget _buildTopStats(BuildContext context, {required bool isMobile}) {

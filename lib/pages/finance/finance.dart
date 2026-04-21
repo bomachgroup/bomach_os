@@ -1,11 +1,17 @@
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+import 'package:get/get.dart';
 
 class FinancePage extends StatefulWidget {
   const FinancePage({super.key});
@@ -17,15 +23,76 @@ class FinancePage extends StatefulWidget {
 class _FinancePageState extends State<FinancePage> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const MyText(
-          'Finance Dashboard',
-          style: AppText.black_600_32,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const MyText(
+            'Finance Dashboard',
+            style: AppText.black_500_32,
+          ),
+          const SizedBox(height: 6),
+          const MyText(
+            'Budgets, invoices, payments, and expenses at a glance',
+            style: AppText.black_400_14,
+          ),
+          kSizedBox,
+          _buildQuickNav(),
+          kSizedBoxBG,
+          _buildSummaryGrid(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Icons.receipt_long_outlined,
+          title: 'Invoices',
+          subtitle: 'Issue and track billings',
+          route: RouteConstants.invoice,
+          resources: const [PermissionConstants.resEstateInvoices],
         ),
-        kSizedBox,
-        _buildSummaryGrid(),
+        card(
+          icon: Icons.payments_outlined,
+          title: 'Payments',
+          subtitle: 'Record incoming funds',
+          route: RouteConstants.payment,
+          resources: const [PermissionConstants.resPayments],
+        ),
+        card(
+          icon: Icons.money_off_csred_outlined,
+          title: 'Expenses',
+          subtitle: 'Review and approve spend',
+          route: RouteConstants.expense,
+          resources: const [PermissionConstants.resExpenses],
+        ),
+        card(
+          icon: Icons.account_balance_wallet_outlined,
+          title: 'Budgets',
+          subtitle: 'Plan and allocate funds',
+          route: RouteConstants.budget,
+          resources: const [PermissionConstants.resBudgets],
+        ),
       ],
     );
   }

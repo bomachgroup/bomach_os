@@ -17,25 +17,18 @@ class BranchController extends GetxController {
   var isLoadingList = true.obs;
   var isLoadingDetail = false.obs;
   var isSaving = false.obs;
-  var isFetchingStates = false.obs;
 
   var branchList = <Branch>[].obs;
   var currentBranch = Rxn<Branch>();
   var currentPerformance = Rxn<BranchPerformance>();
 
   // --- Resources for Dropdowns ---
-  var countryList = <Country>[].obs;
-  var stateList = <StateModel>[].obs;
   var fieldChoices = Rxn<BranchFieldChoices>();
   var allEmployees = <Employee>[].obs; // For manager dropdown
 
-  // --- Enriched Detail Data ---
-  var currentCountryDetail = Rxn<Country>();
-  var currentStateDetail = Rxn<StateModel>();
-
   // --- Filters ---
   var searchQuery = ''.obs;
-  var filterStateId = Rxn<int>();
+  var filterState = Rxn<String>();
   var filterBranchRole = Rxn<String>(); // For "All Types"
   var filterStatus = Rxn<String>(); // For "Status" dropdown
 
@@ -66,7 +59,7 @@ class BranchController extends GetxController {
       final result = await _branchService.getBranches(
         accessToken: token,
         search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
-        stateId: filterStateId.value,
+        state: filterState.value,
         branchRole: filterBranchRole.value,
         operationalStatus: filterStatus.value,
         limit: limit.value,
@@ -87,8 +80,6 @@ class BranchController extends GetxController {
       isLoadingDetail.value = true;
       currentBranch.value = null;
       currentPerformance.value = null;
-      currentCountryDetail.value = null;
-      currentStateDetail.value = null;
 
       final token = await _getToken();
       if (token == null) return;
@@ -101,43 +92,10 @@ class BranchController extends GetxController {
 
       currentBranch.value = results[0] as Branch;
       currentPerformance.value = results[1] as BranchPerformance;
-
-      // Fetch enriched country and state details using single-item endpoints
-      final branch = currentBranch.value!;
-      if (branch.countryId != 0) {
-        _fetchCountryDetail(token, branch.countryId);
-      }
-      if (branch.stateId != 0) {
-        _fetchStateDetail(token, branch.stateId);
-      }
     } catch (e) {
       log("Error fetching branch details: $e");
     } finally {
       isLoadingDetail.value = false;
-    }
-  }
-
-  Future<void> _fetchCountryDetail(String token, int countryId) async {
-    try {
-      final country = await _branchService.getCountry(
-        accessToken: token,
-        countryId: countryId,
-      );
-      currentCountryDetail.value = country;
-    } catch (e) {
-      log("Error fetching country detail: $e");
-    }
-  }
-
-  Future<void> _fetchStateDetail(String token, int stateId) async {
-    try {
-      final state = await _branchService.getState(
-        accessToken: token,
-        stateId: stateId,
-      );
-      currentStateDetail.value = state;
-    } catch (e) {
-      log("Error fetching state detail: $e");
     }
   }
 
@@ -148,21 +106,12 @@ class BranchController extends GetxController {
       final token = await _getToken();
       if (token == null) return;
 
-      // Load countries, choices, and employees for filters/forms in parallel
       final results = await Future.wait([
-        _branchService.getCountries(accessToken: token, isActive: true),
         _branchService.getBranchFieldChoices(accessToken: token),
         _fetchAllEmployees(token),
       ]);
 
-      countryList.assignAll(results[0] as List<Country>);
-      fieldChoices.value = results[1] as BranchFieldChoices;
-
-      // Attempt to load states for the default country (e.g., Nigeria if id=1 exists)
-      // This helps populate the "All States" filter immediately if applicable
-      if (countryList.isNotEmpty) {
-        fetchStatesForCountry(countryList.first.id);
-      }
+      fieldChoices.value = results[0] as BranchFieldChoices;
     } catch (e) {
       log("Error loading resources: $e");
     }
@@ -174,23 +123,6 @@ class BranchController extends GetxController {
       allEmployees.assignAll(result.list);
     } catch (e) {
       log("Error fetching employees for manager dropdown: $e");
-    }
-  }
-
-  Future<void> fetchStatesForCountry(int countryId) async {
-    try {
-      isFetchingStates.value = true;
-      stateList.clear();
-      final token = await _getToken();
-      if (token == null) return;
-
-      final states = await _branchService.getStates(
-          accessToken: token, countryId: countryId);
-      stateList.assignAll(states);
-    } catch (e) {
-      log("Error fetching states: $e");
-    } finally {
-      isFetchingStates.value = false;
     }
   }
 
@@ -253,12 +185,10 @@ class BranchController extends GetxController {
   }
 
   void onStateFilterChanged(String? stateName) {
-    if (stateName == 'All States' || stateName == null) {
-      filterStateId.value = null;
+    if (stateName == null || stateName.isEmpty || stateName == 'All States') {
+      filterState.value = null;
     } else {
-      final state = stateList.firstWhere((s) => s.name == stateName,
-          orElse: () => StateModel(id: 0, name: '', countryId: 0, code: ''));
-      if (state.id != 0) filterStateId.value = state.id;
+      filterState.value = stateName;
     }
     currentPage.value = 1;
     fetchBranches();

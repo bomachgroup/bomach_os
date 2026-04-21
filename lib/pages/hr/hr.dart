@@ -1,11 +1,17 @@
 import 'dart:math';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HRPage extends StatefulWidget {
   const HRPage({super.key});
@@ -30,6 +36,9 @@ class _HRPageState extends State<HRPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(isMobile),
+              kSizedBox,
+
+              _buildQuickNav(),
               kSizedBox,
 
               // Responsive Grid for Stat Boxes
@@ -76,6 +85,71 @@ class _HRPageState extends State<HRPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Icons.badge_outlined,
+          title: 'Employees',
+          subtitle: 'Directory and profiles',
+          route: RouteConstants.employees,
+          resources: const [PermissionConstants.resEmployees],
+        ),
+        card(
+          icon: Icons.access_time_outlined,
+          title: 'Attendance',
+          subtitle: 'Clock-ins and hours',
+          route: RouteConstants.attendance,
+          resources: const [PermissionConstants.resEmployees],
+        ),
+        card(
+          icon: Icons.work_outline,
+          title: 'Recruitment',
+          subtitle: 'Job posts and applicants',
+          route: RouteConstants.jobPost,
+          resources: const [PermissionConstants.resJobPostings],
+        ),
+        card(
+          icon: Icons.event_busy_outlined,
+          title: 'Leave Requests',
+          subtitle: 'Approve and track leave',
+          route: RouteConstants.leaveRequest,
+          resources: const [PermissionConstants.resLeaveRequests],
+        ),
+        card(
+          icon: Icons.trending_up_outlined,
+          title: 'Performance',
+          subtitle: 'Reviews and scorecards',
+          route: RouteConstants.performanceReview,
+          resources: const [PermissionConstants.resPerformanceReviews],
+        ),
+        card(
+          icon: Icons.school_outlined,
+          title: 'Training',
+          subtitle: 'Programs and progress',
+          route: RouteConstants.trainingProgram,
+          resources: const [PermissionConstants.resTrainingPrograms],
+        ),
+      ],
     );
   }
 

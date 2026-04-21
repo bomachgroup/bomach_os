@@ -1,5 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/lead_controller.dart';
 import 'package:bms_front_end/pages/services/controller/service_controller.dart';
@@ -7,9 +9,12 @@ import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/widget/create_order_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/create_quote_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -94,6 +99,8 @@ class _ServicesPageState extends State<ServicesPage> {
           ],
         ),
         kSizedBox,
+        _buildQuickNav(),
+        kSizedBox,
         _buildTopStats(context),
         const SizedBox(height: 18),
         _buildTabs(context, (index) => setState(() => _selectedTab = index)),
@@ -110,6 +117,50 @@ class _ServicesPageState extends State<ServicesPage> {
         // _quotes(),
         // _orders(),
         // _billing(),
+      ],
+    );
+  }
+
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Icons.people_alt_outlined,
+          title: 'Clients',
+          subtitle: 'Service clients directory',
+          route: RouteConstants.serviceClients,
+          resources: const [PermissionConstants.resClients],
+        ),
+        card(
+          icon: Icons.home_work_outlined,
+          title: 'Property Management',
+          subtitle: 'Rentals and listings',
+          route: RouteConstants.propertyList,
+          resources: const [PermissionConstants.resProperties],
+        ),
+        card(
+          icon: Icons.landscape_outlined,
+          title: 'Estate Management',
+          subtitle: 'Estates and performance',
+          route: RouteConstants.estateManagement,
+          resources: const [PermissionConstants.resEstates],
+        ),
       ],
     );
   }

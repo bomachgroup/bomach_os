@@ -1,12 +1,17 @@
+/// Branch as persisted by the backend after the country/state migration:
+/// country/state are now free-text names (with ISO codes supplied by a
+/// client-side picker), and `city` replaces the old LGA field. Branches also
+/// carry their own `default_currency` and `language_preference` strings so
+/// each branch can override the company-wide settings.
 class Branch {
   final int id;
   final String branchName;
   final String branchId;
-  final int countryId;
-  final String countryName;
-  final int stateId;
-  final String stateName;
-  final String lga;
+  final String country;
+  final String countryCode;
+  final String state;
+  final String stateCode;
+  final String city;
   final String officeAddress;
   final String fullAddress;
   final String operationalStatus;
@@ -18,6 +23,8 @@ class Branch {
   final int managerId;
   final String managerName;
   final String? branchFile;
+  final String defaultCurrency;
+  final String languagePreference;
   final bool isActive;
   final bool isOperational;
   final String notes;
@@ -28,11 +35,11 @@ class Branch {
     required this.id,
     required this.branchName,
     required this.branchId,
-    required this.countryId,
-    required this.countryName,
-    required this.stateId,
-    required this.stateName,
-    required this.lga,
+    required this.country,
+    required this.countryCode,
+    required this.state,
+    required this.stateCode,
+    required this.city,
     required this.officeAddress,
     required this.fullAddress,
     required this.operationalStatus,
@@ -44,6 +51,8 @@ class Branch {
     required this.managerId,
     required this.managerName,
     this.branchFile,
+    required this.defaultCurrency,
+    required this.languagePreference,
     required this.isActive,
     required this.isOperational,
     required this.notes,
@@ -56,11 +65,11 @@ class Branch {
       id: json['id'] ?? 0,
       branchName: json['branch_name'] ?? '',
       branchId: json['branch_id'] ?? '',
-      countryId: json['country_id'] ?? 0,
-      countryName: json['country_name'] ?? '',
-      stateId: json['state_id'] ?? 0,
-      stateName: json['state_name'] ?? '',
-      lga: json['lga'] ?? '',
+      country: json['country'] ?? '',
+      countryCode: json['country_code'] ?? '',
+      state: json['state'] ?? '',
+      stateCode: json['state_code'] ?? '',
+      city: json['city'] ?? '',
       officeAddress: json['office_address'] ?? '',
       fullAddress: json['full_address'] ?? '',
       operationalStatus: json['operational_status'] ?? '',
@@ -72,6 +81,8 @@ class Branch {
       managerId: json['manager_id'] ?? 0,
       managerName: json['manager_name'] ?? '',
       branchFile: json['branch_file'],
+      defaultCurrency: json['default_currency'] ?? '',
+      languagePreference: json['language_preference'] ?? '',
       isActive: json['is_active'] ?? false,
       isOperational: json['is_operational'] ?? false,
       notes: json['notes'] ?? '',
@@ -83,62 +94,22 @@ class Branch {
   Map<String, dynamic> toJson() {
     return {
       'branch_name': branchName,
-      'country_id': countryId,
-      'state_id': stateId,
-      'lga': lga,
+      'country': country,
+      'country_code': countryCode,
+      'state': state,
+      'state_code': stateCode,
+      'city': city,
       'office_address': officeAddress,
       'operational_status': operationalStatus,
       'branch_role': branchRole,
       'contact_email': contactEmail,
       'contact_phone': contactPhone,
       'manager_id': managerId,
+      'default_currency': defaultCurrency,
+      'language_preference': languagePreference,
       'is_active': isActive,
       'notes': notes,
     };
-  }
-}
-
-class Country {
-  final int id;
-  final String name;
-  final String code;
-  final bool isActive;
-
-  Country(
-      {required this.id,
-      required this.name,
-      required this.code,
-      required this.isActive});
-
-  factory Country.fromJson(Map<String, dynamic> json) {
-    return Country(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-      code: json['code'] ?? '',
-      isActive: json['is_active'] ?? false,
-    );
-  }
-}
-
-class StateModel {
-  final int id;
-  final int countryId;
-  final String name;
-  final String code;
-
-  StateModel(
-      {required this.id,
-      required this.countryId,
-      required this.name,
-      required this.code});
-
-  factory StateModel.fromJson(Map<String, dynamic> json) {
-    return StateModel(
-      id: json['id'] ?? 0,
-      countryId: json['country_id'] ?? 0,
-      name: json['name'] ?? '',
-      code: json['code'] ?? '',
-    );
   }
 }
 

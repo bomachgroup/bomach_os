@@ -5,6 +5,7 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/model/branch_model.dart';
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,21 +24,22 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   final _formKey = GlobalKey<FormState>();
 
   final nameCtrl = TextEditingController();
-  final lgaCtrl = TextEditingController();
+  final stateCtrl = TextEditingController();
+  final cityCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final notesCtrl = TextEditingController();
 
-  int? selectedCountryId;
-  int? selectedStateId;
+  String? countryName;
+  String? countryCode;
   String? selectedRole;
   String? selectedStatus;
   int? selectedManagerId;
+  String? selectedCurrency;
+  String? selectedLanguage;
   bool isActive = true;
 
-  String? displayCountry;
-  String? displayState;
   String? displayManager;
 
   bool get isEditing => widget.branchToEdit != null;
@@ -48,24 +50,25 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
     if (widget.branchToEdit != null) {
       final b = widget.branchToEdit!;
       nameCtrl.text = b.branchName;
-      lgaCtrl.text = b.lga;
+      stateCtrl.text = b.state;
+      cityCtrl.text = b.city;
       addressCtrl.text = b.officeAddress;
       emailCtrl.text = b.contactEmail;
       phoneCtrl.text = b.contactPhone;
       notesCtrl.text = b.notes;
 
-      selectedCountryId = b.countryId;
-      selectedStateId = b.stateId;
+      countryName = b.country.isEmpty ? null : b.country;
+      countryCode = b.countryCode.isEmpty ? null : b.countryCode;
       selectedRole = b.branchRole;
       selectedStatus = b.operationalStatus;
       selectedManagerId = b.managerId != 0 ? b.managerId : null;
+      selectedCurrency =
+          b.defaultCurrency.isEmpty ? null : b.defaultCurrency;
+      selectedLanguage =
+          b.languagePreference.isEmpty ? null : b.languagePreference;
       isActive = b.isActive;
 
-      displayCountry = b.countryName;
-      displayState = b.stateName;
       displayManager = b.managerName.isNotEmpty ? b.managerName : null;
-
-      if (b.countryId != 0) controller.fetchStatesForCountry(b.countryId);
     } else {
       selectedStatus = "active";
     }
@@ -74,7 +77,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   @override
   void dispose() {
     nameCtrl.dispose();
-    lgaCtrl.dispose();
+    stateCtrl.dispose();
+    cityCtrl.dispose();
     addressCtrl.dispose();
     emailCtrl.dispose();
     phoneCtrl.dispose();
@@ -224,50 +228,17 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Obx(() => MyDropdown(
-                                  title: "Country",
-                                  hintText: displayCountry ?? "Select country",
-                                  items: controller.countryList
-                                      .map((e) => e.name)
-                                      .toList(),
-                                  onChanged: (val) {
-                                    final country = controller.countryList
-                                        .firstWhere((e) => e.name == val);
-                                    setState(() {
-                                      selectedCountryId = country.id;
-                                      displayCountry = val;
-                                      selectedStateId = null;
-                                      displayState = null;
-                                    });
-                                    controller
-                                        .fetchStatesForCountry(country.id);
-                                  },
-                                  validator: (val) => selectedCountryId == null
-                                      ? 'Required'
-                                      : null,
-                                )),
-                          ),
+                          Expanded(child: _buildCountryPickerField()),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Obx(() => MyDropdown(
-                                  title: "State",
-                                  hintText: displayState ?? "Select state",
-                                  items: controller.stateList
-                                      .map((e) => e.name)
-                                      .toList(),
-                                  onChanged: (val) {
-                                    final state = controller.stateList
-                                        .firstWhere((e) => e.name == val);
-                                    setState(() {
-                                      selectedStateId = state.id;
-                                      displayState = val;
-                                    });
-                                  },
-                                  validator: (val) => selectedStateId == null
-                                      ? 'Required'
-                                      : null,
-                                )),
+                            child: MyTextFormField(
+                              controller: stateCtrl,
+                              title: "State / Province",
+                              hintText: "e.g. Lagos",
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
+                            ),
                           ),
                         ],
                       ),
@@ -277,9 +248,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                         children: [
                           Expanded(
                             child: MyTextFormField(
-                              controller: lgaCtrl,
-                              title: "L.G.A",
-                              hintText: "Enter LGA",
+                              controller: cityCtrl,
+                              title: "City",
+                              hintText: "e.g. Ikeja",
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -291,6 +262,36 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                               validator: (val) => (val == null || val.isEmpty)
                                   ? 'Required'
                                   : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyDropdown(
+                              title: "Default Currency (optional)",
+                              hintText: selectedCurrency ?? "Inherit",
+                              items: const ["NGN", "USD", "EUR", "GBP"],
+                              onChanged: (val) =>
+                                  setState(() => selectedCurrency = val),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyDropdown(
+                              title: "Language (optional)",
+                              hintText: selectedLanguage ?? "Inherit",
+                              items: const [
+                                "English (Nigeria)",
+                                "English (UK)",
+                                "English (US)",
+                                "French",
+                              ],
+                              onChanged: (val) =>
+                                  setState(() => selectedLanguage = val),
                             ),
                           ),
                         ],
@@ -450,6 +451,89 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
     return match.isNotEmpty ? match.first.label : selectedStatus;
   }
 
+  Widget _buildCountryPickerField() {
+    return FormField<String>(
+      validator: (_) =>
+          (countryName == null || countryName!.isEmpty) ? 'Required' : null,
+      builder: (formState) {
+        final hasError = formState.hasError;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Country",
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF334155))),
+            const SizedBox(height: 8),
+            InkWell(
+              borderRadius: BorderRadius.circular(15),
+              onTap: () => showCountryPicker(
+                context: context,
+                showPhoneCode: false,
+                favorite: const ['NG', 'US', 'GB'],
+                countryListTheme: CountryListThemeData(
+                  borderRadius: BorderRadius.circular(12),
+                  inputDecoration: InputDecoration(
+                    hintText: 'Search country',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: AppColors.card),
+                    ),
+                  ),
+                ),
+                onSelect: (c) {
+                  setState(() {
+                    countryName = c.name;
+                    countryCode = c.countryCode;
+                  });
+                  formState.didChange(c.name);
+                },
+              ),
+              child: Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                      color: hasError ? AppColors.red : AppColors.card),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.public,
+                        size: 18, color: AppColors.grey1),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        countryName ?? 'Select country',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: countryName == null
+                              ? AppColors.grey1
+                              : AppColors.black,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.keyboard_arrow_down_rounded,
+                        color: AppColors.grey1),
+                  ],
+                ),
+              ),
+            ),
+            if (hasError)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 4),
+                child: Text(formState.errorText ?? '',
+                    style: const TextStyle(color: AppColors.red, fontSize: 12)),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildSectionLabel(String label) {
     return Text(
       label,
@@ -464,11 +548,13 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   void _onSave() {
     if (!_formKey.currentState!.validate()) return;
 
-    final data = {
+    final data = <String, dynamic>{
       "branch_name": nameCtrl.text.trim(),
-      "country_id": selectedCountryId,
-      "state_id": selectedStateId,
-      "lga": lgaCtrl.text.trim(),
+      "country": countryName ?? '',
+      "country_code": countryCode ?? '',
+      "state": stateCtrl.text.trim(),
+      "state_code": "",
+      "city": cityCtrl.text.trim(),
       "office_address": addressCtrl.text.trim(),
       "operational_status": selectedStatus,
       "branch_role": selectedRole,
@@ -477,6 +563,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       "manager_id": selectedManagerId ?? 0,
       "notes": notesCtrl.text.trim(),
       "is_active": isActive,
+      if (selectedCurrency != null) "default_currency": selectedCurrency,
+      if (selectedLanguage != null) "language_preference": selectedLanguage,
     };
 
     if (isEditing) {

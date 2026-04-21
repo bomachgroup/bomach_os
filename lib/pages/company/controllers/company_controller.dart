@@ -428,6 +428,7 @@ class CompanyController extends GetxController {
     required String address,
     required String slogan,
     required String industryVal, // New
+    String? rcNumber,
     String? logoUrl,
   }) async {
     // Update local reactive var immediately for UI responsiveness
@@ -442,6 +443,7 @@ class CompanyController extends GetxController {
               companyPhone: phone,
               companyAddresses: address,
               companySlogan: slogan,
+              rcNumber: rcNumber ?? current.rcNumber,
               companyLogo: logoUrl ?? current.companyLogo,
             ));
   }
@@ -548,7 +550,6 @@ class CompanyController extends GetxController {
   }
 }
 
-// Extension to help with copyWith since we don't have the model file to edit
 extension CompanySettingsExt on CompanySettings {
   CompanySettings copyWith({
     String? companyName,
@@ -581,22 +582,5 @@ extension CompanySettingsExt on CompanySettings {
       createdAt: createdAt,
       updatedAt: DateTime.now().toIso8601String(),
     );
-  }
-
-  // Helper for update JSON since method in model might be restricted
-  Map<String, dynamic> toUpdateJson() {
-    return {
-      "company_name": companyName,
-      "company_email": companyEmail,
-      "company_phone": companyPhone,
-      "company_addresses": companyAddresses,
-      "company_slogan": companySlogan,
-      "primary_color_code": primaryColorCode,
-      "secondary_color_code": secondaryColorCode,
-      "default_currency": defaultCurrency,
-      "language_preference": languagePreference,
-      "business_rules": businessRules,
-      // "company_logo": companyLogo, // Often handled separately via multipart
-    };
   }
 }

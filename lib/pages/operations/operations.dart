@@ -1,9 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/dashboard_controller.dart';
@@ -72,6 +77,9 @@ class _OperationsPageState extends State<OperationsPage> {
               ),
             ],
           ),
+          kSizedBox,
+
+          _buildQuickNav(),
           kSizedBox,
 
           // --- Stats Section ---
@@ -170,6 +178,64 @@ class _OperationsPageState extends State<OperationsPage> {
           }),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Icons.folder_open_outlined,
+          title: 'Projects',
+          subtitle: 'Plan and track work',
+          route: RouteConstants.projects,
+          resources: const [PermissionConstants.resProjects],
+        ),
+        card(
+          icon: Icons.location_city_outlined,
+          title: 'Worksites',
+          subtitle: 'Active field locations',
+          route: RouteConstants.worksite,
+          resources: const [PermissionConstants.resWorksites],
+        ),
+        card(
+          icon: Icons.checklist_rtl_outlined,
+          title: 'Tasks',
+          subtitle: 'Assign and monitor progress',
+          route: RouteConstants.tasks,
+          resources: const [PermissionConstants.resTasks],
+        ),
+        card(
+          icon: Icons.description_outlined,
+          title: 'Contracts',
+          subtitle: 'Agreements and terms',
+          route: RouteConstants.contracts,
+          resources: const [PermissionConstants.resContracts],
+        ),
+        card(
+          icon: Icons.groups_2_outlined,
+          title: 'Meetings',
+          subtitle: 'Schedule and notes',
+          route: RouteConstants.meetings,
+          resources: const [PermissionConstants.resMeetings],
+        ),
+      ],
     );
   }
 

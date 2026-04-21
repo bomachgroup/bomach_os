@@ -476,6 +476,8 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
   int _permPage = 0;
   static const int _permPageSize = 8;
 
+  Worker? _defaultsWorker;
+
   @override
   void initState() {
     super.initState();
@@ -492,11 +494,39 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
       role.permissions.forEach((resource, actions) {
         _selectedPermissions[resource] = Set<String>.from(actions);
       });
+    } else {
+      if (widget.ctrl.permissionsMap.isNotEmpty) {
+        _seedDefaultPermissions();
+      } else {
+        // Deps still loading — seed once they arrive, then dispose the worker.
+        _defaultsWorker = ever<Map<String, List<String>>>(
+          widget.ctrl.permissionsMap,
+          (map) {
+            if (!mounted || map.isEmpty) return;
+            setState(_seedDefaultPermissions);
+            _defaultsWorker?.dispose();
+            _defaultsWorker = null;
+          },
+        );
+      }
     }
+  }
+
+  /// Pre-tick the baseline employee permissions on create, intersected with
+  /// what the backend advertises so we don't tick phantoms.
+  void _seedDefaultPermissions() {
+    final available = widget.ctrl.permissionsMap;
+    PermissionService.defaultEmployeePermissions.forEach((resource, actions) {
+      final advertised = available[resource];
+      if (advertised == null) return;
+      final allowed = actions.where(advertised.contains).toSet();
+      if (allowed.isNotEmpty) _selectedPermissions[resource] = allowed;
+    });
   }
 
   @override
   void dispose() {
+    _defaultsWorker?.dispose();
     _nameCtrl.dispose();
     _permSearchCtrl.dispose();
     super.dispose();

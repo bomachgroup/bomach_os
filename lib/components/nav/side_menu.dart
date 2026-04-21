@@ -35,6 +35,7 @@ enum MainMenuItem {
   clientPortal,
   security,
   crm,
+  marketingCrm,
 }
 
 enum SubMenuItem {
@@ -161,6 +162,7 @@ enum SubMenuItem {
   crmLeads,
   crmAnalytics,
   crmInteractions,
+  marketingCrmDashboard,
 }
 
 // Data classes for menu structure
@@ -210,6 +212,8 @@ class _SideMenuState extends State<SideMenu> {
   SubMenuItem? selectedSubMenu;
   late final List<MenuItem> menuItems;
   late final Map<String, MenuSelection> routeToMenuMapping;
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -220,6 +224,43 @@ class _SideMenuState extends State<SideMenu> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateSelectionBasedOnCurrentRoute();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  /// Applies [_searchQuery] to the given menu item. Returns null when the
+  /// item (and none of its children) match; otherwise returns a menu item
+  /// whose children are filtered down to the matches.
+  MenuItem? _filterForSearch(MenuItem item) {
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return item;
+
+    final labelHit = item.label.toLowerCase().contains(q);
+    if (!item.isExpandable) {
+      return labelHit ? item : null;
+    }
+
+    // If the parent label matches, show all children.
+    if (labelHit) return item;
+
+    final matchingChildren = item.children
+        .where((c) => c.label.toLowerCase().contains(q))
+        .toList();
+    if (matchingChildren.isEmpty) return null;
+
+    return MenuItem(
+      id: item.id,
+      label: item.label,
+      iconPath: item.iconPath,
+      route: item.route,
+      resources: item.resources,
+      isExpandable: item.isExpandable,
+      children: matchingChildren,
+    );
   }
 
   void _initializeMenuItems() {
@@ -488,6 +529,103 @@ class _SideMenuState extends State<SideMenu> {
         ],
       ),
       const MenuItem(
+        id: MainMenuItem.services,
+        label: 'Services',
+        iconPath: 'assets/svg/sidebar/calendar.svg',
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resServices,
+          PermissionConstants.resProperties,
+          PermissionConstants.resEstates,
+          PermissionConstants.resClients,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.servicesDashboard,
+            label: 'Dashboard',
+            route: RouteConstants.services,
+            resources: [PermissionConstants.resServices],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.serviceClients,
+            label: 'Clients',
+            route: RouteConstants.serviceClients,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.propertyManagement,
+            label: 'Property Management',
+            route: RouteConstants.propertyList,
+            resources: [PermissionConstants.resProperties],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.estateManagement,
+            label: 'Estate Management',
+            route: RouteConstants.estateManagement,
+            resources: [PermissionConstants.resEstates],
+          ),
+        ],
+      ),
+      const MenuItem(
+        id: MainMenuItem.marketingCrm,
+        label: 'Marketing & CRM',
+        iconPath: 'assets/svg/sidebar/joined-square.svg',
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resClients,
+          PermissionConstants.resLeads,
+          PermissionConstants.resMarketingCampaigns,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.marketingCrmDashboard,
+            label: 'Dashboard',
+            route: RouteConstants.marketingCrm,
+            resources: [
+              PermissionConstants.resClients,
+              PermissionConstants.resLeads,
+              PermissionConstants.resMarketingCampaigns,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmClients,
+            label: 'Clients',
+            route: RouteConstants.crmClients,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmLeads,
+            label: 'Leads',
+            route: RouteConstants.crmLeads,
+            resources: [PermissionConstants.resLeads],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmInteractions,
+            label: 'Interactions',
+            route: RouteConstants.crmInteractions,
+            resources: [
+              PermissionConstants.resClients,
+              PermissionConstants.resLeads,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.marketing,
+            label: 'Marketing',
+            route: RouteConstants.marketing,
+            resources: [PermissionConstants.resMarketingCampaigns],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmAnalytics,
+            label: 'Analytics',
+            route: RouteConstants.crmAnalytics,
+            resources: [
+              PermissionConstants.resStats,
+              PermissionConstants.resClients,
+            ],
+          ),
+        ],
+      ),
+      const MenuItem(
         id: MainMenuItem.financeAccounting,
         label: 'Finance & Accounting',
         iconPath: 'assets/svg/sidebar/joined-square.svg',
@@ -545,44 +683,6 @@ class _SideMenuState extends State<SideMenu> {
         route: RouteConstants.events,
         isExpandable: false,
         resources: [PermissionConstants.resEvents],
-      ),
-      const MenuItem(
-        id: MainMenuItem.services,
-        label: 'Services',
-        iconPath: 'assets/svg/sidebar/calendar.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resServices,
-          PermissionConstants.resProperties,
-          PermissionConstants.resEstates,
-          PermissionConstants.resClients,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.servicesDashboard,
-            label: 'Dashboard',
-            route: RouteConstants.services,
-            resources: [PermissionConstants.resServices],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.serviceClients,
-            label: 'Clients',
-            route: RouteConstants.serviceClients,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.propertyManagement,
-            label: 'Property Management',
-            route: RouteConstants.propertyList,
-            resources: [PermissionConstants.resProperties],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.estateManagement,
-            label: 'Estate Management',
-            route: RouteConstants.estateManagement,
-            resources: [PermissionConstants.resEstates],
-          ),
-        ],
       ),
       // Workspace — temporarily hidden (uses dummy data, no API connection yet)
       // const MenuItem(
@@ -751,55 +851,6 @@ class _SideMenuState extends State<SideMenu> {
       //     ),
       //   ],
       // ),
-      const MenuItem(
-        id: MainMenuItem.crm,
-        label: 'CRM',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resClients,
-          PermissionConstants.resLeads,
-          PermissionConstants.resMarketingCampaigns,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.crmClients,
-            label: 'Clients',
-            route: RouteConstants.crmClients,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmLeads,
-            label: 'Leads',
-            route: RouteConstants.crmLeads,
-            resources: [PermissionConstants.resLeads],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmInteractions,
-            label: 'Interactions',
-            route: RouteConstants.crmInteractions,
-            resources: [
-              PermissionConstants.resClients,
-              PermissionConstants.resLeads,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmAnalytics,
-            label: 'Analytics',
-            route: RouteConstants.crmAnalytics,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resClients,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.marketing,
-            label: 'Marketing',
-            route: RouteConstants.marketing,
-            resources: [PermissionConstants.resMarketingCampaigns],
-          ),
-        ],
-      ),
     ];
   }
 
@@ -985,6 +1036,12 @@ class _SideMenuState extends State<SideMenu> {
         // Subscribe to permission changes so the menu rebuilds on role changes.
         // ignore: unused_local_variable
         final _ = Get.find<PermissionService>().version;
+
+        final filtered = menuItems
+            .map(_filterForSearch)
+            .whereType<MenuItem>()
+            .toList();
+
         return ListView(
           physics: const BouncingScrollPhysics(),
           children: [
@@ -995,12 +1052,78 @@ class _SideMenuState extends State<SideMenu> {
                 Text('OS', style: AppText.black_500_32),
               ],
             ),
-            const SizedBox(height: 24),
-            ...menuItems.map((menuItem) => _buildMenuItem(menuItem)),
+            const SizedBox(height: 16),
+            _SidebarSearchField(
+              controller: _searchCtrl,
+              onChanged: (v) => setState(() => _searchQuery = v),
+            ),
+            const SizedBox(height: 16),
+            ...filtered.map((menuItem) => _buildMenuItem(menuItem)),
+            if (filtered.isEmpty && _searchQuery.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text(
+                  'No menu items match "$_searchQuery"',
+                  style: AppText.sideMText_300_14,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             kSizedBox,
           ],
         );
       }),
+    );
+  }
+}
+
+class _SidebarSearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  const _SidebarSearchField({
+    required this.controller,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      style: const TextStyle(fontSize: 14),
+      decoration: InputDecoration(
+        hintText: 'Search menu...',
+        hintStyle: const TextStyle(
+          fontSize: 13,
+          color: AppColors.grey1,
+        ),
+        prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.grey1),
+        suffixIcon: controller.text.isEmpty
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.close, size: 16),
+                onPressed: () {
+                  controller.clear();
+                  onChanged('');
+                },
+              ),
+        filled: true,
+        fillColor: AppColors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.card),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.card),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.blue),
+        ),
+      ),
     );
   }
 }

@@ -209,30 +209,30 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
 
           const SizedBox(height: 24),
 
-          // Location & Contact (enriched with country/state detail endpoints)
+          // Location & Contact
           _buildSectionTitle("Location & Contact"),
           const SizedBox(height: 12),
-          Obx(() {
-            final countryDetail = controller.currentCountryDetail.value;
-            final stateDetail = controller.currentStateDetail.value;
-
-            final countryDisplay = countryDetail != null
-                ? "${countryDetail.name} (${countryDetail.code})"
-                : branch.countryName;
-
-            final stateDisplay = stateDetail != null
-                ? "${stateDetail.name} (${stateDetail.code})"
-                : branch.stateName;
-
-            return _buildDetailGrid([
-              _DetailItem("Address", branch.officeAddress),
-              _DetailItem("LGA / State", "${branch.lga}, $stateDisplay"),
-              _DetailItem("Country", countryDisplay),
-              _DetailItem("Email", branch.contactEmail),
-              _DetailItem("Phone", branch.contactPhone),
-              _DetailItem("Active", branch.isActive ? "Yes" : "No"),
-            ]);
-          }),
+          _buildDetailGrid([
+            _DetailItem("Address", branch.officeAddress),
+            _DetailItem("City", branch.city),
+            _DetailItem(
+                "State",
+                branch.stateCode.isNotEmpty
+                    ? "${branch.state} (${branch.stateCode})"
+                    : branch.state),
+            _DetailItem(
+                "Country",
+                branch.countryCode.isNotEmpty
+                    ? "${branch.country} (${branch.countryCode})"
+                    : branch.country),
+            if (branch.defaultCurrency.isNotEmpty)
+              _DetailItem("Currency", branch.defaultCurrency),
+            if (branch.languagePreference.isNotEmpty)
+              _DetailItem("Language", branch.languagePreference),
+            _DetailItem("Email", branch.contactEmail),
+            _DetailItem("Phone", branch.contactPhone),
+            _DetailItem("Active", branch.isActive ? "Yes" : "No"),
+          ]),
 
           const SizedBox(height: 24),
 

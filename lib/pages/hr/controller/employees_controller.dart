@@ -45,7 +45,6 @@ class EmployeeController extends GetxController {
   var departments = <Department>[].obs;
   var departmentUnits = <DepartmentUnit>[].obs;
   var branches = <Branch>[].obs;
-  var levels = <dynamic>[].obs;
   var allEmployees = <Employee>[].obs; // For "Reporting To" dropdown
   var roles = <Role>[].obs; // For "Role" dropdown
 
@@ -74,7 +73,6 @@ class EmployeeController extends GetxController {
     await Future.wait([
       _fetchDepartments(token),
       _fetchBranches(token),
-      _fetchLevels(token),
       _fetchAllEmployees(token),
       _fetchRoles(token),
       fetchEmployees(),
@@ -97,15 +95,6 @@ class EmployeeController extends GetxController {
       branches.assignAll(result.items);
     } catch (e) {
       log("Error fetching branches: $e");
-    }
-  }
-
-  Future<void> _fetchLevels(String token) async {
-    try {
-      final result = await _service.getEmployeeLevels(token, limit: 200);
-      levels.assignAll(result);
-    } catch (e) {
-      log("Error fetching levels: $e");
     }
   }
 

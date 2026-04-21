@@ -1,5 +1,12 @@
 // src/model/company_model.dart
 
+/// Flat view model that merges the three backend resources the Company
+/// module edits: profile (name/email/phone/address/rc), branding (logo,
+/// colors, slogan) and preferences (currency, language, business rules).
+///
+/// The backend stopped storing country/state/city and date_of_registration
+/// on the company profile — source those from a client-side picker if the
+/// UI needs them, or plumb them through a custom field.
 class CompanySettings {
   final String id;
   final String companyName;
@@ -35,40 +42,50 @@ class CompanySettings {
     this.updatedAt,
   });
 
-  factory CompanySettings.fromJson(Map<String, dynamic> json) {
+  factory CompanySettings.merge({
+    required Map<String, dynamic> profile,
+    required Map<String, dynamic> branding,
+    required Map<String, dynamic> preferences,
+  }) {
     return CompanySettings(
-      id: json['id']?.toString() ?? '',
-      companyName: json['company_name'] ?? '',
-      companyEmail: json['company_email'] ?? '',
-      companyPhone: json['company_phone'] ?? '',
-      companyAddresses: json['company_addresses'] ?? '',
-      rcNumber: json['rc_number'] ?? '',
-      primaryColorCode: json['primary_color_code'] ?? '',
-      secondaryColorCode: json['secondary_color_code'] ?? '',
-      companySlogan: json['company_slogan'] ?? '',
-      defaultCurrency: json['default_currency'] ?? '',
-      languagePreference: json['language_preference'] ?? '',
-      businessRules: json['business_rules'] ?? '',
-      companyLogo: json['company_logo'],
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'],
+      id: profile['id']?.toString() ?? '',
+      companyName: profile['company_name'] ?? '',
+      companyEmail: profile['company_email'] ?? '',
+      companyPhone: profile['company_phone'] ?? '',
+      companyAddresses: profile['company_addresses'] ?? '',
+      rcNumber: profile['rc_number'] ?? '',
+      primaryColorCode: branding['primary_color_code'] ?? '',
+      secondaryColorCode: branding['secondary_color_code'] ?? '',
+      companySlogan: branding['company_slogan'] ?? '',
+      companyLogo: branding['company_logo'],
+      defaultCurrency: preferences['default_currency'] ?? '',
+      languagePreference: preferences['language_preference'] ?? '',
+      businessRules: preferences['business_rules'] ?? '',
+      createdAt: profile['created_at'] ?? '',
+      updatedAt: profile['updated_at'],
     );
   }
 
-  Map<String, dynamic> toUpdateJson() {
-    return {
-      'company_name': companyName,
-      'company_email': companyEmail,
-      'company_phone': companyPhone,
-      'company_addresses': companyAddresses,
-      'company_slogan': companySlogan,
-      'primary_color_code': primaryColorCode,
-      'secondary_color_code': secondaryColorCode,
-      'default_currency': defaultCurrency,
-      'language_preference': languagePreference,
-      'business_rules': businessRules,
-    };
-  }
+  Map<String, dynamic> toProfileUpdateJson() => {
+        'company_name': companyName,
+        'company_email': companyEmail,
+        'company_phone': companyPhone,
+        'company_addresses': companyAddresses,
+        'rc_number': rcNumber,
+      };
+
+  Map<String, dynamic> toBrandingUpdateJson() => {
+        if (companyLogo != null) 'company_logo': companyLogo,
+        'primary_color_code': primaryColorCode,
+        'secondary_color_code': secondaryColorCode,
+        'company_slogan': companySlogan,
+      };
+
+  Map<String, dynamic> toPreferencesUpdateJson() => {
+        'default_currency': defaultCurrency,
+        'language_preference': languagePreference,
+        'business_rules': businessRules,
+      };
 }
 
 class Compliance {

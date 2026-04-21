@@ -82,7 +82,8 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
               child: "Add Board Member",
               onTap: () => showDialog(
                 context: context,
-                builder: (c) => const AddEditShareholderDialog(),
+                builder: (c) =>
+                    const AddEditShareholderDialog(defaultIsBoardMember: true),
               ),
             ),
           ],

@@ -225,9 +225,7 @@ class BranchListPage extends StatelessWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: MyText(
-                      branch.stateName.isNotEmpty
-                          ? branch.stateName
-                          : branch.countryName,
+                      _branchLocation(branch),
                       size: 12,
                       color: Colors.grey,
                     ),
@@ -317,17 +315,7 @@ class BranchListPage extends StatelessWidget {
               onChanged: (val) => controller.onTypeFilterChanged(val),
             ),
             const SizedBox(width: 12),
-            _buildDropdown(
-              hint: "All States",
-              value: controller.stateList
-                      .any((s) => s.id == controller.filterStateId.value)
-                  ? controller.stateList
-                      .firstWhere((s) => s.id == controller.filterStateId.value)
-                      .name
-                  : "All States",
-              items: ["All States", ...controller.stateList.map((s) => s.name)],
-              onChanged: controller.onStateFilterChanged,
-            ),
+            _buildStateFilterField(controller),
             const SizedBox(width: 12),
             _buildDropdown(
               hint: "Status",
@@ -347,6 +335,25 @@ class BranchListPage extends StatelessWidget {
             ),
           ],
         ));
+  }
+
+  /// Prefer state > city > country for the list/grid blurb.
+  String _branchLocation(Branch branch) {
+    if (branch.state.isNotEmpty) return branch.state;
+    if (branch.city.isNotEmpty) return branch.city;
+    return branch.country;
+  }
+
+  /// Free-text state filter. Backend no longer exposes a state table, so we
+  /// forward whatever the admin types as a `state` query param.
+  Widget _buildStateFilterField(BranchController controller) {
+    return SizedBox(
+      width: 160,
+      child: MyTextFormField(
+        hintText: 'State',
+        onChanged: (val) => controller.onStateFilterChanged(val),
+      ),
+    );
   }
 
   Widget _buildDropdown({
@@ -389,9 +396,7 @@ class BranchListPage extends StatelessWidget {
                 ? branch.branchRoleDisplay
                 : branch.branchRole,
             size: 13)),
-        DataCell(MyText(
-            branch.stateName.isNotEmpty ? branch.stateName : branch.countryName,
-            size: 13)),
+        DataCell(MyText(_branchLocation(branch), size: 13)),
         DataCell(_buildStatusBadge(branch.operationalStatusDisplay)),
         DataCell(
           PopupMenuButton<String>(

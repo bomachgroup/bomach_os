@@ -1,6 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/pages/legal/audits.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../components/text/my_text.dart';
 import 'cases.dart';
 import 'compliance.dart';
@@ -107,6 +113,57 @@ class _LegalsPageState extends State<LegalsPage> {
     });
   }
 
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Icons.description_outlined,
+          title: 'Contracts',
+          subtitle: 'Agreements and documents',
+          route: RouteConstants.legalContracts,
+          resources: const [PermissionConstants.resContracts],
+        ),
+        card(
+          icon: Icons.verified_user_outlined,
+          title: 'Compliance',
+          subtitle: 'Policies and records',
+          route: RouteConstants.legalCompliance,
+          resources: const [PermissionConstants.resComplianceRecords],
+        ),
+        card(
+          icon: Icons.gavel_outlined,
+          title: 'Cases',
+          subtitle: 'Active legal matters',
+          route: RouteConstants.legalCases,
+          resources: const [PermissionConstants.resLegalCases],
+        ),
+        card(
+          icon: Icons.fact_check_outlined,
+          title: 'Audits',
+          subtitle: 'Compliance audits',
+          route: RouteConstants.legalAudits,
+          resources: const [PermissionConstants.resComplianceAudits],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -169,6 +226,8 @@ class _LegalsPageState extends State<LegalsPage> {
                     child: "New Contract",
                   ),
                 ),
+              const SizedBox(height: 24),
+              _buildQuickNav(),
               const SizedBox(height: 24),
               DynamicSummaryRow(dashboardData: _dashboardData),
               const SizedBox(height: 24),

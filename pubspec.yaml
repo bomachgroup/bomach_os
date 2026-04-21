@@ -38,6 +38,7 @@ dependencies:
   web: any
   geolocator: ^13.0.2
   geolocator_web: ^4.1.1
+  country_picker: ^2.0.27
 
 dev_dependencies:
   flutter_test:
