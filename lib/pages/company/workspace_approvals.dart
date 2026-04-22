@@ -1,17 +1,24 @@
-import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/permission/permission_gate.dart';
-import 'package:bms_front_end/components/section/responsive_widget.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/company/company.dart'
-    show ResponsiveSubheader;
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/hr/models/workspace_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'controllers/workspace_approvals_controller.dart';
 
@@ -22,9 +29,9 @@ import 'controllers/workspace_approvals_controller.dart';
 /// the Pending tab and the broad `/whitelisted` for everything else.
 ///
 /// Actions per row depend on status:
-///   - PENDING → Approve (with optional radius override) / Reject (reason).
-///   - APPROVED → Edit (radius, expiry, active, notes) / Force delete.
-///   - REJECTED → Force delete only.
+///   - PENDING  -> Approve (with optional radius override) / Reject (reason).
+///   - APPROVED -> Edit (radius, expiry, active, notes) / Force delete.
+///   - REJECTED -> Force delete only.
 class WorkspaceApprovalsPage extends StatelessWidget {
   const WorkspaceApprovalsPage({super.key});
 
@@ -32,78 +39,40 @@ class WorkspaceApprovalsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.put(WorkspaceApprovalsController());
 
-    final body = SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const MyText('Workspace Approvals', style: AppText.displayLg),
-          const SizedBox(height: 8),
-          const Text(
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Workspace Approvals',
+        subtitle:
             'Review employee-submitted work locations. Approve to enable '
             'clock-in, or reject with a reason the employee will see.',
-            style: TextStyle(color: AppColors.neutral500, fontSize: 14),
-          ),
-          const SizedBox(height: 24),
-
-          _ViewTabs(ctrl: ctrl),
-          const SizedBox(height: 16),
-
-          ResponsiveSubheader(
-            title: Obx(() => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    MyText(
-                      _titleForView(ctrl.view.value),
-                      style: AppText.h4,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _subtitleForView(ctrl.view.value),
-                      style: const TextStyle(
-                          color: AppColors.neutral500, fontSize: 13),
-                    ),
-                  ],
-                )),
-            search: MyTextFormField(
-              hintText: 'Search by name, employee, or branch',
-              leading:
-                  const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
-              onChanged: (v) => ctrl.searchQuery.value = v,
-            ),
-            action: OutlinedButton.icon(
-              onPressed: ctrl.fetch,
-              icon: const Icon(Iconsax.refresh, size: 16),
-              label: const Text('Refresh'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          Obx(() {
-            if (ctrl.isLoading.value && ctrl.submissions.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.all(60),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            final rows = ctrl.filtered;
-            if (rows.isEmpty) return _EmptyState(view: ctrl.view.value);
-            return _ApprovalsTable(rows: rows, ctrl: ctrl);
-          }),
-        ],
+        trailing: Obx(() => MyOutlinedButton(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              icon: const Icon(Iconsax.refresh,
+                  size: 18, color: AppColors.primary),
+              child: 'Refresh',
+              isLoading: ctrl.isLoading.value,
+              onTap: ctrl.fetch,
+            )),
       ),
-    );
+      children: [
+        _ViewTabs(ctrl: ctrl),
+        _ApprovalsToolbar(ctrl: ctrl),
+        Obx(() {
+          final loading = ctrl.isLoading.value && ctrl.submissions.isEmpty;
+          final rows = ctrl.filtered;
+          final isEmpty = !loading && rows.isEmpty;
 
-    return ResponsiveWidget(
-      largeScreen: body,
-      mediumScreen: body,
-      smallScreen: body,
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            view: ctrl.view.value,
+            rowCount: rows.length,
+            body: _ApprovalsTable(rows: rows, ctrl: ctrl),
+          );
+        }),
+      ],
     );
   }
 
@@ -120,22 +89,154 @@ class WorkspaceApprovalsPage extends StatelessWidget {
     }
   }
 
-  static String _subtitleForView(ApprovalsView v) {
+  static String _subtitleForView(ApprovalsView v, int count, bool loading) {
+    if (loading) return 'Loading submissions...';
+    final labelSuffix = count == 1 ? '' : 's';
     switch (v) {
       case ApprovalsView.pending:
-        return 'Awaiting admin decision';
+        return '$count submission$labelSuffix awaiting admin decision';
       case ApprovalsView.approved:
-        return 'Active geofences across the org';
+        return '$count active geofence$labelSuffix across the org';
       case ApprovalsView.rejected:
-        return 'Employees can delete and resubmit these';
+        return '$count rejected submission$labelSuffix';
       case ApprovalsView.all:
-        return 'Every submitted work location, any status';
+        return '$count work location$labelSuffix on record';
+    }
+  }
+
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required ApprovalsView view,
+    required int rowCount,
+    required Widget body,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_titleForView(view), style: AppText.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        _subtitleForView(view, rowCount, loading),
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                StatusChip(
+                  label: _headerChipLabel(view),
+                  tone: _headerChipTone(view),
+                  icon: _headerChipIcon(view),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: _emptyStateFor(view),
+            )
+          else
+            body,
+        ],
+      ),
+    );
+  }
+
+  static String _headerChipLabel(ApprovalsView v) {
+    switch (v) {
+      case ApprovalsView.pending:
+        return 'Review queue';
+      case ApprovalsView.approved:
+        return 'Active sites';
+      case ApprovalsView.rejected:
+        return 'Rejected log';
+      case ApprovalsView.all:
+        return 'Full register';
+    }
+  }
+
+  static StatusTone _headerChipTone(ApprovalsView v) {
+    switch (v) {
+      case ApprovalsView.pending:
+        return StatusTone.warning;
+      case ApprovalsView.approved:
+        return StatusTone.success;
+      case ApprovalsView.rejected:
+        return StatusTone.danger;
+      case ApprovalsView.all:
+        return StatusTone.primary;
+    }
+  }
+
+  static IconData _headerChipIcon(ApprovalsView v) {
+    switch (v) {
+      case ApprovalsView.pending:
+        return Iconsax.timer;
+      case ApprovalsView.approved:
+        return Iconsax.location_tick;
+      case ApprovalsView.rejected:
+        return Iconsax.close_circle;
+      case ApprovalsView.all:
+        return Iconsax.location;
+    }
+  }
+
+  static Widget _emptyStateFor(ApprovalsView v) {
+    switch (v) {
+      case ApprovalsView.pending:
+        return const EmptyState(
+          icon: Iconsax.archive_1,
+          title: 'All caught up',
+          subtitle:
+              'There are no workspace submissions awaiting review right now.',
+        );
+      case ApprovalsView.approved:
+        return const EmptyState(
+          icon: Iconsax.location_slash,
+          title: 'No approved locations',
+          subtitle:
+              'Once you approve a pending submission it will appear here.',
+        );
+      case ApprovalsView.rejected:
+        return const EmptyState(
+          icon: Iconsax.tick_circle,
+          title: 'No rejections',
+          subtitle:
+              'Nothing has been rejected — or employees have cleaned up.',
+        );
+      case ApprovalsView.all:
+        return const EmptyState(
+          icon: Iconsax.location,
+          title: 'No work locations yet',
+          subtitle:
+              'Once employees submit workspaces they will show up here.',
+        );
     }
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Tabs
+//  Pill tab bar
 // ═══════════════════════════════════════════════════════════════════════
 
 class _ViewTabs extends StatelessWidget {
@@ -144,58 +245,119 @@ class _ViewTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: AppColors.neutral100,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: ApprovalsView.values.map((v) {
-            final selected = ctrl.view.value == v;
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: InkWell(
-                onTap: () => ctrl.setView(v),
-                borderRadius: BorderRadius.circular(8),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Obx(() => Row(
+              children: ApprovalsView.values
+                  .map((v) => Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: _buildTabButton(v),
+                      ))
+                  .toList(),
+            )),
+      ),
+    );
+  }
+
+  Widget _buildTabButton(ApprovalsView v) {
+    final isActive = ctrl.view.value == v;
+    final count = _countFor(v);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => ctrl.setView(v),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.surface : Colors.transparent,
+            borderRadius: AppRadii.brMd,
+            boxShadow: isActive ? AppShadows.sm : const <BoxShadow>[],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                v.label,
+                style: AppText.bodyMd.copyWith(
+                  color: isActive
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (count != null) ...[
+                const SizedBox(width: 8),
+                Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
+                      horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: selected ? Colors.white : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: selected
-                        ? [
-                            BoxShadow(
-                              color:
-                                  Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 4,
-                              offset: const Offset(0, 1),
-                            ),
-                          ]
-                        : null,
+                    color: isActive
+                        ? AppColors.primarySubtle
+                        : AppColors.surface,
+                    borderRadius: AppRadii.brPill,
+                    border: Border.all(
+                      color: isActive
+                          ? AppColors.primarySubtle
+                          : AppColors.borderSubtle,
+                    ),
                   ),
                   child: Text(
-                    v.label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight:
-                          selected ? FontWeight.w700 : FontWeight.w500,
-                      color: selected
-                          ? AppColors.neutral900
-                          : AppColors.neutral500,
+                    '$count',
+                    style: AppText.caption.copyWith(
+                      color: isActive
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
+              ],
+            ],
+          ),
         ),
-      );
-    });
+      ),
+    );
+  }
+
+  /// Count for the tab badge. Only shows a count when the tab is the one
+  /// currently loaded (otherwise the backend slice doesn't include those
+  /// rows so the number would be misleading).
+  int? _countFor(ApprovalsView v) {
+    if (ctrl.view.value != v) return null;
+    return ctrl.submissions.length;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  Toolbar
+// ═══════════════════════════════════════════════════════════════════════
+
+class _ApprovalsToolbar extends StatelessWidget {
+  final WorkspaceApprovalsController ctrl;
+  const _ApprovalsToolbar({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        hintText: 'Search by name, employee, or branch',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (v) => ctrl.searchQuery.value = v,
+      ),
+    );
   }
 }
 
@@ -210,234 +372,261 @@ class _ApprovalsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neutral200),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingTextStyle: const TextStyle(
-            fontWeight: FontWeight.w700,
-            color: AppColors.neutral600,
-            fontSize: 12,
-            letterSpacing: 0.5,
-          ),
-          headingRowColor:
-              WidgetStateProperty.all(AppColors.neutral50),
-          dataRowMinHeight: 56,
-          dataRowMaxHeight: 68,
-          columnSpacing: 28,
-          columns: const [
-            DataColumn(label: Text('STATUS')),
-            DataColumn(label: Text('EMPLOYEE')),
-            DataColumn(label: Text('WORKSPACE')),
-            DataColumn(label: Text('TYPE')),
-            DataColumn(label: Text('RADIUS')),
-            DataColumn(label: Text('COORDINATES')),
-            DataColumn(label: Text('SUBMITTED')),
-            DataColumn(label: Text('ACTIONS')),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1180,
+        child: Column(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
+                children: [
+                  _buildHeaderCell('Status', flex: 2),
+                  _buildHeaderCell('Employee', flex: 3),
+                  _buildHeaderCell('Workspace', flex: 3),
+                  _buildHeaderCell('Type', flex: 2),
+                  _buildHeaderCell('Radius', flex: 1),
+                  _buildHeaderCell('Coordinates', flex: 2),
+                  _buildHeaderCell('Submitted', flex: 2),
+                  _buildHeaderCell('', width: 240),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...rows.map((w) => _buildRow(context, w)),
           ],
-          rows: rows.map((w) => _buildRow(context, w)).toList(),
         ),
       ),
     );
   }
 
-  DataRow _buildRow(BuildContext context, WorkspaceConfig w) {
-    final (statusColor, statusBg, statusIcon) = _statusStyles(w.status);
-    return DataRow(cells: [
-      DataCell(Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: statusBg,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(statusIcon, size: 11, color: statusColor),
-            const SizedBox(width: 5),
-            Text(
-              w.status.label.toUpperCase(),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: statusColor,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      )),
-      DataCell(Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppText.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildRow(BuildContext context, WorkspaceConfig w) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            w.employeeName ?? 'Employee #${w.employeeId ?? '—'}',
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: AppColors.neutral900,
-              fontSize: 13,
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: w.status.label,
+                tone: _statusTone(w.status),
+                icon: _statusIcon(w.status),
+                dense: true,
+              ),
             ),
           ),
-          if (w.branchName != null && w.branchName!.isNotEmpty)
-            Text(
-              w.branchName!,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.neutral500,
-              ),
-            ),
-        ],
-      )),
-      DataCell(SizedBox(
-        width: 180,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              w.workspaceName,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.neutral900,
-                fontSize: 13,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (w.notes.isNotEmpty)
-              Text(
-                w.notes,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.neutral500,
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  w.employeeName ?? 'Employee #${w.employeeId ?? '—'}',
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-          ],
-        ),
-      )),
-      DataCell(Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColors.primarySubtle,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          _prettyType(w.locationType),
-          style: const TextStyle(
-            fontSize: 11,
-            color: AppColors.primary,
-            fontWeight: FontWeight.w600,
+                if (w.branchName != null && w.branchName!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    w.branchName!,
+                    style: AppText.bodySm.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
           ),
-        ),
-      )),
-      DataCell(Text(
-        '${w.radiusMeters}m',
-        style: const TextStyle(fontSize: 12),
-      )),
-      DataCell(Text(
-        '${w.latitude.toStringAsFixed(5)},\n${w.longitude.toStringAsFixed(5)}',
-        style: const TextStyle(fontSize: 12, height: 1.3),
-      )),
-      DataCell(Text(
-        _formatDate(w.createdAt),
-        style: const TextStyle(fontSize: 12),
-      )),
-      DataCell(_buildActions(context, w)),
-    ]);
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  w.workspaceName,
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (w.notes.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    w.notes,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.bodySm.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: _prettyType(w.locationType),
+                tone: StatusTone.primary,
+                dense: true,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              '${w.radiusMeters}m',
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              '${w.latitude.toStringAsFixed(5)},\n${w.longitude.toStringAsFixed(5)}',
+              style: AppText.bodySm.copyWith(
+                color: AppColors.textSecondary,
+                fontFamily: 'monospace',
+                height: 1.35,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              _formatDate(w.createdAt),
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          SizedBox(
+            width: 240,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _buildActions(context, w),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Actions depend on status: pending gets approve/reject, approved gets
-  /// edit/force-delete, rejected gets force-delete only.
+  /// edit + force-delete, rejected gets force-delete only.
   Widget _buildActions(BuildContext context, WorkspaceConfig w) {
-    final buttons = <Widget>[];
-
     if (w.status == WorkspaceStatus.pending) {
-      buttons.add(PermissionGate(
-        require: Perms.workLocationsApprove,
-        child: Obx(() => TextButton.icon(
-              onPressed: ctrl.isMutating.value
-                  ? null
-                  : () => _openApproveDialog(context, w),
-              icon: const Icon(Iconsax.tick_circle,
-                  color: AppColors.success, size: 16),
-              label: const Text(
-                'Approve',
-                style: TextStyle(
-                  color: AppColors.success,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )),
-      ));
-      buttons.add(const SizedBox(width: 4));
-      buttons.add(PermissionGate(
-        require: Perms.workLocationsReject,
-        child: Obx(() => TextButton.icon(
-              onPressed: ctrl.isMutating.value
-                  ? null
-                  : () => _openRejectDialog(context, w),
-              icon: const Icon(Iconsax.close_circle,
-                  color: AppColors.danger, size: 16),
-              label: const Text(
-                'Reject',
-                style: TextStyle(
-                  color: AppColors.danger,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )),
-      ));
-    } else {
-      // Approved or rejected row — admin can edit (approved only) and
-      // force-delete any status.
-      if (w.status == WorkspaceStatus.approved) {
-        buttons.add(PermissionGate(
-          require: Perms.workLocationsUpdate,
-          child: Obx(() => TextButton.icon(
-                onPressed: ctrl.isMutating.value
-                    ? null
-                    : () => _openEditDialog(context, w),
-                icon: const Icon(Iconsax.edit,
-                    color: AppColors.primary, size: 16),
-                label: const Text(
-                  'Edit',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PermissionGate(
+            require: Perms.workLocationsApprove,
+            child: Obx(() => MyElevatedButton(
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  bgColor: AppColors.success,
+                  icon: const Icon(Iconsax.tick_circle,
+                      size: 16, color: AppColors.textOnPrimary),
+                  child: 'Approve',
+                  disable: ctrl.isMutating.value,
+                  onTap: () => _openApproveDialog(context, w),
+                )),
+          ),
+          const SizedBox(width: 8),
+          PermissionGate(
+            require: Perms.workLocationsReject,
+            child: Obx(() => OutlinedButton.icon(
+                  onPressed: ctrl.isMutating.value
+                      ? null
+                      : () => _openRejectDialog(context, w),
+                  icon: const Icon(Iconsax.close_circle,
+                      size: 16, color: AppColors.danger),
+                  label: const Text('Reject'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.danger,
+                    side: const BorderSide(color: AppColors.danger),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.brMd),
                   ),
-                ),
-              )),
-        ));
-        buttons.add(const SizedBox(width: 4));
-      }
-      buttons.add(PermissionGate(
-        require: Perms.workLocationsDelete,
-        child: Obx(() => TextButton.icon(
-              onPressed: ctrl.isMutating.value
-                  ? null
-                  : () => _openForceDeleteDialog(context, w),
-              icon: const Icon(Iconsax.trash,
-                  color: AppColors.danger, size: 16),
-              label: const Text(
-                'Delete',
-                style: TextStyle(
-                  color: AppColors.danger,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )),
-      ));
+                )),
+          ),
+        ],
+      );
     }
 
-    return Row(mainAxisSize: MainAxisSize.min, children: buttons);
+    // Approved or rejected row.
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (w.status == WorkspaceStatus.approved) ...[
+          PermissionGate(
+            require: Perms.workLocationsUpdate,
+            child: Obx(() => OutlinedButton.icon(
+                  onPressed: ctrl.isMutating.value
+                      ? null
+                      : () => _openEditDialog(context, w),
+                  icon: const Icon(Iconsax.edit,
+                      size: 16, color: AppColors.textPrimary),
+                  label: const Text('Edit'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.borderStrong),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.brMd),
+                  ),
+                )),
+          ),
+          const SizedBox(width: 8),
+        ],
+        PermissionGate(
+          require: Perms.workLocationsDelete,
+          child: Obx(() => IconButton(
+                tooltip: 'Delete',
+                onPressed: ctrl.isMutating.value
+                    ? null
+                    : () => _openForceDeleteDialog(context, w),
+                icon: const Icon(Iconsax.trash,
+                    size: 18, color: AppColors.danger),
+                style: IconButton.styleFrom(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadii.brMd,
+                    side: BorderSide(color: AppColors.borderSubtle),
+                  ),
+                  minimumSize: const Size(42, 42),
+                ),
+              )),
+        ),
+      ],
+    );
   }
 
   static String _prettyType(String raw) {
@@ -462,32 +651,29 @@ class _ApprovalsTable extends StatelessWidget {
     }
   }
 
-  static (Color, Color, IconData) _statusStyles(WorkspaceStatus s) {
+  static StatusTone _statusTone(WorkspaceStatus s) {
     switch (s) {
       case WorkspaceStatus.approved:
-        return (
-          AppColors.success,
-          AppColors.success.withValues(alpha: 0.12),
-          Iconsax.tick_circle,
-        );
+        return StatusTone.success;
       case WorkspaceStatus.pending:
-        return (
-          AppColors.warning,
-          AppColors.warning.withValues(alpha: 0.12),
-          Iconsax.timer,
-        );
+        return StatusTone.warning;
       case WorkspaceStatus.rejected:
-        return (
-          AppColors.danger,
-          AppColors.danger.withValues(alpha: 0.12),
-          Iconsax.close_circle,
-        );
+        return StatusTone.danger;
       case WorkspaceStatus.unknown:
-        return (
-          AppColors.neutral500,
-          AppColors.neutral500.withValues(alpha: 0.12),
-          Iconsax.info_circle,
-        );
+        return StatusTone.neutral;
+    }
+  }
+
+  static IconData _statusIcon(WorkspaceStatus s) {
+    switch (s) {
+      case WorkspaceStatus.approved:
+        return Iconsax.tick_circle;
+      case WorkspaceStatus.pending:
+        return Iconsax.timer;
+      case WorkspaceStatus.rejected:
+        return Iconsax.close_circle;
+      case WorkspaceStatus.unknown:
+        return Iconsax.info_circle;
     }
   }
 
@@ -500,73 +686,57 @@ class _ApprovalsTable extends StatelessWidget {
     );
     final formKey = GlobalKey<FormState>();
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: _dialogTitle(
-          icon: Iconsax.tick_circle,
-          color: AppColors.success,
-          text: 'Approve workspace?',
-        ),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Approving "${w.workspaceName}" will let '
-                '${w.employeeName ?? 'this employee'} clock in when within '
-                'the geofence.',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.neutral600,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _fieldLabel('Allowed radius (meters)'),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: radiusCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
-                  suffixText: 'm',
-                ),
-                validator: _radiusValidator,
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Employees can only clock in when inside this radius.',
-                style: TextStyle(fontSize: 11, color: AppColors.neutral400),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                Navigator.pop(ctx, true);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.success,
-              foregroundColor: Colors.white,
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: 'Approve workspace?',
+      subtitle: 'Approving "${w.workspaceName}" will let '
+          '${w.employeeName ?? 'this employee'} clock in when inside the '
+          'geofence.',
+      size: DialogSize.sm,
+      body: Form(
+        key: formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Allowed radius (meters)',
+                style: AppText.label.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            MyTextFormField(
+              controller: radiusCtrl,
+              keyboardType: TextInputType.number,
+              hintText: '100',
+              validator: _radiusValidator,
             ),
-            child: const Text('Approve'),
-          ),
-        ],
+            const SizedBox(height: 6),
+            Text(
+              'Employees can only clock in when inside this radius.',
+              style: AppText.caption.copyWith(color: AppColors.textMuted),
+            ),
+          ],
+        ),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.pop(context, false),
+        ),
+        MyElevatedButton(
+          height: 44,
+          bgColor: AppColors.success,
+          child: 'Approve',
+          onTap: () {
+            if (formKey.currentState?.validate() ?? false) {
+              Navigator.pop(context, true);
+            }
+          },
+        ),
+      ],
     );
 
     if (confirmed != true || !context.mounted) return;
@@ -581,70 +751,53 @@ class _ApprovalsTable extends StatelessWidget {
     final reasonCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: _dialogTitle(
-          icon: Iconsax.close_circle,
-          color: AppColors.danger,
-          text: 'Reject workspace?',
-        ),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Rejecting "${w.workspaceName}". The employee will see your '
-                'reason and can then delete and resubmit.',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.neutral600,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _fieldLabel('Reason *'),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: reasonCtrl,
-                minLines: 3,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
-                  hintText: 'e.g., Location is outside company premises',
-                ),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'A reason is required'
-                    : null,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                Navigator.pop(ctx, true);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: 'Reject workspace?',
+      subtitle: 'Rejecting "${w.workspaceName}". The employee will see your '
+          'reason and can then delete and resubmit.',
+      size: DialogSize.sm,
+      body: Form(
+        key: formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Reason *',
+                style: AppText.label.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            MyTextFormField(
+              controller: reasonCtrl,
+              hintText: 'e.g., Location is outside company premises',
+              maxLines: 4,
+              validator: (v) => (v == null || v.trim().isEmpty)
+                  ? 'A reason is required'
+                  : null,
             ),
-            child: const Text('Reject'),
-          ),
-        ],
+          ],
+        ),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.pop(context, false),
+        ),
+        MyElevatedButton(
+          height: 44,
+          bgColor: AppColors.danger,
+          child: 'Reject',
+          onTap: () {
+            if (formKey.currentState?.validate() ?? false) {
+              Navigator.pop(context, true);
+            }
+          },
+        ),
+      ],
     );
 
     if (confirmed != true || !context.mounted) return;
@@ -691,138 +844,121 @@ class _ApprovalsTable extends StatelessWidget {
           }
         }
 
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
-          title: _dialogTitle(
-            icon: Iconsax.edit,
-            color: AppColors.primary,
-            text: 'Edit workspace',
-          ),
-          content: SizedBox(
-            width: 440,
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        return DialogScaffold(
+          title: 'Edit workspace',
+          subtitle:
+              'Editing "${w.workspaceName}". Leave a field unchanged if you '
+              "don't want to touch it.",
+          size: DialogSize.md,
+          body: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _fieldLabel('Name'),
+                const SizedBox(height: 8),
+                MyTextFormField(
+                  controller: nameCtrl,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Name cannot be empty'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                _fieldLabel('Allowed radius (meters)'),
+                const SizedBox(height: 8),
+                MyTextFormField(
+                  controller: radiusCtrl,
+                  keyboardType: TextInputType.number,
+                  validator: _radiusValidator,
+                ),
+                const SizedBox(height: 16),
+                _fieldLabel('Expires at'),
+                const SizedBox(height: 8),
+                Row(
                   children: [
-                    Text(
-                      'Editing "${w.workspaceName}". Leave a field unchanged '
-                      "if you don't want to touch it.",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.neutral500,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _fieldLabel('Name'),
-                    const SizedBox(height: 6),
-                    TextFormField(
-                      controller: nameCtrl,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
-                      ),
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Name cannot be empty'
-                          : null,
-                    ),
-                    const SizedBox(height: 14),
-                    _fieldLabel('Allowed radius (meters)'),
-                    const SizedBox(height: 6),
-                    TextFormField(
-                      controller: radiusCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
-                        suffixText: 'm',
-                      ),
-                      validator: _radiusValidator,
-                    ),
-                    const SizedBox(height: 14),
-                    _fieldLabel('Expires at'),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: expiryCtrl,
-                            readOnly: true,
-                            onTap: pickExpiry,
-                            decoration: const InputDecoration(
-                              hintText: 'No expiry set',
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
-                              prefixIcon:
-                                  Icon(Iconsax.calendar_1, size: 18),
-                            ),
-                          ),
-                        ),
-                        if (expiryCtrl.text.isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          IconButton(
-                            tooltip: 'Clear expiry',
-                            icon: const Icon(Iconsax.close_circle, size: 18),
-                            onPressed: () =>
-                                setState(() => expiryCtrl.text = ''),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text(
-                        'Active',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.neutral900,
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: expiryCtrl,
+                        readOnly: true,
+                        onTap: pickExpiry,
+                        hintText: 'No expiry set',
+                        leading: const Icon(
+                          Iconsax.calendar_1,
+                          size: 18,
+                          color: AppColors.textMuted,
                         ),
                       ),
-                      subtitle: const Text(
-                        'When off, employees cannot clock in from this '
-                        'location even though it stays APPROVED.',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                      value: isActive,
-                      onChanged: (v) => setState(() => isActive = v),
                     ),
-                    const SizedBox(height: 8),
-                    _fieldLabel('Notes'),
-                    const SizedBox(height: 6),
-                    TextFormField(
-                      controller: notesCtrl,
-                      minLines: 2,
-                      maxLines: 4,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
+                    if (expiryCtrl.text.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      IconButton(
+                        tooltip: 'Clear expiry',
+                        icon: const Icon(Iconsax.close_circle, size: 18),
+                        onPressed: () =>
+                            setState(() => expiryCtrl.text = ''),
                       ),
-                    ),
+                    ],
                   ],
                 ),
-              ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceMuted,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Active',
+                                style: AppText.bodyMd.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary)),
+                            const SizedBox(height: 2),
+                            Text(
+                              'When off, employees cannot clock in from this '
+                              'location even though it stays APPROVED.',
+                              style: AppText.caption
+                                  .copyWith(color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Switch(
+                        value: isActive,
+                        onChanged: (v) => setState(() => isActive = v),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _fieldLabel('Notes'),
+                const SizedBox(height: 8),
+                MyTextFormField(
+                  controller: notesCtrl,
+                  maxLines: 3,
+                ),
+              ],
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
-              child: const Text('Cancel'),
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+              onTap: () => Navigator.pop(ctx, null),
             ),
-            ElevatedButton(
-              onPressed: () {
+            MyElevatedButton(
+              height: 44,
+              child: 'Save',
+              onTap: () {
                 if (!(formKey.currentState?.validate() ?? false)) return;
                 Navigator.pop(
                   ctx,
@@ -837,11 +973,6 @@ class _ApprovalsTable extends StatelessWidget {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Save'),
             ),
           ],
         );
@@ -855,9 +986,10 @@ class _ApprovalsTable extends StatelessWidget {
     final ok = await ctrl.adminUpdate(
       w.id!,
       name: result.name != w.workspaceName ? result.name : null,
-      allowedRadiusMeters: result.radius != null && result.radius != w.radiusMeters
-          ? result.radius
-          : null,
+      allowedRadiusMeters:
+          result.radius != null && result.radius != w.radiusMeters
+              ? result.radius
+              : null,
       isActive: result.isActive != w.isActive ? result.isActive : null,
       expiresAt: result.expiresAt != w.expiresAt ? result.expiresAt : null,
       notes: result.notes != w.notes ? result.notes : null,
@@ -868,42 +1000,30 @@ class _ApprovalsTable extends StatelessWidget {
 
   Future<void> _openForceDeleteDialog(
       BuildContext context, WorkspaceConfig w) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: _dialogTitle(
-          icon: Iconsax.trash,
-          color: AppColors.danger,
-          text: 'Delete workspace?',
-        ),
-        content: Text(
-          'Permanently remove "${w.workspaceName}" owned by '
-          '${w.employeeName ?? 'this employee'}? This cannot be undone. '
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: 'Delete workspace?',
+      subtitle: 'Permanently remove "${w.workspaceName}" owned by '
+          '${w.employeeName ?? 'this employee'}. This cannot be undone. '
           'The employee will need to submit a new workspace if they want '
           'to clock in.',
-          style: const TextStyle(
-            fontSize: 13,
-            color: AppColors.neutral600,
-            height: 1.5,
-          ),
+      size: DialogSize.sm,
+      body: const SizedBox.shrink(),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.pop(context, false),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+        MyElevatedButton(
+          height: 44,
+          bgColor: AppColors.danger,
+          child: 'Delete',
+          onTap: () => Navigator.pop(context, true),
+        ),
+      ],
     );
     if (confirmed != true || !context.mounted) return;
     final ok = await ctrl.forceDelete(w.id!);
@@ -913,33 +1033,12 @@ class _ApprovalsTable extends StatelessWidget {
 
   // ── Shared dialog bits ────────────────────────────────────────────
 
-  Widget _dialogTitle(
-      {required IconData icon,
-      required Color color,
-      required String text}) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Flexible(child: Text(text)),
-      ],
-    );
-  }
-
   Widget _fieldLabel(String label) {
     return Text(
       label,
-      style: const TextStyle(
-        fontSize: 12,
+      style: AppText.label.copyWith(
+        color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
-        color: AppColors.neutral500,
       ),
     );
   }
@@ -960,7 +1059,10 @@ class _ApprovalsTable extends StatelessWidget {
   }
 
   void _snack(BuildContext context, bool ok) {
-    AppToast.info(context, ok ? ctrl.successMessage.value : ctrl.errorMessage.value,);
+    AppToast.info(
+      context,
+      ok ? ctrl.successMessage.value : ctrl.errorMessage.value,
+    );
   }
 }
 
@@ -979,88 +1081,4 @@ class _EditResult {
     required this.expiresAt,
     required this.notes,
   });
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Empty state
-// ═══════════════════════════════════════════════════════════════════════
-
-class _EmptyState extends StatelessWidget {
-  final ApprovalsView view;
-  const _EmptyState({required this.view});
-
-  @override
-  Widget build(BuildContext context) {
-    final (icon, title, subtitle, tint) = _copy();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neutral200),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: tint.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: tint, size: 32),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.neutral900,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style:
-                const TextStyle(fontSize: 13, color: AppColors.neutral500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  (IconData, String, String, Color) _copy() {
-    switch (view) {
-      case ApprovalsView.pending:
-        return (
-          Iconsax.archive_1,
-          'All caught up',
-          'There are no workspace submissions awaiting review.',
-          AppColors.success,
-        );
-      case ApprovalsView.approved:
-        return (
-          Iconsax.location_slash,
-          'No approved locations',
-          'Once you approve a pending submission it will appear here.',
-          AppColors.primary,
-        );
-      case ApprovalsView.rejected:
-        return (
-          Iconsax.tick_circle,
-          'No rejections',
-          'Nothing has been rejected — or the employees have cleaned up.',
-          AppColors.success,
-        );
-      case ApprovalsView.all:
-        return (
-          Iconsax.location,
-          'No work locations yet',
-          'Once employees submit workspaces they will show up here.',
-          AppColors.primary,
-        );
-    }
-  }
 }

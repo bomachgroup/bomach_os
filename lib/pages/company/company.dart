@@ -7,6 +7,7 @@ import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/company/board_members.dart';
 import 'package:bms_front_end/pages/company/compliance.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/shadows.dart';
@@ -1582,52 +1583,6 @@ class DashboardStatCard extends StatelessWidget {
   }
 }
 
-class ResponsiveStatRow extends StatelessWidget {
-  const ResponsiveStatRow({super.key, required this.cards});
-
-  final List<Widget> cards;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final width = constraints.maxWidth;
-
-      if (width >= 1100) {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (int i = 0; i < cards.length; i++) ...[
-              if (i > 0) const SizedBox(width: 16),
-              Expanded(child: cards[i]),
-            ],
-          ],
-        );
-      }
-
-      if (width >= 720) {
-        return Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          children: cards
-              .map((card) => SizedBox(
-                    width: (width - 16) / 2,
-                    child: card,
-                  ))
-              .toList(),
-        );
-      }
-
-      return Column(
-        children: [
-          for (int i = 0; i < cards.length; i++) ...[
-            if (i > 0) const SizedBox(height: 12),
-            cards[i],
-          ],
-        ],
-      );
-    });
-  }
-}
 
 class ResponsiveSubheader extends StatelessWidget {
   const ResponsiveSubheader({

@@ -1,16 +1,19 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/hr/widget/add_payroll_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/view_payroll_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/pay_roll_controller.dart';
@@ -24,209 +27,291 @@ class PayrollPage extends StatefulWidget {
 }
 
 class PayrollPageState extends State<PayrollPage> {
-  final ScrollController _scrollController = ScrollController();
   final PayrollController controller = Get.put(PayrollController());
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  List<Payroll> _filtered(List<Payroll> items) {
+    if (_searchQuery.isEmpty) return items;
+    final q = _searchQuery.toLowerCase();
+    return items.where((p) {
+      return p.employeeId.toLowerCase().contains(q) ||
+          p.payrollPeriod.toLowerCase().contains(q) ||
+          p.status.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  StatusTone _statusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return StatusTone.success;
+      case 'processing':
+        return StatusTone.info;
+      case 'pending':
+        return StatusTone.warning;
+      case 'failed':
+        return StatusTone.danger;
+      case 'scheduled':
+        return StatusTone.primary;
+      default:
+        return StatusTone.neutral;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Payroll',
+        subtitle: 'Manage employee payroll records and disbursements.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Payroll',
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const AddPayRollDialog(),
+            );
+          },
+        ),
+      ),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Payroll',
-                        style: AppText.displayLg,
-                      ),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Iconsax.add_circle,
-                      color: AppColors.white,
-                    ),
-                    child: "New Payroll",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AddPayRollDialog();
-                        },
-                      );
-                    },
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 250,
-                    child: MyTextFormField(
-                      hintText: 'Search...',
-                      leading: Icon(
-                        Iconsax.search_normal,
-                        color: AppColors.neutral500.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  const Row(
-                    spacing: 15,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SortBar(
-                        text: "All States",
-                        // onTap: controller.fetchPayrolls
-                      ), // Acts as refresh
-                      SortBar(text: "Status"),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: Obx(() {
-                      if (controller.isLoading.value) {
-                        return const Center(
-                            child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(),
-                        ));
-                      }
+        _buildToolbar(),
+        Obx(() {
+          final loading =
+              controller.isLoading.value && controller.payrollList.isEmpty;
+          final filtered = _filtered(controller.payrollList);
+          final isEmpty = !loading && filtered.isEmpty;
 
-                      if (controller.errorMessage.isNotEmpty) {
-                        return Center(
-                            child: Text(controller.errorMessage.value));
-                      }
-
-                      if (controller.payrollList.isEmpty) {
-                        return const Center(
-                            child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Text("No payroll records found."),
-                        ));
-                      }
-
-                      return DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows: _createRows(context, controller.payrollList),
-                        showBottomBorder: true,
-                      );
-                    }),
-                  ),
-                ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
-        ),
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            filtered: filtered,
+            body: _buildTable(filtered),
+          );
+        }),
       ],
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(label: MyText("Employee ID")),
-      const DataColumn(label: MyText("Period")),
-      const DataColumn(label: MyText("Disbursement Date")),
-      const DataColumn(label: MyText("Gross Salary")),
-      const DataColumn(label: MyText("Net Salary")),
-      const DataColumn(label: MyText("Status")),
-      const DataColumn(label: MyText("Action")),
-    ];
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        controller: _searchController,
+        hintText: 'Search by employee, period or status',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (v) => setState(() => _searchQuery = v),
+      ),
+    );
   }
 
-  List<DataRow> _createRows(BuildContext context, List<Payroll> items) {
-    return items.map((payroll) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          MyText(
-            payroll.employeeId,
-            size: 16,
-            weight: 400,
-            isSelectable: false,
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required List<Payroll> filtered,
+    required Widget body,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Payroll ledger', style: AppText.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        loading
+                            ? 'Loading payroll records...'
+                            : '${filtered.length} record${filtered.length == 1 ? '' : 's'} on file',
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const StatusChip(
+                  label: 'Finance pipeline',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.money_recive,
+                ),
+              ],
+            ),
           ),
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => ViewPayrollDialog(payroll: payroll),
-            );
-          },
-        ),
-        DataCell(MyText(payroll.payrollPeriod)),
-        DataCell(MyText(payroll.disbursementDate != null
-            ? DateFormat('yyyy-MM-dd').format(payroll.disbursementDate!)
-            : '-')),
-        DataCell(MyText(payroll.grossSalary.toStringAsFixed(2))),
-        DataCell(MyText(payroll.netSalary.toStringAsFixed(2))),
-        DataCell(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: payroll.status == 'paid'
-                ? Colors.green.shade100
-                : Colors.orange.shade100,
-            borderRadius: BorderRadius.circular(4),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (controller.errorMessage.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.warning_2,
+                title: 'Unable to load payroll',
+                subtitle: controller.errorMessage.value,
+              ),
+            )
+          else if (isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.money_recive,
+                title: 'No payroll records yet',
+                subtitle:
+                    'Add a payroll entry to begin tracking employee compensation.',
+              ),
+            )
+          else
+            body,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTable(List<Payroll> items) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Employee ID', flex: 2),
+              _buildHeaderCell('Period', flex: 2),
+              _buildHeaderCell('Disbursement', flex: 2),
+              _buildHeaderCell('Gross Salary', flex: 2),
+              _buildHeaderCell('Net Salary', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
           ),
-          child: Text(payroll.status,
-              style: TextStyle(
-                  color:
-                      payroll.status == 'paid' ? Colors.green : Colors.orange)),
-        )),
-        const DataCell(
-          ThreeDotPop(),
         ),
-      ]);
-    }).toList();
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...items.map(_buildDataRow),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppText.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildDataRow(Payroll payroll) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: InkWell(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => ViewPayrollDialog(payroll: payroll),
+                );
+              },
+              child: Text(
+                payroll.employeeId,
+                style: AppText.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              payroll.payrollPeriod,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              payroll.disbursementDate != null
+                  ? DateFormat('dd MMM yyyy').format(payroll.disbursementDate!)
+                  : '—',
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              payroll.grossSalary.toStringAsFixed(2),
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              payroll.netSalary.toStringAsFixed(2),
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: payroll.status,
+                tone: _statusTone(payroll.status),
+                dense: true,
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 48,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ThreeDotPop(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

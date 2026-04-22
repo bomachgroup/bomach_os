@@ -1,13 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/leave_request_controller.dart';
 import '../models/leave_request_model.dart';
@@ -35,148 +36,144 @@ class _AddLeaveRequestDialogState extends State<AddLeaveRequestDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+    final isEdit = widget.request != null;
+
+    return DialogScaffold(
+      title: isEdit ? 'Edit Leave Request' : 'New Leave Request',
+      subtitle: isEdit
+          ? 'Update the details of this leave request.'
+          : 'Submit a leave request for review and approval.',
+      size: DialogSize.lg,
+      body: _buildBody(),
+      actions: [
+        Obx(() => MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+              onTap: _ctrl.isSaving.value
+                  ? null
+                  : () {
+                      _ctrl.clearForm();
+                      Navigator.pop(context);
+                    },
+            )),
+        Obx(() => MyElevatedButton(
+              height: 44,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              icon: _ctrl.isSaving.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      color: AppColors.textOnPrimary, size: 18),
+              child: _ctrl.isSaving.value ? 'Saving...' : 'Save',
+              onTap: _ctrl.isSaving.value
+                  ? null
+                  : () => _ctrl.saveLeaveRequest(context,
+                      id: widget.request?.id),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSection(
+          title: 'Leave details',
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    widget.request == null
-                        ? 'New Leave Request'
-                        : 'Edit Leave Request',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Obx(() => MyDropdown(
-                                          items: _ctrl.leaveTypes,
-                                          hintText:
-                                              _ctrl.selectedLeaveType.value,
-                                          spaceBetweenText: 10,
-                                          title: 'Leave Type',
-                                        )),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: MyTextFormField(
-                                  controller: _ctrl.startDateController,
-                                  hintText: 'Select Date',
-                                  spaceBetweenText: 10,
-                                  title: 'Start Date',
-                                  readOnly: true,
-                                  onTap: () => _ctrl.pickDate(context, true),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          MyTextFormField(
-                            controller: _ctrl.endDateController,
-                            hintText: 'Select Date',
-                            spaceBetweenText: 10,
-                            title: 'End Date',
-                            readOnly: true,
-                            onTap: () => _ctrl.pickDate(context, false),
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: MyTextFormField(
-                                  controller: _ctrl.reasonController,
-                                  hintText: "Enter reason",
-                                  spaceBetweenText: 10,
-                                  maxLines: 5,
-                                  title: 'Reason',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.neutral500,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: _ctrl.isSaving.value
-                        ? null
-                        : () {
-                            _ctrl.clearForm();
-                            Navigator.pop(context);
-                          },
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        icon: _ctrl.isSaving.value
-                            ? null
-                            : SvgPicture.asset(
-                                "assets/svg/check.svg",
-                                colorFilter: const ColorFilter.mode(
-                                    AppColors.white, BlendMode.srcIn),
-                              ),
-                        child: _ctrl.isSaving.value ? 'Saving...' : 'Save',
-                        onTap: _ctrl.isSaving.value
-                            ? null
-                            : () => _ctrl.saveLeaveRequest(context,
-                                id: widget.request?.id),
+            Row(
+              children: [
+                Expanded(
+                  child: Obx(() => MyDropdown(
+                        items: _ctrl.leaveTypes,
+                        hintText: _ctrl.selectedLeaveType.value.isEmpty
+                            ? 'Select leave type'
+                            : _ctrl.selectedLeaveType.value,
+                        initialSelection:
+                            _ctrl.selectedLeaveType.value.isEmpty
+                                ? null
+                                : _ctrl.selectedLeaveType.value,
+                        title: 'Leave Type',
+                        spaceBetweenText: 8,
+                        onChanged: (v) {
+                          if (v != null) _ctrl.selectedLeaveType.value = v;
+                        },
                       )),
-                ],
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _ctrl.startDateController,
+                    hintText: 'Select date',
+                    spaceBetweenText: 8,
+                    title: 'Start Date',
+                    readOnly: true,
+                    trailing: const Icon(
+                      Iconsax.calendar_1,
+                      size: 18,
+                      color: AppColors.textMuted,
+                    ),
+                    onTap: () => _ctrl.pickDate(context, true),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _ctrl.endDateController,
+              hintText: 'Select date',
+              spaceBetweenText: 8,
+              title: 'End Date',
+              readOnly: true,
+              trailing: const Icon(
+                Iconsax.calendar_1,
+                size: 18,
+                color: AppColors.textMuted,
               ),
+              onTap: () => _ctrl.pickDate(context, false),
             ),
           ],
         ),
+        const SizedBox(height: 16),
+        _buildSection(
+          title: 'Reason',
+          children: [
+            MyTextFormField(
+              controller: _ctrl.reasonController,
+              hintText: 'Briefly describe the reason for this leave',
+              spaceBetweenText: 8,
+              maxLines: 5,
+              title: 'Reason',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
       ),
     );
   }

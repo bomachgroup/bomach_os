@@ -1,12 +1,15 @@
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/biometrics_controller.dart';
@@ -118,98 +121,35 @@ class AttendancePageState extends State<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hero banner
-          _buildHeroBanner(),
-          kSizedBox,
-
-          // Stats row
-          Obx(() => _buildStatsRow(_computeStats(controller.rawRecords))),
-          kSizedBox,
-
-          // Clock In/Out card
-          _buildLiveClockCard(),
-          kSizedBox,
-
-          // My Workspaces card
-          _buildWorkspacesCard(),
-          kSizedBox,
-
-          // Attendance history table
-          _buildHistoryTable(),
-        ],
-      ),
-    );
-  }
-
-  // ── Hero banner ────────────────────────────────────────────────────────
-
-  Widget _buildHeroBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primary, AppColors.primaryPressed],
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Attendance',
+        subtitle: 'Clock in with face verification and track your attendance.',
+        trailing: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            Obx(() => _buildFaceHeroChip()),
+            Obx(() => _buildWorkspaceHeroChip()),
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Iconsax.clock,
-                    color: Colors.white, size: 24),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Attendance',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Clock in with face verification and track your attendance.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              Obx(() => _buildFaceHeroChip()),
-              Obx(() => _buildWorkspaceHeroChip()),
-            ],
-          ),
-        ],
-      ),
+      children: [
+        // Stats row
+        Obx(() => _buildStatsRow(_computeStats(controller.rawRecords))),
+        kSizedBox,
+
+        // Clock In/Out card
+        _buildLiveClockCard(),
+        kSizedBox,
+
+        // My Workspaces card
+        _buildWorkspacesCard(),
+        kSizedBox,
+
+        // Attendance history table
+        _buildHistoryTable(),
+      ],
     );
   }
 
@@ -247,9 +187,11 @@ class AttendancePageState extends State<AttendancePage> {
           final ok =
               await controller.removeBiometric(token, biometricType: 'face');
           if (!mounted) return;
-          AppToast.info(context, ok
-                ? controller.successMessage.value
-                : controller.errorMessage.value);
+          AppToast.info(
+              context,
+              ok
+                  ? controller.successMessage.value
+                  : controller.errorMessage.value);
         }
       },
       itemBuilder: (_) => [
@@ -388,35 +330,14 @@ class AttendancePageState extends State<AttendancePage> {
       ),
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final perRow = constraints.maxWidth > 1100
-            ? 4
-            : constraints.maxWidth > 720
-                ? 2
-                : 1;
-        const spacing = 16.0;
-        final cardWidth =
-            (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: cards
-              .map((c) => SizedBox(width: cardWidth, child: _statCard(c)))
-              .toList(),
-        );
-      },
+    return ResponsiveStatRow(
+      cards: cards.map((c) => _statCard(c)).toList(),
     );
   }
 
   Widget _statCard(_StatCardData c) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neutral200),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -544,16 +465,11 @@ class AttendancePageState extends State<AttendancePage> {
   // ── Live clock + Clock In/Out card ─────────────────────────────────────
 
   Widget _buildLiveClockCard() {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neutral200),
-      ),
       child: Column(
         children: [
-          const MyText("Current Time",
+          const Text("Current Time",
               style: TextStyle(
                   color: AppColors.neutral500,
                   fontWeight: FontWeight.w600,
@@ -576,7 +492,8 @@ class AttendancePageState extends State<AttendancePage> {
           ),
           const SizedBox(height: 6),
           Text(DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
-              style: const TextStyle(color: AppColors.neutral500, fontSize: 15)),
+              style:
+                  const TextStyle(color: AppColors.neutral500, fontSize: 15)),
           const SizedBox(height: 24),
           const Divider(),
           const SizedBox(height: 20),
@@ -789,13 +706,8 @@ class AttendancePageState extends State<AttendancePage> {
   // ── Workspaces card ────────────────────────────────────────────────────
 
   Widget _buildWorkspacesCard() {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neutral200),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -825,7 +737,8 @@ class AttendancePageState extends State<AttendancePage> {
                     SizedBox(height: 2),
                     Text(
                       'Submit a location for approval. Admin sets the geofence radius.',
-                      style: TextStyle(fontSize: 12, color: AppColors.neutral500),
+                      style:
+                          TextStyle(fontSize: 12, color: AppColors.neutral500),
                     ),
                   ],
                 ),
@@ -1042,13 +955,8 @@ class AttendancePageState extends State<AttendancePage> {
   // ── History table ──────────────────────────────────────────────────────
 
   Widget _buildHistoryTable() {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neutral200),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1096,44 +1004,48 @@ class AttendancePageState extends State<AttendancePage> {
                 ),
               );
             }
-            return SizedBox(
-              width: double.infinity,
-              child: DataTable(
-                headingTextStyle: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.neutral600,
-                  fontSize: 12,
-                  letterSpacing: 0.5,
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context).size.width * 0.8,
                 ),
-                headingRowColor:
-                    WidgetStateProperty.all(AppColors.neutral50),
-                columnSpacing: 24,
-                columns: const [
-                  DataColumn(label: Text('DATE')),
-                  DataColumn(label: Text('CLOCK IN')),
-                  DataColumn(label: Text('CLOCK OUT')),
-                  DataColumn(label: Text('HOURS')),
-                ],
-                rows: controller.dailyAttendanceList.map((day) {
-                  return DataRow(cells: [
-                    DataCell(Text(
-                      _prettyDate(day.date),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.neutral900,
-                        fontSize: 13,
-                      ),
-                    )),
-                    DataCell(Text(day.clockInTime ?? '--:--',
-                        style: const TextStyle(fontSize: 13))),
-                    DataCell(Text(day.clockOutTime ?? '--:--',
-                        style: const TextStyle(fontSize: 13))),
-                    DataCell(Text(
-                      day.hoursWorked,
-                      style: AppText.h4,
-                    )),
-                  ]);
-                }).toList(),
+                child: DataTable(
+                  headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.neutral600,
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                  ),
+                  headingRowColor: WidgetStateProperty.all(AppColors.neutral50),
+                  columnSpacing: 24,
+                  columns: const [
+                    DataColumn(label: Text('DATE')),
+                    DataColumn(label: Text('CLOCK IN')),
+                    DataColumn(label: Text('CLOCK OUT')),
+                    DataColumn(label: Text('HOURS')),
+                  ],
+                  rows: controller.dailyAttendanceList.map((day) {
+                    return DataRow(cells: [
+                      DataCell(Text(
+                        _prettyDate(day.date),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.neutral900,
+                          fontSize: 13,
+                        ),
+                      )),
+                      DataCell(Text(day.clockInTime ?? '--:--',
+                          style: const TextStyle(fontSize: 13))),
+                      DataCell(Text(day.clockOutTime ?? '--:--',
+                          style: const TextStyle(fontSize: 13))),
+                      DataCell(Text(
+                        day.hoursWorked,
+                        style: AppText.h4,
+                      )),
+                    ]);
+                  }).toList(),
+                ),
               ),
             );
           }),

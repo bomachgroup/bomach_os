@@ -1,17 +1,21 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'controller/department_controller.dart';
 import 'models/department_model.dart';
@@ -25,6 +29,7 @@ class DepartmentPage extends StatefulWidget {
 
 class _DepartmentPageState extends State<DepartmentPage> {
   final DepartmentController controller = Get.put(DepartmentController());
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -35,76 +40,54 @@ class _DepartmentPageState extends State<DepartmentPage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Row(
-          children: [
-            MyText(
-              'Departments',
-              style: AppText.displayLg,
-            ),
-          ],
-        ),
-        kSizedBox,
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            MyElevatedButton(
-              icon: const Icon(
-                Iconsax.add_circle,
-                color: AppColors.white,
-              ),
-              child: 'New Department',
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return const CreateDepartmentDialog();
-                  },
-                );
-              },
-            ),
-            SizedBox(
-              width: 217,
-              child: MyTextFormField(
-                hintText: 'Search...',
-                leading: Icon(
-                  Iconsax.search_normal,
-                  color: AppColors.neutral500.withValues(alpha: 0.5),
-                ),
-                onChanged: (value) {
-                  controller.onSearch(context, value);
-                },
-              ),
-            ),
-            // const SortBar(
-            //   text: "Sort",
-            // ),
-          ],
-        ),
-        kSizedBoxBG,
-        Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40),
-                child: CircularProgressIndicator(),
-              ),
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Departments',
+        subtitle:
+            'Organise teams and members across departments and units.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Department',
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const CreateDepartmentDialog(),
             );
+          },
+        ),
+      ),
+      children: [
+        _buildToolbar(),
+        Obx(() {
+          if (controller.isLoading.value && controller.departments.isEmpty) {
+            return LoadingSkeleton.listRows(count: 4, rowHeight: 120);
           }
 
           if (controller.departments.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40),
-                child: MyText(
-                  'No departments found',
-                  style: TextStyle(
-                    color: AppColors.neutral400,
-                    fontSize: 16,
+            return AppCard(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.building,
+                title: 'No departments yet',
+                subtitle:
+                    'Create a department to start organising employees and units.',
+                action: MyOutlinedButton(
+                  child: 'New Department',
+                  icon: const Icon(Iconsax.add_circle,
+                      size: 18, color: AppColors.primary),
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => const CreateDepartmentDialog(),
                   ),
                 ),
               ),
@@ -112,19 +95,41 @@ class _DepartmentPageState extends State<DepartmentPage> {
           }
 
           final depts = controller.departments;
-          final rowCount =
-              (depts.length / (isSmallScreen(context) ? 1 : 2)).ceil();
-
-          return LayoutGrid(
-            columnSizes: isSmallScreen(context) ? [1.fr] : [1.fr, 1.fr],
-            rowSizes: List.generate(rowCount, (_) => auto),
-            columnGap: kDefaultSpaceBG,
-            rowGap: kDefaultSpaceBG,
-            children:
-                depts.map((dept) => DepartmentCard(department: dept)).toList(),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 900;
+              final cols = isWide ? 2 : 1;
+              final rowCount = (depts.length / cols).ceil();
+              return LayoutGrid(
+                columnSizes: List.generate(cols, (_) => 1.fr),
+                rowSizes: List.generate(rowCount, (_) => auto),
+                columnGap: 20,
+                rowGap: 20,
+                children: depts
+                    .map((dept) => DepartmentCard(department: dept))
+                    .toList(),
+              );
+            },
           );
         }),
       ],
+    );
+  }
+
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        controller: _searchController,
+        hintText: 'Search departments by name',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (value) {
+          controller.onSearch(context, value);
+        },
+      ),
     );
   }
 }
@@ -139,66 +144,63 @@ class DepartmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: kDefaultSpace, vertical: kDefaultSpace),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: AppColors.white,
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brLg,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Iconsax.building,
+                    color: AppColors.primary, size: 22),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyText(
+                    Text(
                       department.name.capitalizeFirst ?? department.name,
                       maxLines: 1,
-                      style: const TextStyle(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
-                      ),
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.h3,
                     ),
-                    MyText(
-                      '${department.employeeCount} ${department.employeeCount == 1 ? 'Member' : 'Members'}',
-                      maxLines: 1,
-                      style: const TextStyle(
-                        color: AppColors.neutral400,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                      ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${department.employeeCount} '
+                      '${department.employeeCount == 1 ? 'member' : 'members'}',
+                      style: AppText.bodySm
+                          .copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
               ),
-              kSizedBoxWidthSM,
-              const MyText(
-                'View All',
-                isSelectable: false,
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                ),
+              const StatusChip(
+                label: 'Active',
+                tone: StatusTone.success,
+                dense: true,
               ),
             ],
           ),
-          const Divider(),
-          kSizedBoxSM,
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 12),
           if (department.employees.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: MyText(
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
                 'No employees in this department',
-                style: TextStyle(
-                  color: AppColors.neutral400,
-                  fontSize: 14,
-                ),
+                style:
+                    AppText.bodySm.copyWith(color: AppColors.textSecondary),
               ),
             )
           else
@@ -207,70 +209,10 @@ class DepartmentCard extends StatelessWidget {
                 department.employees.length,
                 (index) {
                   final employee = department.employees[index];
-                  return Column(
-                    children: [
-                      Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(40),
-                            child: employee.profilePicture != null
-                                ? Image.network(
-                                    employee.profilePicture!,
-                                    height: 40,
-                                    width: 40,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) =>
-                                        _defaultAvatar(employee),
-                                  )
-                                : _defaultAvatar(employee),
-                          ),
-                          kSizedBoxWidth,
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  employee.fullName,
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    color: AppColors.black,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                MyText(
-                                  employee.employeeLevel?.capitalizeFirst ??
-                                      employee.employmentType,
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    color: AppColors.neutral400,
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          kSizedBoxWidthSM,
-                          if (employee.employeeLevel == 'head') ...[
-                            const MyText(
-                              'HOD',
-                              style: TextStyle(
-                                color: AppColors.success,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
-                            ),
-                            kSizedBoxWidth,
-                          ],
-                          const Icon(
-                            Iconsax.arrow_right_3,
-                            size: 13,
-                          )
-                        ],
-                      ),
-                      kSizedBox,
-                    ],
+                  final isLast = index == department.employees.length - 1;
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+                    child: _EmployeeRow(employee: employee),
                   );
                 },
               ),
@@ -279,25 +221,97 @@ class DepartmentCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _defaultAvatar(DepartmentEmployee employee) {
+class _EmployeeRow extends StatelessWidget {
+  final DepartmentEmployee employee;
+
+  const _EmployeeRow({required this.employee});
+
+  Widget _avatar() {
+    if (employee.profilePicture != null && employee.profilePicture!.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(40),
+        child: Image.network(
+          employee.profilePicture!,
+          height: 40,
+          width: 40,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _defaultAvatar(),
+        ),
+      );
+    }
+    return _defaultAvatar();
+  }
+
+  Widget _defaultAvatar() {
+    final initials =
+        '${employee.firstName.isNotEmpty ? employee.firstName[0] : ''}'
+        '${employee.lastName.isNotEmpty ? employee.lastName[0] : ''}';
     return Container(
       height: 40,
       width: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
-        color: AppColors.primary.withValues(alpha: 0.15),
+      decoration: const BoxDecoration(
+        color: AppColors.primarySubtle,
+        shape: BoxShape.circle,
       ),
-      child: Center(
-        child: Text(
-          '${employee.firstName.isNotEmpty ? employee.firstName[0] : ''}${employee.lastName.isNotEmpty ? employee.lastName[0] : ''}',
-          style: const TextStyle(
-            color: AppColors.primary,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
+      alignment: Alignment.center,
+      child: Text(
+        initials.isEmpty ? '?' : initials,
+        style: AppText.label.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w700,
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isHead = employee.employeeLevel == 'head';
+    return Row(
+      children: [
+        _avatar(),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                employee.fullName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                employee.employeeLevel?.capitalizeFirst ??
+                    employee.employmentType,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.bodySm
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
+        if (isHead) ...[
+          const StatusChip(
+            label: 'HOD',
+            tone: StatusTone.success,
+            dense: true,
+          ),
+          const SizedBox(width: 8),
+        ],
+        const Icon(
+          Iconsax.arrow_right_3,
+          size: 14,
+          color: AppColors.textMuted,
+        ),
+      ],
     );
   }
 }
@@ -312,6 +326,7 @@ class CreateDepartmentDialog extends StatefulWidget {
 class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -322,128 +337,105 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+    return DialogScaffold(
+      title: 'Add Department',
+      subtitle: 'Create a new department to organise teams and members.',
+      size: DialogSize.md,
+      body: Form(
+        key: _formKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.neutral300),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            _buildSection(
+              title: 'Department details',
+              subtitle: 'Provide a name and an optional description.',
+              child: Column(
                 children: [
-                  const MyText(
-                    'Add Department',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  MyTextFormField(
+                    controller: _nameController,
+                    title: 'Name*',
+                    hintText: 'e.g. Engineering',
+                    validator: (val) =>
+                        (val == null || val.trim().isEmpty) ? 'Required' : null,
                   ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
+                  const SizedBox(height: 16),
+                  MyTextFormField(
+                    controller: _descriptionController,
+                    maxLines: 4,
+                    title: 'Description',
+                    hintText: 'What does this department do?',
                   ),
-                ],
-              ),
-            ),
-
-            // Form fields
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Column(
-                    children: [
-                      MyTextFormField(
-                        controller: _nameController,
-                        hintText: "----",
-                        spaceBetweenText: 10,
-                        title: 'Name*',
-                      ),
-                      const SizedBox(height: 24),
-                      MyTextFormField(
-                        controller: _descriptionController,
-                        maxLines: 4,
-                        hintText: '----',
-                        spaceBetweenText: 10,
-                        title: 'Description',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.neutral500,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() {
-                    final controller = Get.find<DepartmentController>();
-                    return MyElevatedButton(
-                      icon: controller.isSaving.value
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.white,
-                              ),
-                            )
-                          : SvgPicture.asset(
-                              "assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn),
-                            ),
-                      child: 'Save',
-                      onTap: controller.isSaving.value
-                          ? null
-                          : () {
-                              if (_nameController.text.trim().isEmpty) {
-                                AppToast.error(context, 'Department name is required');
-                                return;
-                              }
-                              controller.createDepartment(
-                                context,
-                                name: _nameController.text.trim(),
-                                description: _descriptionController.text.trim(),
-                              );
-                            },
-                    );
-                  }),
                 ],
               ),
             ),
           ],
         ),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        Obx(() {
+          final controller = Get.find<DepartmentController>();
+          return MyElevatedButton(
+            width: 120,
+            height: 44,
+            child: controller.isSaving.value ? 'Saving...' : 'Save',
+            icon: controller.isSaving.value
+                ? null
+                : const Icon(Iconsax.tick_circle,
+                    size: 18, color: AppColors.textOnPrimary),
+            onTap: controller.isSaving.value
+                ? null
+                : () {
+                    if (_nameController.text.trim().isEmpty) {
+                      AppToast.error(
+                          context, 'Department name is required');
+                      return;
+                    }
+                    controller.createDepartment(
+                      context,
+                      name: _nameController.text.trim(),
+                      description: _descriptionController.text.trim(),
+                    );
+                  },
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style:
+                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

@@ -1,10 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/biometrics_controller.dart';
@@ -26,6 +31,11 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   String _attendanceType = 'CLOCK_IN';
+
+  static const _typeLabels = {
+    'CLOCK_IN': 'Clock In',
+    'CLOCK_OUT': 'Clock Out',
+  };
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -51,100 +61,170 @@ class _AddAttendanceDialogState extends State<AddAttendanceDialog> {
   }
 
   @override
+  void dispose() {
+    _employeeIdCtrl.dispose();
+    _notesCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const MyText('Add Manual Entry', size: 20, weight: 600),
-              const SizedBox(height: 24),
-              MyTextFormField(
-                title: 'Employee ID',
-                controller: _employeeIdCtrl,
-                validator: (v) => v!.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              const MyText('Type', size: 14, weight: 500),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                initialValue: _attendanceType,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-                items: const [
-                  DropdownMenuItem(value: 'CLOCK_IN', child: Text('Clock In')),
-                  DropdownMenuItem(
-                      value: 'CLOCK_OUT', child: Text('Clock Out')),
-                ],
-                onChanged: (val) => setState(() => _attendanceType = val!),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        final d = await showDatePicker(
+    return DialogScaffold(
+      title: 'Add Manual Entry',
+      subtitle: 'Record an attendance entry manually for this employee.',
+      size: DialogSize.md,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSection(
+              title: 'Employee',
+              children: [
+                MyTextFormField(
+                  title: 'Employee ID',
+                  hintText: 'e.g. EMP001',
+                  spaceBetweenText: 8,
+                  controller: _employeeIdCtrl,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Required' : null,
+                ),
+                const SizedBox(height: 16),
+                MyDropdown(
+                  title: 'Type',
+                  hintText: _typeLabels[_attendanceType] ?? 'Select type',
+                  initialSelection: _typeLabels[_attendanceType],
+                  spaceBetweenText: 8,
+                  items: _typeLabels.values.toList(),
+                  onChanged: (val) {
+                    if (val == null) return;
+                    final key = _typeLabels.entries
+                        .firstWhere((e) => e.value == val,
+                            orElse: () => const MapEntry('CLOCK_IN', ''))
+                        .key;
+                    setState(() => _attendanceType = key);
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Date & time',
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Date',
+                        hintText: 'Select date',
+                        spaceBetweenText: 8,
+                        controller: TextEditingController(
+                          text: DateFormat('yyyy-MM-dd').format(_selectedDate),
+                        ),
+                        readOnly: true,
+                        trailing: const Icon(
+                          Iconsax.calendar_1,
+                          size: 18,
+                          color: AppColors.textMuted,
+                        ),
+                        onTap: () async {
+                          final d = await showDatePicker(
                             context: context,
                             initialDate: _selectedDate,
                             firstDate: DateTime(2020),
-                            lastDate: DateTime.now());
-                        if (d != null) setState(() => _selectedDate = d);
-                      },
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                            labelText: 'Date', border: OutlineInputBorder()),
-                        child: Text(
-                            DateFormat('yyyy-MM-dd').format(_selectedDate)),
+                            lastDate: DateTime.now(),
+                          );
+                          if (d != null) setState(() => _selectedDate = d);
+                        },
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        final t = await showTimePicker(
-                            context: context, initialTime: _selectedTime);
-                        if (t != null) setState(() => _selectedTime = t);
-                      },
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                            labelText: 'Time', border: OutlineInputBorder()),
-                        child: Text(_selectedTime.format(context)),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Time',
+                        hintText: 'Select time',
+                        spaceBetweenText: 8,
+                        controller: TextEditingController(
+                          text: _selectedTime.format(context),
+                        ),
+                        readOnly: true,
+                        trailing: const Icon(
+                          Iconsax.clock,
+                          size: 18,
+                          color: AppColors.textMuted,
+                        ),
+                        onTap: () async {
+                          final t = await showTimePicker(
+                            context: context,
+                            initialTime: _selectedTime,
+                          );
+                          if (t != null) setState(() => _selectedTime = t);
+                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              MyTextFormField(
-                title: 'Notes (Optional)',
-                controller: _notesCtrl,
-                maxLines: 2,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                      child: 'Cancel', onTap: () => Navigator.pop(context)),
-                  const SizedBox(width: 12),
-                  Obx(() => MyElevatedButton(
-                        child:
-                            controller.isLoading.value ? 'Saving...' : 'Save',
-                        onTap: controller.isLoading.value ? null : _submit,
-                      )),
-                ],
-              )
-            ],
-          ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Notes',
+              children: [
+                MyTextFormField(
+                  title: 'Notes (optional)',
+                  hintText: 'Add additional context about this entry',
+                  spaceBetweenText: 8,
+                  controller: _notesCtrl,
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              height: 44,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              icon: controller.isLoading.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+              child: controller.isLoading.value ? 'Saving...' : 'Save',
+              onTap: controller.isLoading.value ? null : _submit,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
       ),
     );
   }

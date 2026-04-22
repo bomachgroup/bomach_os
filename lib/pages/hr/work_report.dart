@@ -1,15 +1,20 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/hr/widget/daily_work_report_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/work_report_review_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/work_report_controller.dart';
@@ -23,9 +28,10 @@ class WorkReportPage extends StatefulWidget {
 }
 
 class _WorkReportPageState extends State<WorkReportPage> {
-  final ScrollController _scrollController = ScrollController();
   final WorkReportController controller = Get.put(WorkReportController());
   final _storage = const FlutterSecureStorage();
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -49,236 +55,303 @@ class _WorkReportPageState extends State<WorkReportPage> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  List<WorkReport> _filtered(List<WorkReport> reports) {
+    if (_searchQuery.isEmpty) return reports;
+    final q = _searchQuery.toLowerCase();
+    return reports.where((r) {
+      return r.employeeId.toString().toLowerCase().contains(q) ||
+          (r.operationalBase ?? '').toLowerCase().contains(q) ||
+          (r.workActivities ?? '').toLowerCase().contains(q) ||
+          r.status.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  StatusTone _statusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return StatusTone.success;
+      case 'submitted':
+        return StatusTone.info;
+      case 'rejected':
+        return StatusTone.danger;
+      case 'pending_review':
+      case 'revision_requested':
+        return StatusTone.warning;
+      case 'draft':
+      default:
+        return StatusTone.neutral;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Daily Work Reports',
+        subtitle: 'Track and manage employee work activities',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'Submit Report',
+          onTap: () async {
+            final token = await _getToken(context);
+            if (token != null && mounted) {
+              showDialog(
+                context: context,
+                builder: (c) => DailyWorkReportDialog(token: token),
+              );
+            }
+          },
+        ),
+      ),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Daily Work Reports',
-                        style: AppText.displayLg,
-                      ),
-                      SizedBox(height: 8),
-                      MyText(
-                        'Track and manage employee work activities',
-                        size: 14,
-                        weight: 400,
-                        color: AppColors.neutral500,
-                      ),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Iconsax.add_circle,
-                      color: AppColors.white,
-                    ),
-                    child: "Submit Report",
-                    onTap: () async {
-                      final token = await _getToken(context);
-                      if (token != null && context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return DailyWorkReportDialog(token: token);
-                          },
-                        );
-                      }
-                    },
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 250,
-                    child: MyTextFormField(
-                      hintText: 'Search...',
-                      leading: Icon(
-                        Iconsax.search_normal,
-                        color: AppColors.neutral500.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    spacing: 15,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                          icon: const Icon(Iconsax.refresh),
-                          onPressed: _loadData),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: Obx(() {
-                      if (controller.isLoading.value) {
-                        return const Center(
-                            child: Padding(
-                                padding: EdgeInsets.all(20),
-                                child: CircularProgressIndicator()));
-                      }
-                      if (controller.workReports.isEmpty) {
-                        return const Center(
-                            child: Padding(
-                                padding: EdgeInsets.all(20),
-                                child: Text("No reports found.")));
-                      }
-                      return DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows: _createRows(context, controller.workReports),
-                        showBottomBorder: true,
-                      );
-                    }),
-                  ),
-                ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
-        ),
+        _buildToolbar(),
+        Obx(() {
+          final loading =
+              controller.isLoading.value && controller.workReports.isEmpty;
+          final filtered = _filtered(controller.workReports);
+          final isEmpty = !loading && filtered.isEmpty;
+
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            filtered: filtered,
+            body: _buildTable(filtered),
+          );
+        }),
       ],
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(label: MyText("Employee ID")),
-      const DataColumn(label: MyText("Date")),
-      const DataColumn(label: MyText("Hours")),
-      const DataColumn(label: MyText("Operational Base")),
-      const DataColumn(label: MyText("Work Activities")),
-      const DataColumn(label: MyText("Status")),
-      const DataColumn(label: MyText("Action")),
-    ];
-  }
-
-  List<DataRow> _createRows(BuildContext context, List<WorkReport> reports) {
-    return reports.map((report) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          MyText(
-            report.employeeId.toString(),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        DataCell(
-          MyText(
-            report.day != null
-                ? DateFormat('dd MMM yyyy').format(report.day!)
-                : '-',
-          ),
-        ),
-        DataCell(
-          MyText('${report.hoursWorked.toStringAsFixed(1)} hrs'),
-        ),
-        DataCell(
-          MyText(report.operationalBase ?? '-'),
-        ),
-        DataCell(
-          SizedBox(
-            width: 150,
-            child: MyText(
-              report.workActivities ?? '-',
-              maxLines: 1,
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: Row(
+        children: [
+          Expanded(
+            child: MyTextFormField(
+              controller: _searchController,
+              hintText: 'Search by employee, base or activity',
+              height: 48,
+              leading: const Icon(Iconsax.search_normal,
+                  size: 18, color: AppColors.textMuted),
+              onChanged: (v) => setState(() => _searchQuery = v),
             ),
           ),
-        ),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: _getStatusColor(report.status),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: MyText(
-              report.status,
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+          const SizedBox(width: 12),
+          Material(
+            color: AppColors.surface,
+            borderRadius: AppRadii.brMd,
+            child: InkWell(
+              onTap: _loadData,
+              borderRadius: AppRadii.brMd,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
+                child: const Icon(Iconsax.refresh,
+                    size: 18, color: AppColors.textSecondary),
               ),
             ),
           ),
-        ),
-        DataCell(
-          _buildActionMenu(context, report),
-        ),
-      ]);
-    }).toList();
+        ],
+      ),
+    );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'approved':
-        return AppColors.success;
-      case 'submitted':
-        return AppColors.primary;
-      case 'draft':
-        return AppColors.neutral500;
-      case 'rejected':
-        return AppColors.danger;
-      default:
-        return AppColors.neutral500;
-    }
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required List<WorkReport> filtered,
+    required Widget body,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Reports timeline', style: AppText.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        loading
+                            ? 'Loading work reports...'
+                            : '${filtered.length} report${filtered.length == 1 ? '' : 's'} on record',
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const StatusChip(
+                  label: 'Daily submissions',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.task_square,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.task_square,
+                title: 'No work reports found',
+                subtitle:
+                    'Employees submit daily reports here for review and feedback.',
+              ),
+            )
+          else
+            body,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTable(List<WorkReport> reports) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Employee ID', flex: 2),
+              _buildHeaderCell('Date', flex: 2),
+              _buildHeaderCell('Hours', flex: 1),
+              _buildHeaderCell('Operational Base', flex: 2),
+              _buildHeaderCell('Work Activities', flex: 3),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...reports.map(_buildDataRow),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppText.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildDataRow(WorkReport report) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              report.employeeId.toString(),
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              report.day != null
+                  ? DateFormat('dd MMM yyyy').format(report.day!)
+                  : '—',
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              '${report.hoursWorked.toStringAsFixed(1)} hrs',
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              report.operationalBase ?? '—',
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              report.workActivities ?? '—',
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: report.status,
+                tone: _statusTone(report.status),
+                dense: true,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 48,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _buildActionMenu(context, report),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildActionMenu(BuildContext context, WorkReport report) {
     return PopupMenuButton<String>(
-      icon: const Icon(Iconsax.more),
+      tooltip: 'Actions',
+      icon: const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       onSelected: (String result) async {
         final token = await _getToken(context);
         if (token == null || !context.mounted) return;
@@ -308,7 +381,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             children: [
               Icon(Iconsax.task_square, size: 18),
               SizedBox(width: 8),
-              MyText('Review / View', isSelectable: false),
+              Text('Review / View'),
             ],
           ),
         ),
@@ -326,9 +399,9 @@ class _WorkReportPageState extends State<WorkReportPage> {
           value: 'delete',
           child: Row(
             children: [
-              Icon(Iconsax.trash, size: 18, color: Colors.red),
+              Icon(Iconsax.trash, size: 18, color: AppColors.danger),
               SizedBox(width: 8),
-              Text('Delete', style: TextStyle(color: Colors.red)),
+              Text('Delete', style: TextStyle(color: AppColors.danger)),
             ],
           ),
         ),

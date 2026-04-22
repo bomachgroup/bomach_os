@@ -4,6 +4,8 @@ import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -13,14 +15,11 @@ import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
-import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
-// Local accent palette for differentiated stat tiles / chart / birthdays.
-// Surfaces, borders, text, and shadows flow through semantic tokens — these
-// constants only carry the intentional per-section colour differentiation.
+// Local accent palette
 const Color _accentGreen = AppColors.success;
 const Color _accentIndigo = Color(0xFF6366F1);
 const Color _accentAmber = AppColors.warning;
@@ -30,14 +29,9 @@ const Color _accentOrange = AppColors.warning;
 const Color _accentTeal = Color(0xFF14B8A6);
 const Color _accentBlue = AppColors.primary;
 
-class HRPage extends StatefulWidget {
+class HRPage extends StatelessWidget {
   const HRPage({super.key});
 
-  @override
-  State<HRPage> createState() => _HRPageState();
-}
-
-class _HRPageState extends State<HRPage> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -46,54 +40,89 @@ class _HRPageState extends State<HRPage> {
         final bool isDesktop = width >= 1100;
         final bool isMobile = width < 650;
 
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(isMobile),
-              kSizedBox,
-              _buildQuickNav(),
-              kSizedBox,
-              _buildSummaryGrid(),
-              kSizedBox,
-              if (isDesktop)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 2, child: _buildChartSection()),
-                    kSizedBoxWidth,
-                    Expanded(flex: 1, child: _buildBirthdaysSection()),
-                  ],
-                )
-              else ...[
-                _buildChartSection(),
-                kSizedBox,
-                _buildBirthdaysSection(),
-              ],
-              kSizedBox,
-              if (isDesktop)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildAuditLogsSection()),
-                    kSizedBoxWidth,
-                    Expanded(child: _buildLeavesSection()),
-                  ],
-                )
-              else ...[
-                _buildAuditLogsSection(),
-                kSizedBox,
-                _buildLeavesSection(),
-              ],
-              kSizedBox,
-            ],
+        return PageScaffold(
+          header: PageHeader(
+            title: 'Human Resources',
+            subtitle: 'Manage employees, payroll, leave, training, and everything people-ops',
+            trailing: isMobile ? null : _buildHeaderActions(),
           ),
+          children: [
+            const _QuickNavSection(),
+            const _SummaryGridSection(),
+            if (isDesktop)
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 2, child: _ChartSection()),
+                  kSizedBoxWidth,
+                  Expanded(flex: 1, child: _BirthdaysSection()),
+                ],
+              )
+            else ...[
+              const _ChartSection(),
+              kSizedBox,
+              const _BirthdaysSection(),
+            ],
+            if (isDesktop)
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _AuditLogsSection()),
+                  kSizedBoxWidth,
+                  Expanded(child: _LeavesSection()),
+                ],
+              )
+            else ...[
+              const _AuditLogsSection(),
+              kSizedBox,
+              const _LeavesSection(),
+            ],
+          ],
         );
       },
     );
   }
 
-  Widget _buildQuickNav() {
+  Widget _buildHeaderActions() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        OutlinedButton.icon(
+          onPressed: () {},
+          icon: const Icon(Iconsax.briefcase, size: 16),
+          label: const Text('Job Postings'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.textPrimary,
+            side: const BorderSide(color: AppColors.borderSubtle),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+          ),
+        ),
+        kSizedBoxWidth,
+        ElevatedButton.icon(
+          onPressed: () {},
+          icon: const Icon(Iconsax.user_add, size: 16),
+          label: const Text('Add Employee'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.textOnPrimary,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            elevation: 0,
+            shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickNavSection extends StatelessWidget {
+  const _QuickNavSection();
+
+  @override
+  Widget build(BuildContext context) {
     final perms = Get.find<PermissionService>();
     ModuleShortcutCard card({
       required IconData icon,
@@ -157,82 +186,34 @@ class _HRPageState extends State<HRPage> {
       ],
     );
   }
+}
 
-  // Header
-  Widget _buildHeader(bool isMobile) {
-    return PageHeader(
-      title: 'Human Resources',
-      subtitle:
-          'Manage employees, payroll, leave, training, and everything people-ops',
-      trailing: isMobile
-          ? null
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Iconsax.briefcase, size: 16),
-                  label: const Text('Job Postings'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textPrimary,
-                    side: const BorderSide(color: AppColors.borderSubtle),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 14),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadii.brMd,
-                    ),
-                    textStyle: AppText.bodyMd.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                kSizedBoxWidth,
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Iconsax.user_add, size: 16),
-                  label: const Text('Add Employee'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.textOnPrimary,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 14),
-                    elevation: 0,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadii.brMd,
-                    ),
-                    textStyle: AppText.bodyMd.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
+class _SummaryGridSection extends StatelessWidget {
+  const _SummaryGridSection();
 
-  // Summary grid
-  Widget _buildSummaryGrid() {
-    return ResponsiveStatRow(
+  @override
+  Widget build(BuildContext context) {
+    return const ResponsiveStatRow(
       cards: [
-        _buildStatCard(
+        _StatCard(
           title: 'Total Employees',
           count: '234',
           icon: Iconsax.people,
           accent: _accentGreen,
         ),
-        _buildStatCard(
+        _StatCard(
           title: 'New Hires (30 days)',
           count: '18',
           icon: Iconsax.user_add,
           accent: _accentBlue,
         ),
-        _buildStatCard(
+        _StatCard(
           title: 'Open Roles',
           count: '12',
           icon: Iconsax.briefcase,
           accent: _accentAmber,
         ),
-        _buildStatCard(
+        _StatCard(
           title: 'On Leave Today',
           count: '2',
           icon: Iconsax.calendar_remove,
@@ -241,13 +222,23 @@ class _HRPageState extends State<HRPage> {
       ],
     );
   }
+}
 
-  Widget _buildStatCard({
-    required String title,
-    required String count,
-    required IconData icon,
-    required Color accent,
-  }) {
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String count;
+  final IconData icon;
+  final Color accent;
+
+  const _StatCard({
+    required this.title,
+    required this.count,
+    required this.icon,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -286,9 +277,13 @@ class _HRPageState extends State<HRPage> {
       ),
     );
   }
+}
 
-  // Chart section
-  Widget _buildChartSection() {
+class _ChartSection extends StatelessWidget {
+  const _ChartSection();
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -302,8 +297,7 @@ class _HRPageState extends State<HRPage> {
                   color: _accentIndigo.withValues(alpha: 0.12),
                   borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Iconsax.chart_square,
-                    size: 18, color: _accentIndigo),
+                child: const Icon(Iconsax.chart_square, size: 18, color: _accentIndigo),
               ),
               const SizedBox(width: 12),
               const MyText('Headcount by Department', style: AppText.h3),
@@ -319,24 +313,19 @@ class _HRPageState extends State<HRPage> {
                 SizedBox(
                   height: 160,
                   width: 160,
-                  child: CustomPaint(
-                    painter: DonutChartPainter(),
-                  ),
+                  child: CustomPaint(painter: DonutChartPainter()),
                 ),
                 SizedBox(width: narrow ? 0 : 40, height: narrow ? 20 : 0),
-                Flexible(
+                const Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLegendItem(
-                          _accentIndigo, 'Development', '78 employees'),
-                      _buildLegendItem(
-                          _accentPurple, 'Marketing', '42 employees'),
-                      _buildLegendItem(_accentPink, 'Sales', '56 employees'),
-                      _buildLegendItem(
-                          _accentOrange, 'Operations', '35 employees'),
-                      _buildLegendItem(_accentTeal, 'Finance', '24 employees'),
-                      _buildLegendItem(_accentBlue, 'HR', '12 employees'),
+                      _LegendItem(_accentIndigo, 'Development', '78 employees'),
+                      _LegendItem(_accentPurple, 'Marketing', '42 employees'),
+                      _LegendItem(_accentPink, 'Sales', '56 employees'),
+                      _LegendItem(_accentOrange, 'Operations', '35 employees'),
+                      _LegendItem(_accentTeal, 'Finance', '24 employees'),
+                      _LegendItem(_accentBlue, 'HR', '12 employees'),
                     ],
                   ),
                 )
@@ -347,8 +336,17 @@ class _HRPageState extends State<HRPage> {
       ),
     );
   }
+}
 
-  Widget _buildLegendItem(Color color, String label, String sub) {
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+  final String sub;
+
+  const _LegendItem(this.color, this.label, this.sub);
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
@@ -369,17 +367,13 @@ class _HRPageState extends State<HRPage> {
                 Flexible(
                   child: MyText(
                     label,
-                    style: AppText.label.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
+                    style: AppText.label.copyWith(color: AppColors.textPrimary),
                   ),
                 ),
                 const SizedBox(width: 4),
                 MyText(
                   sub,
-                  style: AppText.bodySm.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -388,9 +382,13 @@ class _HRPageState extends State<HRPage> {
       ),
     );
   }
+}
 
-  // Birthdays section
-  Widget _buildBirthdaysSection() {
+class _BirthdaysSection extends StatelessWidget {
+  const _BirthdaysSection();
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -411,19 +409,23 @@ class _HRPageState extends State<HRPage> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildBirthdayTile(
-              'N', 'Nicky Fry', 'Designer', 'Apr 24', _accentPurple),
-          _buildBirthdayTile(
-              'R', 'Rick Fry', 'Developer', 'May 11', _accentPink),
-          _buildBirthdayTile(
-              'A', 'Alice Fry', 'Manager', 'May 06', _accentOrange),
+          const _BirthdayTile('N', 'Nicky Fry', 'Designer', 'Apr 24', _accentPurple),
+          const _BirthdayTile('R', 'Rick Fry', 'Developer', 'May 11', _accentPink),
+          const _BirthdayTile('A', 'Alice Fry', 'Manager', 'May 06', _accentOrange),
         ],
       ),
     );
   }
+}
 
-  Widget _buildBirthdayTile(
-      String init, String name, String role, String date, Color color) {
+class _BirthdayTile extends StatelessWidget {
+  final String init, name, role, date;
+  final Color color;
+
+  const _BirthdayTile(this.init, this.name, this.role, this.date, this.color);
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14.0),
       child: Row(
@@ -453,9 +455,7 @@ class _HRPageState extends State<HRPage> {
                 ),
                 MyText(
                   role,
-                  style: AppText.bodySm.copyWith(
-                    color: AppColors.textMuted,
-                  ),
+                  style: AppText.bodySm.copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -471,9 +471,13 @@ class _HRPageState extends State<HRPage> {
       ),
     );
   }
+}
 
-  // Audit logs
-  Widget _buildAuditLogsSection() {
+class _AuditLogsSection extends StatelessWidget {
+  const _AuditLogsSection();
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -487,26 +491,31 @@ class _HRPageState extends State<HRPage> {
                   color: AppColors.primarySubtle,
                   borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Iconsax.clipboard_text,
-                    size: 18, color: AppColors.primary),
+                child: const Icon(Iconsax.clipboard_text, size: 18, color: AppColors.primary),
               ),
               const SizedBox(width: 12),
               const MyText('Audit Logs', style: AppText.h3),
             ],
           ),
           const SizedBox(height: 20),
-          _buildAuditItem('Clark Changed Rose Ells', '08:12 AM', last: false),
-          _buildAuditItem('Garrett added a new employee', '06:45 AM',
-              last: false),
-          _buildAuditItem('Sophie generated Payroll Report', 'Yesterday',
-              last: false),
-          _buildAuditItem('System Backup completed', 'Yesterday', last: true),
+          const _AuditItem('Clark Changed Rose Ells', '08:12 AM', last: false),
+          const _AuditItem('Garrett added a new employee', '06:45 AM', last: false),
+          const _AuditItem('Sophie generated Payroll Report', 'Yesterday', last: false),
+          const _AuditItem('System Backup completed', 'Yesterday', last: true),
         ],
       ),
     );
   }
+}
 
-  Widget _buildAuditItem(String title, String time, {required bool last}) {
+class _AuditItem extends StatelessWidget {
+  final String title, time;
+  final bool last;
+
+  const _AuditItem(this.title, this.time, {required this.last});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14.0),
       child: Row(
@@ -517,17 +526,10 @@ class _HRPageState extends State<HRPage> {
               Container(
                 height: 8,
                 width: 8,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary,
-                ),
+                decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.primary),
               ),
               if (!last)
-                Container(
-                  width: 1,
-                  height: 32,
-                  color: AppColors.borderSubtle,
-                ),
+                Container(width: 1, height: 32, color: AppColors.borderSubtle),
             ],
           ),
           const SizedBox(width: 12),
@@ -543,12 +545,7 @@ class _HRPageState extends State<HRPage> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                MyText(
-                  time,
-                  style: AppText.caption.copyWith(
-                    color: AppColors.textMuted,
-                  ),
-                ),
+                MyText(time, style: AppText.caption.copyWith(color: AppColors.textMuted)),
               ],
             ),
           )
@@ -556,9 +553,13 @@ class _HRPageState extends State<HRPage> {
       ),
     );
   }
+}
 
-  // Leaves section
-  Widget _buildLeavesSection() {
+class _LeavesSection extends StatelessWidget {
+  const _LeavesSection();
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -572,24 +573,29 @@ class _HRPageState extends State<HRPage> {
                   color: _accentAmber.withValues(alpha: 0.12),
                   borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Iconsax.calendar_remove,
-                    size: 18, color: _accentAmber),
+                child: const Icon(Iconsax.calendar_remove, size: 18, color: _accentAmber),
               ),
               const SizedBox(width: 12),
               const MyText('Recent Leaves', style: AppText.h3),
             ],
           ),
           const SizedBox(height: 20),
-          _buildLeaveItem('David West', '2024-12-01 - 2024-12-14', 'Approved'),
-          _buildLeaveItem('Sarah Musa', '2024-12-01 - 2024-12-14', 'Pending'),
-          _buildLeaveItem(
-              'Benji Rider 1', '2024-12-01 - 2024-12-14', 'Rejected'),
+          const _LeaveItem('David West', '2024-12-01 - 2024-12-14', 'Approved'),
+          const _LeaveItem('Sarah Musa', '2024-12-01 - 2024-12-14', 'Pending'),
+          const _LeaveItem('Benji Rider 1', '2024-12-01 - 2024-12-14', 'Rejected'),
         ],
       ),
     );
   }
+}
 
-  Widget _buildLeaveItem(String name, String date, String status) {
+class _LeaveItem extends StatelessWidget {
+  final String name, date, status;
+
+  const _LeaveItem(this.name, this.date, this.status);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -612,12 +618,7 @@ class _HRPageState extends State<HRPage> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                MyText(
-                  date,
-                  style: AppText.caption.copyWith(
-                    color: AppColors.textMuted,
-                  ),
-                ),
+                MyText(date, style: AppText.caption.copyWith(color: AppColors.textMuted)),
               ],
             ),
           ),
@@ -628,15 +629,13 @@ class _HRPageState extends State<HRPage> {
   }
 }
 
-// Zero-dependency donut chart painter — uses the local accent palette.
 class DonutChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
     const strokeWidth = 30.0;
-    final rect =
-        Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+    final rect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
@@ -663,3 +662,4 @@ class DonutChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+

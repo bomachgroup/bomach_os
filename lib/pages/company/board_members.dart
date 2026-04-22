@@ -1,18 +1,27 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'controllers/company_controller.dart';
 import 'widget/shareholders_dialogs.dart';
 
+/// Board members management page — curated list of shareholders flagged
+/// as board members. Admins can add new members, edit roles, and remove
+/// existing ones.
 class BoardMembersPage extends StatefulWidget {
   const BoardMembersPage({super.key});
 
@@ -46,295 +55,337 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Board Members',
+        subtitle: 'Manage board members and their roles across the company.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Board Member',
+          onTap: () => showDialog(
+            context: context,
+            builder: (c) =>
+                const AddEditShareholderDialog(defaultIsBoardMember: true),
+          ),
+        ),
+      ),
       children: [
-        // Header
-        const MyText('Board Members', style: AppText.h4),
-        const SizedBox(height: 4),
-        const MyText(
-          'Manage board members and their roles',
-          size: 12,
-          color: Colors.grey,
-        ),
-        kSizedBox,
-
-        // Search + Add button
-        Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                width: 300,
-                child: MyTextFormField(
-                  controller: searchController,
-                  hintText: 'Search board members...',
-                  leading: const Icon(Iconsax.search_normal, color: Colors.grey),
-                  onChanged: (val) {
-                    controller.boardSearchQuery.value = val;
-                    setState(() => _currentPage = 1);
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            MyElevatedButton(
-              height: 40,
-              icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
-              child: "Add Board Member",
-              onTap: () => showDialog(
-                context: context,
-                builder: (c) =>
-                    const AddEditShareholderDialog(defaultIsBoardMember: true),
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-
-        // Content
+        _buildToolbar(),
         Obx(() {
-          if (controller.isShareholdersLoading.value &&
-              controller.shareholders.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-
+          final loading = controller.isShareholdersLoading.value &&
+              controller.shareholders.isEmpty;
           final filtered = controller.filteredBoardMembers;
-
-          if (filtered.isEmpty) {
-            return _buildEmptyState();
-          }
+          final isEmpty = !loading && filtered.isEmpty;
 
           final startIndex = (_currentPage - 1) * _pageSize;
           final endIndex = (startIndex + _pageSize).clamp(0, filtered.length);
-          final pageItems = filtered.sublist(startIndex, endIndex);
+          final pageItems = filtered.isEmpty
+              ? const <Shareholder>[]
+              : filtered.sublist(startIndex, endIndex);
 
-          return Column(
-            children: [
-              ...pageItems.asMap().entries.map(
-                    (entry) => _buildBoardMemberCard(entry.value, entry.key),
-                  ),
-              const SizedBox(height: 16),
-              PaginatorFooter(
-                totalItems: filtered.length,
-                limit: _pageSize,
-                currentPage: _currentPage,
-                onPageChanged: (page) => setState(() => _currentPage = page),
-                onLimitChanged: (newLimit) => setState(() {
-                  _pageSize = newLimit;
-                  _currentPage = 1;
-                }),
-              ),
-            ],
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            filtered: filtered,
+            body: _buildTable(pageItems, startIndex),
+            footer: (!loading && filtered.isNotEmpty)
+                ? _tablePaginator(
+                    PaginatorFooter(
+                      totalItems: filtered.length,
+                      limit: _pageSize,
+                      currentPage: _currentPage,
+                      onPageChanged: (page) =>
+                          setState(() => _currentPage = page),
+                      onLimitChanged: (newLimit) => setState(() {
+                        _pageSize = newLimit;
+                        _currentPage = 1;
+                      }),
+                    ),
+                  )
+                : null,
           );
         }),
       ],
     );
   }
 
-  Widget _buildEmptyState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 60),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
-      ),
-      child: Column(
-        children: [
-          Icon(Iconsax.people, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 12),
-          const MyText(
-            'No board members found',
-            size: 14,
-            color: Colors.grey,
-          ),
-          const SizedBox(height: 8),
-          const MyText(
-            'Add shareholders as board members to see them here',
-            size: 12,
-            color: Colors.grey,
-          ),
-        ],
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        controller: searchController,
+        hintText: 'Search board members by name, role or email',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (val) {
+          controller.boardSearchQuery.value = val;
+          setState(() => _currentPage = 1);
+        },
       ),
     );
   }
 
-  Widget _buildBoardMemberCard(Shareholder member, int index) {
-    final color = _avatarColor(index);
-
-    Color roleColor;
-    switch (member.titleDisplay.toLowerCase()) {
-      case 'founder':
-        roleColor = Colors.green;
-        break;
-      case 'co-founder':
-        roleColor = Colors.blue;
-        break;
-      case 'investor':
-        roleColor = Colors.orange;
-        break;
-      case 'director':
-        roleColor = Colors.purple;
-        break;
-      default:
-        roleColor = Colors.grey;
-    }
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
-      ),
-      child: Row(
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required List<Shareholder> filtered,
+    required Widget body,
+    Widget? footer,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Avatar
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: color.withValues(alpha: 0.15),
-            child: member.profilePicture != null
-                ? ClipOval(
-                    child: Image.network(
-                      member.profilePicture!,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Text(
-                        member.firstName.isNotEmpty
-                            ? member.firstName[0].toUpperCase()
-                            : '?',
-                        style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  )
-                : Text(
-                    member.firstName.isNotEmpty
-                        ? member.firstName[0].toUpperCase()
-                        : '?',
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-          ),
-          const SizedBox(width: 14),
-
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: MyText(
-                        member.fullName,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Board directory', style: AppText.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        loading
+                            ? 'Loading board members...'
+                            : '${filtered.length} board member${filtered.length == 1 ? '' : 's'} on record',
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: roleColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        member.titleDisplay.isNotEmpty
-                            ? member.titleDisplay
-                            : member.title,
-                        style: TextStyle(
-                          color: roleColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 4),
-                MyText(
-                  member.email,
-                  size: 12,
-                  color: Colors.grey[600]!,
+                const StatusChip(
+                  label: 'Governance council',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.people,
                 ),
               ],
             ),
           ),
-
-          // Status badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: member.isActive
-                  ? Colors.green.withValues(alpha: 0.1)
-                  : Colors.red.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              member.isActive ? 'Active' : 'Inactive',
-              style: TextStyle(
-                color: member.isActive ? Colors.green : Colors.red,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.people,
+                title: 'No board members yet',
+                subtitle:
+                    'Add shareholders as board members to populate this directory.',
+                action: MyOutlinedButton(
+                  child: 'New Board Member',
+                  icon: const Icon(Iconsax.add_circle,
+                      size: 18, color: AppColors.primary),
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) =>
+                        const AddEditShareholderDialog(defaultIsBoardMember: true),
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Actions
-          _buildActionButton(
-            icon: Iconsax.edit,
-            tooltip: 'Edit',
-            onTap: () => showDialog(
-              context: context,
-              builder: (c) => AddEditShareholderDialog(shareholder: member),
-            ),
-          ),
-          const SizedBox(width: 8),
-          _buildActionButton(
-            icon: Iconsax.trash,
-            tooltip: 'Remove',
-            onTap: () => _confirmDelete(member),
-          ),
+            )
+          else
+            body,
+          if (footer != null) ...[
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            footer,
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.borderSubtle),
-          borderRadius: BorderRadius.circular(8),
+  Widget _buildTable(List<Shareholder> pageItems, int startIndex) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Member', flex: 4),
+              _buildHeaderCell('Role', flex: 2),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 180),
+            ],
+          ),
         ),
-        child: Icon(icon, size: 18, color: Colors.grey[700]),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...pageItems
+            .asMap()
+            .entries
+            .map((e) => _buildMemberRow(e.value, startIndex + e.key)),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppText.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _tablePaginator(Widget child) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: child,
+    );
+  }
+
+  Widget _buildMemberRow(Shareholder member, int index) {
+    final color = _avatarColor(index);
+    final hasPicture =
+        member.profilePicture != null && member.profilePicture!.isNotEmpty;
+    final roleLabel = member.titleDisplay.isNotEmpty
+        ? member.titleDisplay
+        : (member.title.isNotEmpty ? member.title : 'Member');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: color.withValues(alpha: 0.15),
+                  backgroundImage:
+                      hasPicture ? NetworkImage(member.profilePicture!) : null,
+                  child: !hasPicture
+                      ? Text(
+                          member.firstName.isNotEmpty
+                              ? member.firstName[0].toUpperCase()
+                              : '?',
+                          style: AppText.label.copyWith(
+                            color: color,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        member.fullName,
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${member.sharePercentage}% share',
+                        style: AppText.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: roleLabel,
+                tone: StatusTone.primary,
+                dense: true,
+                icon: Iconsax.briefcase,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              member.email.isEmpty ? '—' : member.email,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: member.isActive ? 'Active' : 'Inactive',
+                tone: member.isActive
+                    ? StatusTone.success
+                    : StatusTone.neutral,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 180,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (c) => AddEditShareholderDialog(shareholder: member),
+                  ),
+                  icon: const Icon(Iconsax.edit, size: 16),
+                  label: const Text('Edit'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.borderStrong),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.brMd),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  tooltip: 'Remove',
+                  onPressed: () => _confirmDelete(member),
+                  icon: const Icon(Iconsax.trash,
+                      size: 18, color: AppColors.danger),
+                  style: IconButton.styleFrom(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.brMd,
+                      side: BorderSide(color: AppColors.borderSubtle),
+                    ),
+                    minimumSize: const Size(42, 42),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

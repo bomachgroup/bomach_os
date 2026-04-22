@@ -1,13 +1,14 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/pages/hr/widget/add_job_post_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import 'package:bms_front_end/pages/hr/widget/add_job_post_dialog.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'controller/applicant_controller.dart';
 import 'controller/jobposting_control.dart';
@@ -24,8 +25,8 @@ class JobPostPage extends StatefulWidget {
 
 class JobPostPageState extends State<JobPostPage> {
   final JobPostController controller = Get.put(JobPostController());
+  final RxString _selectedTab = 'Job Opening'.obs;
 
-  String _selectedTab = 'Job Opening';
   final List<String> _tabs = [
     'Pipeline',
     'Job Opening',
@@ -43,195 +44,114 @@ class JobPostPageState extends State<JobPostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final bool isMobile = constraints.maxWidth < 800;
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Header
-          _buildHeader(context, isMobile),
-
-          kSizedBox,
-
-          // 2. Tab Bar
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _tabs.map((tab) => _buildTabItem(tab)).toList(),
+    return Obx(() => PageScaffold(
+          header: PageHeader(
+            title: 'Recruitment',
+            subtitle:
+                'Manage job postings, pipelines, and onboarding processes.',
+            trailing: _buildHeaderActions(),
+          ),
+          children: [
+            // Tab Bar
+            AppCard(
+              padding: const EdgeInsets.all(8),
+              elevation: AppCardElevation.sm,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _tabs.map((tab) => _buildTabItem(tab)).toList(),
+                ),
+              ),
             ),
-          ),
 
-          kSizedBox,
-
-          // 3. Body Content
-          // FIX: Replaced Expanded with a specific Container/SizedBox.
-          // We use a fixed height for the Kanban/Tables to prevent unbounded height error.
-          SizedBox(
-            height: 650, // Give it enough height for the Kanban board
-            child: _buildBodyContent(context, constraints, isMobile),
-          ),
-        ],
-      );
-    });
+            // Body content
+            _buildBodyContent(),
+          ],
+        ));
   }
 
-  // --- Header & Navigation Logic ---
-
-  Widget _buildHeader(BuildContext context, bool isMobile) {
-    bool showJobPostingsBtn = true;
+  Widget _buildHeaderActions() {
     String mainBtnText = 'Post Job';
+    IconData mainBtnIcon = Iconsax.add_circle;
     Color mainBtnColor = AppColors.primary;
-    Color mainBtnTextColor = Colors.white;
-    IconData mainBtnIcon = CupertinoIcons.add;
-    bool isOutlinedMain = false;
-    VoidCallback onMainAction = () {
+
+    void onMainAction() {
       controller.clearForm();
       showDialog(context: context, builder: (_) => const AddJobPostDialog());
-    };
+    }
 
-    if (_selectedTab == 'Pipeline') {
-      showJobPostingsBtn = false;
+    if (_selectedTab.value == 'Pipeline') {
       mainBtnText = 'Add Candidate';
-      onMainAction = () {};
-    } else if (_selectedTab == 'Onboarding') {
-      showJobPostingsBtn = true;
+    } else if (_selectedTab.value == 'Onboarding') {
       mainBtnText = 'Add Staff';
-      onMainAction = () {};
-    } else if (_selectedTab == 'Offboarding') {
-      showJobPostingsBtn = false;
+    } else if (_selectedTab.value == 'Offboarding') {
       mainBtnText = 'Initiate Exit';
-      mainBtnColor = Colors.red;
-      mainBtnTextColor = Colors.red;
-      isOutlinedMain = true;
-      onMainAction = () {};
+      mainBtnColor = AppColors.danger;
+      mainBtnIcon = Iconsax.logout;
     }
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        const MyText(
-          'Recruitment',
-          style: AppText.displayLg,
-        ),
-        if (!isMobile)
-          Row(
-            children: [
-              if (showJobPostingsBtn) ...[
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: AppColors.white,
-                    side: BorderSide(color: Colors.grey.shade300),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 18),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: const MyText('Job Postings',
-                      style: TextStyle(color: Colors.black87)),
-                ),
-                kSizedBoxWidth,
-              ],
-              isOutlinedMain
-                  ? OutlinedButton.icon(
-                      onPressed: onMainAction,
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: mainBtnColor),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 18),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      icon:
-                          Icon(mainBtnIcon, color: mainBtnTextColor, size: 18),
-                      label: MyText(mainBtnText,
-                          style: TextStyle(
-                              color: mainBtnTextColor,
-                              fontWeight: FontWeight.w600)),
-                    )
-                  : ElevatedButton.icon(
-                      onPressed: onMainAction,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: mainBtnColor,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 18),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      icon:
-                          Icon(mainBtnIcon, color: mainBtnTextColor, size: 18),
-                      label: MyText(mainBtnText,
-                          style: TextStyle(
-                              color: mainBtnTextColor,
-                              fontWeight: FontWeight.w600)),
-                    ),
-            ],
-          )
-        else
-          IconButton(
-            onPressed: onMainAction,
-            icon: Icon(
-              isOutlinedMain
-                  ? Iconsax.logout_1
-                  : CupertinoIcons.add_circled_solid,
-              color: mainBtnColor,
-              size: 30,
+        if (_selectedTab.value == 'Job Opening' ||
+            _selectedTab.value == 'Onboarding') ...[
+          OutlinedButton(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
-          )
+            child: const Text('View All Postings'),
+          ),
+          const SizedBox(width: 12),
+        ],
+        MyElevatedButton(
+          height: 48,
+          bgColor: mainBtnColor,
+          icon: Icon(mainBtnIcon, color: AppColors.white, size: 18),
+          child: mainBtnText,
+          onTap: onMainAction,
+        ),
       ],
     );
   }
 
   Widget _buildTabItem(String title) {
-    final bool isSelected = _selectedTab == title;
-    return Padding(
-      padding: const EdgeInsets.only(right: 12.0),
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            _selectedTab = title;
-          });
-        },
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color:
-                  isSelected ? AppColors.primary : Colors.grey.shade300,
-            ),
-          ),
-          child: Text(
-            title,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black87,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+    final bool isSelected = _selectedTab.value == title;
+    return GestureDetector(
+      onTap: () => _selectedTab.value = title,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          title,
+          style: AppText.bodySm.copyWith(
+            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBodyContent(
-      BuildContext context, BoxConstraints constraints, bool isMobile) {
-    switch (_selectedTab) {
+  Widget _buildBodyContent() {
+    switch (_selectedTab.value) {
       case 'Pipeline':
         return const PipelineTab();
       case 'Onboarding':
         return const OnboardingTab();
       case 'Offboarding':
         return const OffboardingTab();
-      case 'Job Opening':
       default:
-        return _JobOpeningTable(
-            controller: controller,
-            constraints: constraints,
-            isMobile: isMobile);
+        // Pass controller to the table
+        return _JobOpeningTable(controller: controller);
     }
   }
 }
@@ -241,14 +161,8 @@ class JobPostPageState extends State<JobPostPage> {
 // ==============================================================================
 class _JobOpeningTable extends StatelessWidget {
   final JobPostController controller;
-  final BoxConstraints constraints;
-  final bool isMobile;
 
-  const _JobOpeningTable({
-    required this.controller,
-    required this.constraints,
-    required this.isMobile,
-  });
+  const _JobOpeningTable({required this.controller});
 
   String _formatEnum(String text) {
     if (text.isEmpty) return 'N/A';
@@ -261,134 +175,105 @@ class _JobOpeningTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Scrollable Table
-          // FIX: Removed Expanded here to avoid conflict
-          Scrollbar(
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: isMobile ? 800 : constraints.maxWidth - 32,
-                ),
-                child: Obx(() {
-                  if (controller.isLoading.value) {
-                    return const Padding(
-                      padding: EdgeInsets.all(40.0),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Obx(() {
+        if (controller.isLoading.value) {
+          return const Padding(
+            padding: EdgeInsets.all(48.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-                  if (controller.jobList.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(40.0),
-                      child: Center(child: MyText("No job postings found.")),
-                    );
-                  }
+        if (controller.jobList.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(48.0),
+            child: Center(child: MyText("No job postings found.")),
+          );
+        }
 
-                  return DataTable(
-                    headingRowHeight: 60,
-                    dataRowMinHeight: 70,
-                    dataRowMaxHeight: 70,
-                    columnSpacing: 20,
-                    horizontalMargin: 24,
-                    headingTextStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                      fontSize: 14,
-                    ),
-                    dividerThickness: 0.5,
-                    columns: const [
-                      DataColumn(label: MyText("Job Title")),
-                      DataColumn(label: MyText("Department")),
-                      DataColumn(label: MyText("Location")),
-                      DataColumn(label: MyText("Type")),
-                      DataColumn(label: MyText("Vacancies")),
-                      DataColumn(label: MyText("Status")),
-                      DataColumn(label: MyText("Action")),
-                    ],
-                    rows: _createRows(context, controller.jobList),
-                  );
-                }),
+        return Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              headingRowHeight: 56,
+              dataRowMinHeight: 64,
+              dataRowMaxHeight: 64,
+              columnSpacing: 24,
+              horizontalMargin: 24,
+              headingTextStyle: AppText.bodySm.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
               ),
+              dividerThickness: 1,
+              columns: const [
+                DataColumn(label: Text("Job Title")),
+                DataColumn(label: Text("Department")),
+                DataColumn(label: Text("Location")),
+                DataColumn(label: Text("Type")),
+                DataColumn(label: Text("Vacancies")),
+                DataColumn(label: Text("Status")),
+                DataColumn(label: Text("Action")),
+              ],
+              rows: _createRows(context, controller.jobList),
             ),
           ),
-        ],
-      ),
+        );
+      }),
     );
   }
 
   List<DataRow> _createRows(BuildContext context, List<JobPosting> jobs) {
     return jobs.map((job) {
       final bool isActive = job.status.toLowerCase() == 'active';
-      final Color statusColor = isActive ? Colors.green : Colors.grey;
-      final Color statusBg = isActive
-          ? Colors.green.withValues(alpha: 0.1)
-          : Colors.grey.withValues(alpha: 0.1);
+      final Color statusColor =
+          isActive ? AppColors.success : AppColors.neutral400;
+      final Color statusBg = statusColor.withValues(alpha: 0.1);
       final String statusText = isActive ? 'Active' : 'Draft';
 
       return DataRow(cells: <DataCell>[
+        DataCell(MyText(job.title,
+            size: 14, weight: 600, color: AppColors.textPrimary)),
         DataCell(
-            MyText(job.title, size: 14, weight: 600, color: Colors.black87)),
-        DataCell(MyText(job.departmentId,
-            size: 14, weight: 600, color: Colors.black87)),
+            MyText(job.departmentId, size: 14, color: AppColors.textSecondary)),
         DataCell(
-            MyText(job.branchId, size: 14, weight: 600, color: Colors.black87)),
+            MyText(job.branchId, size: 14, color: AppColors.textSecondary)),
         DataCell(MyText(_formatEnum(job.jobType),
-            size: 14, weight: 600, color: Colors.black87)),
-        const DataCell(
-            MyText("2", size: 14, weight: 600, color: Colors.black87)),
+            size: 14, color: AppColors.textSecondary)),
+        const DataCell(MyText("2", size: 14, color: AppColors.textSecondary)),
         DataCell(
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: statusBg,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                        color: statusColor, shape: BoxShape.circle)),
-                const SizedBox(width: 8),
-                MyText(statusText,
-                    size: 12, weight: 600, color: Colors.black54),
+                  width: 6,
+                  height: 6,
+                  decoration:
+                      BoxDecoration(color: statusColor, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 6),
+                MyText(statusText, size: 12, weight: 600, color: statusColor),
               ],
             ),
           ),
         ),
         DataCell(
-          InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Iconsax.more,
+                size: 18, color: AppColors.textSecondary),
+            style: IconButton.styleFrom(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white,
-              ),
-              child: const Icon(Iconsax.more, size: 18, color: Colors.grey),
+              backgroundColor: AppColors.neutral100,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
           ),
         ),
@@ -397,6 +282,9 @@ class _JobOpeningTable extends StatelessWidget {
   }
 }
 
+// ==============================================================================
+// 2. PIPELINE TAB
+// ==============================================================================
 class PipelineTab extends StatelessWidget {
   const PipelineTab({super.key});
 
@@ -405,10 +293,11 @@ class PipelineTab extends StatelessWidget {
     final ApplicantController controller = Get.put(ApplicantController());
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildFilterBar(context),
-        kSizedBox,
-        Expanded(
+        // Kanban Board
+        SizedBox(
+          height: 600, // Fixed height for Kanban area
           child: Obx(() {
             if (controller.isLoading.value) {
               return const Center(child: CircularProgressIndicator());
@@ -420,141 +309,139 @@ class PipelineTab extends StatelessWidget {
 
             return Scrollbar(
               thumbVisibility: true,
-              child: SingleChildScrollView(
+              child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildKanbanColumn(context,
-                        title: 'Applied',
-                        applicants: controller.appliedApplicants),
-                    _buildKanbanColumn(context,
-                        title: 'Shortlisted',
-                        applicants: controller.shortlistedApplicants),
-                    _buildKanbanColumn(context,
-                        title: 'Interviewed',
-                        applicants: controller.interviewedApplicants),
-                    _buildKanbanColumn(context,
-                        title: 'Hired', applicants: controller.hiredApplicants),
-                  ],
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                children: [
+                  _buildKanbanColumn(context,
+                      title: 'Applied',
+                      applicants: controller.appliedApplicants),
+                  _buildKanbanColumn(context,
+                      title: 'Shortlisted',
+                      applicants: controller.shortlistedApplicants),
+                  _buildKanbanColumn(context,
+                      title: 'Interviewed',
+                      applicants: controller.interviewedApplicants),
+                  _buildKanbanColumn(context,
+                      title: 'Hired', applicants: controller.hiredApplicants),
+                ],
               ),
             );
           }),
         ),
-        // Paginator (Using simplified version or your custom one)
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(12),
+
+        const SizedBox(height: 16),
+
+        // Paginator
+        AppCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              const Text("Page 1 of 1", style: AppText.bodySm),
+              const SizedBox(width: 16),
               IconButton(
-                  onPressed: () {}, icon: const Icon(Iconsax.arrow_left_2)),
-              const Text("Page 1 of 1"),
+                  onPressed: () {},
+                  icon: const Icon(Iconsax.arrow_left_2, size: 20)),
               IconButton(
-                  onPressed: () {}, icon: const Icon(Iconsax.arrow_right_3)),
+                  onPressed: () {},
+                  icon: const Icon(Iconsax.arrow_right_3, size: 20)),
             ],
           ),
-        )
+        ),
       ],
     );
-  }
-
-  Widget _buildFilterBar(BuildContext context) {
-    return Container(); // Placeholder for brevity
   }
 
   Widget _buildKanbanColumn(BuildContext context,
       {required String title, required List<Applicant> applicants}) {
     return Container(
       width: 320,
-      margin: const EdgeInsets.only(right: 24),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.neutral50,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      margin: const EdgeInsets.only(right: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              MyText(title, weight: 600, size: 16),
+              MyText(title,
+                  weight: 700, size: 16, color: AppColors.textPrimary),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
                 ),
-                child: MyText('${applicants.length}', size: 12, weight: 600),
+                child: MyText('${applicants.length}',
+                    size: 12, weight: 700, color: AppColors.primary),
               )
             ],
           ),
           const SizedBox(height: 16),
-          if (applicants.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Center(
-                  child: Text("No candidates",
-                      style: TextStyle(color: Colors.grey[400]))),
-            )
-          else
-            ...applicants.map((app) => _buildCandidateCard(context, app)),
+          Expanded(
+            child: AppCard(
+              backgroundColor: AppColors.neutral100,
+              padding: const EdgeInsets.all(12),
+              child: applicants.isEmpty
+                  ? Center(
+                      child: Text("No candidates",
+                          style: AppText.bodySm
+                              .copyWith(color: AppColors.textSecondary)))
+                  : ListView.separated(
+                      itemCount: applicants.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) =>
+                          _buildCandidateCard(context, applicants[index]),
+                    ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildCandidateCard(BuildContext context, Applicant app) {
-    return InkWell(
+    return AppCard(
       onTap: () {
         showDialog(
           context: context,
           builder: (context) => ViewJobApplicantDialog(applicant: app),
         );
       },
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 5,
-                offset: const Offset(0, 2)),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MyText('${app.firstName} ${app.lastName}', weight: 700, size: 15),
-            const SizedBox(height: 4),
-            MyText(app.jobPostingId,
-                color: AppColors.primary, weight: 500, size: 13),
-            const SizedBox(height: 12),
-            Container(height: 1, color: Colors.grey.shade100),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                MyText(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MyText('${app.firstName} ${app.lastName}',
+              weight: 700, size: 15, color: AppColors.textPrimary),
+          const SizedBox(height: 4),
+          MyText(app.jobPostingId,
+              color: AppColors.primary, weight: 600, size: 13),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Iconsax.calendar,
+                      size: 14, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
+                  MyText(
                     app.createdAt != null
                         ? "${app.createdAt!.day}/${app.createdAt!.month}/${app.createdAt!.year}"
                         : "N/A",
-                    color: Colors.grey.shade500,
-                    size: 12),
-                // Rating stars if needed
-              ],
-            ),
-          ],
-        ),
+                    color: AppColors.textSecondary,
+                    size: 12,
+                  ),
+                ],
+              ),
+              const Icon(Iconsax.more,
+                  size: 16, color: AppColors.textSecondary),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -566,7 +453,7 @@ class OnboardingTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<_OnboardingEmployee> employees = [
-      _OnboardingEmployee(
+      const _OnboardingEmployee(
           name: 'Peace Chukwu',
           id: 'RS9DGB33',
           department: 'Engineering',
@@ -574,7 +461,7 @@ class OnboardingTab extends StatelessWidget {
           hireDate: '25-12-2024',
           progress: 1.0,
           status: 'In-Progress'),
-      _OnboardingEmployee(
+      const _OnboardingEmployee(
           name: 'Peace Chukwu',
           id: 'RS9DGB33',
           department: 'Marketing',
@@ -582,7 +469,7 @@ class OnboardingTab extends StatelessWidget {
           hireDate: '25-12-2024',
           progress: 0.67,
           status: 'In-Progress'),
-      _OnboardingEmployee(
+      const _OnboardingEmployee(
           name: 'Peace Chukwu',
           id: 'RS9DGB33',
           department: 'Operations',
@@ -626,12 +513,12 @@ class OnboardingTab extends StatelessWidget {
                       fontSize: 14),
                   dividerThickness: 0.5,
                   columns: const [
-                    DataColumn(label: MyText("Employee")),
-                    DataColumn(label: MyText("Department")),
-                    DataColumn(label: MyText("Location")),
-                    DataColumn(label: MyText("Hire Date")),
-                    DataColumn(label: MyText("Status")),
-                    DataColumn(label: MyText("Action")),
+                    DataColumn(label: Text("Employee")),
+                    DataColumn(label: Text("Department")),
+                    DataColumn(label: Text("Location")),
+                    DataColumn(label: Text("Hire Date")),
+                    DataColumn(label: Text("Status")),
+                    DataColumn(label: Text("Action")),
                   ],
                   rows: employees.map((e) => _buildRow(e)).toList(),
                 ),
@@ -646,20 +533,22 @@ class OnboardingTab extends StatelessWidget {
   DataRow _buildRow(_OnboardingEmployee e) {
     return DataRow(cells: [
       DataCell(Row(children: [
-        const CircleAvatar(radius: 20, backgroundColor: Colors.grey),
+        const CircleAvatar(radius: 18, backgroundColor: AppColors.neutral200),
         const SizedBox(width: 12),
         Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              MyText(e.name, weight: 600, size: 14),
-              const SizedBox(height: 4),
-              MyText(e.id, weight: 600, size: 12, color: Colors.black54),
+              MyText(e.name,
+                  weight: 600, size: 14, color: AppColors.textPrimary),
+              const SizedBox(height: 2),
+              MyText(e.id,
+                  weight: 500, size: 12, color: AppColors.textSecondary),
             ])
       ])),
-      DataCell(MyText(e.department, weight: 600, size: 14)),
-      DataCell(MyText(e.location, weight: 600, size: 14)),
-      DataCell(MyText(e.hireDate, weight: 600, size: 14)),
+      DataCell(MyText(e.department, size: 14, color: AppColors.textSecondary)),
+      DataCell(MyText(e.location, size: 14, color: AppColors.textSecondary)),
+      DataCell(MyText(e.hireDate, size: 14, color: AppColors.textSecondary)),
       DataCell(SizedBox(
           width: 140,
           child: Column(
@@ -670,16 +559,18 @@ class OnboardingTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                         value: e.progress,
-                        backgroundColor: Colors.grey.shade200,
+                        backgroundColor: AppColors.neutral100,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            e.progress == 1.0 ? Colors.green : Colors.amber),
+                            e.progress == 1.0
+                                ? AppColors.success
+                                : AppColors.warning),
                         minHeight: 6)),
                 const SizedBox(height: 8),
                 Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: AppColors.neutral100,
                         borderRadius: BorderRadius.circular(6)),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       Container(
@@ -688,26 +579,28 @@ class OnboardingTab extends StatelessWidget {
                           decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: e.progress == 1.0
-                                  ? Colors.green
-                                  : Colors.amber)),
+                                  ? AppColors.success
+                                  : AppColors.warning)),
                       const SizedBox(width: 6),
-                      MyText(e.status, size: 11, color: Colors.grey.shade700),
+                      MyText(e.status,
+                          size: 11,
+                          color: AppColors.textSecondary,
+                          weight: 600),
                       const SizedBox(width: 4),
-                      Icon(Iconsax.arrow_down_1,
-                          size: 14, color: Colors.grey.shade500)
+                      const Icon(Iconsax.arrow_down_1,
+                          size: 14, color: AppColors.textSecondary)
                     ]))
               ]))),
-      DataCell(InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.white),
-              child:
-                  const Icon(Iconsax.more, size: 18, color: Colors.grey)))),
+      DataCell(IconButton(
+        onPressed: () {},
+        icon:
+            const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
+        style: IconButton.styleFrom(
+          padding: const EdgeInsets.all(8),
+          backgroundColor: AppColors.neutral100,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      )),
     ]);
   }
 }
@@ -715,7 +608,7 @@ class OnboardingTab extends StatelessWidget {
 class _OnboardingEmployee {
   final String name, id, department, location, hireDate, status;
   final double progress;
-  _OnboardingEmployee(
+  const _OnboardingEmployee(
       {required this.name,
       required this.id,
       required this.department,
@@ -733,7 +626,7 @@ class OffboardingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<_OffboardingEmployee> employees = [
+    const List<_OffboardingEmployee> employees = [
       _OffboardingEmployee(
           name: 'Peace Chukwu',
           id: 'RS9DGB33',
@@ -757,111 +650,93 @@ class OffboardingTab extends StatelessWidget {
           status: 'In-Progress'),
     ];
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Scrollbar(
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 1000),
-                child: DataTable(
-                  headingRowHeight: 60,
-                  dataRowMinHeight: 80,
-                  dataRowMaxHeight: 80,
-                  columnSpacing: 24,
-                  horizontalMargin: 24,
-                  headingTextStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                      fontSize: 14),
-                  dividerThickness: 0.5,
-                  columns: const [
-                    DataColumn(label: MyText("Employee")),
-                    DataColumn(label: MyText("Department")),
-                    DataColumn(label: MyText("Exit Date")),
-                    DataColumn(label: MyText("Reason")),
-                    DataColumn(label: MyText("Status")),
-                    DataColumn(label: MyText("Action")),
-                  ],
-                  rows: employees.map((e) => _buildRow(e)).toList(),
-                ),
-              ),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Scrollbar(
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            headingRowHeight: 56,
+            dataRowMinHeight: 72,
+            dataRowMaxHeight: 72,
+            columnSpacing: 24,
+            horizontalMargin: 24,
+            headingTextStyle: AppText.bodySm.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
             ),
+            dividerThickness: 1,
+            columns: const [
+              DataColumn(label: Text("Employee")),
+              DataColumn(label: Text("Department")),
+              DataColumn(label: Text("Exit Date")),
+              DataColumn(label: Text("Reason")),
+              DataColumn(label: Text("Status")),
+              DataColumn(label: Text("Action")),
+            ],
+            rows: employees.map((e) => _buildRow(e)).toList(),
           ),
-        ],
+        ),
       ),
     );
   }
 
   DataRow _buildRow(_OffboardingEmployee e) {
     final bool isCompleted = e.status == 'Completed';
-    final Color statusColor = isCompleted ? Colors.green : Colors.amber;
-    final Color statusBg = isCompleted
-        ? Colors.green.withValues(alpha: 0.1)
-        : Colors.amber.withValues(alpha: 0.1);
+    final Color statusColor =
+        isCompleted ? AppColors.success : AppColors.warning;
+    final Color statusBg = statusColor.withValues(alpha: 0.1);
 
     return DataRow(cells: [
       DataCell(Row(children: [
-        const CircleAvatar(radius: 20, backgroundColor: Colors.grey),
+        const CircleAvatar(radius: 18, backgroundColor: AppColors.neutral200),
         const SizedBox(width: 12),
         Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              MyText(e.name, weight: 600, size: 14),
-              const SizedBox(height: 4),
-              MyText(e.id, weight: 600, size: 12, color: Colors.black54),
+              MyText(e.name,
+                  weight: 600, size: 14, color: AppColors.textPrimary),
+              const SizedBox(height: 2),
+              MyText(e.id,
+                  weight: 500, size: 12, color: AppColors.textSecondary),
             ])
       ])),
-      DataCell(MyText(e.department, weight: 600, size: 14)),
-      DataCell(MyText(e.exitDate, weight: 600, size: 14)),
-      DataCell(MyText(e.reason, weight: 700, size: 14)),
+      DataCell(MyText(e.department, size: 14, color: AppColors.textSecondary)),
+      DataCell(MyText(e.exitDate, size: 14, color: AppColors.textSecondary)),
+      DataCell(MyText(e.reason,
+          weight: 600, size: 14, color: AppColors.textPrimary)),
       DataCell(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-              color: statusBg, borderRadius: BorderRadius.circular(20)),
+              color: statusBg, borderRadius: BorderRadius.circular(12)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Container(
-                width: 8,
-                height: 8,
+                width: 6,
+                height: 6,
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: statusColor)),
-            const SizedBox(width: 8),
-            MyText(e.status, size: 12, color: Colors.black54, weight: 600),
+            const SizedBox(width: 6),
+            MyText(e.status, size: 12, color: statusColor, weight: 600),
           ]))),
-      DataCell(InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.white),
-              child:
-                  const Icon(Iconsax.more, size: 18, color: Colors.grey)))),
+      DataCell(IconButton(
+        onPressed: () {},
+        icon:
+            const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
+        style: IconButton.styleFrom(
+          padding: const EdgeInsets.all(8),
+          backgroundColor: AppColors.neutral100,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      )),
     ]);
   }
 }
 
 class _OffboardingEmployee {
   final String name, id, department, exitDate, reason, status;
-  _OffboardingEmployee(
+  const _OffboardingEmployee(
       {required this.name,
       required this.id,
       required this.department,

@@ -1,18 +1,23 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/pages/hr/widget/add_associate_dialog.dart';
+import 'package:bms_front_end/pages/hr/widget/view_associate_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/model/employees_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
-import '../../src/model/employees_model.dart';
 import 'controller/associate_controller.dart';
-import 'widget/add_associate_dialog.dart';
-import 'widget/view_associate_dialog.dart';
 
 class AssociatesPage extends StatefulWidget {
   const AssociatesPage({super.key});
@@ -24,12 +29,19 @@ class AssociatesPage extends StatefulWidget {
 class _AssociatesPageState extends State<AssociatesPage> {
   final AssociatesController controller = Get.put(AssociatesController());
   final _storage = const FlutterSecureStorage();
-  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -46,222 +58,348 @@ class _AssociatesPageState extends State<AssociatesPage> {
     return token.replaceAll('"', '').trim();
   }
 
+  Future<void> _openAddDialog() async {
+    final token = await _getToken(context);
+    if (token != null && mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AddAssociateDialog(token: token),
+      );
+    }
+  }
+
+  List<Employee> _filterAssociates(List<Employee> associates) {
+    if (_searchQuery.isEmpty) return associates;
+    final q = _searchQuery.toLowerCase();
+    return associates.where((a) {
+      return a.firstName.toLowerCase().contains(q) ||
+          a.lastName.toLowerCase().contains(q) ||
+          a.email.toLowerCase().contains(q) ||
+          (a.phoneNumber ?? '').toLowerCase().contains(q) ||
+          (a.employmentType ?? '').toLowerCase().contains(q);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Associates',
+        subtitle: 'Manage external partners and associates',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Associate',
+          onTap: _openAddDialog,
+        ),
+      ),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Associates',
-                        style: AppText.displayLg,
-                      ),
-                      SizedBox(height: 8),
-                      MyText(
-                        'Manage external partners and associates',
-                        size: 14,
-                        weight: 400,
-                        color: AppColors.neutral500,
-                      ),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Iconsax.add_circle,
-                      color: AppColors.white,
-                    ),
-                    child: "New Associate",
-                    onTap: () async {
-                      final token = await _getToken(context);
-                      if (token != null && context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AddAssociateDialog(token: token);
-                          },
-                        );
-                      }
-                    },
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 250,
-                    child: MyTextFormField(
-                      hintText: 'Search associates...',
-                      leading: Icon(
-                        Iconsax.search_normal,
-                        color: AppColors.neutral500.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: _loadData,
-                    icon: const Icon(Iconsax.refresh),
-                    tooltip: 'Refresh',
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: MediaQuery.of(context).size.width - 100,
-                    ),
-                    child: Obx(() {
-                      if (controller.isLoading.value) {
-                        return const Center(
-                            child: Padding(
-                                padding: EdgeInsets.all(20),
-                                child: CircularProgressIndicator()));
-                      }
+        _buildToolbar(),
+        Obx(() {
+          final loading =
+              controller.isLoading.value && controller.associateList.isEmpty;
+          final filtered = _filterAssociates(controller.associateList);
+          final isEmpty = !controller.isLoading.value && filtered.isEmpty;
 
-                      if (controller.associateList.isEmpty) {
-                        return const Center(
-                            child: Padding(
-                                padding: EdgeInsets.all(20),
-                                child: Text("No associates found.")));
-                      }
-
-                      return DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows: _createRows(context, controller.associateList),
-                        showBottomBorder: true,
-                      );
-                    }),
-                  ),
-                ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
-        ),
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            totalCount: controller.associateList.length,
+            body: _buildTable(filtered),
+          );
+        }),
       ],
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(label: MyText('Name')),
-      const DataColumn(label: MyText('Email')),
-      const DataColumn(label: MyText('Role/Type')),
-      const DataColumn(label: MyText('Phone')),
-      const DataColumn(label: MyText('Status')),
-      const DataColumn(label: MyText('Action')),
-    ];
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: Row(
+        children: [
+          Expanded(
+            child: MyTextFormField(
+              controller: _searchController,
+              hintText: 'Search associates by name, email or role',
+              height: 48,
+              leading: const Icon(Iconsax.search_normal,
+                  size: 18, color: AppColors.textMuted),
+              onChanged: (v) => setState(() => _searchQuery = v),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Material(
+            color: AppColors.surface,
+            borderRadius: AppRadii.brMd,
+            child: InkWell(
+              onTap: _loadData,
+              borderRadius: AppRadii.brMd,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Iconsax.refresh,
+                    size: 18, color: AppColors.textSecondary),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  List<DataRow> _createRows(BuildContext context, List<Employee> associates) {
-    return associates.map((associate) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          Row(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.background,
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required int totalCount,
+    required Widget body,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Associate directory', style: AppText.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        loading
+                            ? 'Loading associates...'
+                            : '$totalCount associate${totalCount == 1 ? '' : 's'} on record',
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                width: 36,
-                height: 36,
-                child: associate.profilePicture != null
-                    ? CircleAvatar(
-                        backgroundImage:
-                            NetworkImage(associate.profilePicture!))
-                    : Center(
-                        child: Text(associate.firstName.isNotEmpty
-                            ? associate.firstName[0]
-                            : 'A')),
+                const StatusChip(
+                  label: 'External partners',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.people,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.people,
+                title: 'No associates yet',
+                subtitle:
+                    'Add external partners, surveyors, lawyers and consultants.',
+                action: MyElevatedButton(
+                  height: 44,
+                  icon: const Icon(Iconsax.add_circle,
+                      color: AppColors.textOnPrimary, size: 18),
+                  child: 'New Associate',
+                  onTap: _openAddDialog,
+                ),
               ),
-              const SizedBox(width: 8),
-              MyText(
-                "${associate.firstName} ${associate.lastName}",
-                size: 14,
-                weight: 500,
-              ),
+            )
+          else
+            body,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTable(List<Employee> items) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Associate', flex: 4),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Role', flex: 2),
+              _buildHeaderCell('Phone', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 80),
             ],
           ),
         ),
-        DataCell(MyText(associate.email)),
-        DataCell(MyText(associate.employmentType ?? '-')),
-        DataCell(MyText(associate.phoneNumber ?? '-')),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                width: 0.6,
-                color: associate.isActive ? AppColors.success : AppColors.danger,
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...items.map(_buildAssociateRow),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppText.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildAssociateRow(Employee associate) {
+    final hasPicture = associate.profilePicture != null &&
+        associate.profilePicture!.isNotEmpty;
+    final initials = associate.firstName.isNotEmpty
+        ? associate.firstName[0].toUpperCase()
+        : '?';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.primarySubtle,
+                  backgroundImage:
+                      hasPicture ? NetworkImage(associate.profilePicture!) : null,
+                  child: !hasPicture
+                      ? Text(
+                          initials,
+                          style: AppText.label.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${associate.firstName} ${associate.lastName}',
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if ((associate.employmentType ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          associate.employmentType!,
+                          style: AppText.bodySm.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              associate.email.isEmpty ? '—' : associate.email,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: (associate.employmentType ?? '-').isEmpty
+                    ? '-'
+                    : associate.employmentType!,
+                tone: StatusTone.primary,
+                dense: true,
               ),
-              color: (associate.isActive ? AppColors.success : AppColors.danger)
-                  .withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: MyText(
-              associate.isActive ? 'Active' : 'Inactive',
-              size: 12,
-              weight: 500,
-              color: associate.isActive ? AppColors.success : AppColors.danger,
             ),
           ),
-        ),
-        DataCell(
-          IconButton(
-            icon: const Icon(Iconsax.eye, color: AppColors.primary),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (c) => ViewAssociateDialog(associate: associate),
-              );
-            },
+          Expanded(
+            flex: 2,
+            child: Text(
+              (associate.phoneNumber ?? '').isEmpty
+                  ? '—'
+                  : associate.phoneNumber!,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-      ]);
-    }).toList();
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: associate.isActive ? 'Active' : 'Inactive',
+                tone: associate.isActive
+                    ? StatusTone.success
+                    : StatusTone.neutral,
+                dense: true,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 80,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Material(
+                color: AppColors.surface,
+                borderRadius: AppRadii.brMd,
+                child: InkWell(
+                  borderRadius: AppRadii.brMd,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (c) =>
+                          ViewAssociateDialog(associate: associate),
+                    );
+                  },
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.brMd,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(Iconsax.eye,
+                        size: 18, color: AppColors.primary),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -410,31 +410,24 @@ class _MeetingsTab extends StatelessWidget {
   }
 
   Widget _buildMeetingTable(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1040,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Title', flex: 3),
-                  _buildHeaderCell('Date & Time', flex: 2),
-                  _buildHeaderCell('Agenda', flex: 3),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('', width: 48),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.meetingList
-                .map((m) => _buildMeetingRow(context, m)),
-          ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Title', flex: 3),
+              _buildHeaderCell('Date & Time', flex: 2),
+              _buildHeaderCell('Agenda', flex: 3),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
         ),
-      ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...controller.meetingList.map((m) => _buildMeetingRow(context, m)),
+      ],
     );
   }
 
@@ -679,32 +672,25 @@ class _ResolutionsTab extends StatelessWidget {
   }
 
   Widget _buildResolutionTable(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1040,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Title', flex: 3),
-                  _buildHeaderCell('Type', flex: 2),
-                  _buildHeaderCell('Date', flex: 2),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('', width: 48),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.resolutionList
-                .map((r) => _buildResolutionRow(context, r)),
-          ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Title', flex: 3),
+              _buildHeaderCell('Type', flex: 2),
+              _buildHeaderCell('Date', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
         ),
-      ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...controller.resolutionList
+            .map((r) => _buildResolutionRow(context, r)),
+      ],
     );
   }
 
@@ -916,33 +902,26 @@ class _InvestorsTab extends StatelessWidget {
 
   Widget _buildShareholderTable(
       BuildContext context, CompanyController companyCtrl) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1080,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Name', flex: 3),
-                  _buildHeaderCell('Email', flex: 3),
-                  _buildHeaderCell('Title', flex: 2),
-                  _buildHeaderCell('Share %', flex: 1),
-                  _buildHeaderCell('Board', flex: 1),
-                  _buildHeaderCell('', width: 48),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...companyCtrl.shareholders
-                .map((s) => _buildShareholderRow(context, s, companyCtrl)),
-          ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Name', flex: 3),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Title', flex: 2),
+              _buildHeaderCell('Share %', flex: 1),
+              _buildHeaderCell('Board', flex: 1),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
         ),
-      ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...companyCtrl.shareholders
+            .map((s) => _buildShareholderRow(context, s, companyCtrl)),
+      ],
     );
   }
 
@@ -1186,32 +1165,25 @@ class _PartnersTab extends StatelessWidget {
   }
 
   Widget _buildPartnerTable(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1080,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Name', flex: 3),
-                  _buildHeaderCell('Email', flex: 3),
-                  _buildHeaderCell('Category', flex: 2),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('Agreements', flex: 1),
-                  _buildHeaderCell('', width: 48),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...controller.partnerList.map((p) => _buildPartnerRow(context, p)),
-          ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Name', flex: 3),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Category', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('Agreements', flex: 1),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
         ),
-      ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...controller.partnerList.map((p) => _buildPartnerRow(context, p)),
+      ],
     );
   }
 
@@ -1460,32 +1432,25 @@ class _EmployeeListTab extends StatelessWidget {
   }
 
   Widget _buildEmployeeTable(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1080,
-        child: Column(
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: Row(
-                children: [
-                  _buildHeaderCell('Name', flex: 3),
-                  _buildHeaderCell('Email', flex: 3),
-                  _buildHeaderCell('Phone', flex: 2),
-                  _buildHeaderCell('Department', flex: 2),
-                  _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('', width: 48),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.borderSubtle),
-            ...employeeList.map((e) => _buildEmployeeRow(context, e)),
-          ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Name', flex: 3),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Phone', flex: 2),
+              _buildHeaderCell('Department', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
         ),
-      ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...employeeList.map((e) => _buildEmployeeRow(context, e)),
+      ],
     );
   }
 

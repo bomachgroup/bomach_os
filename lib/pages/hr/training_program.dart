@@ -1,16 +1,18 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/pages/hr/widget/add_program_dialog.dart';
 import 'package:bms_front_end/pages/hr/widget/view_program_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/training_program_controller.dart';
@@ -47,69 +49,57 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // --- 1. Header ---
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Training & Development',
+        subtitle:
+            'Enhance employee skills through structured programs and assessments.',
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const MyText(
-              'Training & Development',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            OutlinedButton(
+              onPressed: () {},
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.neutral200),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              ),
+              child: const Text(
+                "Leave Policy",
+                style: TextStyle(color: Colors.black87),
               ),
             ),
-            Row(
-              children: [
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.neutral200),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 18),
-                  ),
-                  child: const Text(
-                    "Leave Policy",
-                    style: TextStyle(color: Colors.black87),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Obx(() => MyElevatedButton(
-                      icon: const Icon(Iconsax.add_circle,
-                          color: AppColors.white, size: 20),
-                      child: _ctrl.activeTab.value == 'Training Programs'
-                          ? "Create Program"
-                          : "Log Assessment",
-                      onTap: () async {
-                        if (_ctrl.activeTab.value == 'Training Programs') {
-                          final token =
-                              await _storage.read(key: 'access_token');
-                          if (token != null && context.mounted) {
-                            String cleanToken = token
-                                .replaceAll('"', '')
-                                .replaceAll('Bearer ', '')
-                                .trim();
-                            showDialog(
-                              context: context,
-                              builder: (context) =>
-                                  AddProgramDialog(token: cleanToken),
-                            );
-                          }
-                        }
-                      },
-                    )),
-              ],
-            )
+            const SizedBox(width: 12),
+            Obx(() => MyElevatedButton(
+                  icon: const Icon(Iconsax.add_circle,
+                      color: AppColors.white, size: 20),
+                  child: _ctrl.activeTab.value == 'Training Programs'
+                      ? "Create Program"
+                      : "Log Assessment",
+                  onTap: () async {
+                    if (_ctrl.activeTab.value == 'Training Programs') {
+                      final token = await _storage.read(key: 'access_token');
+                      if (token != null && context.mounted) {
+                        String cleanToken = token
+                            .replaceAll('"', '')
+                            .replaceAll('Bearer ', '')
+                            .trim();
+                        showDialog(
+                          context: context,
+                          builder: (context) =>
+                              AddProgramDialog(token: cleanToken),
+                        );
+                      }
+                    }
+                  },
+                )),
           ],
         ),
-        const SizedBox(height: 24),
-
+      ),
+      children: [
         // --- 2. Stats Cards ---
         Obx(() => ResponsiveStatRow(
               cards: [
@@ -142,13 +132,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
         const SizedBox(height: 24),
 
         // --- 4. Main Content Area (Filters + Table) ---
-        Container(
+        AppCard(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-          ),
           child: Column(
             children: [
               // Filters
@@ -189,14 +174,19 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                       child: Center(child: Text("No records found.")));
                 }
 
-                return Theme(
-                  data: Theme.of(context)
-                      .copyWith(dividerColor: Colors.transparent),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: _ctrl.activeTab.value == 'Training Programs'
-                        ? _buildProgramsTable()
-                        : _buildAssessmentsTable(),
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Theme(
+                    data: Theme.of(context)
+                        .copyWith(dividerColor: Colors.transparent),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: MediaQuery.of(context).size.width * 0.8,
+                      ),
+                      child: _ctrl.activeTab.value == 'Training Programs'
+                          ? _buildProgramsTable()
+                          : _buildAssessmentsTable(),
+                    ),
                   ),
                 );
               }),
@@ -396,13 +386,10 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
       required String count,
       required Color borderColor,
       required Color countColor}) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1),
-      ),
+      borderColor: borderColor,
+      showBorder: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -431,8 +418,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
         decoration: BoxDecoration(
           color: isActive ? _blueColor : Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-              color: isActive ? _blueColor : AppColors.neutral200),
+          border:
+              Border.all(color: isActive ? _blueColor : AppColors.neutral200),
         ),
         child: Text(
           text,

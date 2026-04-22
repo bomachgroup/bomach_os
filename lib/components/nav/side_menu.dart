@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:bms_front_end/components/dialog/user_profile_dialog.dart';
 import 'package:bms_front_end/main.dart';
 import 'package:bms_front_end/pages/auth/controller.dart';
+import 'package:bms_front_end/pages/company/controllers/broadcast_controller.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/app_routes/menu_structure.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
@@ -697,7 +699,9 @@ class _SideMenuState extends State<SideMenu> {
               icon: const Icon(Iconsax.notification,
                   size: 18, color: AppColors.textSecondary),
               onPressed: () {
-                // TODO: Open notifications inbox
+                Get.find<BroadcastController>().currentTab.value =
+                    'Notifications';
+                context.go(RouteConstants.broadcast);
               },
               splashRadius: 18,
             ),
@@ -752,7 +756,9 @@ class _SideMenuState extends State<SideMenu> {
                 icon: const Icon(Iconsax.notification,
                     size: 18, color: AppColors.textSecondary),
                 onPressed: () {
-                  // TODO: Open notifications inbox
+                  Get.find<BroadcastController>().currentTab.value =
+                      'Notifications';
+                  context.go(RouteConstants.broadcast);
                 },
                 splashRadius: 18,
                 padding: const EdgeInsets.all(6),

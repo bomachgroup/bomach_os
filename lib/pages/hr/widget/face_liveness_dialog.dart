@@ -1,4 +1,9 @@
 import 'dart:js_interop';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 import 'dart:ui_web' as ui_web;
@@ -78,80 +83,94 @@ class _FaceLivenessDialogState extends State<FaceLivenessDialog> {
     super.dispose();
   }
 
+  Color _borderColor() {
+    if (_statusMessage.contains('Verified')) return AppColors.success;
+    if (_statusMessage.contains('LEFT') || _statusMessage.contains('RIGHT')) {
+      return AppColors.warning;
+    }
+    return AppColors.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: Colors.white,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 480),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const Text(
-              'Face Verification',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  color: Colors.black12,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      HtmlElementView(viewType: viewType),
-                      // Custom circle overlay to guide the user
-                      IgnorePointer(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: _statusMessage.contains('Verified')
-                                  ? Colors.green
-                                  : _statusMessage.contains('LEFT') ||
-                                          _statusMessage.contains('RIGHT')
-                                      ? Colors.orange
-                                      : Colors.blueAccent.withValues(alpha: 0.5),
-                              width: 3,
-                            ),
-                            shape: BoxShape.circle,
+    return DialogScaffold(
+      title: 'Face Verification',
+      subtitle: 'Keep your face within the circle and follow the prompts.',
+      size: DialogSize.sm,
+      scrollable: false,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 320,
+            child: ClipRRect(
+              borderRadius: AppRadii.brLg,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMuted,
+                  borderRadius: AppRadii.brLg,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    HtmlElementView(viewType: viewType),
+                    // Custom circle overlay to guide the user
+                    IgnorePointer(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _borderColor().withValues(alpha: 0.8),
+                            width: 3,
                           ),
-                          margin: const EdgeInsets.all(24),
+                          shape: BoxShape.circle,
                         ),
+                        margin: const EdgeInsets.all(24),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Text(
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: _isError
+                  ? AppColors.dangerSubtle
+                  : AppColors.primarySubtle,
+              borderRadius: AppRadii.brMd,
+              border: Border.all(
+                color: _isError
+                    ? AppColors.danger.withValues(alpha: 0.3)
+                    : AppColors.primary.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Text(
               _statusMessage,
-              style: TextStyle(
-                color: _isError ? Colors.red : Colors.black87,
+              style: AppText.bodyMd.copyWith(
+                color: _isError ? AppColors.danger : AppColors.primary,
                 fontWeight: FontWeight.w600,
-                fontSize: 14,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text('Cancel Verification'),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel Verification',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      ],
     );
   }
 }

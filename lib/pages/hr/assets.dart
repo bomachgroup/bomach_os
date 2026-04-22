@@ -1,21 +1,26 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/section/responsive_widget.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/assets_controller.dart';
 import 'models/assets_model.dart';
 import 'widget/add_asset_dialog.dart';
 import 'widget/view_asset_dialog.dart';
-
-import 'package:bms_front_end/pages/company/company.dart';
 
 class AssetsPage extends StatelessWidget {
   const AssetsPage({super.key});
@@ -24,305 +29,270 @@ class AssetsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final AssetController controller = Get.put(AssetController());
 
-    Widget body = SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          const MyText('Company Assets', style: AppText.displayLg),
-          const SizedBox(height: 8),
-          const Text(
-            'Manage company properties across all branches',
-            style: TextStyle(color: AppColors.neutral500, fontSize: 14),
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Company Assets',
+        subtitle: 'Manage company properties across all branches.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Asset',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const AddAssetDialog(),
           ),
-          const SizedBox(height: 24),
-
-          // Assets Content
-          _AssetsContent(controller: controller),
-        ],
+        ),
       ),
-    );
-
-    return ResponsiveWidget(
-      largeScreen: body,
-      mediumScreen: body,
-      smallScreen: body,
+      children: [
+        _AssetsToolbar(controller: controller),
+        _AssetsTableCard(controller: controller),
+      ],
     );
   }
-
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  ASSETS CONTENT
+//  TOOLBAR
 // ═══════════════════════════════════════════════════════════════════════
 
-class _AssetsContent extends StatelessWidget {
+class _AssetsToolbar extends StatelessWidget {
   final AssetController controller;
-  const _AssetsContent({required this.controller});
+  const _AssetsToolbar({required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Assets', style: AppText.h4),
-              SizedBox(height: 2),
-              Text('Bomach Group of Companies',
-                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
-            onChanged: controller.onSearchChanged,
-          ),
-          action: MyElevatedButton(
-            height: 40,
-            icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
-            child: 'New Asset',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => const AddAssetDialog(),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        hintText: 'Search assets by name, serial or branch',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: controller.onSearchChanged,
+      ),
+    );
+  }
+}
 
-        // Table
-        Obx(() {
-          if (controller.isLoading.value && controller.assetList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+// ═══════════════════════════════════════════════════════════════════════
+//  TABLE CARD
+// ═══════════════════════════════════════════════════════════════════════
 
-          if (controller.assetList.isEmpty) {
-            return _buildEmptyState(
-              context,
-              icon: Iconsax.box_1,
-              title: 'No assets yet',
-              subtitle: 'Create a new asset to get started.',
-              buttonLabel: 'New Asset',
-              onAdd: () => showDialog(
-                context: context,
-                builder: (_) => const AddAssetDialog(),
-              ),
-            );
-          }
+class _AssetsTableCard extends StatelessWidget {
+  final AssetController controller;
+  const _AssetsTableCard({required this.controller});
 
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: AppColors.neutral200),
-              ),
-              child: Column(
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final loading = controller.isLoading.value && controller.assetList.isEmpty;
+      final isEmpty = !controller.isLoading.value && controller.assetList.isEmpty;
+
+      return AppCard(
+        padding: EdgeInsets.zero,
+        elevation: AppCardElevation.md,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+              child: Row(
                 children: [
-                  // Table Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: AppColors.neutral50,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(width: 40),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Asset Name',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: AppColors.neutral500)),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('Type',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: AppColors.neutral500)),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Branch',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: AppColors.neutral500)),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('Purchase Date',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: AppColors.neutral500)),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('Value',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: AppColors.neutral500)),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('Status',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: AppColors.neutral500)),
-                        ),
-                        SizedBox(
-                          width: 48,
-                          child: Text('Action',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: AppColors.neutral500)),
-                        ),
+                        const Text('Assets', style: AppText.h3),
+                        const SizedBox(height: 4),
+                        Obx(() => Text(
+                              loading
+                                  ? 'Loading assets...'
+                                  : '${controller.totalItems.value} asset${controller.totalItems.value == 1 ? '' : 's'} on record',
+                              style: AppText.bodyMd.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            )),
                       ],
                     ),
                   ),
-                  const Divider(height: 1),
-                  ...controller.assetList
-                      .map((asset) => _buildAssetRow(context, asset)),
-
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Obx(() => PaginatorFooter(
-                          totalItems: controller.totalItems.value,
-                          limit: controller.limit.value,
-                          currentPage: controller.currentPage.value,
-                          onPageChanged: controller.goToPage,
-                          onLimitChanged: controller.setLimit,
-                        )),
+                  const StatusChip(
+                    label: 'Bomach Group',
+                    tone: StatusTone.primary,
+                    icon: Iconsax.building,
                   ),
                 ],
               ),
             ),
-          );
-        }),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            if (loading)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: LoadingSkeleton.listRows(count: 5),
+              )
+            else if (isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: EmptyState(
+                  icon: Iconsax.box_1,
+                  title: 'No assets yet',
+                  subtitle: 'Create a new asset to get started.',
+                  action: MyElevatedButton(
+                    icon: const Icon(Iconsax.add_circle,
+                        size: 18, color: AppColors.textOnPrimary),
+                    child: 'New Asset',
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => const AddAssetDialog(),
+                    ),
+                  ),
+                ),
+              )
+            else ...[
+              _buildTable(context),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                child: Obx(() => PaginatorFooter(
+                      totalItems: controller.totalItems.value,
+                      limit: controller.limit.value,
+                      currentPage: controller.currentPage.value,
+                      onPageChanged: controller.goToPage,
+                      onLimitChanged: controller.setLimit,
+                    )),
+              ),
+            ],
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildTable(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _headerCell('Asset Name', flex: 3),
+              _headerCell('Type', flex: 2),
+              _headerCell('Branch', flex: 3),
+              _headerCell('Purchase Date', flex: 2),
+              _headerCell('Value', flex: 2),
+              _headerCell('Status', flex: 2),
+              _headerCell('', width: 56),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...controller.assetList.map((a) => _buildRow(context, a)),
       ],
     );
   }
 
-  Widget _buildAssetRow(BuildContext context, Asset asset) {
+  Widget _headerCell(String label, {int? flex, double? width}) {
+    final content = Text(
+      label,
+      style: AppText.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildRow(BuildContext context, Asset asset) {
     String displayDate = '';
     try {
       displayDate = DateFormat('MMM d, yyyy').format(asset.purchaseDate);
     } catch (_) {
-      displayDate = '–';
+      displayDate = '—';
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.primary,
-            ),
-          ),
-          // Asset Name
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               asset.name,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // Type
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: _getTypeColor(asset.assetType).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    width: 0.6,
-                    color: _getTypeColor(asset.assetType),
-                  ),
-                ),
-                child: Text(
-                  asset.assetType,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: _getTypeColor(asset.assetType),
-                  ),
-                ),
+              child: StatusChip(
+                label: asset.assetType.isEmpty ? '—' : asset.assetType,
+                tone: StatusTone.info,
+                dense: true,
               ),
             ),
           ),
-          // Branch
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Row(
               children: [
                 const Icon(Iconsax.location,
-                    size: 16, color: AppColors.primary),
+                    size: 16, color: AppColors.textSecondary),
                 const SizedBox(width: 6),
                 Flexible(
-                  child: Text(asset.branch,
-                      style: const TextStyle(fontSize: 13),
-                      overflow: TextOverflow.ellipsis),
+                  child: Text(
+                    asset.branch.isEmpty ? '—' : asset.branch,
+                    style: AppText.bodySm.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
           ),
-          // Purchase Date
           Expanded(
-            flex: 1,
-            child: Text(displayDate, style: const TextStyle(fontSize: 13)),
-          ),
-          // Value
-          Expanded(
-            flex: 1,
+            flex: 2,
             child: Text(
-              asset.value.toStringAsFixed(2),
-              style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green),
+              displayDate,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
-          // Status
           Expanded(
-            flex: 1,
-            child: _buildStatusBadge(asset.status),
+            flex: 2,
+            child: Text(
+              asset.value.toStringAsFixed(2),
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.success,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          // Action menu
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: _statusLabel(asset.status),
+                tone: _statusTone(asset.status),
+                dense: true,
+              ),
+            ),
+          ),
           SizedBox(
-            width: 48,
+            width: 56,
             child: _buildActionMenu(context, asset),
           ),
         ],
@@ -330,180 +300,117 @@ class _AssetsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    final Color color = _getStatusColor(status);
-    final String display = status.isNotEmpty
-        ? status[0].toUpperCase() + status.substring(1)
-        : status;
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Iconsax.record_circle, size: 7, color: color),
-            const SizedBox(width: 5),
-            Text(display,
-                style: TextStyle(
-                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildActionMenu(BuildContext context, Asset asset) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Iconsax.more, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      onSelected: (value) async {
-        switch (value) {
-          case 'view':
-            showDialog(
-              context: context,
-              builder: (_) => ViewAssetDialog(asset: asset),
-            );
-            break;
-          case 'edit':
-            showDialog(
-              context: context,
-              builder: (_) => AddAssetDialog(asset: asset),
-            );
-            break;
-          case 'delete':
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (c) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                title: const Text('Delete Asset'),
-                content:
-                    Text('Are you sure you want to delete "${asset.name}"?'),
+    return Material(
+      color: Colors.transparent,
+      child: PopupMenuButton<String>(
+        icon: const Icon(Iconsax.more, size: 20, color: AppColors.textSecondary),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+        color: AppColors.surface,
+        elevation: 6,
+        onSelected: (value) async {
+          switch (value) {
+            case 'view':
+              showDialog(
+                context: context,
+                builder: (_) => ViewAssetDialog(asset: asset),
+              );
+              break;
+            case 'edit':
+              showDialog(
+                context: context,
+                builder: (_) => AddAssetDialog(asset: asset),
+              );
+              break;
+            case 'delete':
+              final confirmed = await DialogScaffold.show<bool>(
+                context,
+                title: 'Delete asset',
+                size: DialogSize.sm,
+                body: Text(
+                  'Are you sure you want to delete "${asset.name}"? This action cannot be undone.',
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
                 actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('Cancel')),
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Delete',
-                          style: TextStyle(color: Colors.red))),
+                  MyOutlinedButton(
+                    child: 'Cancel',
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 12),
+                    textColor: AppColors.textSecondary,
+                    borderColor: AppColors.borderStrong,
+                    onTap: () => Navigator.pop(context, false),
+                  ),
+                  MyElevatedButton(
+                    child: 'Delete',
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 12),
+                    bgColor: AppColors.danger,
+                    onTap: () => Navigator.pop(context, true),
+                  ),
                 ],
-              ),
-            );
-            if (confirmed == true && context.mounted) {
-              controller.deleteAsset(context, asset.id);
-            }
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Iconsax.eye, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'edit',
-          child: Row(children: [
-            Icon(Iconsax.edit, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(children: [
-            Icon(Iconsax.trash, size: 18, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete', style: TextStyle(color: Colors.red)),
-          ]),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String buttonLabel,
-    required VoidCallback onAdd,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: AppColors.neutral100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: AppColors.neutral400),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: AppColors.neutral500, fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
+              );
+              if (confirmed == true && context.mounted) {
+                controller.deleteAsset(context, asset.id);
+              }
+              break;
+          }
+        },
+        itemBuilder: (_) => const [
+          PopupMenuItem(
+            value: 'view',
+            child: Row(children: [
+              Icon(Iconsax.eye, size: 18, color: AppColors.textSecondary),
+              SizedBox(width: 8),
+              Text('View Details'),
+            ]),
+          ),
+          PopupMenuItem(
+            value: 'edit',
+            child: Row(children: [
+              Icon(Iconsax.edit, size: 18, color: AppColors.textSecondary),
+              SizedBox(width: 8),
+              Text('Edit'),
+            ]),
+          ),
+          PopupMenuItem(
+            value: 'delete',
+            child: Row(children: [
+              Icon(Iconsax.trash, size: 18, color: AppColors.danger),
+              SizedBox(width: 8),
+              Text('Delete', style: TextStyle(color: AppColors.danger)),
+            ]),
+          ),
+        ],
       ),
     );
   }
 
-  Color _getTypeColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'laptop':
-        return Colors.blue;
-      case 'vehicle':
-        return Colors.purple;
-      case 'furniture':
-        return Colors.orange;
-      case 'equipment':
-        return Colors.green;
-      case 'printer':
-        return Colors.teal;
-      case 'it equipment':
-        return Colors.indigo;
-      default:
-        return Colors.grey;
-    }
+  String _statusLabel(String status) {
+    if (status.isEmpty) return 'Unknown';
+    return status[0].toUpperCase() + status.substring(1);
   }
 
-  Color _getStatusColor(String status) {
+  StatusTone _statusTone(String status) {
     switch (status.toLowerCase()) {
-      case 'active':
-      case 'available':
-        return Colors.green;
+      case 'in_use':
       case 'in-use':
-        return Colors.blue;
+        return StatusTone.primary;
+      case 'available':
+      case 'active':
+        return StatusTone.success;
+      case 'damaged':
+      case 'lost':
+        return StatusTone.danger;
       case 'maintenance':
-        return Colors.orange;
+        return StatusTone.warning;
       case 'retired':
-        return Colors.red;
+        return StatusTone.neutral;
       default:
-        return Colors.grey;
+        return StatusTone.neutral;
     }
   }
 }
