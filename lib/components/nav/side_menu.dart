@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:bms_front_end/components/dialog/user_profile_dialog.dart';
 import 'package:bms_front_end/main.dart';
+import 'package:bms_front_end/pages/auth/controller.dart';
+import 'package:bms_front_end/src/app_routes/menu_structure.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-
 import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -13,10 +15,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/pages/auth/controller.dart';
-
-import 'package:bms_front_end/src/app_routes/menu_structure.dart';
-import 'package:bms_front_end/components/dialog/user_profile_dialog.dart';
 
 class SideMenu extends StatefulWidget {
   /// When true, the sidebar renders as a narrow icon-only rail with tooltips;
@@ -52,7 +50,8 @@ class _SideMenuState extends State<SideMenu> {
   /// or `null` when every group is collapsed. Search mode overrides this
   /// (all groups with matches open) via the build-time `isOpen` calc.
   MainMenuItem? _openMenu;
-  List<MenuItem> get menuItems => sidebarStructure.expand((s) => s.items).toList();
+  List<MenuItem> get menuItems =>
+      sidebarStructure.expand((s) => s.items).toList();
   late final Map<String, MenuSelection> routeToMenuMapping;
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode(debugLabel: 'sidebar-search');
@@ -408,42 +407,42 @@ class _SideMenuState extends State<SideMenu> {
     final bool isOpen =
         _searchQuery.trim().isNotEmpty ? true : _openMenu == menuItem.id;
 
-      return _ExpandableMenuRow(
-        key: ValueKey('expandable-${menuItem.id.name}'),
-        icon: menuItem.icon,
-        label: menuItem.label,
-        isSelected: isSelected,
-        isOpen: isOpen,
-        searchQuery: _searchQuery,
-        onHeaderTap: () {
-          setState(() {
-            selectedMainMenu = menuItem.id;
-            // Accordion: tapping the already-open group collapses it,
-            // tapping any other group opens it and closes the previous one.
-            _openMenu = _openMenu == menuItem.id ? null : menuItem.id;
-          });
-          _saveMenuState(menuItem.id, selectedSubMenu);
+    return _ExpandableMenuRow(
+      key: ValueKey('expandable-${menuItem.id.name}'),
+      icon: menuItem.icon,
+      label: menuItem.label,
+      isSelected: isSelected,
+      isOpen: isOpen,
+      searchQuery: _searchQuery,
+      onHeaderTap: () {
+        setState(() {
+          selectedMainMenu = menuItem.id;
+          // Accordion: tapping the already-open group collapses it,
+          // tapping any other group opens it and closes the previous one.
+          _openMenu = _openMenu == menuItem.id ? null : menuItem.id;
+        });
+        _saveMenuState(menuItem.id, selectedSubMenu);
+        _saveOpenMenu(_openMenu);
+      },
+      onExpand: () {
+        if (!isOpen) {
+          setState(() => _openMenu = menuItem.id);
           _saveOpenMenu(_openMenu);
-        },
-        onExpand: () {
-          if (!isOpen) {
-            setState(() => _openMenu = menuItem.id);
-            _saveOpenMenu(_openMenu);
-          } else {
-            // If already open, Right arrow moves focus to the first child.
-            FocusScope.of(context).nextFocus();
-          }
-        },
-        onCollapse: () {
-          if (isOpen) {
-            setState(() => _openMenu = null);
-            _saveOpenMenu(_openMenu);
-          }
-        },
-        children: authorizedSubItems
-            .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
-            .toList(),
-      );
+        } else {
+          // If already open, Right arrow moves focus to the first child.
+          FocusScope.of(context).nextFocus();
+        }
+      },
+      onCollapse: () {
+        if (isOpen) {
+          setState(() => _openMenu = null);
+          _saveOpenMenu(_openMenu);
+        }
+      },
+      children: authorizedSubItems
+          .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
+          .toList(),
+    );
   }
 
   /// Render a pinned non-expandable top-level item in the Pinned section.
@@ -532,16 +531,13 @@ class _SideMenuState extends State<SideMenu> {
 
             // SCROLLABLE CONTENT with polished scrollbar
             Expanded(
-              child: RawScrollbar(
-                controller: _scrollController,
-                thumbVisibility: false,
-                trackVisibility: false,
-                thickness: 4,
-                radius: const Radius.circular(8),
-                thumbColor: AppColors.primary.withValues(alpha: 0.2),
-                child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context)
-                      .copyWith(scrollbars: false),
+              child: ScrollConfiguration(
+                behavior:
+                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                child: Scrollbar(
+                  controller: _scrollController,
+                  thickness: 4,
+                  radius: const Radius.circular(8),
                   child: ListView(
                     controller: _scrollController,
                     physics: const BouncingScrollPhysics(),
@@ -634,13 +630,11 @@ class _SideMenuState extends State<SideMenu> {
     // ── Regular sections ──
     bool firstSectionSeen = pinnedSectionVisible;
     for (final section in sidebarStructure) {
-      final sectionItems = section.items
-          .map(_filterForSearch)
-          .whereType<MenuItem>()
-          .where((m) {
+      final sectionItems =
+          section.items.map(_filterForSearch).whereType<MenuItem>().where((m) {
         if (m.isExpandable) {
-          return m.children.any((s) =>
-              permissionService.canAccessRoute(s.route, s.resources));
+          return m.children.any(
+              (s) => permissionService.canAccessRoute(s.route, s.resources));
         }
         return permissionService.canAccessRoute(m.route, m.resources);
       }).toList();
@@ -793,8 +787,6 @@ class _SideMenuState extends State<SideMenu> {
       ],
     );
   }
-
-
 }
 
 class _SidebarSearchField extends StatelessWidget {

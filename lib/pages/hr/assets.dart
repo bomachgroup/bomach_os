@@ -15,7 +15,6 @@ import 'models/assets_model.dart';
 import 'widget/add_asset_dialog.dart';
 import 'widget/view_asset_dialog.dart';
 
-import 'package:bms_front_end/pages/company/controllers/company_controller.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 
 class AssetsPage extends StatelessWidget {
@@ -24,7 +23,6 @@ class AssetsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AssetController controller = Get.put(AssetController());
-    final CompanyController companyController = Get.put(CompanyController());
 
     Widget body = SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 50),
@@ -40,11 +38,6 @@ class AssetsPage extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Stats Row
-          _buildStatsSection(companyController),
-
-          const SizedBox(height: 32),
-
           // Assets Content
           _AssetsContent(controller: controller),
         ],
@@ -58,39 +51,6 @@ class AssetsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsSection(CompanyController companyController) {
-    return Obx(() {
-      final stats = companyController.dashboardStats.value;
-      return ResponsiveStatRow(
-        cards: [
-          DashboardStatCard(
-            title: 'Total Employees',
-            count: stats != null ? '${stats.totalEmployees}' : '–',
-            borderColor: Colors.green,
-            countColor: Colors.green,
-          ),
-          DashboardStatCard(
-            title: 'Total Branches',
-            count: stats != null ? '${stats.totalBranches}' : '–',
-            borderColor: AppColors.primary,
-            countColor: AppColors.primary,
-          ),
-          DashboardStatCard(
-            title: 'Pending Approvals',
-            count: stats != null ? '${stats.pendingApprovals}' : '–',
-            borderColor: AppColors.warning,
-            countColor: AppColors.warning,
-          ),
-          DashboardStatCard(
-            title: 'Asset Inventory',
-            count: stats != null ? '${stats.assetInventory}' : '–',
-            borderColor: Colors.green,
-            countColor: Colors.green,
-          ),
-        ],
-      );
-    });
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════

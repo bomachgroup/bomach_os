@@ -1,14 +1,25 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/model/departments_units_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../src/constants/spaces.dart';
+import 'package:iconsax/iconsax.dart';
+
 import 'controllers/department_units_controller.dart';
 import 'widget/department_units_dialogs.dart';
+
+const List<String> _tabs = ['Departments', 'Units'];
 
 class DepartmentsUnitsPage extends StatelessWidget {
   const DepartmentsUnitsPage({super.key});
@@ -18,568 +29,616 @@ class DepartmentsUnitsPage extends StatelessWidget {
     final DepartmentsUnitsController controller =
         Get.put(DepartmentsUnitsController());
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final isMobile = constraints.maxWidth < 900;
-
-      return RefreshIndicator(
-        onRefresh: controller.fetchData,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(isMobile ? 16 : 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // --- 1. HEADER & TITLE ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText('Departments & Units',
-                      style: AppText.displayLg),
-                  if (!isMobile) _buildHeaderBtn(context, controller),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text("Manage departments & units",
-                  style: TextStyle(color: AppColors.neutral500, fontSize: 14)),
-              const SizedBox(height: 24),
-
-              // --- 2. STATS CARDS ---
-              Obx(() => Row(
-                    children: [
-                      Expanded(
-                          child: _buildStatCard(
-                              "Departments",
-                              "${controller.totalDepartments}",
-                              Iconsax.people)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: _buildStatCard(
-                              "Units",
-                              "${controller.totalUnits}",
-                              Iconsax.hierarchy)),
-                    ],
-                  )),
-              const SizedBox(height: 32),
-
-              // --- 3. BIG TABS ---
-              Row(
-                children: [
-                  Expanded(child: _buildTab(controller, "Departments")),
-                  Expanded(child: _buildTab(controller, "Units")),
-                ],
-              ),
-              const SizedBox(height: 32),
-
-              // --- 4. SECTION HEADER (Title + Search + New Btn) ---
-              // section header: responsive layout with search and filter
-              _buildSectionHeader(context, controller, isMobile),
-              const SizedBox(height: 16),
-
-              // --- 6. TABLE & PAGINATION ---
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                      child: Padding(
-                          padding: EdgeInsets.all(40),
-                          child: CircularProgressIndicator()));
-                }
-
-                return Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: LayoutBuilder(
-                        builder: (context, boxConstraints) {
-                          // Dynamic spacing calculation for desktop table
-                          double availableWidth = boxConstraints.maxWidth;
-                          if (availableWidth == double.infinity) {
-                            availableWidth = 1000;
-                          }
-
-                          // 5 Columns now (Checkbox removed)
-                          double minSpacing = 20;
-                          // Subtracting roughly 100 for margins/padding
-                          double calculatedSpacing = (availableWidth - 100) / 5;
-
-                          double finalSpacing = calculatedSpacing > minSpacing
-                              ? calculatedSpacing
-                              : minSpacing;
-
-                          return Theme(
-                            data: Theme.of(context)
-                                .copyWith(dividerColor: Colors.grey.shade100),
-                            child: controller.currentTab.value == "Departments"
-                                ? _buildDepartmentsTable(
-                                    controller, context, finalSpacing,
-                                    isMobile: isMobile)
-                                : _buildUnitsTable(
-                                    controller, context, finalSpacing,
-                                    isMobile: isMobile),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Obx(() {
-                      final filteredCount =
-                          controller.currentTab.value == 'Departments'
-                              ? controller.totalDepartmentsFiltered
-                              : controller.totalUnitsFiltered;
-                      return PaginatorFooter(
-                        totalItems: filteredCount,
-                        limit: controller.itemsPerPage.value,
-                        currentPage: controller.currentPage.value + 1,
-                        onPageChanged: (page) => controller.goToPage(page - 1),
-                        onLimitChanged: (newLimit) =>
-                            controller.setLimit(newLimit),
-                      );
-                    }),
-                  ],
-                );
-              }),
-            ],
-          ),
-        ),
-      );
-    });
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Departments & Units',
+        subtitle:
+            'Organize departments, units, and their heads across Bomach Group.',
+        trailing: Obx(() => _buildHeaderAction(context, controller)),
+      ),
+      children: [
+        Obx(() => _buildTabBar(controller)),
+        _buildToolbar(controller),
+        Obx(() => _buildTableCard(context, controller)),
+      ],
+    );
   }
 
-  // --- WIDGET HELPERS ---
+  // ─────────── HEADER ACTION ───────────
 
-  Widget _buildHeaderBtn(
-      BuildContext context, DepartmentsUnitsController controller,
-      {bool isCompact = false}) {
+  Widget _buildHeaderAction(
+      BuildContext context, DepartmentsUnitsController controller) {
+    final isDepartments = controller.currentTab.value == 'Departments';
     return MyElevatedButton(
-      height: 40,
-      width: isCompact ? null : 180,
-      onTap: () {
-        if (controller.currentTab.value == "Departments") {
-          showDialog(
-              context: context, builder: (_) => const CreateDepartmentDialog());
-        } else {
-          showDialog(
-              context: context, builder: (_) => const CreateUnitDialog());
-        }
-      },
-      child: isCompact
-          ? "New"
-          : (controller.currentTab.value == "Departments"
-              ? "New Department"
-              : "New Unit"),
+      height: 48,
+      icon: const Icon(Iconsax.add_circle,
+          color: AppColors.textOnPrimary, size: 18),
+      child: isDepartments ? 'New Department' : 'New Unit',
+      onTap: () => showDialog(
+        context: context,
+        builder: (_) => isDepartments
+            ? const CreateDepartmentDialog()
+            : const CreateUnitDialog(),
+      ),
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon) {
+  // ─────────── TAB BAR (pill) ───────────
+
+  Widget _buildTabBar(DepartmentsUnitsController controller) {
     return Container(
-      height: 90,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withAlpha(3),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(8)),
-            child: Icon(icon, color: Colors.blue, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.neutral800)),
-          const SizedBox(width: 8),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.neutral800)),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: _tabs
+              .map((label) => Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: _buildTabButton(controller, label),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
 
-  Widget _buildTab(DepartmentsUnitsController controller, String label) {
-    return GestureDetector(
-      onTap: () => controller.switchTab(label),
-      child: Obx(() {
-        bool isActive = controller.currentTab.value == label;
-        return Container(
-          height: 50,
+  Widget _buildTabButton(
+      DepartmentsUnitsController controller, String label) {
+    final isActive = controller.currentTab.value == label;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => controller.switchTab(label),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(25),
+            color: isActive ? AppColors.surface : Colors.transparent,
+            borderRadius: AppRadii.brMd,
+            boxShadow: isActive ? AppShadows.sm : const <BoxShadow>[],
           ),
-          alignment: Alignment.center,
           child: Text(
             label,
-            style: TextStyle(
-              color: isActive ? Colors.white : AppColors.neutral500,
+            style: AppText.bodyMd.copyWith(
+              color:
+                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
-              fontSize: 14,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // ─────────── TOOLBAR ───────────
+
+  Widget _buildToolbar(DepartmentsUnitsController controller) {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: Obx(() {
+        final hint = controller.currentTab.value == 'Departments'
+            ? 'Search departments by name'
+            : 'Search units by name or head of unit';
+        return MyTextFormField(
+          hintText: hint,
+          height: 48,
+          onChanged: controller.setSearch,
+          leading: const Icon(Iconsax.search_normal,
+              size: 18, color: AppColors.textMuted),
         );
       }),
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context,
-      DepartmentsUnitsController controller, bool isMobile) {
-    // Builds the top section showing current tab, optional company label,
-    // search bar, status filter, and new-item button. Adjusts layout for mobile.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Obx(() => Text(controller.currentTab.value,
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.neutral800))),
-            if (!isMobile) ...[
-              const SizedBox(width: 12),
-              const Text("Bomach Group",
-                  style: TextStyle(fontSize: 13, color: AppColors.neutral500)),
-            ],
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            SizedBox(
-              width: isMobile ? 120 : 250,
-              height: 40,
-              child: TextField(
-                onChanged: (val) => controller.setSearch(val),
-                decoration: InputDecoration(
-                  hintText: "Search",
-                  prefixIcon:
-                      const Icon(Iconsax.search_normal, size: 18, color: Colors.grey),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300)),
-                ),
-              ),
-            ),
-            const Spacer(),
-            _buildHeaderBtn(context, controller, isCompact: isMobile),
-          ],
-        ),
-      ],
-    );
-  }
+  // ─────────── TABLE CARD ───────────
 
-  // --- REFACTORED TABLES ---
+  Widget _buildTableCard(
+      BuildContext context, DepartmentsUnitsController controller) {
+    final isDepartments = controller.currentTab.value == 'Departments';
+    final total = isDepartments
+        ? controller.totalDepartmentsFiltered
+        : controller.totalUnitsFiltered;
+    final loading = controller.isLoading.value;
 
-  Widget _buildDepartmentsTable(DepartmentsUnitsController controller,
-      BuildContext context, double spacing,
-      {bool isMobile = false}) {
-    final data = controller.paginatedDepartments;
-
-    if (data.isEmpty) {
-      return const Padding(
-          padding: EdgeInsets.all(40),
-          child: Center(child: Text("No departments found")));
-    }
-
-    if (isMobile) {
-      // card list for small screens
-      return Column(
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: data.map((dept) {
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              title: Text(dept.name,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral800)),
-              subtitle: Text(dept.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppColors.neutral400)),
-              trailing: const Icon(Iconsax.arrow_right_3,
-                  size: 20, color: AppColors.neutral400),
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (_) =>
-                        ViewDepartmentDetailsDialog(department: dept));
-              },
-            ),
-          );
-        }).toList(),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: bodySpace(context),
-        ),
-        child: DataTable(
-          showCheckboxColumn: false, // Disables default checkbox
-
-          dataRowMinHeight: 68,
-          dataRowMaxHeight: 68,
-          horizontalMargin: 12,
-          showBottomBorder: true,
-          columnSpacing: spacing,
-          columns: const [
-            DataColumn(
-                columnWidth: IntrinsicColumnWidth(flex: 4.0),
-                label: Text("Department",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.neutral500))),
-            DataColumn(
-                columnWidth: IntrinsicColumnWidth(flex: 1.0),
-                label: Text("Action",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.neutral500))),
-          ],
-          rows: data.map((dept) {
-            return DataRow(
-              // Makes the entire row clickable
-              onSelectChanged: (_) {
-                showDialog(
-                    context: context,
-                    builder: (_) =>
-                        ViewDepartmentDetailsDialog(department: dept));
-              },
-              cells: [
-                DataCell(Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(dept.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.neutral800)),
-                    Text(dept.description,
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.neutral400)),
-                  ],
-                )),
-                DataCell(PopupMenuButton<String>(
-                  icon: const Icon(Iconsax.more,
-                      size: 20, color: AppColors.neutral400),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  onSelected: (value) {
-                    if (value == 'view') {
-                      showDialog(
-                          context: context,
-                          builder: (_) =>
-                              ViewDepartmentDetailsDialog(department: dept));
-                    } else if (value == 'edit') {
-                      showDialog(
-                          context: context,
-                          builder: (_) =>
-                              CreateDepartmentDialog(department: dept));
-                    }
-                  },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(
-                      value: 'view',
-                      child: Row(children: [
-                        Icon(Iconsax.eye,
-                            size: 18, color: Colors.grey),
-                        SizedBox(width: 8),
-                        Text('View Details'),
-                      ]),
-                    ),
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: Row(children: [
-                        Icon(Iconsax.edit, size: 18, color: Colors.grey),
-                        SizedBox(width: 8),
-                        Text('Edit'),
-                      ]),
-                    ),
-                  ],
-                )),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isDepartments
+                            ? 'Department register'
+                            : 'Unit register',
+                        style: AppText.h3,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        loading
+                            ? 'Loading ${isDepartments ? 'departments' : 'units'}...'
+                            : '$total ${isDepartments ? 'departments' : 'units'} available',
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                StatusChip(
+                  label: isDepartments
+                      ? 'Organizational map'
+                      : 'Unit directory',
+                  tone: StatusTone.primary,
+                  icon: isDepartments ? Iconsax.people : Iconsax.hierarchy,
+                ),
               ],
-            );
-          }).toList(),
-        ),
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          _buildTableBody(context, controller, isDepartments, loading),
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: AppColors.borderSubtle),
+              ),
+            ),
+            child: PaginatorFooter(
+              totalItems: total,
+              limit: controller.itemsPerPage.value,
+              currentPage: controller.currentPage.value + 1,
+              onPageChanged: (page) => controller.goToPage(page - 1),
+              onLimitChanged: controller.setLimit,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildUnitsTable(DepartmentsUnitsController controller,
-      BuildContext context, double spacing,
-      {bool isMobile = false}) {
-    final data = controller.paginatedUnits;
-
-    if (data.isEmpty) {
-      return const Padding(
-          padding: EdgeInsets.all(40),
-          child: Center(child: Text("No units found")));
+  Widget _buildTableBody(
+    BuildContext context,
+    DepartmentsUnitsController controller,
+    bool isDepartments,
+    bool loading,
+  ) {
+    if (loading) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: LoadingSkeleton.listRows(count: 5),
+      );
     }
 
-    if (isMobile) {
-      return Column(
-        children: data.map((unit) {
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              title: Text(unit.name,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral800)),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    if (isDepartments) {
+      final data = controller.paginatedDepartments;
+      if (data.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: EmptyState(
+            icon: Iconsax.people,
+            title: controller.searchString.value.isNotEmpty
+                ? 'No departments match this search'
+                : 'No departments yet',
+            subtitle: controller.searchString.value.isNotEmpty
+                ? 'Try a different search term or clear the filter.'
+                : 'Create your first department to start organizing your teams.',
+            action: MyOutlinedAction(
+              label: controller.searchString.value.isNotEmpty
+                  ? 'Clear Search'
+                  : 'New Department',
+              icon: controller.searchString.value.isNotEmpty
+                  ? Iconsax.refresh
+                  : Iconsax.add_circle,
+              onTap: () {
+                if (controller.searchString.value.isNotEmpty) {
+                  controller.setSearch('');
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (_) => const CreateDepartmentDialog(),
+                  );
+                }
+              },
+            ),
+          ),
+        );
+      }
+      return _buildDepartmentsTable(context, controller, data);
+    }
+
+    final units = controller.paginatedUnits;
+    if (units.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: EmptyState(
+          icon: Iconsax.hierarchy,
+          title: controller.searchString.value.isNotEmpty
+              ? 'No units match this search'
+              : 'No units yet',
+          subtitle: controller.searchString.value.isNotEmpty
+              ? 'Try a different search term or clear the filter.'
+              : 'Create units under departments to represent smaller teams.',
+          action: MyOutlinedAction(
+            label: controller.searchString.value.isNotEmpty
+                ? 'Clear Search'
+                : 'New Unit',
+            icon: controller.searchString.value.isNotEmpty
+                ? Iconsax.refresh
+                : Iconsax.add_circle,
+            onTap: () {
+              if (controller.searchString.value.isNotEmpty) {
+                controller.setSearch('');
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (_) => const CreateUnitDialog(),
+                );
+              }
+            },
+          ),
+        ),
+      );
+    }
+
+    return _buildUnitsTable(context, controller, units);
+  }
+
+  // ─────────── DEPARTMENTS TABLE ───────────
+
+  Widget _buildDepartmentsTable(
+    BuildContext context,
+    DepartmentsUnitsController controller,
+    List<Department> data,
+  ) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 960,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
                 children: [
-                  Text(unit.departmentName ?? "-",
-                      style: const TextStyle(color: AppColors.neutral600)),
-                  Text(unit.hod ?? "-",
-                      style: const TextStyle(color: AppColors.neutral600)),
+                  _buildHeaderCell('Department', flex: 4),
+                  _buildHeaderCell('Code', flex: 2),
+                  _buildHeaderCell('', width: 220),
                 ],
               ),
-              trailing: _buildStatusBadge(unit.status ?? "Active", controller),
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (_) => ViewUnitDetailsDialog(unit: unit));
-              },
             ),
-          );
-        }).toList(),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        showCheckboxColumn: false, // Disables default checkbox
-        headingRowHeight: 48,
-        dataRowMinHeight: 52, // Compact height
-        dataRowMaxHeight: 52,
-        horizontalMargin: 24,
-        columnSpacing: spacing,
-        columns: const [
-          DataColumn(
-              label: Text("Unit",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
-          DataColumn(
-              label: Text("Department",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
-          DataColumn(
-              label: Text("Head of Unit",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
-          DataColumn(
-              label: Text("Status",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
-          DataColumn(
-              label: Text("Action",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
-        ],
-        rows: data.map((unit) {
-          return DataRow(
-            // Makes the entire row clickable
-            onSelectChanged: (_) {
-              showDialog(
-                  context: context,
-                  builder: (_) => ViewUnitDetailsDialog(unit: unit));
-            },
-            cells: [
-              DataCell(Text(unit.name,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: AppColors.neutral800))),
-              DataCell(Text(unit.departmentName ?? "-",
-                  style: const TextStyle(color: AppColors.neutral600))),
-              DataCell(Text(unit.hod ?? "-",
-                  style: const TextStyle(color: AppColors.neutral600))),
-              DataCell(_buildStatusBadge(unit.status ?? "Active", controller)),
-              DataCell(PopupMenuButton<String>(
-                icon: const Icon(Iconsax.more,
-                    size: 20, color: AppColors.neutral400),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                onSelected: (value) {
-                  if (value == 'view') {
-                    showDialog(
-                        context: context,
-                        builder: (_) => ViewUnitDetailsDialog(unit: unit));
-                  } else if (value == 'edit') {
-                    showDialog(
-                        context: context,
-                        builder: (_) => CreateUnitDialog(unit: unit));
-                  }
-                },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(
-                    value: 'view',
-                    child: Row(children: [
-                      Icon(Iconsax.eye,
-                          size: 18, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Text('View Details'),
-                    ]),
-                  ),
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Row(children: [
-                      Icon(Iconsax.edit, size: 18, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Text('Edit'),
-                    ]),
-                  ),
-                ],
-              )),
-            ],
-          );
-        }).toList(),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...data.map((dept) => _buildDepartmentRow(context, dept)),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatusBadge(
-      String status, DepartmentsUnitsController controller) {
-    Color bg = controller.getStatusBg(status);
-    Color fg = controller.getStatusColor(status);
+  Widget _buildDepartmentRow(BuildContext context, Department dept) {
+    final code =
+        'DEP-${dept.id.length >= 3 ? dept.id.substring(0, 3) : dept.id}';
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.borderSubtle),
+        ),
+      ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Iconsax.record_circle, size: 6, color: fg),
-          const SizedBox(width: 6),
-          Text(status,
-              style: TextStyle(
-                  color: fg, fontSize: 12, fontWeight: FontWeight.w600)),
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brMd,
+                  ),
+                  child: const Icon(
+                    Iconsax.people,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        dept.name,
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (dept.description.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          dept.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.bodySm
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              code,
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
+          SizedBox(
+            width: 220,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) =>
+                        ViewDepartmentDetailsDialog(department: dept),
+                  ),
+                  icon: const Icon(Iconsax.eye, size: 16),
+                  label: const Text('View'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.borderStrong),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.brMd,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                MyElevatedButton(
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  icon: const Icon(Iconsax.edit,
+                      size: 16, color: AppColors.textOnPrimary),
+                  child: 'Edit',
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => CreateDepartmentDialog(department: dept),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  // ─────────── UNITS TABLE ───────────
+
+  Widget _buildUnitsTable(
+    BuildContext context,
+    DepartmentsUnitsController controller,
+    List<DepartmentUnit> data,
+  ) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1080,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
+                children: [
+                  _buildHeaderCell('Unit', flex: 3),
+                  _buildHeaderCell('Department', flex: 2),
+                  _buildHeaderCell('Head of Unit', flex: 2),
+                  _buildHeaderCell('Status', flex: 2),
+                  _buildHeaderCell('', width: 220),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...data.map((unit) => _buildUnitRow(context, unit)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnitRow(BuildContext context, DepartmentUnit unit) {
+    final status = unit.status ?? 'Active';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.borderSubtle),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brMd,
+                  ),
+                  child: const Icon(
+                    Iconsax.hierarchy,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        unit.name,
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (unit.description.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          unit.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppText.bodySm
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              unit.departmentName ?? '-',
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              unit.hod ?? 'Not Assigned',
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip.fromStatus(status),
+            ),
+          ),
+          SizedBox(
+            width: 220,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => ViewUnitDetailsDialog(unit: unit),
+                  ),
+                  icon: const Icon(Iconsax.eye, size: 16),
+                  label: const Text('View'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.borderStrong),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.brMd,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                MyElevatedButton(
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  icon: const Icon(Iconsax.edit,
+                      size: 16, color: AppColors.textOnPrimary),
+                  child: 'Edit',
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => CreateUnitDialog(unit: unit),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────── HELPERS ───────────
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppText.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+}
+
+/// Small helper that wraps a MyOutlinedButton-style action for empty states.
+/// Kept local to this file to avoid coupling to a specific button variant
+/// while still respecting the design-system rule for EmptyState actions.
+class MyOutlinedAction extends StatelessWidget {
+  const MyOutlinedAction({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.textPrimary,
+        side: const BorderSide(color: AppColors.borderStrong),
+        minimumSize: const Size(0, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       ),
     );
   }

@@ -1,21 +1,32 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/section/responsive_widget.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/broadcast_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controllers/broadcast_controller.dart';
-import 'controllers/company_controller.dart';
-import 'company.dart';
 import 'widget/broadcast_announcement_dialogs.dart';
 import 'widget/broadcast_event_dialogs.dart';
+
+const List<String> _broadcastTabs = [
+  'Announcements',
+  'Events',
+  'Notifications',
+];
 
 class BroadcastPage extends StatelessWidget {
   const BroadcastPage({super.key});
@@ -23,118 +34,270 @@ class BroadcastPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BroadcastController controller = Get.put(BroadcastController());
-    final CompanyController companyController = Get.put(CompanyController());
 
-    Widget body = SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          const MyText('Broadcast', style: AppText.displayLg),
-          const SizedBox(height: 8),
-          const Text('Manage Announcements, Events, Notifications',
-              style: TextStyle(color: AppColors.neutral500, fontSize: 14)),
-          const SizedBox(height: 24),
-
-          // Stats Row
-          _buildStatsSection(companyController),
-
-          const SizedBox(height: 32),
-
-          // Tabs
-          Obx(() => _buildTabBar(controller)),
-
-          const SizedBox(height: 24),
-
-          // Tab Content
-          Obx(() {
-            switch (controller.currentTab.value) {
-              case 'Announcements':
-                return _AnnouncementsTab(controller: controller);
-              case 'Events':
-                return _EventsTab(controller: controller);
-              case 'Notifications':
-                return _NotificationsTab(controller: controller);
-              default:
-                return const SizedBox.shrink();
-            }
-          }),
-        ],
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Broadcast',
+        subtitle: 'Manage announcements, events, and notifications.',
+        trailing: Obx(() => _buildHeaderAction(context, controller)),
       ),
-    );
-
-    return ResponsiveWidget(
-      largeScreen: body,
-      mediumScreen: body,
-      smallScreen: body,
+      children: [
+        Obx(() => _buildTabBar(controller)),
+        Obx(() {
+          switch (controller.currentTab.value) {
+            case 'Announcements':
+              return _AnnouncementsTab(controller: controller);
+            case 'Events':
+              return _EventsTab(controller: controller);
+            case 'Notifications':
+              return _NotificationsTab(controller: controller);
+            default:
+              return const SizedBox.shrink();
+          }
+        }),
+      ],
     );
   }
 
-  Widget _buildStatsSection(CompanyController companyController) {
-    return Obx(() {
-      final stats = companyController.dashboardStats.value;
-      return ResponsiveStatRow(cards: [
-        DashboardStatCard(
-          title: 'Total Employees',
-          count: stats != null ? '${stats.totalEmployees}' : '–',
-          borderColor: Colors.green,
-          countColor: Colors.green,
-        ),
-        DashboardStatCard(
-          title: 'Total Branches',
-          count: stats != null ? '${stats.totalBranches}' : '–',
-          borderColor: AppColors.primary,
-          countColor: AppColors.primary,
-        ),
-        DashboardStatCard(
-          title: 'Pending Approvals',
-          count: stats != null ? '${stats.pendingApprovals}' : '–',
-          borderColor: AppColors.warning,
-          countColor: AppColors.warning,
-        ),
-        DashboardStatCard(
-          title: 'Asset Inventory',
-          count: stats != null ? '${stats.assetInventory}' : '–',
-          borderColor: Colors.green,
-          countColor: Colors.green,
-        ),
-      ]);
-    });
+  Widget _buildHeaderAction(
+      BuildContext context, BroadcastController controller) {
+    switch (controller.currentTab.value) {
+      case 'Announcements':
+        return MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Announcement',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const CreateEditAnnouncementDialog(),
+          ),
+        );
+      case 'Events':
+        return MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Event',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const CreateEditEventDialog(),
+          ),
+        );
+      case 'Notifications':
+        return MyOutlinedButton(
+          height: 48,
+          icon: const Icon(Iconsax.tick_circle,
+              color: AppColors.primary, size: 18),
+          child: 'Mark all read',
+          onTap: controller.markAllRead,
+        );
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
   Widget _buildTabBar(BroadcastController controller) {
-    final tabs = ['Announcements', 'Events', 'Notifications'];
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.neutral200)),
-      ),
-      child: Wrap(
-        spacing: 8,
-        children: tabs.map((tab) {
-          final isSelected = controller.currentTab.value == tab;
-          return InkWell(
-            onTap: () => controller.currentTab.value = tab,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                tab,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: AppCard(
+        padding: const EdgeInsets.all(6),
+        elevation: AppCardElevation.sm,
+        child: Row(
+          children: _broadcastTabs.map((tab) {
+            final isSelected = controller.currentTab.value == tab;
+            return Expanded(
+              child: InkWell(
+                onTap: () => controller.currentTab.value = tab,
+                borderRadius: BorderRadius.circular(8),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.primary : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    tab,
+                    style: AppText.bodyMd.copyWith(
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? AppColors.textOnPrimary
+                          : AppColors.textSecondary,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  SHARED HELPERS
+// ═══════════════════════════════════════════════════════════════════
+
+Widget _buildToolbar({
+  required String searchHint,
+  required ValueChanged<String> onSearchChanged,
+}) {
+  return AppCard(
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    elevation: AppCardElevation.sm,
+    child: Row(
+      children: [
+        Expanded(
+          child: MyTextFormField(
+            hintText: searchHint,
+            height: 44,
+            onChanged: onSearchChanged,
+            leading: const Icon(Iconsax.search_normal,
+                size: 18, color: AppColors.textMuted),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildTableCard({
+  required String title,
+  required String subtitle,
+  Widget? headerTrailing,
+  required Widget body,
+  Widget? footer,
+}) {
+  return AppCard(
+    padding: EdgeInsets.zero,
+    elevation: AppCardElevation.sm,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppText.h3),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: AppText.bodySm.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (headerTrailing != null) headerTrailing,
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        body,
+        if (footer != null) ...[
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          footer,
+        ],
+      ],
+    ),
+  );
+}
+
+Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+  final content = Text(
+    label,
+    style: AppText.bodySm.copyWith(
+      color: AppColors.textSecondary,
+      fontWeight: FontWeight.w600,
+    ),
+  );
+  if (width != null) return SizedBox(width: width, child: content);
+  return Expanded(flex: flex ?? 1, child: content);
+}
+
+Widget _tablePaginator(Widget child) {
+  return Container(
+    padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+    child: child,
+  );
+}
+
+Widget _buildRowActions({
+  required VoidCallback onView,
+  required VoidCallback onEdit,
+  required VoidCallback onDelete,
+}) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      MyOutlinedButton(
+        onTap: onView,
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        icon: const Icon(Iconsax.eye, size: 16, color: AppColors.primary),
+        child: 'View',
+      ),
+      const SizedBox(width: 8),
+      MyElevatedButton(
+        height: 36,
+        width: 80,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        icon: const Icon(Iconsax.edit,
+            size: 16, color: AppColors.textOnPrimary),
+        child: 'Edit',
+        onTap: onEdit,
+      ),
+      const SizedBox(width: 4),
+      IconButton(
+        onPressed: onDelete,
+        icon: const Icon(Iconsax.trash, size: 18, color: AppColors.danger),
+        tooltip: 'Delete',
+        splashRadius: 20,
+      ),
+    ],
+  );
+}
+
+StatusTone _statusToneFromStatus(String status) {
+  switch (status.trim().toLowerCase()) {
+    case 'pending':
+    case 'upcoming':
+    case 'postponed':
+    case 'scheduled':
+    case 'waiting':
+      return StatusTone.warning;
+    case 'approved':
+    case 'completed':
+    case 'active':
+    case 'signed':
+    case 'published':
+    case 'paid':
+      return StatusTone.success;
+    case 'cancelled':
+    case 'canceled':
+    case 'rejected':
+    case 'overdue':
+    case 'expired':
+    case 'failed':
+      return StatusTone.danger;
+    case 'archived':
+    case 'draft':
+    case 'inactive':
+      return StatusTone.neutral;
+    case 'in progress':
+    case 'ongoing':
+      return StatusTone.info;
+    default:
+      return StatusTone.neutral;
   }
 }
 
@@ -149,143 +312,63 @@ class _AnnouncementsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Announcement', style: AppText.h4),
-              SizedBox(height: 2),
-              Text('Bomach Group of Companies',
-                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
-            onChanged: controller.onAnnouncementSearchChanged,
-          ),
-          action: MyElevatedButton(
-            height: 40,
-            icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
-            child: 'New Announcement',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => const CreateEditAnnouncementDialog(),
-            ),
-          ),
+        _buildToolbar(
+          searchHint: 'Search announcements by title or type',
+          onSearchChanged: controller.onAnnouncementSearchChanged,
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (controller.isLoadingAnnouncements.value &&
-              controller.announcementList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+          final loading = controller.isLoadingAnnouncements.value &&
+              controller.announcementList.isEmpty;
+          final isEmpty = !controller.isLoadingAnnouncements.value &&
+              controller.announcementList.isEmpty;
 
-          if (controller.announcementList.isEmpty) {
-            return _buildEmptyState(
-              context,
+          return _buildTableCard(
+            title: 'Announcements register',
+            subtitle: loading
+                ? 'Loading announcements...'
+                : '${controller.announcementTotalItems.value} announcements on record',
+            headerTrailing: const StatusChip(
+              label: 'Company broadcasts',
+              tone: StatusTone.primary,
               icon: Iconsax.notification_bing,
-              title: 'No announcements yet',
-              subtitle: 'Create a new announcement to get started.',
-              buttonLabel: 'New Announcement',
-              onAdd: () => showDialog(
-                context: context,
-                builder: (_) => const CreateEditAnnouncementDialog(),
-              ),
-            );
-          }
-
-          return Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: AppColors.neutral200),
             ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: AppColors.neutral50,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Title',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Publish Date',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Type',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                ...controller.announcementList
-                    .map((a) => _buildAnnouncementRow(context, a)),
-
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems: controller.announcementTotalItems.value,
-                        limit: controller.announcementLimit.value,
-                        currentPage: controller.announcementCurrentPage.value,
-                        onPageChanged: controller.announcementGoToPage,
-                        onLimitChanged: controller.announcementSetLimit,
-                      )),
-                ),
-              ],
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.notification_bing,
+                          title: 'No announcements yet',
+                          subtitle:
+                              'Create a new announcement to get started.',
+                          action: MyOutlinedButton(
+                            child: 'New Announcement',
+                            icon: const Icon(Iconsax.add_circle,
+                                size: 18, color: AppColors.primary),
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (_) =>
+                                  const CreateEditAnnouncementDialog(),
+                            ),
+                          ),
+                        ),
+                      )
+                    : _buildAnnouncementTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    totalItems: controller.announcementTotalItems.value,
+                    limit: controller.announcementLimit.value,
+                    currentPage: controller.announcementCurrentPage.value,
+                    onPageChanged: controller.announcementGoToPage,
+                    onLimitChanged: controller.announcementSetLimit,
+                  )),
             ),
           );
         }),
@@ -293,9 +376,38 @@ class _AnnouncementsTab extends StatelessWidget {
     );
   }
 
+  Widget _buildAnnouncementTable(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1120,
+        child: Column(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
+                children: [
+                  _buildHeaderCell('Title', flex: 3),
+                  _buildHeaderCell('Publish Date', flex: 2),
+                  _buildHeaderCell('Type', flex: 2),
+                  _buildHeaderCell('Status', flex: 2),
+                  _buildHeaderCell('Actions', width: 240),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...controller.announcementList
+                .map((a) => _buildAnnouncementRow(context, a)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAnnouncementRow(
       BuildContext context, Announcement announcement) {
-    // Format date from publishAt
     String displayDate = '';
     String displayTime = '';
     try {
@@ -306,216 +418,120 @@ class _AnnouncementsTab extends StatelessWidget {
       displayDate = announcement.publishAt;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.primary,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              announcement.title,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(displayDate, style: const TextStyle(fontSize: 13)),
-                if (displayTime.isNotEmpty)
-                  Text(displayTime,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.neutral500)),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              announcement.announcementTypeDisplay,
-              style: const TextStyle(fontSize: 13),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: _buildStatusBadge(
-                announcement.isActive ? 'Active' : 'Inactive'),
-          ),
-          SizedBox(
-            width: 48,
-            child: _buildActionMenu(context, announcement),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    Color color;
-    switch (status.toLowerCase()) {
-      case 'active':
-        color = Colors.green;
-        break;
-      case 'expired':
-        color = Colors.grey;
-        break;
-      case 'inactive':
-        color = Colors.red;
-        break;
-      default:
-        color = Colors.grey;
-    }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => showDialog(
+          context: context,
+          builder: (_) => ViewAnnouncementDialog(announcement: announcement),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Iconsax.record_circle, size: 7, color: color),
-            const SizedBox(width: 5),
-            Text(status,
-                style: TextStyle(
-                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionMenu(BuildContext context, Announcement announcement) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Iconsax.more, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      onSelected: (value) async {
-        switch (value) {
-          case 'view':
-            showDialog(
-              context: context,
-              builder: (_) =>
-                  ViewAnnouncementDialog(announcement: announcement),
-            );
-            break;
-          case 'edit':
-            showDialog(
-              context: context,
-              builder: (_) =>
-                  CreateEditAnnouncementDialog(announcement: announcement),
-            );
-            break;
-          case 'delete':
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (c) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                title: const Text('Delete Announcement'),
-                content: Text(
-                    'Are you sure you want to delete "${announcement.title}"?'),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('Cancel')),
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Delete',
-                          style: TextStyle(color: Colors.red))),
-                ],
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(
+                  announcement.title,
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            );
-            if (confirmed == true && context.mounted) {
-              controller.deleteAnnouncement(context, announcement.id);
-            }
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Iconsax.eye, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details'),
-          ]),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayDate,
+                      style:
+                          AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                    ),
+                    if (displayTime.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        displayTime,
+                        style: AppText.caption
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  announcement.announcementTypeDisplay,
+                  style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: StatusChip(
+                  label: announcement.isActive ? 'Active' : 'Inactive',
+                  tone: announcement.isActive
+                      ? StatusTone.success
+                      : StatusTone.neutral,
+                ),
+              ),
+              SizedBox(
+                width: 240,
+                child: _buildRowActions(
+                  onView: () => showDialog(
+                    context: context,
+                    builder: (_) => ViewAnnouncementDialog(announcement: announcement),
+                  ),
+                  onEdit: () => showDialog(
+                    context: context,
+                    builder: (_) => CreateEditAnnouncementDialog(announcement: announcement),
+                  ),
+                  onDelete: () => _confirmDeleteAnnouncement(context, announcement),
+                ),
+              ),
+            ],
+          ),
         ),
-        const PopupMenuItem(
-          value: 'edit',
-          child: Row(children: [
-            Icon(Iconsax.edit, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit'),
-          ]),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteAnnouncement(
+      BuildContext context, Announcement announcement) async {
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: 'Delete Announcement',
+      size: DialogSize.sm,
+      body: Text(
+        'Are you sure you want to delete "${announcement.title}"?',
+        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context, false),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(children: [
-            Icon(Iconsax.trash, size: 18, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete', style: TextStyle(color: Colors.red)),
-          ]),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: 'Delete',
+          icon: const Icon(Iconsax.trash,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () => Navigator.pop(context, true),
         ),
       ],
     );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String buttonLabel,
-    required VoidCallback onAdd,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: AppColors.neutral100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: AppColors.neutral400),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: AppColors.neutral500, fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
-      ),
-    );
+    if (confirmed == true && context.mounted) {
+      controller.deleteAnnouncement(context, announcement.id);
+    }
   }
 }
 
@@ -530,146 +546,94 @@ class _EventsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Events', style: AppText.h4),
-              SizedBox(height: 2),
-              Text('Bomach Group of Companies',
-                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
-            onChanged: controller.onEventSearchChanged,
-          ),
-          action: MyElevatedButton(
-            height: 40,
-            icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
-            child: 'New Event',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => const CreateEditEventDialog(),
-            ),
-          ),
+        _buildToolbar(
+          searchHint: 'Search events by title or audience',
+          onSearchChanged: controller.onEventSearchChanged,
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (controller.isLoadingEvents.value &&
-              controller.eventList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+          final loading = controller.isLoadingEvents.value &&
+              controller.eventList.isEmpty;
+          final isEmpty = !controller.isLoadingEvents.value &&
+              controller.eventList.isEmpty;
 
-          if (controller.eventList.isEmpty) {
-            return _buildEmptyState(
-              context,
+          return _buildTableCard(
+            title: 'Events register',
+            subtitle: loading
+                ? 'Loading events...'
+                : '${controller.eventTotalItems.value} events scheduled',
+            headerTrailing: const StatusChip(
+              label: 'Company events',
+              tone: StatusTone.primary,
               icon: Iconsax.calendar_1,
-              title: 'No events yet',
-              subtitle: 'Create a new event to get started.',
-              buttonLabel: 'Create Event',
-              onAdd: () => showDialog(
-                context: context,
-                builder: (_) => const CreateEditEventDialog(),
-              ),
-            );
-          }
-
-          return Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: AppColors.neutral200),
             ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: AppColors.neutral50,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Title',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Date Sent',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text('Audience',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text('Type',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: AppColors.neutral500)),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                ...controller.eventList.map((e) => _buildEventRow(context, e)),
-
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Obx(() => PaginatorFooter(
-                        totalItems: controller.eventTotalItems.value,
-                        limit: controller.eventLimit.value,
-                        currentPage: controller.eventCurrentPage.value,
-                        onPageChanged: controller.eventGoToPage,
-                        onLimitChanged: controller.eventSetLimit,
-                      )),
-                ),
-              ],
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.calendar_1,
+                          title: 'No events yet',
+                          subtitle: 'Create a new event to get started.',
+                          action: MyOutlinedButton(
+                            child: 'New Event',
+                            icon: const Icon(Iconsax.add_circle,
+                                size: 18, color: AppColors.primary),
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (_) => const CreateEditEventDialog(),
+                            ),
+                          ),
+                        ),
+                      )
+                    : _buildEventTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    totalItems: controller.eventTotalItems.value,
+                    limit: controller.eventLimit.value,
+                    currentPage: controller.eventCurrentPage.value,
+                    onPageChanged: controller.eventGoToPage,
+                    onLimitChanged: controller.eventSetLimit,
+                  )),
             ),
           );
         }),
       ],
+    );
+  }
+
+  Widget _buildEventTable(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1160,
+        child: Column(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
+                children: [
+                  _buildHeaderCell('Title', flex: 3),
+                  _buildHeaderCell('Date & Time', flex: 2),
+                  _buildHeaderCell('Audience', flex: 3),
+                  _buildHeaderCell('Type', flex: 2),
+                  _buildHeaderCell('Actions', width: 240),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...controller.eventList.map((e) => _buildEventRow(context, e)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -684,201 +648,134 @@ class _EventsTab extends StatelessWidget {
       displayDate = event.eventTimeFrom;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.primary,
-            ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => showDialog(
+          context: context,
+          builder: (_) => ViewEventDialog(event: event),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
           ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              event.title,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(displayDate, style: const TextStyle(fontSize: 13)),
-                if (displayTime.isNotEmpty)
-                  Text(displayTime,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.neutral500)),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: event.targetAudienceLabels
-                  .map((a) => _buildAudienceChip(a))
-                  .toList(),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              event.eventTypeDisplay,
-              style: const TextStyle(fontSize: 13),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          SizedBox(
-            width: 48,
-            child: _buildActionMenu(context, event),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAudienceChip(String label) {
-    Color chipColor;
-    if (label.contains('Branch')) {
-      chipColor = Colors.green;
-    } else {
-      chipColor = AppColors.primary;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: chipColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(label,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
-    );
-  }
-
-  Widget _buildActionMenu(BuildContext context, BroadcastEvent event) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Iconsax.more, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      onSelected: (value) async {
-        switch (value) {
-          case 'view':
-            showDialog(
-              context: context,
-              builder: (_) => ViewEventDialog(event: event),
-            );
-            break;
-          case 'edit':
-            showDialog(
-              context: context,
-              builder: (_) => CreateEditEventDialog(event: event),
-            );
-            break;
-          case 'delete':
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (c) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                title: const Text('Delete Event'),
-                content:
-                    Text('Are you sure you want to delete "${event.title}"?'),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('Cancel')),
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Delete',
-                          style: TextStyle(color: Colors.red))),
-                ],
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(
+                  event.title,
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            );
-            if (confirmed == true && context.mounted) {
-              controller.deleteEvent(context, event.id);
-            }
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Iconsax.eye, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details'),
-          ]),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayDate,
+                      style:
+                          AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                    ),
+                    if (displayTime.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        displayTime,
+                        style: AppText.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: event.targetAudienceLabels.isEmpty
+                    ? Text(
+                        '-',
+                        style: AppText.bodyMd
+                            .copyWith(color: AppColors.textSecondary),
+                      )
+                    : Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: event.targetAudienceLabels
+                            .map((label) => StatusChip(
+                                  label: label,
+                                  tone: label.toLowerCase().contains('branch')
+                                      ? StatusTone.info
+                                      : StatusTone.primary,
+                                  dense: true,
+                                ))
+                            .toList(),
+                      ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  event.eventTypeDisplay,
+                  style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(
+                width: 240,
+                child: _buildRowActions(
+                  onView: () => showDialog(
+                    context: context,
+                    builder: (_) => ViewEventDialog(event: event),
+                  ),
+                  onEdit: () => showDialog(
+                    context: context,
+                    builder: (_) => CreateEditEventDialog(event: event),
+                  ),
+                  onDelete: () => _confirmDeleteEvent(context, event),
+                ),
+              ),
+            ],
+          ),
         ),
-        const PopupMenuItem(
-          value: 'edit',
-          child: Row(children: [
-            Icon(Iconsax.edit, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit'),
-          ]),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteEvent(
+      BuildContext context, BroadcastEvent event) async {
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: 'Delete Event',
+      size: DialogSize.sm,
+      body: Text(
+        'Are you sure you want to delete "${event.title}"?',
+        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context, false),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(children: [
-            Icon(Iconsax.trash, size: 18, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete', style: TextStyle(color: Colors.red)),
-          ]),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: 'Delete',
+          icon: const Icon(Iconsax.trash,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () => Navigator.pop(context, true),
         ),
       ],
     );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String buttonLabel,
-    required VoidCallback onAdd,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: AppColors.neutral100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: AppColors.neutral400),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: AppColors.neutral500, fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
-      ),
-    );
+    if (confirmed == true && context.mounted) {
+      controller.deleteEvent(context, event.id);
+    }
   }
 }
 
@@ -890,193 +787,171 @@ class _NotificationsTab extends StatelessWidget {
   final BroadcastController controller;
   const _NotificationsTab({required this.controller});
 
+  static const List<String> _filters = [
+    'Admin',
+    'Staff',
+    'Associate',
+    'Investor',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Notification Stats
-        Obx(() => Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: [
-                _buildNotificationStat(
-                  icon: Iconsax.people,
-                  count: controller.unreadCount.value,
-                  label: 'Notifications',
-                ),
-                _buildNotificationStat(
-                  icon: Iconsax.people,
-                  count: controller.announcementTotalItems.value,
-                  label: 'Announcements',
-                ),
-                _buildNotificationStat(
-                  icon: Iconsax.people,
-                  count: controller.eventTotalItems.value,
-                  label: 'Upcoming Events',
-                ),
-              ],
-            )),
-        const SizedBox(height: 20),
-
-        // Filter chips + Mark All Read
-        Row(
-          children: [
-            Expanded(
-              child: Obx(() => Wrap(
-                    spacing: 8,
-                    children: [
-                      _buildFilterChip(
-                          'Admin', controller.notificationFilter.value),
-                      _buildFilterChip(
-                          'Staff', controller.notificationFilter.value),
-                      _buildFilterChip(
-                          'Associate', controller.notificationFilter.value),
-                      _buildFilterChip(
-                          'Investor', controller.notificationFilter.value),
-                    ],
-                  )),
-            ),
-            ElevatedButton(
-              onPressed: controller.markAllRead,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text('Mark All Read',
-                  style: TextStyle(color: Colors.white, fontSize: 13)),
-            ),
-          ],
+        AppCard(
+          padding: const EdgeInsets.all(16),
+          elevation: AppCardElevation.sm,
+          child: Obx(() => Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: _filters
+                    .map((label) => _buildFilterChip(
+                        label, controller.notificationFilter.value))
+                    .toList(),
+              )),
         ),
-        const SizedBox(height: 20),
-
-        // Notification List
+        const SizedBox(height: 16),
         Obx(() {
-          if (controller.filteredNotifications.isEmpty) {
-            return const Center(
+          final items = controller.filteredNotifications;
+          if (items.isEmpty) {
+            return const AppCard(
+              padding: EdgeInsets.zero,
+              elevation: AppCardElevation.md,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 60),
-                child: Text('No notifications',
-                    style: TextStyle(color: Colors.grey, fontSize: 16)),
+                padding: EdgeInsets.all(24),
+                child: EmptyState(
+                  icon: Iconsax.notification,
+                  title: 'No notifications',
+                  subtitle:
+                      'Notifications matching the selected filter will appear here.',
+                ),
               ),
             );
           }
 
-          return Column(
-            children: controller.filteredNotifications
-                .map((n) => _buildNotificationCard(n))
-                .toList(),
+          return _buildTableCard(
+            title: 'Notifications inbox',
+            subtitle: '${items.length} notifications available',
+            headerTrailing: Obx(() => StatusChip(
+                  label: '${controller.unreadCount.value} unread',
+                  tone: controller.unreadCount.value > 0
+                      ? StatusTone.warning
+                      : StatusTone.neutral,
+                  icon: Iconsax.notification_bing,
+                )),
+            body: Column(
+              children: [
+                for (int i = 0; i < items.length; i++) ...[
+                  _buildNotificationRow(items[i]),
+                  if (i != items.length - 1)
+                    const Divider(
+                        height: 1, color: AppColors.borderSubtle),
+                ],
+              ],
+            ),
           );
         }),
       ],
     );
   }
 
-  Widget _buildNotificationStat({
-    required IconData icon,
-    required int count,
-    required String label,
-  }) {
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
-          ),
-          const SizedBox(height: 12),
-          Text('$count',
-              style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(label,
-              style: const TextStyle(color: AppColors.neutral500, fontSize: 13)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildFilterChip(String label, String activeFilter) {
     final isActive = activeFilter == label;
-    return InkWell(
-      onTap: () => controller.filterNotifications(isActive ? '' : label),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.neutral800 : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brPill,
+        onTap: () => controller.filterNotifications(isActive ? '' : label),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.primary : AppColors.surface,
+            borderRadius: AppRadii.brPill,
+            border: Border.all(
+              color: isActive ? AppColors.primary : AppColors.borderSubtle,
+            ),
+          ),
+          child: Text(
+            label,
+            style: AppText.bodySm.copyWith(
               color:
-                  isActive ? AppColors.neutral800 : AppColors.neutral200),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.white : AppColors.neutral500,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
+                  isActive ? AppColors.textOnPrimary : AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildNotificationCard(NotificationItem notification) {
+  Widget _buildNotificationRow(NotificationItem notification) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 1),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
-        ),
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brMd,
+            ),
+            alignment: Alignment.center,
+            child: const Icon(Iconsax.notification,
+                size: 18, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  notification.title,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 15),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        notification.title,
+                        style: AppText.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    StatusChip(
+                      label: notification.category,
+                      tone: StatusTone.neutral,
+                      dense: true,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   notification.subtitle,
-                  style:
-                      const TextStyle(color: AppColors.neutral500, fontSize: 13),
+                  style: AppText.bodySm
+                      .copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   notification.description,
                   style:
-                      const TextStyle(color: AppColors.neutral400, fontSize: 13),
+                      AppText.bodySm.copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 16),
           Text(
             notification.time,
-            style: const TextStyle(color: AppColors.neutral400, fontSize: 12),
+            style: AppText.caption.copyWith(color: AppColors.textMuted),
           ),
         ],
       ),
     );
   }
 }
+
+// Expose the shared tone mapper to dialog files if needed.
+StatusTone broadcastStatusTone(String status) => _statusToneFromStatus(status);

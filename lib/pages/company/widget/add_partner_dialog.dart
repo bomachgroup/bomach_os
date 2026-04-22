@@ -1,14 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/partner_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controllers/board_controller.dart';
 
@@ -22,6 +24,7 @@ class AddPartnerDialog extends StatefulWidget {
 
 class _AddPartnerDialogState extends State<AddPartnerDialog> {
   final BoardController _controller = Get.find<BoardController>();
+  final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _nameCtrl;
   late final TextEditingController _emailCtrl;
@@ -78,7 +81,20 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
     super.dispose();
   }
 
+  String _categoryLabel(String value) {
+    final match = _categoryOptions
+        .firstWhere((e) => e['value'] == value, orElse: () => const {});
+    return match['label'] ?? value;
+  }
+
+  String _statusLabel(String value) {
+    final match = _statusOptions
+        .firstWhere((e) => e['value'] == value, orElse: () => const {});
+    return match['label'] ?? value;
+  }
+
   void _submit() {
+    if (!_formKey.currentState!.validate()) return;
     if (_nameCtrl.text.trim().isEmpty) {
       AppToast.error(context, 'Partner name is required');
       return;
@@ -103,164 +119,173 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(isEdit ? 'Edit Partner' : 'Add Partner',
-                      style: AppText.h2),
-                  IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: () => Navigator.pop(context)),
-                ],
-              ),
-            ),
-            // Body
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    MyTextFormField(
-                        title: 'Partner Name *',
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Partner' : 'Add Partner',
+          subtitle: isEdit
+              ? 'Update partner details, category, and status.'
+              : 'Register a new business partner with contact and category details.',
+          size: DialogSize.lg,
+          body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSection(
+                  title: 'Partner information',
+                  subtitle: 'Identify the partner and its contact details.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
                         controller: _nameCtrl,
-                        hintText: 'e.g. ABC Technologies Ltd'),
-                    const SizedBox(height: 16),
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Email',
+                        title: 'Partner Name',
+                        hintText: 'e.g. ABC Technologies Ltd',
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'Required'
+                            : null,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
                               controller: _emailCtrl,
-                              hintText: 'contact@partner.com')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Phone',
+                              title: 'Email',
+                              hintText: 'contact@partner.com',
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
                               controller: _phoneCtrl,
-                              hintText: '+234...')),
-                    ]),
-                    const SizedBox(height: 16),
-                    MyTextFormField(
-                        title: 'Address',
-                        controller: _addressCtrl,
-                        hintText: 'Partner address'),
-                    const SizedBox(height: 16),
-                    Row(children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const MyText('Category',
-                                style: AppText.h4),
-                            const SizedBox(height: 8),
-                            DropdownButtonFormField<String>(
-                              initialValue: _selectedCategory,
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 12),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: AppColors.neutral300)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: AppColors.neutral300)),
-                              ),
-                              items: _categoryOptions
-                                  .map((c) => DropdownMenuItem<String>(
-                                      value: c['value'],
-                                      child: Text(c['label']!)))
-                                  .toList(),
-                              onChanged: (v) => setState(
-                                  () => _selectedCategory = v ?? 'other'),
+                              title: 'Phone',
+                              hintText: '+234...',
+                              keyboardType: TextInputType.phone,
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        controller: _addressCtrl,
+                        title: 'Address',
+                        hintText: 'Partner address',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Category & status',
+                  subtitle:
+                      'Classify the partnership and track its current state.',
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: MyDropdown(
+                          title: 'Category',
+                          hintText: _categoryLabel(_selectedCategory),
+                          items: _categoryOptions
+                              .map((c) => c['label']!)
+                              .toList(),
+                          initialSelection: _categoryLabel(_selectedCategory),
+                          onChanged: (val) {
+                            for (final c in _categoryOptions) {
+                              if (c['label'] == val) {
+                                setState(() =>
+                                    _selectedCategory = c['value'] ?? 'other');
+                                break;
+                              }
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const MyText('Status', style: AppText.h4),
-                            const SizedBox(height: 8),
-                            DropdownButtonFormField<String>(
-                              initialValue: _selectedStatus,
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 12),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: AppColors.neutral300)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: AppColors.neutral300)),
-                              ),
-                              items: _statusOptions
-                                  .map((s) => DropdownMenuItem<String>(
-                                      value: s['value'],
-                                      child: Text(s['label']!)))
-                                  .toList(),
-                              onChanged: (v) => setState(
-                                  () => _selectedStatus = v ?? 'inactive'),
-                            ),
-                          ],
+                        child: MyDropdown(
+                          title: 'Status',
+                          hintText: _statusLabel(_selectedStatus),
+                          items: _statusOptions
+                              .map((s) => s['label']!)
+                              .toList(),
+                          initialSelection: _statusLabel(_selectedStatus),
+                          onChanged: (val) {
+                            for (final s in _statusOptions) {
+                              if (s['label'] == val) {
+                                setState(() =>
+                                    _selectedStatus = s['value'] ?? 'inactive');
+                                break;
+                              }
+                            }
+                          },
                         ),
                       ),
-                    ]),
-                    const SizedBox(height: 16),
-                    MyTextFormField(
-                        title: 'Notes',
-                        controller: _notesCtrl,
-                        maxLines: 3,
-                        hintText: 'Additional notes...'),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Notes',
+                  child: MyTextFormField(
+                    controller: _notesCtrl,
+                    title: 'Additional Information',
+                    hintText: 'Additional notes...',
+                    maxLines: 3,
+                  ),
+                ),
+              ],
             ),
-            // Footer
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                      child: 'Cancel',
-                      textColor: Colors.black54,
-                      onTap: () => Navigator.pop(context)),
-                  const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        child: _controller.isSavingPartner.value
-                            ? 'Saving...'
-                            : (isEdit ? 'Update' : 'Create'),
-                        onTap:
-                            _controller.isSavingPartner.value ? () {} : _submit,
-                      )),
-                ],
-              ),
+          ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 120,
+              height: 44,
+              child: _controller.isSavingPartner.value ? 'Saving...' : 'Save',
+              onTap: _controller.isSavingPartner.value ? null : _submit,
+              icon: _controller.isSavingPartner.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
             ),
           ],
-        ),
+        ));
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

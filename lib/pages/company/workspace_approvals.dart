@@ -5,7 +5,7 @@ import 'package:bms_front_end/components/permission/permission_gate.dart';
 import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/company/company.dart'
-    show DashboardStatCard, ResponsiveStatRow, ResponsiveSubheader;
+    show ResponsiveSubheader;
 import 'package:bms_front_end/pages/hr/models/workspace_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
@@ -44,9 +44,6 @@ class WorkspaceApprovalsPage extends StatelessWidget {
             'clock-in, or reject with a reason the employee will see.',
             style: TextStyle(color: AppColors.neutral500, fontSize: 14),
           ),
-          const SizedBox(height: 24),
-
-          _StatsSection(ctrl: ctrl),
           const SizedBox(height: 24),
 
           _ViewTabs(ctrl: ctrl),
@@ -199,109 +196,6 @@ class _ViewTabs extends StatelessWidget {
         ),
       );
     });
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Stats
-// ═══════════════════════════════════════════════════════════════════════
-
-class _StatsSection extends StatelessWidget {
-  final WorkspaceApprovalsController ctrl;
-  const _StatsSection({required this.ctrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final list = ctrl.submissions;
-      final total = list.length;
-      final approved = list
-          .where((w) => w.status == WorkspaceStatus.approved)
-          .length;
-      final pending = list
-          .where((w) => w.status == WorkspaceStatus.pending)
-          .length;
-      final rejected = list
-          .where((w) => w.status == WorkspaceStatus.rejected)
-          .length;
-
-      // In Pending view, stats are pending-specific; otherwise they show
-      // the mix across the broader list.
-      final cards = ctrl.view.value == ApprovalsView.pending
-          ? <DashboardStatCard>[
-              DashboardStatCard(
-                title: 'Pending Reviews',
-                count: '$total',
-                borderColor: AppColors.warning,
-                countColor: AppColors.warning,
-              ),
-              DashboardStatCard(
-                title: 'Employees Waiting',
-                count: '${_uniqueEmployees(list)}',
-                borderColor: AppColors.primary,
-                countColor: AppColors.primary,
-              ),
-              DashboardStatCard(
-                title: 'Oldest Pending',
-                count: _oldestLabel(list),
-                borderColor: AppColors.danger,
-                countColor: AppColors.danger,
-              ),
-            ]
-          : <DashboardStatCard>[
-              DashboardStatCard(
-                title: 'Approved',
-                count: '$approved',
-                borderColor: AppColors.success,
-                countColor: AppColors.success,
-              ),
-              DashboardStatCard(
-                title: 'Pending',
-                count: '$pending',
-                borderColor: AppColors.warning,
-                countColor: AppColors.warning,
-              ),
-              DashboardStatCard(
-                title: 'Rejected',
-                count: '$rejected',
-                borderColor: AppColors.danger,
-                countColor: AppColors.danger,
-              ),
-              DashboardStatCard(
-                title: 'Total',
-                count: '$total',
-                borderColor: AppColors.primary,
-                countColor: AppColors.primary,
-              ),
-            ];
-
-      return ResponsiveStatRow(cards: cards);
-    });
-  }
-
-  static int _uniqueEmployees(List<WorkspaceConfig> list) =>
-      list.map((w) => w.employeeId).whereType<int>().toSet().length;
-
-  static String _oldestLabel(List<WorkspaceConfig> list) {
-    final oldest = list
-        .map((w) => _tryParse(w.createdAt))
-        .whereType<DateTime>()
-        .fold<DateTime?>(null, (a, b) => a == null || b.isBefore(a) ? b : a);
-    if (oldest == null) return '–';
-    final d = DateTime.now().difference(oldest);
-    if (d.inDays >= 1) return '${d.inDays}d';
-    if (d.inHours >= 1) return '${d.inHours}h';
-    if (d.inMinutes >= 1) return '${d.inMinutes}m';
-    return 'now';
-  }
-
-  static DateTime? _tryParse(String? raw) {
-    if (raw == null) return null;
-    try {
-      return DateTime.parse(raw).toLocal();
-    } catch (_) {
-      return null;
-    }
   }
 }
 

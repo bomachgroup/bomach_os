@@ -222,6 +222,15 @@ class BranchController extends GetxController {
     fetchBranches();
   }
 
+  void resetFilters() {
+    searchQuery.value = '';
+    filterState.value = null;
+    filterBranchRole.value = null;
+    filterStatus.value = null;
+    currentPage.value = 1;
+    fetchBranches(refresh: true);
+  }
+
   // --- Pagination Actions ---
 
   void goToPage(int page) {
@@ -254,7 +263,10 @@ class BranchController extends GetxController {
       title: title,
       size: DialogSize.sm,
       body: Text(message),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context), child: const Text("OK"))
+      ],
     );
   }
 }

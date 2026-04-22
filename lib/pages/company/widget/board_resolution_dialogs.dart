@@ -1,12 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/board_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controllers/board_controller.dart';
@@ -75,197 +80,161 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Resolution' : 'New Resolution',
+          subtitle: isEdit
+              ? 'Update the resolution title, status, and details.'
+              : 'Draft a new board resolution for approval.',
+          size: DialogSize.lg,
+          body: Form(
+            key: _formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isEdit ? 'Edit Resolution' : 'New Resolution',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Resolution Title
-                _fieldLabel('Resolution Title'),
-                MyTextFormField(
-                  controller: titleCtrl,
-                  hintText: 'Type here',
-                  validator: (val) =>
-                      (val == null || val.isEmpty) ? 'Required' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // Resolution Type
-                _fieldLabel('Resolution Type'),
-                Obx(() {
-                  // Reactive rebuild when choices load
-                  final _ = controller.resolutionChoices.value;
-                  return _buildTypeDropdown();
-                }),
-                const SizedBox(height: 16),
-
-                // Date & Status Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
+                _buildSection(
+                  title: 'Resolution details',
+                  subtitle:
+                      'Identify the resolution and choose its type and status.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
+                        controller: titleCtrl,
+                        title: 'Resolution Title',
+                        hintText: 'e.g. Approval of FY2026 Budget',
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'Required'
+                            : null,
+                      ),
+                      const SizedBox(height: 16),
+                      Obx(() {
+                        final choices = controller
+                                .resolutionChoices.value?.resolutionTypes ??
+                            [];
+                        final labels = choices.map((e) => e.label).toList();
+                        return MyDropdown(
+                          title: 'Resolution Type',
+                          hintText: selectedType ?? 'Select type',
+                          items: labels,
+                          initialSelection: selectedType,
+                          onChanged: (val) =>
+                              setState(() => selectedType = val),
+                        );
+                      }),
+                      const SizedBox(height: 16),
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _fieldLabel('Date'),
-                          MyTextFormField(
-                            controller: dateCtrl,
-                            hintText: 'Select date',
-                            readOnly: true,
-                            trailing: const Icon(Iconsax.calendar_1,
-                                size: 18, color: Colors.grey),
-                            onTap: _pickDate,
-                            validator: (val) => (val == null || val.isEmpty)
-                                ? 'Required'
-                                : null,
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: dateCtrl,
+                              title: 'Date',
+                              hintText: 'Select date',
+                              readOnly: true,
+                              trailing: const Icon(Iconsax.calendar_1,
+                                  size: 18, color: AppColors.textSecondary),
+                              onTap: _pickDate,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Obx(() {
+                              final choices =
+                                  controller.resolutionChoices.value?.statuses ??
+                                      [];
+                              final labels =
+                                  choices.map((e) => e.label).toList();
+                              return MyDropdown(
+                                title: 'Status',
+                                hintText: selectedStatus ?? 'Pending',
+                                items: labels,
+                                initialSelection: selectedStatus,
+                                onChanged: (val) =>
+                                    setState(() => selectedStatus = val),
+                              );
+                            }),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _fieldLabel('Status'),
-                          Obx(() {
-                            final _ = controller.resolutionChoices.value;
-                            return _buildStatusDropdown();
-                          }),
-                        ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Description & notes',
+                  subtitle:
+                      'Capture the resolution rationale and any supporting notes.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
+                        controller: descriptionCtrl,
+                        title: 'Description',
+                        hintText: 'Describe the resolution',
+                        maxLines: 3,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Description
-                _fieldLabel('Description'),
-                MyTextFormField(
-                  controller: descriptionCtrl,
-                  hintText: 'Type here',
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 16),
-
-                // Notes
-                _fieldLabel('Notes'),
-                MyTextFormField(
-                  controller: notesCtrl,
-                  hintText: 'Type here',
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 24),
-
-                // Action buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyOutlinedButton(
-                      child: 'Cancel',
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    const SizedBox(width: 12),
-                    Obx(() => MyElevatedButton(
-                          child: isEdit
-                              ? 'Update Resolution'
-                              : 'Submit for Approval',
-                          isLoading: controller.isSavingResolution.value,
-                          onTap: _onSave,
-                          icon: const Icon(Iconsax.tick_circle,
-                              color: Colors.white, size: 18),
-                        )),
-                  ],
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        controller: notesCtrl,
+                        title: 'Notes',
+                        hintText: 'Additional context or comments',
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 120,
+              height: 44,
+              child: controller.isSavingResolution.value ? 'Saving...' : 'Save',
+              onTap: controller.isSavingResolution.value ? null : _onSave,
+              icon: controller.isSavingResolution.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+            ),
+          ],
+        ));
   }
 
-  Widget _fieldLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-    );
-  }
-
-  Widget _buildTypeDropdown() {
-    final choices = controller.resolutionChoices.value?.resolutionTypes ?? [];
-    final typeLabels = choices.map((e) => e.label).toList();
-
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
     return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: typeLabels.contains(selectedType) ? selectedType : null,
-          hint: const Text('Select',
-              style: TextStyle(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
-          items: typeLabels
-              .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-              .toList(),
-          onChanged: (val) => setState(() => selectedType = val),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusDropdown() {
-    final choices = controller.resolutionChoices.value?.statuses ?? [];
-    final statusLabels = choices.map((e) => e.label).toList();
-
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: statusLabels.contains(selectedStatus) ? selectedStatus : null,
-          hint: const Text('Pending',
-              style: TextStyle(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
-          items: statusLabels
-              .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-              .toList(),
-          onChanged: (val) => setState(() => selectedStatus = val),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }
@@ -342,232 +311,304 @@ class ViewResolutionDialog extends StatelessWidget {
       displayDate = DateFormat('MMMM d, yyyy').format(parsed);
     } catch (_) {}
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return DialogScaffold(
+      title: 'Resolution details',
+      subtitle: resolution.title,
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(resolution, displayDate),
+          const SizedBox(height: 20),
+          _buildDetailSection(
+            title: 'Resolution information',
             children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Resolution info',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              _buildDetailRow('Title', resolution.title),
-              _buildDetailRow('Type', resolution.resolutionTypeDisplay),
-              _buildDetailRow('Date', displayDate),
-
-              // Status
-              _buildStatusRow(resolution.statusDisplay),
-
-              if (resolution.description.isNotEmpty)
-                _buildDetailRow('Description', resolution.description),
-
+              _detailRow('Title', resolution.title),
+              _detailRow('Type', resolution.resolutionTypeDisplay),
+              _detailRow('Date', displayDate),
+              _detailRow('Status', resolution.statusDisplay),
               if (resolution.createdByName.isNotEmpty)
-                _buildDetailRow('Created By', resolution.createdByName),
-
+                _detailRow('Created By', resolution.createdByName),
               if (resolution.approvedByName != null &&
                   resolution.approvedByName!.isNotEmpty)
-                _buildDetailRow('Approved By', resolution.approvedByName!),
-
-              if (resolution.attachmentUrl != null &&
-                  resolution.attachmentUrl!.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Text('Attachment',
-                      style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
+                _detailRow('Approved By', resolution.approvedByName!),
+            ],
+          ),
+          if (resolution.description.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildDetailSection(
+              title: 'Description',
+              children: [
+                Text(
+                  resolution.description,
+                  style: AppText.bodyMd
+                      .copyWith(color: AppColors.textPrimary),
                 ),
+              ],
+            ),
+          ],
+          if (resolution.attachmentUrl != null &&
+              resolution.attachmentUrl!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildDetailSection(
+              title: 'Attachment',
+              children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade200),
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.borderSubtle),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Iconsax.attach_circle, size: 16, color: Colors.grey),
-                      SizedBox(width: 6),
-                      Text('View Attachment', style: TextStyle(fontSize: 13)),
+                      const Icon(Iconsax.attach_circle,
+                          size: 16, color: AppColors.textSecondary),
+                      const SizedBox(width: 8),
+                      Text('View Attachment',
+                          style: AppText.bodySm.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
               ],
-
-              // Notes
-              if (resolution.notes != null && resolution.notes!.isNotEmpty)
-                _buildDetailRow('Notes', resolution.notes!),
-
-              const SizedBox(height: 24),
-
-              // Action buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _buildActionButton(
-                    label: 'Archive',
-                    color: Colors.red,
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final confirmed = await _showArchiveConfirmation(
-                          context, resolution.title);
-                      if (confirmed == true && context.mounted) {
-                        controller.archiveResolution(context, resolution.id);
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _buildActionButton(
-                    label: 'Edit',
-                    color: AppColors.primary,
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (_) =>
-                            NewResolutionDialog(resolution: resolution),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
+          if (resolution.notes != null && resolution.notes!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildDetailSection(
+              title: 'Notes',
+              children: [
+                Text(
+                  resolution.notes!,
+                  style: AppText.bodyMd
+                      .copyWith(color: AppColors.textPrimary),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
+        MyOutlinedButton(
+          child: 'Archive',
+          height: 44,
+          onTap: () async {
+            Navigator.pop(context);
+            final confirmed =
+                await _showArchiveConfirmation(context, resolution.title);
+            if (confirmed == true && context.mounted) {
+              controller.archiveResolution(context, resolution.id);
+            }
+          },
+          textColor: AppColors.danger,
+          borderColor: AppColors.danger,
+        ),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: 'Edit',
+          icon: const Icon(Iconsax.edit,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (_) => NewResolutionDialog(resolution: resolution),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBanner(BoardResolution resolution, String displayDate) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            child: const Icon(Iconsax.document_text,
+                color: AppColors.primary, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(resolution.title, style: AppText.h3),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (resolution.statusDisplay.isNotEmpty)
+                      StatusChip(
+                        label: resolution.statusDisplay,
+                        tone: _statusTone(resolution.statusDisplay),
+                      ),
+                    if (resolution.resolutionTypeDisplay.isNotEmpty)
+                      _buildMetaChip(
+                        icon: Iconsax.tag,
+                        label: resolution.resolutionTypeDisplay,
+                      ),
+                    _buildMetaChip(
+                      icon: Iconsax.calendar,
+                      label: displayDate.isEmpty ? 'No date' : displayDate,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildMetaChip({
+    required IconData icon,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppText.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 110,
-            child: Text(label,
-                style: const TextStyle(color: AppColors.neutral500, fontSize: 13)),
+            width: 130,
+            child: Text(
+              label,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+            child: Text(
+              value.isEmpty ? '-' : value,
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatusRow(String status) {
-    Color color;
+  StatusTone _statusTone(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        color = Colors.green;
-        break;
+        return StatusTone.success;
       case 'pending':
-        color = Colors.orange;
-        break;
+        return StatusTone.warning;
       case 'rejected':
-        color = Colors.red;
-        break;
+        return StatusTone.danger;
       case 'archived':
-        color = Colors.grey;
-        break;
+        return StatusTone.neutral;
       default:
-        color = Colors.grey;
+        return StatusTone.neutral;
     }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        children: [
-          const SizedBox(
-            width: 110,
-            child: Text('Status',
-                style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Iconsax.record_circle, size: 8, color: color),
-                const SizedBox(width: 6),
-                Text(status,
-                    style: TextStyle(
-                        color: color,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(label,
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14)),
-      ),
-    );
   }
 
   Future<bool?> _showArchiveConfirmation(
       BuildContext context, String name) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Archive Resolution'),
-        content: Text('Are you sure you want to archive "$name"?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c, false),
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => Navigator.pop(c, true),
-              child:
-                  const Text('Archive', style: TextStyle(color: Colors.red))),
-        ],
+    return DialogScaffold.show<bool>(
+      context,
+      title: 'Archive resolution',
+      subtitle: 'Archived resolutions can be restored from the archive tab.',
+      size: DialogSize.sm,
+      body: Text(
+        'Are you sure you want to archive "$name"?',
+        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context, false),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: 'Archive',
+          icon: const Icon(Iconsax.archive,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () => Navigator.pop(context, true),
+        ),
+      ],
     );
   }
 }

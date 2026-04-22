@@ -1,4 +1,3 @@
-import 'package:bms_front_end/components/nav/header.dart';
 import 'package:bms_front_end/components/nav/side_menu.dart';
 import 'package:bms_front_end/main.dart';
 import 'package:flutter/material.dart';
@@ -57,15 +56,12 @@ class _LargeScreenDashboardState extends State<LargeScreenDashboard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const TopNavigationBar(),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Container(
-                      width: media.width - sidebarWidth,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32.0, vertical: 28),
-                      child: widget.navigationShell,
-                    ),
+                  child: Container(
+                    width: media.width - sidebarWidth,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0, vertical: 28),
+                    child: widget.navigationShell,
                   ),
                 ),
               ],

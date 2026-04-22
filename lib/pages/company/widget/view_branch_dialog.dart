@@ -1,7 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/branch_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,47 +40,72 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 700),
-        child: Obx(() {
-          if (controller.isLoadingDetail.value) {
-            return const SizedBox(
-              height: 300,
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+    return Obx(() {
+      if (controller.isLoadingDetail.value) {
+        return const DialogScaffold(
+          title: 'Branch details',
+          size: DialogSize.lg,
+          body: SizedBox(
+            height: 280,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          actions: [],
+        );
+      }
 
-          final branch = controller.currentBranch.value;
-          if (branch == null) {
-            return const Padding(
-              padding: EdgeInsets.all(40),
-              child: Center(child: Text("No branch data available")),
-            );
-          }
+      final branch = controller.currentBranch.value;
+      if (branch == null) {
+        return DialogScaffold(
+          title: 'Branch details',
+          size: DialogSize.lg,
+          body: const SizedBox(
+            height: 220,
+            child: Center(child: Text('No branch data available')),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      }
 
-          return Column(
+      return DialogScaffold(
+        title: branch.branchName,
+        subtitle: '${branch.branchRoleDisplay} • ${_branchLocation(branch)}',
+        size: DialogSize.lg,
+        scrollable: false,
+        bodyPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        body: SizedBox(
+          height: 560,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header
-              _buildHeader(branch),
-              const Divider(height: 1),
-
-              // Tabs
+              _buildSummaryBanner(branch),
+              const SizedBox(height: 16),
               Container(
-                color: AppColors.neutral50,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMuted,
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
                 child: TabBar(
                   controller: _tabController,
                   isScrollable: true,
-                  labelColor: AppColors.primary,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorColor: AppColors.primary,
-                  indicatorWeight: 2,
-                  labelStyle: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600),
-                  unselectedLabelStyle: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w400),
+                  labelColor: AppColors.textPrimary,
+                  unselectedLabelColor: AppColors.textSecondary,
+                  indicator: const BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brMd,
+                    boxShadow: AppShadows.sm,
+                  ),
+                  dividerColor: Colors.transparent,
+                  labelStyle:
+                      AppText.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                  unselectedLabelStyle:
+                      AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+                  padding: const EdgeInsets.all(6),
                   tabs: const [
                     Tab(text: 'Overview'),
                     Tab(text: 'Departments'),
@@ -85,95 +115,138 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                   ],
                 ),
               ),
-
-              // Tab Content
+              const SizedBox(height: 16),
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildOverviewTab(branch),
-                    _buildDepartmentsTab(),
-                    _buildProjectsTab(),
-                    _buildFinancialTab(),
-                    _buildPeopleTab(branch),
-                  ],
-                ),
-              ),
-
-              // Footer
-              const Divider(height: 1),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyElevatedButton(
-                      width: 120,
-                      child: "Edit Branch",
-                      onTap: () {
-                        Navigator.pop(context);
-                        controller.loadFilterResources();
-                        showDialog(
-                          context: context,
-                          builder: (_) => AddBranchDialog(branchToEdit: branch),
-                        );
-                      },
-                    ),
-                  ],
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brLg,
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildOverviewTab(branch),
+                      _buildDepartmentsTab(),
+                      _buildProjectsTab(),
+                      _buildFinancialTab(),
+                      _buildPeopleTab(branch),
+                    ],
+                  ),
                 ),
               ),
             ],
-          );
-        }),
-      ),
-    );
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          MyElevatedButton(
+            width: 120,
+            height: 44,
+            child: 'Edit Branch',
+            onTap: () {
+              Navigator.pop(context);
+              controller.loadFilterResources();
+              showDialog(
+                context: context,
+                builder: (_) => AddBranchDialog(branchToEdit: branch),
+              );
+            },
+          ),
+        ],
+      );
+    });
   }
 
-  Widget _buildHeader(Branch branch) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+  Widget _buildSummaryBanner(Branch branch) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
       child: Row(
         children: [
-          // Branch icon
           Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
             ),
-            child: const Icon(Iconsax.building_4, color: AppColors.primary, size: 24),
+            child: const Icon(Iconsax.building_4,
+                color: AppColors.primary, size: 24),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Text(branch.branchName, style: AppText.h2),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Flexible(
-                      child: MyText(
-                        branch.branchName,
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
+                    StatusChip.fromStatus(branch.operationalStatusDisplay),
+                    _buildMetaChip(
+                      icon: Iconsax.tag,
+                      label: branch.branchId.isNotEmpty
+                          ? branch.branchId
+                          : '#${branch.id}',
                     ),
-                    const SizedBox(width: 8),
-                    _buildStatusBadge(branch.operationalStatusDisplay),
+                    _buildMetaChip(
+                      icon: Iconsax.profile_circle,
+                      label: branch.managerName.isNotEmpty
+                          ? branch.managerName
+                          : 'No manager assigned',
+                    ),
                   ],
-                ),
-                const SizedBox(height: 4),
-                MyText(
-                  "${branch.branchRoleDisplay} | ID: #${branch.id}",
-                  size: 12,
-                  color: Colors.grey,
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Iconsax.close_circle),
-            onPressed: () => Navigator.pop(context),
+        ],
+      ),
+    );
+  }
+
+  String _branchLocation(Branch branch) {
+    final parts = <String>[
+      if (branch.city.isNotEmpty) branch.city,
+      if (branch.state.isNotEmpty) branch.state,
+      if (branch.country.isNotEmpty) branch.country,
+    ];
+    return parts.isEmpty ? 'No location added' : parts.join(' • ');
+  }
+
+  Widget _buildMetaChip({
+    required IconData icon,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppText.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -265,7 +338,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               ),
               child: Text(
                 branch.notes,
-                style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
+                style:
+                    const TextStyle(fontSize: 13, color: AppColors.neutral600),
               ),
             ),
           ],
@@ -761,7 +835,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               color: Colors.blue.shade50,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Iconsax.profile_circle, color: Colors.blue, size: 22),
+            child: const Icon(Iconsax.profile_circle,
+                color: Colors.blue, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
