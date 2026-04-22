@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:iconsax/iconsax.dart';
 
 import 'package:bms_front_end/main.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -14,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 // Enums for menu identification
 enum MainMenuItem {
@@ -238,6 +238,7 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends State<SideMenu> {
   MainMenuItem? selectedMainMenu;
   SubMenuItem? selectedSubMenu;
+
   /// Accordion state: the single expandable group that is currently open,
   /// or `null` when every group is collapsed. Search mode overrides this
   /// (all groups with matches open) via the build-time `isOpen` calc.
@@ -418,9 +419,8 @@ class _SideMenuState extends State<SideMenu> {
     // If the parent label matches, show all children.
     if (labelHit) return item;
 
-    final matchingChildren = item.children
-        .where((c) => c.label.toLowerCase().contains(q))
-        .toList();
+    final matchingChildren =
+        item.children.where((c) => c.label.toLowerCase().contains(q)).toList();
     if (matchingChildren.isEmpty) return null;
 
     return MenuItem(
@@ -1246,9 +1246,8 @@ class _SideMenuState extends State<SideMenu> {
     // Search mode overrides accordion: every group with matches stays open
     // so the user can see all hits at once. When search is cleared, the
     // normal single-open accordion rule resumes.
-    final bool isOpen = _searchQuery.trim().isNotEmpty
-        ? true
-        : _openMenu == menuItem.id;
+    final bool isOpen =
+        _searchQuery.trim().isNotEmpty ? true : _openMenu == menuItem.id;
 
     return _ExpandableMenuRow(
       key: ValueKey('expandable-${menuItem.id.name}'),
@@ -1362,10 +1361,8 @@ class _SideMenuState extends State<SideMenu> {
         // ignore: unused_local_variable
         final _ = Get.find<PermissionService>().version;
 
-        final filtered = menuItems
-            .map(_filterForSearch)
-            .whereType<MenuItem>()
-            .toList();
+        final filtered =
+            menuItems.map(_filterForSearch).whereType<MenuItem>().toList();
 
         return widget.isCollapsed
             ? _buildCollapsedRail(filtered)
@@ -1480,7 +1477,8 @@ class _SideMenuState extends State<SideMenu> {
       }
       if (menuItem.isExpandable) {
         final authorizedSubItems = menuItem.children
-            .where((s) => permissionService.canAccessRoute(s.route, s.resources))
+            .where(
+                (s) => permissionService.canAccessRoute(s.route, s.resources))
             .toList();
         if (authorizedSubItems.isEmpty) continue;
       } else if (!permissionService.canAccessResources(menuItem.resources)) {
@@ -1644,22 +1642,22 @@ class _SidebarSearchField extends StatelessWidget {
                     onChanged('');
                   },
                 ),
-        filled: true,
-        fillColor: AppColors.white,
-        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-        isDense: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.borderSubtle),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.borderSubtle),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primary),
-        ),
+          filled: true,
+          fillColor: AppColors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          isDense: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.borderSubtle),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.borderSubtle),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.primary),
+          ),
         ),
       ),
     );
@@ -1701,10 +1699,12 @@ class _MenuRow extends StatefulWidget {
   final bool isSub;
   final VoidCallback onTap;
   final Widget? trailing;
+
   /// Whether this row represents a currently-pinned item. Pinned rows get a
   /// small bookmark indicator in the trailing area (when no custom trailing
   /// is supplied).
   final bool isPinned;
+
   /// Right-click / long-press callback. Receives the global tap position so
   /// the caller can open a context menu anchored to the cursor.
   final ValueChanged<Offset>? onContextMenu;
@@ -1738,7 +1738,7 @@ class _MenuRowState extends State<_MenuRow> {
     final bool selected = widget.isSelected;
 
     final Color bg = selected
-        ? AppColors.primarySubtle
+        ? AppColors.primarySoft
         : (_hover || _focused ? AppColors.neutral200 : Colors.transparent);
 
     final Color accent = selected ? AppColors.primary : Colors.transparent;
@@ -1913,9 +1913,7 @@ class _ExpandableMenuRow extends StatelessWidget {
             child: Icon(
               Iconsax.arrow_down_1,
               size: 16,
-              color: isSelected
-                  ? AppColors.primary
-                  : AppColors.textSecondary,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
             ),
           ),
         ),
@@ -2014,7 +2012,7 @@ class _CollapsedMenuButtonState extends State<_CollapsedMenuButton> {
     final Color ringColor = _focused ? AppColors.primary : Colors.transparent;
 
     final Color bg = selected
-        ? AppColors.primarySubtle
+        ? AppColors.primarySoft
         : (_hover || _focused ? AppColors.neutral200 : Colors.transparent);
 
     final Color iconColor =
