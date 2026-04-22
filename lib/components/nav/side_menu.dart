@@ -1266,6 +1266,21 @@ class _SideMenuState extends State<SideMenu> {
         _saveMenuState(menuItem.id, selectedSubMenu);
         _saveOpenMenu(_openMenu);
       },
+      onExpand: () {
+        if (!isOpen) {
+          setState(() => _openMenu = menuItem.id);
+          _saveOpenMenu(_openMenu);
+        } else {
+          // If already open, Right arrow moves focus to the first child.
+          FocusScope.of(context).nextFocus();
+        }
+      },
+      onCollapse: () {
+        if (isOpen) {
+          setState(() => _openMenu = null);
+          _saveOpenMenu(_openMenu);
+        }
+      },
       children: authorizedSubItems
           .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
           .toList(),
@@ -1693,6 +1708,8 @@ class _MenuRow extends StatefulWidget {
   /// Right-click / long-press callback. Receives the global tap position so
   /// the caller can open a context menu anchored to the cursor.
   final ValueChanged<Offset>? onContextMenu;
+  final VoidCallback? onExpand;
+  final VoidCallback? onCollapse;
 
   const _MenuRow({
     super.key,
@@ -1704,6 +1721,8 @@ class _MenuRow extends StatefulWidget {
     this.trailing,
     this.isPinned = false,
     this.onContextMenu,
+    this.onExpand,
+    this.onCollapse,
   });
 
   @override
@@ -1720,14 +1739,14 @@ class _MenuRowState extends State<_MenuRow> {
 
     final Color bg = selected
         ? AppColors.primarySubtle
-        : (_hover ? AppColors.neutral200 : Colors.transparent);
+        : (_hover || _focused ? AppColors.neutral200 : Colors.transparent);
 
     final Color accent = selected ? AppColors.primary : Colors.transparent;
 
-    // Focus ring colour. Always 1 px wide (even when transparent) so the row
+    // Focus ring color. Always 1 px wide (even when transparent) so the row
     // height never jitters as focus moves between rows.
-    final Color ringColor =
-        _focused && !selected ? AppColors.primary : Colors.transparent;
+    // If selected, we use a slightly different color or just keep the ring.
+    final Color ringColor = _focused ? AppColors.primary : Colors.transparent;
 
     final Color iconColor = selected
         ? AppColors.primary
@@ -1761,16 +1780,31 @@ class _MenuRowState extends State<_MenuRow> {
     return Focus(
       onFocusChange: (v) => setState(() => _focused = v),
       onKeyEvent: (node, event) {
-        // Enter / Space → activate the row, matching tap behaviour. Arrow
-        // keys are intentionally left alone so Flutter's default directional
-        // focus traversal (registered on WidgetsApp) can move focus between
-        // sibling rows.
-        if (event is KeyDownEvent &&
-            (event.logicalKey == LogicalKeyboardKey.enter ||
-                event.logicalKey == LogicalKeyboardKey.space)) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+
+        // Enter / Space → activate the row, matching tap behaviour.
+        if (event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.space) {
           widget.onTap();
           return KeyEventResult.handled;
         }
+
+        // Right Arrow → Expand if a callback is provided.
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          if (widget.onExpand != null) {
+            widget.onExpand!();
+            return KeyEventResult.handled;
+          }
+        }
+
+        // Left Arrow → Collapse if a callback is provided.
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (widget.onCollapse != null) {
+            widget.onCollapse!();
+            return KeyEventResult.handled;
+          }
+        }
+
         return KeyEventResult.ignored;
       },
       child: MouseRegion(
@@ -1846,6 +1880,8 @@ class _ExpandableMenuRow extends StatelessWidget {
   final bool isOpen;
   final VoidCallback onHeaderTap;
   final List<Widget> children;
+  final VoidCallback? onExpand;
+  final VoidCallback? onCollapse;
 
   const _ExpandableMenuRow({
     super.key,
@@ -1855,6 +1891,8 @@ class _ExpandableMenuRow extends StatelessWidget {
     required this.isOpen,
     required this.onHeaderTap,
     required this.children,
+    this.onExpand,
+    this.onCollapse,
   });
 
   @override
@@ -1867,6 +1905,8 @@ class _ExpandableMenuRow extends StatelessWidget {
           label: label,
           isSelected: isSelected,
           onTap: onHeaderTap,
+          onExpand: onExpand,
+          onCollapse: onCollapse,
           trailing: AnimatedRotation(
             turns: isOpen ? 0.5 : 0.0,
             duration: const Duration(milliseconds: 180),
@@ -1963,13 +2003,20 @@ class _CollapsedMenuButton extends StatefulWidget {
 
 class _CollapsedMenuButtonState extends State<_CollapsedMenuButton> {
   bool _hover = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
     final bool selected = widget.isSelected;
+
+    // Focus ring colour. Always 1 px wide (even when transparent) so the button
+    // doesn't jitter during focus changes.
+    final Color ringColor = _focused ? AppColors.primary : Colors.transparent;
+
     final Color bg = selected
         ? AppColors.primarySubtle
-        : (_hover ? AppColors.neutral200 : Colors.transparent);
+        : (_hover || _focused ? AppColors.neutral200 : Colors.transparent);
+
     final Color iconColor =
         selected ? AppColors.primary : AppColors.textPrimary;
 
@@ -1980,27 +2027,41 @@ class _CollapsedMenuButtonState extends State<_CollapsedMenuButton> {
           message: widget.label,
           waitDuration: const Duration(milliseconds: 400),
           preferBelow: false,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            onEnter: (_) => setState(() => _hover = true),
-            onExit: (_) => setState(() => _hover = false),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: widget.onTap,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    width: 1,
-                    color: selected ? AppColors.primary : Colors.transparent,
+          child: Focus(
+            onFocusChange: (v) => setState(() => _focused = v),
+            onKeyEvent: (node, event) {
+              if (event is KeyDownEvent &&
+                  (event.logicalKey == LogicalKeyboardKey.enter ||
+                      event.logicalKey == LogicalKeyboardKey.space)) {
+                widget.onTap();
+                return KeyEventResult.handled;
+              }
+              return KeyEventResult.ignored;
+            },
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              onEnter: (_) => setState(() => _hover = true),
+              onExit: (_) => setState(() => _hover = false),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: widget.onTap,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 120),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      width: 1,
+                      color: selected || _focused
+                          ? AppColors.primary
+                          : Colors.transparent,
+                    ),
                   ),
+                  alignment: Alignment.center,
+                  child: Icon(widget.icon, size: 20, color: iconColor),
                 ),
-                alignment: Alignment.center,
-                child: Icon(widget.icon, size: 20, color: iconColor),
               ),
             ),
           ),
