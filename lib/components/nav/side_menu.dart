@@ -1,9 +1,8 @@
 import 'dart:developer';
 
 import 'package:bms_front_end/main.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/icons.dart';
+
 import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -14,206 +13,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/pages/auth/controller.dart';
 
-// Enums for menu identification
-enum MainMenuItem {
-  dashboard,
-  company,
-  hr,
-  employee,
-  work,
-  marketing,
-  calendar,
-  events,
-  services,
-  notification,
-  settings,
-  help,
-  financeAccounting,
-  workspace,
-  analytics,
-  legalCompliance,
-  clientPortal,
-  security,
-  crm,
-  marketingCrm,
-}
-
-enum SubMenuItem {
-  // Dashboard sub-items
-  dashboardHome,
-  myProfile,
-  myTasks,
-  myReports,
-
-  // Company sub-items
-  company,
-  branch,
-  board,
-  broadcast,
-  roles,
-  approvalWorkflow,
-  workspaceApprovals,
-  auditLog,
-  compliance,
-  enugu,
-  portHarcourt,
-  abuja,
-
-  // HR sub-items
-  employees,
-
-  // Employee sub-items
-  employeeDirectory,
-  employeePerformance,
-  employeeAttendance,
-  employeeTraining,
-  leaves,
-  clients,
-  leads,
-  department,
-
-  // new
-  hrDashboad,
-  jobPost,
-  jobApplicants,
-  attendance,
-  loans,
-  leaveRequest,
-  performance,
-  benefits,
-  trainingProgram,
-  associates,
-  assets,
-  workReport,
-  monthlyScorecard,
-  awardsRecognition,
-  performanceLeaderboard,
-  employeeEvaluation,
-  disciplinaryProcess,
-
-  // Warketing sub-items
-  marketing,
-
-  // Work sub-items
-  operations,
-  project,
-  worksite,
-  tasks,
-  contracts,
-  meetings,
-
-  // Services sub-items
-  servicesDashboard,
-  serviceClients,
-  serviceOrder,
-  realEstate,
-  landSurvey,
-  servicesItem,
-  propertyManagement,
-  estateManagement,
-  estatePerformance,
-  paymentApproval,
-  landSurveyCalculator,
-  servicesCalculator,
-  generateInvoice,
-  serviceLeads,
-  serviceInvoices,
-
-  // Finance & Accounting sub-items
-  financeDashboard,
-  invoice,
-  payments,
-  expenses,
-  budget,
-  vendorContributor,
-
-  // Workspace
-  workspace,
-  workspaceDashboard,
-
-  // Analytics
-  overview,
-  revenue,
-  projects,
-  analyticsPerformance,
-  branchPerformance,
-
-  // Legal & Compliance
-  legalContracts,
-  legalCompliance,
-  legalCases,
-  legalAudits,
-
-  // Client Portal
-  clientAccess,
-  documentSharing,
-  communications,
-  portalAnalytics,
-
-  // Security
-  securityOverview,
-  securityCodes,
-  securityWorkflow,
-  securityAlerts,
-  securityLogs,
-
-  // CRM
-  crmClients,
-  crmLeads,
-  crmAnalytics,
-  crmInteractions,
-  marketingCrmDashboard,
-}
-
-// Data classes for menu structure
-class MenuItem {
-  final MainMenuItem id;
-  final String label;
-  final IconData icon;
-  final String? route;
-  final List<String>? resources;
-  final bool isExpandable;
-  final List<SubMenuItemData> children;
-
-  const MenuItem({
-    required this.id,
-    required this.label,
-    required this.icon,
-    this.route,
-    this.resources,
-    required this.isExpandable,
-    this.children = const [],
-  });
-}
-
-class SubMenuItemData {
-  final SubMenuItem id;
-  final String label;
-  final IconData icon;
-  final String? route;
-  final List<String>? resources;
-
-  const SubMenuItemData({
-    required this.id,
-    required this.label,
-    required this.icon,
-    this.route,
-    this.resources,
-  });
-}
-
-/// Section groupings for the sidebar. The key is the FIRST menu item of each
-/// section; hitting that key during render emits a [_SectionHeader] above it.
-/// The first entry renders without a top divider.
-const Map<MainMenuItem, String> _sectionBreaks = {
-  MainMenuItem.dashboard: 'Workspace',
-  MainMenuItem.hr: 'People',
-  MainMenuItem.work: 'Operations',
-  MainMenuItem.marketingCrm: 'Revenue',
-  MainMenuItem.analytics: 'Insights',
-  MainMenuItem.legalCompliance: 'Compliance',
-};
+import 'package:bms_front_end/src/app_routes/menu_structure.dart';
+import 'package:bms_front_end/components/dialog/user_profile_dialog.dart';
 
 class SideMenu extends StatefulWidget {
   /// When true, the sidebar renders as a narrow icon-only rail with tooltips;
@@ -231,6 +34,12 @@ class SideMenu extends StatefulWidget {
     this.onToggleCollapse,
   });
 
+  static SideMenu of(BuildContext context) {
+    final SideMenu? result = context.findAncestorWidgetOfExactType<SideMenu>();
+    assert(result != null, 'No SideMenu found in context');
+    return result!;
+  }
+
   @override
   State<SideMenu> createState() => _SideMenuState();
 }
@@ -243,10 +52,11 @@ class _SideMenuState extends State<SideMenu> {
   /// or `null` when every group is collapsed. Search mode overrides this
   /// (all groups with matches open) via the build-time `isOpen` calc.
   MainMenuItem? _openMenu;
-  late final List<MenuItem> menuItems;
+  List<MenuItem> get menuItems => sidebarStructure.expand((s) => s.items).toList();
   late final Map<String, MenuSelection> routeToMenuMapping;
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode(debugLabel: 'sidebar-search');
+  final ScrollController _scrollController = ScrollController();
   String _searchQuery = '';
 
   /// Pinned sub-items (e.g. "Employees", "Leave Requests"). Rendered as a
@@ -261,7 +71,6 @@ class _SideMenuState extends State<SideMenu> {
   @override
   void initState() {
     super.initState();
-    _initializeMenuItems();
     _initializeRouteMapping();
     _loadPinned();
     // Register a global shortcut so \u2318K / Ctrl+K focuses the sidebar
@@ -434,656 +243,6 @@ class _SideMenuState extends State<SideMenu> {
     );
   }
 
-  void _initializeMenuItems() {
-    menuItems = [
-      const MenuItem(
-        id: MainMenuItem.dashboard,
-        label: 'Dashboard',
-        icon: AppIcons.dashboard,
-        route: RouteConstants.home,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resDashboard,
-          PermissionConstants.resEmployees,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.dashboardHome,
-            icon: Iconsax.home_2,
-            label: 'Overview',
-            route: RouteConstants.home,
-            resources: [
-              PermissionConstants.resDashboard,
-              PermissionConstants.resEmployees,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.myProfile,
-            icon: Iconsax.user,
-            label: 'My Profile',
-            route: RouteConstants.employeeMyProfile,
-            resources: [PermissionConstants.resEmployees],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.myTasks,
-            icon: Iconsax.task_square,
-            label: 'My Tasks',
-            route: RouteConstants.employeeMyTasks,
-            resources: [PermissionConstants.resTasks],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.myReports,
-            icon: Iconsax.document_text,
-            label: 'My Work Reports',
-            route: RouteConstants.employeeMyReports,
-            resources: [PermissionConstants.resWorkReports],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.company,
-        label: 'Company',
-        icon: AppIcons.company,
-        isExpandable: true,
-        resources: [PermissionConstants.resCompanySettings],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.company,
-            icon: Iconsax.building_4,
-            label: 'Profile',
-            route: RouteConstants.company,
-            resources: [PermissionConstants.resCompanySettings],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.branch,
-            icon: Iconsax.buildings_2,
-            label: 'Branch',
-            route: RouteConstants.branch,
-            resources: [PermissionConstants.resBranches],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.board,
-            icon: Iconsax.people,
-            label: 'Board',
-            route: RouteConstants.board,
-            resources: [PermissionConstants.resBoardResolutions],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.broadcast,
-            icon: Iconsax.speaker,
-            label: 'Broadcast',
-            route: RouteConstants.broadcast,
-            resources: [PermissionConstants.resAnnouncements],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.roles,
-            icon: Iconsax.shield_tick,
-            label: 'Roles & Permissions',
-            route: RouteConstants.roles,
-            resources: [PermissionConstants.resRoles],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.approvalWorkflow,
-            icon: Iconsax.tick_square,
-            label: 'Approval Workflows',
-            route: RouteConstants.approvalWorkflow,
-            resources: [PermissionConstants.resApprovalFlows],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.workspaceApprovals,
-            icon: Iconsax.note_2,
-            label: 'Workspace Approvals',
-            route: RouteConstants.workspaceApprovals,
-            resources: [PermissionConstants.resWorkLocations],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.department,
-            icon: Iconsax.hierarchy,
-            label: 'Departments & Units',
-            route: RouteConstants.department,
-            resources: [PermissionConstants.resDepartments],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.assets,
-            icon: Iconsax.box,
-            label: 'Assets',
-            route: RouteConstants.assets,
-            resources: [PermissionConstants.resAssets],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.auditLog,
-            icon: Iconsax.clipboard_text,
-            label: 'Audit Log',
-            route: RouteConstants.auditLog,
-            resources: [PermissionConstants.resAuditLogs],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.hr,
-        label: 'HR/Admin',
-        icon: AppIcons.hr,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resEmployees,
-          PermissionConstants.resJobPostings,
-          PermissionConstants.resLeaveRequests,
-          PermissionConstants.resPayroll,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.employees,
-            icon: Iconsax.user_square,
-            label: 'Employees',
-            route: RouteConstants.employees,
-            resources: [PermissionConstants.resEmployees],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.attendance,
-            icon: Iconsax.calendar_tick,
-            label: 'Attendance',
-            route: RouteConstants.attendance,
-            resources: [PermissionConstants.resEmployees],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.jobPost,
-            icon: Iconsax.user_add,
-            label: 'Recruitment',
-            route: RouteConstants.jobPost,
-            resources: [PermissionConstants.resJobPostings],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leaves,
-            icon: Iconsax.calendar_remove,
-            label: 'My Leaves',
-            route: RouteConstants.leaves,
-            resources: [PermissionConstants.resLeaveRequests],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leaveRequest,
-            icon: Iconsax.note_remove,
-            label: 'Leave Requests',
-            route: RouteConstants.leaveRequest,
-            resources: [PermissionConstants.resLeaveRequests],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.trainingProgram,
-            icon: Iconsax.teacher,
-            label: 'Training',
-            route: RouteConstants.trainingProgram,
-            resources: [PermissionConstants.resTrainingPrograms],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.loans,
-            icon: Iconsax.money_recive,
-            label: 'Loans',
-            route: RouteConstants.loans,
-            resources: [PermissionConstants.resLoans],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.benefits,
-            icon: Iconsax.gift,
-            label: 'Benefits',
-            route: RouteConstants.benefits,
-            resources: [PermissionConstants.resPayroll],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.performance,
-            icon: Iconsax.chart,
-            label: 'Performance',
-            route: RouteConstants.performanceReview,
-            resources: [PermissionConstants.resPerformanceReviews],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.workReport,
-            icon: Iconsax.note_2,
-            label: 'Work Reports',
-            route: RouteConstants.workReport,
-            resources: [PermissionConstants.resWorkReports],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.monthlyScorecard,
-            icon: Iconsax.chart_2,
-            label: 'Monthly Scorecard',
-            route: RouteConstants.monthlyScorecard,
-            resources: [PermissionConstants.resMonthlyScorecards],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.awardsRecognition,
-            icon: Iconsax.award,
-            label: 'Awards & Recognition',
-            route: RouteConstants.awardsRecognition,
-            resources: [PermissionConstants.resAwards],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.performanceLeaderboard,
-            icon: Iconsax.cup,
-            label: 'Performance Leaderboard',
-            route: RouteConstants.performanceLeaderboard,
-            resources: [PermissionConstants.resKpis],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.employeeEvaluation,
-            icon: Iconsax.clipboard_text,
-            label: 'Employee Evaluation',
-            route: RouteConstants.employeeEvaluation,
-            resources: [PermissionConstants.resEmployeeEvaluations],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.disciplinaryProcess,
-            icon: Iconsax.warning_2,
-            label: 'Disciplinary Process',
-            route: RouteConstants.disciplinaryProcess,
-            resources: [PermissionConstants.resDisciplinaryCases],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.work,
-        label: 'Operations',
-        icon: AppIcons.operations,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resProjects,
-          PermissionConstants.resTasks,
-          PermissionConstants.resContracts,
-          PermissionConstants.resWorksites,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.operations,
-            icon: Iconsax.briefcase,
-            label: 'Operations',
-            route: RouteConstants.operations,
-            resources: [PermissionConstants.resProjects],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.project,
-            icon: Iconsax.folder_connection,
-            label: 'Project',
-            route: RouteConstants.projects,
-            resources: [PermissionConstants.resProjects],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.worksite,
-            icon: Iconsax.location_tick,
-            label: 'Worksite',
-            route: RouteConstants.worksite,
-            resources: [PermissionConstants.resWorksites],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.tasks,
-            icon: Iconsax.task_square,
-            label: 'Tasks',
-            route: RouteConstants.tasks,
-            resources: [PermissionConstants.resTasks],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.contracts,
-            icon: Iconsax.document_text,
-            label: 'Contracts',
-            route: RouteConstants.contracts,
-            resources: [PermissionConstants.resContracts],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.meetings,
-            icon: Iconsax.calendar_1,
-            label: 'Meetings',
-            route: RouteConstants.meetings,
-            resources: [PermissionConstants.resMeetings],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.services,
-        label: 'Services',
-        icon: AppIcons.services,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resServices,
-          PermissionConstants.resProperties,
-          PermissionConstants.resEstates,
-          PermissionConstants.resClients,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.servicesDashboard,
-            icon: Iconsax.element_4,
-            label: 'Dashboard',
-            route: RouteConstants.services,
-            resources: [PermissionConstants.resServices],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.serviceClients,
-            icon: Iconsax.user_octagon,
-            label: 'Clients',
-            route: RouteConstants.serviceClients,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.propertyManagement,
-            icon: Iconsax.building_4,
-            label: 'Property Management',
-            route: RouteConstants.propertyList,
-            resources: [PermissionConstants.resProperties],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.estateManagement,
-            icon: Iconsax.buildings,
-            label: 'Estate Management',
-            route: RouteConstants.estateManagement,
-            resources: [PermissionConstants.resEstates],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.events,
-        label: 'Events',
-        icon: AppIcons.events,
-        route: RouteConstants.events,
-        isExpandable: false,
-        resources: [PermissionConstants.resEvents],
-      ),
-      const MenuItem(
-        id: MainMenuItem.marketingCrm,
-        label: 'Marketing & CRM',
-        icon: AppIcons.marketingCrm,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resClients,
-          PermissionConstants.resLeads,
-          PermissionConstants.resMarketingCampaigns,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.marketingCrmDashboard,
-            icon: Iconsax.element_4,
-            label: 'Dashboard',
-            route: RouteConstants.marketingCrm,
-            resources: [
-              PermissionConstants.resClients,
-              PermissionConstants.resLeads,
-              PermissionConstants.resMarketingCampaigns,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmClients,
-            icon: Iconsax.user_octagon,
-            label: 'Clients',
-            route: RouteConstants.crmClients,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmLeads,
-            icon: Iconsax.flash_1,
-            label: 'Leads',
-            route: RouteConstants.crmLeads,
-            resources: [PermissionConstants.resLeads],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmInteractions,
-            icon: Iconsax.messages_2,
-            label: 'Interactions',
-            route: RouteConstants.crmInteractions,
-            resources: [
-              PermissionConstants.resClients,
-              PermissionConstants.resLeads,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.marketing,
-            icon: Iconsax.lamp_charge,
-            label: 'Marketing',
-            route: RouteConstants.marketing,
-            resources: [PermissionConstants.resMarketingCampaigns],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmAnalytics,
-            icon: Iconsax.chart_square,
-            label: 'Analytics',
-            route: RouteConstants.crmAnalytics,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resClients,
-            ],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.financeAccounting,
-        label: 'Finance & Accounting',
-        icon: AppIcons.finance,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resBudgets,
-          PermissionConstants.resExpenses,
-          PermissionConstants.resPayments,
-          PermissionConstants.resEstateInvoices,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.financeDashboard,
-            icon: Iconsax.element_4,
-            label: 'Dashboard',
-            route: RouteConstants.finance,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resBudgets,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.invoice,
-            icon: Iconsax.receipt_2_1,
-            label: 'Invoice',
-            route: RouteConstants.invoice,
-            resources: [
-              PermissionConstants.resEstateInvoices,
-              PermissionConstants.resServiceInvoices,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.payments,
-            icon: Iconsax.money_send,
-            label: 'Payments',
-            route: RouteConstants.payment,
-            resources: [PermissionConstants.resPayments],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.expenses,
-            icon: Iconsax.money_remove,
-            label: 'Expenses',
-            route: RouteConstants.expense,
-            resources: [PermissionConstants.resExpenses],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.budget,
-            icon: Iconsax.wallet_2,
-            label: 'Budget',
-            route: RouteConstants.budget,
-            resources: [PermissionConstants.resBudgets],
-          ),
-          // Vendor/Contributor — hidden (no dedicated vendor-payments API yet)
-        ],
-      ),
-      // Workspace — temporarily hidden (uses dummy data, no API connection yet)
-      // const MenuItem(
-      //   id: MainMenuItem.workspace,
-      //   label: 'Workspace',
-      //   icon: AppIcons.workspace,
-      //   isExpandable: true,
-      //   resources: [
-      //     PermissionConstants.resDocuments,
-      //     PermissionConstants.resContent,
-      //   ],
-      //   children: [
-      //     SubMenuItemData(
-      //       id: SubMenuItem.workspace,
-      //       label: 'Overview',
-      //       route: RouteConstants.workspace,
-      //       resources: [
-      //         PermissionConstants.resDocuments,
-      //         PermissionConstants.resContent,
-      //       ],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.workspaceDashboard,
-      //       label: 'Dashboard',
-      //       route: RouteConstants.workspaceDashboard,
-      //       resources: [
-      //         PermissionConstants.resDocuments,
-      //         PermissionConstants.resContent,
-      //       ],
-      //     ),
-      //   ],
-      // ),
-      const MenuItem(
-        id: MainMenuItem.analytics,
-        label: 'Analytics & Insights',
-        icon: AppIcons.analytics,
-        isExpandable: true,
-        resources: [PermissionConstants.resStats],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.overview,
-            icon: Iconsax.chart_square,
-            label: 'Overview',
-            route: RouteConstants.analyticsOverview,
-            resources: [PermissionConstants.resStats],
-          ),
-          // Revenue, Projects, Performance — hidden (dummy data, no dedicated API endpoints)
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.legalCompliance,
-        label: 'Legal & Compliance',
-        icon: AppIcons.legal,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resLegalCases,
-          PermissionConstants.resComplianceRecords,
-          PermissionConstants.resComplianceAudits,
-          PermissionConstants.resContracts,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.legalContracts,
-            icon: Iconsax.document_text,
-            label: 'Contracts',
-            route: RouteConstants.legalContracts,
-            resources: [PermissionConstants.resContracts],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.legalCompliance,
-            icon: Iconsax.verify,
-            label: 'Compliance',
-            route: RouteConstants.legalCompliance,
-            resources: [PermissionConstants.resComplianceRecords],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.legalCases,
-            icon: Iconsax.judge,
-            label: 'Cases',
-            route: RouteConstants.legalCases,
-            resources: [PermissionConstants.resLegalCases],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.legalAudits,
-            icon: Iconsax.clipboard_text,
-            label: 'Audits',
-            route: RouteConstants.legalAudits,
-            resources: [PermissionConstants.resComplianceAudits],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.clientPortal,
-        label: 'Client Portal',
-        icon: AppIcons.clientsPortal,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resClients,
-          PermissionConstants.resDocuments,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.clientAccess,
-            icon: Iconsax.key,
-            label: 'Client Access',
-            route: RouteConstants.clientAccess,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.documentSharing,
-            icon: Iconsax.document_upload,
-            label: 'Document Sharing',
-            route: RouteConstants.documentSharing,
-            resources: [PermissionConstants.resDocuments],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.communications,
-            icon: Iconsax.messages_2,
-            label: 'Communications',
-            route: RouteConstants.communications,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.portalAnalytics,
-            icon: Iconsax.chart_square,
-            label: 'Portal Analytics',
-            route: RouteConstants.portalAnalytics,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resClients,
-            ],
-          ),
-        ],
-      ),
-      // const MenuItem(
-      //   id: MainMenuItem.security,
-      //   label: 'Security & Authorization',
-      //   icon: AppIcons.security,
-      //   isExpandable: true,
-      //   resources: [
-      //     PermissionConstants.resAuditLogs,
-      //     PermissionConstants.resRoles,
-      //     PermissionConstants.resApprovalFlows,
-      //   ],
-      //   children: [
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityOverview,
-      //       label: 'Overview',
-      //       route: RouteConstants.securityOverview,
-      //       resources: [PermissionConstants.resAuditLogs],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityCodes,
-      //       label: 'Security Codes',
-      //       route: RouteConstants.securityCodes,
-      //       resources: [PermissionConstants.resRoles],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityWorkflow,
-      //       label: 'Workflows',
-      //       route: RouteConstants.securityWorkflow,
-      //       resources: [PermissionConstants.resApprovalFlows],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityAlerts,
-      //       label: 'Security Alerts',
-      //       route: RouteConstants.securityAlerts,
-      //       resources: [PermissionConstants.resAuditLogs],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityLogs,
-      //       label: 'Audit Logs',
-      //       route: RouteConstants.securityLogs,
-      //       resources: [PermissionConstants.resAuditLogs],
-      //     ),
-      //   ],
-      // ),
-    ];
-  }
-
   void _initializeRouteMapping() {
     routeToMenuMapping = {};
 
@@ -1249,41 +408,42 @@ class _SideMenuState extends State<SideMenu> {
     final bool isOpen =
         _searchQuery.trim().isNotEmpty ? true : _openMenu == menuItem.id;
 
-    return _ExpandableMenuRow(
-      key: ValueKey('expandable-${menuItem.id.name}'),
-      icon: menuItem.icon,
-      label: menuItem.label,
-      isSelected: isSelected,
-      isOpen: isOpen,
-      onHeaderTap: () {
-        setState(() {
-          selectedMainMenu = menuItem.id;
-          // Accordion: tapping the already-open group collapses it,
-          // tapping any other group opens it and closes the previous one.
-          _openMenu = _openMenu == menuItem.id ? null : menuItem.id;
-        });
-        _saveMenuState(menuItem.id, selectedSubMenu);
-        _saveOpenMenu(_openMenu);
-      },
-      onExpand: () {
-        if (!isOpen) {
-          setState(() => _openMenu = menuItem.id);
+      return _ExpandableMenuRow(
+        key: ValueKey('expandable-${menuItem.id.name}'),
+        icon: menuItem.icon,
+        label: menuItem.label,
+        isSelected: isSelected,
+        isOpen: isOpen,
+        searchQuery: _searchQuery,
+        onHeaderTap: () {
+          setState(() {
+            selectedMainMenu = menuItem.id;
+            // Accordion: tapping the already-open group collapses it,
+            // tapping any other group opens it and closes the previous one.
+            _openMenu = _openMenu == menuItem.id ? null : menuItem.id;
+          });
+          _saveMenuState(menuItem.id, selectedSubMenu);
           _saveOpenMenu(_openMenu);
-        } else {
-          // If already open, Right arrow moves focus to the first child.
-          FocusScope.of(context).nextFocus();
-        }
-      },
-      onCollapse: () {
-        if (isOpen) {
-          setState(() => _openMenu = null);
-          _saveOpenMenu(_openMenu);
-        }
-      },
-      children: authorizedSubItems
-          .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
-          .toList(),
-    );
+        },
+        onExpand: () {
+          if (!isOpen) {
+            setState(() => _openMenu = menuItem.id);
+            _saveOpenMenu(_openMenu);
+          } else {
+            // If already open, Right arrow moves focus to the first child.
+            FocusScope.of(context).nextFocus();
+          }
+        },
+        onCollapse: () {
+          if (isOpen) {
+            setState(() => _openMenu = null);
+            _saveOpenMenu(_openMenu);
+          }
+        },
+        children: authorizedSubItems
+            .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
+            .toList(),
+      );
   }
 
   /// Render a pinned non-expandable top-level item in the Pinned section.
@@ -1336,6 +496,7 @@ class _SideMenuState extends State<SideMenu> {
       isSelected: isSelected,
       isSub: true,
       isPinned: isPinned,
+      searchQuery: _searchQuery,
       onTap: () => _navigate(subMenuItem.route, parentMenuItem, subMenuItem.id),
       onContextMenu: (pos) => _showRowContextMenu(
         globalPos: pos,
@@ -1364,21 +525,94 @@ class _SideMenuState extends State<SideMenu> {
         final filtered =
             menuItems.map(_filterForSearch).whereType<MenuItem>().toList();
 
-        return widget.isCollapsed
-            ? _buildCollapsedRail(filtered)
-            : _buildExpandedSidebar(filtered);
+        return Column(
+          children: [
+            // FIXED HEADER: Brand + Search (responsive)
+            _buildFixedHeader(),
+
+            // SCROLLABLE CONTENT with polished scrollbar
+            Expanded(
+              child: RawScrollbar(
+                controller: _scrollController,
+                thumbVisibility: false,
+                trackVisibility: false,
+                thickness: 4,
+                radius: const Radius.circular(8),
+                thumbColor: AppColors.primary.withValues(alpha: 0.2),
+                child: ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context)
+                      .copyWith(scrollbars: false),
+                  child: ListView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 20),
+                    children: widget.isCollapsed
+                        ? _buildRailItems(filtered)
+                        : _buildExpandedItems(filtered),
+                  ),
+                ),
+              ),
+            ),
+
+            // FIXED FOOTER: Account Card (responsive)
+            _AccountCard(isCollapsed: widget.isCollapsed),
+            const SizedBox(height: 8),
+          ],
+        );
       }),
     );
   }
 
-  Widget _buildExpandedSidebar(List<MenuItem> filtered) {
+  List<Widget> _buildRailItems(List<MenuItem> filtered) {
+    final permissionService = Get.find<PermissionService>();
+    final items = <Widget>[];
+
+    for (final menuItem in filtered) {
+      if (menuItem.id == MainMenuItem.dashboard &&
+          (permissionService.isSuperAdmin ||
+              permissionService.hasAnyPermissionForResource(
+                  PermissionConstants.resCompanySettings))) {
+        continue;
+      }
+
+      if (menuItem.isExpandable) {
+        final authorizedSubItems = menuItem.children
+            .where(
+                (s) => permissionService.canAccessRoute(s.route, s.resources))
+            .toList();
+        if (authorizedSubItems.isEmpty) continue;
+      } else if (!permissionService.canAccessResources(menuItem.resources)) {
+        continue;
+      }
+
+      final isSelected = selectedMainMenu == menuItem.id;
+      items.add(_CollapsedMenuButton(
+        icon: menuItem.icon,
+        label: menuItem.label,
+        isSelected: isSelected,
+        onTap: () {
+          if (menuItem.isExpandable) {
+            setState(() {
+              selectedMainMenu = menuItem.id;
+              _openMenu = menuItem.id;
+            });
+            _saveMenuState(menuItem.id, selectedSubMenu);
+            _saveOpenMenu(_openMenu);
+            widget.onToggleCollapse?.call();
+          } else {
+            _navigate(menuItem.route, menuItem.id, null);
+          }
+        },
+      ));
+    }
+    return items;
+  }
+
+  List<Widget> _buildExpandedItems(List<MenuItem> filtered) {
     final rows = <Widget>[];
+    final permissionService = Get.find<PermissionService>();
 
     // ── Pinned section ──
-    // Skip the pinned section during search so matches only appear once.
-    // Build it from `menuItems` (not `filtered`) so pinned rows remain
-    // visible when the user has typed a search that happens not to match
-    // the pinned label.
     final bool pinnedSectionVisible = _searchQuery.trim().isEmpty &&
         (_pinnedSubs.isNotEmpty || _pinnedMains.isNotEmpty);
     if (pinnedSectionVisible) {
@@ -1399,29 +633,138 @@ class _SideMenuState extends State<SideMenu> {
 
     // ── Regular sections ──
     bool firstSectionSeen = pinnedSectionVisible;
-    for (final menuItem in filtered) {
-      if (_sectionBreaks.containsKey(menuItem.id)) {
+    for (final section in sidebarStructure) {
+      final sectionItems = section.items
+          .map(_filterForSearch)
+          .whereType<MenuItem>()
+          .where((m) {
+        if (m.isExpandable) {
+          return m.children.any((s) =>
+              permissionService.canAccessRoute(s.route, s.resources));
+        }
+        return permissionService.canAccessRoute(m.route, m.resources);
+      }).toList();
+
+      if (sectionItems.isNotEmpty) {
         rows.add(_SectionHeader(
-          label: _sectionBreaks[menuItem.id]!,
+          label: section.label,
           showDivider: firstSectionSeen,
         ));
         firstSectionSeen = true;
+        for (final item in sectionItems) {
+          rows.add(_buildMenuItem(item));
+        }
       }
-      rows.add(_buildMenuItem(menuItem));
     }
 
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.zero,
+    if (filtered.isEmpty && _searchQuery.isNotEmpty) {
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Text(
+            'No menu items match "$_searchQuery"',
+            style: AppText.bodyMd,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return rows;
+  }
+
+  Widget _buildFixedHeader() {
+    if (widget.isCollapsed) {
+      return Column(
+        children: [
+          kSizedBoxBG,
+          Center(
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              alignment: Alignment.center,
+              child: const Text(
+                'B',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (widget.onToggleCollapse != null) ...[
+            IconButton(
+              icon: const Icon(Iconsax.notification,
+                  size: 18, color: AppColors.textSecondary),
+              onPressed: () {
+                // TODO: Open notifications inbox
+              },
+              splashRadius: 18,
+            ),
+            const SizedBox(height: 4),
+            IconButton(
+              icon: const Icon(Iconsax.sidebar_right,
+                  size: 18, color: AppColors.textSecondary),
+              onPressed: widget.onToggleCollapse,
+              splashRadius: 18,
+            ),
+          ],
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: AppColors.neutral200),
+          const SizedBox(height: 8),
+        ],
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         kSizedBoxBG,
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
           child: Row(
             children: [
-              const Text('BOMACH', style: AppText.h2),
-              const Text('OS', style: AppText.displayLg),
+              // Unified Brand wordmark
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    'BOMACH',
+                    style: AppText.h2.copyWith(
+                      color: AppColors.primary,
+                      letterSpacing: -0.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    'OS',
+                    style: AppText.bodySm.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
               const Spacer(),
+              IconButton(
+                icon: const Icon(Iconsax.notification,
+                    size: 18, color: AppColors.textSecondary),
+                onPressed: () {
+                  // TODO: Open notifications inbox
+                },
+                splashRadius: 18,
+                padding: const EdgeInsets.all(6),
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 4),
               if (widget.onToggleCollapse != null)
                 Tooltip(
                   message: 'Collapse sidebar',
@@ -1447,123 +790,11 @@ class _SideMenuState extends State<SideMenu> {
           ),
         ),
         const SizedBox(height: 8),
-        ...rows,
-        if (filtered.isEmpty && _searchQuery.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Text(
-              'No menu items match "$_searchQuery"',
-              style: AppText.bodyMd,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        kSizedBox,
       ],
     );
   }
 
-  Widget _buildCollapsedRail(List<MenuItem> filtered) {
-    final permissionService = Get.find<PermissionService>();
 
-    final rail = <Widget>[];
-    for (final menuItem in filtered) {
-      // Apply the same permission filters as the expanded build so the rail
-      // only shows icons the user can actually access.
-      if (menuItem.id == MainMenuItem.dashboard &&
-          (permissionService.isSuperAdmin ||
-              permissionService.hasAnyPermissionForResource(
-                  PermissionConstants.resCompanySettings))) {
-        continue;
-      }
-      if (menuItem.isExpandable) {
-        final authorizedSubItems = menuItem.children
-            .where(
-                (s) => permissionService.canAccessRoute(s.route, s.resources))
-            .toList();
-        if (authorizedSubItems.isEmpty) continue;
-      } else if (!permissionService.canAccessResources(menuItem.resources)) {
-        continue;
-      }
-
-      final isSelected = selectedMainMenu == menuItem.id;
-      rail.add(_CollapsedMenuButton(
-        icon: menuItem.icon,
-        label: menuItem.label,
-        isSelected: isSelected,
-        onTap: () {
-          if (menuItem.isExpandable) {
-            // Opening a group on the rail: mark it open and expand the rail
-            // so the user can see the children that just unfurled.
-            setState(() {
-              selectedMainMenu = menuItem.id;
-              _openMenu = menuItem.id;
-            });
-            _saveMenuState(menuItem.id, selectedSubMenu);
-            _saveOpenMenu(_openMenu);
-            widget.onToggleCollapse?.call();
-          } else {
-            _navigate(menuItem.route, menuItem.id, null);
-          }
-        },
-      ));
-    }
-
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.zero,
-      children: [
-        kSizedBoxBG,
-        // Logo tile — small square with a brand mark. Tapping navigates home
-        // via the first dashboard-eligible rail button if present.
-        Center(
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            alignment: Alignment.center,
-            child: const Text(
-              'B',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.white,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (widget.onToggleCollapse != null)
-          Center(
-            child: Tooltip(
-              message: 'Expand sidebar  (\u2318K / Ctrl+K)',
-              child: IconButton(
-                icon: const Icon(Iconsax.sidebar_right,
-                    size: 18, color: AppColors.textSecondary),
-                onPressed: widget.onToggleCollapse,
-                splashRadius: 18,
-                padding: const EdgeInsets.all(8),
-                constraints: const BoxConstraints(),
-              ),
-            ),
-          ),
-        const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.borderSubtle,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...rail,
-        kSizedBox,
-      ],
-    );
-  }
 }
 
 class _SidebarSearchField extends StatelessWidget {
@@ -1710,6 +941,7 @@ class _MenuRow extends StatefulWidget {
   final ValueChanged<Offset>? onContextMenu;
   final VoidCallback? onExpand;
   final VoidCallback? onCollapse;
+  final String searchQuery;
 
   const _MenuRow({
     super.key,
@@ -1723,6 +955,7 @@ class _MenuRow extends StatefulWidget {
     this.onContextMenu,
     this.onExpand,
     this.onCollapse,
+    this.searchQuery = '',
   });
 
   @override
@@ -1871,17 +1104,7 @@ class _MenuRowState extends State<_MenuRow> {
                         Icon(widget.icon, size: iconSize, color: iconColor),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            widget.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: widget.isSub ? 13 : 14,
-                              fontWeight:
-                                  selected ? FontWeight.w600 : FontWeight.w500,
-                              color: labelColor,
-                            ),
-                          ),
+                          child: _buildLabel(labelColor),
                         ),
                         if (trailing != null) trailing,
                       ],
@@ -1892,6 +1115,55 @@ class _MenuRowState extends State<_MenuRow> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(Color color) {
+    final style = TextStyle(
+      fontSize: widget.isSub ? 13 : 14,
+      fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w500,
+      color: color,
+    );
+
+    if (widget.searchQuery.trim().isEmpty) {
+      return Text(
+        widget.label,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    final String label = widget.label;
+    final String query = widget.searchQuery.toLowerCase();
+    final int matchIdx = label.toLowerCase().indexOf(query);
+
+    if (matchIdx == -1) {
+      return Text(
+        label,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        style: style,
+        children: [
+          TextSpan(text: label.substring(0, matchIdx)),
+          TextSpan(
+            text: label.substring(matchIdx, matchIdx + query.length),
+            style: style.copyWith(
+              fontWeight: FontWeight.w900,
+              color: AppColors.primary,
+            ),
+          ),
+          TextSpan(text: label.substring(matchIdx + query.length)),
+        ],
       ),
     );
   }
@@ -1911,6 +1183,7 @@ class _ExpandableMenuRow extends StatelessWidget {
   final List<Widget> children;
   final VoidCallback? onExpand;
   final VoidCallback? onCollapse;
+  final String searchQuery;
 
   const _ExpandableMenuRow({
     super.key,
@@ -1922,6 +1195,7 @@ class _ExpandableMenuRow extends StatelessWidget {
     required this.children,
     this.onExpand,
     this.onCollapse,
+    this.searchQuery = '',
   });
 
   @override
@@ -1977,20 +1251,25 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hide section headers in collapsed mode for a clean rail
+    if (SideMenu.of(context).isCollapsed) {
+      return showDivider
+          ? const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Divider(height: 1, color: AppColors.neutral200),
+            )
+          : const SizedBox(height: 4);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (showDivider)
           const Padding(
-            padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
-            child: Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.borderSubtle,
-            ),
-          )
-        else
-          const SizedBox(height: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Divider(height: 1, color: AppColors.neutral200),
+          ),
+        const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
           child: Text(
@@ -2095,4 +1374,150 @@ class _CollapsedMenuButtonState extends State<_CollapsedMenuButton> {
       ),
     );
   }
+}
+
+class _AccountCard extends StatelessWidget {
+  final bool isCollapsed;
+  const _AccountCard({required this.isCollapsed});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Get.find<AuthController>();
+
+    return Obx(() {
+      final user = auth.currentUser.value;
+      if (user == null) return const SizedBox.shrink();
+
+      final name = user.firstName.isEmpty && user.lastName.isEmpty
+          ? user.username
+          : '${user.firstName} ${user.lastName}';
+      final role =
+          (user.employmentType != null && user.employmentType!.isNotEmpty)
+              ? user.employmentType!
+              : 'Super Admin';
+
+      if (isCollapsed) {
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (c) => UserProfileDialog(user: user),
+              );
+            },
+            hoverColor: AppColors.neutral100,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: Tooltip(
+                  message: name,
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AppColors.primarySoft,
+                    backgroundImage: user.profilePicture != null &&
+                            user.profilePicture!.isNotEmpty
+                        ? NetworkImage(user.profilePicture!)
+                        : null,
+                    child: user.profilePicture == null ||
+                            user.profilePicture!.isEmpty
+                        ? Text(
+                            (user.firstName.isNotEmpty
+                                    ? user.firstName[0]
+                                    : user.username.isNotEmpty
+                                        ? user.username[0]
+                                        : '?')
+                                .toUpperCase(),
+                            style: AppText.bodySm.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          const Divider(height: 1, color: AppColors.neutral200),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (c) => UserProfileDialog(user: user),
+                );
+              },
+              hoverColor: AppColors.neutral100,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppColors.primarySoft,
+                      backgroundImage: user.profilePicture != null &&
+                              user.profilePicture!.isNotEmpty
+                          ? NetworkImage(user.profilePicture!)
+                          : null,
+                      child: user.profilePicture == null ||
+                              user.profilePicture!.isEmpty
+                          ? Text(
+                              (user.firstName.isNotEmpty
+                                      ? user.firstName[0]
+                                      : user.username.isNotEmpty
+                                          ? user.username[0]
+                                          : '?')
+                                  .toUpperCase(),
+                              style: AppText.bodyMd.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            name,
+                            style: AppText.bodyMd.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            role,
+                            style: AppText.caption.copyWith(
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  // Removed _showAccountMenu and _buildPopupItem as they are no longer needed.
 }

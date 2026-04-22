@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class AddPortalClientDialog extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text(
             'Cancel',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
         ElevatedButton(
@@ -26,15 +27,14 @@ class AddPortalClientDialog extends StatelessWidget {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
+            elevation: 0,
           ),
-          child: const Text(
-            'Add Client',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: const Text('Add Client'),
         ),
       ],
     );
@@ -42,64 +42,67 @@ class AddPortalClientDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _buildFormLabel('Client Name'),
-        _buildTextInput(hint: ''),
-        const SizedBox(height: 16),
-        _buildFormLabel('Email'),
-        _buildTextInput(
-            hint: '', keyboardType: TextInputType.emailAddress),
-        const SizedBox(height: 16),
-        _buildFormLabel('Company'),
-        _buildTextInput(hint: ''),
-        const SizedBox(height: 16),
-        _buildFormLabel('Access Level'),
-        _buildDropdown(
+        MyTextFormField(
+          title: 'Client Name',
+          hintText: 'Enter client name',
+        ),
+        SizedBox(height: 16),
+        MyTextFormField(
+          title: 'Email',
+          hintText: 'client@example.com',
+          keyboardType: TextInputType.emailAddress,
+        ),
+        SizedBox(height: 16),
+        MyTextFormField(
+          title: 'Company',
+          hintText: 'Company name',
+        ),
+        SizedBox(height: 16),
+        _DropdownWithLabel(
+          label: 'Access Level',
           value: 'Standard',
-          items: const ['Standard', 'Admin', 'View Only'],
+          items: ['Standard', 'Admin', 'View Only'],
         ),
       ],
     );
   }
+}
 
-  Widget _buildFormLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        label,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-      ),
-    );
-  }
+class _DropdownWithLabel extends StatelessWidget {
+  final String label;
+  final String value;
+  final List<String> items;
 
-  Widget _buildTextInput(
-      {String? hint, TextInputType keyboardType = TextInputType.text}) {
-    return TextFormField(
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
+  const _DropdownWithLabel({
+    required this.label,
+    required this.value,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+            color: AppColors.textPrimary,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
+        const SizedBox(height: 8),
+        MyDropdown(
+          hintText: value,
+          items: items,
+          onChanged: (String? newValue) {},
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
-
-  Widget _buildDropdown({required String value, required List<String> items}) {
-    return MyDropdown(
-      hintText: value,
-      items: items,
-      onChanged: (String? newValue) {},
+      ],
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:bms_front_end/pages/clients_portal/model/coms_model.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
-import '../dialog/send_mesage.dart';
+import '../dialog/send_message.dart';
 
 class ClientCommunicationsScreen extends StatelessWidget {
   final bool isMobile;

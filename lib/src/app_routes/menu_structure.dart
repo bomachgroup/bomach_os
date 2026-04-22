@@ -1,0 +1,779 @@
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/src/constants/icons.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+
+// Enums for menu identification
+enum MainMenuItem {
+  dashboard,
+  company,
+  hr,
+  employee,
+  work,
+  marketing,
+  calendar,
+  events,
+  services,
+  notification,
+  settings,
+  help,
+  financeAccounting,
+  workspace,
+  analytics,
+  legalCompliance,
+  clientPortal,
+  security,
+  crm,
+  marketingCrm,
+}
+
+enum SubMenuItem {
+  dashboardHome,
+  myProfile,
+  myTasks,
+  myReports,
+  company,
+  branch,
+  board,
+  broadcast,
+  roles,
+  approvalWorkflow,
+  workspaceApprovals,
+  auditLog,
+  compliance,
+  enugu,
+  portHarcourt,
+  abuja,
+  employees,
+  employeeDirectory,
+  employeePerformance,
+  employeeAttendance,
+  employeeTraining,
+  leaves,
+  clients,
+  leads,
+  department,
+  hrDashboad,
+  jobPost,
+  jobApplicants,
+  attendance,
+  loans,
+  leaveRequest,
+  performance,
+  benefits,
+  trainingProgram,
+  associates,
+  assets,
+  workReport,
+  monthlyScorecard,
+  awardsRecognition,
+  performanceLeaderboard,
+  employeeEvaluation,
+  disciplinaryProcess,
+  marketing,
+  operations,
+  project,
+  worksite,
+  tasks,
+  contracts,
+  meetings,
+  servicesDashboard,
+  serviceClients,
+  serviceOrder,
+  realEstate,
+  landSurvey,
+  servicesItem,
+  propertyManagement,
+  estateManagement,
+  estatePerformance,
+  paymentApproval,
+  landSurveyCalculator,
+  servicesCalculator,
+  generateInvoice,
+  serviceLeads,
+  serviceInvoices,
+  financeDashboard,
+  invoice,
+  payments,
+  expenses,
+  budget,
+  vendorContributor,
+  workspace,
+  workspaceDashboard,
+  overview,
+  revenue,
+  projects,
+  analyticsPerformance,
+  branchPerformance,
+  legalContracts,
+  legalCompliance,
+  legalCases,
+  legalAudits,
+  clientAccess,
+  documentSharing,
+  communications,
+  portalAnalytics,
+  securityOverview,
+  securityCodes,
+  securityWorkflow,
+  securityAlerts,
+  securityLogs,
+  crmClients,
+  crmLeads,
+  crmAnalytics,
+  crmInteractions,
+  marketingCrmDashboard,
+}
+
+// Data classes for menu structure
+class MenuItem {
+  final MainMenuItem id;
+  final String label;
+  final IconData icon;
+  final String? route;
+  final List<String>? resources;
+  final bool isExpandable;
+  final List<SubMenuItemData> children;
+
+  const MenuItem({
+    required this.id,
+    required this.label,
+    required this.icon,
+    this.route,
+    this.resources,
+    required this.isExpandable,
+    this.children = const [],
+  });
+}
+
+class SubMenuItemData {
+  final SubMenuItem id;
+  final String label;
+  final IconData icon;
+  final String? route;
+  final List<String>? resources;
+
+  const SubMenuItemData({
+    required this.id,
+    required this.label,
+    required this.icon,
+    this.route,
+    this.resources,
+  });
+}
+
+/// Represents a group of menu items under a header.
+class SidebarSection {
+  final String label;
+  final List<MenuItem> items;
+
+  const SidebarSection({
+    required this.label,
+    required this.items,
+  });
+}
+
+/// The master configuration for the Bomach OS Sidebar.
+/// Sections are rendered in order, with headers between them.
+const List<SidebarSection> sidebarStructure = [
+  SidebarSection(
+    label: 'Workspace',
+    items: [
+      MenuItem(
+        id: MainMenuItem.dashboard,
+        label: 'Dashboard',
+        icon: AppIcons.dashboard,
+        route: RouteConstants.home,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resDashboard,
+          PermissionConstants.resEmployees,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.dashboardHome,
+            icon: Iconsax.home_2,
+            label: 'Overview',
+            route: RouteConstants.home,
+            resources: [
+              PermissionConstants.resDashboard,
+              PermissionConstants.resEmployees,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.myProfile,
+            icon: Iconsax.user,
+            label: 'My Profile',
+            route: RouteConstants.employeeMyProfile,
+            resources: [PermissionConstants.resEmployees],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.myTasks,
+            icon: Iconsax.task_square,
+            label: 'My Tasks',
+            route: RouteConstants.employeeMyTasks,
+            resources: [PermissionConstants.resTasks],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.myReports,
+            icon: Iconsax.document_text,
+            label: 'My Work Reports',
+            route: RouteConstants.employeeMyReports,
+            resources: [PermissionConstants.resWorkReports],
+          ),
+        ],
+      ),
+      MenuItem(
+        id: MainMenuItem.company,
+        label: 'Company',
+        icon: AppIcons.company,
+        isExpandable: true,
+        resources: [PermissionConstants.resCompanySettings],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.company,
+            icon: Iconsax.building_4,
+            label: 'Profile',
+            route: RouteConstants.company,
+            resources: [PermissionConstants.resCompanySettings],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.branch,
+            icon: Iconsax.buildings_2,
+            label: 'Branch',
+            route: RouteConstants.branch,
+            resources: [PermissionConstants.resBranches],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.board,
+            icon: Iconsax.people,
+            label: 'Board',
+            route: RouteConstants.board,
+            resources: [PermissionConstants.resBoardResolutions],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.broadcast,
+            icon: Iconsax.speaker,
+            label: 'Broadcast',
+            route: RouteConstants.broadcast,
+            resources: [PermissionConstants.resAnnouncements],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.roles,
+            icon: Iconsax.shield_tick,
+            label: 'Roles & Permissions',
+            route: RouteConstants.roles,
+            resources: [PermissionConstants.resRoles],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.approvalWorkflow,
+            icon: Iconsax.tick_square,
+            label: 'Approval Workflows',
+            route: RouteConstants.approvalWorkflow,
+            resources: [PermissionConstants.resApprovalFlows],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.workspaceApprovals,
+            icon: Iconsax.note_2,
+            label: 'Workspace Approvals',
+            route: RouteConstants.workspaceApprovals,
+            resources: [PermissionConstants.resWorkLocations],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.department,
+            icon: Iconsax.hierarchy,
+            label: 'Departments & Units',
+            route: RouteConstants.department,
+            resources: [PermissionConstants.resDepartments],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.assets,
+            icon: Iconsax.box,
+            label: 'Assets',
+            route: RouteConstants.assets,
+            resources: [PermissionConstants.resAssets],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.auditLog,
+            icon: Iconsax.clipboard_text,
+            label: 'Audit Log',
+            route: RouteConstants.auditLog,
+            resources: [PermissionConstants.resAuditLogs],
+          ),
+        ],
+      ),
+    ],
+  ),
+  SidebarSection(
+    label: 'People',
+    items: [
+      MenuItem(
+        id: MainMenuItem.hr,
+        label: 'HR/Admin',
+        icon: AppIcons.hr,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resEmployees,
+          PermissionConstants.resJobPostings,
+          PermissionConstants.resLeaveRequests,
+          PermissionConstants.resPayroll,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.employees,
+            icon: Iconsax.user_square,
+            label: 'Employees',
+            route: RouteConstants.employees,
+            resources: [PermissionConstants.resEmployees],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.attendance,
+            icon: Iconsax.calendar_tick,
+            label: 'Attendance',
+            route: RouteConstants.attendance,
+            resources: [PermissionConstants.resEmployees],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.jobPost,
+            icon: Iconsax.user_add,
+            label: 'Recruitment',
+            route: RouteConstants.jobPost,
+            resources: [PermissionConstants.resJobPostings],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.leaves,
+            icon: Iconsax.calendar_remove,
+            label: 'My Leaves',
+            route: RouteConstants.leaves,
+            resources: [PermissionConstants.resLeaveRequests],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.leaveRequest,
+            icon: Iconsax.note_remove,
+            label: 'Leave Requests',
+            route: RouteConstants.leaveRequest,
+            resources: [PermissionConstants.resLeaveRequests],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.trainingProgram,
+            icon: Iconsax.teacher,
+            label: 'Training',
+            route: RouteConstants.trainingProgram,
+            resources: [PermissionConstants.resTrainingPrograms],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.loans,
+            icon: Iconsax.money_recive,
+            label: 'Loans',
+            route: RouteConstants.loans,
+            resources: [PermissionConstants.resLoans],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.benefits,
+            icon: Iconsax.gift,
+            label: 'Benefits',
+            route: RouteConstants.benefits,
+            resources: [PermissionConstants.resPayroll],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.performance,
+            icon: Iconsax.chart,
+            label: 'Performance',
+            route: RouteConstants.performanceReview,
+            resources: [PermissionConstants.resPerformanceReviews],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.workReport,
+            icon: Iconsax.note_2,
+            label: 'Work Reports',
+            route: RouteConstants.workReport,
+            resources: [PermissionConstants.resWorkReports],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.monthlyScorecard,
+            icon: Iconsax.chart_2,
+            label: 'Monthly Scorecard',
+            route: RouteConstants.monthlyScorecard,
+            resources: [PermissionConstants.resMonthlyScorecards],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.awardsRecognition,
+            icon: Iconsax.award,
+            label: 'Awards & Recognition',
+            route: RouteConstants.awardsRecognition,
+            resources: [PermissionConstants.resAwards],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.performanceLeaderboard,
+            icon: Iconsax.cup,
+            label: 'Performance Leaderboard',
+            route: RouteConstants.performanceLeaderboard,
+            resources: [PermissionConstants.resKpis],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.employeeEvaluation,
+            icon: Iconsax.clipboard_text,
+            label: 'Employee Evaluation',
+            route: RouteConstants.employeeEvaluation,
+            resources: [PermissionConstants.resEmployeeEvaluations],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.disciplinaryProcess,
+            icon: Iconsax.warning_2,
+            label: 'Disciplinary Process',
+            route: RouteConstants.disciplinaryProcess,
+            resources: [PermissionConstants.resDisciplinaryCases],
+          ),
+        ],
+      ),
+    ],
+  ),
+  SidebarSection(
+    label: 'Operations',
+    items: [
+      MenuItem(
+        id: MainMenuItem.work,
+        label: 'Operations',
+        icon: AppIcons.operations,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resProjects,
+          PermissionConstants.resTasks,
+          PermissionConstants.resContracts,
+          PermissionConstants.resWorksites,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.operations,
+            icon: Iconsax.briefcase,
+            label: 'Operations',
+            route: RouteConstants.operations,
+            resources: [PermissionConstants.resProjects],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.project,
+            icon: Iconsax.folder_connection,
+            label: 'Project',
+            route: RouteConstants.projects,
+            resources: [PermissionConstants.resProjects],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.worksite,
+            icon: Iconsax.location_tick,
+            label: 'Worksite',
+            route: RouteConstants.worksite,
+            resources: [PermissionConstants.resWorksites],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.tasks,
+            icon: Iconsax.task_square,
+            label: 'Tasks',
+            route: RouteConstants.tasks,
+            resources: [PermissionConstants.resTasks],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.contracts,
+            icon: Iconsax.document_text,
+            label: 'Contracts',
+            route: RouteConstants.contracts,
+            resources: [PermissionConstants.resContracts],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.meetings,
+            icon: Iconsax.calendar_1,
+            label: 'Meetings',
+            route: RouteConstants.meetings,
+            resources: [PermissionConstants.resMeetings],
+          ),
+        ],
+      ),
+      MenuItem(
+        id: MainMenuItem.services,
+        label: 'Services',
+        icon: AppIcons.services,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resServices,
+          PermissionConstants.resProperties,
+          PermissionConstants.resEstates,
+          PermissionConstants.resClients,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.servicesDashboard,
+            icon: Iconsax.element_4,
+            label: 'Dashboard',
+            route: RouteConstants.services,
+            resources: [PermissionConstants.resServices],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.serviceClients,
+            icon: Iconsax.user_octagon,
+            label: 'Clients',
+            route: RouteConstants.serviceClients,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.propertyManagement,
+            icon: Iconsax.building_4,
+            label: 'Property Management',
+            route: RouteConstants.propertyList,
+            resources: [PermissionConstants.resProperties],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.estateManagement,
+            icon: Iconsax.buildings,
+            label: 'Estate Management',
+            route: RouteConstants.estateManagement,
+            resources: [PermissionConstants.resEstates],
+          ),
+        ],
+      ),
+      MenuItem(
+        id: MainMenuItem.events,
+        label: 'Events',
+        icon: AppIcons.events,
+        route: RouteConstants.events,
+        isExpandable: false,
+        resources: [PermissionConstants.resEvents],
+      ),
+    ],
+  ),
+  SidebarSection(
+    label: 'Revenue',
+    items: [
+      MenuItem(
+        id: MainMenuItem.marketingCrm,
+        label: 'Marketing & CRM',
+        icon: AppIcons.marketingCrm,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resClients,
+          PermissionConstants.resLeads,
+          PermissionConstants.resMarketingCampaigns,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.marketingCrmDashboard,
+            icon: Iconsax.element_4,
+            label: 'Dashboard',
+            route: RouteConstants.marketingCrm,
+            resources: [
+              PermissionConstants.resClients,
+              PermissionConstants.resLeads,
+              PermissionConstants.resMarketingCampaigns,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmClients,
+            icon: Iconsax.user_octagon,
+            label: 'Clients',
+            route: RouteConstants.crmClients,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmLeads,
+            icon: Iconsax.flash_1,
+            label: 'Leads',
+            route: RouteConstants.crmLeads,
+            resources: [PermissionConstants.resLeads],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmInteractions,
+            icon: Iconsax.messages_2,
+            label: 'Interactions',
+            route: RouteConstants.crmInteractions,
+            resources: [
+              PermissionConstants.resClients,
+              PermissionConstants.resLeads,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.marketing,
+            icon: Iconsax.lamp_charge,
+            label: 'Marketing',
+            route: RouteConstants.marketing,
+            resources: [PermissionConstants.resMarketingCampaigns],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.crmAnalytics,
+            icon: Iconsax.chart_square,
+            label: 'Analytics',
+            route: RouteConstants.crmAnalytics,
+            resources: [
+              PermissionConstants.resStats,
+              PermissionConstants.resClients,
+            ],
+          ),
+        ],
+      ),
+      MenuItem(
+        id: MainMenuItem.financeAccounting,
+        label: 'Finance & Accounting',
+        icon: AppIcons.finance,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resBudgets,
+          PermissionConstants.resExpenses,
+          PermissionConstants.resPayments,
+          PermissionConstants.resEstateInvoices,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.financeDashboard,
+            icon: Iconsax.element_4,
+            label: 'Dashboard',
+            route: RouteConstants.finance,
+            resources: [
+              PermissionConstants.resStats,
+              PermissionConstants.resBudgets,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.invoice,
+            icon: Iconsax.receipt_2_1,
+            label: 'Invoice',
+            route: RouteConstants.invoice,
+            resources: [
+              PermissionConstants.resEstateInvoices,
+              PermissionConstants.resServiceInvoices,
+            ],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.payments,
+            icon: Iconsax.money_send,
+            label: 'Payments',
+            route: RouteConstants.payment,
+            resources: [PermissionConstants.resPayments],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.expenses,
+            icon: Iconsax.money_remove,
+            label: 'Expenses',
+            route: RouteConstants.expense,
+            resources: [PermissionConstants.resExpenses],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.budget,
+            icon: Iconsax.wallet_2,
+            label: 'Budget',
+            route: RouteConstants.budget,
+            resources: [PermissionConstants.resBudgets],
+          ),
+        ],
+      ),
+    ],
+  ),
+  SidebarSection(
+    label: 'Insights',
+    items: [
+      MenuItem(
+        id: MainMenuItem.analytics,
+        label: 'Analytics & Insights',
+        icon: AppIcons.analytics,
+        isExpandable: true,
+        resources: [PermissionConstants.resStats],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.overview,
+            icon: Iconsax.chart_square,
+            label: 'Overview',
+            route: RouteConstants.analyticsOverview,
+            resources: [PermissionConstants.resStats],
+          ),
+        ],
+      ),
+    ],
+  ),
+  SidebarSection(
+    label: 'Compliance',
+    items: [
+      MenuItem(
+        id: MainMenuItem.legalCompliance,
+        label: 'Legal & Compliance',
+        icon: AppIcons.legal,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resLegalCases,
+          PermissionConstants.resComplianceRecords,
+          PermissionConstants.resComplianceAudits,
+          PermissionConstants.resContracts,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.legalContracts,
+            icon: Iconsax.document_text,
+            label: 'Contracts',
+            route: RouteConstants.legalContracts,
+            resources: [PermissionConstants.resContracts],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.legalCompliance,
+            icon: Iconsax.verify,
+            label: 'Compliance',
+            route: RouteConstants.legalCompliance,
+            resources: [PermissionConstants.resComplianceRecords],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.legalCases,
+            icon: Iconsax.judge,
+            label: 'Cases',
+            route: RouteConstants.legalCases,
+            resources: [PermissionConstants.resLegalCases],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.legalAudits,
+            icon: Iconsax.clipboard_text,
+            label: 'Audits',
+            route: RouteConstants.legalAudits,
+            resources: [PermissionConstants.resComplianceAudits],
+          ),
+        ],
+      ),
+      MenuItem(
+        id: MainMenuItem.clientPortal,
+        label: 'Client Portal',
+        icon: AppIcons.clientsPortal,
+        isExpandable: true,
+        resources: [
+          PermissionConstants.resClients,
+          PermissionConstants.resDocuments,
+        ],
+        children: [
+          SubMenuItemData(
+            id: SubMenuItem.clientAccess,
+            icon: Iconsax.key,
+            label: 'Client Access',
+            route: RouteConstants.clientAccess,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.documentSharing,
+            icon: Iconsax.document_upload,
+            label: 'Document Sharing',
+            route: RouteConstants.documentSharing,
+            resources: [PermissionConstants.resDocuments],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.communications,
+            icon: Iconsax.messages_2,
+            label: 'Communications',
+            route: RouteConstants.communications,
+            resources: [PermissionConstants.resClients],
+          ),
+          SubMenuItemData(
+            id: SubMenuItem.portalAnalytics,
+            icon: Iconsax.chart_square,
+            label: 'Portal Analytics',
+            route: RouteConstants.portalAnalytics,
+            resources: [
+              PermissionConstants.resStats,
+              PermissionConstants.resClients,
+            ],
+          ),
+        ],
+      ),
+    ],
+  ),
+];
