@@ -1827,38 +1827,67 @@ class _MenuRowState extends State<_MenuRow> {
             duration: const Duration(milliseconds: 120),
             height: height,
             margin: const EdgeInsets.symmetric(vertical: 1),
-            padding: EdgeInsets.only(left: leadingPad, right: 12),
             decoration: BoxDecoration(
               color: bg,
               borderRadius: const BorderRadius.horizontal(
                 right: Radius.circular(8),
               ),
-              border: Border(
-                left: BorderSide(width: accentWidth, color: accent),
-                // Focus ring on the other three sides. Transparent when
-                // unfocused so the row height stays constant.
-                top: BorderSide(width: 1, color: ringColor),
-                right: BorderSide(width: 1, color: ringColor),
-                bottom: BorderSide(width: 1, color: ringColor),
-              ),
             ),
-            child: Row(
+            child: Stack(
               children: [
-                Icon(widget.icon, size: iconSize, color: iconColor),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    widget.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: widget.isSub ? 13 : 14,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                      color: labelColor,
+                // Left accent bar for selected state
+                if (selected)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: accentWidth,
+                      color: accent,
+                    ),
+                  ),
+                // Focus ring on all sides. Border.all is uniform, so it
+                // won't conflict with the borderRadius.
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: ringColor,
+                        width: 1,
+                      ),
+                      borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(8),
+                      ),
                     ),
                   ),
                 ),
-                if (trailing != null) trailing,
+                // Content row
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: leadingPad, right: 12),
+                    child: Row(
+                      children: [
+                        Icon(widget.icon, size: iconSize, color: iconColor),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            widget.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: widget.isSub ? 13 : 14,
+                              fontWeight:
+                                  selected ? FontWeight.w600 : FontWeight.w500,
+                              color: labelColor,
+                            ),
+                          ),
+                        ),
+                        if (trailing != null) trailing,
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -2009,7 +2038,6 @@ class _CollapsedMenuButtonState extends State<_CollapsedMenuButton> {
 
     // Focus ring colour. Always 1 px wide (even when transparent) so the button
     // doesn't jitter during focus changes.
-    final Color ringColor = _focused ? AppColors.primary : Colors.transparent;
 
     final Color bg = selected
         ? AppColors.primarySoft
