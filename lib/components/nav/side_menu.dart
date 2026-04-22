@@ -1228,11 +1228,18 @@ class _SideMenuState extends State<SideMenu> {
     final bool isSelected = selectedMainMenu == menuItem.id;
 
     if (!menuItem.isExpandable) {
+      final bool isPinned = _pinnedMains.contains(menuItem.id);
       return _MenuRow(
         icon: menuItem.icon,
         label: menuItem.label,
         isSelected: isSelected,
+        isPinned: isPinned,
         onTap: () => _navigate(menuItem.route, menuItem.id, null),
+        onContextMenu: (pos) => _showRowContextMenu(
+          globalPos: pos,
+          isPinned: isPinned,
+          onToggle: () => _togglePinMain(menuItem.id),
+        ),
       );
     }
 
@@ -1265,15 +1272,62 @@ class _SideMenuState extends State<SideMenu> {
     );
   }
 
+  /// Render a pinned non-expandable top-level item in the Pinned section.
+  /// Always full-size (not the sub-item treatment) and marks itself selected
+  /// when its route is active.
+  Widget _buildPinnedMainRow(MenuItem menuItem) {
+    final isSelected = selectedMainMenu == menuItem.id;
+    return _MenuRow(
+      key: ValueKey('pinned-main-${menuItem.id.name}'),
+      icon: menuItem.icon,
+      label: menuItem.label,
+      isSelected: isSelected,
+      isPinned: true,
+      onTap: () => _navigate(menuItem.route, menuItem.id, null),
+      onContextMenu: (pos) => _showRowContextMenu(
+        globalPos: pos,
+        isPinned: true,
+        onToggle: () => _togglePinMain(menuItem.id),
+      ),
+    );
+  }
+
+  /// Render a pinned sub-item in the Pinned section. Uses the top-level
+  /// visual weight (not `isSub: true`) because the pin appears in its own
+  /// section, not nested under a parent group.
+  Widget _buildPinnedSubRow(SubMenuItemData sub, MainMenuItem parentId) {
+    final isSelected = selectedSubMenu == sub.id;
+    return _MenuRow(
+      key: ValueKey('pinned-sub-${sub.id.name}'),
+      icon: sub.icon,
+      label: sub.label,
+      isSelected: isSelected,
+      isPinned: true,
+      onTap: () => _navigate(sub.route, parentId, sub.id),
+      onContextMenu: (pos) => _showRowContextMenu(
+        globalPos: pos,
+        isPinned: true,
+        onToggle: () => _togglePinSub(sub.id),
+      ),
+    );
+  }
+
   Widget _buildSubItem(
       SubMenuItemData subMenuItem, MainMenuItem parentMenuItem) {
     final isSelected = selectedSubMenu == subMenuItem.id;
+    final bool isPinned = _pinnedSubs.contains(subMenuItem.id);
     return _MenuRow(
       icon: subMenuItem.icon,
       label: subMenuItem.label,
       isSelected: isSelected,
       isSub: true,
+      isPinned: isPinned,
       onTap: () => _navigate(subMenuItem.route, parentMenuItem, subMenuItem.id),
+      onContextMenu: (pos) => _showRowContextMenu(
+        globalPos: pos,
+        isPinned: isPinned,
+        onToggle: () => _togglePinSub(subMenuItem.id),
+      ),
     );
   }
 
@@ -1307,7 +1361,32 @@ class _SideMenuState extends State<SideMenu> {
 
   Widget _buildExpandedSidebar(List<MenuItem> filtered) {
     final rows = <Widget>[];
-    bool firstSectionSeen = false;
+
+    // ── Pinned section ──
+    // Skip the pinned section during search so matches only appear once.
+    // Build it from `menuItems` (not `filtered`) so pinned rows remain
+    // visible when the user has typed a search that happens not to match
+    // the pinned label.
+    final bool pinnedSectionVisible = _searchQuery.trim().isEmpty &&
+        (_pinnedSubs.isNotEmpty || _pinnedMains.isNotEmpty);
+    if (pinnedSectionVisible) {
+      rows.add(const _SectionHeader(label: 'Pinned', showDivider: false));
+      for (final menuItem in menuItems) {
+        if (_pinnedMains.contains(menuItem.id) && !menuItem.isExpandable) {
+          rows.add(_buildPinnedMainRow(menuItem));
+        }
+        if (menuItem.isExpandable) {
+          for (final sub in menuItem.children) {
+            if (_pinnedSubs.contains(sub.id)) {
+              rows.add(_buildPinnedSubRow(sub, menuItem.id));
+            }
+          }
+        }
+      }
+    }
+
+    // ── Regular sections ──
+    bool firstSectionSeen = pinnedSectionVisible;
     for (final menuItem in filtered) {
       if (_sectionBreaks.containsKey(menuItem.id)) {
         rows.add(_SectionHeader(
@@ -1607,14 +1686,24 @@ class _MenuRow extends StatefulWidget {
   final bool isSub;
   final VoidCallback onTap;
   final Widget? trailing;
+  /// Whether this row represents a currently-pinned item. Pinned rows get a
+  /// small bookmark indicator in the trailing area (when no custom trailing
+  /// is supplied).
+  final bool isPinned;
+  /// Right-click / long-press callback. Receives the global tap position so
+  /// the caller can open a context menu anchored to the cursor.
+  final ValueChanged<Offset>? onContextMenu;
 
   const _MenuRow({
+    super.key,
     required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
     this.isSub = false,
     this.trailing,
+    this.isPinned = false,
+    this.onContextMenu,
   });
 
   @override
@@ -1623,6 +1712,7 @@ class _MenuRow extends StatefulWidget {
 
 class _MenuRowState extends State<_MenuRow> {
   bool _hover = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1633,6 +1723,11 @@ class _MenuRowState extends State<_MenuRow> {
         : (_hover ? AppColors.neutral200 : Colors.transparent);
 
     final Color accent = selected ? AppColors.primary : Colors.transparent;
+
+    // Focus ring colour. Always 1 px wide (even when transparent) so the row
+    // height never jitters as focus moves between rows.
+    final Color ringColor =
+        _focused && !selected ? AppColors.primary : Colors.transparent;
 
     final Color iconColor = selected
         ? AppColors.primary
@@ -1648,45 +1743,90 @@ class _MenuRowState extends State<_MenuRow> {
     // Sub-rows indent further so the hierarchy reads at a glance.
     final double leadingPad = widget.isSub ? 28 : 12;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          height: height,
-          margin: const EdgeInsets.symmetric(vertical: 1),
-          padding: EdgeInsets.only(left: leadingPad, right: 12),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: const BorderRadius.horizontal(
-              right: Radius.circular(8),
+    // Trailing widget: caller-supplied trailing takes precedence (used by
+    // expandable rows for the chevron). Otherwise, pinned rows get a quiet
+    // bookmark glyph so pinned state is visible at a glance.
+    final Widget? trailing = widget.trailing ??
+        (widget.isPinned
+            ? const Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: Icon(
+                  Iconsax.bookmark_2,
+                  size: 12,
+                  color: AppColors.neutral400,
+                ),
+              )
+            : null);
+
+    return Focus(
+      onFocusChange: (v) => setState(() => _focused = v),
+      onKeyEvent: (node, event) {
+        // Enter / Space → activate the row, matching tap behaviour. Arrow
+        // keys are intentionally left alone so Flutter's default directional
+        // focus traversal (registered on WidgetsApp) can move focus between
+        // sibling rows.
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.enter ||
+                event.logicalKey == LogicalKeyboardKey.space)) {
+          widget.onTap();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          // Right-click (desktop / web) and long-press (touch) both surface
+          // the same context menu — the caller receives the global position
+          // so the menu can anchor to the cursor.
+          onSecondaryTapDown: widget.onContextMenu == null
+              ? null
+              : (d) => widget.onContextMenu!(d.globalPosition),
+          onLongPressStart: widget.onContextMenu == null
+              ? null
+              : (d) => widget.onContextMenu!(d.globalPosition),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            height: height,
+            margin: const EdgeInsets.symmetric(vertical: 1),
+            padding: EdgeInsets.only(left: leadingPad, right: 12),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(8),
+              ),
+              border: Border(
+                left: BorderSide(width: accentWidth, color: accent),
+                // Focus ring on the other three sides. Transparent when
+                // unfocused so the row height stays constant.
+                top: BorderSide(width: 1, color: ringColor),
+                right: BorderSide(width: 1, color: ringColor),
+                bottom: BorderSide(width: 1, color: ringColor),
+              ),
             ),
-            border: Border(
-              left: BorderSide(width: accentWidth, color: accent),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(widget.icon, size: iconSize, color: iconColor),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  widget.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: widget.isSub ? 13 : 14,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                    color: labelColor,
+            child: Row(
+              children: [
+                Icon(widget.icon, size: iconSize, color: iconColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: widget.isSub ? 13 : 14,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                      color: labelColor,
+                    ),
                   ),
                 ),
-              ),
-              if (widget.trailing != null) widget.trailing!,
-            ],
+                if (trailing != null) trailing,
+              ],
+            ),
           ),
         ),
       ),
