@@ -248,11 +248,21 @@ class _SideMenuState extends State<SideMenu> {
   final FocusNode _searchFocusNode = FocusNode(debugLabel: 'sidebar-search');
   String _searchQuery = '';
 
+  /// Pinned sub-items (e.g. "Employees", "Leave Requests"). Rendered as a
+  /// "Pinned" section at the top of the expanded sidebar in addition to
+  /// their natural position under the parent group.
+  final Set<SubMenuItem> _pinnedSubs = <SubMenuItem>{};
+
+  /// Pinned top-level items (e.g. "Events") — same idea, for non-expandable
+  /// entries.
+  final Set<MainMenuItem> _pinnedMains = <MainMenuItem>{};
+
   @override
   void initState() {
     super.initState();
     _initializeMenuItems();
     _initializeRouteMapping();
+    _loadPinned();
     // Register a global shortcut so \u2318K / Ctrl+K focuses the sidebar
     // search from anywhere in the app (no matter which page or field is
     // focused). HardwareKeyboard fires before any widget-level handlers.
@@ -261,6 +271,95 @@ class _SideMenuState extends State<SideMenu> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateSelectionBasedOnCurrentRoute();
     });
+  }
+
+  void _loadPinned() {
+    final subs = prefs.getStringList('sidebarPinnedSubs') ?? const <String>[];
+    for (final s in subs) {
+      final i = int.tryParse(s);
+      if (i != null && i >= 0 && i < SubMenuItem.values.length) {
+        _pinnedSubs.add(SubMenuItem.values[i]);
+      }
+    }
+    final mains = prefs.getStringList('sidebarPinnedMains') ?? const <String>[];
+    for (final s in mains) {
+      final i = int.tryParse(s);
+      if (i != null && i >= 0 && i < MainMenuItem.values.length) {
+        _pinnedMains.add(MainMenuItem.values[i]);
+      }
+    }
+  }
+
+  Future<void> _savePinned() async {
+    await prefs.setStringList(
+      'sidebarPinnedSubs',
+      _pinnedSubs.map((e) => e.index.toString()).toList(),
+    );
+    await prefs.setStringList(
+      'sidebarPinnedMains',
+      _pinnedMains.map((e) => e.index.toString()).toList(),
+    );
+  }
+
+  void _togglePinSub(SubMenuItem id) {
+    setState(() {
+      if (_pinnedSubs.contains(id)) {
+        _pinnedSubs.remove(id);
+      } else {
+        _pinnedSubs.add(id);
+      }
+    });
+    _savePinned();
+  }
+
+  void _togglePinMain(MainMenuItem id) {
+    setState(() {
+      if (_pinnedMains.contains(id)) {
+        _pinnedMains.remove(id);
+      } else {
+        _pinnedMains.add(id);
+      }
+    });
+    _savePinned();
+  }
+
+  /// Show the pin/unpin context menu at [globalPos] for a row.
+  Future<void> _showRowContextMenu({
+    required Offset globalPos,
+    required bool isPinned,
+    required VoidCallback onToggle,
+  }) async {
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (overlay == null) return;
+    final position = RelativeRect.fromLTRB(
+      globalPos.dx,
+      globalPos.dy,
+      overlay.size.width - globalPos.dx,
+      overlay.size.height - globalPos.dy,
+    );
+    final result = await showMenu<String>(
+      context: context,
+      position: position,
+      items: [
+        PopupMenuItem<String>(
+          value: 'toggle',
+          height: 36,
+          child: Row(
+            children: [
+              Icon(
+                isPinned ? Iconsax.bookmark_2 : Iconsax.bookmark,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
+              const SizedBox(width: 10),
+              Text(isPinned ? 'Unpin from top' : 'Pin to top'),
+            ],
+          ),
+        ),
+      ],
+    );
+    if (result == 'toggle') onToggle();
   }
 
   @override
@@ -1182,9 +1281,12 @@ class _SideMenuState extends State<SideMenu> {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.surfaceMuted,
-      // Left padding is 0 so selected-row accent bars sit flush with the edge.
-      // Header and search get their own padding below.
-      padding: const EdgeInsets.only(right: 8),
+      // Expanded mode: right padding only, so selected-row accent bars sit
+      // flush with the left edge. Collapsed mode: horizontal padding hugs the
+      // centered rail buttons.
+      padding: widget.isCollapsed
+          ? const EdgeInsets.symmetric(horizontal: 8)
+          : const EdgeInsets.only(right: 8),
       height: MediaQuery.sizeOf(context).height,
       child: Obx(() {
         // Subscribe to permission changes so the menu rebuilds on role changes.
@@ -1196,57 +1298,178 @@ class _SideMenuState extends State<SideMenu> {
             .whereType<MenuItem>()
             .toList();
 
-        final rows = <Widget>[];
-        bool firstSectionSeen = false;
-        for (final menuItem in filtered) {
-          if (_sectionBreaks.containsKey(menuItem.id)) {
-            rows.add(_SectionHeader(
-              label: _sectionBreaks[menuItem.id]!,
-              showDivider: firstSectionSeen,
-            ));
-            firstSectionSeen = true;
-          }
-          rows.add(_buildMenuItem(menuItem));
-        }
-
-        return ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.zero,
-          children: [
-            kSizedBoxBG,
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Text('BOMACH', style: AppText.h2),
-                  Text('OS', style: AppText.displayLg),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _SidebarSearchField(
-                controller: _searchCtrl,
-                focusNode: _searchFocusNode,
-                onChanged: (v) => setState(() => _searchQuery = v),
-              ),
-            ),
-            const SizedBox(height: 8),
-            ...rows,
-            if (filtered.isEmpty && _searchQuery.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Text(
-                  'No menu items match "$_searchQuery"',
-                  style: AppText.bodyMd,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            kSizedBox,
-          ],
-        );
+        return widget.isCollapsed
+            ? _buildCollapsedRail(filtered)
+            : _buildExpandedSidebar(filtered);
       }),
+    );
+  }
+
+  Widget _buildExpandedSidebar(List<MenuItem> filtered) {
+    final rows = <Widget>[];
+    bool firstSectionSeen = false;
+    for (final menuItem in filtered) {
+      if (_sectionBreaks.containsKey(menuItem.id)) {
+        rows.add(_SectionHeader(
+          label: _sectionBreaks[menuItem.id]!,
+          showDivider: firstSectionSeen,
+        ));
+        firstSectionSeen = true;
+      }
+      rows.add(_buildMenuItem(menuItem));
+    }
+
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.zero,
+      children: [
+        kSizedBoxBG,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+          child: Row(
+            children: [
+              const Text('BOMACH', style: AppText.h2),
+              const Text('OS', style: AppText.displayLg),
+              const Spacer(),
+              if (widget.onToggleCollapse != null)
+                Tooltip(
+                  message: 'Collapse sidebar',
+                  child: IconButton(
+                    icon: const Icon(Iconsax.sidebar_left,
+                        size: 18, color: AppColors.textSecondary),
+                    onPressed: widget.onToggleCollapse,
+                    splashRadius: 18,
+                    padding: const EdgeInsets.all(6),
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _SidebarSearchField(
+            controller: _searchCtrl,
+            focusNode: _searchFocusNode,
+            onChanged: (v) => setState(() => _searchQuery = v),
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...rows,
+        if (filtered.isEmpty && _searchQuery.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              'No menu items match "$_searchQuery"',
+              style: AppText.bodyMd,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        kSizedBox,
+      ],
+    );
+  }
+
+  Widget _buildCollapsedRail(List<MenuItem> filtered) {
+    final permissionService = Get.find<PermissionService>();
+
+    final rail = <Widget>[];
+    for (final menuItem in filtered) {
+      // Apply the same permission filters as the expanded build so the rail
+      // only shows icons the user can actually access.
+      if (menuItem.id == MainMenuItem.dashboard &&
+          (permissionService.isSuperAdmin ||
+              permissionService.hasAnyPermissionForResource(
+                  PermissionConstants.resCompanySettings))) {
+        continue;
+      }
+      if (menuItem.isExpandable) {
+        final authorizedSubItems = menuItem.children
+            .where((s) => permissionService.canAccessRoute(s.route, s.resources))
+            .toList();
+        if (authorizedSubItems.isEmpty) continue;
+      } else if (!permissionService.canAccessResources(menuItem.resources)) {
+        continue;
+      }
+
+      final isSelected = selectedMainMenu == menuItem.id;
+      rail.add(_CollapsedMenuButton(
+        icon: menuItem.icon,
+        label: menuItem.label,
+        isSelected: isSelected,
+        onTap: () {
+          if (menuItem.isExpandable) {
+            // Opening a group on the rail: mark it open and expand the rail
+            // so the user can see the children that just unfurled.
+            setState(() {
+              selectedMainMenu = menuItem.id;
+              _openMenu = menuItem.id;
+            });
+            _saveMenuState(menuItem.id, selectedSubMenu);
+            _saveOpenMenu(_openMenu);
+            widget.onToggleCollapse?.call();
+          } else {
+            _navigate(menuItem.route, menuItem.id, null);
+          }
+        },
+      ));
+    }
+
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.zero,
+      children: [
+        kSizedBoxBG,
+        // Logo tile — small square with a brand mark. Tapping navigates home
+        // via the first dashboard-eligible rail button if present.
+        Center(
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: const Text(
+              'B',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.white,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (widget.onToggleCollapse != null)
+          Center(
+            child: Tooltip(
+              message: 'Expand sidebar  (\u2318K / Ctrl+K)',
+              child: IconButton(
+                icon: const Icon(Iconsax.sidebar_right,
+                    size: 18, color: AppColors.textSecondary),
+                onPressed: widget.onToggleCollapse,
+                splashRadius: 18,
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(),
+              ),
+            ),
+          ),
+        const SizedBox(height: 8),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.borderSubtle,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...rail,
+        kSizedBox,
+      ],
     );
   }
 }
@@ -1574,6 +1797,75 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Icon-only button rendered in the collapsed rail. Shows a tooltip with the
+/// row's label on hover and handles selection / hover fills consistent with
+/// the expanded [_MenuRow] treatment.
+class _CollapsedMenuButton extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CollapsedMenuButton({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  State<_CollapsedMenuButton> createState() => _CollapsedMenuButtonState();
+}
+
+class _CollapsedMenuButtonState extends State<_CollapsedMenuButton> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool selected = widget.isSelected;
+    final Color bg = selected
+        ? AppColors.primarySubtle
+        : (_hover ? AppColors.neutral200 : Colors.transparent);
+    final Color iconColor =
+        selected ? AppColors.primary : AppColors.textPrimary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Center(
+        child: Tooltip(
+          message: widget.label,
+          waitDuration: const Duration(milliseconds: 400),
+          preferBelow: false,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => setState(() => _hover = true),
+            onExit: (_) => setState(() => _hover = false),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    width: 1,
+                    color: selected ? AppColors.primary : Colors.transparent,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Icon(widget.icon, size: 20, color: iconColor),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
