@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 class MyCheckbox extends StatelessWidget {
@@ -22,10 +23,10 @@ class MyCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color effectiveBackgroundColor = isChecked
-        ? (backgroundColor ?? AppColors.blue)
+        ? (backgroundColor ?? AppColors.primary)
         : backgroundNotCheckedColor ?? AppColors.white;
     final Color effectiveBorderColor = isChecked
-        ? (backgroundColor ?? AppColors.blue)
+        ? (backgroundColor ?? AppColors.primary)
         : borderNotCheckedColor ?? Colors.grey.shade300;
 
     return GestureDetector(
@@ -44,7 +45,7 @@ class MyCheckbox extends StatelessWidget {
         ),
         child: isChecked
             ? Icon(
-                Icons.check,
+                Iconsax.tick_circle,
                 size: 16,
                 color: checkColor ?? Colors.white,
               )

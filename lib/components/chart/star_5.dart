@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 class Star5 extends StatelessWidget {
@@ -13,8 +14,8 @@ class Star5 extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(totalStars, (index) {
         return Icon(
-          Icons.star,
-          color: index < filledStars ? AppColors.orange : AppColors.grey4,
+          Iconsax.star1,
+          color: index < filledStars ? AppColors.warning : AppColors.neutral300,
           size: 30,
         );
       }),

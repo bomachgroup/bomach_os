@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 class SortFilterBar2 extends StatelessWidget {
@@ -11,7 +12,7 @@ class SortFilterBar2 extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.grey1.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.neutral500.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -31,7 +32,7 @@ class SortFilterBar2 extends StatelessWidget {
               child: Text("Sort by", style: TextStyle(fontSize: 16)),
             ),
             VerticalDivider(
-              color: AppColors.grey1.withValues(alpha: 0.3),
+              color: AppColors.neutral500.withValues(alpha: 0.3),
               thickness: 1,
               width: 20, // space between items
             ),
@@ -42,7 +43,7 @@ class SortFilterBar2 extends StatelessWidget {
                   DropdownMenuItem(value: "Branch", child: Text("Branch")),
                   DropdownMenuItem(value: "Branch2", child: Text("Branch2")),
                 ],
-                icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                icon: const Icon(Iconsax.arrow_down_1),
                 onChanged: (value) {},
               ),
             ),

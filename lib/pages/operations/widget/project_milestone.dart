@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -136,7 +137,7 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
                   controller.deleteMilestone(context, m.id, widget.projectId),
             ),
           ],
-          child: const Icon(Icons.more_vert),
+          child: const Icon(Iconsax.more),
         )),
       ]);
     });
@@ -214,7 +215,7 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
                         fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context)),
                 ],
               ),

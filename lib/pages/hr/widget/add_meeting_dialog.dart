@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -142,7 +143,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
                         fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -184,7 +185,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
                             title: 'Meeting Time*',
                             hintText: 'HH:MM',
                             readOnly: true,
-                            trailing: const Icon(Icons.access_time_outlined,
+                            trailing: const Icon(Iconsax.clock,
                                 size: 18),
                             onTap: _pickTime,
                           ),
@@ -405,11 +406,11 @@ class _AttendeesField extends StatelessWidget {
                     emp != null ? '${emp.firstName} ${emp.lastName}' : '$id';
                 return Chip(
                   label: Text(label, style: const TextStyle(fontSize: 12)),
-                  deleteIcon: const Icon(Icons.close, size: 14),
+                  deleteIcon: const Icon(Iconsax.close_circle, size: 14),
                   onDeleted: () => onToggle(id),
-                  backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   side:
-                      BorderSide(color: AppColors.blue.withValues(alpha: 0.3)),
+                      BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 );
@@ -425,7 +426,7 @@ class _AttendeesField extends StatelessWidget {
             decoration: InputDecoration(
               hintText: 'Search employees by name or ID...',
               prefixIcon:
-                  const Icon(Icons.search, size: 18, color: Colors.grey),
+                  const Icon(Iconsax.search_normal, size: 18, color: Colors.grey),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(
@@ -438,7 +439,7 @@ class _AttendeesField extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppColors.blue),
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),
           ),
@@ -493,7 +494,7 @@ class _AttendeesField extends StatelessWidget {
                                       Checkbox(
                                         value: isSelected,
                                         onChanged: (_) => onToggle(userId),
-                                        activeColor: AppColors.blue,
+                                        activeColor: AppColors.primary,
                                         materialTapTargetSize:
                                             MaterialTapTargetSize.shrinkWrap,
                                         visualDensity: VisualDensity.compact,

@@ -1,4 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -73,7 +76,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             children: [
               MyText(
                 'Payment Approval',
-                style: AppText.black_500_32,
+                style: AppText.displayLg,
               ),
               SizedBox(height: 4),
               MyText(
@@ -89,7 +92,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         ),
         IconButton(
           onPressed: () => controller.fetchPendingApprovals(),
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Iconsax.refresh),
           tooltip: 'Refresh',
         ),
       ],
@@ -118,19 +121,19 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         _buildStatCard(
           'Pending Approvals',
           pendingCount.toString(),
-          Icons.pending_actions,
-          AppColors.blue,
+          Iconsax.timer_1,
+          AppColors.primary,
         ),
         _buildStatCard(
           'Total Amount',
           '\u20A6${NumberFormat('#,###').format(pendingAmount)}',
-          Icons.attach_money,
+          Iconsax.money_recive,
           Colors.green,
         ),
         _buildStatCard(
           'Today\'s Submissions',
           todayCount.toString(),
-          Icons.today,
+          Iconsax.calendar_1,
           Colors.orange,
         ),
       ],
@@ -145,7 +148,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -175,7 +178,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             label,
             style: const TextStyle(
               fontSize: 14,
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
             ),
           ),
         ],
@@ -197,8 +200,8 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 child: MyTextFormField(
                   hintText: 'Search by invoice or client...',
                   leading: Icon(
-                    Icons.search,
-                    color: AppColors.grey1.withValues(alpha: 0.5),
+                    Iconsax.search_normal,
+                    color: AppColors.neutral500.withValues(alpha: 0.5),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -251,7 +254,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
+            Icon(Iconsax.danger, size: 64, color: Colors.red.shade400),
             const SizedBox(height: 16),
             Text(
               controller.errorMessage.value,
@@ -280,7 +283,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.check_circle_outline,
+              Iconsax.tick_circle,
               size: 64,
               color: Colors.grey.shade400,
             ),
@@ -503,10 +506,10 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             children: [
               Icon(
                 isPending
-                    ? Icons.pending_actions
+                    ? Iconsax.timer_1
                     : decision == 'approved'
-                        ? Icons.check_circle
-                        : Icons.cancel,
+                        ? Iconsax.tick_circle
+                        : Iconsax.close_circle,
                 size: 18,
                 color: isPending
                     ? Colors.orange
@@ -554,7 +557,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 ),
                 const SizedBox(width: 12),
                 MyElevatedButton(
-                  icon: const Icon(Icons.check, color: Colors.white, size: 18),
+                  icon: const Icon(Iconsax.tick_circle, color: Colors.white, size: 18),
                   child: 'Approve',
                   onTap: () => _handleApprovePayment(invoiceId, step, invoice),
                 ),
@@ -652,11 +655,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     final clientName = invoice['client_name'] ?? '';
     final balance = ((invoice['balance'] ?? 0) as num).toDouble();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Approve Payment'),
-        content: Column(
+    DialogScaffold.show(
+      context,
+      title: 'Approve Payment',
+      size: DialogSize.sm,
+      body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -670,9 +673,8 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             Text('Client: $clientName'),
           ],
         ),
-        actions: [
-          MyOutlinedButton(
-            textColor: AppColors.darkGrey1,
+      actions: [MyOutlinedButton(
+            textColor: AppColors.neutral500,
             borderColor: null,
             child: 'Cancel',
             onTap: () => Navigator.pop(context),
@@ -686,9 +688,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 step is int ? step : int.parse(step.toString()),
               );
             },
-          ),
-        ],
-      ),
+          ),],
     );
   }
 
@@ -698,11 +698,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     final invoiceNumber = invoice['invoice_number'] ?? '';
     final balance = ((invoice['balance'] ?? 0) as num).toDouble();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reject Payment'),
-        content: Column(
+    DialogScaffold.show(
+      context,
+      title: 'Reject Payment',
+      size: DialogSize.sm,
+      body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -722,9 +722,8 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             Text('Invoice: $invoiceNumber'),
           ],
         ),
-        actions: [
-          MyOutlinedButton(
-            textColor: AppColors.darkGrey1,
+      actions: [MyOutlinedButton(
+            textColor: AppColors.neutral500,
             borderColor: null,
             child: 'Cancel',
             onTap: () => Navigator.pop(context),
@@ -734,12 +733,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             child: 'Reject',
             onTap: () {
               if (reasonController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please provide a reason for rejection'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                AppToast.error(context, 'Please provide a reason for rejection');
                 return;
               }
               Navigator.pop(context);
@@ -749,9 +743,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 reason: reasonController.text,
               );
             },
-          ),
-        ],
-      ),
+          ),],
     );
   }
 }

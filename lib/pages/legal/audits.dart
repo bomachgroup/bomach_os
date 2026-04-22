@@ -1,6 +1,8 @@
 import 'package:bms_front_end/pages/legal/detailed_view.dart'
     show DetailsViewPage;
 import 'package:flutter/material.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 
 import '../../components/button/my_elevated_button.dart';
@@ -45,8 +47,8 @@ class AuditsPageView extends StatelessWidget {
                               child: MyTextFormField(
                                 hintText: 'Search audits...',
                                 leading: Icon(
-                                  Icons.search,
-                                  color: AppColors.grey1.withValues(alpha: 0.5),
+                                  Iconsax.search_normal,
+                                  color: AppColors.neutral500.withValues(alpha: 0.5),
                                 ),
                                 onChanged: controller.onSearchChanged,
                               ),
@@ -90,9 +92,9 @@ class AuditsPageView extends StatelessWidget {
                                 child: MyTextFormField(
                                   hintText: 'Search audits...',
                                   leading: Icon(
-                                    Icons.search,
+                                    Iconsax.search_normal,
                                     color:
-                                        AppColors.grey1.withValues(alpha: 0.5),
+                                        AppColors.neutral500.withValues(alpha: 0.5),
                                   ),
                                   onChanged: controller.onSearchChanged,
                                 ),
@@ -137,7 +139,7 @@ class AuditsPageView extends StatelessWidget {
                     child: const Center(
                       child: Column(
                         children: [
-                          Icon(Icons.assignment_outlined,
+                          Icon(Iconsax.task_square,
                               size: 48, color: Colors.grey),
                           SizedBox(height: 12),
                           Text("No audits found",
@@ -311,7 +313,7 @@ class AuditsTable extends StatelessWidget {
                     ),
                   );
                 },
-                icon: Icon(Icons.remove_red_eye_outlined,
+                icon: Icon(Iconsax.eye,
                     color: Colors.black, size: isMobile ? 16 : 20),
                 label: Text("View",
                     style: TextStyle(
@@ -331,7 +333,7 @@ class AuditsTable extends StatelessWidget {
                 onPressed: () {
                   CreateNewAuditDialog.show(context);
                 },
-                icon: Icon(Icons.edit_outlined,
+                icon: Icon(Iconsax.edit,
                     color: Colors.black, size: isMobile ? 16 : 20),
                 label: Text("Edit",
                     style: TextStyle(
@@ -349,30 +351,27 @@ class AuditsTable extends StatelessWidget {
               const SizedBox(width: 4),
               OutlinedButton.icon(
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (c) => AlertDialog(
-                      title: const Text("Delete Audit"),
-                      content: Text(
+                  DialogScaffold.show(
+      context,
+      title: "Delete Audit",
+      size: DialogSize.sm,
+      body: Text(
                           "Are you sure you want to delete '${data.auditName}'?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(c),
+      actions: [TextButton(
+                          onPressed: () => Navigator.pop(context),
                           child: const Text("Cancel"),
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(c);
+                            Navigator.pop(context);
                             controller.deleteAudit(context, data.id);
                           },
                           child: const Text("Delete",
                               style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
-                    ),
-                  );
+                        ),],
+    );
                 },
-                icon: Icon(Icons.delete_outline,
+                icon: Icon(Iconsax.trash,
                     color: Colors.red, size: isMobile ? 16 : 20),
                 label: Text("Delete",
                     style: TextStyle(

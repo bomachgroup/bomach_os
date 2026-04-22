@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/dashboad/widget/edit_profile_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -30,7 +31,7 @@ class TopNavigationBar extends StatelessWidget {
             IconButton(
               onPressed: () => Scaffold.of(context).openDrawer(),
               icon: const Icon(
-                Icons.menu,
+                Iconsax.menu,
                 color: Colors.black,
               ),
             ),
@@ -82,7 +83,7 @@ class TopNavigationBar extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.blue.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                         image: (image != null && image.isNotEmpty)
                             ? DecorationImage(
@@ -90,7 +91,7 @@ class TopNavigationBar extends StatelessWidget {
                             : null,
                       ),
                       child: (image == null || image.isEmpty)
-                          ? const Icon(Icons.person, color: AppColors.blue)
+                          ? const Icon(Iconsax.profile_circle, color: AppColors.primary)
                           : null,
                     ),
 
@@ -104,7 +105,7 @@ class TopNavigationBar extends StatelessWidget {
                         children: [
                           MyText(
                             name,
-                            style: AppText.black_600_14,
+                            style: AppText.h4,
                             maxLines: 1,
                           ),
                           MyText(
@@ -118,7 +119,7 @@ class TopNavigationBar extends StatelessWidget {
 
                     if (!isSmallScreen(context)) ...[
                       const SizedBox(width: 8),
-                      const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                      const Icon(Iconsax.arrow_down_1, color: Colors.grey),
                     ]
                   ],
                 ),
@@ -155,7 +156,7 @@ class UserProfileDialog extends StatelessWidget {
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context)),
               ],
             ),
@@ -172,7 +173,7 @@ class UserProfileDialog extends StatelessWidget {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.blue.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         image: (user.profilePicture != null &&
                                 user.profilePicture!.isNotEmpty)
                             ? DecorationImage(
@@ -182,8 +183,8 @@ class UserProfileDialog extends StatelessWidget {
                       ),
                       child: (user.profilePicture == null ||
                               user.profilePicture!.isEmpty)
-                          ? const Icon(Icons.person,
-                              size: 40, color: AppColors.blue)
+                          ? const Icon(Iconsax.profile_circle,
+                              size: 40, color: AppColors.primary)
                           : null,
                     ),
                     const SizedBox(height: 12),
@@ -240,21 +241,21 @@ class UserProfileDialog extends StatelessWidget {
                                     style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
-                                        color: Color(0xFF1E293B))),
+                                        color: AppColors.neutral800)),
                                 const SizedBox(height: 2),
                                 MyText(
                                     authController.is2FaEnabled.value
                                         ? 'Your account is secured with 2FA'
                                         : 'Enable 2FA for extra security',
                                     style: const TextStyle(
-                                        fontSize: 11, color: Color(0xFF94A3B8))),
+                                        fontSize: 11, color: AppColors.neutral400)),
                               ],
                             ),
                             Transform.scale(
                               scale: 0.8,
                               child: Switch.adaptive(
                                 value: authController.is2FaEnabled.value,
-                                activeTrackColor: const Color(0xFF10B981),
+                                activeTrackColor: AppColors.success,
                                 onChanged: (val) {
                                   authController.toggle2Fa(context, val);
                                 },
@@ -283,13 +284,13 @@ class UserProfileDialog extends StatelessWidget {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.blue,
-                      side: const BorderSide(color: AppColors.blue),
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
-                    icon: const Icon(Icons.edit, size: 16),
+                    icon: const Icon(Iconsax.edit, size: 16),
                     label: const Text("Edit Profile"),
                   ),
                 ),
@@ -327,7 +328,7 @@ class UserProfileDialog extends StatelessWidget {
           border: Border(bottom: BorderSide(color: Colors.grey.shade200))),
       child: Text(title,
           style: const TextStyle(
-              fontWeight: FontWeight.w600, color: AppColors.blue)),
+              fontWeight: FontWeight.w600, color: AppColors.primary)),
     );
   }
 

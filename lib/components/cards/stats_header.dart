@@ -34,9 +34,9 @@ class StatsHeaderCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           CircleAvatar(
-            backgroundColor: AppColors.blue.withValues(alpha: 0.12),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
             radius: 16,
-            child: Icon(icon, color: AppColors.blue, size: 18),
+            child: Icon(icon, color: AppColors.primary, size: 18),
           ),
           const SizedBox(height: 16),
           Text(

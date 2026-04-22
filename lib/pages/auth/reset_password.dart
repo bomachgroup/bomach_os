@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/scaffold/scaffold.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -39,7 +40,7 @@ class ResetPasswordScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.grey7, width: 0.5),
+              border: Border.all(color: AppColors.neutral200, width: 0.5),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -100,12 +101,7 @@ class ResetPasswordScreen extends StatelessWidget {
                             : () async {
                                 if (authController.newPasswordController.text !=
                                     confirmPassCtrl.text) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Passwords do not match"),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
+                                  AppToast.error(context, 'Passwords do not match');
                                   return;
                                 }
                                 await authController.resetPassword(context);

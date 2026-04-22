@@ -100,7 +100,7 @@ class TwoFactorVerifyScreen extends StatelessWidget {
                 Obx(() => MyElevatedButton(
                       width: double.infinity,
                       bgColor: AppColors.white,
-                      textColor: AppColors.blue,
+                      textColor: AppColors.primary,
                       isLoading: authController.isLoading.value,
                       child: "Verify Code",
                       onTap: () {

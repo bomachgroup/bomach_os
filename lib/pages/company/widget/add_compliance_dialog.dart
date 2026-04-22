@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -148,7 +149,7 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.cancel, color: AppColors.red),
+                    icon: const Icon(Iconsax.close_circle, color: AppColors.danger),
                   ),
                 ],
               ),
@@ -451,7 +452,7 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
           controller: displayCtrl,
           title: label,
           hintText: 'Select',
-          trailing: Icon(Icons.keyboard_arrow_down,
+          trailing: Icon(Iconsax.arrow_down_1,
               color: Colors.grey[600], size: 20),
         ),
       ),

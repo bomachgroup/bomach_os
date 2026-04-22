@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/scaffold/scaffold.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -117,7 +118,7 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.grey7, width: 0.5),
+              border: Border.all(color: AppColors.neutral200, width: 0.5),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -125,14 +126,14 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
                 // Title
                 const MyText(
                   'Biometric Login',
-                  style: AppText.black_600_32,
+                  style: AppText.displayLg,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 MyText(
                   isAuthenticated ? 'Success!' : 'Tap to unlock',
-                  style: AppText.black_400_14,
-                  color: AppColors.grey2,
+                  style: AppText.bodyMd,
+                  color: AppColors.neutral400,
                 ),
                 const SizedBox(height: 48),
 
@@ -146,21 +147,21 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isAuthenticated
-                            ? AppColors.green
-                            : AppColors.darkBlue,
+                            ? AppColors.success
+                            : AppColors.neutral800,
                         width: 4,
                       ),
                       color: isAuthenticated
-                          ? AppColors.green.withValues(alpha: 0.1)
+                          ? AppColors.success.withValues(alpha: 0.1)
                           : Colors.transparent,
                     ),
                     child: Center(
                       child: Icon(
-                        isAuthenticated ? Icons.check : Icons.fingerprint,
+                        isAuthenticated ? Iconsax.tick_circle : Iconsax.finger_scan,
                         size: 90,
                         color: isAuthenticated
-                            ? AppColors.green
-                            : AppColors.darkBlue,
+                            ? AppColors.success
+                            : AppColors.neutral800,
                       ),
                     ),
                   ),

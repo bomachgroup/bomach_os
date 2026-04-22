@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class LandSurveyingWidget extends StatelessWidget {
   const LandSurveyingWidget({super.key});
@@ -22,7 +23,7 @@ class LandSurveyingWidget extends StatelessWidget {
                     child: const Row(
                       children: [
                         Icon(
-                          Icons.arrow_back,
+                          Iconsax.arrow_left_2,
                           color: Colors.black,
                           size: 24,
                         ),
@@ -50,7 +51,7 @@ class LandSurveyingWidget extends StatelessWidget {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.edit, color: Colors.white, size: 16),
+                        Icon(Iconsax.edit, color: Colors.white, size: 16),
                         SizedBox(width: 4),
                         Text(
                           'Edit',
@@ -75,7 +76,7 @@ class LandSurveyingWidget extends StatelessWidget {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.delete, color: Colors.white, size: 16),
+                        Icon(Iconsax.trash, color: Colors.white, size: 16),
                         SizedBox(width: 4),
                         Text(
                           'Delete',

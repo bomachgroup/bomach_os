@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -269,11 +270,7 @@ class ApplicantController extends GetxController {
 
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: isError ? Colors.red : Colors.green,
-      behavior: SnackBarBehavior.floating,
-    ));
+    AppToast.info(context, message);
   }
 
   void _handleError(BuildContext context, String title, dynamic error) {

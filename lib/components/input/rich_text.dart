@@ -66,7 +66,7 @@ class _RichTextEditorState extends State<RichTextEditor> {
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.card,
+                color: AppColors.borderSubtle,
               ),
               borderRadius: BorderRadius.circular(20),
             ),

@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/avatar_picker.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -86,9 +88,7 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
     if (_firstNameCtrl.text.trim().isEmpty ||
         _lastNameCtrl.text.trim().isEmpty ||
         _emailCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('First name, last name, and email are required'),
-          backgroundColor: Colors.red));
+      AppToast.error(context, 'First name, last name, and email are required');
       return;
     }
 
@@ -139,9 +139,9 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyText(isEdit ? 'Edit Shareholder' : 'Add Shareholder',
-                      style: AppText.black_500_20),
+                      style: AppText.h2),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context)),
                 ],
               ),
@@ -203,7 +203,7 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const MyText('Title', style: AppText.black_600_14),
+                            const MyText('Title', style: AppText.h4),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
                               initialValue: _selectedTitle,
@@ -213,11 +213,11 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
+                                        color: AppColors.neutral300)),
                                 enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
+                                        color: AppColors.neutral300)),
                               ),
                               items: _titleOptions
                                   .map((t) => DropdownMenuItem<String>(
@@ -248,17 +248,17 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
                     Row(children: [
                       Checkbox(
                           value: _isBoardMember,
-                          activeColor: AppColors.blue,
+                          activeColor: AppColors.primary,
                           onChanged: (v) =>
                               setState(() => _isBoardMember = v ?? false)),
-                      const MyText('Board Member', style: AppText.black_400_14),
+                      const MyText('Board Member', style: AppText.bodyMd),
                       const SizedBox(width: 24),
                       Checkbox(
                           value: _isActive,
-                          activeColor: AppColors.blue,
+                          activeColor: AppColors.primary,
                           onChanged: (v) =>
                               setState(() => _isActive = v ?? true)),
-                      const MyText('Active', style: AppText.black_400_14),
+                      const MyText('Active', style: AppText.bodyMd),
                     ]),
                   ],
                 ),

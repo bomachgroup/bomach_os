@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -172,7 +173,7 @@ class _AddPerformanceInvoiceDialogState
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -233,7 +234,7 @@ class _AddPerformanceInvoiceDialogState
                                           padding: const EdgeInsets.all(12),
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                                color: AppColors.grey4),
+                                                color: AppColors.neutral300),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -248,9 +249,9 @@ class _AddPerformanceInvoiceDialogState
                                                 ),
                                               ),
                                               const Icon(
-                                                Icons.calendar_today,
+                                                Iconsax.calendar_1,
                                                 size: 18,
-                                                color: AppColors.grey1,
+                                                color: AppColors.neutral500,
                                               ),
                                             ],
                                           ),
@@ -570,7 +571,7 @@ class _AddPerformanceInvoiceDialogState
 
                       // Optional Section
                       const Divider(
-                        color: AppColors.card,
+                        color: AppColors.borderSubtle,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -596,8 +597,8 @@ class _AddPerformanceInvoiceDialogState
                                   kSizedBoxWidthSM,
                                   Icon(
                                     _showOptionalFields
-                                        ? Icons.keyboard_arrow_up_rounded
-                                        : Icons.keyboard_arrow_down_rounded,
+                                        ? Iconsax.arrow_up_3
+                                        : Iconsax.arrow_down_1,
                                     size: 28,
                                   )
                                 ],
@@ -671,7 +672,7 @@ class _AddPerformanceInvoiceDialogState
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: () {

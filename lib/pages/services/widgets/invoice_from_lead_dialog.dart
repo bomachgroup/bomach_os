@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -86,12 +88,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
     if (itemDescriptionController.text.isEmpty ||
         itemQuantityController.text.isEmpty ||
         itemUnitPriceController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all item fields'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please fill all item fields');
       return;
     }
 
@@ -119,12 +116,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
 
   void _generateInvoice() {
     if (invoiceItems.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one item'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please add at least one item');
       return;
     }
 
@@ -154,13 +146,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
     );
 
     // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Invoice ${invoice.invoiceNumber} generated successfully'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    AppToast.success(context, 'Invoice ${invoice.invoiceNumber} generated successfully');
 
     Navigator.pop(context);
   }
@@ -321,7 +307,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.close,
+                                  icon: const Icon(Iconsax.close_circle,
                                       size: 20, color: Colors.red),
                                   onPressed: () => _removeInvoiceItem(index),
                                   padding: EdgeInsets.zero,
@@ -378,7 +364,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                           const SizedBox(height: 12),
                           MyElevatedButton(
                             child: 'Add Item',
-                            bgColor: AppColors.blue,
+                            bgColor: AppColors.primary,
                             onTap: _addInvoiceItem,
                           ),
                         ],
@@ -532,7 +518,7 @@ class _InvoiceFromLeadDialogState extends State<InvoiceFromLeadDialog> {
                     Expanded(
                       child: MyElevatedButton(
                         child: 'Generate Invoice',
-                        bgColor: AppColors.blue,
+                        bgColor: AppColors.primary,
                         onTap: _generateInvoice,
                       ),
                     ),

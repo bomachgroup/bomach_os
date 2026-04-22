@@ -1,17 +1,34 @@
 import 'dart:math';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/icons.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
+// Local accent palette for differentiated stat tiles / chart / birthdays.
+// Surfaces, borders, text, and shadows flow through semantic tokens — these
+// constants only carry the intentional per-section colour differentiation.
+const Color _accentGreen = AppColors.success;
+const Color _accentIndigo = Color(0xFF6366F1);
+const Color _accentAmber = AppColors.warning;
+const Color _accentPink = Color(0xFFEC4899);
+const Color _accentPurple = Color(0xFF8B5CF6);
+const Color _accentOrange = AppColors.warning;
+const Color _accentTeal = Color(0xFF14B8A6);
+const Color _accentBlue = AppColors.primary;
 
 class HRPage extends StatefulWidget {
   const HRPage({super.key});
@@ -25,10 +42,8 @@ class _HRPageState extends State<HRPage> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Define breakpoints based on available width
         final width = constraints.maxWidth;
         final bool isDesktop = width >= 1100;
-        final bool isTablet = width >= 650 && width < 1100;
         final bool isMobile = width < 650;
 
         return SingleChildScrollView(
@@ -37,17 +52,10 @@ class _HRPageState extends State<HRPage> {
             children: [
               _buildHeader(isMobile),
               kSizedBox,
-
               _buildQuickNav(),
               kSizedBox,
-
-              // Responsive Grid for Stat Boxes
-              _buildSummaryGrid(isDesktop, isTablet, isMobile),
-
+              _buildSummaryGrid(),
               kSizedBox,
-
-              // Middle Section: Chart & Birthdays
-              // On Tablet/Mobile, we stack them. On Desktop, side-by-side.
               if (isDesktop)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,10 +70,7 @@ class _HRPageState extends State<HRPage> {
                 kSizedBox,
                 _buildBirthdaysSection(),
               ],
-
               kSizedBox,
-
-              // Bottom Section: Audit Logs & Leaves
               if (isDesktop)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,42 +113,42 @@ class _HRPageState extends State<HRPage> {
     return ModuleQuickNav(
       shortcuts: [
         card(
-          icon: Icons.badge_outlined,
+          icon: AppIcons.employee,
           title: 'Employees',
           subtitle: 'Directory and profiles',
           route: RouteConstants.employees,
           resources: const [PermissionConstants.resEmployees],
         ),
         card(
-          icon: Icons.access_time_outlined,
+          icon: Iconsax.clock,
           title: 'Attendance',
           subtitle: 'Clock-ins and hours',
           route: RouteConstants.attendance,
           resources: const [PermissionConstants.resEmployees],
         ),
         card(
-          icon: Icons.work_outline,
+          icon: Iconsax.briefcase,
           title: 'Recruitment',
           subtitle: 'Job posts and applicants',
           route: RouteConstants.jobPost,
           resources: const [PermissionConstants.resJobPostings],
         ),
         card(
-          icon: Icons.event_busy_outlined,
+          icon: Iconsax.calendar_remove,
           title: 'Leave Requests',
           subtitle: 'Approve and track leave',
           route: RouteConstants.leaveRequest,
           resources: const [PermissionConstants.resLeaveRequests],
         ),
         card(
-          icon: Icons.trending_up_outlined,
+          icon: Iconsax.trend_up,
           title: 'Performance',
           subtitle: 'Reviews and scorecards',
           route: RouteConstants.performanceReview,
           resources: const [PermissionConstants.resPerformanceReviews],
         ),
         card(
-          icon: Icons.school_outlined,
+          icon: Iconsax.teacher,
           title: 'Training',
           subtitle: 'Programs and progress',
           route: RouteConstants.trainingProgram,
@@ -153,78 +158,85 @@ class _HRPageState extends State<HRPage> {
     );
   }
 
-  // 1. Header Section
+  // Header
   Widget _buildHeader(bool isMobile) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const MyText(
-          'HR & Administration',
-          style: AppText.black_600_32,
-        ),
-        if (!isMobile)
-          Row(
-            children: [
-              OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.grey.shade300),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+    return PageHeader(
+      title: 'Human Resources',
+      subtitle:
+          'Manage employees, payroll, leave, training, and everything people-ops',
+      trailing: isMobile
+          ? null
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Iconsax.briefcase, size: 16),
+                  label: const Text('Job Postings'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.borderSubtle),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 14),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.brMd,
+                    ),
+                    textStyle: AppText.bodyMd.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
-                child: const MyText('Job Postings',
-                    style: TextStyle(color: Colors.black)),
-              ),
-              kSizedBoxWidth,
-              ElevatedButton.icon(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0055FF),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                kSizedBoxWidth,
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Iconsax.user_add, size: 16),
+                  label: const Text('Add Employee'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.textOnPrimary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 14),
+                    elevation: 0,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.brMd,
+                    ),
+                    textStyle: AppText.bodyMd.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-                icon: const Icon(CupertinoIcons.add,
-                    color: Colors.white, size: 16),
-                label: const MyText('Add Employee',
-                    style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          )
-      ],
+              ],
+            ),
     );
   }
 
-  // 2. Summary Cards Row
-  Widget _buildSummaryGrid(bool isDesktop, bool isTablet, bool isMobile) {
+  // Summary grid
+  Widget _buildSummaryGrid() {
     return ResponsiveStatRow(
       cards: [
         _buildStatCard(
           title: 'Total Employees',
           count: '234',
-          borderColor: Colors.green,
-          countColor: Colors.green,
+          icon: Iconsax.people,
+          accent: _accentGreen,
         ),
         _buildStatCard(
           title: 'New Hires (30 days)',
           count: '18',
-          borderColor: const Color(0xFF1976D2),
-          countColor: const Color(0xFF1976D2),
+          icon: Iconsax.user_add,
+          accent: _accentBlue,
         ),
         _buildStatCard(
           title: 'Open Roles',
           count: '12',
-          borderColor: const Color(0xFFC27803),
-          countColor: const Color(0xFFC27803),
+          icon: Iconsax.briefcase,
+          accent: _accentAmber,
         ),
         _buildStatCard(
-          title: 'New Hires',
+          title: 'On Leave Today',
           count: '2',
-          borderColor: Colors.pinkAccent,
-          countColor: Colors.pinkAccent,
+          icon: Iconsax.calendar_remove,
+          accent: _accentPink,
         ),
       ],
     );
@@ -233,56 +245,71 @@ class _HRPageState extends State<HRPage> {
   Widget _buildStatCard({
     required String title,
     required String count,
-    required Color borderColor,
-    required Color countColor,
+    required IconData icon,
+    required Color accent,
   }) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
-          const SizedBox(height: 12),
-          Text(count,
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: countColor)),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: Icon(icon, size: 18, color: accent),
+              ),
+              const Spacer(),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: AppText.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            count,
+            style: AppText.h1.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // 3. Charts Section
+  // Chart section
   Widget _buildChartSection() {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText('Headcount by Department',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _accentIndigo.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: const Icon(Iconsax.chart_square,
+                    size: 18, color: _accentIndigo),
+              ),
+              const SizedBox(width: 12),
+              const MyText('Headcount by Department', style: AppText.h3),
+            ],
+          ),
           const SizedBox(height: 24),
-          // Wrap in LayoutBuilder to handle chart responsiveness internally
           LayoutBuilder(builder: (context, constraints) {
             final bool narrow = constraints.maxWidth < 350;
             return Flex(
@@ -301,18 +328,15 @@ class _HRPageState extends State<HRPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLegendItem(const Color(0xFF6C63FF), 'Development',
-                          '78 employees'),
                       _buildLegendItem(
-                          const Color(0xFFA063FF), 'Marketing', '42 employees'),
+                          _accentIndigo, 'Development', '78 employees'),
                       _buildLegendItem(
-                          const Color(0xFFE91E63), 'Sales', '56 employees'),
-                      _buildLegendItem(const Color(0xFFFF9800), 'Operations',
-                          '35 employees'),
+                          _accentPurple, 'Marketing', '42 employees'),
+                      _buildLegendItem(_accentPink, 'Sales', '56 employees'),
                       _buildLegendItem(
-                          const Color(0xFF26A69A), 'Finance', '24 employees'),
-                      _buildLegendItem(
-                          const Color(0xFF42A5F5), 'HR', '12 employees'),
+                          _accentOrange, 'Operations', '35 employees'),
+                      _buildLegendItem(_accentTeal, 'Finance', '24 employees'),
+                      _buildLegendItem(_accentBlue, 'HR', '12 employees'),
                     ],
                   ),
                 )
@@ -326,23 +350,37 @@ class _HRPageState extends State<HRPage> {
 
   Widget _buildLegendItem(Color color, String label, String sub) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 10.0),
       child: Row(
         children: [
-          CircleAvatar(radius: 4, backgroundColor: color),
-          const SizedBox(width: 8),
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: AppRadii.brSm,
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(
-                  child: MyText(label,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 13)),
+                  child: MyText(
+                    label,
+                    style: AppText.label.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 4),
-                MyText(sub,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                MyText(
+                  sub,
+                  style: AppText.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -351,32 +389,34 @@ class _HRPageState extends State<HRPage> {
     );
   }
 
-  // 4. Birthdays Section
+  // Birthdays section
   Widget _buildBirthdaysSection() {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText('Upcoming Birthdays',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _accentPink.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: const Icon(Iconsax.cake, size: 18, color: _accentPink),
+              ),
+              const SizedBox(width: 12),
+              const MyText('Upcoming Birthdays', style: AppText.h3),
+            ],
+          ),
           const SizedBox(height: 20),
           _buildBirthdayTile(
-              'N', 'Nicky Fry', 'Designer', 'Apr 24', Colors.purpleAccent),
+              'N', 'Nicky Fry', 'Designer', 'Apr 24', _accentPurple),
           _buildBirthdayTile(
-              'R', 'Rick Fry', 'Developer', 'May 11', Colors.pinkAccent),
+              'R', 'Rick Fry', 'Developer', 'May 11', _accentPink),
           _buildBirthdayTile(
-              'A', 'Alice Fry', 'Manager', 'May 06', Colors.orangeAccent),
+              'A', 'Alice Fry', 'Manager', 'May 06', _accentOrange),
         ],
       ),
     );
@@ -385,65 +425,90 @@ class _HRPageState extends State<HRPage> {
   Widget _buildBirthdayTile(
       String init, String name, String role, String date, Color color) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 14.0),
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: color.withValues(alpha: 0.1),
-            child: MyText(init,
-                style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+            radius: 18,
+            backgroundColor: color.withValues(alpha: 0.12),
+            child: Text(
+              init,
+              style: AppText.label.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14)),
-                MyText(role,
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                MyText(
+                  name,
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                MyText(
+                  role,
+                  style: AppText.bodySm.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                ),
               ],
             ),
           ),
-          MyText(date, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          MyText(
+            date,
+            style: AppText.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // 5. Audit Logs Section
+  // Audit logs
   Widget _buildAuditLogsSection() {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText('Audit Logs',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: const Icon(Iconsax.clipboard_text,
+                    size: 18, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
+              const MyText('Audit Logs', style: AppText.h3),
+            ],
+          ),
           const SizedBox(height: 20),
-          _buildAuditItem('Clark Changed Rose Ells', '08:12 AM'),
-          _buildAuditItem('Garrett added a new employee', '06:45 AM'),
-          _buildAuditItem('Sophie generated Payroll Report', 'Yesterday'),
-          _buildAuditItem('System Backup completed', 'Yesterday'),
+          _buildAuditItem('Clark Changed Rose Ells', '08:12 AM', last: false),
+          _buildAuditItem('Garrett added a new employee', '06:45 AM',
+              last: false),
+          _buildAuditItem('Sophie generated Payroll Report', 'Yesterday',
+              last: false),
+          _buildAuditItem('System Backup completed', 'Yesterday', last: true),
         ],
       ),
     );
   }
 
-  Widget _buildAuditItem(String title, String time) {
+  Widget _buildAuditItem(String title, String time, {required bool last}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
+      padding: const EdgeInsets.only(bottom: 14.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -454,14 +519,15 @@ class _HRPageState extends State<HRPage> {
                 width: 8,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.redAccent,
+                  color: AppColors.primary,
                 ),
               ),
-              Container(
-                width: 1,
-                height: 30,
-                color: Colors.grey[300],
-              )
+              if (!last)
+                Container(
+                  width: 1,
+                  height: 32,
+                  color: AppColors.borderSubtle,
+                ),
             ],
           ),
           const SizedBox(width: 12),
@@ -469,12 +535,20 @@ class _HRPageState extends State<HRPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                const SizedBox(height: 4),
-                MyText(time,
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                MyText(
+                  title,
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                MyText(
+                  time,
+                  style: AppText.caption.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                ),
               ],
             ),
           )
@@ -483,45 +557,46 @@ class _HRPageState extends State<HRPage> {
     );
   }
 
-  // 6. Recent Leaves Section
+  // Leaves section
   Widget _buildLeavesSection() {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText('Recent Leaves',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _accentAmber.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: const Icon(Iconsax.calendar_remove,
+                    size: 18, color: _accentAmber),
+              ),
+              const SizedBox(width: 12),
+              const MyText('Recent Leaves', style: AppText.h3),
+            ],
+          ),
           const SizedBox(height: 20),
+          _buildLeaveItem('David West', '2024-12-01 - 2024-12-14', 'Approved'),
+          _buildLeaveItem('Sarah Musa', '2024-12-01 - 2024-12-14', 'Pending'),
           _buildLeaveItem(
-              'David West', '2024-12-01 - 2024-12-14', 'Approved', Colors.blue),
-          _buildLeaveItem('Sarah Musa', '2024-12-01 - 2024-12-14', 'Pending',
-              Colors.orange),
-          _buildLeaveItem('Benji Rider 1', '2024-12-01 - 2024-12-14',
-              'Rejected', Colors.red),
+              'Benji Rider 1', '2024-12-01 - 2024-12-14', 'Rejected'),
         ],
       ),
     );
   }
 
-  Widget _buildLeaveItem(
-      String name, String date, String status, Color statusColor) {
+  Widget _buildLeaveItem(String name, String date, String status) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Row(
         children: [
@@ -529,36 +604,31 @@ class _HRPageState extends State<HRPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(height: 4),
-                MyText(date,
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                MyText(
+                  name,
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                MyText(
+                  date,
+                  style: AppText.caption.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: MyText(
-              status,
-              style: TextStyle(
-                  color: statusColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12),
-            ),
-          )
+          StatusChip.fromStatus(status),
         ],
       ),
     );
   }
 }
 
-// Zero-Dependency Donut Chart Painter
+// Zero-dependency donut chart painter — uses the local accent palette.
 class DonutChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -570,7 +640,8 @@ class DonutChartPainter extends CustomPainter {
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
 
     double startAngle = -pi / 2;
 
@@ -581,12 +652,12 @@ class DonutChartPainter extends CustomPainter {
       startAngle += sweepAngle;
     }
 
-    drawSegment(const Color(0xFF6C63FF), 0.32); // Dev
-    drawSegment(const Color(0xFFA063FF), 0.17); // Mkt
-    drawSegment(const Color(0xFFE91E63), 0.23); // Sales
-    drawSegment(const Color(0xFFFF9800), 0.14); // Ops
-    drawSegment(const Color(0xFF26A69A), 0.09); // Fin
-    drawSegment(const Color(0xFF42A5F5), 0.05); // HR
+    drawSegment(_accentIndigo, 0.32);
+    drawSegment(_accentPurple, 0.17);
+    drawSegment(_accentPink, 0.23);
+    drawSegment(_accentOrange, 0.14);
+    drawSegment(_accentTeal, 0.09);
+    drawSegment(_accentBlue, 0.05);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -61,7 +62,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                 children: [
                   const MyText(
                     'Awards & Recognition',
-                    style: AppText.black_500_32,
+                    style: AppText.displayLg,
                   ),
                   const SizedBox(height: 8),
                   MyText(
@@ -74,7 +75,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                 ],
               ),
               MyElevatedButton(
-                icon: const Icon(Icons.add_circle_outline_rounded,
+                icon: const Icon(Iconsax.add_circle,
                     color: AppColors.white),
                 child: "New Award",
                 onTap: () async {
@@ -143,7 +144,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
   }
 
   Widget _buildAwardCard(Award award) {
-    const color = AppColors.blue;
+    const color = AppColors.primary;
 
     return GestureDetector(
       onTap: () async {
@@ -181,7 +182,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.emoji_events, color: Colors.white, size: 32),
+                child: Icon(Iconsax.cup, color: Colors.white, size: 32),
               ),
             ),
             const SizedBox(height: 16),
@@ -252,7 +253,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
             value: selectedMonth,
             isExpanded: true,
             underline: Container(),
-            icon: const Icon(Icons.arrow_drop_down, color: AppColors.blue),
+            icon: const Icon(Iconsax.arrow_down_1, color: AppColors.primary),
             onChanged: (newValue) => setState(() => selectedMonth = newValue!),
             items: ['All', ...awardsByMonth.keys]
                 .map((month) => DropdownMenuItem(

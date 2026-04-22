@@ -1,4 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -46,13 +49,13 @@ class BaseDialog extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey),
+                    icon: const Icon(Iconsax.close_circle, color: Colors.grey),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE2E8F0)),
+            const Divider(height: 1, color: AppColors.neutral200),
 
             // Body (Scrollable)
             Flexible(
@@ -278,12 +281,7 @@ class _CreateUnitDialogState extends State<CreateUnitDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     if (selectedDeptId == null && !isEditing) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a department'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please select a department');
       return;
     }
 
@@ -348,7 +346,7 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.circular(8)),
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -362,9 +360,9 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF005CE8))),
+                                  color: AppColors.primary)),
                           SizedBox(width: 4),
-                          Icon(Icons.trending_up, color: Colors.green, size: 16)
+                          Icon(Iconsax.trend_up, color: Colors.green, size: 16)
                         ],
                       )
                     ],
@@ -376,7 +374,7 @@ class ViewDepartmentDetailsDialog extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.circular(8)),
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,7 +575,7 @@ Widget _buildInfoColumn(String label, String value) {
           style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B))),
+              color: AppColors.neutral800)),
     ],
   );
 }
@@ -670,7 +668,7 @@ Widget _buildMetricSlider(String label, double value) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
             Text("${(value * 100).toInt()}%",
                 style:
                     const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),

@@ -1,95 +1,18 @@
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class SendMessageDialog extends StatelessWidget {
   const SendMessageDialog({super.key});
 
   static void show(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => const SendMessageDialog(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
-    final double dialogWidth = isMobile ? screenWidth * 0.9 : 450;
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      title: const Text(
-        'Send Message',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 16.0, 16.0),
-      actionsPadding: const EdgeInsets.all(16.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      contentPadding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 0.0),
-      content: SingleChildScrollView(
-        child: SizedBox(
-          width: dialogWidth,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Type'),
-                        _buildDropdown(
-                          value: 'Message',
-                          items: const ['Message', 'Notification', 'Alert'],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Priority'),
-                        _buildDropdown(
-                          value: 'Normal',
-                          items: const ['Normal', 'High', 'Urgent'],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildFormLabel('Client'),
-              _buildDropdown(
-                value: 'Select Client',
-                items: const [
-                  'Select Client',
-                  'Lagos State Government',
-                  'Dangote Group',
-                  'FCDA'
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildFormLabel('Title *'),
-              _buildTextInput(hint: ''),
-              const SizedBox(height: 16),
-              _buildFormLabel('Message *'),
-              _buildMultiLineTextInput(hint: ''),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-      actions: <Widget>[
+    DialogScaffold.show(
+      context,
+      title: 'Send Message',
+      size: DialogSize.sm,
+      body: const SendMessageDialog(),
+      actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text(
@@ -102,7 +25,7 @@ class SendMessageDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.blue,
+            backgroundColor: AppColors.primary,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -113,6 +36,63 @@ class SendMessageDialog extends StatelessWidget {
             style: TextStyle(color: Colors.white),
           ),
         ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildFormLabel('Type'),
+                  _buildDropdown(
+                    value: 'Message',
+                    items: const ['Message', 'Notification', 'Alert'],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildFormLabel('Priority'),
+                  _buildDropdown(
+                    value: 'Normal',
+                    items: const ['Normal', 'High', 'Urgent'],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildFormLabel('Client'),
+        _buildDropdown(
+          value: 'Select Client',
+          items: const [
+            'Select Client',
+            'Lagos State Government',
+            'Dangote Group',
+            'FCDA'
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildFormLabel('Title *'),
+        _buildTextInput(hint: ''),
+        const SizedBox(height: 16),
+        _buildFormLabel('Message *'),
+        _buildMultiLineTextInput(hint: ''),
       ],
     );
   }

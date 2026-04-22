@@ -1,11 +1,10 @@
-import 'package:bms_front_end/components/button/signin_button.dart';
-import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/scaffold/scaffold.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/icons.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -39,8 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MyScaffold(
-      addPad: false,
+    return Scaffold(
+      backgroundColor: AppColors.background,
       body: Obx(
         () {
           final bool showLoader =
@@ -48,181 +47,206 @@ class _LoginScreenState extends State<LoginScreen> {
 
           return Stack(
             children: [
-              // Background Image
-              Container(
-                alignment: Alignment.center,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/image/login-bg.png"),
-                    fit: BoxFit.cover,
-                  ),
+              Positioned.fill(
+                child: Image.asset(
+                  "assets/image/login-bg.png",
+                  fit: BoxFit.cover,
                 ),
-                // Login Card
+              ),
+              Positioned.fill(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 224, 222, 222),
-                        width: 0.5,
+                  color: AppColors.neutral900.withValues(alpha: 0.35),
+                ),
+              ),
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 32),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: AppRadii.brLg,
+                        boxShadow: AppShadows.lg,
+                        border: Border.all(color: AppColors.borderSubtle),
                       ),
-                      borderRadius: BorderRadius.circular(20)),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Logo
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(20)),
-                          height: 155,
-                          width: 175,
-                          child: Image.asset("assets/logo/bomach.png"),
-                        ),
-                        kSizedBoxTiny,
-                        const MyText(
-                          "Hey, welcome",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: SizedBox(
+                              height: 64,
+                              child: Image.asset("assets/logo/bomach.png"),
+                            ),
                           ),
-                        ),
-                        kSizedBoxSM,
-                        const MyText(
-                          "Sign In",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 32,
-                              color: Colors.white),
-                        ),
-                        kSizedBox,
-
-                        // Username Field
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                          child: MyTextFormField(
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Welcome back',
+                            textAlign: TextAlign.center,
+                            style: AppText.h1,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Sign in to continue to Bomach OS',
+                            textAlign: TextAlign.center,
+                            style: AppText.bodyMd.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          MyTextFormField(
                             controller: authController.emailController,
-                            title: "Username",
-                            hintText: "Enter Username",
-                            textColor: AppColors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            spaceBetweenText: 10,
-                          ),
-                        ),
-                        kSizedBox,
-
-                        // Password Field with Obscure Toggle
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                          child: MyTextFormField(
-                            controller: authController.passwordController,
-                            title: "Password",
-                            hintText: "Enter Password",
-                            textColor: AppColors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            spaceBetweenText: 10,
-                            // Connected to controller state
-                            obscureText: authController.obscurePassword.value,
-                          ),
-                        ),
-                        kSizedBoxSM,
-
-                        // Show Password Checkbox
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                          child: Row(
-                            children: [
-                              MyCheckbox(
-                                checkColor: AppColors.blue,
-                                backgroundColor: AppColors.white,
-                                // Correctly reflects 'Show Password' logic
-                                isChecked:
-                                    !authController.obscurePassword.value,
-                                onChanged: (val) {
-                                  authController.togglePasswordVisibility();
-                                },
+                            title: 'Username',
+                            hintText: 'Enter your username',
+                            spaceBetweenText: 8,
+                            leading: const Padding(
+                              padding: EdgeInsets.only(left: 12, right: 8),
+                              child: Icon(
+                                AppIcons.user,
+                                size: 18,
+                                color: AppColors.textMuted,
                               ),
-                              kSizedBoxWidthSM,
-                              const MyText(
-                                "Show Password",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 12),
-                              )
-                            ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Login Button
-                        SigninButton(
-                          onPressed: showLoader
-                              ? null
-                              : () {
-                                  authController.login(context);
-                                },
-                        ),
-                        const SizedBox(height: 5),
-
-                        // Bottom Navigation Links
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Forgot Password Link -> Navigate to Screen
-                            TextButton(
+                          const SizedBox(height: 16),
+                          MyTextFormField(
+                            controller: authController.passwordController,
+                            title: 'Password',
+                            hintText: 'Enter your password',
+                            spaceBetweenText: 8,
+                            obscureText: authController.obscurePassword.value,
+                            leading: const Padding(
+                              padding: EdgeInsets.only(left: 12, right: 8),
+                              child: Icon(
+                                AppIcons.lock,
+                                size: 18,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                            trailing: IconButton(
+                              onPressed:
+                                  authController.togglePasswordVisibility,
+                              icon: Icon(
+                                authController.obscurePassword.value
+                                    ? AppIcons.eye
+                                    : AppIcons.eyeSlash,
+                                size: 18,
+                                color: AppColors.textMuted,
+                              ),
+                              splashRadius: 18,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
                               onPressed: showLoader
                                   ? null
-                                  : () {
-                                      // Navigate to Forgot Password Screen instead of calling API directly
-                                      context
-                                          .push(RouteConstants.forgotPassword);
-                                    },
-                              child: const Text(
-                                "Forgot password?",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300),
+                                  : () => context
+                                      .push(RouteConstants.forgotPassword),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 4),
+                                minimumSize: const Size(0, 32),
+                                tapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                'Forgot password?',
+                                style: AppText.label.copyWith(
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ),
-
-                            // Biometric Link -> Navigate to Screen
-                            TextButton(
-                              onPressed: () {
-                                context.push(RouteConstants.biometric);
-                              },
-                              child: const Text(
-                                "Use Biometric",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 48,
+                            child: ElevatedButton(
+                              onPressed: showLoader
+                                  ? null
+                                  : () => authController.login(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.textOnPrimary,
+                                elevation: 0,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: AppRadii.brMd,
+                                ),
+                                textStyle: AppText.bodyMd.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              child: showLoader
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.textOnPrimary,
+                                      ),
+                                    )
+                                  : const Text('Sign in'),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              const Expanded(
+                                child: Divider(
+                                  color: AppColors.borderSubtle,
+                                  thickness: 1,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12),
+                                child: Text(
+                                  'or',
+                                  style: AppText.caption.copyWith(
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                              ),
+                              const Expanded(
+                                child: Divider(
+                                  color: AppColors.borderSubtle,
+                                  thickness: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          OutlinedButton.icon(
+                            onPressed: () =>
+                                context.push(RouteConstants.biometric),
+                            icon: const Icon(
+                              AppIcons.security,
+                              size: 18,
+                            ),
+                            label: const Text('Use biometric'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.textPrimary,
+                              side: const BorderSide(
+                                  color: AppColors.borderSubtle),
+                              minimumSize: const Size.fromHeight(48),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: AppRadii.brMd,
+                              ),
+                              textStyle: AppText.bodyMd.copyWith(
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ],
-                        )
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-
-              // Loading Overlay
-              if (showLoader)
-                Container(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  height: double.infinity,
-                  width: double.infinity,
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                        color: AppColors.white, strokeWidth: 2),
-                  ),
-                ),
             ],
           );
         },

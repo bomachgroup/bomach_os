@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -329,7 +330,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -532,10 +533,10 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(vertical: 24),
                             decoration: BoxDecoration(
-                              color: AppColors.blue.withValues(alpha: 0.05),
+                              color: AppColors.primary.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: AppColors.blue.withValues(alpha: 0.3),
+                                color: AppColors.primary.withValues(alpha: 0.3),
                                 style: BorderStyle.solid,
                               ),
                             ),
@@ -553,7 +554,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                         'Uploading image...',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: AppColors.grey1,
+                                          color: AppColors.neutral500,
                                         ),
                                       ),
                                     ],
@@ -561,16 +562,16 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                 : const Column(
                                     children: [
                                       Icon(
-                                        Icons.cloud_upload_outlined,
+                                        Iconsax.document_upload,
                                         size: 32,
-                                        color: AppColors.blue,
+                                        color: AppColors.primary,
                                       ),
                                       SizedBox(height: 8),
                                       Text(
                                         'Click to upload images',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: AppColors.blue,
+                                          color: AppColors.primary,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -579,7 +580,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                         'Supported: PNG, JPG, JPEG',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppColors.grey1,
+                                          color: AppColors.neutral500,
                                         ),
                                       ),
                                     ],
@@ -616,9 +617,9 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                         errorPlaceholder: Container(
                                           width: 56,
                                           height: 56,
-                                          color: AppColors.blue
+                                          color: AppColors.primary
                                               .withValues(alpha: 0.1),
-                                          child: const Icon(Icons.broken_image,
+                                          child: const Icon(Iconsax.gallery_slash,
                                               size: 24),
                                         ),
                                       ),
@@ -641,7 +642,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                             url,
                                             style: const TextStyle(
                                               fontSize: 11,
-                                              color: AppColors.grey1,
+                                              color: AppColors.neutral500,
                                             ),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
@@ -650,7 +651,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.close,
+                                      icon: const Icon(Iconsax.close_circle,
                                           size: 18, color: Colors.red),
                                       onPressed: () {
                                         setState(() {
@@ -683,7 +684,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     borderColor: null,
                     child: 'Cancel',
                     onTap: () {
@@ -733,14 +734,14 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: AppColors.grey4,
+                color: AppColors.neutral300,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: const Text(
                 'Optional',
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.grey1,
+                  color: AppColors.neutral500,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -752,7 +753,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.grey4),
+              border: Border.all(color: AppColors.neutral300),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Row(
@@ -765,7 +766,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                 SizedBox(width: 12),
                 Text(
                   'Loading clients...',
-                  style: TextStyle(fontSize: 14, color: AppColors.grey1),
+                  style: TextStyle(fontSize: 14, color: AppColors.neutral500),
                 ),
               ],
             ),
@@ -778,11 +779,11 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                 decoration: InputDecoration(
                   hintText: 'Search client by name or email...',
                   hintStyle:
-                      const TextStyle(fontSize: 14, color: AppColors.grey1),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.grey1),
+                      const TextStyle(fontSize: 14, color: AppColors.neutral500),
+                  prefixIcon: const Icon(Iconsax.search_normal, color: AppColors.neutral500),
                   suffixIcon: _selectedClient != null
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
+                          icon: const Icon(Iconsax.close_circle, size: 18),
                           onPressed: () {
                             setState(() {
                               _selectedClient = null;
@@ -795,15 +796,15 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.blue),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -822,7 +823,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.grey4),
+                    border: Border.all(color: AppColors.neutral300),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.08),
@@ -837,7 +838,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                           child: Text(
                             'No clients found',
                             style:
-                                TextStyle(fontSize: 14, color: AppColors.grey1),
+                                TextStyle(fontSize: 14, color: AppColors.neutral500),
                           ),
                         )
                       : ListView.builder(
@@ -854,7 +855,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                   border: index < _filteredClients.length - 1
                                       ? const Border(
                                           bottom: BorderSide(
-                                              color: AppColors.grey4,
+                                              color: AppColors.neutral300,
                                               width: 0.5),
                                         )
                                       : null,
@@ -874,7 +875,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                       client.email,
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.grey1,
+                                        color: AppColors.neutral500,
                                       ),
                                     ),
                                   ],

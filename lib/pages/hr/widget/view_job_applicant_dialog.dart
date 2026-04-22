@@ -1,6 +1,8 @@
 import 'dart:developer';
+import 'package:iconsax/iconsax.dart';
 
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -126,7 +128,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
+                  border: Border(bottom: BorderSide(color: AppColors.neutral100))),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -175,7 +177,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                   ),
                   IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close, color: Colors.grey)),
+                      icon: const Icon(Iconsax.close_circle, color: Colors.grey)),
                 ],
               ),
             ),
@@ -184,7 +186,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
+                  border: Border(bottom: BorderSide(color: AppColors.neutral100))),
               child: Row(
                 children: [
                   _buildTab("Overview", 0),
@@ -282,13 +284,13 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                 if (stage == 'applied') ...[
                   _buildActionButton(
                       "Shortlist Candidate",
-                      const Color(0xFF0055FF),
+                      AppColors.primary,
                       () => _controller.moveApplicantToStage(
                           context, widget.applicant.id, 'shortlisted')),
                   const SizedBox(height: 8),
                   _buildActionButton(
                       "Reject",
-                      AppColors.red,
+                      AppColors.danger,
                       () => _controller.rejectApplicant(
                           context, widget.applicant.id)),
                 ] else if (stage == 'shortlisted' || stage == 'screening') ...[
@@ -300,7 +302,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                   const SizedBox(height: 8),
                   _buildActionButton(
                       "Reject",
-                      AppColors.red,
+                      AppColors.danger,
                       () => _controller.rejectApplicant(
                           context, widget.applicant.id)),
                 ] else if (stage == 'interview' || stage == 'interviewed') ...[
@@ -312,7 +314,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                   const SizedBox(height: 8),
                   _buildActionButton(
                       "Reject",
-                      AppColors.red,
+                      AppColors.danger,
                       () => _controller.rejectApplicant(
                           context, widget.applicant.id)),
                 ] else ...[
@@ -334,11 +336,11 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                       borderRadius: BorderRadius.circular(8)),
                   child: const Row(
                     children: [
-                      Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
+                      Icon(Iconsax.document_text, color: Colors.red, size: 20),
                       SizedBox(width: 8),
                       Expanded(
                           child: MyText("Resume.pdf", size: 13, weight: 500)),
-                      Icon(Icons.download, size: 18, color: Colors.grey),
+                      Icon(Iconsax.document_download, size: 18, color: Colors.grey),
                     ],
                   ),
                 )
@@ -362,14 +364,14 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
               const MyText("Interviews", size: 14, weight: 700),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0055FF),
+                  backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
                 onPressed: _showScheduleInterviewDialog,
-                icon: const Icon(Icons.add, color: Colors.white, size: 16),
+                icon: const Icon(Iconsax.add, color: Colors.white, size: 16),
                 label: const Text("Schedule Interview",
                     style: TextStyle(color: Colors.white, fontSize: 13)),
               ),
@@ -384,7 +386,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.event_note,
+                            Icon(Iconsax.calendar_1,
                                 size: 48, color: Colors.grey.shade300),
                             const SizedBox(height: 8),
                             const MyText("No interviews scheduled",
@@ -423,7 +425,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       leading: CircleAvatar(
         backgroundColor: statusColor.withValues(alpha: 0.1),
-        child: Icon(Icons.event, color: statusColor, size: 20),
+        child: Icon(Iconsax.calendar_1, color: statusColor, size: 20),
       ),
       title: MyText(
           interview.scheduledAt.isNotEmpty
@@ -475,7 +477,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
                 onPressed: _showCreateOfferLetterDialog,
-                icon: const Icon(Icons.add, color: Colors.white, size: 16),
+                icon: const Icon(Iconsax.add, color: Colors.white, size: 16),
                 label: const Text("Create Offer Letter",
                     style: TextStyle(color: Colors.white, fontSize: 13)),
               ),
@@ -490,7 +492,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.description,
+                            Icon(Iconsax.document_text,
                                 size: 48, color: Colors.grey.shade300),
                             const SizedBox(height: 8),
                             const MyText("No offer letters yet",
@@ -532,7 +534,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       leading: CircleAvatar(
         backgroundColor: statusColor.withValues(alpha: 0.1),
-        child: Icon(Icons.description, color: statusColor, size: 20),
+        child: Icon(Iconsax.document_text, color: statusColor, size: 20),
       ),
       title: MyText(offer.template.isNotEmpty ? offer.template : 'Offer Letter',
           size: 14, weight: 600),
@@ -571,13 +573,13 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             MyText(title,
                 size: 13,
                 weight: isActive ? 600 : 400,
-                color: isActive ? const Color(0xFF0055FF) : Colors.grey),
+                color: isActive ? AppColors.primary : Colors.grey),
             if (isActive)
               Container(
                   margin: const EdgeInsets.only(top: 4),
                   height: 2,
                   width: 20,
-                  color: const Color(0xFF0055FF))
+                  color: AppColors.primary)
           ],
         ),
       ),
@@ -681,8 +683,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_scheduledDate == null || _scheduledTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select date and time')));
+      AppToast.info(context, 'Please select date and time');
       return;
     }
 
@@ -718,9 +719,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
     } catch (e) {
       log('Schedule interview error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Failed to schedule interview: $e'),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to schedule interview: $e');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -760,7 +759,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      icon: const Icon(Icons.calendar_today, size: 16),
+                      icon: const Icon(Iconsax.calendar_1, size: 16),
                       label: Text(_scheduledDate == null
                           ? 'Pick Date'
                           : '${_scheduledDate!.day}/${_scheduledDate!.month}/${_scheduledDate!.year}'),
@@ -770,7 +769,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton.icon(
-                      icon: const Icon(Icons.access_time, size: 16),
+                      icon: const Icon(Iconsax.clock, size: 16),
                       label: Text(_scheduledTime == null
                           ? 'Pick Time'
                           : _scheduledTime!.format(context)),
@@ -799,7 +798,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
         ElevatedButton(
           onPressed: _saving ? null : _save,
           style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0055FF)),
+              backgroundColor: AppColors.primary),
           child: _saving
               ? const SizedBox(
                   width: 16,
@@ -862,8 +861,7 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_startDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a start date')));
+      AppToast.info(context, 'Please select a start date');
       return;
     }
 
@@ -893,9 +891,7 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
     } catch (e) {
       log('Create offer letter error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Failed to create offer letter: $e'),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to create offer letter: $e');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -943,7 +939,7 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today, size: 16),
+                icon: const Icon(Iconsax.calendar_1, size: 16),
                 label: Text(_startDate == null
                     ? 'Pick Start Date'
                     : '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'),

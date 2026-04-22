@@ -31,7 +31,7 @@ class ProjectOverview extends StatelessWidget {
                     width: isLargeScreen(context) ? 400 : double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      border: Border.all(width: 1, color: AppColors.border),
+                      border: Border.all(width: 1, color: AppColors.borderSubtle),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Row(
@@ -42,7 +42,7 @@ class ProjectOverview extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const MyText('Project progress',
-                                style: AppText.black_500_16),
+                                style: AppText.bodyLg),
                             const SizedBox(height: 10),
                             CircularPercentIndicator(
                               startAngle: 180.0,
@@ -54,13 +54,13 @@ class ProjectOverview extends StatelessWidget {
                                 '${project.progress.toInt()}%',
                                 size: 18,
                                 weight: 400,
-                                color: AppColors.orange,
+                                color: AppColors.warning,
                               ),
                               linearGradient: const LinearGradient(
                                 colors: [Color(0xFFE8620F), Color(0xFFFFDC3D)],
                               ),
                               rotateLinearGradient: true,
-                              backgroundColor: AppColors.grey2,
+                              backgroundColor: AppColors.neutral400,
                             ),
                           ],
                         ),
@@ -84,7 +84,7 @@ class ProjectOverview extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 18),
                     decoration: BoxDecoration(
-                        border: Border.all(width: 1, color: AppColors.border),
+                        border: Border.all(width: 1, color: AppColors.borderSubtle),
                         borderRadius: BorderRadius.circular(24)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +108,7 @@ class ProjectOverview extends StatelessWidget {
                                   const MyText('Corporate Client',
                                       size: 14,
                                       weight: 400,
-                                      color: AppColors.grey2),
+                                      color: AppColors.neutral400),
                                 ],
                               ),
                             ),
@@ -144,7 +144,7 @@ class ProjectOverview extends StatelessWidget {
           decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border)),
+              border: Border.all(color: AppColors.borderSubtle)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -168,7 +168,7 @@ class ProjectOverview extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MyText(label, size: 12, weight: 400, color: AppColors.grey2),
+        MyText(label, size: 12, weight: 400, color: AppColors.neutral400),
         const SizedBox(height: 8),
         MyText(date.isEmpty ? 'N/A' : date, size: 16, weight: 500),
       ],
@@ -188,7 +188,7 @@ class ProjectExpenceTrack extends StatelessWidget {
       width: 283,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
-          border: Border.all(width: 1, color: AppColors.border),
+          border: Border.all(width: 1, color: AppColors.borderSubtle),
           borderRadius: BorderRadius.circular(21)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

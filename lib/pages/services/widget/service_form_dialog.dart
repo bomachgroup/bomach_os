@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -151,21 +153,11 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   }
 
   void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    AppToast.error(context, message);
   }
 
   void _showSuccessSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
-    );
+    AppToast.success(context, message);
   }
 
   /// Format category name for display
@@ -215,7 +207,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: _isSubmitting
                           ? null
                           : () => Navigator.of(context).pop(),
@@ -384,7 +376,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: _isSubmitting

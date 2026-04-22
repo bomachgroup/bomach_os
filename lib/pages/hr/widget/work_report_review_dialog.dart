@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -66,9 +68,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
 
     if (success && mounted) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Report $newStatus"),
-          backgroundColor: AppColors.green));
+      AppToast.success(context, "Report $newStatus");
     }
   }
 
@@ -90,9 +90,9 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const MyText('Review Work Report',
-                      style: AppText.black_500_20),
+                      style: AppText.h2),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.of(context).pop()),
                 ],
               ),
@@ -115,14 +115,14 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               MyText('Employee: ${widget.report.employeeId}',
-                                  style: AppText.black_600_16),
+                                  style: AppText.h4),
                               const SizedBox(height: 4),
                               MyText(
                                   'Date: ${widget.report.day != null ? DateFormat('yyyy-MM-dd').format(widget.report.day!) : '-'}'),
                             ],
                           ),
                           MyText('${widget.report.hoursWorked} hrs',
-                              style: AppText.black_600_16),
+                              style: AppText.h4),
                         ],
                       ),
                     ),
@@ -135,7 +135,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                     _buildDetail(
                         'Plan for Next Day', widget.report.planNextDay),
                     const Divider(height: 32),
-                    const MyText('Manager Review', style: AppText.black_600_16),
+                    const MyText('Manager Review', style: AppText.h4),
                     const SizedBox(height: 16),
                     const MyText('Rating',
                         style: TextStyle(fontWeight: FontWeight.bold)),
@@ -143,8 +143,8 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
                       children: List.generate(5, (index) {
                         return IconButton(
                           icon: Icon(
-                              index < _rating ? Icons.star : Icons.star_border,
-                              color: AppColors.orange,
+                              index < _rating ? Iconsax.star1 : Iconsax.star,
+                              color: AppColors.warning,
                               size: 32),
                           onPressed: () => setState(() => _rating = index + 1),
                         );

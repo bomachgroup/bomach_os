@@ -27,7 +27,7 @@ class ContractDetailPage extends StatelessWidget {
 
     if (contract == null) {
       return const Center(
-        child: MyText('Contract not found', style: AppText.black_500_16),
+        child: MyText('Contract not found', style: AppText.bodyLg),
       );
     }
 
@@ -53,7 +53,7 @@ class ContractDetailPage extends StatelessWidget {
                                 colorFilter: const ColorFilter.mode(
                                     AppColors.black, BlendMode.srcIn)),
                             kSizedBoxWidthSM,
-                            const MyText('Back', style: AppText.black_500_20),
+                            const MyText('Back', style: AppText.h2),
                           ],
                         ),
                       ),
@@ -72,7 +72,7 @@ class ContractDetailPage extends StatelessWidget {
                             },
                           ),
                           MyElevatedButton(
-                            bgColor: AppColors.red,
+                            bgColor: AppColors.danger,
                             child: 'Delete',
                             onTap: () => controller.deleteContract(
                                 context, contract.id, contract.projectId),
@@ -90,7 +90,7 @@ class ContractDetailPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.borderSubtle),
               ),
               child: Column(
                 children: [

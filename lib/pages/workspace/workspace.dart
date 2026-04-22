@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/cards/stats_header.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -32,7 +33,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
                 children: [
                   MyText(
                     'Virtual Workspace',
-                    style: AppText.black_500_32,
+                    style: AppText.displayLg,
                   ),
                   MyText(
                     'Collaborate with your team on projects and communicate effectively',
@@ -55,7 +56,7 @@ class _WorkspacePageState extends State<WorkspacePage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.grey7),
+            border: Border.all(color: AppColors.neutral200),
             borderRadius: BorderRadius.circular(15),
             color: AppColors.white,
           ),
@@ -93,18 +94,18 @@ class _WorkspacePageState extends State<WorkspacePage> {
   Widget _buildTopStats(BuildContext context) {
     return Obx(() {
       final List<Map<String, dynamic>> items = [
-        {'label': 'Projects', 'count': '—', 'icon': Icons.folder_outlined},
+        {'label': 'Projects', 'count': '—', 'icon': Iconsax.folder_2},
         {
           'label': 'Meetings',
           'count': _controller.totalMeetings.value.toString(),
-          'icon': Icons.groups_outlined
+          'icon': Iconsax.people
         },
         {
           'label': 'Documents',
           'count': '—',
-          'icon': Icons.description_outlined
+          'icon': Iconsax.document_text
         },
-        {'label': 'Team Members', 'count': '—', 'icon': Icons.people_outline},
+        {'label': 'Team Members', 'count': '—', 'icon': Iconsax.people},
       ];
 
       return LayoutBuilder(
@@ -152,7 +153,7 @@ class _ProjectCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
         borderRadius: BorderRadius.circular(15),
         color: AppColors.white,
       ),
@@ -190,7 +191,7 @@ class _ProjectCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.grey7),
+                        border: Border.all(color: AppColors.neutral200),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const MyText(
@@ -209,21 +210,21 @@ class _ProjectCard extends StatelessWidget {
                     MyText(
                       "3 members",
                       style: TextStyle(
-                        color: AppColors.grey2,
+                        color: AppColors.neutral400,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
                     MyText(
                       "2 files",
                       style: TextStyle(
-                        color: AppColors.grey2,
+                        color: AppColors.neutral400,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
                     MyText(
                       "1 pending tasks",
                       style: TextStyle(
-                        color: AppColors.grey2,
+                        color: AppColors.neutral400,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -236,7 +237,7 @@ class _ProjectCard extends StatelessWidget {
                     width: constraints.maxWidth,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: AppColors.grey7,
+                      color: AppColors.neutral200,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: FractionallySizedBox(
@@ -257,13 +258,13 @@ class _ProjectCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.grey7),
+              border: Border.all(color: AppColors.neutral200),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(
               spacing: 10,
               children: [
-                Icon(Icons.remove_red_eye_outlined),
+                Icon(Iconsax.eye),
                 MyText(
                   "Open",
                   style: TextStyle(
@@ -286,7 +287,7 @@ class RecentCommunicationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
         color: AppColors.white,
         borderRadius: BorderRadius.circular(15),
       ),
@@ -390,7 +391,7 @@ class CommunicationItem extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.black2,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -455,7 +456,7 @@ class CommunicationItem extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.attach_file,
+                      Iconsax.attach_circle,
                       size: 16,
                       color: Colors.grey[500],
                     ),

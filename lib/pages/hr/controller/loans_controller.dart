@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -194,12 +196,7 @@ class LoanController extends GetxController {
       await _service.createLoan(token, loan);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Loan request created successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        AppToast.success(context, 'Loan request created successfully');
         Navigator.pop(context);
       }
 
@@ -229,12 +226,7 @@ class LoanController extends GetxController {
 
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Loan approved successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        AppToast.success(context, 'Loan approved successfully');
       }
     } catch (e) {
       log('Approve loan error: $e');
@@ -260,12 +252,7 @@ class LoanController extends GetxController {
 
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Loan rejected'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppToast.error(context, 'Loan rejected');
       }
     } catch (e) {
       log('Reject loan error: $e');
@@ -315,18 +302,15 @@ class LoanController extends GetxController {
   }
 
   void _showDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
+    DialogScaffold.show(
+      context,
+      title: title,
+      size: DialogSize.sm,
+      body: Text(content),
+      actions: [TextButton(
+            onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
-          ),
-        ],
-      ),
+          ),],
     );
   }
 }

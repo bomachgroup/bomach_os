@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -151,7 +153,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
+                color: AppColors.neutral50,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -167,7 +169,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -409,7 +411,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white),
                               )
-                            : const Icon(Icons.check,
+                            : const Icon(Iconsax.tick_circle,
                                 size: 16, color: Colors.white),
                         child: isEdit ? 'Save' : 'Create',
                         onTap: controller.isSaving.value ? null : _onSave,
@@ -434,7 +436,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButtonHideUnderline(
@@ -442,7 +444,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
           isExpanded: true,
           value: items.contains(value) ? value : null,
           hint: Text(hint,
-              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
+              style: const TextStyle(color: AppColors.neutral400, fontSize: 14)),
           items: List.generate(items.length, (i) {
             return DropdownMenuItem(
               value: items[i],

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -132,13 +133,13 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                           widget.estate.name,
                           style: const TextStyle(
                             fontSize: 14,
-                            color: AppColors.grey1,
+                            color: AppColors.neutral500,
                           ),
                         ),
                       ],
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -329,7 +330,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
 
                       // Optional Section
                       const Divider(
-                        color: AppColors.card,
+                        color: AppColors.borderSubtle,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -355,8 +356,8 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                                   kSizedBoxWidthSM,
                                   Icon(
                                     _showOptionalFields
-                                        ? Icons.keyboard_arrow_up_rounded
-                                        : Icons.keyboard_arrow_down_rounded,
+                                        ? Iconsax.arrow_up_3
+                                        : Iconsax.arrow_down_1,
                                     size: 28,
                                   )
                                 ],
@@ -369,7 +370,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.grey1,
+                                  color: AppColors.neutral500,
                                 ),
                               ),
                               kSizedBoxSM,
@@ -472,7 +473,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: () {

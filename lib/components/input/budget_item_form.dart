@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -143,7 +144,7 @@ class _BudgetTableState extends State<BudgetTable> {
               // Add Button
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.blue,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -153,7 +154,7 @@ class _BudgetTableState extends State<BudgetTable> {
                   elevation: 0,
                 ),
                 onPressed: _addItem,
-                icon: const Icon(Icons.add, size: 20),
+                icon: const Icon(Iconsax.add, size: 20),
                 label: const Text(
                   'Add',
                   style: TextStyle(

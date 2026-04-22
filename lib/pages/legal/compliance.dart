@@ -1,6 +1,8 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart'
     show MyElevatedButton;
 import 'package:bms_front_end/pages/legal/controllers/compliance_controller.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/legal/detailed_view.dart';
 import 'package:bms_front_end/pages/legal/models/compliance_record_model.dart';
 import 'package:bms_front_end/pages/legal/widgets/status_tag.dart';
@@ -51,8 +53,8 @@ class CompliancePageView extends StatelessWidget {
                             child: MyTextFormField(
                               hintText: 'Search compliance...',
                               leading: Icon(
-                                Icons.search,
-                                color: AppColors.grey1.withValues(alpha: 0.5),
+                                Iconsax.search_normal,
+                                color: AppColors.neutral500.withValues(alpha: 0.5),
                               ),
                               onChanged: controller.onSearchChanged,
                             ),
@@ -94,8 +96,8 @@ class CompliancePageView extends StatelessWidget {
                               child: MyTextFormField(
                                 hintText: 'Search compliance...',
                                 leading: Icon(
-                                  Icons.search,
-                                  color: AppColors.grey1.withValues(alpha: 0.5),
+                                  Iconsax.search_normal,
+                                  color: AppColors.neutral500.withValues(alpha: 0.5),
                                 ),
                                 onChanged: controller.onSearchChanged,
                               ),
@@ -159,28 +161,25 @@ class CompliancePageView extends StatelessWidget {
                       },
                       onEdit: () => _openDialog(context, record: record),
                       onDelete: () {
-                        showDialog(
-                          context: context,
-                          builder: (c) => AlertDialog(
-                            title: const Text('Delete Record'),
-                            content: Text(
+                        DialogScaffold.show(
+      context,
+      title: 'Delete Record',
+      size: DialogSize.sm,
+      body: Text(
                                 'Delete compliance record for "${record.fullName}"?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(c),
+      actions: [TextButton(
+                                onPressed: () => Navigator.pop(context),
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pop(c);
+                                  Navigator.pop(context);
                                   controller.deleteRecord(context, record.id);
                                 },
                                 child: const Text('Delete',
                                     style: TextStyle(color: Colors.red)),
-                              ),
-                            ],
-                          ),
-                        );
+                              ),],
+    );
                       },
                     );
                   },
@@ -289,12 +288,12 @@ class _ComplianceRecordCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             _actionButton(
-                                Icons.remove_red_eye_outlined, 'View', onView),
+                                Iconsax.eye, 'View', onView),
                             const SizedBox(width: 8),
-                            _actionButton(Icons.edit_outlined, 'Edit', onEdit),
+                            _actionButton(Iconsax.edit, 'Edit', onEdit),
                             const SizedBox(width: 8),
                             _actionButton(
-                                Icons.delete_outline, 'Delete', onDelete,
+                                Iconsax.trash, 'Delete', onDelete,
                                 color: Colors.red),
                           ],
                         ),
@@ -374,12 +373,12 @@ class _ComplianceRecordCard extends StatelessWidget {
                         Row(
                           children: [
                             _actionButton(
-                                Icons.remove_red_eye_outlined, 'View', onView),
+                                Iconsax.eye, 'View', onView),
                             const SizedBox(width: 8),
-                            _actionButton(Icons.edit_outlined, 'Edit', onEdit),
+                            _actionButton(Iconsax.edit, 'Edit', onEdit),
                             const SizedBox(width: 8),
                             _actionButton(
-                                Icons.delete_outline, 'Delete', onDelete,
+                                Iconsax.trash, 'Delete', onDelete,
                                 color: Colors.red),
                           ],
                         ),

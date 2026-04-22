@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -64,20 +65,20 @@ class _AssociatesPageState extends State<AssociatesPage> {
                     children: [
                       MyText(
                         'Associates',
-                        style: AppText.black_500_32,
+                        style: AppText.displayLg,
                       ),
                       SizedBox(height: 8),
                       MyText(
                         'Manage external partners and associates',
                         size: 14,
                         weight: 400,
-                        color: Color(0xFF64748B),
+                        color: AppColors.neutral500,
                       ),
                     ],
                   ),
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Iconsax.add_circle,
                       color: AppColors.white,
                     ),
                     child: "New Associate",
@@ -112,14 +113,14 @@ class _AssociatesPageState extends State<AssociatesPage> {
                     child: MyTextFormField(
                       hintText: 'Search associates...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: _loadData,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Iconsax.refresh),
                     tooltip: 'Refresh',
                   ),
                 ],
@@ -204,7 +205,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
               Container(
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.greyBg,
+                  color: AppColors.background,
                 ),
                 width: 36,
                 height: 36,
@@ -235,9 +236,9 @@ class _AssociatesPageState extends State<AssociatesPage> {
             decoration: BoxDecoration(
               border: Border.all(
                 width: 0.6,
-                color: associate.isActive ? AppColors.green : AppColors.red,
+                color: associate.isActive ? AppColors.success : AppColors.danger,
               ),
-              color: (associate.isActive ? AppColors.green : AppColors.red)
+              color: (associate.isActive ? AppColors.success : AppColors.danger)
                   .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
@@ -245,13 +246,13 @@ class _AssociatesPageState extends State<AssociatesPage> {
               associate.isActive ? 'Active' : 'Inactive',
               size: 12,
               weight: 500,
-              color: associate.isActive ? AppColors.green : AppColors.red,
+              color: associate.isActive ? AppColors.success : AppColors.danger,
             ),
           ),
         ),
         DataCell(
           IconButton(
-            icon: const Icon(Icons.visibility, color: AppColors.blue),
+            icon: const Icon(Iconsax.eye, color: AppColors.primary),
             onPressed: () {
               showDialog(
                 context: context,

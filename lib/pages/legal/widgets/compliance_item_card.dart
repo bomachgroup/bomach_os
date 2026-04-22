@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/legal/detailed_view.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/legal/widgets/status_tag.dart'
     show StatusTag;
 import 'package:flutter/material.dart';
@@ -209,7 +210,7 @@ class ComplianceItemCard extends StatelessWidget {
                           children: [
                             OutlinedButton.icon(
                               onPressed: () {},
-                              icon: const Icon(Icons.remove_red_eye_outlined,
+                              icon: const Icon(Iconsax.eye,
                                   color: Colors.black),
                               label: const Text("View",
                                   style: TextStyle(color: Colors.black)),
@@ -223,7 +224,7 @@ class ComplianceItemCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             OutlinedButton.icon(
                               onPressed: () {},
-                              icon: const Icon(Icons.edit_outlined,
+                              icon: const Icon(Iconsax.edit,
                                   color: Colors.black),
                               label: const Text("Edit",
                                   style: TextStyle(color: Colors.black)),
@@ -409,7 +410,7 @@ class ComplianceItemCard extends StatelessWidget {
                           children: [
                             OutlinedButton.icon(
                               onPressed: () {},
-                              icon: const Icon(Icons.remove_red_eye_outlined,
+                              icon: const Icon(Iconsax.eye,
                                   color: Colors.black),
                               label: const Text("View",
                                   style: TextStyle(color: Colors.black)),
@@ -423,7 +424,7 @@ class ComplianceItemCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             OutlinedButton.icon(
                               onPressed: () {},
-                              icon: const Icon(Icons.edit_outlined,
+                              icon: const Icon(Iconsax.edit,
                                   color: Colors.black),
                               label: const Text("Edit",
                                   style: TextStyle(color: Colors.black)),

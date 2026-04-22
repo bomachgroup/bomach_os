@@ -95,7 +95,7 @@ class _Header extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.darkBlue,
+                  color: AppColors.neutral800,
                 ),
               ),
               if (subtitle != null) ...[
@@ -105,7 +105,7 @@ class _Header extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.grey1,
+                    color: AppColors.neutral500,
                   ),
                 ),
               ],
@@ -129,7 +129,7 @@ class _SectionLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: AppColors.darkBlue,
+        color: AppColors.neutral800,
       ),
     );
   }
@@ -159,7 +159,7 @@ class ModuleQuickNav extends StatelessWidget {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkBlue,
+            color: AppColors.neutral800,
           ),
         ),
         const SizedBox(height: 12),
@@ -193,13 +193,13 @@ class _ShortcutGrid extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.grey5,
+          color: AppColors.neutral100,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.card),
+          border: Border.all(color: AppColors.borderSubtle),
         ),
         child: const Text(
           'No modules available for your role.',
-          style: TextStyle(color: AppColors.grey1, fontSize: 14),
+          style: TextStyle(color: AppColors.neutral500, fontSize: 14),
         ),
       );
     }

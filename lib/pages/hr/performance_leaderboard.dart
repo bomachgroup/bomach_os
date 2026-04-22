@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/hr/controller/performance_leaderboard_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -48,7 +49,7 @@ class _PerformanceLeaderboardPageState
               const Expanded(
                 child: MyText(
                   'Performance Leaderboard',
-                  style: AppText.black_500_32,
+                  style: AppText.displayLg,
                 ),
               ),
               Obx(() {
@@ -188,7 +189,7 @@ class _PerformanceLeaderboardPageState
               value: value,
               isExpanded: true,
               underline: Container(),
-              icon: const Icon(Icons.arrow_drop_down, size: 18),
+              icon: const Icon(Iconsax.arrow_down_1, size: 18),
               onChanged: (newValue) {
                 if (newValue != null) onChanged(newValue);
               },
@@ -271,7 +272,7 @@ class _PerformanceLeaderboardPageState
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.blue,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 4),
@@ -475,7 +476,7 @@ class _PerformanceLeaderboardPageState
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.blue,
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -602,7 +603,7 @@ class _PerformanceLeaderboardPageState
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.blue,
+              color: AppColors.primary,
             ),
           ),
         ],

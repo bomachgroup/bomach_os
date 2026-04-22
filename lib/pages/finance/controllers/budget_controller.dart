@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -177,22 +179,17 @@ class BudgetController extends GetxController {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
-    );
+    AppToast.success(context, message);
   }
 
   void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text("Error"),
-        content: Text(message),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c), child: const Text("OK")),
-        ],
-      ),
+    DialogScaffold.show(
+      context,
+      title: "Error",
+      size: DialogSize.sm,
+      body: Text(message),
+      actions: [TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text("OK")),],
     );
   }
 }

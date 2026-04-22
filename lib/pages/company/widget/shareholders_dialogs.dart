@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/avatar_picker.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -173,7 +175,7 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.add_circle, color: Colors.green, size: 20),
+                        Icon(Iconsax.add_circle, color: Colors.green, size: 20),
                         SizedBox(width: 8),
                         Text("Add",
                             style: TextStyle(
@@ -193,9 +195,9 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: const Row(
         children: [
@@ -252,11 +254,11 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
                   ),
                 ),
                 validator: (v) =>
@@ -278,11 +280,11 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
                   ),
                 ),
                 items: _roleOptions
@@ -312,11 +314,11 @@ class _EditShareHoldersDialogState extends State<EditShareHoldersDialog> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.card),
+                    borderSide: const BorderSide(color: AppColors.borderSubtle),
                   ),
                 ),
                 onChanged: (_) => _recalcPercentages(),
@@ -546,7 +548,7 @@ class _AddEditShareholderDialogState extends State<AddEditShareholderDialog> {
                   children: [
                     Checkbox(
                       value: isBoardMember,
-                      activeColor: AppColors.blue,
+                      activeColor: AppColors.primary,
                       onChanged: (v) =>
                           setState(() => isBoardMember = v ?? false),
                     ),
@@ -607,13 +609,7 @@ class _EditEquityDialogState extends State<EditEquityDialog> {
           onSave: () {
             final value = int.tryParse(equityCtrl.text);
             if (value == null || value <= 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Please enter a valid number"),
-                  backgroundColor: Colors.redAccent,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+              AppToast.error(context, 'Please enter a valid number');
               return;
             }
             controller.updateEquityValue(context, value);

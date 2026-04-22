@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/services/models/performance_invoice_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +46,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
               value,
               style: TextStyle(
                 fontSize: 14,
-                color: isBlue ? AppColors.blue : Colors.black87,
+                color: isBlue ? AppColors.primary : Colors.black87,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -110,7 +112,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.blue.withValues(alpha: 0.05),
+                color: AppColors.primary.withValues(alpha: 0.05),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -136,7 +138,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.blue,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -146,7 +148,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                       _buildStatusBadge(invoice.paymentStatus),
                       const SizedBox(width: 16),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 28),
+                        icon: const Icon(Iconsax.close_circle, size: 28),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -256,10 +258,10 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.blue.withValues(alpha: 0.05),
+                        color: AppColors.primary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: AppColors.blue.withValues(alpha: 0.2)),
+                            color: AppColors.primary.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         children: [
@@ -356,46 +358,30 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                 children: [
                   MyElevatedButton(
                     bgColor: Colors.grey.shade600,
-                    icon: const Icon(Icons.print, color: AppColors.white),
+                    icon: const Icon(Iconsax.printer, color: AppColors.white),
                     child: 'Print Invoice',
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Print functionality coming soon'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                      AppToast.info(context, 'Print functionality coming soon');
                     },
                   ),
                   Row(
                     children: [
                       MyElevatedButton(
-                        bgColor: AppColors.blue,
+                        bgColor: AppColors.primary,
                         icon:
-                            const Icon(Icons.download, color: AppColors.white),
+                            const Icon(Iconsax.document_download, color: AppColors.white),
                         child: 'Download PDF',
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'PDF download functionality coming soon'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
+                          AppToast.info(context, 'PDF download functionality coming soon');
                         },
                       ),
                       const SizedBox(width: 12),
                       MyElevatedButton(
                         bgColor: Colors.green,
-                        icon: const Icon(Icons.share, color: AppColors.white),
+                        icon: const Icon(Iconsax.share, color: AppColors.white),
                         child: 'Share',
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Share functionality coming soon'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
+                          AppToast.info(context, 'Share functionality coming soon');
                         },
                       ),
                     ],
@@ -416,7 +402,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
           width: 4,
           height: 24,
           decoration: BoxDecoration(
-            color: AppColors.blue,
+            color: AppColors.primary,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -452,7 +438,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: color ?? AppColors.blue,
+              color: color ?? AppColors.primary,
             ),
           ),
         ],

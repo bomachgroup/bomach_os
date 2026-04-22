@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../dialog/new_document.dart';
@@ -63,13 +64,13 @@ class SharedDocumentsScreen extends StatelessWidget {
         child: TextField(
           decoration: InputDecoration(
             hintText: 'Search documents...',
-            prefixIcon: const Icon(Icons.search, color: Colors.grey),
+            prefixIcon: const Icon(Iconsax.search_normal, color: Colors.grey),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
               borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: const Color(0xFFF0F0F0),
+            fillColor: AppColors.neutral100,
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
           ),
@@ -80,11 +81,11 @@ class SharedDocumentsScreen extends StatelessWidget {
         onPressed: () {
           UploadDocumentDialog.show(context);
         },
-        icon: const Icon(Icons.upload, size: 20),
+        icon: const Icon(Iconsax.document_upload, size: 20),
         label: const Text('Upload Document',
             style: TextStyle(fontWeight: FontWeight.bold)),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.blue,
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 class SortFilterBar extends StatelessWidget {
@@ -11,7 +12,7 @@ class SortFilterBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.grey1.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.neutral500.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -31,7 +32,7 @@ class SortFilterBar extends StatelessWidget {
               child: Text("Sort by", style: TextStyle(fontSize: 16)),
             ),
             VerticalDivider(
-              color: AppColors.grey1.withValues(alpha: 0.3),
+              color: AppColors.neutral500.withValues(alpha: 0.3),
               thickness: 1,
               width: 20, // space between items
             ),
@@ -42,12 +43,12 @@ class SortFilterBar extends StatelessWidget {
                   DropdownMenuItem(value: "A - Z", child: Text("A - Z")),
                   DropdownMenuItem(value: "Z - A", child: Text("Z - A")),
                 ],
-                icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                icon: const Icon(Iconsax.arrow_down_1),
                 onChanged: (value) {},
               ),
             ),
             VerticalDivider(
-              color: AppColors.grey1.withValues(alpha: 0.3),
+              color: AppColors.neutral500.withValues(alpha: 0.3),
               thickness: 1,
               width: 20,
             ),
@@ -59,7 +60,7 @@ class SortFilterBar extends StatelessWidget {
                   DropdownMenuItem(value: "Active", child: Text("Active")),
                   DropdownMenuItem(value: "Inactive", child: Text("Inactive")),
                 ],
-                icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                icon: const Icon(Iconsax.arrow_down_1),
                 onChanged: (value) {},
               ),
             ),

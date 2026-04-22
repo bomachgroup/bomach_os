@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -142,12 +144,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
     if (itemDescriptionController.text.isEmpty ||
         itemQuantityController.text.isEmpty ||
         itemUnitPriceController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all item fields'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please fill all item fields');
       return;
     }
 
@@ -166,46 +163,24 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
     itemQuantityController.clear();
     itemUnitPriceController.clear();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Item added successfully'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 1),
-      ),
-    );
+    AppToast.success(context, 'Item added successfully');
   }
 
   void _removeInvoiceItem(int index) {
     setState(() {
       invoiceItems.removeAt(index);
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Item removed'),
-        backgroundColor: Colors.orange,
-        duration: Duration(seconds: 1),
-      ),
-    );
+    AppToast.warning(context, 'Item removed');
   }
 
   void _generateInvoice() {
     if (!formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all required fields'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please fill all required fields');
       return;
     }
 
     if (invoiceItems.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one item'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please add at least one item');
       return;
     }
 
@@ -611,7 +586,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                                         ),
                                         const SizedBox(width: 12),
                                         IconButton(
-                                          icon: const Icon(Icons.close,
+                                          icon: const Icon(Iconsax.close_circle,
                                               size: 20, color: Colors.red),
                                           onPressed: () =>
                                               _removeInvoiceItem(index),
@@ -680,7 +655,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                               const SizedBox(height: 12),
                               MyElevatedButton(
                                 child: 'Add Item',
-                                bgColor: AppColors.blue,
+                                bgColor: AppColors.primary,
                                 onTap: _addInvoiceItem,
                               ),
                             ],
@@ -812,7 +787,7 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
                       Expanded(
                         child: MyElevatedButton(
                           child: 'Generate Invoice',
-                          bgColor: AppColors.blue,
+                          bgColor: AppColors.primary,
                           onTap: _generateInvoice,
                         ),
                       ),

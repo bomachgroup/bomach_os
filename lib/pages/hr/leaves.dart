@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/permission/permission_gate.dart';
@@ -80,14 +81,14 @@ class _LeavesPageState extends State<LeavesPage> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0055FF), Color(0xFF1A3FCC), Color(0xFF0D2B99)],
+          colors: [AppColors.primary, Color(0xFF1A3FCC), Color(0xFF0D2B99)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0055FF).withValues(alpha: 0.25),
+            color: AppColors.primary.withValues(alpha: 0.25),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -104,7 +105,7 @@ class _LeavesPageState extends State<LeavesPage> {
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.event_note_rounded,
+            child: const Icon(Iconsax.calendar_1,
                 color: Colors.white, size: 26),
           ),
           const SizedBox(width: 16),
@@ -141,14 +142,14 @@ class _LeavesPageState extends State<LeavesPage> {
               onPressed: _openRequestDialog,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF0055FF),
+                foregroundColor: AppColors.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
-              icon: const Icon(Icons.add_rounded, size: 18),
+              icon: const Icon(Iconsax.add, size: 18),
               label: const Text(
                 'Request Leave',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
@@ -170,26 +171,26 @@ class _LeavesPageState extends State<LeavesPage> {
       _StatDef(
         label: 'Total Requests',
         value: _ctrl.totalCount.value.toString(),
-        icon: Icons.list_alt_rounded,
+        icon: Iconsax.task_square,
         color: const Color(0xFF6366F1),
       ),
       _StatDef(
         label: 'Pending',
         value: (stats['pending'] ?? 0).toString(),
-        icon: Icons.hourglass_top_rounded,
-        color: const Color(0xFFF59E0B),
+        icon: Iconsax.timer,
+        color: AppColors.warning,
       ),
       _StatDef(
         label: 'Approved',
         value: (stats['approved'] ?? 0).toString(),
-        icon: Icons.check_circle_rounded,
-        color: const Color(0xFF10B981),
+        icon: Iconsax.tick_circle,
+        color: AppColors.success,
       ),
       _StatDef(
         label: 'Rejected',
         value: (stats['rejected'] ?? 0).toString(),
-        icon: Icons.cancel_rounded,
-        color: const Color(0xFFEF4444),
+        icon: Iconsax.close_circle,
+        color: AppColors.danger,
       ),
     ];
 
@@ -226,7 +227,7 @@ class _LeavesPageState extends State<LeavesPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8ECF0)),
+        border: Border.all(color: AppColors.neutral200),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -264,7 +265,7 @@ class _LeavesPageState extends State<LeavesPage> {
                 s.label,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF64748B),
+                  color: AppColors.neutral500,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -284,7 +285,7 @@ class _LeavesPageState extends State<LeavesPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8ECF0)),
+        border: Border.all(color: AppColors.neutral200),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -307,7 +308,7 @@ class _LeavesPageState extends State<LeavesPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF0F172A),
+                          color: AppColors.neutral900,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -315,7 +316,7 @@ class _LeavesPageState extends State<LeavesPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -323,7 +324,7 @@ class _LeavesPageState extends State<LeavesPage> {
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.blue,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -332,13 +333,13 @@ class _LeavesPageState extends State<LeavesPage> {
               search: MyTextFormField(
                 controller: _ctrl.searchController,
                 hintText: 'Search leaves...',
-                leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+                leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
               ),
               action: Obx(() => Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.neutral200),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: DropdownButtonHideUnderline(
@@ -356,7 +357,7 @@ class _LeavesPageState extends State<LeavesPage> {
             ),
           ),
           const SizedBox(height: 16),
-          const Divider(height: 1, color: Color(0xFFE8ECF0)),
+          const Divider(height: 1, color: AppColors.neutral200),
 
           // Body
           Obx(() {
@@ -373,13 +374,13 @@ class _LeavesPageState extends State<LeavesPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.error_outline,
+                      Icon(Iconsax.danger,
                           size: 40, color: Colors.grey.shade300),
                       const SizedBox(height: 12),
                       Text(
                         _ctrl.errorMessage.value,
                         style: const TextStyle(
-                            color: Color(0xFF64748B), fontSize: 14),
+                            color: AppColors.neutral500, fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -416,7 +417,7 @@ class _LeavesPageState extends State<LeavesPage> {
                 color: const Color(0xFF6366F1).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.event_busy_rounded,
+              child: const Icon(Iconsax.calendar_remove,
                   size: 30, color: Color(0xFF6366F1)),
             ),
             const SizedBox(height: 16),
@@ -425,13 +426,13 @@ class _LeavesPageState extends State<LeavesPage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF0F172A),
+                color: AppColors.neutral900,
               ),
             ),
             const SizedBox(height: 6),
             const Text(
               'Submit a request to take time off',
-              style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style: TextStyle(fontSize: 13, color: AppColors.neutral500),
             ),
             const SizedBox(height: 20),
             PermissionGate(
@@ -439,14 +440,14 @@ class _LeavesPageState extends State<LeavesPage> {
               child: ElevatedButton.icon(
                 onPressed: _openRequestDialog,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.blue,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ),
-                icon: const Icon(Icons.add_rounded, size: 16),
+                icon: const Icon(Iconsax.add, size: 16),
                 label: const Text('Request Leave',
                     style: TextStyle(fontWeight: FontWeight.w600)),
               ),
@@ -472,11 +473,11 @@ class _LeavesPageState extends State<LeavesPage> {
               columnSpacing: 28,
               horizontalMargin: 20,
               showBottomBorder: false,
-              headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+              headingRowColor: WidgetStateProperty.all(AppColors.neutral50),
               headingTextStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
+                color: AppColors.neutral500,
                 letterSpacing: 0.5,
               ),
               columns: const [
@@ -518,7 +519,7 @@ class _LeavesPageState extends State<LeavesPage> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF0F172A),
+                          color: AppColors.neutral900,
                         ),
                       ),
                     ],
@@ -533,11 +534,11 @@ class _LeavesPageState extends State<LeavesPage> {
                           style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF0F172A))),
+                              color: AppColors.neutral900)),
                       Text(
                         endStr == '-' ? '' : '→ $endStr',
                         style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF94A3B8)),
+                            fontSize: 11, color: AppColors.neutral400),
                       ),
                     ],
                   )),
@@ -566,7 +567,7 @@ class _LeavesPageState extends State<LeavesPage> {
                     child: Text(
                       leave.reason ?? '-',
                       style: const TextStyle(
-                          fontSize: 13, color: Color(0xFF475569)),
+                          fontSize: 13, color: AppColors.neutral600),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -579,7 +580,7 @@ class _LeavesPageState extends State<LeavesPage> {
             ),
           ),
         ),
-        const Divider(height: 1, color: Color(0xFFE8ECF0)),
+        const Divider(height: 1, color: AppColors.neutral200),
         Padding(
           padding: const EdgeInsets.all(16),
           child: PaginatorFooter(
@@ -603,20 +604,20 @@ class _LeavesPageState extends State<LeavesPage> {
     IconData icon;
     switch (status.toLowerCase()) {
       case 'approved':
-        color = const Color(0xFF10B981);
-        icon = Icons.check_circle_rounded;
+        color = AppColors.success;
+        icon = Iconsax.tick_circle;
         break;
       case 'rejected':
-        color = const Color(0xFFEF4444);
-        icon = Icons.cancel_rounded;
+        color = AppColors.danger;
+        icon = Iconsax.close_circle;
         break;
       case 'pending':
-        color = const Color(0xFFF59E0B);
-        icon = Icons.hourglass_top_rounded;
+        color = AppColors.warning;
+        icon = Iconsax.timer;
         break;
       default:
         color = Colors.grey;
-        icon = Icons.circle;
+        icon = Iconsax.record_circle;
     }
 
     return Container(
@@ -647,7 +648,7 @@ class _LeavesPageState extends State<LeavesPage> {
     switch (type.toLowerCase()) {
       case 'sick_leave':
       case 'sick leave':
-        return const Color(0xFFEF4444);
+        return AppColors.danger;
       case 'annual_leave':
       case 'annual leave':
         return const Color(0xFF6366F1);
@@ -655,9 +656,9 @@ class _LeavesPageState extends State<LeavesPage> {
       case 'paternity_leave':
         return const Color(0xFFEC4899);
       case 'emergency_leave':
-        return const Color(0xFFF97316);
+        return AppColors.warning;
       default:
-        return const Color(0xFF0EA5E9);
+        return AppColors.info;
     }
   }
 
@@ -665,17 +666,17 @@ class _LeavesPageState extends State<LeavesPage> {
     switch (type.toLowerCase()) {
       case 'sick_leave':
       case 'sick leave':
-        return Icons.local_hospital_rounded;
+        return Iconsax.hospital;
       case 'annual_leave':
       case 'annual leave':
-        return Icons.beach_access_rounded;
+        return Iconsax.sun;
       case 'maternity_leave':
       case 'paternity_leave':
-        return Icons.child_friendly_rounded;
+        return Iconsax.milk;
       case 'emergency_leave':
-        return Icons.warning_amber_rounded;
+        return Iconsax.warning_2;
       default:
-        return Icons.event_note_rounded;
+        return Iconsax.calendar_1;
     }
   }
 

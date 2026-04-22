@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -17,14 +18,14 @@ class ProjectAssociate extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.people_outline, size: 64, color: AppColors.grey1),
+            Icon(Iconsax.people, size: 64, color: AppColors.neutral500),
             SizedBox(height: 16),
             MyText('No Associates', size: 18, weight: 600),
             SizedBox(height: 8),
             MyText(
               'Associates linked to this project will appear here.',
               size: 14,
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
             ),
           ],
         ),

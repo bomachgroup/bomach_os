@@ -16,7 +16,7 @@ class ClientTile extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Active':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'Pending':
         return Colors.orange;
       case 'Inactive':
@@ -31,7 +31,7 @@ class ClientTile extends StatelessWidget {
     final statusColor = _getStatusColor(client.status);
 
     return Material(
-      color: isSelected ? const Color(0xFFE3F2FD) : Colors.white,
+      color: isSelected ? AppColors.infoSubtle : Colors.white,
       borderRadius: BorderRadius.circular(8.0),
       child: InkWell(
         onTap: onTap,
@@ -41,7 +41,7 @@ class ClientTile extends StatelessWidget {
           decoration: BoxDecoration(
             border: isSelected
                 ? Border.all(
-                    color: AppColors.blue.withValues(alpha: 0.3), width: 1)
+                    color: AppColors.primary.withValues(alpha: 0.3), width: 1)
                 : Border.all(color: Colors.transparent),
             borderRadius: BorderRadius.circular(8.0),
           ),
@@ -117,11 +117,11 @@ class ClientTile extends StatelessWidget {
 
   Widget _buildAccessTag(String access) {
     Color bgColor =
-        access == 'full' ? const Color(0xFFE0F7FA) : const Color(0xFFF0F4C3);
+        access == 'full' ? AppColors.infoSubtle : const Color(0xFFF0F4C3);
     Color textColor =
         access == 'full' ? Colors.cyan.shade900 : Colors.lime.shade900;
     if (access == 'limited') {
-      bgColor = const Color(0xFFFBE9E7);
+      bgColor = AppColors.dangerSubtle;
       textColor = Colors.deepOrange.shade900;
     }
 

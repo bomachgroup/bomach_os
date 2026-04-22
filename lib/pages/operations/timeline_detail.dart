@@ -27,7 +27,7 @@ class TimelineDetailPage extends StatelessWidget {
 
     if (timeline == null) {
       return const Center(
-        child: MyText('Task not found', style: AppText.black_500_16),
+        child: MyText('Task not found', style: AppText.bodyLg),
       );
     }
 
@@ -53,7 +53,7 @@ class TimelineDetailPage extends StatelessWidget {
                                 colorFilter: const ColorFilter.mode(
                                     AppColors.black, BlendMode.srcIn)),
                             kSizedBoxWidthSM,
-                            const MyText('Back', style: AppText.black_500_20),
+                            const MyText('Back', style: AppText.h2),
                           ],
                         ),
                       ),
@@ -73,7 +73,7 @@ class TimelineDetailPage extends StatelessWidget {
                             },
                           ),
                           MyElevatedButton(
-                            bgColor: AppColors.red,
+                            bgColor: AppColors.danger,
                             child: 'Delete',
                             onTap: () async {
                               await controller.deleteTimeline(
@@ -94,7 +94,7 @@ class TimelineDetailPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.borderSubtle),
               ),
               child: Column(
                 children: [

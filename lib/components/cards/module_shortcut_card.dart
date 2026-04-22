@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,7 +34,7 @@ class _ModuleShortcutCardState extends State<ModuleShortcutCard> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = widget.accentColor ?? AppColors.blue;
+    final accent = widget.accentColor ?? AppColors.primary;
     final disabled = !widget.enabled;
 
     final tooltip = disabled
@@ -56,13 +57,13 @@ class _ModuleShortcutCardState extends State<ModuleShortcutCard> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: disabled
-                  ? AppColors.grey5
-                  : (_hovering ? AppColors.sideMenu : Colors.white),
+                  ? AppColors.neutral100
+                  : (_hovering ? AppColors.surfaceMuted : Colors.white),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: disabled
-                    ? AppColors.card
-                    : (_hovering ? accent : AppColors.border),
+                    ? AppColors.borderSubtle
+                    : (_hovering ? accent : AppColors.borderSubtle),
                 width: 1,
               ),
               boxShadow: disabled
@@ -89,7 +90,7 @@ class _ModuleShortcutCardState extends State<ModuleShortcutCard> {
                   ),
                   child: Icon(
                     widget.icon,
-                    color: disabled ? AppColors.grey2 : accent,
+                    color: disabled ? AppColors.neutral400 : accent,
                     size: 22,
                   ),
                 ),
@@ -110,22 +111,22 @@ class _ModuleShortcutCardState extends State<ModuleShortcutCard> {
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: disabled
-                                    ? AppColors.grey1
-                                    : AppColors.darkBlue,
+                                    ? AppColors.neutral500
+                                    : AppColors.neutral800,
                               ),
                             ),
                           ),
                           if (disabled)
                             const Icon(
-                              Icons.lock_outline,
+                              Iconsax.lock,
                               size: 14,
-                              color: AppColors.grey2,
+                              color: AppColors.neutral400,
                             )
                           else
                             Icon(
-                              Icons.arrow_forward_rounded,
+                              Iconsax.arrow_right_3,
                               size: 16,
-                              color: _hovering ? accent : AppColors.grey2,
+                              color: _hovering ? accent : AppColors.neutral400,
                             ),
                         ],
                       ),
@@ -139,8 +140,8 @@ class _ModuleShortcutCardState extends State<ModuleShortcutCard> {
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
                             color: disabled
-                                ? AppColors.grey2
-                                : AppColors.grey1,
+                                ? AppColors.neutral400
+                                : AppColors.neutral500,
                             height: 1.35,
                           ),
                         ),

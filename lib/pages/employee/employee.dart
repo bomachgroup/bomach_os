@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -27,12 +28,12 @@ class _EmployeePageState extends State<EmployeePage> {
               children: [
                 MyText(
                   'Employee Management',
-                  style: AppText.black_600_32,
+                  style: AppText.displayLg,
                 ),
                 SizedBox(height: 8),
                 MyText(
                   'Manage and track employee information',
-                  style: AppText.black_600_14,
+                  style: AppText.h4,
                 ),
               ],
             ),
@@ -47,7 +48,7 @@ class _EmployeePageState extends State<EmployeePage> {
                   context,
                   title: 'Employee Directory',
                   description: 'View and manage all employees',
-                  icon: Icons.people,
+                  icon: Iconsax.people,
                   onTap: () {
                     context.go(RouteConstants.employeeDirectory);
                   },
@@ -56,7 +57,7 @@ class _EmployeePageState extends State<EmployeePage> {
                   context,
                   title: 'Performance Reviews',
                   description: 'Track employee performance',
-                  icon: Icons.assessment,
+                  icon: Iconsax.chart_21,
                   onTap: () {
                     context.go(RouteConstants.employeePerformance);
                   },
@@ -65,7 +66,7 @@ class _EmployeePageState extends State<EmployeePage> {
                   context,
                   title: 'Attendance',
                   description: 'Monitor attendance records',
-                  icon: Icons.calendar_today,
+                  icon: Iconsax.calendar_1,
                   onTap: () {
                     context.go(RouteConstants.employeeAttendance);
                   },
@@ -74,7 +75,7 @@ class _EmployeePageState extends State<EmployeePage> {
                   context,
                   title: 'Training',
                   description: 'Employee training programs',
-                  icon: Icons.school,
+                  icon: Iconsax.teacher,
                   onTap: () {
                     context.go(RouteConstants.employeeTraining);
                   },
@@ -102,24 +103,24 @@ class _EmployeePageState extends State<EmployeePage> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.grey7),
+          border: Border.all(color: AppColors.neutral200),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 40, color: AppColors.blue),
+            Icon(icon, size: 40, color: AppColors.primary),
             const SizedBox(height: 16),
             MyText(
               title,
-              style: AppText.black_600_16,
+              style: AppText.h4,
               maxLines: 2,
             ),
             const SizedBox(height: 8),
             MyText(
               description,
-              style: AppText.black_400_14,
+              style: AppText.bodyMd,
               maxLines: 2,
             ),
             const SizedBox(height: 16),

@@ -159,7 +159,7 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
         constraints: const BoxConstraints(maxWidth: 734),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          color: AppColors.greyBg,
+          color: AppColors.background,
           boxShadow: const [
             BoxShadow(
               color: Colors.grey,
@@ -201,7 +201,7 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
                               children: [
                                 MyIconButton(
                                   icon: SvgPicture.asset("assets/svg/plus.svg"),
-                                  colorBackground: const Color(0xFF0055FF),
+                                  colorBackground: AppColors.primary,
                                   onPressed: () {
                                     // showDialog(
                                     //   context: context,
@@ -214,7 +214,7 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
                                 MyIconButton(
                                   icon:
                                       SvgPicture.asset("assets/svg/note2.svg"),
-                                  colorBackground: const Color(0xFF0055FF),
+                                  colorBackground: AppColors.primary,
                                   onPressed: () {
                                     // showDialog(
                                     //   context: context,
@@ -227,7 +227,7 @@ class MeetingViewDialogState extends State<MeetingViewDialog> {
                                 MyIconButton(
                                   icon: SvgPicture.asset(
                                       "assets/svg/notification.svg"),
-                                  colorBackground: const Color(0xFF0055FF),
+                                  colorBackground: AppColors.primary,
                                   onPressed: () {},
                                 ),
                               ],
@@ -274,7 +274,7 @@ class SuggestionsAndComments extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         color: AppColors.white,
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -356,7 +356,7 @@ class MessageBubble extends StatelessWidget {
               // ),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isMe ? AppColors.blue : AppColors.grey6,
+                color: isMe ? AppColors.primary : AppColors.neutral100,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(12),
                   topRight: const Radius.circular(12),
@@ -370,7 +370,7 @@ class MessageBubble extends StatelessWidget {
                   MyText(
                     message,
                     style: TextStyle(
-                      color: isMe ? AppColors.grey6 : AppColors.black,
+                      color: isMe ? AppColors.neutral100 : AppColors.black,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -381,7 +381,7 @@ class MessageBubble extends StatelessWidget {
                         time,
                         style: TextStyle(
                           fontSize: 10,
-                          color: isMe ? AppColors.grey6 : Colors.black54,
+                          color: isMe ? AppColors.neutral100 : Colors.black54,
                         ),
                       ),
                       if (isMe) ...[
@@ -391,7 +391,7 @@ class MessageBubble extends StatelessWidget {
                           height: 12,
                           width: 12,
                           colorFilter: ColorFilter.mode(
-                            isMe ? AppColors.grey6 : Colors.black54,
+                            isMe ? AppColors.neutral100 : Colors.black54,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -436,7 +436,7 @@ class CurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isMe ? AppColors.blue : AppColors.grey6
+      ..color = isMe ? AppColors.primary : AppColors.neutral100
       ..style = PaintingStyle.fill
       ..strokeWidth = 0
       ..isAntiAlias = true;
@@ -482,24 +482,24 @@ class ChatInputField extends StatelessWidget {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(24),
                 borderSide: const BorderSide(
-                  color: AppColors.card,
+                  color: AppColors.borderSubtle,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(24),
                 borderSide: const BorderSide(
-                  color: AppColors.card,
+                  color: AppColors.borderSubtle,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(24),
                 borderSide: const BorderSide(
-                  color: AppColors.card,
+                  color: AppColors.borderSubtle,
                   width: 2,
                 ),
               ),
               filled: true,
-              fillColor: AppColors.greyBg,
+              fillColor: AppColors.background,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               prefixIcon: PopupMenuButton<String>(
                 color: AppColors.white,
@@ -579,7 +579,7 @@ class MeetingInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         color: AppColors.white,
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -637,7 +637,7 @@ class MeetingInfoCard extends StatelessWidget {
                   SvgPicture.asset(
                     "assets/svg/note3.svg",
                     colorFilter: const ColorFilter.mode(
-                      AppColors.blue,
+                      AppColors.primary,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -655,7 +655,7 @@ class MeetingInfoCard extends StatelessWidget {
                   SvgPicture.asset(
                     "assets/svg/todo3.svg",
                     colorFilter: const ColorFilter.mode(
-                      AppColors.blue,
+                      AppColors.primary,
                       BlendMode.srcIn,
                     ),
                   ),

@@ -12,7 +12,7 @@ class ProjectChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
       decoration: BoxDecoration(
-          color: AppColors.card, borderRadius: BorderRadius.circular(20)),
+          color: AppColors.borderSubtle, borderRadius: BorderRadius.circular(20)),
       height: 208,
       child: Center(
         child: BarChart(BarChartData(

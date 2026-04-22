@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart' show AppText;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -10,7 +11,7 @@ const Color kDarkBackground = Color(0xFF1E1E1E);
 const Color kCardBackground = Color(0xFFFFFFFF);
 const Color kGreenLine = Color(0xFF4CAF50);
 const Color kBlueLine = Color(0xFF2196F3);
-const Color kOrangeLine = Color(0xFFFF9800);
+const Color kOrangeLine = AppColors.warning;
 
 const List<FlSpot> efficiencyData = [
   FlSpot(0, 80),
@@ -73,7 +74,7 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         MyText(
                           'Analytics',
-                          style: AppText.black_500_32,
+                          style: AppText.displayLg,
                         ),
                         SizedBox(height: 4),
                         MyText(
@@ -94,7 +95,7 @@ class DashboardPage extends StatelessWidget {
                 children: [
                   MyText(
                     'Analytics',
-                    style: AppText.black_500_32,
+                    style: AppText.displayLg,
                   ),
                   SizedBox(height: 4),
                   MyText(

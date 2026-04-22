@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -31,13 +33,13 @@ class DepartmentsUnitsPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const MyText('Departments & Units',
-                      style: AppText.black_600_32),
+                      style: AppText.displayLg),
                   if (!isMobile) _buildHeaderBtn(context, controller),
                 ],
               ),
               const SizedBox(height: 8),
               const Text("Manage departments & units",
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+                  style: TextStyle(color: AppColors.neutral500, fontSize: 14)),
               const SizedBox(height: 24),
 
               // --- 2. STATS CARDS ---
@@ -47,13 +49,13 @@ class DepartmentsUnitsPage extends StatelessWidget {
                           child: _buildStatCard(
                               "Departments",
                               "${controller.totalDepartments}",
-                              Icons.people_outline)),
+                              Iconsax.people)),
                       const SizedBox(width: 16),
                       Expanded(
                           child: _buildStatCard(
                               "Units",
                               "${controller.totalUnits}",
-                              Icons.account_tree_outlined)),
+                              Iconsax.hierarchy)),
                     ],
                   )),
               const SizedBox(height: 32),
@@ -200,13 +202,13 @@ class DepartmentsUnitsPage extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B))),
+                  color: AppColors.neutral800)),
           const SizedBox(width: 8),
           Text(label,
               style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF1E293B))),
+                  color: AppColors.neutral800)),
         ],
       ),
     );
@@ -220,14 +222,14 @@ class DepartmentsUnitsPage extends StatelessWidget {
         return Container(
           height: 50,
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF005CE8) : Colors.transparent,
+            color: isActive ? AppColors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
             style: TextStyle(
-              color: isActive ? Colors.white : const Color(0xFF64748B),
+              color: isActive ? Colors.white : AppColors.neutral500,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
@@ -250,11 +252,11 @@ class DepartmentsUnitsPage extends StatelessWidget {
                 style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B)))),
+                    color: AppColors.neutral800))),
             if (!isMobile) ...[
               const SizedBox(width: 12),
               const Text("Bomach Group",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                  style: TextStyle(fontSize: 13, color: AppColors.neutral500)),
             ],
           ],
         ),
@@ -269,7 +271,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: "Search",
                   prefixIcon:
-                      const Icon(Icons.search, size: 18, color: Colors.grey),
+                      const Icon(Iconsax.search_normal, size: 18, color: Colors.grey),
                   contentPadding: const EdgeInsets.symmetric(vertical: 0),
                   filled: true,
                   fillColor: Colors.white,
@@ -313,13 +315,13 @@ class DepartmentsUnitsPage extends StatelessWidget {
             child: ListTile(
               title: Text(dept.name,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral800)),
               subtitle: Text(dept.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Color(0xFF94A3B8))),
-              trailing: const Icon(Icons.chevron_right,
-                  size: 20, color: Color(0xFF94A3B8)),
+                  style: const TextStyle(color: AppColors.neutral400)),
+              trailing: const Icon(Iconsax.arrow_right_3,
+                  size: 20, color: AppColors.neutral400),
               onTap: () {
                 showDialog(
                     context: context,
@@ -352,13 +354,13 @@ class DepartmentsUnitsPage extends StatelessWidget {
                 label: Text("Department",
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B)))),
+                        color: AppColors.neutral500))),
             DataColumn(
                 columnWidth: IntrinsicColumnWidth(flex: 1.0),
                 label: Text("Action",
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B)))),
+                        color: AppColors.neutral500))),
           ],
           rows: data.map((dept) {
             return DataRow(
@@ -377,15 +379,15 @@ class DepartmentsUnitsPage extends StatelessWidget {
                     Text(dept.name,
                         style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E293B))),
+                            color: AppColors.neutral800)),
                     Text(dept.description,
                         style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF94A3B8))),
+                            fontSize: 11, color: AppColors.neutral400)),
                   ],
                 )),
                 DataCell(PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert,
-                      size: 20, color: Color(0xFF94A3B8)),
+                  icon: const Icon(Iconsax.more,
+                      size: 20, color: AppColors.neutral400),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   onSelected: (value) {
@@ -405,7 +407,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                     PopupMenuItem(
                       value: 'view',
                       child: Row(children: [
-                        Icon(Icons.visibility_outlined,
+                        Icon(Iconsax.eye,
                             size: 18, color: Colors.grey),
                         SizedBox(width: 8),
                         Text('View Details'),
@@ -414,7 +416,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                     PopupMenuItem(
                       value: 'edit',
                       child: Row(children: [
-                        Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+                        Icon(Iconsax.edit, size: 18, color: Colors.grey),
                         SizedBox(width: 8),
                         Text('Edit'),
                       ]),
@@ -448,14 +450,14 @@ class DepartmentsUnitsPage extends StatelessWidget {
             child: ListTile(
               title: Text(unit.name,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral800)),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(unit.departmentName ?? "-",
-                      style: const TextStyle(color: Color(0xFF475569))),
+                      style: const TextStyle(color: AppColors.neutral600)),
                   Text(unit.hod ?? "-",
-                      style: const TextStyle(color: Color(0xFF475569))),
+                      style: const TextStyle(color: AppColors.neutral600)),
                 ],
               ),
               trailing: _buildStatusBadge(unit.status ?? "Active", controller),
@@ -483,23 +485,23 @@ class DepartmentsUnitsPage extends StatelessWidget {
           DataColumn(
               label: Text("Unit",
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF64748B)))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
           DataColumn(
               label: Text("Department",
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF64748B)))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
           DataColumn(
               label: Text("Head of Unit",
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF64748B)))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
           DataColumn(
               label: Text("Status",
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF64748B)))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
           DataColumn(
               label: Text("Action",
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF64748B)))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral500))),
         ],
         rows: data.map((unit) {
           return DataRow(
@@ -512,15 +514,15 @@ class DepartmentsUnitsPage extends StatelessWidget {
             cells: [
               DataCell(Text(unit.name,
                   style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: Color(0xFF1E293B)))),
+                      fontWeight: FontWeight.w600, color: AppColors.neutral800))),
               DataCell(Text(unit.departmentName ?? "-",
-                  style: const TextStyle(color: Color(0xFF475569)))),
+                  style: const TextStyle(color: AppColors.neutral600))),
               DataCell(Text(unit.hod ?? "-",
-                  style: const TextStyle(color: Color(0xFF475569)))),
+                  style: const TextStyle(color: AppColors.neutral600))),
               DataCell(_buildStatusBadge(unit.status ?? "Active", controller)),
               DataCell(PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert,
-                    size: 20, color: Color(0xFF94A3B8)),
+                icon: const Icon(Iconsax.more,
+                    size: 20, color: AppColors.neutral400),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 onSelected: (value) {
@@ -538,7 +540,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                   PopupMenuItem(
                     value: 'view',
                     child: Row(children: [
-                      Icon(Icons.visibility_outlined,
+                      Icon(Iconsax.eye,
                           size: 18, color: Colors.grey),
                       SizedBox(width: 8),
                       Text('View Details'),
@@ -547,7 +549,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                   PopupMenuItem(
                     value: 'edit',
                     child: Row(children: [
-                      Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+                      Icon(Iconsax.edit, size: 18, color: Colors.grey),
                       SizedBox(width: 8),
                       Text('Edit'),
                     ]),
@@ -572,7 +574,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.circle, size: 6, color: fg),
+          Icon(Iconsax.record_circle, size: 6, color: fg),
           const SizedBox(width: 6),
           Text(status,
               style: TextStyle(

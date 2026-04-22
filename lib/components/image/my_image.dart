@@ -50,7 +50,7 @@ class MyImage extends StatelessWidget {
                     width: width,
                     height: height,
                     decoration: BoxDecoration(
-                      color: AppColors.grey5,
+                      color: AppColors.neutral100,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(radiusTop),
                         topRight: Radius.circular(radiusTop),
@@ -73,7 +73,7 @@ class MyImage extends StatelessWidget {
                 width: width,
                 height: height,
                 decoration: BoxDecoration(
-                  color: AppColors.grey5,
+                  color: AppColors.neutral100,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(radiusTop),
                     topRight: Radius.circular(radiusTop),
@@ -86,7 +86,7 @@ class MyImage extends StatelessWidget {
                 width: width,
                 height: height,
                 decoration: BoxDecoration(
-                    color: AppColors.grey5,
+                    color: AppColors.neutral100,
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(radiusTop),
                         topRight: Radius.circular(radiusTop),

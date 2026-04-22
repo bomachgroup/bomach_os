@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -215,7 +217,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                 )
                               : MyElevatedButton(
                                   child: 'Add Lead',
-                                  bgColor: AppColors.blue,
+                                  bgColor: AppColors.primary,
                                   onTap: () async {
                                     if (formKey.currentState!.validate()) {
                                       setState(() {
@@ -248,23 +250,9 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
 
                                         if (success && mounted) {
                                           Navigator.pop(context);
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  '${firstNameController.text} added successfully'),
-                                              backgroundColor: Colors.green,
-                                            ),
-                                          );
+                                          AppToast.success(context, '${firstNameController.text} added successfully');
                                         } else if (mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  'Failed to add lead. Please try again.'),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          AppToast.error(context, 'Failed to add lead. Please try again.');
                                         }
                                       } catch (e) {
                                         if (mounted) {
@@ -362,8 +350,8 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                 action: 'create',
                 child: MyElevatedButton(
                   child: 'Add Lead',
-                  bgColor: AppColors.blue,
-                  icon: const Icon(Icons.add, color: Colors.white),
+                  bgColor: AppColors.primary,
+                  icon: const Icon(Iconsax.add, color: Colors.white),
                   onTap: _showAddLeadDialog,
                 ),
               ),
@@ -384,7 +372,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
             },
             decoration: InputDecoration(
               hintText: "Search by client name...",
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Iconsax.search_normal),
               filled: true,
               fillColor: Colors.white,
               contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -512,7 +500,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                   if (lead.interestedServices.isNotEmpty)
                                     Row(
                                       children: [
-                                        const Icon(Icons.business,
+                                        const Icon(Iconsax.building_4,
                                             size: 16, color: Colors.grey),
                                         const SizedBox(width: 8),
                                         Expanded(
@@ -530,7 +518,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        const Icon(Icons.person,
+                                        const Icon(Iconsax.profile_circle,
                                             size: 16, color: Colors.grey),
                                         const SizedBox(width: 8),
                                         Text(
@@ -565,7 +553,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                 if (lead.status.toLowerCase() != 'converted')
                                   MyElevatedButton(
                                     child: 'Convert to Client',
-                                    bgColor: AppColors.blue,
+                                    bgColor: AppColors.primary,
                                     onTap: () async {
                                       // Show confirmation dialog
                                       final confirmed = await showDialog<bool>(
@@ -586,7 +574,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                               onPressed: () =>
                                                   Navigator.pop(context, true),
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: AppColors.blue,
+                                                backgroundColor: AppColors.primary,
                                               ),
                                               child: const Text(
                                                 'Convert',
@@ -603,25 +591,9 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                             .convertLeadToClient(lead.id);
 
                                         if (success && mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                '${lead.fullName} successfully converted to client',
-                                              ),
-                                              backgroundColor: Colors.green,
-                                            ),
-                                          );
+                                          AppToast.success(context, '${lead.fullName} successfully converted to client',);
                                         } else if (mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Failed to convert lead. Please try again.',
-                                              ),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          AppToast.error(context, 'Failed to convert lead. Please try again.',);
                                         }
                                       }
                                     },
@@ -678,10 +650,10 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                       : _searchController.text.trim(),
                                 )
                             : null,
-                        icon: const Icon(Icons.chevron_left),
+                        icon: const Icon(Iconsax.arrow_left_2),
                         style: IconButton.styleFrom(
                           backgroundColor: currentPage > 1
-                              ? AppColors.blue
+                              ? AppColors.primary
                               : Colors.grey[300],
                           foregroundColor:
                               currentPage > 1 ? Colors.white : Colors.grey[600],
@@ -708,12 +680,12 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: isCurrentPage
-                                      ? AppColors.blue
+                                      ? AppColors.primary
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
                                     color: isCurrentPage
-                                        ? AppColors.blue
+                                        ? AppColors.primary
                                         : Colors.grey[300]!,
                                   ),
                                 ),
@@ -743,10 +715,10 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                       : _searchController.text.trim(),
                                 )
                             : null,
-                        icon: const Icon(Icons.chevron_right),
+                        icon: const Icon(Iconsax.arrow_right_3),
                         style: IconButton.styleFrom(
                           backgroundColor:
-                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                              hasNextPage ? AppColors.primary : Colors.grey[300],
                           foregroundColor:
                               hasNextPage ? Colors.white : Colors.grey[600],
                         ),

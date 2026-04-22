@@ -1,11 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/country_state_city_picker.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/model/branch_model.dart';
-import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -24,8 +25,6 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   final _formKey = GlobalKey<FormState>();
 
   final nameCtrl = TextEditingController();
-  final stateCtrl = TextEditingController();
-  final cityCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
@@ -33,6 +32,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
 
   String? countryName;
   String? countryCode;
+  String _stateValue = '';
+  String _cityValue = '';
   String? selectedRole;
   String? selectedStatus;
   int? selectedManagerId;
@@ -50,8 +51,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
     if (widget.branchToEdit != null) {
       final b = widget.branchToEdit!;
       nameCtrl.text = b.branchName;
-      stateCtrl.text = b.state;
-      cityCtrl.text = b.city;
+      _stateValue = b.state;
+      _cityValue = b.city;
       addressCtrl.text = b.officeAddress;
       emailCtrl.text = b.contactEmail;
       phoneCtrl.text = b.contactPhone;
@@ -77,8 +78,6 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   @override
   void dispose() {
     nameCtrl.dispose();
-    stateCtrl.dispose();
-    cityCtrl.dispose();
     addressCtrl.dispose();
     emailCtrl.dispose();
     phoneCtrl.dispose();
@@ -119,7 +118,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.cancel, color: AppColors.red),
+                    icon: const Icon(Iconsax.close_circle, color: AppColors.danger),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -225,46 +224,28 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                       // Section: Location
                       _buildSectionLabel('Location'),
                       const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: _buildCountryPickerField()),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: stateCtrl,
-                              title: "State / Province",
-                              hintText: "e.g. Lagos",
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                        ],
+                      CountryStateCityPicker(
+                        initialCountry: countryName,
+                        initialCountryCode: countryCode,
+                        initialState: _stateValue.isEmpty ? null : _stateValue,
+                        initialCity: _cityValue.isEmpty ? null : _cityValue,
+                        onCountryChanged: (name, iso) {
+                          setState(() {
+                            countryName = name;
+                            countryCode = iso;
+                          });
+                        },
+                        onStateChanged: (v) => _stateValue = v,
+                        onCityChanged: (v) => _cityValue = v,
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: cityCtrl,
-                              title: "City",
-                              hintText: "e.g. Ikeja",
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: addressCtrl,
-                              title: "Office Address",
-                              hintText: "Enter full address",
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                        ],
+                      MyTextFormField(
+                        controller: addressCtrl,
+                        title: "Office Address",
+                        hintText: "Enter full address",
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'Required'
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -366,7 +347,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                                     style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
-                                        color: Color(0xFF334155))),
+                                        color: AppColors.neutral700)),
                                 const SizedBox(height: 8),
                                 SwitchListTile(
                                   value: isActive,
@@ -451,96 +432,13 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
     return match.isNotEmpty ? match.first.label : selectedStatus;
   }
 
-  Widget _buildCountryPickerField() {
-    return FormField<String>(
-      validator: (_) =>
-          (countryName == null || countryName!.isEmpty) ? 'Required' : null,
-      builder: (formState) {
-        final hasError = formState.hasError;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Country",
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF334155))),
-            const SizedBox(height: 8),
-            InkWell(
-              borderRadius: BorderRadius.circular(15),
-              onTap: () => showCountryPicker(
-                context: context,
-                showPhoneCode: false,
-                favorite: const ['NG', 'US', 'GB'],
-                countryListTheme: CountryListThemeData(
-                  borderRadius: BorderRadius.circular(12),
-                  inputDecoration: InputDecoration(
-                    hintText: 'Search country',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: AppColors.card),
-                    ),
-                  ),
-                ),
-                onSelect: (c) {
-                  setState(() {
-                    countryName = c.name;
-                    countryCode = c.countryCode;
-                  });
-                  formState.didChange(c.name);
-                },
-              ),
-              child: Container(
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                      color: hasError ? AppColors.red : AppColors.card),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.public,
-                        size: 18, color: AppColors.grey1),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        countryName ?? 'Select country',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: countryName == null
-                              ? AppColors.grey1
-                              : AppColors.black,
-                        ),
-                      ),
-                    ),
-                    const Icon(Icons.keyboard_arrow_down_rounded,
-                        color: AppColors.grey1),
-                  ],
-                ),
-              ),
-            ),
-            if (hasError)
-              Padding(
-                padding: const EdgeInsets.only(top: 4, left: 4),
-                child: Text(formState.errorText ?? '',
-                    style: const TextStyle(color: AppColors.red, fontSize: 12)),
-              ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildSectionLabel(String label) {
     return Text(
       label,
       style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF334155),
+        color: AppColors.neutral700,
       ),
     );
   }
@@ -552,9 +450,9 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       "branch_name": nameCtrl.text.trim(),
       "country": countryName ?? '',
       "country_code": countryCode ?? '',
-      "state": stateCtrl.text.trim(),
+      "state": _stateValue.trim(),
       "state_code": "",
-      "city": cityCtrl.text.trim(),
+      "city": _cityValue.trim(),
       "office_address": addressCtrl.text.trim(),
       "operational_status": selectedStatus,
       "branch_role": selectedRole,

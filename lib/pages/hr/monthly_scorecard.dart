@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/hr/controller/monthly_scorecard_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -43,7 +44,7 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
           // Header
           const MyText(
             'Monthly Scorecard',
-            style: AppText.black_500_32,
+            style: AppText.displayLg,
           ),
           kSizedBox,
 
@@ -173,7 +174,7 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
                 height: 70,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.blue, AppColors.blue2],
+                    colors: [AppColors.primary, AppColors.primaryHover],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -221,14 +222,14 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.blue.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
                         'Auto-generated',
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.blue,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -246,21 +247,21 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
         //   children: [
         //     Expanded(
         //       child: _buildActionButton(
-        //         icon: Icons.download,
+        //         icon: Iconsax.document_download,
         //         label: 'Download Report',
         //         onPressed: () {},
         //       ),
         //     ),
         //     Expanded(
         //       child: _buildActionButton(
-        //         icon: Icons.history,
+        //         icon: Iconsax.clock,
         //         label: 'View History',
         //         onPressed: () {},
         //       ),
         //     ),
         //     Expanded(
         //       child: _buildActionButton(
-        //         icon: Icons.compare_arrows,
+        //         icon: Iconsax.arrow_swap_horizontal,
         //         label: 'Compare',
         //         onPressed: () {},
         //       ),
@@ -282,19 +283,19 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
               _buildSmallMetricCard(
                 value: '${scorecard.targetAchievement.toStringAsFixed(1)}%',
                 label: 'Target\nAchievement',
-                icon: Icons.track_changes,
+                icon: Iconsax.radar,
                 iconColor: Colors.orange,
               ),
               _buildSmallMetricCard(
                 value: '#${scorecard.ranking}',
                 label: 'Ranking',
-                icon: Icons.leaderboard,
-                iconColor: AppColors.blue,
+                icon: Iconsax.chart_1,
+                iconColor: AppColors.primary,
               ),
               _buildSmallMetricCard(
                 value: scorecard.targetScore.toStringAsFixed(0),
                 label: 'Target\nScore',
-                icon: Icons.flag,
+                icon: Iconsax.flag,
                 iconColor: Colors.green,
               ),
             ],
@@ -391,7 +392,7 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
             value: value,
             isExpanded: true,
             underline: Container(),
-            icon: const Icon(Icons.arrow_drop_down, color: AppColors.blue),
+            icon: const Icon(Iconsax.arrow_down_1, color: AppColors.primary),
             onChanged: (newValue) {
               if (newValue != null) onChanged(newValue);
             },

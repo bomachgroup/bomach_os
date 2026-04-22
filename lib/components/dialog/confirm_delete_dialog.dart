@@ -39,7 +39,7 @@ void showDeleteDialog(BuildContext context) {
               children: [
                 Expanded(
                   child: MyElevatedButton(
-                    bgColor: AppColors.red,
+                    bgColor: AppColors.danger,
                     child: 'Delete',
                     onTap: () {},
                   ),

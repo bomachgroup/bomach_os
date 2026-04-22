@@ -1,7 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_filter_bar.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_checkbox.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/widget/add_project_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -9,6 +14,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'controllers/project_controller.dart';
 import 'each_project.dart';
@@ -40,16 +46,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText('Projects', style: AppText.black_500_32),
-        const MyText('Manage your projects', style: AppText.black_400_14),
-        const SizedBox(height: 12),
+        const PageHeader(
+          title: 'Projects',
+          subtitle: 'Manage your projects',
+        ),
+        const SizedBox(height: 16),
         Wrap(
           runSpacing: kDefaultSpace,
           spacing: kDefaultSpace,
           children: [
             MyElevatedButton(
-              icon: const Icon(Icons.add_circle_outline_rounded,
-                  color: AppColors.white),
+              icon: const Icon(Iconsax.add_circle,
+                  color: AppColors.textOnPrimary, size: 18),
               child: 'Add New Project',
               onTap: () {
                 showDialog(
@@ -59,11 +67,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
               },
             ),
             SizedBox(
-              width: 180,
+              width: 220,
               child: MyTextFormField(
                 hintText: 'Search...',
-                leading: Icon(Icons.search,
-                    color: AppColors.grey1.withValues(alpha: 0.5)),
+                leading: const Icon(Iconsax.search_normal_1,
+                    color: AppColors.textMuted, size: 18),
                 onChanged: (val) =>
                     controller.fetchProjects(context, search: val),
               ),
@@ -75,20 +83,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
         kSizedBoxSM,
         SizedBox(
           height: tableHeight > 400 ? tableHeight : 400,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-                border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-                borderRadius: BorderRadius.circular(16)),
+          child: AppCard(
+            padding: const EdgeInsets.all(16),
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return LoadingSkeleton.listRows(count: 6);
               }
 
               if (controller.projects.isEmpty) {
-                return const Center(
-                    child: MyText("No projects found.",
-                        style: AppText.black_500_16));
+                return EmptyState.empty(
+                  title: 'No projects found',
+                  subtitle: 'Create a new project to get started.',
+                );
               }
 
               return Column(
@@ -107,10 +113,19 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                   MediaQuery.of(context).size.width - 100),
                           child: SingleChildScrollView(
                             child: DataTable(
+                              headingRowColor: WidgetStateProperty.resolveWith(
+                                  (states) => AppColors.surfaceMuted),
+                              headingTextStyle: AppText.label.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              dataTextStyle: AppText.bodyMd.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
                               dataRowMinHeight: 68,
                               dataRowMaxHeight: 68,
                               columnSpacing: 24,
                               horizontalMargin: 12,
+                              dividerThickness: 1.0,
                               columns: _createColumns(),
                               rows: _createRows(context, controller.projects),
                               showBottomBorder: true,
@@ -120,14 +135,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       ),
                     ),
                   ),
-                  // MyPaginator(
-                  //   totalRecords: controller.totalCount.value,
-                  //   onPageChanged: (page, limit) {
-                  //     controller.currentLimit.value = limit;
-                  //     controller.currentOffset.value = (page - 1) * limit;
-                  //     controller.fetchProjects(context);
-                  //   },
-                  // ),
                 ],
               );
             }),
@@ -140,13 +147,13 @@ class _ProjectsPageState extends State<ProjectsPage> {
   List<DataColumn> _createColumns() {
     return [
       DataColumn(label: MyCheckbox(isChecked: false, onChanged: (v) {})),
-      const DataColumn(label: MyText("PJ code")),
-      const DataColumn(label: MyText("Project Name")),
-      const DataColumn(label: MyText("Budget")),
-      const DataColumn(label: MyText("Start date")),
-      const DataColumn(label: MyText("Deadline")),
-      const DataColumn(label: MyText("Status")),
-      const DataColumn(label: MyText("Action")),
+      const DataColumn(label: Text('PJ code')),
+      const DataColumn(label: Text('Project Name')),
+      const DataColumn(label: Text('Budget')),
+      const DataColumn(label: Text('Start date')),
+      const DataColumn(label: Text('Deadline')),
+      const DataColumn(label: Text('Status')),
+      const DataColumn(label: Text('Action')),
     ];
   }
 
@@ -163,34 +170,44 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     builder: (_) => EachProjects(project: project)));
           },
           SizedBox(
-              width: 152, child: MyText(project.name, isSelectable: false)),
+            width: 152,
+            child: Text(
+              project.name,
+              style: AppText.bodyMd.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
         ),
-        DataCell(SizedBox(width: 100, child: MyText("₦${project.budget}"))),
+        DataCell(SizedBox(
+          width: 100,
+          child: Text(
+            '₦${project.budget}',
+            style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600),
+          ),
+        )),
         DataCell(SizedBox(width: 100, child: MyText(project.startDate))),
         DataCell(SizedBox(width: 100, child: MyText(project.deadline))),
         DataCell(
           SizedBox(
-            width: 100,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                  color: _getStatusColor(project.status).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4)),
-              child: Center(
-                  child: MyText(
-                project.status,
-                color: _getStatusColor(project.status),
-                weight: 500,
-              )),
-            ),
+            width: 120,
+            child: StatusChip.fromStatus(project.status),
           ),
         ),
         DataCell(
           PopupMenuButton(
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(Iconsax.more, size: 18),
             itemBuilder: (context) => [
               PopupMenuItem(
-                child: const Text("Delete"),
+                child: const Row(
+                  children: [
+                    Icon(Iconsax.trash,
+                        size: 16, color: AppColors.danger),
+                    SizedBox(width: 8),
+                    Text('Delete'),
+                  ],
+                ),
                 onTap: () => controller.deleteProject(context, project.id),
               )
             ],
@@ -198,18 +215,5 @@ class _ProjectsPageState extends State<ProjectsPage> {
         ),
       ]);
     }).toList();
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return AppColors.green;
-      case 'in progress':
-        return AppColors.orange;
-      case 'pending':
-        return AppColors.red;
-      default:
-        return AppColors.blue;
-    }
   }
 }

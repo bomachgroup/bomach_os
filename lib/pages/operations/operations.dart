@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
@@ -55,14 +56,14 @@ class _OperationsPageState extends State<OperationsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         MyText('Operations Dashboard',
-                            style: AppText.black_500_32),
+                            style: AppText.displayLg),
                         SizedBox(height: 8),
                         MyText('Overview & Projects',
-                            style: AppText.black_400_14),
+                            style: AppText.bodyMd),
                       ],
                     ),
                     MyElevatedButton(
-                      icon: const Icon(Icons.add_circle_outline_rounded,
+                      icon: const Icon(Iconsax.add_circle,
                           color: AppColors.white),
                       child: "Add Project",
                       onTap: () {
@@ -137,13 +138,13 @@ class _OperationsPageState extends State<OperationsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const MyText('Recent Projects', style: AppText.black_500_20),
+              const MyText('Recent Projects', style: AppText.h2),
               SizedBox(
                 width: 200,
                 child: MyTextFormField(
                   hintText: 'Search Projects...',
-                  leading: Icon(Icons.search,
-                      color: AppColors.grey1.withValues(alpha: 0.5)),
+                  leading: Icon(Iconsax.search_normal,
+                      color: AppColors.neutral500.withValues(alpha: 0.5)),
                   onChanged: (val) =>
                       controller.fetchProjects(context, search: val),
                 ),
@@ -201,35 +202,35 @@ class _OperationsPageState extends State<OperationsPage> {
     return ModuleQuickNav(
       shortcuts: [
         card(
-          icon: Icons.folder_open_outlined,
+          icon: Iconsax.folder_2,
           title: 'Projects',
           subtitle: 'Plan and track work',
           route: RouteConstants.projects,
           resources: const [PermissionConstants.resProjects],
         ),
         card(
-          icon: Icons.location_city_outlined,
+          icon: Iconsax.building_4,
           title: 'Worksites',
           subtitle: 'Active field locations',
           route: RouteConstants.worksite,
           resources: const [PermissionConstants.resWorksites],
         ),
         card(
-          icon: Icons.checklist_rtl_outlined,
+          icon: Iconsax.task_square,
           title: 'Tasks',
           subtitle: 'Assign and monitor progress',
           route: RouteConstants.tasks,
           resources: const [PermissionConstants.resTasks],
         ),
         card(
-          icon: Icons.description_outlined,
+          icon: Iconsax.document_text,
           title: 'Contracts',
           subtitle: 'Agreements and terms',
           route: RouteConstants.contracts,
           resources: const [PermissionConstants.resContracts],
         ),
         card(
-          icon: Icons.groups_2_outlined,
+          icon: Iconsax.people,
           title: 'Meetings',
           subtitle: 'Schedule and notes',
           route: RouteConstants.meetings,
@@ -245,7 +246,7 @@ class _OperationsPageState extends State<OperationsPage> {
       decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderSubtle),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -273,7 +274,7 @@ class _OperationsPageState extends State<OperationsPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Row(
         children: [
@@ -281,35 +282,35 @@ class _OperationsPageState extends State<OperationsPage> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: AppColors.blue.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child:
-                const Center(child: Icon(Icons.folder, color: AppColors.blue)),
+                const Center(child: Icon(Iconsax.folder_2, color: AppColors.primary)),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(project.name, style: AppText.black_500_16),
+                MyText(project.name, style: AppText.bodyLg),
                 const SizedBox(height: 4),
                 MyText("${project.shortCode} • ${project.status}",
-                    style: AppText.black_400_14),
+                    style: AppText.bodyMd),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              MyText("Budget: ₦${project.budget}", style: AppText.black_500_20),
+              MyText("Budget: ₦${project.budget}", style: AppText.h2),
               const SizedBox(height: 4),
-              MyText(project.deadline, style: AppText.black_400_14),
+              MyText(project.deadline, style: AppText.bodyMd),
             ],
           ),
           const SizedBox(width: 16),
           IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
+            icon: const Icon(Iconsax.trash, color: Colors.red),
             onPressed: () => controller.deleteProject(context, project.id),
           ),
         ],

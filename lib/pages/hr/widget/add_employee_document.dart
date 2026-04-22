@@ -1,5 +1,8 @@
 import 'dart:typed_data';
+import 'package:bms_front_end/src/constants/colors.dart';
 
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -50,22 +53,12 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
 
   void _onUpload() {
     if (_docNameCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a document name"),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      AppToast.error(context, 'Please enter a document name');
       return;
     }
 
     if (_selectedType == "Select a Type") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please select a document type"),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      AppToast.error(context, 'Please select a document type');
       return;
     }
 
@@ -111,7 +104,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+                  icon: const Icon(Iconsax.close_circle, size: 20, color: Colors.grey),
                 )
               ],
             ),
@@ -142,7 +135,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
                 Obx(() => MyElevatedButton(
                       child:
                           controller.isSaving.value ? 'Uploading...' : 'Upload',
-                      bgColor: const Color(0xFF0055FF),
+                      bgColor: AppColors.primary,
                       onTap: controller.isSaving.value ? null : _onUpload,
                     )),
               ],
@@ -165,7 +158,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
         child: DropdownButton<String>(
           value: _selectedType,
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: [
             "Select a Type",
             "Contract",
@@ -193,18 +186,18 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
         height: 120,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FB),
+          color: AppColors.neutral50,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color(0xFF0055FF).withValues(alpha: 0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (_fileName != null) ...[
-              const Icon(Icons.insert_drive_file,
-                  color: Color(0xFF0055FF), size: 28),
+              const Icon(Iconsax.document,
+                  color: AppColors.primary, size: 28),
               const SizedBox(height: 8),
               Text(
                 _fileName!,
@@ -219,10 +212,10 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0055FF),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.cloud_upload_outlined,
+                child: const Icon(Iconsax.document_upload,
                     color: Colors.white, size: 20),
               ),
               const SizedBox(height: 12),
@@ -236,7 +229,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
                     TextSpan(
                         text: "choose file",
                         style: TextStyle(
-                            color: Color(0xFF0055FF),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold)),
                     TextSpan(
                         text: " to upload",

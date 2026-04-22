@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class FileViewDownloadCard extends StatelessWidget {
@@ -59,11 +60,11 @@ class FileViewDownloadCard extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _iconButton(Icons.remove_red_eye),
+              _iconButton(Iconsax.eye),
               const SizedBox(width: 12),
-              _iconButton(Icons.open_in_new),
+              _iconButton(Iconsax.export),
               const SizedBox(width: 12),
-              _iconButton(Icons.download),
+              _iconButton(Iconsax.document_download),
             ],
           )
         ],

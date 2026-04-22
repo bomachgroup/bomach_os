@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -188,7 +190,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
           // Header
           const MyText(
             'Land Survey Cost Calculator',
-            style: AppText.black_500_32,
+            style: AppText.displayLg,
           ),
           kSizedBox,
           const MyText(
@@ -216,7 +218,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -335,7 +337,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -365,7 +367,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                                 _includeCADDrawing = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
@@ -378,7 +380,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                                 _includeCoordinates = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
@@ -391,7 +393,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                                 _includeReport = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                         ],
@@ -406,7 +408,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -483,7 +485,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                         MyElevatedButton(
                           child: 'Reset',
                           onTap: _resetForm,
-                          bgColor: AppColors.grey2,
+                          bgColor: AppColors.neutral400,
                           textColor: AppColors.black,
                         ),
                         const SizedBox(width: 16),
@@ -502,7 +504,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppColors.blue, Color(0xFF0044CC)],
+                            colors: [AppColors.primary, AppColors.primaryPressed],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -518,7 +520,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                         child: Column(
                           children: [
                             const Icon(
-                              Icons.calculate_outlined,
+                              Iconsax.calculator,
                               color: Colors.white,
                               size: 48,
                             ),
@@ -564,16 +566,10 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                               child: 'Request Quote',
                               onTap: () {
                                 // Navigate to quote request or show dialog
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Quote request sent successfully!'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
+                                AppToast.success(context, 'Quote request sent successfully!');
                               },
                               bgColor: Colors.white,
-                              textColor: AppColors.blue,
+                              textColor: AppColors.primary,
                             ),
                           ],
                         ),
@@ -608,7 +604,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -651,7 +647,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -694,7 +690,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(

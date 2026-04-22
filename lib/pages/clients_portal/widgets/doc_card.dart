@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +11,7 @@ class DocumentCard extends StatelessWidget {
   const DocumentCard({super.key, required this.document});
 
   Color _getRestrictionColor(String restriction) {
-    return restriction == 'Available' ? AppColors.blue : Colors.red;
+    return restriction == 'Available' ? AppColors.primary : Colors.red;
   }
 
   @override
@@ -38,7 +39,7 @@ class DocumentCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.picture_as_pdf, color: Colors.red, size: 28),
+              const Icon(Iconsax.document_text, color: Colors.red, size: 28),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -139,9 +140,9 @@ class DocumentCard extends StatelessWidget {
             children: [
               Expanded(
                   child: _buildActionButton(
-                      'View', Icons.visibility_outlined, () {})),
-              _buildActionButton('', Icons.file_download_outlined, () {}),
-              _buildActionButton('', Icons.ios_share, () {}),
+                      'View', Iconsax.eye, () {})),
+              _buildActionButton('', Iconsax.document_download, () {}),
+              _buildActionButton('', Iconsax.share, () {}),
             ],
           ),
         ],

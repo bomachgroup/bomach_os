@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/helper/color.dart';
@@ -44,7 +45,7 @@ class ViewComplianceDialog extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -108,7 +109,7 @@ class ViewComplianceDialog extends StatelessWidget {
                         'Submitted By',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -116,7 +117,7 @@ class ViewComplianceDialog extends StatelessWidget {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.blue.withValues(alpha: 0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             width: 48,
@@ -126,7 +127,7 @@ class ViewComplianceDialog extends StatelessWidget {
                                 record['user'][0],
                                 size: 20,
                                 weight: 600,
-                                color: AppColors.blue,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
@@ -143,7 +144,7 @@ class ViewComplianceDialog extends StatelessWidget {
                                 record['userEmail'],
                                 size: 14,
                                 weight: 400,
-                                color: const Color(0xFF64748B),
+                                color: AppColors.neutral500,
                               ),
                             ],
                           ),
@@ -179,7 +180,7 @@ class ViewComplianceDialog extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A202C),
+                          color: AppColors.neutral900,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -218,7 +219,7 @@ class ViewComplianceDialog extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A202C),
+                          color: AppColors.neutral900,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -263,7 +264,7 @@ class ViewComplianceDialog extends StatelessWidget {
           label,
           style: const TextStyle(
             fontSize: 12,
-            color: Color(0xFF64748B),
+            color: AppColors.neutral500,
           ),
         ),
         const SizedBox(height: 4),
@@ -271,7 +272,7 @@ class ViewComplianceDialog extends StatelessWidget {
           value,
           style: const TextStyle(
             fontSize: 14,
-            color: Color(0xFF1A202C),
+            color: AppColors.neutral900,
           ),
         ),
       ],
@@ -282,14 +283,14 @@ class ViewComplianceDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
           const Icon(
-            Icons.description_outlined,
-            color: AppColors.blue,
+            Iconsax.document_text,
+            color: AppColors.primary,
             size: 24,
           ),
           const SizedBox(width: 12),
@@ -306,13 +307,13 @@ class ViewComplianceDialog extends StatelessWidget {
                   size,
                   size: 12,
                   weight: 400,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.neutral500,
                 ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.download_outlined),
+            icon: const Icon(Iconsax.document_download),
             onPressed: () {
               // Handle download
             },

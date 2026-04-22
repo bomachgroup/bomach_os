@@ -1,7 +1,11 @@
 import 'dart:typed_data';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/country_state_city_picker.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -372,13 +376,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     bool isError = false,
   }) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.redAccent : Colors.green,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    AppToast.info(context, message);
   }
 
   @override
@@ -406,7 +404,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     children: [
                       MyText(
                         isEditMode ? 'Edit Employee' : 'Add New Employee',
-                        style: AppText.black_600_32,
+                        style: AppText.displayLg,
                       ),
                       const SizedBox(height: 4),
                       MyText(
@@ -422,7 +420,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.grey),
+                    icon: const Icon(Iconsax.close_circle, color: Colors.grey),
                   ),
                 ],
               ),
@@ -446,7 +444,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                             _steps[index],
                             style: TextStyle(
                               color: isActive
-                                  ? const Color(0xFF0055FF)
+                                  ? AppColors.primary
                                   : Colors.grey.shade600,
                               fontWeight:
                                   isActive ? FontWeight.bold : FontWeight.w500,
@@ -458,7 +456,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                             Container(
                               height: 2,
                               width: 20,
-                              color: const Color(0xFF0055FF),
+                              color: AppColors.primary,
                             ),
                         ],
                       ),
@@ -511,7 +509,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                                   : 'Create Profile'))
                           : 'Next Step',
                       onTap: controller.isSaving.value ? null : _nextStep,
-                      bgColor: const Color(0xFF0055FF),
+                      bgColor: AppColors.primary,
                     ),
                   ),
                 ],
@@ -613,15 +611,17 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         const SizedBox(height: 16),
         _buildField("Street Address", _streetCtrl),
         kSizedBox,
-        _buildRow([
-          _buildField("City", _cityCtrl),
-          _buildField("State", _stateCtrl),
-        ]),
+        CountryStateCityPicker(
+          initialCountry: _countryCtrl.text.isEmpty ? null : _countryCtrl.text,
+          initialState: _stateCtrl.text.isEmpty ? null : _stateCtrl.text,
+          initialCity: _cityCtrl.text.isEmpty ? null : _cityCtrl.text,
+          cityRequired: false,
+          onCountryChanged: (name, _) => _countryCtrl.text = name,
+          onStateChanged: (v) => _stateCtrl.text = v,
+          onCityChanged: (v) => _cityCtrl.text = v,
+        ),
         kSizedBox,
-        _buildRow([
-          _buildField("Zip Code", _zipCtrl),
-          _buildField("Country", _countryCtrl),
-        ]),
+        _buildField("Zip Code", _zipCtrl),
         kSizedBox,
         const MyText('Emergency Contact (Optional)', weight: 600, size: 14),
         const SizedBox(height: 16),
@@ -844,12 +844,12 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FB),
+          color: AppColors.neutral50,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: (hasNewImage || hasExistingImage)
                 ? Colors.green.withValues(alpha: 0.5)
-                : const Color(0xFF0055FF).withValues(alpha: 0.3),
+                : AppColors.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
@@ -898,7 +898,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.person,
+                      Iconsax.profile_circle,
                       size: 40,
                       color: Colors.grey,
                     ),
@@ -920,11 +920,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0055FF),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: const Icon(
-                  Icons.cloud_upload_outlined,
+                  Iconsax.document_upload,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -942,7 +942,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     TextSpan(
                       text: "choose file",
                       style: TextStyle(
-                        color: Color(0xFF0055FF),
+                        color: AppColors.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1108,7 +1108,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     fontSize: 14,
                   ),
                 ),
-                const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                const Icon(Iconsax.calendar_1, size: 16, color: Colors.grey),
               ],
             ),
           ),

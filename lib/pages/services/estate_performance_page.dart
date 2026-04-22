@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
@@ -212,7 +213,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
           children: [
             if (widget.estate != null)
               IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Iconsax.arrow_left_2),
                 onPressed: () => Navigator.pop(context),
               ),
             Expanded(
@@ -220,7 +221,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                 widget.estate != null
                     ? '${widget.estate!.name} - Performance'
                     : 'Estate Performance & Invoices',
-                style: AppText.black_500_32,
+                style: AppText.displayLg,
               ),
             ),
           ],
@@ -244,7 +245,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.grey4),
+                          border: Border.all(color: AppColors.neutral300),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: DropdownButton<String>(
@@ -277,7 +278,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.grey4),
+                          border: Border.all(color: AppColors.neutral300),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: DropdownButton<String>(
@@ -308,7 +309,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.grey4),
+                            border: Border.all(color: AppColors.neutral300),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: DropdownButton<String>(
@@ -340,8 +341,8 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                         child: MyTextFormField(
                           hintText: 'Search invoices...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -356,7 +357,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                   // Add Invoice Button
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Iconsax.add_circle,
                       color: AppColors.white,
                     ),
                     child: "Add Invoice",
@@ -401,42 +402,42 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
         _buildStatCard(
           'Total Revenue',
           '₦${_formatAmount(_stats.totalRevenue)}',
-          Icons.attach_money,
-          AppColors.blue,
+          Iconsax.money_recive,
+          AppColors.primary,
           subtitle: '${_stats.totalTransactions} transactions',
         ),
         _buildStatCard(
           'Paid',
           '₦${_formatAmount(_stats.totalPaid)}',
-          Icons.check_circle,
+          Iconsax.tick_circle,
           Colors.green,
           subtitle: 'Completed payments',
         ),
         _buildStatCard(
           'Pending',
           '₦${_formatAmount(_stats.totalPending)}',
-          Icons.schedule,
+          Iconsax.clock,
           Colors.orange,
           subtitle: 'Awaiting payment',
         ),
         _buildStatCard(
           'Sales',
           '${_stats.totalSales}',
-          Icons.home_work,
+          Iconsax.home,
           Colors.purple,
           subtitle: 'Total plot sales',
         ),
         _buildStatCard(
           'Avg. Transaction',
           '₦${_formatAmount(_stats.averageTransactionValue)}',
-          Icons.trending_up,
+          Iconsax.trend_up,
           Colors.teal,
           subtitle: 'Per transaction',
         ),
         _buildStatCard(
           'Commissions',
           '₦${_formatAmount(_stats.totalCommissions)}',
-          Icons.payment,
+          Iconsax.card,
           Colors.indigo,
           subtitle: 'Total earned',
         ),
@@ -457,7 +458,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -477,7 +478,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                 child: Icon(icon, color: color, size: 20),
               ),
               const Spacer(),
-              const Icon(Icons.more_vert, size: 20, color: AppColors.grey1),
+              const Icon(Iconsax.more, size: 20, color: AppColors.neutral500),
             ],
           ),
           kSizedBox,
@@ -493,7 +494,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
             label,
             style: const TextStyle(
               fontSize: 14,
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -503,7 +504,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
               subtitle,
               style: const TextStyle(
                 fontSize: 12,
-                color: AppColors.grey1,
+                color: AppColors.neutral500,
               ),
             ),
           ],
@@ -525,7 +526,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.grey4),
+              border: Border.all(color: AppColors.neutral300),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -564,7 +565,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.blue,
+                                color: AppColors.primary,
                               ),
                             ),
                           ],
@@ -572,9 +573,9 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                         const SizedBox(height: 8),
                         LinearProgressIndicator(
                           value: percentage / 100,
-                          backgroundColor: AppColors.grey4,
+                          backgroundColor: AppColors.neutral300,
                           valueColor: const AlwaysStoppedAnimation<Color>(
-                              AppColors.blue),
+                              AppColors.primary),
                           minHeight: 8,
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -583,7 +584,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                           '${percentage.toStringAsFixed(1)}%',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: AppColors.grey1,
+                            color: AppColors.neutral500,
                           ),
                         ),
                       ],
@@ -601,7 +602,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.grey4),
+            border: Border.all(color: AppColors.neutral300),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,7 +622,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                   'Payment': Colors.blue,
                   'Commission': Colors.purple,
                 };
-                final color = colors[entry.key] ?? AppColors.grey1;
+                final color = colors[entry.key] ?? AppColors.neutral500;
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
@@ -670,22 +671,22 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.grey4),
+          border: Border.all(color: AppColors.neutral300),
         ),
         child: Center(
           child: Column(
             children: [
               Icon(
-                Icons.receipt_long,
+                Iconsax.receipt_2,
                 size: 64,
-                color: AppColors.grey1.withValues(alpha: 0.5),
+                color: AppColors.neutral500.withValues(alpha: 0.5),
               ),
               kSizedBox,
               const MyText(
                 'No invoices found',
                 style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.grey1,
+                  color: AppColors.neutral500,
                 ),
               ),
             ],
@@ -698,7 +699,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -719,7 +720,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                   '${_filteredInvoices.length} total',
                   style: const TextStyle(
                     fontSize: 14,
-                    color: AppColors.grey1,
+                    color: AppColors.neutral500,
                   ),
                 ),
               ],
@@ -774,7 +775,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                     invoice.clientName ?? 'Unknown Client',
                     style: const TextStyle(
                       fontSize: 13,
-                      color: AppColors.grey1,
+                      color: AppColors.neutral500,
                     ),
                   ),
                 ],
@@ -800,7 +801,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                       invoice.plotNumber ?? 'N/A',
                       style: const TextStyle(
                         fontSize: 12,
-                        color: AppColors.grey1,
+                        color: AppColors.neutral500,
                       ),
                     ),
                   ],
@@ -814,14 +815,14 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: MyText(
                     invoice.transactionType,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.blue,
+                      color: AppColors.primary,
                       fontWeight: FontWeight.w500,
                     ),
                     textAlign: TextAlign.center,
@@ -878,7 +879,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
 
             // View Invoice Button
             IconButton(
-              icon: const Icon(Icons.receipt_long, size: 20),
+              icon: const Icon(Iconsax.receipt_2, size: 20),
               onPressed: () {
                 showDialog(
                   context: context,
@@ -887,7 +888,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                 );
               },
               tooltip: 'View Invoice',
-              color: AppColors.blue,
+              color: AppColors.primary,
             ),
           ],
         ),
@@ -915,7 +916,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
       case 'Failed':
         return Colors.red;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

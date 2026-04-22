@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -18,11 +21,11 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
 
   void _confirmReject(BuildContext context, int requestId) {
     final reasonCtrl = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Reject Request"),
-        content: Column(
+    DialogScaffold.show(
+      context,
+      title: "Reject Request",
+      size: DialogSize.sm,
+      body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,23 +41,20 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
+      actions: [TextButton(
+            onPressed: () => Navigator.pop(context),
             child: const Text("Cancel"),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(ctx); // Close confirmation dialog
+              Navigator.pop(context); // Close confirmation dialog
               _ctrl.updateLeaveStatus(context, requestId, 'rejected',
                   rejectionReason: reasonCtrl.text);
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD32F2F)),
             child: const Text("Reject", style: TextStyle(color: Colors.white)),
-          )
-        ],
-      ),
+          )],
     );
   }
 
@@ -63,7 +63,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
     final r = widget.request;
 
     // Colors from design
-    const greenColor = Color(0xFF00C853);
+    const greenColor = AppColors.success;
     const redColor = Color(0xFFD32F2F);
 
     return Dialog(
@@ -92,12 +92,12 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close, color: Colors.grey[600]),
+                    icon: Icon(Iconsax.close_circle, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.neutral100),
 
             // --- Body (Two Columns) ---
             Expanded(
@@ -117,13 +117,13 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                             children: [
                               CircleAvatar(
                                 radius: 24,
-                                backgroundColor: const Color(0xFFE3F2FD),
+                                backgroundColor: AppColors.infoSubtle,
                                 child: Text(
                                     r.employeeId.isNotEmpty
                                         ? r.employeeId[0].toUpperCase()
                                         : "U",
                                     style: const TextStyle(
-                                        color: Color(0xFF1976D2),
+                                        color: AppColors.primary,
                                         fontWeight: FontWeight.bold)),
                               ),
                               const SizedBox(width: 12),
@@ -155,10 +155,10 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                                color: const Color(0xFFFAFAFA),
+                                color: AppColors.neutral50,
                                 borderRadius: BorderRadius.circular(12),
                                 border:
-                                    Border.all(color: const Color(0xFFEEEEEE))),
+                                    Border.all(color: AppColors.neutral100)),
                             child: Column(
                               children: [
                                 _buildGridRow("Leave Type", r.leaveType,
@@ -183,10 +183,10 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                             padding: const EdgeInsets.all(16),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                                color: const Color(0xFFFAFAFA),
+                                color: AppColors.neutral50,
                                 borderRadius: BorderRadius.circular(8),
                                 border:
-                                    Border.all(color: const Color(0xFFEEEEEE))),
+                                    Border.all(color: AppColors.neutral100)),
                             child: Text(
                               r.reason ?? "No reason provided.",
                               style: const TextStyle(
@@ -201,14 +201,14 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                   ),
 
                   // Vertical Divider
-                  Container(width: 1, color: const Color(0xFFEEEEEE)),
+                  Container(width: 1, color: AppColors.neutral100),
 
                   // --- Right Column: Actions ---
                   Expanded(
                     flex: 1,
                     child: Container(
                       padding: const EdgeInsets.all(24),
-                      color: const Color(0xFFFAFBFC),
+                      color: AppColors.neutral50,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,12 +43,12 @@ class ViewProgramDialog extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child: const Icon(Iconsax.close_circle, color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.neutral100),
 
             // --- Body ---
             Expanded(
@@ -62,10 +64,10 @@ class ViewProgramDialog extends StatelessWidget {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                              color: const Color(0xFFE3F2FD),
+                              color: AppColors.infoSubtle,
                               borderRadius: BorderRadius.circular(8)),
-                          child: const Icon(Icons.school,
-                              color: Color(0xFF1976D2)),
+                          child: const Icon(Iconsax.teacher,
+                              color: AppColors.primary),
                         ),
                         const SizedBox(width: 16),
                         Column(
@@ -93,9 +95,9 @@ class ViewProgramDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                          color: const Color(0xFFFAFAFA),
+                          color: AppColors.neutral50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFEEEEEE))),
+                          border: Border.all(color: AppColors.neutral100)),
                       child: Column(
                         children: [
                           _buildGridRow("Cost", "\$${program.cost}",
@@ -119,13 +121,13 @@ class ViewProgramDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                          color: const Color(0xFFF8FBFF), // Light Blue tint
+                          color: AppColors.primarySubtle, // Light Blue tint
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE3F2FD))),
+                          border: Border.all(color: AppColors.infoSubtle)),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today,
-                              size: 20, color: Color(0xFF1976D2)),
+                          const Icon(Iconsax.calendar_1,
+                              size: 20, color: AppColors.primary),
                           const SizedBox(width: 12),
                           Text(
                             "${_fmtDate(program.startDate)}  -  ${_fmtDate(program.endDate)}",
@@ -165,7 +167,7 @@ class ViewProgramDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyElevatedButton(
-                    bgColor: AppColors.red,
+                    bgColor: AppColors.danger,
                     child: 'Delete Program',
                     onTap: () async {
                       final confirm = await showDialog<bool>(
@@ -190,17 +192,14 @@ class ViewProgramDialog extends StatelessWidget {
                         await controller.deleteProgram(program.id);
                         if (context.mounted) {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Program Deleted"),
-                                  backgroundColor: Colors.red));
+                          AppToast.error(context, 'Program Deleted');
                         }
                       }
                     },
                   ),
                   const SizedBox(width: 16),
                   MyElevatedButton(
-                    bgColor: const Color(0xFF1976D2),
+                    bgColor: AppColors.primary,
                     child: 'Edit Program',
                     onTap: () {
                       Navigator.pop(context); // Close View
@@ -271,14 +270,14 @@ class ViewProgramDialog extends StatelessWidget {
     String s = status.toLowerCase();
 
     if (s == 'active' || s == 'scheduled') {
-      bg = const Color(0xFFF0FDF4);
-      dot = const Color(0xFF22C55E);
+      bg = AppColors.successSubtle;
+      dot = AppColors.success;
     } else if (s == 'completed') {
-      bg = const Color(0xFFE3F2FD);
-      dot = const Color(0xFF1976D2);
+      bg = AppColors.infoSubtle;
+      dot = AppColors.primary;
     } else {
-      bg = const Color(0xFFF3F4F6);
-      dot = const Color(0xFF9CA3AF);
+      bg = AppColors.neutral100;
+      dot = AppColors.neutral400;
     }
 
     return Container(

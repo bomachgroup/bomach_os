@@ -69,7 +69,7 @@ class ProjectBody extends StatelessWidget {
                             children: [
                               MyText(
                                 'Analytics',
-                                style: AppText.black_500_32,
+                                style: AppText.displayLg,
                               ),
                               SizedBox(height: 4),
                               MyText(
@@ -90,7 +90,7 @@ class ProjectBody extends StatelessWidget {
                       children: [
                         MyText(
                           'Analytics',
-                          style: AppText.black_500_32,
+                          style: AppText.displayLg,
                         ),
                         SizedBox(height: 4),
                         MyText(

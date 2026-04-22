@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -45,14 +46,14 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                     children: [
                       MyText(
                         'Services',
-                        style: AppText.black_500_32,
+                        style: AppText.displayLg,
                       ),
                       SizedBox(
                         height: 8,
                       ),
                       MyText(
                         'Services',
-                        style: AppText.black_400_14,
+                        style: AppText.bodyMd,
                       ),
                     ],
                   ),
@@ -65,15 +66,15 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                         child: MyTextFormField(
                           hintText: 'Search...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
                       const SortBar(text: "Sort"),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "Add Service",

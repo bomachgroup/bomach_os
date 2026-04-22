@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 
 import '../controller/loans_controller.dart';
@@ -12,7 +14,7 @@ class ViewLoanDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Colors from design
-    const greenColor = Color(0xFF00C853);
+    const greenColor = AppColors.success;
     const redColor = Color(0xFFD32F2F);
     final LoanController controller = Get.find();
 
@@ -39,12 +41,12 @@ class ViewLoanDialog extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child: const Icon(Iconsax.close_circle, color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.neutral100),
 
             // --- Body (Two Columns) ---
             Expanded(
@@ -64,10 +66,10 @@ class ViewLoanDialog extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 24,
-                                backgroundColor: const Color(0xFFE3F2FD),
+                                backgroundColor: AppColors.infoSubtle,
                                 child: Text(loan.employeeName[0],
                                     style: const TextStyle(
-                                        color: Color(0xFF1976D2),
+                                        color: AppColors.primary,
                                         fontWeight: FontWeight.bold)),
                               ),
                               const SizedBox(width: 12),
@@ -95,10 +97,10 @@ class ViewLoanDialog extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                                color: const Color(0xFFFAFAFA),
+                                color: AppColors.neutral50,
                                 borderRadius: BorderRadius.circular(12),
                                 border:
-                                    Border.all(color: const Color(0xFFEEEEEE))),
+                                    Border.all(color: AppColors.neutral100)),
                             child: Column(
                               children: [
                                 _buildGridRow(
@@ -174,10 +176,10 @@ class ViewLoanDialog extends StatelessWidget {
                             padding: const EdgeInsets.all(16),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                                color: const Color(0xFFFAFAFA),
+                                color: AppColors.neutral50,
                                 borderRadius: BorderRadius.circular(8),
                                 border:
-                                    Border.all(color: const Color(0xFFEEEEEE))),
+                                    Border.all(color: AppColors.neutral100)),
                             child: Text(
                               loan.reason,
                               style: const TextStyle(
@@ -192,14 +194,14 @@ class ViewLoanDialog extends StatelessWidget {
                   ),
 
                   // Vertical Divider
-                  Container(width: 1, color: const Color(0xFFEEEEEE)),
+                  Container(width: 1, color: AppColors.neutral100),
 
                   // --- Right Column: Actions ---
                   Expanded(
                     flex: 1,
                     child: Container(
                       padding: const EdgeInsets.all(24),
-                      color: const Color(0xFFFAFBFC),
+                      color: AppColors.neutral50,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -266,21 +268,21 @@ class ViewLoanDialog extends StatelessWidget {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
                                 border:
-                                    Border.all(color: const Color(0xFFE0E0E0))),
+                                    Border.all(color: AppColors.neutral200)),
                             child: Row(
                               children: [
                                 Container(
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                      color: const Color(0xFFE3F2FD),
+                                      color: AppColors.infoSubtle,
                                       borderRadius: BorderRadius.circular(4)),
                                   child: const Center(
                                       child: Text("JPEG",
                                           style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.bold,
-                                              color: Color(0xFF1976D2)))),
+                                              color: AppColors.primary))),
                                 ),
                                 const SizedBox(width: 12),
                                 const Expanded(
@@ -299,10 +301,10 @@ class ViewLoanDialog extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.remove_red_eye_outlined,
+                                const Icon(Iconsax.eye,
                                     size: 18, color: Colors.grey),
                                 const SizedBox(width: 8),
-                                const Icon(Icons.download_outlined,
+                                const Icon(Iconsax.document_download,
                                     size: 18, color: Colors.grey),
                               ],
                             ),

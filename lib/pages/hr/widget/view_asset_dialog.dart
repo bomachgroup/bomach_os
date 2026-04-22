@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../models/assets_model.dart';
@@ -38,7 +40,7 @@ class ViewAssetDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
+                color: AppColors.neutral50,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -56,7 +58,7 @@ class ViewAssetDialog extends StatelessWidget {
                   _buildStatusBadge(asset.status),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -133,7 +135,7 @@ class ViewAssetDialog extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(asset.notes,
                           style: const TextStyle(
-                              fontSize: 13, color: Color(0xFF475569))),
+                              fontSize: 13, color: AppColors.neutral600)),
                     ],
                   ],
                 ),
@@ -169,7 +171,7 @@ class ViewAssetDialog extends StatelessWidget {
             width: 140,
             child: Text(label,
                 style: const TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.neutral500,
                     fontSize: 13,
                     fontWeight: FontWeight.w500)),
           ),
@@ -198,7 +200,7 @@ class ViewAssetDialog extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.circle, size: 7, color: color),
+          Icon(Iconsax.record_circle, size: 7, color: color),
           const SizedBox(width: 5),
           Text(
             display,

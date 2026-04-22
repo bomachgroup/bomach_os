@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -47,7 +48,7 @@ class _WorkSiteState extends State<WorkSite> {
                   const MyText("Worksites", size: 28, weight: 500),
                   MyElevatedButton(
                     child: "Add Worksite",
-                    icon: const Icon(Icons.add_circle_outline_rounded,
+                    icon: const Icon(Iconsax.add_circle,
                         color: AppColors.white),
                     onTap: () {
                       showDialog(
@@ -147,9 +148,9 @@ class _WorkSiteState extends State<WorkSite> {
         DataCell(Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-              color: AppColors.blue.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4)),
-          child: MyText(site.status, color: AppColors.blue),
+          child: MyText(site.status, color: AppColors.primary),
         )),
         DataCell(
             SizedBox(width: 200, child: MyText(site.description, maxLines: 1))),
@@ -162,7 +163,7 @@ class _WorkSiteState extends State<WorkSite> {
                     controller.deleteWorksite(context, site.id, site.id),
               )
             ],
-            child: const Icon(Icons.more_vert),
+            child: const Icon(Iconsax.more),
           ),
         ),
       ]);

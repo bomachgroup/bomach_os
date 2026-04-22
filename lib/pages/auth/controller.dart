@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
 
 
@@ -53,13 +55,7 @@ class AuthController extends GetxController {
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.redAccent : Colors.green,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    AppToast.info(context, message);
   }
 
   void _showDialog(BuildContext context, String title, String message,
@@ -178,7 +174,7 @@ class AuthController extends GetxController {
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(
-                        isObscure ? Icons.visibility_off : Icons.visibility),
+                        isObscure ? Iconsax.eye_slash : Iconsax.eye),
                     onPressed: () => setState(() => isObscure = !isObscure),
                   ),
                 ),
@@ -300,7 +296,9 @@ class AuthController extends GetxController {
             _permissionService.validateAgainstBackendMap(map);
           }
         })
-        .catchError((e) => log("Drift check skipped: $e"));
+        .catchError((e) {
+          log("Drift check skipped: $e");
+        });
   }
 
   Future<void> logout() async {

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -133,7 +134,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
                           fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -162,7 +163,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
                             controller: dateCtrl,
                             hintText: 'Select date',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
+                            trailing: const Icon(Iconsax.calendar_1,
                                 size: 18, color: Colors.grey),
                             onTap: _pickDate,
                             validator: (val) => (val == null || val.isEmpty)
@@ -250,10 +251,10 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppColors.blue,
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.add,
+                        child: const Icon(Iconsax.add,
                             color: Colors.white, size: 20),
                       ),
                     ),
@@ -283,7 +284,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
                           child: isEdit ? 'Update Meeting' : 'Schedule Meeting',
                           isLoading: controller.isSavingMeeting.value,
                           onTap: _onSave,
-                          icon: const Icon(Icons.check,
+                          icon: const Icon(Iconsax.tick_circle,
                               color: Colors.white, size: 18),
                         )),
                   ],
@@ -328,7 +329,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
           hint: const Text('Select time',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: times
               .map((t) => DropdownMenuItem(value: t, child: Text(t)))
               .toList(),
@@ -357,7 +358,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
           hint: const Text('Select',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: labels
               .map((t) => DropdownMenuItem(value: t, child: Text(t)))
               .toList(),
@@ -376,10 +377,10 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
       children: attendeeNames.asMap().entries.map((entry) {
         return Chip(
           label: Text(entry.value, style: const TextStyle(fontSize: 13)),
-          deleteIcon: const Icon(Icons.close, size: 16),
+          deleteIcon: const Icon(Iconsax.close_circle, size: 16),
           onDeleted: () => setState(() => attendeeNames.removeAt(entry.key)),
-          backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-          side: BorderSide(color: AppColors.blue.withValues(alpha: 0.3)),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         );
@@ -513,7 +514,7 @@ class ViewMeetingDialog extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -538,7 +539,7 @@ class ViewMeetingDialog extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 12),
                   child: Text('Attendees',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                      style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
                 ),
                 Wrap(
                   spacing: 6,
@@ -548,7 +549,7 @@ class ViewMeetingDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: AppColors.blue.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(a.name,
@@ -587,7 +588,7 @@ class ViewMeetingDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   _buildActionButton(
                     label: 'Edit',
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     onTap: () {
                       Navigator.pop(context);
                       showDialog(
@@ -614,7 +615,7 @@ class ViewMeetingDialog extends StatelessWidget {
           SizedBox(
             width: 110,
             child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
@@ -653,7 +654,7 @@ class ViewMeetingDialog extends StatelessWidget {
           const SizedBox(
             width: 110,
             child: Text('Status',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -664,7 +665,7 @@ class ViewMeetingDialog extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.circle, size: 8, color: color),
+                Icon(Iconsax.record_circle, size: 8, color: color),
                 const SizedBox(width: 6),
                 Text(status,
                     style: TextStyle(

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class FilePickerField extends StatelessWidget {
                 color: AppColors.background,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: file != null ? AppColors.blue : AppColors.card,
+                  color: file != null ? AppColors.primary : AppColors.borderSubtle,
                   width: 1.5,
                 ),
               ),
@@ -77,14 +78,14 @@ class FilePickerField extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.lightBlue,
+                      color: AppColors.primarySubtle,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       file == null
-                          ? Icons.cloud_upload_outlined
-                          : Icons.insert_drive_file_outlined,
-                      color: AppColors.blue,
+                          ? Iconsax.document_upload
+                          : Iconsax.document,
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -112,7 +113,7 @@ class FilePickerField extends StatelessWidget {
                                   : 'Allowed: ${allowedExtensions.join(", ")}'),
                           size: 11,
                           weight: 300,
-                          color: AppColors.darkGrey2,
+                          color: AppColors.neutral400,
                           isSelectable: false,
                         ),
                       ],

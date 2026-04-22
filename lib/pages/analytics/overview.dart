@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 
 import '../../components/text/my_text.dart';
@@ -44,7 +45,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
                         children: [
                           MyText(
                             'Analytics',
-                            style: AppText.black_500_32,
+                            style: AppText.displayLg,
                           ),
                           SizedBox(height: 4),
                           MyText(
@@ -65,7 +66,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
                   children: [
                     MyText(
                       'Analytics',
-                      style: AppText.black_500_32,
+                      style: AppText.displayLg,
                     ),
                     SizedBox(height: 4),
                     MyText(
@@ -153,18 +154,18 @@ class AnalyticsOverviewPage extends StatelessWidget {
           kSizedBox,
           MetricsSection(
             title: "Revenue Summary",
-            icon: Icons.attach_money,
+            icon: Iconsax.money_recive,
             items: revenueData,
           ),
           MetricsSection(
             title: "Project Metrics",
-            icon: Icons.work_outline,
+            icon: Iconsax.briefcase,
             items: projectData,
             progress: 0.0,
           ),
           MetricsSection(
             title: "Team Overview",
-            icon: Icons.people_alt,
+            icon: Iconsax.people,
             items: teamData,
             progress: 0.78,
           ),
@@ -209,17 +210,17 @@ class AnalyticsActions extends StatelessWidget {
 
         final buttons = [
           _buildActionButton(
-            icon: Icons.refresh,
+            icon: Iconsax.refresh,
             label: "Refresh",
             isWide: isWide,
           ),
           _buildActionButton(
-            icon: Icons.picture_as_pdf,
+            icon: Iconsax.document_text,
             label: "Export PDF",
             isWide: isWide,
           ),
           _buildActionButton(
-            icon: Icons.table_chart,
+            icon: Iconsax.chart,
             label: "Export Excel",
             isWide: isWide,
           ),

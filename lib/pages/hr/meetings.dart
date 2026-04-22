@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/controller/meeting_controller.dart';
@@ -61,10 +62,10 @@ class _MeetingsState extends State<Meetings> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText('Meetings', style: AppText.black_500_32),
+                      MyText('Meetings', style: AppText.displayLg),
                       SizedBox(height: 8),
                       MyText('Schedule and manage team meetings',
-                          style: AppText.black_400_14),
+                          style: AppText.bodyMd),
                     ],
                   ),
                   Wrap(
@@ -75,13 +76,13 @@ class _MeetingsState extends State<Meetings> {
                         width: 180,
                         child: MyTextFormField(
                           hintText: 'Search...',
-                          leading: Icon(Icons.search,
-                              color: AppColors.grey1.withValues(alpha: 0.5)),
+                          leading: Icon(Iconsax.search_normal,
+                              color: AppColors.neutral500.withValues(alpha: 0.5)),
                           onChanged: (val) => _loadData(search: val),
                         ),
                       ),
                       MyElevatedButton(
-                        icon: const Icon(Icons.add_circle_outline_rounded,
+                        icon: const Icon(Iconsax.add_circle,
                             color: AppColors.white),
                         child: 'Schedule Meeting',
                         onTap: () => showDialog(
@@ -212,7 +213,7 @@ class _MeetingsState extends State<Meetings> {
               onTap: () => controller.deleteMeeting(context, m.id),
             ),
           ],
-          child: const Icon(Icons.more_vert),
+          child: const Icon(Iconsax.more),
         )),
       ]);
     }).toList();
@@ -232,15 +233,15 @@ class _MeetingsState extends State<Meetings> {
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
       case 'scheduled':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'in_progress':
         return Colors.orange;
       case 'completed':
-        return AppColors.green;
+        return AppColors.success;
       case 'cancelled':
-        return AppColors.red;
+        return AppColors.danger;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

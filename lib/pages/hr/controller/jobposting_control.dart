@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -202,25 +204,17 @@ class JobPostController extends GetxController {
 
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-      ),
-    );
+    AppToast.info(context, message);
   }
 
   void _showDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text("OK"))
-        ],
-      ),
+    DialogScaffold.show(
+      context,
+      title: title,
+      size: DialogSize.sm,
+      body: Text(content),
+      actions: [TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text("OK"))],
     );
   }
 

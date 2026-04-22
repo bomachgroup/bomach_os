@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -60,10 +62,10 @@ class _AuditLogPageState extends State<AuditLogPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText('Audit Log', style: AppText.black_600_32),
+        const MyText('Audit Log', style: AppText.displayLg),
         const SizedBox(height: 8),
         const Text('Track all changes and activities in the system',
-            style: TextStyle(color: Color(0xFF64748B))),
+            style: TextStyle(color: AppColors.neutral500)),
         kSizedBox,
 
         // Search bar
@@ -72,7 +74,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
           child: MyTextFormField(
             controller: _searchController,
             hintText: 'Search by user, activity or IP...',
-            leading: const Icon(Icons.search, color: Colors.grey),
+            leading: const Icon(Iconsax.search_normal, color: Colors.grey),
             onChanged: (v) => setState(() => _searchQuery = v),
           ),
         ),
@@ -97,7 +99,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.neutral200),
                 ),
                 child: filtered.isEmpty
                     ? const Padding(
@@ -139,7 +141,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
                                       Text(log.userEmail,
                                           style: const TextStyle(
                                               fontSize: 11,
-                                              color: Color(0xFF64748B))),
+                                              color: AppColors.neutral500)),
                                     ],
                                   )),
                                   // Activity
@@ -165,7 +167,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
                                   DataCell(Text(_formatDate(log.createdAt),
                                       style: const TextStyle(
                                           fontSize: 12,
-                                          color: Color(0xFF64748B)))),
+                                          color: AppColors.neutral500))),
                                 ]);
                               }).toList(),
                             ),
@@ -203,12 +205,12 @@ class _TypeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg) = switch (type) {
-      'login' => (const Color(0xFFEFF6FF), const Color(0xFF2563EB)),
-      'logout' => (const Color(0xFFF8FAFC), const Color(0xFF64748B)),
-      'create' => (const Color(0xFFF0FDF4), const Color(0xFF16A34A)),
-      'update' => (const Color(0xFFFFFBEB), const Color(0xFFD97706)),
-      'delete' => (const Color(0xFFFFF1F2), const Color(0xFFE11D48)),
-      _ => (const Color(0xFFF1F5F9), const Color(0xFF475569)),
+      'login' => (AppColors.primarySubtle, AppColors.primary),
+      'logout' => (AppColors.neutral50, AppColors.neutral500),
+      'create' => (AppColors.successSubtle, AppColors.success),
+      'update' => (AppColors.warningSubtle, AppColors.warning),
+      'delete' => (AppColors.dangerSubtle, AppColors.danger),
+      _ => (AppColors.neutral100, AppColors.neutral600),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -231,12 +233,12 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg) = switch (status) {
-      'success' => (const Color(0xFFF0FDF4), const Color(0xFF16A34A)),
+      'success' => (AppColors.successSubtle, AppColors.success),
       'failure' || 'failed' => (
-          const Color(0xFFFFF1F2),
-          const Color(0xFFE11D48)
+          AppColors.dangerSubtle,
+          AppColors.danger
         ),
-      _ => (const Color(0xFFFFFBEB), const Color(0xFFD97706)),
+      _ => (AppColors.warningSubtle, AppColors.warning),
     };
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Container(

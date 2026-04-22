@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -108,7 +110,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -209,10 +211,10 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                       ..._buildInvoiceItems(),
                       const SizedBox(height: 12),
                       MyOutlinedButton(
-                        textColor: AppColors.blue,
-                        borderColor: AppColors.blue,
-                        icon: const Icon(Icons.add,
-                            size: 18, color: AppColors.blue),
+                        textColor: AppColors.primary,
+                        borderColor: AppColors.primary,
+                        icon: const Icon(Iconsax.add,
+                            size: 18, color: AppColors.primary),
                         child: 'Add Item',
                         onTap: () {
                           setState(() {
@@ -307,13 +309,13 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.blue,
+                      color: AppColors.primary,
                     ),
                   ),
                   Row(
                     children: [
                       MyOutlinedButton(
-                        textColor: AppColors.darkGrey1,
+                        textColor: AppColors.neutral500,
                         borderColor: null,
                         child: 'Cancel',
                         onTap: () {
@@ -381,7 +383,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                 ),
                 if (_items.length > 1)
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 20),
+                    icon: const Icon(Iconsax.trash, size: 20),
                     color: Colors.red,
                     onPressed: () {
                       setState(() {
@@ -461,7 +463,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -469,7 +471,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.blue,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -522,7 +524,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                   DateFormat('dd MMM yyyy').format(date),
                   style: const TextStyle(fontSize: 14),
                 ),
-                const Icon(Icons.calendar_today, size: 18),
+                const Icon(Iconsax.calendar_1, size: 18),
               ],
             ),
           ),
@@ -535,10 +537,10 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: AppColors.blue.withValues(alpha: 0.05),
+        color: AppColors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
-          color: AppColors.blue.withValues(alpha: 0.2),
+          color: AppColors.primary.withValues(alpha: 0.2),
           width: 1.0,
         ),
       ),
@@ -596,7 +598,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
           style: TextStyle(
             fontSize: isTotal ? 18 : 15,
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
-            color: isTotal ? AppColors.blue : Colors.black87,
+            color: isTotal ? AppColors.primary : Colors.black87,
           ),
         ),
       ],
@@ -606,32 +608,17 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
   void _handleCreateInvoice() {
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedServiceType == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a service type'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppToast.error(context, 'Please select a service type');
         return;
       }
 
       if (_items.isEmpty || _items.every((item) => item.description.isEmpty)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please add at least one invoice item'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppToast.error(context, 'Please add at least one invoice item');
         return;
       }
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invoice created successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      AppToast.success(context, 'Invoice created successfully');
     }
   }
 }

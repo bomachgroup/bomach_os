@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/section/responsive_widget.dart';
@@ -36,11 +38,11 @@ class BoardPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const MyText('Board', style: AppText.black_600_32),
+          const MyText('Board', style: AppText.displayLg),
           const SizedBox(height: 8),
           const Text(
               'Manage Board meetings, Resolutions, Reports, Investors, Associates, and partners',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+              style: TextStyle(color: AppColors.neutral500, fontSize: 14)),
           const SizedBox(height: 24),
 
           // Stats Row
@@ -95,14 +97,14 @@ class BoardPage extends StatelessWidget {
           DashboardStatCard(
             title: 'Total Branches',
             count: stats != null ? '${stats.totalBranches}' : '–',
-            borderColor: const Color(0xFF1976D2),
-            countColor: const Color(0xFF1976D2),
+            borderColor: AppColors.primary,
+            countColor: AppColors.primary,
           ),
           DashboardStatCard(
             title: 'Pending Approvals',
             count: stats != null ? '${stats.pendingApprovals}' : '–',
-            borderColor: const Color(0xFFC27803),
-            countColor: const Color(0xFFC27803),
+            borderColor: AppColors.warning,
+            countColor: AppColors.warning,
           ),
           DashboardStatCard(
             title: 'Asset Inventory',
@@ -126,7 +128,7 @@ class BoardPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+        border: Border(bottom: BorderSide(color: AppColors.neutral200)),
       ),
       child: Wrap(
         spacing: 8,
@@ -137,7 +139,7 @@ class BoardPage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.blue : Colors.transparent,
+                color: isSelected ? AppColors.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -174,20 +176,20 @@ class _MeetingsTab extends StatelessWidget {
           title: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText('Meetings', style: AppText.black_600_16),
+              MyText('Meetings', style: AppText.h4),
               SizedBox(height: 2),
               Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
             onChanged: controller.onMeetingSearchChanged,
           ),
           action: MyElevatedButton(
             height: 40,
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
+            icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
             child: 'New Meeting',
             onTap: () => showDialog(
               context: context,
@@ -212,7 +214,7 @@ class _MeetingsTab extends StatelessWidget {
           if (controller.meetingList.isEmpty) {
             return _buildEmptyState(
               context,
-              icon: Icons.event_outlined,
+              icon: Iconsax.calendar_1,
               title: 'No meetings scheduled',
               subtitle: 'Schedule a new meeting to get started.',
               buttonLabel: 'New Meeting',
@@ -229,7 +231,7 @@ class _MeetingsTab extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(
                 children: [
@@ -238,7 +240,7 @@ class _MeetingsTab extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12),
@@ -253,7 +255,7 @@ class _MeetingsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -261,7 +263,7 @@ class _MeetingsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 3,
@@ -269,7 +271,7 @@ class _MeetingsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -277,7 +279,7 @@ class _MeetingsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         SizedBox(
                           width: 48,
@@ -285,7 +287,7 @@ class _MeetingsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                       ],
                     ),
@@ -349,7 +351,7 @@ class _MeetingsTab extends StatelessWidget {
             child: Checkbox(
               value: false,
               onChanged: (_) {},
-              activeColor: AppColors.blue,
+              activeColor: AppColors.primary,
             ),
           ),
           Expanded(
@@ -369,7 +371,7 @@ class _MeetingsTab extends StatelessWidget {
                 if (meeting.meetingTime.isNotEmpty)
                   Text(displayTime,
                       style: const TextStyle(
-                          fontSize: 12, color: Color(0xFF64748B))),
+                          fontSize: 12, color: AppColors.neutral500)),
               ],
             ),
           ),
@@ -377,7 +379,7 @@ class _MeetingsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               meeting.agenda,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 13, color: AppColors.neutral500),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -425,7 +427,7 @@ class _MeetingsTab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, size: 7, color: color),
+            Icon(Iconsax.record_circle, size: 7, color: color),
             const SizedBox(width: 5),
             Text(
               status,
@@ -440,7 +442,7 @@ class _MeetingsTab extends StatelessWidget {
 
   Widget _buildActionMenu(BuildContext context, BoardMeeting meeting) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Iconsax.more, size: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) async {
         switch (value) {
@@ -486,7 +488,7 @@ class _MeetingsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'view',
           child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.eye, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('View Details'),
           ]),
@@ -494,7 +496,7 @@ class _MeetingsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'edit',
           child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.edit, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('Edit'),
           ]),
@@ -502,7 +504,7 @@ class _MeetingsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'delete',
           child: Row(children: [
-            Icon(Icons.close_outlined, size: 18, color: Colors.red),
+            Icon(Iconsax.close_circle, size: 18, color: Colors.red),
             SizedBox(width: 8),
             Text('Cancel', style: TextStyle(color: Colors.red)),
           ]),
@@ -527,10 +529,10 @@ class _MeetingsTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: AppColors.neutral100,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
+              child: Icon(icon, size: 48, color: AppColors.neutral400),
             ),
             const SizedBox(height: 20),
             Text(title,
@@ -538,12 +540,12 @@ class _MeetingsTab extends StatelessWidget {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
               child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
+              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
               onTap: onAdd,
             ),
           ],
@@ -571,20 +573,20 @@ class _ResolutionsTab extends StatelessWidget {
           title: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText('Resolutions', style: AppText.black_600_16),
+              MyText('Resolutions', style: AppText.h4),
               SizedBox(height: 2),
               Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
             onChanged: controller.onResolutionSearchChanged,
           ),
           action: MyElevatedButton(
             height: 40,
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
+            icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
             child: 'New Resolution',
             onTap: () => showDialog(
               context: context,
@@ -609,7 +611,7 @@ class _ResolutionsTab extends StatelessWidget {
           if (controller.resolutionList.isEmpty) {
             return _buildEmptyState(
               context,
-              icon: Icons.gavel_outlined,
+              icon: Iconsax.judge,
               title: 'No resolutions yet',
               subtitle: 'Create a new resolution to get started.',
               buttonLabel: 'New Resolution',
@@ -626,7 +628,7 @@ class _ResolutionsTab extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(
                 children: [
@@ -635,7 +637,7 @@ class _ResolutionsTab extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12),
@@ -650,7 +652,7 @@ class _ResolutionsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -658,7 +660,7 @@ class _ResolutionsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -666,7 +668,7 @@ class _ResolutionsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -674,7 +676,7 @@ class _ResolutionsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         SizedBox(
                           width: 48,
@@ -682,7 +684,7 @@ class _ResolutionsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                       ],
                     ),
@@ -734,7 +736,7 @@ class _ResolutionsTab extends StatelessWidget {
             child: Checkbox(
               value: false,
               onChanged: (_) {},
-              activeColor: AppColors.blue,
+              activeColor: AppColors.primary,
             ),
           ),
           Expanded(
@@ -802,7 +804,7 @@ class _ResolutionsTab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, size: 7, color: color),
+            Icon(Iconsax.record_circle, size: 7, color: color),
             const SizedBox(width: 5),
             Text(
               status,
@@ -817,7 +819,7 @@ class _ResolutionsTab extends StatelessWidget {
 
   Widget _buildActionMenu(BuildContext context, BoardResolution resolution) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Iconsax.more, size: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) async {
         switch (value) {
@@ -863,7 +865,7 @@ class _ResolutionsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'view',
           child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.eye, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('View Details'),
           ]),
@@ -871,7 +873,7 @@ class _ResolutionsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'edit',
           child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.edit, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('Edit'),
           ]),
@@ -879,7 +881,7 @@ class _ResolutionsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'delete',
           child: Row(children: [
-            Icon(Icons.archive_outlined, size: 18, color: Colors.red),
+            Icon(Iconsax.archive_1, size: 18, color: Colors.red),
             SizedBox(width: 8),
             Text('Archive', style: TextStyle(color: Colors.red)),
           ]),
@@ -904,10 +906,10 @@ class _ResolutionsTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: AppColors.neutral100,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
+              child: Icon(icon, size: 48, color: AppColors.neutral400),
             ),
             const SizedBox(height: 20),
             Text(title,
@@ -915,12 +917,12 @@ class _ResolutionsTab extends StatelessWidget {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
               child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
+              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
               onTap: onAdd,
             ),
           ],
@@ -952,10 +954,10 @@ class _InvestorsTab extends StatelessWidget {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText('Shareholders', style: AppText.black_600_16),
+                MyText('Shareholders', style: AppText.h4),
                 SizedBox(height: 2),
                 Text('Manage company shareholders and investors',
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                    style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
               ],
             ),
             MyElevatedButton(
@@ -987,9 +989,9 @@ class _InvestorsTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9), shape: BoxShape.circle),
-                    child: const Icon(Icons.account_balance_outlined,
-                        size: 48, color: Color(0xFF94A3B8)),
+                        color: AppColors.neutral100, shape: BoxShape.circle),
+                    child: const Icon(Iconsax.bank,
+                        size: 48, color: AppColors.neutral400),
                   ),
                   const SizedBox(height: 20),
                   const Text('No shareholders found',
@@ -997,7 +999,7 @@ class _InvestorsTab extends StatelessWidget {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   const Text('Add shareholders using the button above.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+                      style: TextStyle(color: AppColors.neutral500, fontSize: 14)),
                 ]),
               ),
             );
@@ -1009,7 +1011,7 @@ class _InvestorsTab extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(children: [
                 // Table Header
@@ -1017,7 +1019,7 @@ class _InvestorsTab extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
+                    color: AppColors.neutral50,
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12)),
@@ -1029,42 +1031,42 @@ class _InvestorsTab extends StatelessWidget {
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 3,
                         child: Text('Email',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 2,
                         child: Text('Title',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 1,
                         child: Text('Share %',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 1,
                         child: Text('Board',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     SizedBox(
                         width: 80,
                         child: Text('Action',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                   ]),
                 ),
                 const Divider(height: 1),
@@ -1091,7 +1093,7 @@ class _InvestorsTab extends StatelessWidget {
           child: Row(children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: const Color(0xFFE8EAF6),
+              backgroundColor: AppColors.neutral200,
               child: Text(s.firstName.isNotEmpty ? s.firstName[0] : '?',
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600)),
@@ -1107,13 +1109,13 @@ class _InvestorsTab extends StatelessWidget {
         Expanded(
             flex: 3,
             child: Text(s.email,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 13, color: AppColors.neutral500),
                 overflow: TextOverflow.ellipsis)),
         Expanded(
             flex: 2,
             child: Text(s.titleDisplay,
                 style:
-                    const TextStyle(fontSize: 13, color: Color(0xFF64748B)))),
+                    const TextStyle(fontSize: 13, color: AppColors.neutral500))),
         Expanded(
             flex: 1,
             child: Text('${s.sharePercentage}%',
@@ -1122,7 +1124,7 @@ class _InvestorsTab extends StatelessWidget {
         Expanded(
           flex: 1,
           child: Icon(
-              s.isBoardMember ? Icons.check_circle : Icons.cancel_outlined,
+              s.isBoardMember ? Iconsax.tick_circle : Iconsax.close_circle,
               size: 18,
               color: s.isBoardMember ? Colors.green : Colors.grey.shade400),
         ),
@@ -1134,14 +1136,14 @@ class _InvestorsTab extends StatelessWidget {
                 context: context,
                 builder: (_) => AddShareholderDialog(shareholder: s),
               ),
-              child: const Icon(Icons.edit_outlined,
-                  size: 18, color: Color(0xFF64748B)),
+              child: const Icon(Iconsax.edit,
+                  size: 18, color: AppColors.neutral500),
             ),
             const SizedBox(width: 12),
             InkWell(
               onTap: () => _confirmDelete(context, ctrl, s),
               child:
-                  const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                  const Icon(Iconsax.trash, size: 18, color: Colors.red),
             ),
           ]),
         ),
@@ -1151,23 +1153,20 @@ class _InvestorsTab extends StatelessWidget {
 
   void _confirmDelete(
       BuildContext context, CompanyController ctrl, Shareholder s) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Shareholder'),
-        content: Text('Are you sure you want to remove ${s.fullName}?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+    DialogScaffold.show(
+      context,
+      title: 'Delete Shareholder',
+      size: DialogSize.sm,
+      body: Text('Are you sure you want to remove ${s.fullName}?'),
+      actions: [TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(context);
               ctrl.deleteShareholder(context, s.id);
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+          ),],
     );
   }
 }
@@ -1186,7 +1185,7 @@ class _AssociatesTab extends StatelessWidget {
       controller: controller,
       tabLabel: 'Associates',
       subtitle: 'Manage company associates',
-      emptyIcon: Icons.people_outline,
+      emptyIcon: Iconsax.people,
       emptyTitle: 'No associates found',
       emptySubtitle: 'Associates will appear here once added.',
       isLoading: controller.isLoadingAssociates,
@@ -1220,10 +1219,10 @@ class _PartnersTab extends StatelessWidget {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText('Partners', style: AppText.black_600_16),
+                MyText('Partners', style: AppText.h4),
                 SizedBox(height: 2),
                 Text('Manage company partners and agreements',
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                    style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
               ],
             ),
             Row(children: [
@@ -1232,7 +1231,7 @@ class _PartnersTab extends StatelessWidget {
                 child: MyTextFormField(
                   hintText: 'Search partners...',
                   leading:
-                      const Icon(Icons.search, color: Colors.grey, size: 20),
+                      const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
                   onChanged: controller.onPartnerSearchChanged,
                 ),
               ),
@@ -1265,9 +1264,9 @@ class _PartnersTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9), shape: BoxShape.circle),
-                    child: const Icon(Icons.handshake_outlined,
-                        size: 48, color: Color(0xFF94A3B8)),
+                        color: AppColors.neutral100, shape: BoxShape.circle),
+                    child: const Icon(Iconsax.people,
+                        size: 48, color: AppColors.neutral400),
                   ),
                   const SizedBox(height: 20),
                   const Text('No partners found',
@@ -1275,7 +1274,7 @@ class _PartnersTab extends StatelessWidget {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   const Text('Add partners using the button above.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+                      style: TextStyle(color: AppColors.neutral500, fontSize: 14)),
                 ]),
               ),
             );
@@ -1287,14 +1286,14 @@ class _PartnersTab extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(children: [
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
+                    color: AppColors.neutral50,
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12)),
@@ -1306,42 +1305,42 @@ class _PartnersTab extends StatelessWidget {
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 3,
                         child: Text('Email',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 2,
                         child: Text('Category',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 2,
                         child: Text('Status',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 1,
                         child: Text('Agreements',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     SizedBox(
                         width: 80,
                         child: Text('Action',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                   ]),
                 ),
                 const Divider(height: 1),
@@ -1375,7 +1374,7 @@ class _PartnersTab extends StatelessWidget {
           child: Row(children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: const Color(0xFFE8EAF6),
+              backgroundColor: AppColors.neutral200,
               child: Text(p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600)),
@@ -1391,13 +1390,13 @@ class _PartnersTab extends StatelessWidget {
         Expanded(
             flex: 3,
             child: Text(p.email,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 13, color: AppColors.neutral500),
                 overflow: TextOverflow.ellipsis)),
         Expanded(
             flex: 2,
             child: Text(p.categoryDisplay,
                 style:
-                    const TextStyle(fontSize: 13, color: Color(0xFF64748B)))),
+                    const TextStyle(fontSize: 13, color: AppColors.neutral500))),
         Expanded(
           flex: 2,
           child: Container(
@@ -1436,14 +1435,14 @@ class _PartnersTab extends StatelessWidget {
                 context: context,
                 builder: (_) => AddPartnerDialog(partner: p),
               ),
-              child: const Icon(Icons.edit_outlined,
-                  size: 18, color: Color(0xFF64748B)),
+              child: const Icon(Iconsax.edit,
+                  size: 18, color: AppColors.neutral500),
             ),
             const SizedBox(width: 12),
             InkWell(
               onTap: () => _confirmDelete(context, p),
               child:
-                  const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                  const Icon(Iconsax.trash, size: 18, color: Colors.red),
             ),
           ]),
         ),
@@ -1452,24 +1451,21 @@ class _PartnersTab extends StatelessWidget {
   }
 
   void _confirmDelete(BuildContext context, Partner p) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Partner'),
-        content: Text(
+    DialogScaffold.show(
+      context,
+      title: 'Delete Partner',
+      size: DialogSize.sm,
+      body: Text(
             'Are you sure you want to delete "${p.name}"? This will also delete all associated agreements.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+      actions: [TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(context);
               controller.deletePartner(context, p.id);
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+          ),],
     );
   }
 }
@@ -1521,16 +1517,16 @@ class _EmployeeListTab extends StatelessWidget {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(tabLabel, style: AppText.black_600_16),
+              MyText(tabLabel, style: AppText.h4),
               const SizedBox(height: 2),
               Text(subtitle,
                   style:
-                      const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                      const TextStyle(color: AppColors.neutral500, fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
             onChanged: onSearchChanged,
           ),
         ),
@@ -1556,11 +1552,11 @@ class _EmployeeListTab extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9),
+                        color: AppColors.neutral100,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(emptyIcon,
-                          size: 48, color: const Color(0xFF94A3B8)),
+                          size: 48, color: AppColors.neutral400),
                     ),
                     const SizedBox(height: 20),
                     Text(emptyTitle,
@@ -1569,7 +1565,7 @@ class _EmployeeListTab extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(emptySubtitle,
                         style: const TextStyle(
-                            color: Color(0xFF64748B), fontSize: 14),
+                            color: AppColors.neutral500, fontSize: 14),
                         textAlign: TextAlign.center),
                   ],
                 ),
@@ -1583,7 +1579,7 @@ class _EmployeeListTab extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(
                 children: [
@@ -1592,7 +1588,7 @@ class _EmployeeListTab extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12),
@@ -1607,7 +1603,7 @@ class _EmployeeListTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 3,
@@ -1615,7 +1611,7 @@ class _EmployeeListTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -1623,7 +1619,7 @@ class _EmployeeListTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -1631,7 +1627,7 @@ class _EmployeeListTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -1639,7 +1635,7 @@ class _EmployeeListTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         SizedBox(
                           width: 48,
@@ -1647,7 +1643,7 @@ class _EmployeeListTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                       ],
                     ),
@@ -1690,7 +1686,7 @@ class _EmployeeListTab extends StatelessWidget {
             width: 40,
             child: CircleAvatar(
               radius: 16,
-              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
               backgroundImage: employee.profilePicture != null &&
                       employee.profilePicture!.isNotEmpty &&
                       employee.profilePicture != 'string'
@@ -1704,7 +1700,7 @@ class _EmployeeListTab extends StatelessWidget {
                           ? employee.firstName[0].toUpperCase()
                           : '?',
                       style: const TextStyle(
-                          color: AppColors.blue,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w600,
                           fontSize: 14),
                     )
@@ -1727,7 +1723,7 @@ class _EmployeeListTab extends StatelessWidget {
                   Text(
                     employee.role,
                     style:
-                        const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        const TextStyle(fontSize: 12, color: AppColors.neutral500),
                     overflow: TextOverflow.ellipsis,
                   ),
               ],
@@ -1737,7 +1733,7 @@ class _EmployeeListTab extends StatelessWidget {
             flex: 3,
             child: Text(
               employee.email,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 13, color: AppColors.neutral500),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1785,7 +1781,7 @@ class _EmployeeListTab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, size: 7, color: color),
+            Icon(Iconsax.record_circle, size: 7, color: color),
             const SizedBox(width: 5),
             Text(
               label,
@@ -1800,7 +1796,7 @@ class _EmployeeListTab extends StatelessWidget {
 
   Widget _buildActionMenu(BuildContext context, Employee employee) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Iconsax.more, size: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         switch (value) {
@@ -1813,7 +1809,7 @@ class _EmployeeListTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'view',
           child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.eye, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('View Details'),
           ]),
@@ -1849,7 +1845,7 @@ class _EmployeeListTab extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold)),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -1861,7 +1857,7 @@ class _EmployeeListTab extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       backgroundImage: employee.profilePicture != null &&
                               employee.profilePicture!.isNotEmpty &&
                               employee.profilePicture != 'string'
@@ -1875,7 +1871,7 @@ class _EmployeeListTab extends StatelessWidget {
                                   ? employee.firstName[0].toUpperCase()
                                   : '?',
                               style: const TextStyle(
-                                  color: AppColors.blue,
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 22),
                             )
@@ -1892,7 +1888,7 @@ class _EmployeeListTab extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(employee.role,
                               style: const TextStyle(
-                                  color: Color(0xFF64748B), fontSize: 14)),
+                                  color: AppColors.neutral500, fontSize: 14)),
                         ],
                       ),
                     ),
@@ -1929,7 +1925,7 @@ class _EmployeeListTab extends StatelessWidget {
           SizedBox(
             width: 130,
             child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Expanded(
             child: Text(value,

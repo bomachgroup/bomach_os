@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -45,7 +46,7 @@ class _MarketingPageState extends State<MarketingPage> {
                     children: [
                       MyText(
                         'Marketing',
-                        style: AppText.black_500_32,
+                        style: AppText.displayLg,
                       ),
                       MyText(
                         'Manage projects, tasks, worksites, and operational workflows',
@@ -59,7 +60,7 @@ class _MarketingPageState extends State<MarketingPage> {
                   ),
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Iconsax.add_circle,
                       color: AppColors.white,
                     ),
                     child: "Add Campaign",
@@ -129,8 +130,8 @@ class _MarketingPageState extends State<MarketingPage> {
                     child: MyTextFormField(
                       hintText: 'Search ...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                       onChanged: _controller.onCampaignSearchChanged,
                     ),
@@ -219,8 +220,8 @@ class _MarketingPageState extends State<MarketingPage> {
                         child: MyTextFormField(
                           hintText: 'Search ...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -299,8 +300,8 @@ class _MarketingPageState extends State<MarketingPage> {
                         child: MyTextFormField(
                           hintText: 'Search ...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -379,8 +380,8 @@ class _MarketingPageState extends State<MarketingPage> {
                         child: MyTextFormField(
                           hintText: 'Search ...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -446,8 +447,8 @@ class _MarketingPageState extends State<MarketingPage> {
                         child: MyTextFormField(
                           hintText: 'Search ...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -481,10 +482,10 @@ class _MarketingPageState extends State<MarketingPage> {
 
   Widget _buildTopStats(BuildContext context) {
     final List<Map<String, dynamic>> items = [
-      {'label': 'Total Budget', 'count': '₦700,000.00', 'icon': Icons.person},
-      {'label': 'Amount Spent', 'count': '₦505,000.00', 'icon': Icons.person},
-      {'label': 'Total Lead', 'count': '5', 'icon': Icons.person},
-      {'label': 'Qualified Leads', 'count': '4', 'icon': Icons.person},
+      {'label': 'Total Budget', 'count': '₦700,000.00', 'icon': Iconsax.profile_circle},
+      {'label': 'Amount Spent', 'count': '₦505,000.00', 'icon': Iconsax.profile_circle},
+      {'label': 'Total Lead', 'count': '5', 'icon': Iconsax.profile_circle},
+      {'label': 'Qualified Leads', 'count': '4', 'icon': Iconsax.profile_circle},
     ];
 
     return LayoutBuilder(
@@ -544,10 +545,10 @@ class _MarketingPageState extends State<MarketingPage> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.blue : Colors.transparent,
+                  color: isActive ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
-                    color: isActive ? AppColors.blue : Colors.grey.shade300,
+                    color: isActive ? AppColors.primary : Colors.grey.shade300,
                   ),
                 ),
                 child: Text(
@@ -598,7 +599,7 @@ class CampaignCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
@@ -612,7 +613,7 @@ class CampaignCard extends StatelessWidget {
               color: Colors.purple.shade50,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.campaign, color: Colors.purple),
+            child: const Icon(Iconsax.notification_bing, color: Colors.purple),
           ),
           const SizedBox(width: 12),
 
@@ -654,7 +655,7 @@ class CampaignCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         // color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -746,11 +747,11 @@ class CampaignCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.bar_chart_outlined, size: 20),
+                    icon: const Icon(Iconsax.chart_2, size: 20),
                     onPressed: () {},
                   ),
                   IconButton(
-                    icon: const Icon(Icons.remove_red_eye_outlined, size: 20),
+                    icon: const Icon(Iconsax.eye, size: 20),
                     onPressed: () {},
                   ),
                 ],
@@ -790,7 +791,7 @@ class LeadCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
@@ -873,7 +874,7 @@ class LeadCard extends StatelessWidget {
                     // Contact Info
                     const Row(
                       children: [
-                        Icon(Icons.email_outlined,
+                        Icon(Iconsax.sms,
                             size: 16, color: Colors.black54),
                         SizedBox(width: 4),
                         Text(
@@ -881,7 +882,7 @@ class LeadCard extends StatelessWidget {
                           style: TextStyle(color: Colors.black87, fontSize: 13),
                         ),
                         SizedBox(width: 12),
-                        Icon(Icons.phone_outlined,
+                        Icon(Iconsax.call,
                             size: 16, color: Colors.black54),
                         SizedBox(width: 4),
                         Text(
@@ -889,7 +890,7 @@ class LeadCard extends StatelessWidget {
                           style: TextStyle(color: Colors.black87, fontSize: 13),
                         ),
                         SizedBox(width: 12),
-                        Icon(Icons.link_outlined,
+                        Icon(Iconsax.link_1,
                             size: 16, color: Colors.black54),
                         SizedBox(width: 4),
                         Text(
@@ -935,7 +936,7 @@ class LeadCard extends StatelessWidget {
                           color: AppColors.black.withValues(alpha: 0.1)),
                     ),
                     padding: const EdgeInsets.all(5),
-                    child: const Icon(Icons.remove_red_eye_outlined),
+                    child: const Icon(Iconsax.eye),
                   ),
                 ],
               ),
@@ -984,7 +985,7 @@ class ContentCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -997,8 +998,8 @@ class ContentCard extends StatelessWidget {
               color: const Color(0xFFE6FDF5),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.photo_camera_outlined,
-                color: Color(0xFF10B981)),
+            child: const Icon(Iconsax.camera,
+                color: AppColors.success),
           ),
           const SizedBox(width: 12),
 
@@ -1016,7 +1017,7 @@ class ContentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF111827),
+                        color: AppColors.neutral900,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1031,20 +1032,20 @@ class ContentCard extends StatelessWidget {
                   "Blog Post",
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.neutral500,
                   ),
                 ),
                 const SizedBox(height: 4),
 
                 Row(
                   children: [
-                    _iconStat(Icons.visibility_outlined, "2340"),
+                    _iconStat(Iconsax.eye, "2340"),
                     const SizedBox(width: 12),
-                    _iconStat(Icons.favorite_border, "124"),
+                    _iconStat(Iconsax.heart, "124"),
                     const SizedBox(width: 12),
-                    _iconStat(Icons.share_outlined, "18"),
+                    _iconStat(Iconsax.share, "18"),
                     const SizedBox(width: 12),
-                    _iconStat(Icons.comment_outlined, "32"),
+                    _iconStat(Iconsax.message, "32"),
                   ],
                 ),
               ],
@@ -1080,7 +1081,7 @@ class ContentCard extends StatelessWidget {
                       Border.all(color: AppColors.black.withValues(alpha: 0.1)),
                 ),
                 padding: const EdgeInsets.all(5),
-                child: const Icon(Icons.remove_red_eye_outlined),
+                child: const Icon(Iconsax.eye),
               ),
             ],
           ),
@@ -1092,24 +1093,24 @@ class ContentCard extends StatelessWidget {
   static Widget _iconStat(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF6B7280)),
+        Icon(icon, size: 16, color: AppColors.neutral500),
         const SizedBox(width: 4),
         Text(
           text,
           style: const TextStyle(
             fontSize: 13,
-            color: Color(0xFF6B7280),
+            color: AppColors.neutral500,
           ),
         ),
       ],
     );
   }
 
-  static Widget _tagChip(String text, {Color color = const Color(0xFFF3F4F6)}) {
+  static Widget _tagChip(String text, {Color color = AppColors.neutral100}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         color: color,
         borderRadius: BorderRadius.circular(6),
       ),
@@ -1117,7 +1118,7 @@ class ContentCard extends StatelessWidget {
         text,
         style: const TextStyle(
           fontSize: 12,
-          color: Color(0xFF4B5563),
+          color: AppColors.neutral600,
         ),
       ),
     );
@@ -1132,7 +1133,7 @@ class EventsCalendarWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -1153,7 +1154,7 @@ class EventsCalendarWidget extends StatelessWidget {
                         child: _buildStatCard(
                           title: 'Total Events',
                           value: '3',
-                          color: const Color(0xFF3B82F6),
+                          color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -1162,7 +1163,7 @@ class EventsCalendarWidget extends StatelessWidget {
                         child: _buildStatCard(
                           title: 'Confirmed',
                           value: '1',
-                          color: const Color(0xFF10B981),
+                          color: AppColors.success,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -1171,7 +1172,7 @@ class EventsCalendarWidget extends StatelessWidget {
                         child: _buildStatCard(
                           title: 'Upcoming',
                           value: '0',
-                          color: const Color(0xFFEF4444),
+                          color: AppColors.danger,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -1196,7 +1197,7 @@ class EventsCalendarWidget extends StatelessWidget {
                         child: _buildStatCard(
                           title: 'Total Events',
                           value: '3',
-                          color: const Color(0xFF3B82F6),
+                          color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -1204,7 +1205,7 @@ class EventsCalendarWidget extends StatelessWidget {
                         child: _buildStatCard(
                           title: 'Confirmed',
                           value: '1',
-                          color: const Color(0xFF10B981),
+                          color: AppColors.success,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -1212,7 +1213,7 @@ class EventsCalendarWidget extends StatelessWidget {
                         child: _buildStatCard(
                           title: 'Upcoming',
                           value: '0',
-                          color: const Color(0xFFEF4444),
+                          color: AppColors.danger,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -1238,7 +1239,7 @@ class EventsCalendarWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.grey7),
+              border: Border.all(color: AppColors.neutral200),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1248,7 +1249,7 @@ class EventsCalendarWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1F2937),
+                    color: AppColors.neutral800,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -1256,7 +1257,7 @@ class EventsCalendarWidget extends StatelessWidget {
                   'Manage your marketing events and activities',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.neutral500,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -1328,7 +1329,7 @@ class EventsCalendarWidget extends StatelessWidget {
           registrations: '287/500',
           percentage: '57.4% full',
           statusColor: AppColors.black,
-          statusBgColor: AppColors.grey5,
+          statusBgColor: AppColors.neutral100,
         ),
         _buildDivider(),
         _buildTableRow(
@@ -1341,7 +1342,7 @@ class EventsCalendarWidget extends StatelessWidget {
           percentage: '0.0% full',
           statusColor: AppColors.black,
           statusBgColor: AppColors.white,
-          statusBorderColor: AppColors.grey4,
+          statusBorderColor: AppColors.neutral300,
           isLast: true,
         ),
       ],
@@ -1358,7 +1359,7 @@ class EventsCalendarWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1376,7 +1377,7 @@ class EventsCalendarWidget extends StatelessWidget {
             title,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF6B7280),
+              color: AppColors.neutral500,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -1422,7 +1423,7 @@ class EventsCalendarWidget extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1F2937),
+                    color: AppColors.neutral800,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
@@ -1432,7 +1433,7 @@ class EventsCalendarWidget extends StatelessWidget {
                   location,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.neutral500,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1450,7 +1451,7 @@ class EventsCalendarWidget extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.grey4),
+                      border: Border.all(color: AppColors.neutral300),
                       borderRadius: BorderRadius.circular(10),
                       color: AppColors.white,
                     ),
@@ -1458,7 +1459,7 @@ class EventsCalendarWidget extends StatelessWidget {
                       type,
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF374151),
+                        color: AppColors.neutral700,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1475,7 +1476,7 @@ class EventsCalendarWidget extends StatelessWidget {
               date,
               style: const TextStyle(
                 fontSize: 14,
-                color: Color(0xFF374151),
+                color: AppColors.neutral700,
               ),
             ),
           ),
@@ -1522,7 +1523,7 @@ class EventsCalendarWidget extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1F2937),
+                    color: AppColors.neutral800,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -1530,7 +1531,7 @@ class EventsCalendarWidget extends StatelessWidget {
                   percentage,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.neutral500,
                   ),
                 ),
               ],
@@ -1543,11 +1544,11 @@ class EventsCalendarWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _buildActionButton(Icons.visibility_outlined),
+                _buildActionButton(Iconsax.eye),
                 const SizedBox(width: 8),
-                _buildActionButton(Icons.edit_outlined),
+                _buildActionButton(Iconsax.edit),
                 const SizedBox(width: 8),
-                _buildActionButton(Icons.calendar_month_outlined),
+                _buildActionButton(Iconsax.calendar_1),
               ],
             ),
           ),
@@ -1563,7 +1564,7 @@ class EventsCalendarWidget extends StatelessWidget {
       child: Icon(
         icon,
         size: 16,
-        color: const Color(0xFF6B7280),
+        color: AppColors.neutral500,
       ),
     );
   }
@@ -1572,7 +1573,7 @@ class EventsCalendarWidget extends StatelessWidget {
     return const Divider(
       height: 1,
       thickness: 1,
-      color: AppColors.grey7,
+      color: AppColors.neutral200,
     );
   }
 }
@@ -1589,7 +1590,7 @@ class _TableHeader extends StatelessWidget {
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF374151),
+        color: AppColors.neutral700,
         letterSpacing: 0.5,
       ),
     );
@@ -1645,7 +1646,7 @@ class AnalyticsDashboard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
@@ -1665,7 +1666,7 @@ class AnalyticsDashboard extends StatelessWidget {
             label,
             style: const TextStyle(
               fontSize: 13,
-              color: Color(0xFF6B7280),
+              color: AppColors.neutral500,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -1680,7 +1681,7 @@ class AnalyticsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1690,7 +1691,7 @@ class AnalyticsDashboard extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF111827),
+              color: AppColors.neutral900,
             ),
           ),
           const SizedBox(height: 24),
@@ -1728,7 +1729,7 @@ class AnalyticsDashboard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey7, width: 1),
+        border: Border.all(color: AppColors.neutral200, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1742,7 +1743,7 @@ class AnalyticsDashboard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF111827),
+                    color: AppColors.neutral900,
                   ),
                 ),
               ),
@@ -1764,14 +1765,14 @@ class AnalyticsDashboard extends StatelessWidget {
                 channel,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF6B7280),
+                  color: AppColors.neutral500,
                 ),
               ),
               Text(
                 leads,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF6B7280),
+                  color: AppColors.neutral500,
                 ),
               ),
             ],
@@ -1787,7 +1788,7 @@ class AnalyticsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1797,15 +1798,15 @@ class AnalyticsDashboard extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF111827),
+              color: AppColors.neutral900,
             ),
           ),
           const SizedBox(height: 24),
-          _buildTrendItem('Email Marketing', 85, AppColors.blue, 0.85),
+          _buildTrendItem('Email Marketing', 85, AppColors.primary, 0.85),
           const SizedBox(height: 16),
-          _buildTrendItem('Social Media', 100, AppColors.green, 1.0),
+          _buildTrendItem('Social Media', 100, AppColors.success, 1.0),
           const SizedBox(height: 16),
-          _buildTrendItem('Direct Mail', 0, AppColors.grey7, 0.0),
+          _buildTrendItem('Direct Mail', 0, AppColors.neutral200, 0.0),
         ],
       ),
     );
@@ -1824,7 +1825,7 @@ class AnalyticsDashboard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF111827),
+                color: AppColors.neutral900,
               ),
             ),
             Row(
@@ -1835,14 +1836,14 @@ class AnalyticsDashboard extends StatelessWidget {
                   '$leads leads',
                   style: const TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.neutral500,
                   ),
                 ),
                 Container(
                   height: 8,
                   width: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.grey7,
+                    color: AppColors.neutral200,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: FractionallySizedBox(

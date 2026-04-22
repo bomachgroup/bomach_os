@@ -1,4 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -78,11 +81,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
         reasonCtrl.text.isEmpty ||
         emergencyNameCtrl.text.isEmpty ||
         emergencyPhoneCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-            "Please fill in all required fields",
-          ),
-          backgroundColor: Colors.red));
+      AppToast.error(context, 'Please fill in all required fields');
       return;
     }
 
@@ -120,12 +119,12 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                   ),
                   InkWell(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child: const Icon(Iconsax.close_circle, color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.neutral100),
 
             // --- Form ---
             Expanded(
@@ -145,7 +144,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: AppColors.neutral200),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: DropdownButtonHideUnderline(
@@ -157,7 +156,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                                     : null,
                             hint: const Text('Select employee',
                                 style: TextStyle(
-                                    color: Color(0xFF94A3B8), fontSize: 14)),
+                                    color: AppColors.neutral400, fontSize: 14)),
                             items: employees
                                 .map((e) => DropdownMenuItem<String>(
                                     value: e.id,
@@ -257,7 +256,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                   SizedBox(
                     width: 120,
                     child: MyElevatedButton(
-                      bgColor: const Color(0xFF1976D2),
+                      bgColor: AppColors.primary,
                       child: 'Apply',
                       onTap: _submit,
                     ),
@@ -276,21 +275,21 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
       height: 120,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FBFF),
+        color: AppColors.primarySubtle,
         borderRadius: BorderRadius.circular(12),
         border:
-            Border.all(color: const Color(0xFF448AFF), style: BorderStyle.none),
+            Border.all(color: AppColors.primary, style: BorderStyle.none),
       ),
       child: CustomPaint(
-        painter: _DashedBorderPainter(color: const Color(0xFF448AFF)),
+        painter: _DashedBorderPainter(color: AppColors.primary),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(
-                  color: Color(0xFF1976D2), shape: BoxShape.circle),
-              child: const Icon(Icons.cloud_upload_outlined,
+                  color: AppColors.primary, shape: BoxShape.circle),
+              child: const Icon(Iconsax.document_upload,
                   color: Colors.white, size: 20),
             ),
             const SizedBox(height: 12),
@@ -304,7 +303,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                     TextSpan(
                         text: "choose file",
                         style: TextStyle(
-                            color: Color(0xFF1976D2),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold)),
                     TextSpan(text: " to upload"),
                   ]),

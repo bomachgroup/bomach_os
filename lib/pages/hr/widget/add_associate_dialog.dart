@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -72,17 +74,12 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
 
       if (success && mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Associate added successfully"),
-            backgroundColor: Colors.green));
+        AppToast.success(context, 'Associate added successfully');
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Failed to add associate"),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to add associate');
       }
     } else if (_selectedRole == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Please select a role"), backgroundColor: Colors.red));
+      AppToast.error(context, 'Please select a role');
     }
   }
 
@@ -109,7 +106,7 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context)),
                 ],
               ),
@@ -176,7 +173,7 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     child: 'Cancel',
                     onTap: () => Navigator.pop(context),
                   ),

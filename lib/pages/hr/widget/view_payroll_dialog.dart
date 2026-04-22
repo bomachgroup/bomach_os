@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -39,12 +41,12 @@ class ViewPayrollDialog extends StatelessWidget {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child:
-                        const Icon(Icons.close, size: 24, color: Colors.grey),
+                        const Icon(Iconsax.close_circle, size: 24, color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE5E5E5)),
+            const Divider(height: 1, color: AppColors.neutral200),
             Expanded(
               child: Scrollbar(
                 controller: scrollController,
@@ -115,7 +117,7 @@ class ViewPayrollDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyElevatedButton(
-                    bgColor: AppColors.red,
+                    bgColor: AppColors.danger,
                     child: 'Delete',
                     onTap: () async {
                       final confirm = await showDialog<bool>(
@@ -137,10 +139,7 @@ class ViewPayrollDialog extends StatelessWidget {
                         await controller.deletePayroll(payroll.id);
                         if (context.mounted) {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Payroll deleted"),
-                                  backgroundColor: Colors.red));
+                          AppToast.error(context, 'Payroll deleted');
                         }
                       }
                     },
@@ -180,7 +179,7 @@ class ViewPayrollDialog extends StatelessWidget {
             child: Text(
               value,
               style: TextStyle(
-                color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
+                color: isBlue ? AppColors.primary : Colors.black87,
                 fontWeight: FontWeight.w500,
               ),
             ),

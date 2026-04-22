@@ -20,7 +20,7 @@ class InvoiceCard extends StatelessWidget {
             height: 42,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.grey6,
+              color: AppColors.neutral100,
               borderRadius: BorderRadius.circular(6),
             ),
             child: SvgPicture.asset("assets/svg/pdf.svg"),

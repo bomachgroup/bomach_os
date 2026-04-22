@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
@@ -27,8 +28,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
   final _storage = const FlutterSecureStorage();
 
   // Colors
-  final Color _blueColor = const Color(0xFF1976D2);
-  final Color _greenColor = const Color(0xFF27AE60);
+  final Color _blueColor = AppColors.primary;
+  final Color _greenColor = AppColors.success;
 
   @override
   void initState() {
@@ -66,7 +67,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 OutlinedButton(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    side: const BorderSide(color: AppColors.neutral200),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -80,7 +81,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 ),
                 const SizedBox(width: 12),
                 Obx(() => MyElevatedButton(
-                      icon: const Icon(Icons.add_circle_outline_rounded,
+                      icon: const Icon(Iconsax.add_circle,
                           color: AppColors.white, size: 20),
                       child: _ctrl.activeTab.value == 'Training Programs'
                           ? "Create Program"
@@ -159,8 +160,8 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                     child: MyTextFormField(
                       controller: _ctrl.searchController,
                       hintText: 'Search...',
-                      leading: Icon(Icons.search,
-                          color: AppColors.grey1.withValues(alpha: 0.5)),
+                      leading: Icon(Iconsax.search_normal,
+                          color: AppColors.neutral500.withValues(alpha: 0.5)),
                     ),
                   ),
                   Row(
@@ -201,7 +202,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
               }),
 
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFFEEEEEE)),
+              const Divider(color: AppColors.neutral100),
               const SizedBox(height: 16),
 
               // --- 5. Pagination ---
@@ -329,13 +330,13 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFFE3F2FD),
+                backgroundColor: AppColors.infoSubtle,
                 child: Text(
                     item.employeeName.isNotEmpty ? item.employeeName[0] : 'U',
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1976D2))),
+                        color: AppColors.primary)),
               ),
               const SizedBox(width: 8),
               Column(
@@ -359,7 +360,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFFE3F2FD),
+                backgroundColor: AppColors.infoSubtle,
                 child: Text(
                     item.requestedByName.isNotEmpty
                         ? item.requestedByName[0]
@@ -367,7 +368,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1976D2))),
+                        color: AppColors.primary)),
               ),
               const SizedBox(width: 8),
               Column(
@@ -431,7 +432,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
           color: isActive ? _blueColor : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-              color: isActive ? _blueColor : const Color(0xFFE0E0E0)),
+              color: isActive ? _blueColor : AppColors.neutral200),
         ),
         child: Text(
           text,
@@ -448,13 +449,13 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
+          color: AppColors.neutral50,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade200)),
       child: Obx(() => DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _ctrl.selectedStatusFilter.value,
-              icon: const Icon(Icons.keyboard_arrow_down,
+              icon: const Icon(Iconsax.arrow_down_1,
                   size: 18, color: Colors.black54),
               elevation: 4,
               style: const TextStyle(fontSize: 14, color: Colors.black87),
@@ -471,7 +472,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -479,7 +480,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
           Text(text,
               style: const TextStyle(fontSize: 14, color: Colors.black54)),
           const SizedBox(width: 8),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.black54)
+          const Icon(Iconsax.arrow_down_1, size: 18, color: Colors.black54)
         ],
       ),
     );
@@ -487,7 +488,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
 
   Widget _buildModeBadge(String mode) {
     bool isOnline = mode.toLowerCase() == 'online';
-    Color bg = isOnline ? const Color(0xFFE8F5E9) : const Color(0xFFF5F5F5);
+    Color bg = isOnline ? AppColors.successSubtle : const Color(0xFFF5F5F5);
     Color txt = isOnline ? const Color(0xFF2E7D32) : Colors.black54;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -504,13 +505,13 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
     Color txt;
     if (priority == 'High') {
       bg = const Color(0xFFFFEBEE);
-      txt = const Color(0xFFC62828);
+      txt = AppColors.danger;
     } else if (priority == 'Medium') {
       bg = const Color(0xFFFFF8E1);
       txt = const Color(0xFFF9A825);
     } else {
-      bg = const Color(0xFFE3F2FD);
-      txt = const Color(0xFF1565C0);
+      bg = AppColors.infoSubtle;
+      txt = AppColors.primaryPressed;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -528,14 +529,14 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
     String s = status.toLowerCase();
 
     if (s == 'active' || s == 'scheduled' || s == 'approved') {
-      bg = const Color(0xFFF0FDF4); // Light Green
-      dot = const Color(0xFF22C55E);
+      bg = AppColors.successSubtle; // Light Green
+      dot = AppColors.success;
     } else if (s == 'pending') {
-      bg = const Color(0xFFFFFBEB); // Light Yellow
-      dot = const Color(0xFFF59E0B);
+      bg = AppColors.warningSubtle; // Light Yellow
+      dot = AppColors.warning;
     } else {
-      bg = const Color(0xFFF3F4F6); // Grey
-      dot = const Color(0xFF9CA3AF);
+      bg = AppColors.neutral100; // Grey
+      dot = AppColors.neutral400;
     }
 
     return Container(
@@ -556,7 +557,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                   fontSize: 12,
                   fontWeight: FontWeight.w500)),
           const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.black54)
+          const Icon(Iconsax.arrow_down_1, size: 14, color: Colors.black54)
         ],
       ),
     );

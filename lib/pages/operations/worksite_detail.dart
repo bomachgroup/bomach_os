@@ -25,7 +25,7 @@ class WorksiteDetailPage extends StatelessWidget {
     if (ws == null) {
       return const Scaffold(
         body: Center(
-          child: MyText('Worksite not found', style: AppText.black_500_20),
+          child: MyText('Worksite not found', style: AppText.h2),
         ),
       );
     }
@@ -55,7 +55,7 @@ class WorksiteDetailPage extends StatelessWidget {
                                 colorFilter: const ColorFilter.mode(
                                     AppColors.black, BlendMode.srcIn)),
                             kSizedBoxWidthSM,
-                            const MyText('Back', style: AppText.black_500_20),
+                            const MyText('Back', style: AppText.h2),
                           ],
                         ),
                       ),
@@ -68,7 +68,7 @@ class WorksiteDetailPage extends StatelessWidget {
                             onTap: () {},
                           ),
                           MyElevatedButton(
-                            bgColor: AppColors.red,
+                            bgColor: AppColors.danger,
                             child: 'Delete',
                             onTap: () => controller.deleteWorksite(
                                 context, ws.id, ws.projectId),
@@ -88,7 +88,7 @@ class WorksiteDetailPage extends StatelessWidget {
               decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.border)),
+                  border: Border.all(color: AppColors.borderSubtle)),
               child: Column(
                 children: [
                   RowText(label: "Site Name", value: ws.name),

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -58,10 +59,10 @@ class ContractPageState extends State<ContractPage> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText('Contracts', style: AppText.black_500_32),
+                      MyText('Contracts', style: AppText.displayLg),
                       SizedBox(height: 8),
                       MyText('Manage your contracts',
-                          style: AppText.black_400_14),
+                          style: AppText.bodyMd),
                     ],
                   ),
                   Wrap(
@@ -72,15 +73,15 @@ class ContractPageState extends State<ContractPage> {
                         width: 150,
                         child: MyTextFormField(
                           hintText: 'Search...',
-                          leading: Icon(Icons.search,
-                              color: AppColors.grey1.withValues(alpha: 0.5)),
+                          leading: Icon(Iconsax.search_normal,
+                              color: AppColors.neutral500.withValues(alpha: 0.5)),
                           onChanged: (val) => controller.fetchContracts(context,
                               projectId: widget.projectId, search: val),
                         ),
                       ),
                       const SortBar(text: "Sort"),
                       MyElevatedButton(
-                        icon: const Icon(Icons.add_circle_outline_rounded,
+                        icon: const Icon(Iconsax.add_circle,
                             color: AppColors.white),
                         child: "Create Contract",
                         onTap: () {
@@ -210,13 +211,13 @@ class ContractPageState extends State<ContractPage> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'active':
-        return AppColors.green;
+        return AppColors.success;
       case 'pending':
         return Colors.orange;
       case 'terminated':
-        return AppColors.red;
+        return AppColors.danger;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

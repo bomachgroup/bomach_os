@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -142,7 +143,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF007AFF),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -260,7 +261,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       child: Icon(
-                        Icons.close,
+                        Iconsax.close_circle,
                         size: 24,
                         color: Colors.grey[600],
                       ),
@@ -270,7 +271,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
               ),
             ),
 
-            const Divider(height: 1, color: Color(0xFFE5E5E5)),
+            const Divider(height: 1, color: AppColors.neutral200),
 
             Expanded(
               child: Scrollbar(
@@ -305,7 +306,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                                 MyText(
                                   "Total Expenses",
                                   style: TextStyle(
-                                    color: AppColors.grey2,
+                                    color: AppColors.neutral400,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -313,7 +314,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                                 MyText(
                                   "Balance Remaining",
                                   style: TextStyle(
-                                    color: AppColors.grey2,
+                                    color: AppColors.neutral400,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -328,7 +329,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                                 MyText(
                                   "500,000",
                                   style: TextStyle(
-                                    color: AppColors.red,
+                                    color: AppColors.danger,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -336,7 +337,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                                 MyText(
                                   "5,500,000",
                                   style: TextStyle(
-                                    color: AppColors.blue,
+                                    color: AppColors.primary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -366,7 +367,7 @@ class _ViewBudgetDialogState extends State<ViewBudgetDialog> {
                       alignment: WrapAlignment.end,
                       children: [
                         MyElevatedButton(
-                          bgColor: AppColors.red,
+                          bgColor: AppColors.danger,
                           child: 'Delete',
                           onTap: () {
                             Navigator.pop(context);

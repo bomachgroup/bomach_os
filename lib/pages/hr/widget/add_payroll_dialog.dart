@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -147,17 +149,9 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
     if (!mounted) return;
     if (success) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Payroll saved successfully"),
-            backgroundColor: Colors.green),
-      );
+      AppToast.success(context, 'Payroll saved successfully');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Failed to save payroll"),
-            backgroundColor: Colors.red),
-      );
+      AppToast.error(context, 'Failed to save payroll');
     }
   }
 
@@ -183,7 +177,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                         fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -263,7 +257,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     child: 'Cancel',
                     onTap: () => Navigator.pop(context),
                   ),
@@ -289,7 +283,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.grey1.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.neutral500.withValues(alpha: 0.3)),
       ),
       child: Wrap(
         runSpacing: 12,

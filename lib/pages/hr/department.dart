@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -41,7 +43,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
           children: [
             MyText(
               'Departments',
-              style: AppText.black_600_32,
+              style: AppText.displayLg,
             ),
           ],
         ),
@@ -52,7 +54,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
           children: [
             MyElevatedButton(
               icon: const Icon(
-                Icons.add_circle_outline_rounded,
+                Iconsax.add_circle,
                 color: AppColors.white,
               ),
               child: 'New Department',
@@ -70,8 +72,8 @@ class _DepartmentPageState extends State<DepartmentPage> {
               child: MyTextFormField(
                 hintText: 'Search...',
                 leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
+                  Iconsax.search_normal,
+                  color: AppColors.neutral500.withValues(alpha: 0.5),
                 ),
                 onChanged: (value) {
                   controller.onSearch(context, value);
@@ -101,7 +103,7 @@ class _DepartmentPageState extends State<DepartmentPage> {
                 child: MyText(
                   'No departments found',
                   style: TextStyle(
-                    color: AppColors.grey2,
+                    color: AppColors.neutral400,
                     fontSize: 16,
                   ),
                 ),
@@ -166,7 +168,7 @@ class DepartmentCard extends StatelessWidget {
                       '${department.employeeCount} ${department.employeeCount == 1 ? 'Member' : 'Members'}',
                       maxLines: 1,
                       style: const TextStyle(
-                        color: AppColors.grey2,
+                        color: AppColors.neutral400,
                         fontWeight: FontWeight.w400,
                         fontSize: 14,
                       ),
@@ -179,7 +181,7 @@ class DepartmentCard extends StatelessWidget {
                 'View All',
                 isSelectable: false,
                 style: TextStyle(
-                  color: AppColors.blue,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w400,
                   fontSize: 16,
                 ),
@@ -194,7 +196,7 @@ class DepartmentCard extends StatelessWidget {
               child: MyText(
                 'No employees in this department',
                 style: TextStyle(
-                  color: AppColors.grey2,
+                  color: AppColors.neutral400,
                   fontSize: 14,
                 ),
               ),
@@ -241,7 +243,7 @@ class DepartmentCard extends StatelessWidget {
                                       employee.employmentType,
                                   maxLines: 1,
                                   style: const TextStyle(
-                                    color: AppColors.grey2,
+                                    color: AppColors.neutral400,
                                     fontWeight: FontWeight.w300,
                                     fontSize: 12,
                                   ),
@@ -254,7 +256,7 @@ class DepartmentCard extends StatelessWidget {
                             const MyText(
                               'HOD',
                               style: TextStyle(
-                                color: AppColors.green,
+                                color: AppColors.success,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16,
                               ),
@@ -262,7 +264,7 @@ class DepartmentCard extends StatelessWidget {
                             kSizedBoxWidth,
                           ],
                           const Icon(
-                            Icons.arrow_forward_ios,
+                            Iconsax.arrow_right_3,
                             size: 13,
                           )
                         ],
@@ -284,13 +286,13 @@ class DepartmentCard extends StatelessWidget {
       width: 40,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
-        color: AppColors.blue.withValues(alpha: 0.15),
+        color: AppColors.primary.withValues(alpha: 0.15),
       ),
       child: Center(
         child: Text(
           '${employee.firstName.isNotEmpty ? employee.firstName[0] : ''}${employee.lastName.isNotEmpty ? employee.lastName[0] : ''}',
           style: const TextStyle(
-            color: AppColors.blue,
+            color: AppColors.primary,
             fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
@@ -334,7 +336,7 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
             Container(
               decoration: const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: AppColors.grey4),
+                  bottom: BorderSide(color: AppColors.neutral300),
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -349,7 +351,7 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -396,7 +398,7 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     borderColor: null,
                     child: 'Cancel',
                     onTap: () {
@@ -426,14 +428,7 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
                           ? null
                           : () {
                               if (_nameController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Department name is required'),
-                                    backgroundColor: Colors.red,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
+                                AppToast.error(context, 'Department name is required');
                                 return;
                               }
                               controller.createDepartment(

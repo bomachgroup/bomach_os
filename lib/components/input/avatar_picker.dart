@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:iconsax/iconsax.dart';
 
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -111,8 +112,8 @@ class _AvatarPickerState extends State<AvatarPicker> {
                   height: size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.lightBlue,
-                    border: Border.all(color: AppColors.card, width: 1),
+                    color: AppColors.primarySubtle,
+                    border: Border.all(color: AppColors.borderSubtle, width: 1),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.06),
@@ -149,12 +150,12 @@ class _AvatarPickerState extends State<AvatarPicker> {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.blue,
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                         border: Border.all(color: AppColors.white, width: 2),
                       ),
                       child: const Icon(
-                        Icons.camera_alt_rounded,
+                        Iconsax.camera,
                         color: AppColors.white,
                         size: 16,
                       ),
@@ -176,7 +177,7 @@ class _AvatarPickerState extends State<AvatarPicker> {
         style: TextStyle(
           fontSize: widget.size * 0.32,
           fontWeight: FontWeight.w600,
-          color: AppColors.darkBlue,
+          color: AppColors.neutral800,
         ),
       ),
     );

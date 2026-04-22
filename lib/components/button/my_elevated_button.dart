@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 
@@ -28,8 +29,8 @@ class MyElevatedButton extends StatelessWidget {
     this.isLoading = false,
     this.disable = false,
     this.upper = false,
-    this.textColor = AppColors.white,
-    this.bgColor = AppColors.blue,
+    this.textColor = AppColors.textOnPrimary,
+    this.bgColor = AppColors.primary,
     this.borderColor,
     this.width,
     this.height,
@@ -52,9 +53,11 @@ class MyElevatedButton extends StatelessWidget {
         backgroundColor: bgColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderCurve ?? 16),
+          borderRadius: borderCurve != null
+              ? BorderRadius.circular(borderCurve!)
+              : AppRadii.brMd,
         ),
-        shadowColor: AppColors.black.withValues(alpha: 0.4),
+        shadowColor: AppColors.neutral900.withValues(alpha: 0.08),
         minimumSize: Size(width ?? 0, height ?? 44), // Allows flexible width
       ),
       child: isLoading
@@ -78,9 +81,9 @@ class MyElevatedButton extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: fontSize ?? 16,
+                      fontSize: fontSize ?? 14,
                       fontFamily: fontFamily ?? "Poppins",
-                      fontWeight: fontWeight ?? FontWeight.w400,
+                      fontWeight: fontWeight ?? FontWeight.w500,
                       color: textColor,
                     ),
                   ),

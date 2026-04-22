@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 class CreateApprovalWorkflowDialog extends StatelessWidget {
@@ -31,19 +33,19 @@ class CreateApprovalWorkflowDialog extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child: const Icon(Iconsax.close_circle, color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+            const Divider(height: 1, thickness: 1, color: AppColors.neutral200),
             Flexible(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20.0),
                 child: _buildFormContent(),
               ),
             ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+            const Divider(height: 1, thickness: 1, color: AppColors.neutral200),
             _buildFooter(context),
           ],
         ),

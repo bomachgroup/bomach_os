@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -239,7 +240,7 @@ All prices are in Nigerian Naira (₦).''';
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -314,7 +315,7 @@ All prices are in Nigerian Naira (₦).''';
                                           padding: const EdgeInsets.all(12),
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                                color: AppColors.grey4),
+                                                color: AppColors.neutral300),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -323,7 +324,7 @@ All prices are in Nigerian Naira (₦).''';
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               MyText(_formatDate(_issueDate)),
-                                              const Icon(Icons.calendar_today,
+                                              const Icon(Iconsax.calendar_1,
                                                   size: 18),
                                             ],
                                           ),
@@ -352,7 +353,7 @@ All prices are in Nigerian Naira (₦).''';
                                           padding: const EdgeInsets.all(12),
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                                color: AppColors.grey4),
+                                                color: AppColors.neutral300),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -361,7 +362,7 @@ All prices are in Nigerian Naira (₦).''';
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               MyText(_formatDate(_dueDate)),
-                                              const Icon(Icons.calendar_today,
+                                              const Icon(Iconsax.calendar_1,
                                                   size: 18),
                                             ],
                                           ),
@@ -442,8 +443,8 @@ All prices are in Nigerian Naira (₦).''';
                                   ),
                                 ),
                                 MyOutlinedButton(
-                                  textColor: AppColors.blue,
-                                  borderColor: AppColors.blue,
+                                  textColor: AppColors.primary,
+                                  borderColor: AppColors.primary,
                                   child: 'Add Item',
                                   onTap: _addItem,
                                 ),
@@ -463,9 +464,9 @@ All prices are in Nigerian Naira (₦).''';
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: AppColors.blue.withValues(alpha: 0.05),
+                                color: AppColors.primary.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey4),
+                                border: Border.all(color: AppColors.neutral300),
                               ),
                               child: Column(
                                 children: [
@@ -571,7 +572,7 @@ All prices are in Nigerian Naira (₦).''';
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: () {
@@ -603,7 +604,7 @@ All prices are in Nigerian Naira (₦).''';
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -669,7 +670,7 @@ All prices are in Nigerian Naira (₦).''';
                 Padding(
                   padding: const EdgeInsets.only(top: 28),
                   child: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Iconsax.trash, color: Colors.red),
                     onPressed: () => _removeItem(index),
                   ),
                 ),
@@ -697,7 +698,7 @@ All prices are in Nigerian Naira (₦).''';
           style: TextStyle(
             fontSize: isTotal ? 20 : 16,
             fontWeight: FontWeight.bold,
-            color: isTotal ? AppColors.blue : Colors.black87,
+            color: isTotal ? AppColors.primary : Colors.black87,
           ),
         ),
       ],

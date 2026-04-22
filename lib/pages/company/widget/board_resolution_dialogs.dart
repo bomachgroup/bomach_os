@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -95,7 +97,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
                           fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -133,7 +135,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
                             controller: dateCtrl,
                             hintText: 'Select date',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
+                            trailing: const Icon(Iconsax.calendar_1,
                                 size: 18, color: Colors.grey),
                             onTap: _pickDate,
                             validator: (val) => (val == null || val.isEmpty)
@@ -193,7 +195,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
                               : 'Submit for Approval',
                           isLoading: controller.isSavingResolution.value,
                           onTap: _onSave,
-                          icon: const Icon(Icons.check,
+                          icon: const Icon(Iconsax.tick_circle,
                               color: Colors.white, size: 18),
                         )),
                   ],
@@ -231,7 +233,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
           hint: const Text('Select',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: typeLabels
               .map((t) => DropdownMenuItem(value: t, child: Text(t)))
               .toList(),
@@ -258,7 +260,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
           hint: const Text('Pending',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: statusLabels
               .map((s) => DropdownMenuItem(value: s, child: Text(s)))
               .toList(),
@@ -287,12 +289,7 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
 
     // Validate resolution type is selected
     if (selectedType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a resolution type'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please select a resolution type');
       return;
     }
 
@@ -363,7 +360,7 @@ class ViewResolutionDialog extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -392,7 +389,7 @@ class ViewResolutionDialog extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Text('Attachment',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                      style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
                 ),
                 Container(
                   padding:
@@ -405,7 +402,7 @@ class ViewResolutionDialog extends StatelessWidget {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.attach_file, size: 16, color: Colors.grey),
+                      Icon(Iconsax.attach_circle, size: 16, color: Colors.grey),
                       SizedBox(width: 6),
                       Text('View Attachment', style: TextStyle(fontSize: 13)),
                     ],
@@ -439,7 +436,7 @@ class ViewResolutionDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   _buildActionButton(
                     label: 'Edit',
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     onTap: () {
                       Navigator.pop(context);
                       showDialog(
@@ -467,7 +464,7 @@ class ViewResolutionDialog extends StatelessWidget {
           SizedBox(
             width: 110,
             child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
@@ -505,7 +502,7 @@ class ViewResolutionDialog extends StatelessWidget {
           const SizedBox(
             width: 110,
             child: Text('Status',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -516,7 +513,7 @@ class ViewResolutionDialog extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.circle, size: 8, color: color),
+                Icon(Iconsax.record_circle, size: 8, color: color),
                 const SizedBox(width: 6),
                 Text(status,
                     style: TextStyle(

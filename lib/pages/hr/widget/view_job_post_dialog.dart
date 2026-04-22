@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,7 +35,7 @@ class ViewJobPostDialog extends StatelessWidget {
               value.isEmpty ? 'N/A' : value,
               style: TextStyle(
                 fontSize: 14,
-                color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
+                color: isBlue ? AppColors.primary : Colors.black87,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -99,7 +100,7 @@ class ViewJobPostDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       child: Icon(
-                        Icons.close,
+                        Iconsax.close_circle,
                         size: 24,
                         color: Colors.grey[600],
                       ),
@@ -108,7 +109,7 @@ class ViewJobPostDialog extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE5E5E5)),
+            const Divider(height: 1, color: AppColors.neutral200),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
@@ -146,7 +147,7 @@ class ViewJobPostDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Obx(() => MyElevatedButton(
-                        bgColor: AppColors.red,
+                        bgColor: AppColors.danger,
                         child: controller.isLoading.value
                             ? 'Deleting...'
                             : 'Delete',

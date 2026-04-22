@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/hr/controller/employee_evaluation_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -50,7 +51,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
           // Header
           const MyText(
             'Employee Evaluation Form',
-            style: AppText.black_500_32,
+            style: AppText.displayLg,
           ),
           const MyText(
             'Monthly Evaluation',
@@ -202,7 +203,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             value: value,
             isExpanded: true,
             underline: Container(),
-            icon: const Icon(Icons.arrow_drop_down, size: 18),
+            icon: const Icon(Iconsax.arrow_down_1, size: 18),
             onChanged: (newValue) {
               if (newValue != null) onChanged(newValue);
             },
@@ -245,14 +246,14 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                 width: 50,
                 height: 50,
                 decoration: const BoxDecoration(
-                  color: AppColors.lightBlue,
+                  color: AppColors.primarySubtle,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: MyText(
                     scorecard.initials,
                     style: const TextStyle(
-                      color: AppColors.blue,
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -312,7 +313,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.blue,
+                      color: AppColors.primary,
                     ),
                   ),
                   MyText(
@@ -486,8 +487,8 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
         ? 'Exceeded'
         : (isGood ? 'On Target' : 'Below Target');
     final statusColor = numValue != null && numValue >= 100
-        ? const Color(0xFF16A34A)
-        : (isGood ? const Color(0xFF3B82F6) : const Color(0xFFEC2623));
+        ? AppColors.success
+        : (isGood ? AppColors.primary : const Color(0xFFEC2623));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -649,7 +650,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
         Checkbox(
           value: value,
           onChanged: onChanged,
-          activeColor: AppColors.blue,
+          activeColor: AppColors.primary,
         ),
         MyText(
           label,
@@ -677,7 +678,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.blue,
+                      backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -695,18 +696,18 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.download, size: 16),
+              icon: const Icon(Iconsax.document_download, size: 16),
               label: const MyText(
                 'Generate PDF',
                 style: TextStyle(
-                  color: AppColors.blue,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.lightBlue,
+                backgroundColor: AppColors.primarySubtle,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                side: const BorderSide(color: AppColors.blue),
+                side: const BorderSide(color: AppColors.primary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

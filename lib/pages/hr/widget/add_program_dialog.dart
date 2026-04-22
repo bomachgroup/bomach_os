@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -169,18 +171,11 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
     if (!mounted) return;
     if (success) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(widget.programToEdit != null
+      AppToast.success(context, widget.programToEdit != null
                 ? "Program Updated"
-                : "Program Created"),
-            backgroundColor: Colors.green),
-      );
+                : "Program Created");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Operation Failed"), backgroundColor: Colors.red),
-      );
+      AppToast.error(context, 'Operation Failed');
     }
   }
 
@@ -211,12 +206,12 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                   ),
                   InkWell(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, color: Colors.grey),
+                    child: const Icon(Iconsax.close_circle, color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.neutral100),
 
             // --- Scrollable Form ---
             Expanded(
@@ -285,7 +280,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                             child: DropdownButton<String>(
                               value: selectedAudience,
                               isExpanded: true,
-                              icon: const Icon(Icons.keyboard_arrow_down,
+                              icon: const Icon(Iconsax.arrow_down_1,
                                   color: Colors.grey),
                               onChanged: (String? newValue) {
                                 if (newValue != null) {
@@ -343,7 +338,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                               children: [
                                 Checkbox(
                                   value: isMandatory,
-                                  activeColor: AppColors.darkBlue2,
+                                  activeColor: AppColors.primaryPressed,
                                   onChanged: (val) => setState(
                                       () => isMandatory = val ?? false),
                                 ),
@@ -360,15 +355,15 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                          color: const Color(0xFFF8FBFF),
+                          color: AppColors.primarySubtle,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE3F2FD))),
+                          border: Border.all(color: AppColors.infoSubtle)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const MyText("Schedule",
                               style: TextStyle(
-                                  color: Color(0xFF1976D2),
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.bold)),
                           const SizedBox(height: 16),
                           Row(
@@ -440,7 +435,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                   SizedBox(
                     width: 160,
                     child: Obx(() => MyElevatedButton(
-                          bgColor: const Color(0xFF1976D2),
+                          bgColor: AppColors.primary,
                           child: controller.isSaving.value
                               ? 'Publishing...'
                               : 'Publish Program',

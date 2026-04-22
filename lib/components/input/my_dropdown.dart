@@ -1,8 +1,17 @@
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
+/// Reusable dropdown with the same visual language as [MyTextFormField]:
+/// 12 px radius, slate border, slate surface fill, primary focus ring, and
+/// a softly-elevated menu with hover + selected states.
+///
+/// API is backwards-compatible with the previous implementation — older call
+/// sites (branch dialog, estate dialog, etc.) pass `hintText` / `items` /
+/// `onChanged` and continue to work unchanged.
 class MyDropdown extends StatelessWidget {
   const MyDropdown({
     super.key,
@@ -17,6 +26,8 @@ class MyDropdown extends StatelessWidget {
     this.width,
     this.spaceBetweenText,
     this.initialSelection,
+    this.enabled = true,
+    this.leading,
   });
 
   final List<String> items;
@@ -30,21 +41,24 @@ class MyDropdown extends StatelessWidget {
   final double? height;
   final double? width;
   final double? spaceBetweenText;
+  final bool enabled;
+
+  /// Optional leading icon inside the field (e.g. flag emoji, globe icon).
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context).size;
-
-    // Create a key to get the width of the container
-    final containerKey = GlobalKey();
+    final effectiveFill = fillColor ??
+        (enabled ? AppColors.surface : AppColors.surfaceMuted);
 
     return FormField<String>(
       validator: validator,
+      initialValue: initialSelection,
       builder: (FormFieldState<String> state) {
-        // Use LayoutBuilder to get the parent's constraints
         return LayoutBuilder(builder: (context, constraints) {
-          // The actual width we should use (from constraints if width is null)
           final actualWidth = width ?? constraints.maxWidth;
+          final hasError = state.hasError;
 
           return SizedBox(
             width: actualWidth,
@@ -54,29 +68,39 @@ class MyDropdown extends StatelessWidget {
                 if (title != null)
                   MyText(
                     title ?? '',
-                    style: AppText.black_400_16,
+                    style: AppText.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 SizedBox(
-                  height: spaceBetweenText ?? (title != null ? 10 : 0),
+                  height: spaceBetweenText ?? (title != null ? 8 : 0),
                 ),
-                Container(
-                  key: containerKey,
-                  height: height,
-                  decoration: !state.hasError
-                      ? null
-                      : BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: AppColors.red, width: 1),
-                        ),
-                  child: DropdownMenu(
-                    trailingIcon: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                    ),
-                    selectedTrailingIcon: const Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                    ),
+                SizedBox(
+                  height: height ?? 50,
+                  child: DropdownMenu<String>(
+                    enabled: enabled,
                     controller: controller,
                     initialSelection: initialSelection,
+                    leadingIcon: leading,
+                    trailingIcon: const Icon(
+                      Iconsax.arrow_down_1,
+                      size: 16,
+                      color: AppColors.textMuted,
+                    ),
+                    selectedTrailingIcon: const Icon(
+                      Iconsax.arrow_up_3,
+                      size: 16,
+                      color: AppColors.textMuted,
+                    ),
+                    width: actualWidth,
+                    menuHeight: media.height * 0.4,
+                    hintText: hintText,
+                    requestFocusOnTap: false,
+                    textStyle: AppText.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                     onSelected: (value) {
                       if (controller != null) {
                         controller?.text = value?.toString() ?? '';
@@ -86,130 +110,145 @@ class MyDropdown extends StatelessWidget {
                         onChanged!(value);
                       }
                     },
-                    width: actualWidth,
-                    menuHeight: media.height * 0.6,
-                    hintText: hintText,
-                    textStyle:
-                        height != null ? const TextStyle(height: 2.0) : null,
                     menuStyle: MenuStyle(
-                      fixedSize: WidgetStateProperty.all(
-                        Size(actualWidth, 250),
+                      maximumSize: WidgetStateProperty.all(
+                        Size(actualWidth, 320),
                       ),
-                      shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      )),
-                      elevation: WidgetStateProperty.all(8),
+                      shape: WidgetStateProperty.all(
+                        const RoundedRectangleBorder(
+                          borderRadius: AppRadii.brMd,
+                        ),
+                      ),
+                      elevation: WidgetStateProperty.all(6),
                       shadowColor: WidgetStateProperty.all(
-                          Colors.black.withValues(alpha: 0.1)),
-                      backgroundColor: WidgetStateProperty.all(
-                          fillColor ?? AppColors.greyBg),
+                        Colors.black.withValues(alpha: 0.08),
+                      ),
+                      backgroundColor:
+                          WidgetStateProperty.all(AppColors.surface),
                       padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(vertical: 8)),
-                      side: WidgetStateProperty.all(BorderSide(
-                          color: Colors.grey.withValues(alpha: 0.2), width: 1)),
+                        const EdgeInsets.symmetric(vertical: 6),
+                      ),
+                      side: WidgetStateProperty.all(
+                        const BorderSide(color: AppColors.borderSubtle),
+                      ),
                       visualDensity: VisualDensity.comfortable,
                       surfaceTintColor:
                           WidgetStateProperty.all(Colors.transparent),
                     ),
                     inputDecorationTheme: InputDecorationTheme(
-                      errorStyle: const TextStyle(
-                        color: AppColors.red,
-                      ),
+                      isDense: true,
                       filled: true,
-                      fillColor: fillColor ?? AppColors.white,
-                      focusColor: fillColor ?? AppColors.white,
-                      hoverColor: fillColor ?? AppColors.white,
-                      contentPadding: height != null
-                          ? EdgeInsets.symmetric(
-                              vertical: (height! - 40) / 2, horizontal: 16)
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: const BorderSide(
-                          color: AppColors.card,
-                        ),
+                      fillColor: effectiveFill,
+                      focusColor: effectiveFill,
+                      hoverColor: effectiveFill,
+                      hintStyle: AppText.bodyMd.copyWith(
+                        color: AppColors.textMuted,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      errorStyle: const TextStyle(
+                        color: AppColors.danger,
+                        fontSize: 12,
+                      ),
+                      border: const OutlineInputBorder(
+                        borderRadius: AppRadii.brMd,
+                        borderSide: BorderSide(color: AppColors.borderSubtle),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: const BorderSide(
-                          color: AppColors.card,
+                        borderRadius: AppRadii.brMd,
+                        borderSide: BorderSide(
+                          color: hasError
+                              ? AppColors.danger
+                              : AppColors.borderSubtle,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: const BorderSide(
-                          color: AppColors.card,
-                          width: 2,
+                        borderRadius: AppRadii.brMd,
+                        borderSide: BorderSide(
+                          color: hasError
+                              ? AppColors.danger
+                              : AppColors.primary,
+                          width: 1.5,
                         ),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: AppColors.red,
-                          width: 2.0,
-                        ),
+                      errorBorder: const OutlineInputBorder(
+                        borderRadius: AppRadii.brMd,
+                        borderSide:
+                            BorderSide(color: AppColors.danger, width: 1.5),
                       ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: AppColors.red,
-                          width: 2.0,
-                        ),
+                      focusedErrorBorder: const OutlineInputBorder(
+                        borderRadius: AppRadii.brMd,
+                        borderSide:
+                            BorderSide(color: AppColors.danger, width: 1.5),
                       ),
                     ),
                     dropdownMenuEntries: items
                         .map(
-                          (item) => DropdownMenuEntry(
+                          (item) => DropdownMenuEntry<String>(
                             value: item,
                             label: item,
                             style: ButtonStyle(
-                              // Control the width of individual items in the menu
-                              minimumSize: WidgetStateProperty.all(Size.zero),
-                              // Add horizontal padding but keep vertical compact
+                              minimumSize: WidgetStateProperty.all(
+                                Size(actualWidth, 40),
+                              ),
+                              maximumSize: WidgetStateProperty.all(
+                                Size(actualWidth, 40),
+                              ),
                               padding: WidgetStateProperty.all(
                                 const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
+                                  horizontal: 14,
+                                  vertical: 10,
+                                ),
                               ),
-                              // Change background color on hover
                               backgroundColor:
                                   WidgetStateProperty.resolveWith((states) {
                                 if (states.contains(WidgetState.hovered)) {
-                                  return AppColors.blue.withValues(alpha: 0.05);
+                                  return AppColors.primarySubtle;
+                                }
+                                if (states.contains(WidgetState.focused)) {
+                                  return AppColors.primarySubtle;
                                 }
                                 return Colors.transparent;
                               }),
-                              // Text style for the items
+                              foregroundColor:
+                                  WidgetStateProperty.resolveWith((states) {
+                                if (states.contains(WidgetState.hovered) ||
+                                    states.contains(WidgetState.focused)) {
+                                  return AppColors.primary;
+                                }
+                                return AppColors.textPrimary;
+                              }),
                               textStyle: WidgetStateProperty.all(
-                                const TextStyle(
-                                  fontSize: 14,
+                                AppText.bodyMd.copyWith(
                                   fontWeight: FontWeight.w400,
-                                  color: Colors.black87,
-                                  letterSpacing: 0.2,
                                 ),
                               ),
-                              // Smooth transition effect
                               animationDuration:
-                                  const Duration(milliseconds: 150),
-                              // Show a divider between items if desired
-                              overlayColor:
-                                  WidgetStateProperty.all(Colors.transparent),
+                                  const Duration(milliseconds: 120),
+                              overlayColor: WidgetStateProperty.all(
+                                Colors.transparent,
+                              ),
+                              shape: WidgetStateProperty.all(
+                                const RoundedRectangleBorder(
+                                  borderRadius: AppRadii.brSm,
+                                ),
+                              ),
                             ),
-                            // leadingIcon: item.contains("Premium")
-                            //     ? const Icon(Icons.star,
-                            //         size: 16, color: Colors.amber)
-                            //     : null,
                           ),
                         )
                         .toList(),
                   ),
                 ),
-                if (state.hasError)
+                if (hasError)
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: MyText(
-                      state.errorText!,
+                    padding: const EdgeInsets.only(top: 6.0, left: 4.0),
+                    child: Text(
+                      state.errorText ?? '',
                       style: const TextStyle(
-                        color: AppColors.red,
+                        color: AppColors.danger,
                         fontSize: 12,
                       ),
                     ),

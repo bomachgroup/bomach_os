@@ -1,7 +1,14 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
-import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import '../../src/services/crm/crm_service.dart';
 import 'controllers/crm_controller.dart';
@@ -16,9 +23,9 @@ class CrmClientsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(CrmController());
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
-    final isTablet = screenWidth < 900;
+    final bp = context.breakpoint;
+    final isMobile = bp.isMobile;
+    final isTablet = bp.isMobileOrTablet;
 
     Widget buildActionButton({
       required IconData icon,
@@ -28,84 +35,78 @@ class CrmClientsPage extends StatelessWidget {
       Color? foregroundColor,
       Color? backgroundColor,
     }) {
+      final bg = backgroundColor ?? AppColors.surface;
+      final fg = foregroundColor ?? AppColors.textPrimary;
       if (isWide) {
         return ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
-            backgroundColor: backgroundColor ?? Colors.white,
-            foregroundColor: foregroundColor ?? Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
+            backgroundColor: bg,
+            foregroundColor: fg,
+            elevation: 0,
+            side: backgroundColor == null
+                ? const BorderSide(color: AppColors.borderSubtle)
+                : BorderSide.none,
+            shape: const RoundedRectangleBorder(
+              borderRadius: AppRadii.brMd,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
           ),
-          icon: Icon(icon, size: 18),
-          label: Text(label, style: const TextStyle(fontSize: 12)),
+          icon: Icon(icon, size: 16),
+          label: Text(label),
           onPressed: onPressed,
         );
       } else {
         return IconButton(
           tooltip: label,
           style: IconButton.styleFrom(
-            backgroundColor: backgroundColor ?? Colors.white,
-            foregroundColor: foregroundColor ?? Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
+            backgroundColor: bg,
+            foregroundColor: fg,
+            side: backgroundColor == null
+                ? const BorderSide(color: AppColors.borderSubtle)
+                : null,
+            shape: const RoundedRectangleBorder(
+              borderRadius: AppRadii.brMd,
             ),
           ),
           onPressed: onPressed,
-          icon: Icon(icon, size: 20),
+          icon: Icon(icon, size: 18),
         );
       }
     }
 
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          spacing: 12,
-          children: [
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const MyText(
-                    'Customer Relationship Management',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  MyText(
-                    'Manage clients, leads, and customer interactions',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              spacing: 8,
-              children: [
-                buildActionButton(
-                    onPressed: () {},
-                    icon: Icons.message,
-                    label: 'Log Interactions',
-                    isWide: !isMobile),
-                buildActionButton(
-                    onPressed: () {
-                      AddNewLeadDialog.show(context);
-                    },
-                    icon: Icons.control_point_duplicate_sharp,
-                    label: 'Add Lead',
-                    isWide: !isMobile),
-                buildActionButton(
-                    onPressed: () {
-                      AddNewClientDialog.show(context);
-                    },
-                    icon: Icons.person_add_alt_1_rounded,
-                    label: 'Add Client',
-                    backgroundColor: AppColors.blue,
-                    foregroundColor: Colors.white,
-                    isWide: !isMobile),
-              ],
-            ),
-          ],
+        PageHeader(
+          title: 'Customer Relationship Management',
+          subtitle: 'Manage clients, leads, and customer interactions',
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: [
+              buildActionButton(
+                  onPressed: () {},
+                  icon: Iconsax.message,
+                  label: 'Log Interactions',
+                  isWide: !isMobile),
+              buildActionButton(
+                  onPressed: () {
+                    AddNewLeadDialog.show(context);
+                  },
+                  icon: Iconsax.flash_1,
+                  label: 'Add Lead',
+                  isWide: !isMobile),
+              buildActionButton(
+                  onPressed: () {
+                    AddNewClientDialog.show(context);
+                  },
+                  icon: Iconsax.user_add,
+                  label: 'Add Client',
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.textOnPrimary,
+                  isWide: !isMobile),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
         Obx(() {
@@ -113,28 +114,28 @@ class CrmClientsPage extends StatelessWidget {
             MetricData(
                 title: 'Total Clients',
                 value: controller.totalClients.value.toString(),
-                icon: Icons.people_alt,
-                color: Colors.blue.shade600,
+                icon: Iconsax.profile_2user,
+                color: AppColors.primary,
                 subtitle: 'Active client base'),
             MetricData(
                 title: 'Total Leads',
                 value: controller.totalLeads.value.toString(),
-                icon: Icons.trending_up,
-                color: Colors.green.shade600,
+                icon: Iconsax.trend_up,
+                color: AppColors.success,
                 subtitle: 'Current leads'),
             MetricData(
                 title: 'Conversion Rate',
                 value: controller.totalLeads.value > 0
                     ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
                     : '0%',
-                icon: Icons.attach_money,
-                color: Colors.purple.shade600,
+                icon: Iconsax.dollar_circle,
+                color: const Color(0xFF8B5CF6),
                 subtitle: 'Lead to client'),
             MetricData(
                 title: 'Retention Rate',
                 value: '—',
-                icon: Icons.star,
-                color: Colors.orange.shade600,
+                icon: Iconsax.star_1,
+                color: AppColors.warning,
                 subtitle: 'Client retention'),
           ];
 
@@ -169,61 +170,54 @@ class _ClientsTableLive extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+    return AppCard(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Clients',
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87)),
+          const Text('Clients', style: AppText.h2),
           const SizedBox(height: 4),
-          const Text('Manage your client relationships',
-              style: TextStyle(fontSize: 14, color: Colors.grey)),
+          Text(
+            'Manage your client relationships',
+            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+          ),
           const SizedBox(height: 16),
           TextField(
-            decoration: const InputDecoration(
+            style: AppText.bodyMd,
+            decoration: InputDecoration(
               hintText: 'Search clients...',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4.0)),
+              hintStyle: AppText.bodyMd.copyWith(color: AppColors.textMuted),
+              prefixIcon: const Icon(Iconsax.search_normal_1,
+                  size: 18, color: AppColors.textMuted),
+              border: const OutlineInputBorder(
+                borderRadius: AppRadii.brMd,
                 borderSide: BorderSide.none,
               ),
+              enabledBorder: const OutlineInputBorder(
+                borderRadius: AppRadii.brMd,
+                borderSide: BorderSide(color: AppColors.borderSubtle),
+              ),
+              focusedBorder: const OutlineInputBorder(
+                borderRadius: AppRadii.brMd,
+                borderSide:
+                    BorderSide(color: AppColors.primary, width: 1.5),
+              ),
               filled: true,
-              fillColor: Color(0xFFF7F7F7),
-              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+              fillColor: AppColors.surfaceMuted,
+              contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0, horizontal: 16),
             ),
             onChanged: controller.onClientSearchChanged,
           ),
           const SizedBox(height: 24),
           Obx(() {
             if (controller.isLoadingClients.value) {
-              return const Center(
-                  child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(),
-              ));
+              return LoadingSkeleton.listRows(count: 5);
             }
             if (controller.clientList.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.all(32),
-                child: Center(
-                    child: Text('No clients found.',
-                        style: TextStyle(color: Colors.grey))),
+              return EmptyState.noResults(
+                title: 'No clients found',
+                subtitle: 'Try adjusting your search or add a new client.',
               );
             }
             return _ClientDataTableLive(clients: controller.clientList);
@@ -248,34 +242,36 @@ class _ClientDataTableLive extends StatelessWidget {
         controller: scrollController,
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          headingRowColor:
-              WidgetStateProperty.resolveWith((states) => Colors.transparent),
+          headingRowColor: WidgetStateProperty.resolveWith(
+              (states) => AppColors.surfaceMuted),
           columnSpacing: 40,
           dataRowMinHeight: 60,
           dataRowMaxHeight: 80,
           dividerThickness: 1.0,
+          headingTextStyle: AppText.label.copyWith(
+            color: AppColors.textSecondary,
+          ),
+          dataTextStyle: AppText.bodyMd.copyWith(
+            color: AppColors.textPrimary,
+          ),
           columns: const [
-            DataColumn(
-                label: Text('Client',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Email',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Phone',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Balance',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('Client')),
+            DataColumn(label: Text('Email')),
+            DataColumn(label: Text('Phone')),
+            DataColumn(label: Text('Balance')),
           ],
           rows: clients.map((c) {
             return DataRow(cells: [
               DataCell(Text(c.fullName,
-                  style: const TextStyle(fontWeight: FontWeight.w600))),
+                  style: AppText.bodyMd.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary))),
               DataCell(Text(c.email)),
               DataCell(Text(c.phoneNumber ?? '—')),
               DataCell(Text('₦${c.balance.toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.w600))),
+                  style: AppText.bodyMd.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary))),
             ]);
           }).toList(),
         ),

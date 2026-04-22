@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
@@ -67,7 +69,7 @@ class _ServicesPageState extends State<ServicesPage> {
                     children: [
                       MyText(
                         'Services',
-                        style: AppText.black_500_32,
+                        style: AppText.displayLg,
                       ),
                       MyText(
                         'Manage your service catalog, quotes, and orders',
@@ -80,7 +82,7 @@ class _ServicesPageState extends State<ServicesPage> {
                   ),
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Iconsax.add_circle,
                       color: AppColors.white,
                     ),
                     child: "Add Service",
@@ -141,21 +143,21 @@ class _ServicesPageState extends State<ServicesPage> {
     return ModuleQuickNav(
       shortcuts: [
         card(
-          icon: Icons.people_alt_outlined,
+          icon: Iconsax.people,
           title: 'Clients',
           subtitle: 'Service clients directory',
           route: RouteConstants.serviceClients,
           resources: const [PermissionConstants.resClients],
         ),
         card(
-          icon: Icons.home_work_outlined,
+          icon: Iconsax.building_4,
           title: 'Property Management',
           subtitle: 'Rentals and listings',
           route: RouteConstants.propertyList,
           resources: const [PermissionConstants.resProperties],
         ),
         card(
-          icon: Icons.landscape_outlined,
+          icon: Iconsax.tree,
           title: 'Estate Management',
           subtitle: 'Estates and performance',
           route: RouteConstants.estateManagement,
@@ -224,8 +226,8 @@ class _ServicesPageState extends State<ServicesPage> {
                             controller: _searchController,
                             hintText: 'Search for services...',
                             leading: Icon(
-                              Icons.search,
-                              color: AppColors.grey1.withValues(alpha: 0.5),
+                              Iconsax.search_normal,
+                              color: AppColors.neutral500.withValues(alpha: 0.5),
                             ),
                           ),
                         ),
@@ -327,10 +329,10 @@ class _ServicesPageState extends State<ServicesPage> {
                                   : _searchController.text.trim(),
                             )
                         : null,
-                    icon: const Icon(Icons.chevron_left),
+                    icon: const Icon(Iconsax.arrow_left_2),
                     style: IconButton.styleFrom(
                       backgroundColor:
-                          currentPage > 1 ? AppColors.blue : Colors.grey[300],
+                          currentPage > 1 ? AppColors.primary : Colors.grey[300],
                       foregroundColor:
                           currentPage > 1 ? Colors.white : Colors.grey[600],
                     ),
@@ -357,11 +359,11 @@ class _ServicesPageState extends State<ServicesPage> {
                             height: 40,
                             decoration: BoxDecoration(
                               color:
-                                  isCurrentPage ? AppColors.blue : Colors.white,
+                                  isCurrentPage ? AppColors.primary : Colors.white,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: isCurrentPage
-                                    ? AppColors.blue
+                                    ? AppColors.primary
                                     : Colors.grey[300]!,
                               ),
                             ),
@@ -392,10 +394,10 @@ class _ServicesPageState extends State<ServicesPage> {
                                   : _searchController.text.trim(),
                             )
                         : null,
-                    icon: const Icon(Icons.chevron_right),
+                    icon: const Icon(Iconsax.arrow_right_3),
                     style: IconButton.styleFrom(
                       backgroundColor:
-                          hasNextPage ? AppColors.blue : Colors.grey[300],
+                          hasNextPage ? AppColors.primary : Colors.grey[300],
                       foregroundColor:
                           hasNextPage ? Colors.white : Colors.grey[600],
                     ),
@@ -460,7 +462,7 @@ class _ServicesPageState extends State<ServicesPage> {
                     ),
                     MyElevatedButton(
                       icon: const Icon(
-                        Icons.add_circle_outline_rounded,
+                        Iconsax.add_circle,
                         color: AppColors.white,
                       ),
                       child: "Create Quote",
@@ -536,10 +538,10 @@ class _ServicesPageState extends State<ServicesPage> {
                         onPressed: currentPage > 1
                             ? () => _controller.previousQuotePage()
                             : null,
-                        icon: const Icon(Icons.chevron_left),
+                        icon: const Icon(Iconsax.arrow_left_2),
                         style: IconButton.styleFrom(
                           backgroundColor: currentPage > 1
-                              ? AppColors.blue
+                              ? AppColors.primary
                               : Colors.grey[300],
                           foregroundColor:
                               currentPage > 1 ? Colors.white : Colors.grey[600],
@@ -562,12 +564,12 @@ class _ServicesPageState extends State<ServicesPage> {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: isCurrentPage
-                                      ? AppColors.blue
+                                      ? AppColors.primary
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
                                     color: isCurrentPage
-                                        ? AppColors.blue
+                                        ? AppColors.primary
                                         : Colors.grey[300]!,
                                   ),
                                 ),
@@ -593,10 +595,10 @@ class _ServicesPageState extends State<ServicesPage> {
                         onPressed: hasNextPage
                             ? () => _controller.nextQuotePage()
                             : null,
-                        icon: const Icon(Icons.chevron_right),
+                        icon: const Icon(Iconsax.arrow_right_3),
                         style: IconButton.styleFrom(
                           backgroundColor:
-                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                              hasNextPage ? AppColors.primary : Colors.grey[300],
                           foregroundColor:
                               hasNextPage ? Colors.white : Colors.grey[600],
                         ),
@@ -662,7 +664,7 @@ class _ServicesPageState extends State<ServicesPage> {
                     ),
                     MyElevatedButton(
                       icon: const Icon(
-                        Icons.add_circle_outline_rounded,
+                        Iconsax.add_circle,
                         color: AppColors.white,
                       ),
                       child: "Create Order",
@@ -743,10 +745,10 @@ class _ServicesPageState extends State<ServicesPage> {
                         onPressed: currentPage > 1
                             ? () => _controller.previousOrderPage()
                             : null,
-                        icon: const Icon(Icons.chevron_left),
+                        icon: const Icon(Iconsax.arrow_left_2),
                         style: IconButton.styleFrom(
                           backgroundColor: currentPage > 1
-                              ? AppColors.blue
+                              ? AppColors.primary
                               : Colors.grey[300],
                           foregroundColor:
                               currentPage > 1 ? Colors.white : Colors.grey[600],
@@ -769,12 +771,12 @@ class _ServicesPageState extends State<ServicesPage> {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: isCurrentPage
-                                      ? AppColors.blue
+                                      ? AppColors.primary
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
                                     color: isCurrentPage
-                                        ? AppColors.blue
+                                        ? AppColors.primary
                                         : Colors.grey[300]!,
                                   ),
                                 ),
@@ -800,10 +802,10 @@ class _ServicesPageState extends State<ServicesPage> {
                         onPressed: hasNextPage
                             ? () => _controller.nextOrderPage()
                             : null,
-                        icon: const Icon(Icons.chevron_right),
+                        icon: const Icon(Iconsax.arrow_right_3),
                         style: IconButton.styleFrom(
                           backgroundColor:
-                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                              hasNextPage ? AppColors.primary : Colors.grey[300],
                           foregroundColor:
                               hasNextPage ? Colors.white : Colors.grey[600],
                         ),
@@ -883,11 +885,11 @@ class _ServicesPageState extends State<ServicesPage> {
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? AppColors.blue
+                        ? AppColors.primary
                         : AppColors.white.withValues(alpha: 0.90),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: isActive ? AppColors.blue : AppColors.grey4),
+                        color: isActive ? AppColors.primary : AppColors.neutral300),
                   ),
                   child: Text(
                     tabs[index],
@@ -1071,7 +1073,7 @@ class QuoteCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -1162,18 +1164,13 @@ class QuoteCard extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: paymentLink!));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Payment link copied to clipboard'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+                    AppToast.success(context, 'Payment link copied to clipboard');
                   },
-                  icon: const Icon(Icons.copy, size: 16),
+                  icon: const Icon(Iconsax.copy, size: 16),
                   label: const Text('Copy Payment Link'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.blue,
-                    side: const BorderSide(color: AppColors.blue),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     textStyle: const TextStyle(fontSize: 12),
@@ -1210,9 +1207,9 @@ class StatsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundColor: AppColors.blue.withValues(alpha: 0.12),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
             radius: 16,
-            child: const Icon(Icons.person, color: AppColors.blue, size: 18),
+            child: const Icon(Iconsax.profile_circle, color: AppColors.primary, size: 18),
           ),
           const Spacer(),
           Text(count,
@@ -1320,7 +1317,7 @@ class ServiceCard extends StatelessWidget {
                       },
                     );
                   },
-                  icon: const Icon(Icons.remove_red_eye),
+                  icon: const Icon(Iconsax.eye),
                   label: const Text('View'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -1343,7 +1340,7 @@ class ServiceCard extends StatelessWidget {
                       },
                     );
                   },
-                  icon: const Icon(Icons.edit),
+                  icon: const Icon(Iconsax.edit),
                   label: const Text('Edit'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),

@@ -1,4 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
@@ -22,13 +25,13 @@ class _BenefitsPageState extends State<BenefitsPage> {
   final ScrollController _scrollController = ScrollController();
 
   // Colors
-  final Color _blueColor = const Color(0xFF1976D2);
-  final Color _greenBg = const Color(0xFFF0FDF4);
-  final Color _greenTxt = const Color(0xFF22C55E);
-  final Color _redBg = const Color(0xFFFEF2F2);
-  final Color _redTxt = const Color(0xFFEF4444);
-  final Color _yellowBg = const Color(0xFFFFFBEB);
-  final Color _yellowTxt = const Color(0xFFF59E0B);
+  final Color _blueColor = AppColors.primary;
+  final Color _greenBg = AppColors.successSubtle;
+  final Color _greenTxt = AppColors.success;
+  final Color _redBg = AppColors.dangerSubtle;
+  final Color _redTxt = AppColors.danger;
+  final Color _yellowBg = AppColors.warningSubtle;
+  final Color _yellowTxt = AppColors.warning;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +51,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                 OutlinedButton(
                   onPressed: () => _showAllBenefitsDialog(context),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    side: const BorderSide(color: AppColors.neutral200),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                     padding: const EdgeInsets.symmetric(
@@ -59,7 +62,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                 ),
                 const SizedBox(width: 12),
                 MyElevatedButton(
-                  icon: const Icon(Icons.add_circle_outline_rounded,
+                  icon: const Icon(Iconsax.add_circle,
                       color: Colors.white, size: 20),
                   child: "Add Staff to Benefits",
                   onTap: () {
@@ -95,7 +98,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                     child: MyTextFormField(
                       controller: _ctrl.searchController,
                       hintText: 'Search...',
-                      leading: Icon(Icons.search,
+                      leading: Icon(Iconsax.search_normal,
                           color: Colors.grey.withValues(alpha: 0.5)),
                     ),
                   ),
@@ -140,9 +143,9 @@ class _BenefitsPageState extends State<BenefitsPage> {
                                 children: [
                                   const CircleAvatar(
                                     radius: 16,
-                                    backgroundColor: Color(0xFFE3F2FD),
-                                    child: Icon(Icons.person,
-                                        size: 16, color: Color(0xFF1976D2)),
+                                    backgroundColor: AppColors.infoSubtle,
+                                    child: Icon(Iconsax.profile_circle,
+                                        size: 16, color: AppColors.primary),
                                   ),
                                   const SizedBox(width: 12),
                                   Column(
@@ -188,7 +191,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                   )),
 
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFFEEEEEE)),
+              const Divider(color: AppColors.neutral100),
               const SizedBox(height: 16),
 
               // Pagination
@@ -229,7 +232,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   IconButton(
                       onPressed: () => Navigator.pop(ctx),
-                      icon: const Icon(Icons.close))
+                      icon: const Icon(Iconsax.close_circle))
                 ],
               ),
               const SizedBox(height: 16),
@@ -241,8 +244,8 @@ class _BenefitsPageState extends State<BenefitsPage> {
                               margin: const EdgeInsets.only(bottom: 8),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.check_box_outlined,
-                                      color: Color(0xFF1976D2), size: 20),
+                                  const Icon(Iconsax.tick_square,
+                                      color: AppColors.primary, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
                                       child: Text(b,
@@ -250,7 +253,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                                               fontWeight: FontWeight.w500))),
                                   InkWell(
                                     onTap: () => _ctrl.removeBenefitType(b),
-                                    child: const Icon(Icons.close,
+                                    child: const Icon(Iconsax.close_circle,
                                         color: Colors.red, size: 16),
                                   )
                                 ],
@@ -296,7 +299,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   IconButton(
                       onPressed: () => Navigator.pop(ctx),
-                      icon: const Icon(Icons.close))
+                      icon: const Icon(Iconsax.close_circle))
                 ],
               ),
               const SizedBox(height: 16),
@@ -315,11 +318,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                       bool success = _ctrl.addBenefitType(nameCtrl.text.trim());
                       if (success) {
                         Navigator.pop(ctx); // Use dialog context 'ctx' to pop
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Benefit added successfully"),
-                              backgroundColor: Colors.green),
-                        );
+                        AppToast.success(context, 'Benefit added successfully');
                       }
                     },
                   )
@@ -353,7 +352,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   IconButton(
                       onPressed: () => Navigator.pop(ctx),
-                      icon: const Icon(Icons.close))
+                      icon: const Icon(Iconsax.close_circle))
                 ],
               ),
               const SizedBox(height: 16),
@@ -361,8 +360,8 @@ class _BenefitsPageState extends State<BenefitsPage> {
                 children: [
                   const CircleAvatar(
                       radius: 20,
-                      backgroundColor: Color(0xFFE3F2FD),
-                      child: Icon(Icons.person, color: Color(0xFF1976D2))),
+                      backgroundColor: AppColors.infoSubtle,
+                      child: Icon(Iconsax.profile_circle, color: AppColors.primary)),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,7 +427,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                             fontWeight: FontWeight.bold, fontSize: 18)),
                     IconButton(
                         onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close))
+                        icon: const Icon(Iconsax.close_circle))
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -437,8 +436,8 @@ class _BenefitsPageState extends State<BenefitsPage> {
                   children: [
                     const CircleAvatar(
                         radius: 20,
-                        backgroundColor: Color(0xFFE3F2FD),
-                        child: Icon(Icons.person, color: Color(0xFF1976D2))),
+                        backgroundColor: AppColors.infoSubtle,
+                        child: Icon(Iconsax.profile_circle, color: AppColors.primary)),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -495,11 +494,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                         _ctrl.updateEmployeeBenefits(
                             record.id, selected.toList());
                         Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Updated successfully"),
-                              backgroundColor: Colors.green),
-                        );
+                        AppToast.success(context, 'Updated successfully');
                       },
                     )
                   ],
@@ -518,7 +513,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -526,7 +521,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
           Text(text,
               style: const TextStyle(fontSize: 14, color: Colors.black54)),
           const SizedBox(width: 8),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.black54)
+          const Icon(Iconsax.arrow_down_1, size: 18, color: Colors.black54)
         ],
       ),
     );
@@ -565,7 +560,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                   fontSize: 12,
                   fontWeight: FontWeight.w500)),
           const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.black54)
+          const Icon(Iconsax.arrow_down_1, size: 14, color: Colors.black54)
         ],
       ),
     );

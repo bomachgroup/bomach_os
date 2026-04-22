@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/finance/controllers/expense_controller.dart';
@@ -32,11 +33,11 @@ class ExpensesPage extends StatelessWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText('Expenses', style: AppText.black_500_32),
+                      MyText('Expenses', style: AppText.displayLg),
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded,
+                    icon: const Icon(Iconsax.add_circle,
                         color: AppColors.white),
                     child: "New Expense",
                     onTap: () {
@@ -64,8 +65,8 @@ class ExpensesPage extends StatelessWidget {
                     width: 250,
                     child: MyTextFormField(
                       hintText: 'Search for expense...',
-                      leading: Icon(Icons.search,
-                          color: AppColors.grey1.withValues(alpha: 0.5)),
+                      leading: Icon(Iconsax.search_normal,
+                          color: AppColors.neutral500.withValues(alpha: 0.5)),
                       onChanged: (val) => controller.searchQuery.value = val,
                     ),
                   ),
@@ -74,7 +75,7 @@ class ExpensesPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.refresh),
+                        icon: const Icon(Iconsax.refresh),
                         onPressed: () =>
                             controller.fetchExpenses(refresh: true),
                       ),
@@ -139,7 +140,7 @@ class ExpensesPage extends StatelessWidget {
                             DataCell(_statusBadge(expense.status)),
                             DataCell(
                               PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert),
+                                icon: const Icon(Iconsax.more),
                                 onSelected: (value) {
                                   if (value == 'delete') {
                                     controller.deleteExpense(

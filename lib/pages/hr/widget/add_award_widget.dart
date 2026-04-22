@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -91,16 +93,9 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
     if (!mounted) return;
     if (success) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Award saved successfully"),
-            backgroundColor: Colors.green),
-      );
+      AppToast.success(context, 'Award saved successfully');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Failed to save award"), backgroundColor: Colors.red),
-      );
+      AppToast.error(context, 'Failed to save award');
     }
   }
 
@@ -128,7 +123,7 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
                       weight: 600,
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -166,7 +161,7 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       child: 'Cancel',
                       onTap: () => Navigator.pop(context),
                     ),

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
@@ -82,7 +83,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                       children: [
                         MyText(
                           'Client & Partner Portal',
-                          style: AppText.black_500_32,
+                          style: AppText.displayLg,
                         ),
                         MyText(
                           'Manage client access and self-service portal',
@@ -95,7 +96,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                     ),
                     MyElevatedButton(
                       icon: const Icon(
-                        Icons.add_circle_outline_rounded,
+                        Iconsax.add_circle,
                         color: AppColors.white,
                       ),
                       child: "View Portal",
@@ -118,7 +119,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                           children: [
                             MyText(
                               'Client & Partner Portal',
-                              style: AppText.black_500_32,
+                              style: AppText.displayLg,
                             ),
                             MyText(
                               'Manage client access and self-service portal',
@@ -131,7 +132,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                         ),
                         MyElevatedButton(
                           icon: const Icon(
-                            Icons.add_circle_outline_rounded,
+                            Iconsax.add_circle,
                             color: AppColors.white,
                           ),
                           child: "View Portal",
@@ -186,28 +187,28 @@ class _ClientsPortalState extends State<ClientsPortal> {
     return ModuleQuickNav(
       shortcuts: [
         card(
-          icon: Icons.people_alt_outlined,
+          icon: Iconsax.people,
           title: 'Client Access',
           subtitle: 'Portal users and invites',
           route: RouteConstants.clientAccess,
           resources: const [PermissionConstants.resClients],
         ),
         card(
-          icon: Icons.folder_shared_outlined,
+          icon: Iconsax.folder_2,
           title: 'Document Sharing',
           subtitle: 'Shared files and folders',
           route: RouteConstants.documentSharing,
           resources: const [PermissionConstants.resDocuments],
         ),
         card(
-          icon: Icons.forum_outlined,
+          icon: Iconsax.messages,
           title: 'Communications',
           subtitle: 'Messages with clients',
           route: RouteConstants.communications,
           resources: const [PermissionConstants.resClients],
         ),
         card(
-          icon: Icons.insights_outlined,
+          icon: Iconsax.chart_2,
           title: 'Portal Analytics',
           subtitle: 'Usage and engagement',
           route: RouteConstants.portalAnalytics,
@@ -239,7 +240,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                     child: StatsHeaderCard(
                       label: it['label']!,
                       count: it['value']!,
-                      icon: Icons.person,
+                      icon: Iconsax.profile_circle,
                     ),
                   ))
               .toList(),

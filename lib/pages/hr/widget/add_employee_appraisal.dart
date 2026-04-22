@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +95,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                       size: 18, weight: 700),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+                    icon: const Icon(Iconsax.close_circle, size: 20, color: Colors.grey),
                   )
                 ],
               ),
@@ -153,7 +155,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                   Expanded(
                     child: MyOutlinedButton(
                       child: 'Cancel',
-                      textColor: const Color(0xFF0055FF),
+                      textColor: AppColors.primary,
                       onTap: () => Navigator.pop(context),
                     ),
                   ),
@@ -163,7 +165,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                           child: controller.isSaving.value
                               ? 'Submitting...'
                               : 'Add Review',
-                          bgColor: const Color(0xFF0055FF),
+                          bgColor: AppColors.primary,
                           onTap: controller.isSaving.value ? null : _onSubmit,
                         )),
                   ),
@@ -220,7 +222,7 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: Icon(
-                    index < currentRating ? Icons.star : Icons.star_border,
+                    index < currentRating ? Iconsax.star1 : Iconsax.star,
                     color: Colors.amber,
                     size: 20,
                   ),

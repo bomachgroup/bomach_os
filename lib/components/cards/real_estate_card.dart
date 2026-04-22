@@ -34,7 +34,7 @@ class RealEstateCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
           width: 0.6,
-          color: AppColors.border,
+          color: AppColors.borderSubtle,
         ),
         color: AppColors.white,
       ),

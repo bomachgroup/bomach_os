@@ -1,4 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -77,9 +80,7 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
 
   void _submit() {
     if (_nameCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Partner name is required'),
-          backgroundColor: Colors.red));
+      AppToast.error(context, 'Partner name is required');
       return;
     }
 
@@ -121,9 +122,9 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyText(isEdit ? 'Edit Partner' : 'Add Partner',
-                      style: AppText.black_500_20),
+                      style: AppText.h2),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context)),
                 ],
               ),
@@ -165,7 +166,7 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const MyText('Category',
-                                style: AppText.black_600_14),
+                                style: AppText.h4),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
                               initialValue: _selectedCategory,
@@ -175,11 +176,11 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
+                                        color: AppColors.neutral300)),
                                 enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
+                                        color: AppColors.neutral300)),
                               ),
                               items: _categoryOptions
                                   .map((c) => DropdownMenuItem<String>(
@@ -197,7 +198,7 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const MyText('Status', style: AppText.black_600_14),
+                            const MyText('Status', style: AppText.h4),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
                               initialValue: _selectedStatus,
@@ -207,11 +208,11 @@ class _AddPartnerDialogState extends State<AddPartnerDialog> {
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
+                                        color: AppColors.neutral300)),
                                 enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
+                                        color: AppColors.neutral300)),
                               ),
                               items: _statusOptions
                                   .map((s) => DropdownMenuItem<String>(

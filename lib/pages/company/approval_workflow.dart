@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/section/responsive_widget.dart';
@@ -29,11 +30,11 @@ class ApprovalWorkflowPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const MyText('Approval Workflow', style: AppText.black_600_32),
+          const MyText('Approval Workflow', style: AppText.displayLg),
           const SizedBox(height: 8),
           const Text(
             'Configure multi-level approval workflows and specify approvers for different actions and requests',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+            style: TextStyle(color: AppColors.neutral500, fontSize: 14),
           ),
           const SizedBox(height: 24),
 
@@ -83,14 +84,14 @@ class ApprovalWorkflowPage extends StatelessWidget {
           DashboardStatCard(
             title: 'Total Branches',
             count: stats != null ? '${stats.totalBranches}' : '–',
-            borderColor: const Color(0xFF1976D2),
-            countColor: const Color(0xFF1976D2),
+            borderColor: AppColors.primary,
+            countColor: AppColors.primary,
           ),
           DashboardStatCard(
             title: 'Pending Approvals',
             count: stats != null ? '${stats.pendingApprovals}' : '–',
-            borderColor: const Color(0xFFC27803),
-            countColor: const Color(0xFFC27803),
+            borderColor: AppColors.warning,
+            countColor: AppColors.warning,
           ),
           DashboardStatCard(
             title: 'Asset Inventory',
@@ -108,7 +109,7 @@ class ApprovalWorkflowPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+        border: Border(bottom: BorderSide(color: AppColors.neutral200)),
       ),
       child: Wrap(
         spacing: 8,
@@ -119,7 +120,7 @@ class ApprovalWorkflowPage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.blue : Colors.transparent,
+                color: isSelected ? AppColors.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -156,20 +157,20 @@ class _WorkflowsTab extends StatelessWidget {
           title: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText('Workflows', style: AppText.black_600_16),
+              MyText('Workflows', style: AppText.h4),
               SizedBox(height: 2),
               Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
             onChanged: controller.onFlowSearchChanged,
           ),
           action: MyElevatedButton(
             height: 40,
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
+            icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
             child: 'New workflow',
             onTap: () => showDialog(
               context: context,
@@ -193,7 +194,7 @@ class _WorkflowsTab extends StatelessWidget {
           if (controller.flowList.isEmpty) {
             return _buildEmptyState(
               context,
-              icon: Icons.approval_outlined,
+              icon: Iconsax.tick_square,
               title: 'No workflows yet',
               subtitle: 'Create a new approval workflow to get started.',
               buttonLabel: 'New workflow',
@@ -210,7 +211,7 @@ class _WorkflowsTab extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(
                 children: [
@@ -219,7 +220,7 @@ class _WorkflowsTab extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12),
@@ -234,7 +235,7 @@ class _WorkflowsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -242,7 +243,7 @@ class _WorkflowsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 1,
@@ -250,7 +251,7 @@ class _WorkflowsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 3,
@@ -258,7 +259,7 @@ class _WorkflowsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 1,
@@ -266,7 +267,7 @@ class _WorkflowsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         SizedBox(
                           width: 48,
@@ -274,7 +275,7 @@ class _WorkflowsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                       ],
                     ),
@@ -315,7 +316,7 @@ class _WorkflowsTab extends StatelessWidget {
             child: Checkbox(
               value: false,
               onChanged: (_) {},
-              activeColor: AppColors.blue,
+              activeColor: AppColors.primary,
             ),
           ),
           // Workflow Name
@@ -378,13 +379,13 @@ class _WorkflowsTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.blue.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          color: AppColors.blue,
+          color: AppColors.primary,
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
@@ -407,7 +408,7 @@ class _WorkflowsTab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, size: 7, color: color),
+            Icon(Iconsax.record_circle, size: 7, color: color),
             const SizedBox(width: 5),
             Text(status,
                 style: TextStyle(
@@ -420,7 +421,7 @@ class _WorkflowsTab extends StatelessWidget {
 
   Widget _buildActionMenu(BuildContext context, ApprovalFlow flow) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Iconsax.more, size: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) async {
         switch (value) {
@@ -466,7 +467,7 @@ class _WorkflowsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'view',
           child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.eye, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('View Details'),
           ]),
@@ -474,7 +475,7 @@ class _WorkflowsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'edit',
           child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.edit, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('Edit'),
           ]),
@@ -482,7 +483,7 @@ class _WorkflowsTab extends StatelessWidget {
         const PopupMenuItem(
           value: 'delete',
           child: Row(children: [
-            Icon(Icons.delete_outline, size: 18, color: Colors.red),
+            Icon(Iconsax.trash, size: 18, color: Colors.red),
             SizedBox(width: 8),
             Text('Delete', style: TextStyle(color: Colors.red)),
           ]),
@@ -507,10 +508,10 @@ class _WorkflowsTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: AppColors.neutral100,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
+              child: Icon(icon, size: 48, color: AppColors.neutral400),
             ),
             const SizedBox(height: 20),
             Text(title,
@@ -518,12 +519,12 @@ class _WorkflowsTab extends StatelessWidget {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
               child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
+              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
               onTap: onAdd,
             ),
           ],
@@ -551,15 +552,15 @@ class _RequestsTab extends StatelessWidget {
           title: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText('Approval Requests', style: AppText.black_600_16),
+              MyText('Approval Requests', style: AppText.h4),
               SizedBox(height: 2),
               Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
             onChanged: controller.onRequestSearchChanged,
           ),
         ),
@@ -586,11 +587,11 @@ class _RequestsTab extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9),
+                        color: AppColors.neutral100,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.task_alt,
-                          size: 48, color: Color(0xFF94A3B8)),
+                      child: const Icon(Iconsax.task_square,
+                          size: 48, color: AppColors.neutral400),
                     ),
                     const SizedBox(height: 20),
                     const Text('No approval requests',
@@ -599,7 +600,7 @@ class _RequestsTab extends StatelessWidget {
                     const SizedBox(height: 8),
                     const Text(
                       'Approval requests will appear here when submitted.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                      style: TextStyle(color: AppColors.neutral500, fontSize: 14),
                     ),
                   ],
                 ),
@@ -613,7 +614,7 @@ class _RequestsTab extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(
                 children: [
@@ -622,7 +623,7 @@ class _RequestsTab extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12),
@@ -637,7 +638,7 @@ class _RequestsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -645,7 +646,7 @@ class _RequestsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -653,7 +654,7 @@ class _RequestsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 1,
@@ -661,7 +662,7 @@ class _RequestsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -669,7 +670,7 @@ class _RequestsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         SizedBox(
                           width: 100,
@@ -677,7 +678,7 @@ class _RequestsTab extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                       ],
                     ),
@@ -728,7 +729,7 @@ class _RequestsTab extends StatelessWidget {
             child: Checkbox(
               value: false,
               onChanged: (_) {},
-              activeColor: AppColors.blue,
+              activeColor: AppColors.primary,
             ),
           ),
           // Workflow name
@@ -817,7 +818,7 @@ class _RequestsTab extends StatelessWidget {
                       ),
                     ],
                   )
-                : const Text('–', style: TextStyle(color: Color(0xFF94A3B8))),
+                : const Text('–', style: TextStyle(color: AppColors.neutral400)),
           ),
         ],
       ),
@@ -854,7 +855,7 @@ class _RequestsTab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, size: 7, color: color),
+            Icon(Iconsax.record_circle, size: 7, color: color),
             const SizedBox(width: 5),
             Text(status,
                 style: TextStyle(

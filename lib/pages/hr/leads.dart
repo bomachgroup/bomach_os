@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_checkbox.dart';
@@ -40,11 +41,11 @@ class _LeadsPageState extends State<LeadsPage> {
               children: [
                 MyText(
                   'Leads',
-                  style: AppText.black_600_32,
+                  style: AppText.displayLg,
                 ),
                 MyText(
                   'Leads',
-                  style: AppText.black_600_14,
+                  style: AppText.h4,
                 ),
               ],
             ),
@@ -57,7 +58,7 @@ class _LeadsPageState extends State<LeadsPage> {
           children: [
             MyElevatedButton(
               icon: const Icon(
-                Icons.add_circle_outline_rounded,
+                Iconsax.add_circle,
                 color: AppColors.white,
               ),
               child: 'New Leads',
@@ -77,8 +78,8 @@ class _LeadsPageState extends State<LeadsPage> {
               child: MyTextFormField(
                 hintText: 'Search...',
                 leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
+                  Iconsax.search_normal,
+                  color: AppColors.neutral500.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -136,7 +137,7 @@ class _LeadsPageState extends State<LeadsPage> {
           isChecked: false,
           onChanged: (val) {},
           backgroundNotCheckedColor: AppColors.transparent,
-          borderNotCheckedColor: AppColors.grey4,
+          borderNotCheckedColor: AppColors.neutral300,
         ),
       ),
       const DataColumn(
@@ -184,7 +185,7 @@ class _LeadsPageState extends State<LeadsPage> {
                 isChecked: false,
                 onChanged: (val) {},
                 backgroundNotCheckedColor: AppColors.transparent,
-                borderNotCheckedColor: AppColors.grey4,
+                borderNotCheckedColor: AppColors.neutral300,
               ),
             ),
             const DataCell(
@@ -268,7 +269,7 @@ class ViewLeadsDialogState extends State<ViewLeadsDialog> {
         constraints: const BoxConstraints(maxWidth: 1050),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          color: AppColors.greyBg,
+          color: AppColors.background,
           boxShadow: const [
             BoxShadow(
               color: Colors.grey,
@@ -400,7 +401,7 @@ class ClientInfoCard extends StatelessWidget {
         color: const Color.fromRGBO(255, 255, 255, 1),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -488,7 +489,7 @@ class StatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         color: AppColors.white,
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -514,7 +515,7 @@ class StatsCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.blue2,
+                    color: AppColors.primaryHover,
                   ),
                 ),
               ),
@@ -544,7 +545,7 @@ class ProfileInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         color: AppColors.white,
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -607,7 +608,7 @@ class DetailAndNotes extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             color: AppColors.white,
             border: Border.all(
-              color: AppColors.grey4,
+              color: AppColors.neutral300,
               width: 0.6,
             ),
           ),
@@ -640,7 +641,7 @@ class DetailAndNotes extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             color: AppColors.white,
             border: Border.all(
-              color: AppColors.grey4,
+              color: AppColors.neutral300,
               width: 0.6,
             ),
           ),
@@ -713,7 +714,7 @@ class InfoRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: AppColors.darkGrey2,
+              color: AppColors.neutral400,
             ),
           ),
           MyText(
@@ -721,7 +722,7 @@ class InfoRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w300,
-              color: AppColors.darkGrey2,
+              color: AppColors.neutral400,
             ),
           ),
         ],
@@ -754,7 +755,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
             Container(
               decoration: const BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: AppColors.grey4),
+                  bottom: BorderSide(color: AppColors.neutral300),
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -769,7 +770,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -812,7 +813,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     borderColor: null,
                     child: 'Cancel',
                     onTap: () {

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
@@ -22,13 +23,13 @@ class _LoanPageState extends State<LoanPage> {
   final ScrollController _scrollController = ScrollController();
 
   // Colors from design
-  final Color _blueColor = const Color(0xFF1976D2);
-  final Color _greenBg = const Color(0xFFF0FDF4);
-  final Color _greenTxt = const Color(0xFF22C55E);
-  final Color _redBg = const Color(0xFFFEF2F2);
-  final Color _redTxt = const Color(0xFFEF4444);
-  final Color _yellowBg = const Color(0xFFFFFBEB);
-  final Color _yellowTxt = const Color(0xFFF59E0B);
+  final Color _blueColor = AppColors.primary;
+  final Color _greenBg = AppColors.successSubtle;
+  final Color _greenTxt = AppColors.success;
+  final Color _redBg = AppColors.dangerSubtle;
+  final Color _redTxt = AppColors.danger;
+  final Color _yellowBg = AppColors.warningSubtle;
+  final Color _yellowTxt = AppColors.warning;
 
   @override
   void dispose() {
@@ -56,7 +57,7 @@ class _LoanPageState extends State<LoanPage> {
             Row(
               children: [
                 MyElevatedButton(
-                  icon: const Icon(Icons.add_circle_outline_rounded,
+                  icon: const Icon(Iconsax.add_circle,
                       color: AppColors.white, size: 20),
                   child: "New Loan Application",
                   onTap: () {
@@ -111,8 +112,8 @@ class _LoanPageState extends State<LoanPage> {
                       controller: _ctrl.searchController,
                       hintText: 'Search...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -164,12 +165,12 @@ class _LoanPageState extends State<LoanPage> {
                             children: [
                               CircleAvatar(
                                 radius: 16,
-                                backgroundColor: const Color(0xFFE3F2FD),
+                                backgroundColor: AppColors.infoSubtle,
                                 child: Text(loan.employeeName[0],
                                     style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF1976D2))),
+                                        color: AppColors.primary)),
                               ),
                               const SizedBox(width: 8),
                               Column(
@@ -226,7 +227,7 @@ class _LoanPageState extends State<LoanPage> {
               }),
 
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFFEEEEEE)),
+              const Divider(color: AppColors.neutral100),
               const SizedBox(height: 16),
 
               // Pagination
@@ -257,7 +258,7 @@ class _LoanPageState extends State<LoanPage> {
           color: isActive ? _blueColor : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-              color: isActive ? _blueColor : const Color(0xFFE0E0E0)),
+              color: isActive ? _blueColor : AppColors.neutral200),
         ),
         child: Text(
           text,
@@ -275,13 +276,13 @@ class _LoanPageState extends State<LoanPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
+          color: AppColors.neutral50,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade200)),
       child: Obx(() => DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _ctrl.selectedStatusFilter.value,
-              icon: const Icon(Icons.keyboard_arrow_down,
+              icon: const Icon(Iconsax.arrow_down_1,
                   size: 18, color: Colors.black54),
               elevation: 4,
               style: const TextStyle(fontSize: 14, color: Colors.black87),
@@ -327,7 +328,7 @@ class _LoanPageState extends State<LoanPage> {
                   fontSize: 12,
                   fontWeight: FontWeight.w500)),
           const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.black54)
+          const Icon(Iconsax.arrow_down_1, size: 14, color: Colors.black54)
         ],
       ),
     );

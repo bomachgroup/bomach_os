@@ -1,6 +1,8 @@
 import 'dart:developer';
+import 'package:iconsax/iconsax.dart';
 
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/avatar_picker.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
@@ -100,17 +102,11 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Profile updated successfully'),
-        backgroundColor: Colors.green,
-      ));
+      AppToast.success(context, 'Profile updated successfully');
     } catch (e) {
       log('Update profile error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Failed to update profile: $e'),
-          backgroundColor: Colors.red,
-        ));
+        AppToast.error(context, 'Failed to update profile: $e');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -152,11 +148,11 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkBlue,
+                    color: AppColors.neutral800,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Iconsax.close_circle),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],

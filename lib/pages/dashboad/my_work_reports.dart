@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/controller/work_report_controller.dart';
 import 'package:bms_front_end/pages/hr/models/work_report_model.dart';
@@ -85,11 +86,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0EA5E9).withValues(alpha: 0.1),
+                  color: AppColors.info.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.description_rounded,
-                    color: Color(0xFF0EA5E9), size: 24),
+                child: const Icon(Iconsax.document_text,
+                    color: AppColors.info, size: 24),
               ),
               const SizedBox(width: 14),
               const Column(
@@ -99,13 +100,13 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1E293B))),
+                          color: AppColors.neutral800)),
                   SizedBox(height: 2),
                   MyText('Submit and track your daily work reports',
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF94A3B8))),
+                          color: AppColors.neutral400)),
                 ],
               ),
             ],
@@ -116,19 +117,19 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
+                color: AppColors.neutral100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: IconButton(
-                icon: const Icon(Icons.refresh_rounded,
-                    color: Color(0xFF64748B), size: 22),
+                icon: const Icon(Iconsax.refresh,
+                    color: AppColors.neutral500, size: 22),
                 onPressed: _loadData,
                 tooltip: 'Refresh',
               ),
             ),
             const SizedBox(width: 10),
             MyElevatedButton(
-              icon: const Icon(Icons.add_rounded,
+              icon: const Icon(Iconsax.add,
                   color: AppColors.white, size: 20),
               child: "New Report",
               borderCurve: 12,
@@ -166,19 +167,19 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         children: [
           Expanded(
               child: _buildSummaryCard('Total Reports', '$all',
-                  Icons.description_rounded, const Color(0xFF6366F1))),
+                  Iconsax.document_text, const Color(0xFF6366F1))),
           const SizedBox(width: 12),
           Expanded(
               child: _buildSummaryCard('Pending Review', '$submitted',
-                  Icons.schedule_rounded, const Color(0xFF0EA5E9))),
+                  Iconsax.clock, AppColors.info)),
           const SizedBox(width: 12),
           Expanded(
               child: _buildSummaryCard('Approved', '$approved',
-                  Icons.check_circle_rounded, const Color(0xFF10B981))),
+                  Iconsax.tick_circle, AppColors.success)),
           const SizedBox(width: 12),
           Expanded(
               child: _buildSummaryCard('Rejected', '$rejected',
-                  Icons.cancel_rounded, const Color(0xFFEF4444))),
+                  Iconsax.close_circle, AppColors.danger)),
         ],
       );
     });
@@ -191,7 +192,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
+        border: Border.all(color: AppColors.neutral100),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -219,7 +220,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                     style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B))),
+                        color: AppColors.neutral800)),
                 MyText(label,
                     style: TextStyle(
                         fontSize: 12,
@@ -238,39 +239,39 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       {
         'key': 'all',
         'label': 'All Reports',
-        'icon': Icons.list_alt_rounded,
+        'icon': Iconsax.task_square,
         'color': const Color(0xFF6366F1)
       },
       {
         'key': 'submitted',
         'label': 'Pending Review',
-        'icon': Icons.schedule_rounded,
-        'color': const Color(0xFF0EA5E9)
+        'icon': Iconsax.clock,
+        'color': AppColors.info
       },
       {
         'key': 'approved',
         'label': 'Approved',
-        'icon': Icons.check_circle_rounded,
-        'color': const Color(0xFF10B981)
+        'icon': Iconsax.tick_circle,
+        'color': AppColors.success
       },
       {
         'key': 'rejected',
         'label': 'Rejected',
-        'icon': Icons.cancel_rounded,
-        'color': const Color(0xFFEF4444)
+        'icon': Iconsax.close_circle,
+        'color': AppColors.danger
       },
       {
         'key': 'draft',
         'label': 'Draft',
-        'icon': Icons.edit_note_rounded,
-        'color': const Color(0xFF64748B)
+        'icon': Iconsax.edit_2,
+        'color': AppColors.neutral500
       },
     ];
 
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.neutral100,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -303,7 +304,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                     Icon(
                       f['icon'] as IconData,
                       size: 16,
-                      color: isActive ? color : const Color(0xFF94A3B8),
+                      color: isActive ? color : AppColors.neutral400,
                     ),
                     const SizedBox(width: 6),
                     Flexible(
@@ -315,8 +316,8 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                           fontWeight:
                               isActive ? FontWeight.w600 : FontWeight.w500,
                           color: isActive
-                              ? const Color(0xFF1E293B)
-                              : const Color(0xFF94A3B8),
+                              ? AppColors.neutral800
+                              : AppColors.neutral400,
                         ),
                       ),
                     ),
@@ -335,7 +336,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
+        border: Border.all(color: AppColors.neutral100),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -364,11 +365,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
+                      color: AppColors.neutral100,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Icon(Icons.description_rounded,
-                        size: 48, color: Color(0xFF94A3B8)),
+                    child: const Icon(Iconsax.document_text,
+                        size: 48, color: AppColors.neutral400),
                   ),
                   const SizedBox(height: 16),
                   MyText(
@@ -378,11 +379,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                     style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B)),
+                        color: AppColors.neutral500),
                   ),
                   const SizedBox(height: 6),
                   const MyText('Submit a new report to get started',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+                      style: TextStyle(fontSize: 13, color: AppColors.neutral400)),
                 ],
               ),
             ),
@@ -401,11 +402,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                 constraints: BoxConstraints(minWidth: bodySpace(context)),
                 child: DataTable(
                   headingRowColor:
-                      WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                      WidgetStateProperty.all(AppColors.neutral50),
                   headingTextStyle: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF475569),
+                    color: AppColors.neutral600,
                   ),
                   dataRowMinHeight: 72,
                   dataRowMaxHeight: 72,
@@ -444,12 +445,12 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0EA5E9).withValues(alpha: 0.1),
+                    color: AppColors.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Center(
-                    child: Icon(Icons.calendar_today_rounded,
-                        size: 16, color: Color(0xFF0EA5E9)),
+                    child: Icon(Iconsax.calendar_1,
+                        size: 16, color: AppColors.info),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -460,7 +461,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
                   style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B)),
+                      color: AppColors.neutral800),
                 ),
               ],
             ),
@@ -483,18 +484,18 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
           ),
           DataCell(
             MyText(report.operationalBase ?? '-',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF475569))),
+                style: const TextStyle(fontSize: 13, color: AppColors.neutral600)),
           ),
           DataCell(SizedBox(
             width: 150,
             child: MyText(report.workActivities ?? '-',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
                 maxLines: 1),
           )),
           DataCell(SizedBox(
             width: 150,
             child: MyText(report.taskDetails ?? '-',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                style: const TextStyle(fontSize: 13, color: AppColors.neutral600),
                 maxLines: 1),
           )),
           DataCell(_buildStatusBadge(report.status)),
@@ -533,16 +534,16 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
 
   Widget _buildRating(int rating) {
     if (rating == 0) {
-      return const MyText('\u2014', style: TextStyle(color: Color(0xFF94A3B8)));
+      return const MyText('\u2014', style: TextStyle(color: AppColors.neutral400));
     }
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         ...List.generate(5, (i) {
           return Icon(
-            i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+            i < rating ? Iconsax.star1 : Iconsax.star,
             color:
-                i < rating ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0),
+                i < rating ? AppColors.warning : AppColors.neutral200,
             size: 18,
           );
         }),
@@ -551,7 +552,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
             style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF475569))),
+                color: AppColors.neutral600)),
       ],
     );
   }
@@ -561,11 +562,11 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
       icon: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: AppColors.neutral100,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(Icons.more_horiz_rounded,
-            size: 18, color: Color(0xFF64748B)),
+        child: const Icon(Iconsax.more,
+            size: 18, color: AppColors.neutral500),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 8,
@@ -589,12 +590,12 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
         }
       },
       itemBuilder: (context) => [
-        _buildMenuItem(Icons.visibility_rounded, 'View Details', 'view',
+        _buildMenuItem(Iconsax.eye, 'View Details', 'view',
             const Color(0xFF6366F1)),
         if (report.status.toLowerCase() == 'draft' ||
             report.status.toLowerCase() == 'rejected')
-          _buildMenuItem(Icons.edit_rounded, 'Edit & Resubmit', 'edit',
-              const Color(0xFF0EA5E9)),
+          _buildMenuItem(Iconsax.edit, 'Edit & Resubmit', 'edit',
+              AppColors.info),
       ],
     );
   }
@@ -618,7 +619,7 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
               style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF334155))),
+                  color: AppColors.neutral700)),
         ],
       ),
     );
@@ -627,30 +628,30 @@ class _MyWorkReportsPageState extends State<MyWorkReportsPage> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'submitted':
-        return const Color(0xFF0EA5E9);
+        return AppColors.info;
       case 'draft':
-        return const Color(0xFF64748B);
+        return AppColors.neutral500;
       case 'rejected':
-        return const Color(0xFFEF4444);
+        return AppColors.danger;
       default:
-        return const Color(0xFF94A3B8);
+        return AppColors.neutral400;
     }
   }
 
   IconData _getStatusIcon(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        return Icons.check_circle_rounded;
+        return Iconsax.tick_circle;
       case 'submitted':
-        return Icons.schedule_rounded;
+        return Iconsax.clock;
       case 'draft':
-        return Icons.edit_note_rounded;
+        return Iconsax.edit_2;
       case 'rejected':
-        return Icons.cancel_rounded;
+        return Iconsax.close_circle;
       default:
-        return Icons.circle_outlined;
+        return Iconsax.record;
     }
   }
 }

@@ -58,7 +58,7 @@ class SiteDetailPageState extends State<SiteDetailPage> {
                             kSizedBoxWidthSM,
                             const MyText(
                               'Back',
-                              style: AppText.black_500_20,
+                              style: AppText.h2,
                               isSelectable: false,
                             ),
                           ],
@@ -70,14 +70,14 @@ class SiteDetailPageState extends State<SiteDetailPage> {
                         children: [
                           MyText(
                             'Port Harcourt Industrial Site Office',
-                            style: AppText.black_500_20,
+                            style: AppText.h2,
                           ),
                           SizedBox(
                             height: 8,
                           ),
                           MyText(
                             'Created 9/5/2023 • Updated 1/31/2024',
-                            style: AppText.black_400_16,
+                            style: AppText.bodyLg,
                           ),
                         ],
                       ),
@@ -92,7 +92,7 @@ class SiteDetailPageState extends State<SiteDetailPage> {
                         onTap: () {},
                       ),
                       MyElevatedButton(
-                        bgColor: AppColors.red,
+                        bgColor: AppColors.danger,
                         child: 'Delete',
                         onTap: () {},
                       ),

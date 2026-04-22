@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -80,7 +81,7 @@ class JobPostPageState extends State<JobPostPage> {
   Widget _buildHeader(BuildContext context, bool isMobile) {
     bool showJobPostingsBtn = true;
     String mainBtnText = 'Post Job';
-    Color mainBtnColor = const Color(0xFF0055FF);
+    Color mainBtnColor = AppColors.primary;
     Color mainBtnTextColor = Colors.white;
     IconData mainBtnIcon = CupertinoIcons.add;
     bool isOutlinedMain = false;
@@ -111,7 +112,7 @@ class JobPostPageState extends State<JobPostPage> {
       children: [
         const MyText(
           'Recruitment',
-          style: AppText.black_600_32,
+          style: AppText.displayLg,
         ),
         if (!isMobile)
           Row(
@@ -172,7 +173,7 @@ class JobPostPageState extends State<JobPostPage> {
             onPressed: onMainAction,
             icon: Icon(
               isOutlinedMain
-                  ? Icons.exit_to_app
+                  ? Iconsax.logout_1
                   : CupertinoIcons.add_circled_solid,
               color: mainBtnColor,
               size: 30,
@@ -196,11 +197,11 @@ class JobPostPageState extends State<JobPostPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF0055FF) : Colors.white,
+            color: isSelected ? AppColors.primary : Colors.white,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
               color:
-                  isSelected ? const Color(0xFF0055FF) : Colors.grey.shade300,
+                  isSelected ? AppColors.primary : Colors.grey.shade300,
             ),
           ),
           child: Text(
@@ -387,7 +388,7 @@ class _JobOpeningTable extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.white,
               ),
-              child: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
+              child: const Icon(Iconsax.more, size: 18, color: Colors.grey),
             ),
           ),
         ),
@@ -450,10 +451,10 @@ class PipelineTab extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.chevron_left)),
+                  onPressed: () {}, icon: const Icon(Iconsax.arrow_left_2)),
               const Text("Page 1 of 1"),
               IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.chevron_right)),
+                  onPressed: () {}, icon: const Icon(Iconsax.arrow_right_3)),
             ],
           ),
         )
@@ -472,7 +473,7 @@ class PipelineTab extends StatelessWidget {
       margin: const EdgeInsets.only(right: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -536,7 +537,7 @@ class PipelineTab extends StatelessWidget {
             MyText('${app.firstName} ${app.lastName}', weight: 700, size: 15),
             const SizedBox(height: 4),
             MyText(app.jobPostingId,
-                color: const Color(0xFF0055FF), weight: 500, size: 13),
+                color: AppColors.primary, weight: 500, size: 13),
             const SizedBox(height: 12),
             Container(height: 1, color: Colors.grey.shade100),
             const SizedBox(height: 12),
@@ -692,7 +693,7 @@ class OnboardingTab extends StatelessWidget {
                       const SizedBox(width: 6),
                       MyText(e.status, size: 11, color: Colors.grey.shade700),
                       const SizedBox(width: 4),
-                      Icon(Icons.keyboard_arrow_down,
+                      Icon(Iconsax.arrow_down_1,
                           size: 14, color: Colors.grey.shade500)
                     ]))
               ]))),
@@ -706,7 +707,7 @@ class OnboardingTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.white),
               child:
-                  const Icon(Icons.more_vert, size: 18, color: Colors.grey)))),
+                  const Icon(Iconsax.more, size: 18, color: Colors.grey)))),
     ]);
   }
 }
@@ -853,7 +854,7 @@ class OffboardingTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.white),
               child:
-                  const Icon(Icons.more_vert, size: 18, color: Colors.grey)))),
+                  const Icon(Iconsax.more, size: 18, color: Colors.grey)))),
     ]);
   }
 }

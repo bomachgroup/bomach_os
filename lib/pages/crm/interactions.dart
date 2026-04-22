@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart' show AppColors;
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/input/my_dropdown.dart';
@@ -81,23 +82,23 @@ class InteractionsPage extends StatelessWidget {
               children: [
                 buildActionButton(
                     onPressed: () {},
-                    icon: Icons.message,
+                    icon: Iconsax.message_text,
                     label: 'Log Interactions',
                     isWide: !isMobile),
                 buildActionButton(
                     onPressed: () {
                       AddNewLeadDialog.show(context);
                     },
-                    icon: Icons.control_point_duplicate_sharp,
+                    icon: Iconsax.copy,
                     label: 'Add Lead',
                     isWide: !isMobile),
                 buildActionButton(
                     onPressed: () {
                       AddNewClientDialog.show(context);
                     },
-                    icon: Icons.person_add_alt_1_rounded,
+                    icon: Iconsax.user_add,
                     label: 'Add Client',
-                    backgroundColor: AppColors.blue,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     isWide: !isMobile),
               ],
@@ -132,9 +133,9 @@ class InteractionsPage extends StatelessWidget {
 Map<String, Color> _getPriorityColors(String priority) {
   switch (priority.toLowerCase()) {
     case 'critical':
-      return {'bg': const Color(0xFFFFE6E6), 'text': const Color(0xFFE74C3C)};
+      return {'bg': const Color(0xFFFFE6E6), 'text': AppColors.danger};
     case 'high':
-      return {'bg': const Color(0xFFFFEFEB), 'text': const Color(0xFFF39C12)};
+      return {'bg': AppColors.dangerSubtle, 'text': const Color(0xFFF39C12)};
     case 'medium':
     default:
       return {'bg': const Color(0xFFE6F3FF), 'text': const Color(0xFF3498DB)};
@@ -144,13 +145,13 @@ Map<String, Color> _getPriorityColors(String priority) {
 Map<String, Color> _getStatusColors(String status) {
   switch (status.toLowerCase()) {
     case 'completed':
-      return {'bg': const Color(0xFFE6FFF2), 'text': const Color(0xFF00B062)};
+      return {'bg': AppColors.successSubtle, 'text': AppColors.success};
     case 'pending':
-      return {'bg': const Color(0xFFF7F7F7), 'text': Colors.black87};
+      return {'bg': AppColors.neutral100, 'text': Colors.black87};
     case 'in progress':
-      return {'bg': const Color(0xFFFFFBE8), 'text': const Color(0xFFF1C40F)};
+      return {'bg': AppColors.warningSubtle, 'text': const Color(0xFFF1C40F)};
     default:
-      return {'bg': const Color(0xFFF7F7F7), 'text': Colors.black87};
+      return {'bg': AppColors.neutral100, 'text': Colors.black87};
   }
 }
 
@@ -199,13 +200,13 @@ class InteractonsWidget extends StatelessWidget {
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search interactions...',
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: Icon(Iconsax.search_normal),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(4.0)),
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: Color(0xFFF7F7F7),
+                    fillColor: AppColors.neutral100,
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                   ),
@@ -224,7 +225,7 @@ class InteractonsWidget extends StatelessWidget {
                     'Site Visit'
                   ],
                   onChanged: (String? newValue) {},
-                  fillColor: const Color(0xFFF7F7F7),
+                  fillColor: AppColors.neutral100,
                 ),
               ),
             ],
@@ -298,7 +299,7 @@ class InteractionDataTable extends StatelessWidget {
         DataCell(Text(interaction.client,
             style: const TextStyle(fontWeight: FontWeight.w600))),
         DataCell(_buildSimpleTag(interaction.type,
-            backgroundColor: const Color(0xFFF0F0F0),
+            backgroundColor: AppColors.neutral100,
             textColor: Colors.black87)),
         DataCell(
           SizedBox(
@@ -336,7 +337,7 @@ class InteractionDataTable extends StatelessWidget {
         DataCell(Text(interaction.createdBy)),
         const DataCell(
           IconButton(
-            icon: Icon(Icons.remove_red_eye_outlined, color: Colors.grey),
+            icon: Icon(Iconsax.eye, color: Colors.grey),
             onPressed: null,
           ),
         ),

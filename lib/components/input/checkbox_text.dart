@@ -15,7 +15,7 @@ class CheckboxText extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         MyCheckbox(
-          checkColor: AppColors.blue,
+          checkColor: AppColors.primary,
           backgroundColor: AppColors.white,
           isChecked: isChecked,
           onChanged: (val) {},

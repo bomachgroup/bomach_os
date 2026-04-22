@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -38,12 +39,12 @@ class EstateManagementPage extends StatelessWidget {
                     children: [
                       MyText(
                         'Estate Management',
-                        style: AppText.black_500_32,
+                        style: AppText.displayLg,
                       ),
                       SizedBox(height: 8),
                       MyText(
                         'Manage your real estate developments',
-                        style: AppText.black_400_14,
+                        style: AppText.bodyMd,
                       ),
                     ],
                   ),
@@ -56,8 +57,8 @@ class EstateManagementPage extends StatelessWidget {
                         child: MyTextFormField(
                           hintText: 'Search estates...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                           onChanged: (value) {
                             ctrl.onSearchChanged(value);
@@ -67,7 +68,7 @@ class EstateManagementPage extends StatelessWidget {
                       const SortBar(text: "Sort"),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "Add Estate",
@@ -115,14 +116,14 @@ class EstateManagementPage extends StatelessWidget {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.domain_disabled,
+                      Iconsax.building_4,
                       size: 64,
-                      color: AppColors.grey1.withValues(alpha: 0.5),
+                      color: AppColors.neutral500.withValues(alpha: 0.5),
                     ),
                     kSizedBox,
                     const MyText(
                       'No estates found',
-                      style: TextStyle(fontSize: 18, color: AppColors.grey1),
+                      style: TextStyle(fontSize: 18, color: AppColors.neutral500),
                     ),
                   ],
                 ),
@@ -152,8 +153,8 @@ class EstateManagementPage extends StatelessWidget {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _buildStatCard('Total Estates', '$total', Icons.domain, AppColors.blue),
-        _buildStatCard('Active', '$active', Icons.check_circle, Colors.green),
+        _buildStatCard('Total Estates', '$total', Iconsax.building_4, AppColors.primary),
+        _buildStatCard('Active', '$active', Iconsax.tick_circle, Colors.green),
       ],
     );
   }
@@ -166,7 +167,7 @@ class EstateManagementPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -189,7 +190,7 @@ class EstateManagementPage extends StatelessWidget {
                   const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           MyText(label,
-              style: const TextStyle(fontSize: 14, color: AppColors.grey1)),
+              style: const TextStyle(fontSize: 14, color: AppColors.neutral500)),
         ],
       ),
     );
@@ -221,16 +222,16 @@ class EstateManagementPage extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.blue : AppColors.white,
+                      color: isSelected ? AppColors.primary : AppColors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected ? AppColors.blue : AppColors.grey4,
+                        color: isSelected ? AppColors.primary : AppColors.neutral300,
                       ),
                     ),
                     child: MyText(
                       labels[f] ?? f,
                       style: TextStyle(
-                        color: isSelected ? AppColors.white : AppColors.grey1,
+                        color: isSelected ? AppColors.white : AppColors.neutral500,
                         fontSize: 14,
                         fontWeight:
                             isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -254,7 +255,7 @@ class EstateManagementPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -275,10 +276,10 @@ class EstateManagementPage extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.blue.withValues(alpha: 0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.domain, size: 40, color: AppColors.blue),
+              child: const Icon(Iconsax.building_4, size: 40, color: AppColors.primary),
             ),
             kSizedBoxWidthSM,
             // Estate Details
@@ -319,14 +320,14 @@ class EstateManagementPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on,
-                          size: 16, color: AppColors.grey1),
+                      const Icon(Iconsax.location,
+                          size: 16, color: AppColors.neutral500),
                       const SizedBox(width: 4),
                       Expanded(
                         child: MyText(
                           estate.location,
                           style: const TextStyle(
-                              fontSize: 14, color: AppColors.grey1),
+                              fontSize: 14, color: AppColors.neutral500),
                         ),
                       ),
                     ],
@@ -334,13 +335,13 @@ class EstateManagementPage extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.business,
-                          size: 16, color: AppColors.grey1),
+                      const Icon(Iconsax.building_4,
+                          size: 16, color: AppColors.neutral500),
                       const SizedBox(width: 4),
                       MyText(
                         estate.developerCompanyName,
                         style: const TextStyle(
-                            fontSize: 14, color: AppColors.grey1),
+                            fontSize: 14, color: AppColors.neutral500),
                       ),
                     ],
                   ),
@@ -368,14 +369,14 @@ class EstateManagementPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: bg ?? const Color(0xFFF1F5F9),
+        color: bg ?? AppColors.neutral100,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         text,
         style: TextStyle(
             fontSize: 11,
-            color: color ?? const Color(0xFF475569),
+            color: color ?? AppColors.neutral600,
             fontWeight: FontWeight.w500),
       ),
     );
@@ -392,7 +393,7 @@ class EstateManagementPage extends StatelessWidget {
       case 'completed':
         return Colors.purple;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

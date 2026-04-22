@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
@@ -60,14 +61,14 @@ class TaskPageState extends State<TaskPage> {
                         width: 200,
                         child: MyTextFormField(
                           hintText: 'Search...',
-                          leading: Icon(Icons.search,
-                              color: AppColors.grey1.withValues(alpha: 0.5)),
+                          leading: Icon(Iconsax.search_normal,
+                              color: AppColors.neutral500.withValues(alpha: 0.5)),
                           onChanged: (val) => controller.fetchTasks(context,
                               projectId: widget.projectId, search: val),
                         ),
                       ),
                       MyElevatedButton(
-                        icon: const Icon(Icons.add_circle_outline_rounded,
+                        icon: const Icon(Iconsax.add_circle,
                             color: AppColors.white),
                         child: "Add Task",
                         onTap: () {
@@ -199,7 +200,7 @@ class TaskPageState extends State<TaskPage> {
                     controller.deleteTask(context, task.id, widget.projectId),
               ),
             ],
-            child: const Icon(Icons.more_vert),
+            child: const Icon(Iconsax.more),
           ),
         ),
       ]);
@@ -209,13 +210,13 @@ class TaskPageState extends State<TaskPage> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
-        return AppColors.green;
+        return AppColors.success;
       case 'in progress':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'pending':
         return Colors.orange;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -68,13 +70,9 @@ class AttendancePageState extends State<AttendancePage> {
     final ok = await controller.performFaceSetup(token, context: context);
     if (!mounted) return;
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(controller.successMessage.value),
-          backgroundColor: Colors.green));
+      AppToast.success(context, controller.successMessage.value);
     } else if (controller.errorMessage.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(controller.errorMessage.value),
-          backgroundColor: Colors.red));
+      AppToast.error(context, controller.errorMessage.value);
     }
   }
 
@@ -88,13 +86,9 @@ class AttendancePageState extends State<AttendancePage> {
     );
     if (!mounted) return;
     if (controller.errorMessage.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(controller.errorMessage.value),
-          backgroundColor: Colors.red));
+      AppToast.error(context, controller.errorMessage.value);
     } else if (controller.successMessage.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(controller.successMessage.value),
-          backgroundColor: Colors.green));
+      AppToast.success(context, controller.successMessage.value);
     }
   }
 
@@ -161,7 +155,7 @@ class AttendancePageState extends State<AttendancePage> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.blue, AppColors.darkBlue2],
+          colors: [AppColors.primary, AppColors.primaryPressed],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -176,7 +170,7 @@ class AttendancePageState extends State<AttendancePage> {
                   color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.access_time_rounded,
+                child: const Icon(Iconsax.clock,
                     color: Colors.white, size: 24),
               ),
               const SizedBox(width: 16),
@@ -253,12 +247,9 @@ class AttendancePageState extends State<AttendancePage> {
           final ok =
               await controller.removeBiometric(token, biometricType: 'face');
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(ok
+          AppToast.info(context, ok
                 ? controller.successMessage.value
-                : controller.errorMessage.value),
-            backgroundColor: ok ? Colors.green : Colors.red,
-          ));
+                : controller.errorMessage.value);
         }
       },
       itemBuilder: (_) => [
@@ -273,7 +264,7 @@ class AttendancePageState extends State<AttendancePage> {
         ],
       ],
       child: _heroChip(
-        icon: registered ? Icons.face_rounded : Icons.face_retouching_off,
+        icon: registered ? Iconsax.emoji_happy : Iconsax.emoji_normal,
         label: registered ? 'Face registered' : 'Face not registered',
       ),
     );
@@ -302,21 +293,21 @@ class AttendancePageState extends State<AttendancePage> {
     IconData icon;
     if (total == 0) {
       label = 'No workspace submitted';
-      icon = Icons.location_off_rounded;
+      icon = Iconsax.location_slash;
     } else if (approved > 0) {
       label = pending > 0
           ? '$approved approved · $pending pending'
           : '$approved approved';
-      icon = Icons.location_on_rounded;
+      icon = Iconsax.location;
     } else if (pending > 0) {
       label = '$pending awaiting approval';
-      icon = Icons.hourglass_top_rounded;
+      icon = Iconsax.timer;
     } else if (rejected > 0) {
       label = rejected == 1 ? 'Workspace rejected' : '$rejected rejected';
-      icon = Icons.location_off_rounded;
+      icon = Iconsax.location_slash;
     } else {
       label = '$total submitted';
-      icon = Icons.location_on_rounded;
+      icon = Iconsax.location;
     }
 
     return _heroChip(icon: icon, label: label);
@@ -371,28 +362,28 @@ class AttendancePageState extends State<AttendancePage> {
         title: 'This Week',
         value: '${stats.thisWeekDays}',
         subtitle: 'days clocked in',
-        icon: Icons.calendar_today_rounded,
-        color: const Color(0xFF10B981),
+        icon: Iconsax.calendar_1,
+        color: AppColors.success,
       ),
       _StatCardData(
         title: 'This Month',
         value: '${stats.thisMonthDays}',
         subtitle: 'days clocked in',
-        icon: Icons.event_note_rounded,
-        color: AppColors.blue,
+        icon: Iconsax.calendar_1,
+        color: AppColors.primary,
       ),
       _StatCardData(
         title: 'Avg Hours / Day',
         value: stats.avgHoursLabel,
         subtitle: 'based on this month',
-        icon: Icons.timelapse_rounded,
-        color: const Color(0xFFF59E0B),
+        icon: Iconsax.timer_1,
+        color: AppColors.warning,
       ),
       _StatCardData(
         title: 'Last Clock-In',
         value: stats.lastClockInRelative,
         subtitle: stats.lastClockInExact,
-        icon: Icons.login_rounded,
+        icon: Iconsax.login_1,
         color: const Color(0xFF8B5CF6),
       ),
     ];
@@ -424,7 +415,7 @@ class AttendancePageState extends State<AttendancePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +437,7 @@ class AttendancePageState extends State<AttendancePage> {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
+                    color: AppColors.neutral500,
                   ),
                 ),
               ),
@@ -458,7 +449,7 @@ class AttendancePageState extends State<AttendancePage> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F172A),
+              color: AppColors.neutral900,
             ),
           ),
           const SizedBox(height: 2),
@@ -468,7 +459,7 @@ class AttendancePageState extends State<AttendancePage> {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFF94A3B8),
+              color: AppColors.neutral400,
             ),
           ),
         ],
@@ -558,13 +549,13 @@ class AttendancePageState extends State<AttendancePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         children: [
           const MyText("Current Time",
               style: TextStyle(
-                  color: Color(0xFF64748B),
+                  color: AppColors.neutral500,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                   letterSpacing: 0.5)),
@@ -579,13 +570,13 @@ class AttendancePageState extends State<AttendancePage> {
                     fontSize: 52,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2,
-                    color: Color(0xFF0F172A)),
+                    color: AppColors.neutral900),
               );
             },
           ),
           const SizedBox(height: 6),
           Text(DateFormat('EEEE, MMMM d, yyyy').format(controller.trustedTime),
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
+              style: const TextStyle(color: AppColors.neutral500, fontSize: 15)),
           const SizedBox(height: 24),
           const Divider(),
           const SizedBox(height: 20),
@@ -604,10 +595,10 @@ class AttendancePageState extends State<AttendancePage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildTimeStatusItem(
-                    "Time In", timeIn, Icons.login, const Color(0xFF00C853)),
-                Container(width: 1, height: 40, color: const Color(0xFFE0E0E0)),
+                    "Time In", timeIn, Iconsax.login_1, AppColors.success),
+                Container(width: 1, height: 40, color: AppColors.neutral200),
                 _buildTimeStatusItem(
-                    "Time Out", timeOut, Icons.logout, const Color(0xFF2962FF)),
+                    "Time Out", timeOut, Iconsax.logout_1, AppColors.primary),
               ],
             );
           }),
@@ -622,7 +613,7 @@ class AttendancePageState extends State<AttendancePage> {
                     Expanded(
                       child: _buildActionButton(
                         buttonText: "Clock In",
-                        buttonColor: const Color(0xFF00C853),
+                        buttonColor: AppColors.success,
                         onTap: enabled ? () => _handleClockAction(true) : null,
                       ),
                     ),
@@ -630,7 +621,7 @@ class AttendancePageState extends State<AttendancePage> {
                     Expanded(
                       child: _buildActionButton(
                         buttonText: "Clock Out",
-                        buttonColor: const Color(0xFF2962FF),
+                        buttonColor: AppColors.primary,
                         onTap: enabled ? () => _handleClockAction(false) : null,
                       ),
                     ),
@@ -651,8 +642,8 @@ class AttendancePageState extends State<AttendancePage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded,
-                            color: Color(0xFFB45309), size: 16),
+                        const Icon(Iconsax.info_circle,
+                            color: AppColors.warning, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -727,7 +718,7 @@ class AttendancePageState extends State<AttendancePage> {
             const SizedBox(width: 6),
             Text(label,
                 style: const TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.neutral500,
                     fontSize: 13,
                     fontWeight: FontWeight.w500)),
           ],
@@ -737,7 +728,7 @@ class AttendancePageState extends State<AttendancePage> {
             style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F172A))),
+                color: AppColors.neutral900)),
       ],
     );
   }
@@ -752,7 +743,7 @@ class AttendancePageState extends State<AttendancePage> {
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: buttonColor,
-          disabledBackgroundColor: const Color(0xFFCBD5E1),
+          disabledBackgroundColor: AppColors.neutral300,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -803,7 +794,7 @@ class AttendancePageState extends State<AttendancePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -813,11 +804,11 @@ class AttendancePageState extends State<AttendancePage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.location_on_rounded,
-                    color: AppColors.blue, size: 18),
+                child: const Icon(Iconsax.location,
+                    color: AppColors.primary, size: 18),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -829,22 +820,22 @@ class AttendancePageState extends State<AttendancePage> {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A)),
+                          color: AppColors.neutral900),
                     ),
                     SizedBox(height: 2),
                     Text(
                       'Submit a location for approval. Admin sets the geofence radius.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      style: TextStyle(fontSize: 12, color: AppColors.neutral500),
                     ),
                   ],
                 ),
               ),
               ElevatedButton.icon(
                 onPressed: _openSubmitWorkspace,
-                icon: const Icon(Icons.add_location_alt_rounded, size: 16),
+                icon: const Icon(Iconsax.location_add, size: 16),
                 label: const Text('Submit New'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.blue,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -871,7 +862,7 @@ class AttendancePageState extends State<AttendancePage> {
                 for (int i = 0; i < controller.workspaces.length; i++) ...[
                   _buildWorkspaceRow(controller.workspaces[i]),
                   if (i < controller.workspaces.length - 1)
-                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    const Divider(height: 1, color: AppColors.neutral100),
                 ],
               ],
             );
@@ -886,7 +877,7 @@ class AttendancePageState extends State<AttendancePage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -894,11 +885,11 @@ class AttendancePageState extends State<AttendancePage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.blue.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.add_location_alt_rounded,
-                color: AppColors.blue, size: 28),
+            child: const Icon(Iconsax.location_add,
+                color: AppColors.primary, size: 28),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -906,7 +897,7 @@ class AttendancePageState extends State<AttendancePage> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF0F172A),
+              color: AppColors.neutral900,
             ),
           ),
           const SizedBox(height: 6),
@@ -916,17 +907,17 @@ class AttendancePageState extends State<AttendancePage> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF64748B),
+              color: AppColors.neutral500,
               height: 1.5,
             ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _openSubmitWorkspace,
-            icon: const Icon(Icons.add_location_alt_rounded, size: 16),
+            icon: const Icon(Iconsax.location_add, size: 16),
             label: const Text('Submit Your First Workspace'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(
@@ -982,7 +973,7 @@ class AttendancePageState extends State<AttendancePage> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F172A),
+                      color: AppColors.neutral900,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -992,7 +983,7 @@ class AttendancePageState extends State<AttendancePage> {
                     '${ws.createdAt != null ? ' · submitted ${_shortDate(ws.createdAt!)}' : ''}',
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.neutral400,
                     ),
                   ),
                 ],
@@ -1000,8 +991,8 @@ class AttendancePageState extends State<AttendancePage> {
             ),
             IconButton(
               tooltip: 'View details',
-              icon: const Icon(Icons.chevron_right_rounded,
-                  color: Color(0xFF94A3B8)),
+              icon: const Icon(Iconsax.arrow_right_3,
+                  color: AppColors.neutral400),
               onPressed: () => _openWorkspaceDetails(ws),
             ),
           ],
@@ -1023,27 +1014,27 @@ class AttendancePageState extends State<AttendancePage> {
     switch (s) {
       case WorkspaceStatus.approved:
         return (
-          const Color(0xFF10B981),
-          const Color(0xFF10B981).withValues(alpha: 0.12),
-          Icons.check_circle_rounded,
+          AppColors.success,
+          AppColors.success.withValues(alpha: 0.12),
+          Iconsax.tick_circle,
         );
       case WorkspaceStatus.pending:
         return (
-          const Color(0xFFF59E0B),
-          const Color(0xFFF59E0B).withValues(alpha: 0.12),
-          Icons.hourglass_top_rounded,
+          AppColors.warning,
+          AppColors.warning.withValues(alpha: 0.12),
+          Iconsax.timer,
         );
       case WorkspaceStatus.rejected:
         return (
-          const Color(0xFFEF4444),
-          const Color(0xFFEF4444).withValues(alpha: 0.12),
-          Icons.cancel_rounded,
+          AppColors.danger,
+          AppColors.danger.withValues(alpha: 0.12),
+          Iconsax.close_circle,
         );
       case WorkspaceStatus.unknown:
         return (
-          const Color(0xFF64748B),
-          const Color(0xFF64748B).withValues(alpha: 0.12),
-          Icons.help_outline_rounded,
+          AppColors.neutral500,
+          AppColors.neutral500.withValues(alpha: 0.12),
+          Iconsax.info_circle,
         );
     }
   }
@@ -1056,7 +1047,7 @@ class AttendancePageState extends State<AttendancePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1066,11 +1057,11 @@ class AttendancePageState extends State<AttendancePage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.history_rounded,
-                    color: AppColors.blue, size: 18),
+                child: const Icon(Iconsax.clock,
+                    color: AppColors.primary, size: 18),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -1079,7 +1070,7 @@ class AttendancePageState extends State<AttendancePage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
+                    color: AppColors.neutral900,
                   ),
                 ),
               ),
@@ -1100,7 +1091,7 @@ class AttendancePageState extends State<AttendancePage> {
                 child: Center(
                   child: Text(
                     'No attendance records yet.',
-                    style: TextStyle(color: Color(0xFF94A3B8)),
+                    style: TextStyle(color: AppColors.neutral400),
                   ),
                 ),
               );
@@ -1110,12 +1101,12 @@ class AttendancePageState extends State<AttendancePage> {
               child: DataTable(
                 headingTextStyle: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF475569),
+                  color: AppColors.neutral600,
                   fontSize: 12,
                   letterSpacing: 0.5,
                 ),
                 headingRowColor:
-                    WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                    WidgetStateProperty.all(AppColors.neutral50),
                 columnSpacing: 24,
                 columns: const [
                   DataColumn(label: Text('DATE')),
@@ -1129,7 +1120,7 @@ class AttendancePageState extends State<AttendancePage> {
                       _prettyDate(day.date),
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.neutral900,
                         fontSize: 13,
                       ),
                     )),
@@ -1139,7 +1130,7 @@ class AttendancePageState extends State<AttendancePage> {
                         style: const TextStyle(fontSize: 13))),
                     DataCell(Text(
                       day.hoursWorked,
-                      style: AppText.black_600_14,
+                      style: AppText.h4,
                     )),
                   ]);
                 }).toList(),

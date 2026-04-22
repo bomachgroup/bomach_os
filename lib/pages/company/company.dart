@@ -1,18 +1,30 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/pages/company/board_members.dart';
 import 'package:bms_front_end/pages/company/compliance.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'controllers/company_controller.dart';
 import 'widget/edit_company_dialog.dart';
 import 'widget/shareholders_dialogs.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:intl/intl.dart';
+
+// Local accent palette for stat cards & shareholder avatars.
+const Color _accentBlue = AppColors.primary;
+const Color _accentGreen = AppColors.success;
+const Color _accentAmber = AppColors.warning;
+const Color _accentIndigo = Color(0xFF6366F1);
 
 class CompanyProfilePage extends StatelessWidget {
   const CompanyProfilePage({super.key});
@@ -29,10 +41,11 @@ class CompanyProfilePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const MyText('Company Profile', style: AppText.black_600_32),
-          const SizedBox(height: 8),
-          const Text('Manage Profile, Business, ownerships and Compliance',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
+          const PageHeader(
+            title: 'Company Profile',
+            subtitle:
+                'Organization details, shareholders, and governance',
+          ),
           const SizedBox(height: 24),
 
           // Stats Row (wrap so cards flow on smaller widths)
@@ -44,7 +57,8 @@ class CompanyProfilePage extends StatelessWidget {
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0)))),
+                border:
+                    Border(bottom: BorderSide(color: AppColors.borderSubtle))),
             child: Obx(() => Wrap(
                   spacing: 8,
                   children: [
@@ -62,19 +76,21 @@ class CompanyProfilePage extends StatelessWidget {
           // Body Content
           Obx(() {
             if (controller.isLoading.value) {
-              return const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: CircularProgressIndicator()));
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: LoadingSkeleton.card(lines: 4),
+              );
             }
             if (controller.companySettings.value == null) {
-              return Center(
-                  child: Column(children: [
-                const Text("No data"),
-                TextButton(
-                    onPressed: controller.fetchCompanyProfile,
-                    child: const Text("Retry"))
-              ]));
+              return EmptyState(
+                icon: Iconsax.warning_2,
+                title: 'Could not load company profile',
+                subtitle: 'Please try again.',
+                action: ElevatedButton(
+                  onPressed: controller.fetchCompanyProfile,
+                  child: const Text('Retry'),
+                ),
+              );
             }
 
             final data = controller.companySettings.value!;
@@ -109,27 +125,21 @@ class CompanyProfilePage extends StatelessWidget {
 
   Widget _buildProfileTab(
       BuildContext context, CompanyController controller, dynamic data) {
-    return Card(
-      color: AppColors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFFE2E8F0))),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text("Company Information",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              MyElevatedButton(
-                icon: const Icon(Icons.edit, size: 16, color: Colors.white),
-                child: 'Edit Profile',
-                onTap: () => showDialog(
-                    context: context,
-                    builder: (_) => const EditProfileDialog()),
-              ),
-            ]),
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            const Text('Company Information', style: AppText.h3),
+            MyElevatedButton(
+              icon: const Icon(Iconsax.edit,
+                  size: 16, color: AppColors.textOnPrimary),
+              child: 'Edit Profile',
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (_) => const EditProfileDialog()),
+            ),
+          ]),
             const SizedBox(height: 24),
             Builder(builder: (layoutContext) {
               bool small = isSmallScreen(layoutContext);
@@ -139,14 +149,16 @@ class CompanyProfilePage extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    borderRadius: BorderRadius.circular(12)),
+                    border: Border.all(color: AppColors.borderSubtle),
+                    borderRadius: AppRadii.brMd),
                 child: Center(
                     child: data.companyLogo != null
                         ? Image.network(data.companyLogo!,
                             errorBuilder: (c, e, s) =>
-                                const Icon(Icons.business))
-                        : const Icon(Icons.business)),
+                                const Icon(Iconsax.building, size: 28,
+                                    color: AppColors.textMuted))
+                        : const Icon(Iconsax.building, size: 28,
+                            color: AppColors.textMuted)),
               );
 
               Widget infoWidget = Expanded(
@@ -183,8 +195,7 @@ class CompanyProfilePage extends StatelessWidget {
             })
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildGlobalBusinessTab(
@@ -192,8 +203,7 @@ class CompanyProfilePage extends StatelessWidget {
     return Column(children: [
       Builder(builder: (layoutContext) {
         bool small = isSmallScreen(layoutContext);
-        Widget title = const Text("Global Business Settings",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
+        Widget title = const Text('Global Business Settings', style: AppText.h3);
         Widget button = MyElevatedButton(
           child: 'Edit Settings',
           onTap: () => showDialog(
@@ -210,16 +220,10 @@ class CompanyProfilePage extends StatelessWidget {
               );
       }),
       const SizedBox(height: 20),
-      Card(
-        color: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFFE2E8F0))),
-        child: Padding(
-            padding: const EdgeInsets.all(24),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      AppCard(
+        padding: const EdgeInsets.all(24),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Wrap(children: [
                 SizedBox(
                     width: 260,
@@ -258,8 +262,9 @@ class CompanyProfilePage extends StatelessWidget {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      const Text("Approvals",
-                          style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text('Approvals',
+                          style: AppText.caption
+                              .copyWith(color: AppColors.textMuted)),
                       const SizedBox(height: 8),
                       _buildStaticPill(controller.approvalType.value, true),
                     ])),
@@ -267,8 +272,9 @@ class CompanyProfilePage extends StatelessWidget {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      const Text("Notifications",
-                          style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text('Notifications',
+                          style: AppText.caption
+                              .copyWith(color: AppColors.textMuted)),
                       const SizedBox(height: 8),
                       Row(children: [
                         if (controller.notifyEmail.value)
@@ -281,7 +287,6 @@ class CompanyProfilePage extends StatelessWidget {
                     ])),
               ])
             ])),
-      )
     ]);
   }
 
@@ -292,10 +297,10 @@ class CompanyProfilePage extends StatelessWidget {
     return Obx(() {
       if (controller.isShareholdersLoading.value &&
           controller.shareholders.isEmpty) {
-        return const Center(
-            child: Padding(
-                padding: EdgeInsets.all(40),
-                child: CircularProgressIndicator()));
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: LoadingSkeleton.listRows(count: 5),
+        );
       }
 
       final list = controller.shareholders;
@@ -304,14 +309,14 @@ class CompanyProfilePage extends StatelessWidget {
         // Header row with title and search + edit button
         Builder(builder: (layoutContext) {
           bool small = isSmallScreen(layoutContext);
-          Widget title = const Column(
+          Widget title = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Ownership & Shareholders",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text("Bomach Group of Companies",
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+              const Text('Ownership & Shareholders', style: AppText.h3),
+              const SizedBox(height: 4),
+              Text('Bomach Group of Companies',
+                  style: AppText.bodySm.copyWith(
+                      color: AppColors.textSecondary)),
             ],
           );
           Widget actions = Row(
@@ -319,7 +324,8 @@ class CompanyProfilePage extends StatelessWidget {
             children: [
               MyElevatedButton(
                 child: 'Edit Share Holders',
-                icon: const Icon(Icons.edit, size: 16, color: Colors.white),
+                icon: const Icon(Iconsax.edit,
+                    size: 16, color: AppColors.textOnPrimary),
                 onTap: () => showDialog(
                   context: context,
                   builder: (_) => const EditShareHoldersDialog(),
@@ -340,53 +346,50 @@ class CompanyProfilePage extends StatelessWidget {
         const SizedBox(height: 24),
 
         // Equity section
-        Card(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFFE2E8F0)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Equity",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    TextButton.icon(
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (_) => const EditEquityDialog(),
-                      ),
-                      icon: const Icon(Icons.edit, size: 14),
-                      label: const Text("Update Shares",
-                          style: TextStyle(fontSize: 13)),
+        AppCard(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Equity', style: AppText.h4),
+                  TextButton.icon(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => const EditEquityDialog(),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                const Text("Authorized Shares",
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-                const SizedBox(height: 8),
-                controller.isEquityLoading.value
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(
-                        controller.authorizedShares.value > 0
-                            ? numberFormat
-                                .format(controller.authorizedShares.value)
-                            : '—',
-                        style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
-              ],
-            ),
+                    icon: const Icon(Iconsax.edit, size: 14),
+                    label: const Text('Update Shares'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      textStyle:
+                          AppText.bodySm.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text('Authorized Shares',
+                  style: AppText.bodySm
+                      .copyWith(color: AppColors.textSecondary)),
+              const SizedBox(height: 8),
+              controller.isEquityLoading.value
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(
+                      controller.authorizedShares.value > 0
+                          ? numberFormat
+                              .format(controller.authorizedShares.value)
+                          : '—',
+                      style: AppText.h2.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      )),
+            ],
           ),
         ),
 
@@ -396,24 +399,19 @@ class CompanyProfilePage extends StatelessWidget {
         if (list.isEmpty)
           _buildEmptyState(
             context,
-            icon: Icons.people_outline,
-            title: "No shareholders yet",
+            icon: Iconsax.people,
+            title: 'No shareholders yet',
             subtitle:
-                "Add shareholders to track ownership and share distribution.",
-            buttonLabel: "Add Shareholder",
+                'Add shareholders to track ownership and share distribution.',
+            buttonLabel: 'Add Shareholder',
             onAdd: () => showDialog(
               context: context,
               builder: (_) => const AddEditShareholderDialog(),
             ),
           )
         else
-          Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
+          AppCard(
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 // Table header
@@ -421,54 +419,44 @@ class CompanyProfilePage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
+                    color: AppColors.surfaceMuted,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      SizedBox(width: 40),
+                      const SizedBox(width: 40),
                       Expanded(
                           flex: 3,
-                          child: Text("Name",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
+                          child: Text('Name',
+                              style: AppText.label.copyWith(
+                                  color: AppColors.textSecondary))),
                       Expanded(
                           flex: 2,
-                          child: Text("Role",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
+                          child: Text('Role',
+                              style: AppText.label.copyWith(
+                                  color: AppColors.textSecondary))),
                       Expanded(
                           flex: 2,
-                          child: Text("Shares",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
+                          child: Text('Shares',
+                              style: AppText.label.copyWith(
+                                  color: AppColors.textSecondary))),
                       Expanded(
                           flex: 2,
-                          child: Text("Percentage",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
+                          child: Text('Percentage',
+                              style: AppText.label.copyWith(
+                                  color: AppColors.textSecondary))),
                       SizedBox(
                           width: 48,
-                          child: Text("Action",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
+                          child: Text('Action',
+                              style: AppText.label.copyWith(
+                                  color: AppColors.textSecondary))),
                     ],
                   ),
                 ),
-                const Divider(height: 1),
+                const Divider(height: 1, color: AppColors.borderSubtle),
                 // Table rows
                 ...list.asMap().entries.map((entry) {
                   final i = entry.key;
@@ -487,26 +475,26 @@ class CompanyProfilePage extends StatelessWidget {
     final numberFormat = NumberFormat('#,###');
     final color = _avatarColor(index);
 
-    Color roleColor;
+    StatusTone roleTone;
     switch (s.titleDisplay.toLowerCase()) {
       case 'founder':
-        roleColor = Colors.green;
+        roleTone = StatusTone.success;
         break;
       case 'co-founder':
-        roleColor = Colors.blue;
+        roleTone = StatusTone.info;
         break;
       case 'investor':
-        roleColor = Colors.orange;
+        roleTone = StatusTone.warning;
         break;
       default:
-        roleColor = Colors.grey;
+        roleTone = StatusTone.neutral;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
+          bottom: BorderSide(color: AppColors.borderSubtle),
         ),
       ),
       child: Row(
@@ -517,7 +505,7 @@ class CompanyProfilePage extends StatelessWidget {
             child: Checkbox(
               value: false,
               onChanged: (_) {},
-              activeColor: AppColors.blue,
+              activeColor: AppColors.primary,
             ),
           ),
           // Name + avatar
@@ -538,21 +526,22 @@ class CompanyProfilePage extends StatelessWidget {
                                   s.firstName.isNotEmpty
                                       ? s.firstName[0].toUpperCase()
                                       : '?',
-                                  style: TextStyle(
+                                  style: AppText.label.copyWith(
                                       color: color,
-                                      fontWeight: FontWeight.bold))))
+                                      fontWeight: FontWeight.w700))))
                       : Text(
                           s.firstName.isNotEmpty
                               ? s.firstName[0].toUpperCase()
                               : '?',
-                          style: TextStyle(
-                              color: color, fontWeight: FontWeight.bold)),
+                          style: AppText.label.copyWith(
+                              color: color, fontWeight: FontWeight.w700)),
                 ),
                 const SizedBox(width: 10),
                 Flexible(
                   child: Text(s.fullName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 14),
+                      style: AppText.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis),
                 ),
               ],
@@ -563,43 +552,35 @@ class CompanyProfilePage extends StatelessWidget {
             flex: 2,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: roleColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  s.titleDisplay.isNotEmpty ? s.titleDisplay : s.title,
-                  style: TextStyle(
-                      color: roleColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                ),
+              child: StatusChip(
+                label: s.titleDisplay.isNotEmpty ? s.titleDisplay : s.title,
+                tone: roleTone,
               ),
             ),
           ),
           // Shares
           Expanded(
             flex: 2,
-            child: Text(numberFormat.format(s.shareCount),
-                style: const TextStyle(fontSize: 14)),
+            child: Text(
+              numberFormat.format(s.shareCount),
+              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
           ),
           // Percentage
           Expanded(
             flex: 2,
             child: Text('${s.sharePercentage}%',
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                style: AppText.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary)),
           ),
           // Action menu
           SizedBox(
             width: 48,
             child: PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, size: 20),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+              icon: const Icon(Iconsax.more, size: 18),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.brMd),
               onSelected: (value) async {
                 switch (value) {
                   case 'view':
@@ -624,8 +605,8 @@ class CompanyProfilePage extends StatelessWidget {
                 const PopupMenuItem(
                   value: 'view',
                   child: Row(children: [
-                    Icon(Icons.visibility_outlined,
-                        size: 18, color: Colors.grey),
+                    Icon(Iconsax.eye,
+                        size: 18, color: AppColors.textSecondary),
                     SizedBox(width: 8),
                     Text('View Details'),
                   ]),
@@ -633,7 +614,8 @@ class CompanyProfilePage extends StatelessWidget {
                 const PopupMenuItem(
                   value: 'edit',
                   child: Row(children: [
-                    Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+                    Icon(Iconsax.edit,
+                        size: 18, color: AppColors.textSecondary),
                     SizedBox(width: 8),
                     Text('Edit'),
                   ]),
@@ -641,9 +623,10 @@ class CompanyProfilePage extends StatelessWidget {
                 const PopupMenuItem(
                   value: 'delete',
                   child: Row(children: [
-                    Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                    Icon(Iconsax.trash, size: 18, color: AppColors.danger),
                     SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
+                    Text('Delete',
+                        style: TextStyle(color: AppColors.danger)),
                   ]),
                 ),
               ],
@@ -658,7 +641,8 @@ class CompanyProfilePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brLg),
+        backgroundColor: AppColors.surface,
         child: Container(
           constraints: const BoxConstraints(maxWidth: 500),
           padding: const EdgeInsets.all(24),
@@ -669,26 +653,25 @@ class CompanyProfilePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Shareholder Details",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Text('Shareholder Details', style: AppText.h2),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
+                    color: AppColors.textMuted,
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              _buildDetailRow("Name", s.fullName),
-              _buildDetailRow("Email", s.email),
-              _buildDetailRow("Phone", s.phoneNumber),
-              _buildDetailRow("Role", s.titleDisplay),
-              _buildDetailRow("Shares", '${s.shareCount}'),
-              _buildDetailRow("Percentage", '${s.sharePercentage}%'),
-              _buildDetailRow("Board Member", s.isBoardMember ? 'Yes' : 'No'),
-              _buildDetailRow("Status", s.isActive ? 'Active' : 'Inactive'),
+              _buildDetailRow('Name', s.fullName),
+              _buildDetailRow('Email', s.email),
+              _buildDetailRow('Phone', s.phoneNumber),
+              _buildDetailRow('Role', s.titleDisplay),
+              _buildDetailRow('Shares', '${s.shareCount}'),
+              _buildDetailRow('Percentage', '${s.sharePercentage}%'),
+              _buildDetailRow('Board Member', s.isBoardMember ? 'Yes' : 'No'),
+              _buildDetailRow('Status', s.isActive ? 'Active' : 'Inactive'),
               if (s.notes != null && s.notes!.isNotEmpty)
-                _buildDetailRow("Notes", s.notes!),
+                _buildDetailRow('Notes', s.notes!),
             ],
           ),
         ),
@@ -705,12 +688,14 @@ class CompanyProfilePage extends StatelessWidget {
           SizedBox(
             width: 120,
             child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: AppText.bodySm
+                    .copyWith(color: AppColors.textSecondary)),
           ),
           Expanded(
             child: Text(value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                style: AppText.bodyMd.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary)),
           ),
         ],
       ),
@@ -725,45 +710,25 @@ class CompanyProfilePage extends StatelessWidget {
     required String buttonLabel,
     required VoidCallback onAdd,
   }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
+    return EmptyState(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      action: MyElevatedButton(
+        child: buttonLabel,
+        icon: const Icon(Iconsax.add,
+            size: 18, color: AppColors.textOnPrimary),
+        onTap: onAdd,
       ),
     );
   }
 
   static const _avatarColors = [
-    Color(0xFFEA580C),
+    AppColors.warning,
     Color(0xFFC026D3),
-    Color(0xFF0284C7),
-    Color(0xFF16A34A),
-    Color(0xFFD97706),
+    AppColors.info,
+    AppColors.success,
+    AppColors.warning,
     Color(0xFF7C3AED),
   ];
 
@@ -771,22 +736,20 @@ class CompanyProfilePage extends StatelessWidget {
 
   // --- HELPERS ---
   Widget _buildTabButton(String label, RxString currentTab) {
+    final isActive = currentTab.value == label;
     return InkWell(
       onTap: () => currentTab.value = label,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
             border: Border(
                 bottom: BorderSide(
-                    color: currentTab.value == label
-                        ? const Color(0xFF005CE8)
-                        : Colors.transparent,
+                    color: isActive ? AppColors.primary : Colors.transparent,
                     width: 2))),
         child: Text(label,
-            style: TextStyle(
-                color: currentTab.value == label
-                    ? const Color(0xFF005CE8)
-                    : Colors.grey,
+            style: AppText.bodyMd.copyWith(
+                color:
+                    isActive ? AppColors.primary : AppColors.textSecondary,
                 fontWeight: FontWeight.w600)),
       ),
     );
@@ -794,39 +757,41 @@ class CompanyProfilePage extends StatelessWidget {
 
   Widget _buildInfoField(String label, String value) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      Text(label,
+          style: AppText.caption.copyWith(color: AppColors.textMuted)),
       const SizedBox(height: 4),
       Text(value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+          style: AppText.bodyMd.copyWith(
+              fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
     ]);
   }
 
   Widget _buildColorField(String label, String hex, Color color) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      const SizedBox(height: 4),
+      Text(label,
+          style: AppText.caption.copyWith(color: AppColors.textMuted)),
+      const SizedBox(height: 6),
       Row(children: [
         Container(
-            width: 16,
-            height: 16,
+            width: 18,
+            height: 18,
             decoration: BoxDecoration(
-                color: color, borderRadius: BorderRadius.circular(4))),
+                color: color, borderRadius: AppRadii.brSm)),
         const SizedBox(width: 8),
-        Text(hex, style: const TextStyle(fontWeight: FontWeight.w500)),
+        Text(hex,
+            style: AppText.bodyMd.copyWith(
+                fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
       ])
     ]);
   }
 
   Widget _buildStaticPill(String text, bool active) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-          color: active ? const Color(0xFF005CE8) : Colors.white,
-          borderRadius: BorderRadius.circular(4)),
-      child: Text(text,
-          style: TextStyle(
-              color: active ? Colors.white : Colors.grey, fontSize: 12)),
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: StatusChip(
+        label: text,
+        tone: active ? StatusTone.primary : StatusTone.neutral,
+      ),
     );
   }
 
@@ -838,26 +803,26 @@ class CompanyProfilePage extends StatelessWidget {
         DashboardStatCard(
           title: 'Total Employees',
           count: stats != null ? '${stats.totalEmployees}' : '–',
-          borderColor: Colors.green,
-          countColor: Colors.green,
+          borderColor: _accentGreen,
+          countColor: _accentGreen,
         ),
         DashboardStatCard(
           title: 'Total Branches',
           count: stats != null ? '${stats.totalBranches}' : '–',
-          borderColor: const Color(0xFF1976D2),
-          countColor: const Color(0xFF1976D2),
+          borderColor: _accentBlue,
+          countColor: _accentBlue,
         ),
         DashboardStatCard(
           title: 'Pending Approvals',
           count: stats != null ? '${stats.pendingApprovals}' : '–',
-          borderColor: const Color(0xFFC27803),
-          countColor: const Color(0xFFC27803),
+          borderColor: _accentAmber,
+          countColor: _accentAmber,
         ),
         DashboardStatCard(
           title: 'Asset Inventory',
           count: stats != null ? '${stats.assetInventory}' : '–',
-          borderColor: Colors.green,
-          countColor: Colors.green,
+          borderColor: _accentIndigo,
+          countColor: _accentIndigo,
         ),
       ];
       return ResponsiveStatRow(cards: cards);
@@ -904,23 +869,21 @@ class DashboardStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: displayBorderColor, width: 1),
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: displayBorderColor.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(displayTitle,
-              style: const TextStyle(
-                  fontSize: 14,
+              style: AppText.bodySm.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
-          const SizedBox(height: 12),
+                  color: AppColors.textSecondary)),
+          const SizedBox(height: 10),
           Text(displayCount,
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+              style: AppText.h1.copyWith(
+                  fontWeight: FontWeight.w700,
                   color: displayCountColor)),
         ],
       ),

@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -40,11 +42,11 @@ class WorkspaceDetailsDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.blue.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.location_on_rounded,
-                          color: AppColors.blue, size: 20),
+                      child: const Icon(Iconsax.location,
+                          color: AppColors.primary, size: 20),
                     ),
                     const SizedBox(width: 12),
                     const MyText(
@@ -55,7 +57,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Iconsax.close_circle),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -101,7 +103,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.neutral900,
                       ),
                     ),
                     if (workspace.branchName != null &&
@@ -111,7 +113,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
                         workspace.branchName!,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                     ],
@@ -135,7 +137,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
                         workspace.rejectionReason != null &&
                         workspace.rejectionReason!.isNotEmpty)
                       _kv('Rejection reason', workspace.rejectionReason!,
-                          valueColor: const Color(0xFFDC2626)),
+                          valueColor: AppColors.danger),
                     if (workspace.notes.isNotEmpty)
                       _kv('Notes', workspace.notes),
                   ],
@@ -170,8 +172,8 @@ class WorkspaceDetailsDialog extends StatelessWidget {
                       onPressed:
                           deleting ? null : () => _confirmDelete(context),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFDC2626),
-                        side: const BorderSide(color: Color(0xFFDC2626)),
+                        foregroundColor: AppColors.danger,
+                        side: const BorderSide(color: AppColors.danger),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
@@ -182,10 +184,10 @@ class WorkspaceDetailsDialog extends StatelessWidget {
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Color(0xFFDC2626),
+                                color: AppColors.danger,
                               ),
                             )
-                          : const Icon(Icons.delete_outline, size: 18),
+                          : const Icon(Iconsax.trash, size: 18),
                       label: const Text(
                         'Delete',
                         style: TextStyle(fontWeight: FontWeight.w600),
@@ -219,7 +221,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.pop(c, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
             child: const Text('Delete'),
@@ -234,39 +236,36 @@ class WorkspaceDetailsDialog extends StatelessWidget {
     final success = await controller.deleteWorkspace(token, workspace.id!);
     if (!context.mounted) return;
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(success
+    AppToast.info(context, success
           ? controller.successMessage.value
-          : controller.errorMessage.value),
-      backgroundColor: success ? Colors.green : Colors.red,
-    ));
+          : controller.errorMessage.value);
   }
 
   (Color, Color, IconData) _statusStyles(WorkspaceStatus s) {
     switch (s) {
       case WorkspaceStatus.approved:
         return (
-          const Color(0xFF10B981),
-          const Color(0xFF10B981).withValues(alpha: 0.1),
-          Icons.check_circle_rounded,
+          AppColors.success,
+          AppColors.success.withValues(alpha: 0.1),
+          Iconsax.tick_circle,
         );
       case WorkspaceStatus.pending:
         return (
-          const Color(0xFFF59E0B),
-          const Color(0xFFF59E0B).withValues(alpha: 0.1),
-          Icons.hourglass_top_rounded,
+          AppColors.warning,
+          AppColors.warning.withValues(alpha: 0.1),
+          Iconsax.timer,
         );
       case WorkspaceStatus.rejected:
         return (
-          const Color(0xFFEF4444),
-          const Color(0xFFEF4444).withValues(alpha: 0.1),
-          Icons.cancel_rounded,
+          AppColors.danger,
+          AppColors.danger.withValues(alpha: 0.1),
+          Iconsax.close_circle,
         );
       case WorkspaceStatus.unknown:
         return (
-          const Color(0xFF64748B),
-          const Color(0xFF64748B).withValues(alpha: 0.1),
-          Icons.help_outline_rounded,
+          AppColors.neutral500,
+          AppColors.neutral500.withValues(alpha: 0.1),
+          Iconsax.info_circle,
         );
     }
   }
@@ -282,7 +281,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF94A3B8),
+              color: AppColors.neutral400,
               letterSpacing: 0.5,
             ),
           ),
@@ -292,7 +291,7 @@ class WorkspaceDetailsDialog extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: valueColor ?? const Color(0xFF0F172A),
+              color: valueColor ?? AppColors.neutral900,
               height: 1.4,
             ),
           ),

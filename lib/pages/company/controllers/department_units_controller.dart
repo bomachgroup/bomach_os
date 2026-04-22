@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -141,20 +143,12 @@ class DepartmentsUnitsController extends GetxController {
       if (context.mounted) {
         Navigator.pop(context);
         fetchData();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Department created successfully'),
-              backgroundColor: Colors.green),
-        );
+        AppToast.success(context, 'Department created successfully');
       }
     } catch (e) {
       log('Failed to create department: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Failed to create department: $e'),
-              backgroundColor: Colors.red),
-        );
+        AppToast.error(context, 'Failed to create department: $e');
       }
     } finally {
       isSaving.value = false;
@@ -177,20 +171,12 @@ class DepartmentsUnitsController extends GetxController {
       if (context.mounted) {
         Navigator.pop(context);
         fetchData();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Department updated successfully'),
-              backgroundColor: Colors.green),
-        );
+        AppToast.success(context, 'Department updated successfully');
       }
     } catch (e) {
       log('Failed to update department: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Failed to update department: $e'),
-              backgroundColor: Colors.red),
-        );
+        AppToast.error(context, 'Failed to update department: $e');
       }
     } finally {
       isSaving.value = false;
@@ -215,20 +201,12 @@ class DepartmentsUnitsController extends GetxController {
       if (context.mounted) {
         Navigator.pop(context);
         fetchData();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Unit created successfully'),
-              backgroundColor: Colors.green),
-        );
+        AppToast.success(context, 'Unit created successfully');
       }
     } catch (e) {
       log('Failed to create unit: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Failed to create unit: $e'),
-              backgroundColor: Colors.red),
-        );
+        AppToast.error(context, 'Failed to create unit: $e');
       }
     } finally {
       isSaving.value = false;
@@ -254,20 +232,12 @@ class DepartmentsUnitsController extends GetxController {
       if (context.mounted) {
         Navigator.pop(context);
         fetchData();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Unit updated successfully'),
-              backgroundColor: Colors.green),
-        );
+        AppToast.success(context, 'Unit updated successfully');
       }
     } catch (e) {
       log('Failed to update unit: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Failed to update unit: $e'),
-              backgroundColor: Colors.red),
-        );
+        AppToast.error(context, 'Failed to update unit: $e');
       }
     } finally {
       isSaving.value = false;
@@ -325,13 +295,13 @@ class DepartmentsUnitsController extends GetxController {
   }
 
   Color getStatusColor(String? status) {
-    if (status?.toLowerCase() == 'inactive') return const Color(0xFFEF4444);
-    return const Color(0xFF22C55E); // Default Active Green
+    if (status?.toLowerCase() == 'inactive') return AppColors.danger;
+    return AppColors.success; // Default Active Green
   }
 
   Color getStatusBg(String? status) {
-    if (status?.toLowerCase() == 'inactive') return const Color(0xFFFEE2E2);
-    return const Color(0xFFDCFCE7);
+    if (status?.toLowerCase() == 'inactive') return AppColors.dangerSubtle;
+    return AppColors.successSubtle;
   }
 
   // Check if can navigate

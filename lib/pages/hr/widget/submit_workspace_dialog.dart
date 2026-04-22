@@ -1,6 +1,8 @@
 import 'dart:developer';
+import 'package:iconsax/iconsax.dart';
 
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/services/location_service.dart';
 import 'package:flutter/material.dart';
@@ -97,15 +99,9 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
     if (!mounted) return;
     if (success) {
       Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Submitted for approval'),
-        backgroundColor: Colors.green,
-      ));
+      AppToast.success(context, 'Submitted for approval');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(controller.errorMessage.value),
-        backgroundColor: Colors.red,
-      ));
+      AppToast.error(context, controller.errorMessage.value);
     }
   }
 
@@ -129,11 +125,11 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.blue.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.add_location_alt_rounded,
-                          color: AppColors.blue, size: 20),
+                      child: const Icon(Iconsax.location_add,
+                          color: AppColors.primary, size: 20),
                     ),
                     const SizedBox(width: 12),
                     const MyText(
@@ -144,7 +140,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Iconsax.close_circle),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -164,7 +160,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                         "it's usable for clock-in.",
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                           height: 1.4,
                         ),
                       ),
@@ -176,7 +172,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -190,7 +186,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -215,7 +211,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -245,7 +241,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -294,7 +290,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                     child: ElevatedButton(
                       onPressed: submitting ? null : _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.blue,
+                        backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
@@ -331,17 +327,17 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0FDF4),
+          color: AppColors.successSubtle,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+          border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Row(
               children: [
-                Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF10B981), size: 16),
+                Icon(Iconsax.tick_circle,
+                    color: AppColors.success, size: 16),
                 SizedBox(width: 8),
                 Text(
                   'Location captured',
@@ -366,7 +362,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: _fetchingLocation ? null : _fetchLocation,
-              icon: const Icon(Icons.refresh, size: 14),
+              icon: const Icon(Iconsax.refresh, size: 14),
               label: const Text('Re-fetch', style: TextStyle(fontSize: 12)),
             ),
           ],
@@ -378,9 +374,9 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         children: [
@@ -397,7 +393,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
             child: ElevatedButton.icon(
               onPressed: _fetchingLocation ? null : _fetchLocation,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -410,7 +406,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white),
                     )
-                  : const Icon(Icons.my_location_rounded, size: 18),
+                  : const Icon(Iconsax.location, size: 18),
               label: Text(
                 _fetchingLocation
                     ? 'Getting location...'

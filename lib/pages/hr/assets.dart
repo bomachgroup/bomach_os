@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/section/responsive_widget.dart';
@@ -31,11 +32,11 @@ class AssetsPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const MyText('Company Assets', style: AppText.black_600_32),
+          const MyText('Company Assets', style: AppText.displayLg),
           const SizedBox(height: 8),
           const Text(
             'Manage company properties across all branches',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+            style: TextStyle(color: AppColors.neutral500, fontSize: 14),
           ),
           const SizedBox(height: 24),
 
@@ -71,14 +72,14 @@ class AssetsPage extends StatelessWidget {
           DashboardStatCard(
             title: 'Total Branches',
             count: stats != null ? '${stats.totalBranches}' : '–',
-            borderColor: const Color(0xFF1976D2),
-            countColor: const Color(0xFF1976D2),
+            borderColor: AppColors.primary,
+            countColor: AppColors.primary,
           ),
           DashboardStatCard(
             title: 'Pending Approvals',
             count: stats != null ? '${stats.pendingApprovals}' : '–',
-            borderColor: const Color(0xFFC27803),
-            countColor: const Color(0xFFC27803),
+            borderColor: AppColors.warning,
+            countColor: AppColors.warning,
           ),
           DashboardStatCard(
             title: 'Asset Inventory',
@@ -110,20 +111,20 @@ class _AssetsContent extends StatelessWidget {
           title: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText('Assets', style: AppText.black_600_16),
+              MyText('Assets', style: AppText.h4),
               SizedBox(height: 2),
               Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
             ],
           ),
           search: MyTextFormField(
             hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+            leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
             onChanged: controller.onSearchChanged,
           ),
           action: MyElevatedButton(
             height: 40,
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
+            icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
             child: 'New Asset',
             onTap: () => showDialog(
               context: context,
@@ -147,7 +148,7 @@ class _AssetsContent extends StatelessWidget {
           if (controller.assetList.isEmpty) {
             return _buildEmptyState(
               context,
-              icon: Icons.inventory_2_outlined,
+              icon: Iconsax.box_1,
               title: 'No assets yet',
               subtitle: 'Create a new asset to get started.',
               buttonLabel: 'New Asset',
@@ -164,7 +165,7 @@ class _AssetsContent extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColors.neutral200),
               ),
               child: Column(
                 children: [
@@ -173,7 +174,7 @@ class _AssetsContent extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
+                      color: AppColors.neutral50,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12),
@@ -188,7 +189,7 @@ class _AssetsContent extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 1,
@@ -196,7 +197,7 @@ class _AssetsContent extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 2,
@@ -204,7 +205,7 @@ class _AssetsContent extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 1,
@@ -212,7 +213,7 @@ class _AssetsContent extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 1,
@@ -220,7 +221,7 @@ class _AssetsContent extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         Expanded(
                           flex: 1,
@@ -228,7 +229,7 @@ class _AssetsContent extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                         SizedBox(
                           width: 48,
@@ -236,7 +237,7 @@ class _AssetsContent extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF64748B))),
+                                  color: AppColors.neutral500)),
                         ),
                       ],
                     ),
@@ -284,7 +285,7 @@ class _AssetsContent extends StatelessWidget {
             child: Checkbox(
               value: false,
               onChanged: (_) {},
-              activeColor: AppColors.blue,
+              activeColor: AppColors.primary,
             ),
           ),
           // Asset Name
@@ -327,8 +328,8 @@ class _AssetsContent extends StatelessWidget {
             flex: 2,
             child: Row(
               children: [
-                const Icon(Icons.location_on_outlined,
-                    size: 16, color: AppColors.blue),
+                const Icon(Iconsax.location,
+                    size: 16, color: AppColors.primary),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(asset.branch,
@@ -386,7 +387,7 @@ class _AssetsContent extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, size: 7, color: color),
+            Icon(Iconsax.record_circle, size: 7, color: color),
             const SizedBox(width: 5),
             Text(display,
                 style: TextStyle(
@@ -399,7 +400,7 @@ class _AssetsContent extends StatelessWidget {
 
   Widget _buildActionMenu(BuildContext context, Asset asset) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Iconsax.more, size: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) async {
         switch (value) {
@@ -445,7 +446,7 @@ class _AssetsContent extends StatelessWidget {
         const PopupMenuItem(
           value: 'view',
           child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.eye, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('View Details'),
           ]),
@@ -453,7 +454,7 @@ class _AssetsContent extends StatelessWidget {
         const PopupMenuItem(
           value: 'edit',
           child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+            Icon(Iconsax.edit, size: 18, color: Colors.grey),
             SizedBox(width: 8),
             Text('Edit'),
           ]),
@@ -461,7 +462,7 @@ class _AssetsContent extends StatelessWidget {
         const PopupMenuItem(
           value: 'delete',
           child: Row(children: [
-            Icon(Icons.delete_outline, size: 18, color: Colors.red),
+            Icon(Iconsax.trash, size: 18, color: Colors.red),
             SizedBox(width: 8),
             Text('Delete', style: TextStyle(color: Colors.red)),
           ]),
@@ -486,10 +487,10 @@ class _AssetsContent extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: AppColors.neutral100,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
+              child: Icon(icon, size: 48, color: AppColors.neutral400),
             ),
             const SizedBox(height: 20),
             Text(title,
@@ -497,12 +498,12 @@ class _AssetsContent extends StatelessWidget {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 14),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             MyElevatedButton(
               child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
+              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
               onTap: onAdd,
             ),
           ],

@@ -24,7 +24,7 @@ class ProjectDetailPage extends StatelessWidget {
 
     if (proj == null) {
       return const Center(
-        child: MyText('Project not found', style: AppText.black_500_16),
+        child: MyText('Project not found', style: AppText.bodyLg),
       );
     }
 
@@ -39,13 +39,13 @@ class ProjectDetailPage extends StatelessWidget {
                 children: [
                   SvgPicture.asset("assets/svg/arrow-left.svg"),
                   kSizedBoxWidthSM,
-                  const MyText('Back', style: AppText.black_500_20),
+                  const MyText('Back', style: AppText.h2),
                 ],
               ),
             ),
             const Spacer(),
             MyElevatedButton(
-              bgColor: AppColors.red,
+              bgColor: AppColors.danger,
               child: 'Delete',
               onTap: () {
                 controller.deleteProject(context, proj.id);

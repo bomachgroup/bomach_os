@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/image/image_stack.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -27,7 +28,7 @@ class _TaskDetailState extends State<TaskDetail> {
 
     if (task == null) {
       return const Center(
-        child: MyText('Task not found', style: AppText.black_500_16),
+        child: MyText('Task not found', style: AppText.bodyLg),
       );
     }
 
@@ -48,7 +49,7 @@ class _TaskDetailState extends State<TaskDetail> {
                 children: [
                   MyText(
                     task.name,
-                    style: AppText.black_500_32,
+                    style: AppText.displayLg,
                   ),
                   Wrap(
                     spacing: 15,
@@ -59,8 +60,8 @@ class _TaskDetailState extends State<TaskDetail> {
                         child: MyTextFormField(
                           hintText: 'Search...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -82,7 +83,7 @@ class _TaskDetailState extends State<TaskDetail> {
                       ),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "Add Task",
@@ -163,13 +164,13 @@ class _TaskDetailState extends State<TaskDetail> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
-        return AppColors.green;
+        return AppColors.success;
       case 'in progress':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'pending':
         return Colors.orange;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 
@@ -179,7 +180,7 @@ class _TaskDetailState extends State<TaskDetail> {
         Container(
           padding: const EdgeInsets.only(top: 3.3),
           decoration: const BoxDecoration(
-            color: AppColors.orange,
+            color: AppColors.warning,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(15),
             ),
@@ -187,7 +188,7 @@ class _TaskDetailState extends State<TaskDetail> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: const BoxDecoration(
-              color: AppColors.grey6,
+              color: AppColors.neutral100,
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(15),
               ),
@@ -196,14 +197,14 @@ class _TaskDetailState extends State<TaskDetail> {
               children: [
                 const MyText("Today's Tasks"),
                 const Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                  Iconsax.arrow_down_1,
                 ),
                 Container(
                   alignment: Alignment.center,
                   width: 28,
                   height: 28,
                   decoration: const BoxDecoration(
-                    color: AppColors.lightBlue,
+                    color: AppColors.primarySubtle,
                     shape: BoxShape.circle,
                   ),
                   child: const MyText("3"),
@@ -217,7 +218,7 @@ class _TaskDetailState extends State<TaskDetail> {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.add,
+                    Iconsax.add,
                     color: Colors.white,
                     size: 18,
                   ),
@@ -352,7 +353,7 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
             children: [
               const MyText(
                 'Task Done',
-                color: AppColors.darkBlue,
+                color: AppColors.neutral800,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -480,7 +481,7 @@ class StatCard extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.2),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: SvgPicture.asset("assets/svg/star-chart.svg")),
@@ -620,7 +621,7 @@ class TimeframeTab extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? AppColors.darkBlue : Colors.grey[600],
+              color: isSelected ? AppColors.neutral800 : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 4),
@@ -629,7 +630,7 @@ class TimeframeTab extends StatelessWidget {
               height: 3,
               width: 60,
               decoration: BoxDecoration(
-                color: AppColors.darkBlue,
+                color: AppColors.neutral800,
                 borderRadius: BorderRadius.circular(1.5),
               ),
             ),
@@ -875,7 +876,7 @@ class ProjectCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -884,12 +885,12 @@ class ProjectCard extends StatelessWidget {
                       MyText(
                         'Ongoing',
                         style: TextStyle(
-                            color: AppColors.blue.withValues(alpha: 0.8),
+                            color: AppColors.primary.withValues(alpha: 0.8),
                             fontWeight: FontWeight.bold),
                       ),
                       Icon(
-                        Icons.arrow_drop_down_sharp,
-                        color: AppColors.blue.withValues(alpha: 0.8),
+                        Iconsax.arrow_down_1,
+                        color: AppColors.primary.withValues(alpha: 0.8),
                       ),
                     ],
                   ),
@@ -908,7 +909,7 @@ class ProjectCard extends StatelessWidget {
               runSpacing: 4,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Icon(Icons.access_time, color: Colors.orange, size: 20),
+                Icon(Iconsax.clock, color: Colors.orange, size: 20),
                 MyText(
                   'Deadline: ',
                   style: TextStyle(
@@ -940,7 +941,7 @@ class ProjectCard extends StatelessWidget {
                             child: SvgPicture.asset(
                               "assets/svg/add-circle.svg",
                               colorFilter: const ColorFilter.mode(
-                                  AppColors.grey3, BlendMode.srcIn),
+                                  AppColors.neutral400, BlendMode.srcIn),
                             ),
                           ),
                         ],
@@ -948,11 +949,11 @@ class ProjectCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       const Row(
                         children: [
-                          Icon(Icons.attach_file, size: 18),
+                          Icon(Iconsax.attach_circle, size: 18),
                           SizedBox(width: 4),
                           MyText('2'),
                           SizedBox(width: 12),
-                          Icon(Icons.chat_bubble_outline, size: 18),
+                          Icon(Iconsax.message_text, size: 18),
                           SizedBox(width: 4),
                           MyText('3'),
                         ],
@@ -982,7 +983,7 @@ class ProjectCard extends StatelessWidget {
                                   child: SvgPicture.asset(
                                     "assets/svg/add-circle.svg",
                                     colorFilter: const ColorFilter.mode(
-                                        AppColors.grey3, BlendMode.srcIn),
+                                        AppColors.neutral400, BlendMode.srcIn),
                                   ),
                                 ),
                               ],
@@ -994,11 +995,11 @@ class ProjectCard extends StatelessWidget {
                                 SizedBox(
                                   height: 28,
                                 ),
-                                Icon(Icons.attach_file, size: 18),
+                                Icon(Iconsax.attach_circle, size: 18),
                                 SizedBox(width: 4),
                                 MyText('2'),
                                 SizedBox(width: 12),
-                                Icon(Icons.chat_bubble_outline, size: 18),
+                                Icon(Iconsax.message_text, size: 18),
                                 SizedBox(width: 4),
                                 MyText('3'),
                               ],

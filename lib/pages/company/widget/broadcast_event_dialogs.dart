@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -141,7 +143,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                           fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -175,7 +177,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                             controller: dateFromCtrl,
                             hintText: 'Select date & time',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
+                            trailing: const Icon(Iconsax.calendar_1,
                                 size: 18, color: Colors.grey),
                             onTap: () => _pickDateTime(dateFromCtrl),
                             validator: (val) => (val == null || val.isEmpty)
@@ -195,7 +197,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                             controller: dateToCtrl,
                             hintText: 'Select date & time',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
+                            trailing: const Icon(Iconsax.calendar_1,
                                 size: 18, color: Colors.grey),
                             onTap: () => _pickDateTime(dateToCtrl),
                             validator: (val) => (val == null || val.isEmpty)
@@ -223,7 +225,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                   title: const Text('All Branches',
                       style: TextStyle(fontSize: 14)),
                   value: targetAllBranches,
-                  activeColor: AppColors.blue,
+                  activeColor: AppColors.primary,
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
@@ -234,7 +236,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                   title: const Text('All Departments',
                       style: TextStyle(fontSize: 14)),
                   value: targetAllDepartments,
-                  activeColor: AppColors.blue,
+                  activeColor: AppColors.primary,
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
@@ -245,7 +247,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                   title:
                       const Text('Associates', style: TextStyle(fontSize: 14)),
                   value: targetAssociates,
-                  activeColor: AppColors.blue,
+                  activeColor: AppColors.primary,
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
@@ -256,7 +258,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                   title:
                       const Text('Investors', style: TextStyle(fontSize: 14)),
                   value: targetInvestors,
-                  activeColor: AppColors.blue,
+                  activeColor: AppColors.primary,
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
@@ -266,7 +268,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                 CheckboxListTile(
                   title: const Text('Partners', style: TextStyle(fontSize: 14)),
                   value: targetPartners,
-                  activeColor: AppColors.blue,
+                  activeColor: AppColors.primary,
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
@@ -314,7 +316,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                           child: isEdit ? 'Update Event' : 'Create Event',
                           isLoading: controller.isSavingEvent.value,
                           onTap: _onSave,
-                          icon: const Icon(Icons.check,
+                          icon: const Icon(Iconsax.tick_circle,
                               color: Colors.white, size: 18),
                         )),
                   ],
@@ -352,7 +354,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
           hint: const Text('Select event type',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: eventTypes
               .map((t) => DropdownMenuItem(
                   value: t['value'],
@@ -379,7 +381,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
           hint: const Text('Select reminder',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: reminderOptions
               .map((r) => DropdownMenuItem<int>(
                   value: r['value'] as int,
@@ -408,7 +410,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
           hint: const Text('Does not repeat',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: recurrenceOptions
               .map((r) => DropdownMenuItem(
                   value: r,
@@ -465,12 +467,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     if (selectedEventType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an event type'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please select an event type');
       return;
     }
 
@@ -550,7 +547,7 @@ class ViewEventDialog extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -570,7 +567,7 @@ class ViewEventDialog extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: Text('Target Audience',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                      style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
                 ),
                 Wrap(
                   spacing: 6,
@@ -612,7 +609,7 @@ class ViewEventDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   _buildActionButton(
                     label: 'Edit',
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     onTap: () {
                       Navigator.pop(context);
                       showDialog(
@@ -676,7 +673,7 @@ class ViewEventDialog extends StatelessWidget {
           SizedBox(
             width: 150,
             child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
@@ -693,7 +690,7 @@ class ViewEventDialog extends StatelessWidget {
     if (label.contains('Branch')) {
       chipColor = Colors.green;
     } else {
-      chipColor = AppColors.blue;
+      chipColor = AppColors.primary;
     }
 
     return Container(

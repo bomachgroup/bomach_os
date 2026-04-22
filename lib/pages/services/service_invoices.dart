@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'models/service_invoice_model.dart';
@@ -209,7 +210,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: InputDecoration(
                   hintText: "Search by client or invoice number...",
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: const Icon(Iconsax.search_normal),
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -300,7 +301,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Column(
                 children: [
-                  Icon(Icons.receipt_long, size: 48, color: Colors.grey[400]),
+                  Icon(Iconsax.receipt_2, size: 48, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
                     'No invoices found',
@@ -521,7 +522,7 @@ class _ServiceInvoicesPageState extends State<ServiceInvoicesPage> {
                         children: [
                           MyElevatedButton(
                             child: 'View Details',
-                            bgColor: AppColors.blue,
+                            bgColor: AppColors.primary,
                             onTap: () {
                               showDialog(
                                 context: context,

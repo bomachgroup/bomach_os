@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -139,7 +140,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
               'Task assigned to $_selectedEmployee',
               style: const TextStyle(color: Colors.white),
             ),
-            backgroundColor: AppColors.green,
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -153,7 +154,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
           message,
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: AppColors.red,
+        backgroundColor: AppColors.danger,
       ),
     );
   }
@@ -161,28 +162,28 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
   Color _getPriorityColor(String priority) {
     switch (priority) {
       case 'High':
-        return AppColors.red;
+        return AppColors.danger;
       case 'Medium':
         return const Color(0xFFFFA500);
       case 'Low':
-        return AppColors.green;
+        return AppColors.success;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Completed':
-        return AppColors.green;
+        return AppColors.success;
       case 'In Progress':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'Pending':
         return const Color(0xFFFFA500);
       case 'On Hold':
         return const Color(0xFF9B59B6);
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 
@@ -215,24 +216,24 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
-                          Icons.assignment_ind,
-                          color: AppColors.blue,
+                          Iconsax.profile_tick,
+                          color: AppColors.primary,
                           size: 24,
                         ),
                       ),
                       const SizedBox(width: 12),
                       const MyText(
                         'Assign Task to Employee',
-                        style: AppText.black_500_20,
+                        style: AppText.h2,
                       ),
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -253,7 +254,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                       // Task Information Section
                       const MyText(
                         'Task Information',
-                        style: AppText.black_600_16,
+                        style: AppText.h4,
                       ),
                       kSizedBox,
 
@@ -323,7 +324,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                       // Assignment Section
                       const MyText(
                         'Assign Employee',
-                        style: AppText.black_600_16,
+                        style: AppText.h4,
                       ),
                       kSizedBox,
 
@@ -349,7 +350,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                         children: [
                           const MyText(
                             'Due Date *',
-                            style: AppText.black_600_14,
+                            style: AppText.h4,
                           ),
                           const SizedBox(height: 8),
                           GestureDetector(
@@ -372,12 +373,12 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                 children: [
                                   MyText(
                                     DateFormat('MMM dd, yyyy').format(_dueDate),
-                                    style: AppText.black_400_14,
+                                    style: AppText.bodyMd,
                                   ),
                                   const Icon(
-                                    Icons.calendar_today,
+                                    Iconsax.calendar_1,
                                     size: 18,
-                                    color: AppColors.blue,
+                                    color: AppColors.primary,
                                   ),
                                 ],
                               ),
@@ -410,13 +411,13 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                           children: [
                             const MyText(
                               'Assignment Preview',
-                              style: AppText.black_600_14,
+                              style: AppText.h4,
                             ),
                             const SizedBox(height: 12),
                             if (_taskTitleController.text.isNotEmpty)
                               MyText(
                                 _taskTitleController.text,
-                                style: AppText.black_500_16,
+                                style: AppText.bodyLg,
                               ),
                             const SizedBox(height: 8),
                             Row(
@@ -428,7 +429,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.blue.withValues(
+                                      color: AppColors.primary.withValues(
                                         alpha: 0.1,
                                       ),
                                       borderRadius: BorderRadius.circular(4),
@@ -438,7 +439,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        color: AppColors.blue,
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ),
@@ -511,7 +512,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     borderColor: null,
                     child: 'Cancel',
                     onTap: _isLoading

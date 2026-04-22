@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 
@@ -28,9 +29,9 @@ class MyOutlinedButton extends StatelessWidget {
     this.isLoading = false,
     this.disable = false,
     this.upper = false,
-    this.textColor = AppColors.blue,
-    this.bgColor = AppColors.white,
-    this.borderColor = AppColors.blue,
+    this.textColor = AppColors.primary,
+    this.bgColor = AppColors.surface,
+    this.borderColor = AppColors.primary,
     this.width,
     this.height,
     this.borderCurve,
@@ -54,9 +55,11 @@ class MyOutlinedButton extends StatelessWidget {
         backgroundColor: bgColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderCurve ?? 16),
+          borderRadius: borderCurve != null
+              ? BorderRadius.circular(borderCurve!)
+              : AppRadii.brMd,
         ),
-        shadowColor: AppColors.black.withValues(alpha: 0.4),
+        shadowColor: AppColors.neutral900.withValues(alpha: 0.08),
 
         minimumSize: Size(0, height ?? 44), // Allows flexible width
       ),
@@ -65,7 +68,7 @@ class MyOutlinedButton extends StatelessWidget {
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
-                  strokeWidth: 2, color: AppColors.blue),
+                  strokeWidth: 2, color: AppColors.primary),
             )
           : Row(
               mainAxisSize:
@@ -82,9 +85,9 @@ class MyOutlinedButton extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: fontSize ?? 16,
+                      fontSize: fontSize ?? 14,
                       fontFamily: fontFamily ?? "Poppins",
-                      fontWeight: fontWeight ?? FontWeight.w400,
+                      fontWeight: fontWeight ?? FontWeight.w500,
                       color: textColor,
                     ),
                   ),

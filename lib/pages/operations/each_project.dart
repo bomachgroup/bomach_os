@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/in_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -38,7 +39,7 @@ class _EachProjectsState extends State<EachProjects> {
 
     if (project == null) {
       return const Center(
-        child: MyText('Project not found', style: AppText.black_500_20),
+        child: MyText('Project not found', style: AppText.h2),
       );
     }
 
@@ -54,7 +55,7 @@ class _EachProjectsState extends State<EachProjects> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  MyText(project.name, style: AppText.black_500_32),
+                  MyText(project.name, style: AppText.displayLg),
                   Wrap(
                     spacing: 15,
                     runSpacing: 15,
@@ -64,15 +65,15 @@ class _EachProjectsState extends State<EachProjects> {
                         child: MyTextFormField(
                           hintText: 'Search...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
                       if ([1, 2, 4, 5].contains(_currentTab))
                         MyElevatedButton(
                           icon: const Icon(
-                            Icons.add_circle_outline_rounded,
+                            Iconsax.add_circle,
                             color: AppColors.white,
                           ),
                           child: _getButtonTitle(_currentTab),
@@ -89,11 +90,11 @@ class _EachProjectsState extends State<EachProjects> {
         kSizedBoxSM,
         Row(
           children: [
-            const MyText('Projects', style: AppText.black_400_14),
+            const MyText('Projects', style: AppText.bodyMd),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward_ios_outlined, size: 12),
+            const Icon(Iconsax.arrow_right_3, size: 12),
             const SizedBox(width: 8),
-            MyText(project.shortCode, style: AppText.black_400_14),
+            MyText(project.shortCode, style: AppText.bodyMd),
           ],
         ),
         const SizedBox(height: 21),

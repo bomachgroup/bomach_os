@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/widget/daily_work_report_dialog.dart';
@@ -71,20 +72,20 @@ class _WorkReportPageState extends State<WorkReportPage> {
                     children: [
                       MyText(
                         'Daily Work Reports',
-                        style: AppText.black_500_32,
+                        style: AppText.displayLg,
                       ),
                       SizedBox(height: 8),
                       MyText(
                         'Track and manage employee work activities',
                         size: 14,
                         weight: 400,
-                        color: Color(0xFF64748B),
+                        color: AppColors.neutral500,
                       ),
                     ],
                   ),
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Iconsax.add_circle,
                       color: AppColors.white,
                     ),
                     child: "Submit Report",
@@ -119,8 +120,8 @@ class _WorkReportPageState extends State<WorkReportPage> {
                     child: MyTextFormField(
                       hintText: 'Search...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -129,7 +130,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                          icon: const Icon(Icons.refresh),
+                          icon: const Icon(Iconsax.refresh),
                           onPressed: _loadData),
                     ],
                   )
@@ -263,21 +264,21 @@ class _WorkReportPageState extends State<WorkReportPage> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        return AppColors.green;
+        return AppColors.success;
       case 'submitted':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'draft':
-        return const Color(0xFF64748B);
+        return AppColors.neutral500;
       case 'rejected':
-        return AppColors.red;
+        return AppColors.danger;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 
   Widget _buildActionMenu(BuildContext context, WorkReport report) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert),
+      icon: const Icon(Iconsax.more),
       onSelected: (String result) async {
         final token = await _getToken(context);
         if (token == null || !context.mounted) return;
@@ -305,7 +306,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
           value: 'view',
           child: Row(
             children: [
-              Icon(Icons.fact_check_outlined, size: 18),
+              Icon(Iconsax.task_square, size: 18),
               SizedBox(width: 8),
               MyText('Review / View', isSelectable: false),
             ],
@@ -315,7 +316,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
           value: 'edit',
           child: Row(
             children: [
-              Icon(Icons.edit_outlined, size: 18),
+              Icon(Iconsax.edit, size: 18),
               SizedBox(width: 8),
               Text('Edit Report'),
             ],
@@ -325,7 +326,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
           value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete_outline, size: 18, color: Colors.red),
+              Icon(Iconsax.trash, size: 18, color: Colors.red),
               SizedBox(width: 8),
               Text('Delete', style: TextStyle(color: Colors.red)),
             ],

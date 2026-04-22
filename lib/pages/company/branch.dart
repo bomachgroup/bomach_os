@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -30,10 +31,10 @@ class BranchListPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const MyText('Branches', style: AppText.black_600_32),
+              const MyText('Branches', style: AppText.displayLg),
               MyElevatedButton(
                 height: 40,
-                icon: const Icon(Icons.add_circle_outline,
+                icon: const Icon(Iconsax.add_circle,
                     color: Colors.white, size: 18),
                 child: isMobile ? "New" : "New Branch",
                 onTap: () {
@@ -65,8 +66,8 @@ class BranchListPage extends StatelessWidget {
                       child: MyTextFormField(
                         hintText: 'Search by name, role, department...',
                         onChanged: controller.onSearchChanged,
-                        leading: Icon(Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5)),
+                        leading: Icon(Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5)),
                       ),
                     ),
                     if (!isMobile) ...[
@@ -111,7 +112,7 @@ class BranchListPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 60),
                         child: Column(
                           children: [
-                            Icon(Icons.domain_disabled_outlined,
+                            Icon(Iconsax.building_4,
                                 size: 48, color: Colors.grey[400]),
                             const SizedBox(height: 12),
                             const MyText('No branches found',
@@ -183,7 +184,7 @@ class BranchListPage extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.neutral200),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,11 +201,11 @@ class BranchListPage extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.tag, size: 14, color: Colors.grey[400]),
+                  Icon(Iconsax.tag, size: 14, color: Colors.grey[400]),
                   const SizedBox(width: 4),
                   MyText("#${branch.id}", size: 12, color: Colors.grey),
                   const SizedBox(width: 16),
-                  Icon(Icons.business, size: 14, color: Colors.grey[400]),
+                  Icon(Iconsax.building_4, size: 14, color: Colors.grey[400]),
                   const SizedBox(width: 4),
                   Expanded(
                     child: MyText(
@@ -220,7 +221,7 @@ class BranchListPage extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined,
+                  Icon(Iconsax.location,
                       size: 14, color: Colors.grey[400]),
                   const SizedBox(width: 4),
                   Expanded(
@@ -237,7 +238,7 @@ class BranchListPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   _buildCardAction(
-                    icon: Icons.visibility_outlined,
+                    icon: Iconsax.eye,
                     label: "View",
                     onTap: () {
                       controller.fetchBranchDetails(branch.id);
@@ -249,7 +250,7 @@ class BranchListPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   _buildCardAction(
-                    icon: Icons.edit_outlined,
+                    icon: Iconsax.edit,
                     label: "Edit",
                     onTap: () {
                       controller.loadFilterResources();
@@ -373,7 +374,7 @@ class BranchListPage extends StatelessWidget {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: items.contains(value) ? value : items.first,
-          icon: const Icon(Icons.keyboard_arrow_down,
+          icon: const Icon(Iconsax.arrow_down_1,
               size: 18, color: Colors.grey),
           style: const TextStyle(fontSize: 13, color: Colors.black87),
           items: items
@@ -400,7 +401,7 @@ class BranchListPage extends StatelessWidget {
         DataCell(_buildStatusBadge(branch.operationalStatusDisplay)),
         DataCell(
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, size: 20),
+            icon: const Icon(Iconsax.more, size: 20),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onSelected: (value) {
@@ -425,7 +426,7 @@ class BranchListPage extends StatelessWidget {
               PopupMenuItem(
                 value: 'view',
                 child: Row(children: [
-                  Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
+                  Icon(Iconsax.eye, size: 18, color: Colors.grey),
                   SizedBox(width: 8),
                   Text('View Details'),
                 ]),
@@ -433,7 +434,7 @@ class BranchListPage extends StatelessWidget {
               PopupMenuItem(
                 value: 'edit',
                 child: Row(children: [
-                  Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+                  Icon(Iconsax.edit, size: 18, color: Colors.grey),
                   SizedBox(width: 8),
                   Text('Edit'),
                 ]),

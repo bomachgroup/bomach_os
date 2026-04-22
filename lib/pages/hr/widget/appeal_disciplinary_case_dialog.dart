@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -37,14 +38,14 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+                  border: Border(bottom: BorderSide(color: AppColors.neutral200)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const MyText('Case Details', size: 20, weight: 600),
                     IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(Iconsax.close_circle),
                         onPressed: () => Navigator.pop(context)),
                   ],
                 ),
@@ -82,7 +83,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.red,
+                      textColor: AppColors.danger,
                       child: 'Delete',
                       onTap: () async {
                         final confirm = await showDialog<bool>(
@@ -144,7 +145,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
             child: MyText(
               value,
               size: 14,
-              color: isHighlight ? AppColors.blue : Colors.black,
+              color: isHighlight ? AppColors.primary : Colors.black,
             ),
           ),
         ],

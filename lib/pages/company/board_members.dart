@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -27,11 +28,11 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
   int _currentPage = 1;
 
   static const _avatarColors = [
-    Color(0xFFEA580C),
+    AppColors.warning,
     Color(0xFFC026D3),
-    Color(0xFF0284C7),
-    Color(0xFF16A34A),
-    Color(0xFFD97706),
+    AppColors.info,
+    AppColors.success,
+    AppColors.warning,
     Color(0xFF7C3AED),
   ];
 
@@ -49,7 +50,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header
-        const MyText('Board Members', style: AppText.black_600_16),
+        const MyText('Board Members', style: AppText.h4),
         const SizedBox(height: 4),
         const MyText(
           'Manage board members and their roles',
@@ -67,7 +68,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
                 child: MyTextFormField(
                   controller: searchController,
                   hintText: 'Search board members...',
-                  leading: const Icon(Icons.search, color: Colors.grey),
+                  leading: const Icon(Iconsax.search_normal, color: Colors.grey),
                   onChanged: (val) {
                     controller.boardSearchQuery.value = val;
                     setState(() => _currentPage = 1);
@@ -78,7 +79,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
             const SizedBox(width: 12),
             MyElevatedButton(
               height: 40,
-              icon: const Icon(Icons.add, color: Colors.white, size: 18),
+              icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
               child: "Add Board Member",
               onTap: () => showDialog(
                 context: context,
@@ -142,11 +143,11 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         children: [
-          Icon(Icons.groups_outlined, size: 48, color: Colors.grey[400]),
+          Icon(Iconsax.people, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 12),
           const MyText(
             'No board members found',
@@ -192,7 +193,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Row(
         children: [
@@ -301,7 +302,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
 
           // Actions
           _buildActionButton(
-            icon: Icons.edit_outlined,
+            icon: Iconsax.edit,
             tooltip: 'Edit',
             onTap: () => showDialog(
               context: context,
@@ -310,7 +311,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
           ),
           const SizedBox(width: 8),
           _buildActionButton(
-            icon: Icons.delete_outline,
+            icon: Iconsax.trash,
             tooltip: 'Remove',
             onTap: () => _confirmDelete(member),
           ),
@@ -330,7 +331,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.card),
+          border: Border.all(color: AppColors.borderSubtle),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, size: 18, color: Colors.grey[700]),

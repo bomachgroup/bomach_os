@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -120,11 +122,9 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
       if (!mounted) return;
       if (success) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Case saved"), backgroundColor: Colors.green));
+        AppToast.success(context, 'Case saved');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Failed to save"), backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to save');
       }
     }
   }
@@ -151,7 +151,7 @@ class _AddDisciplinaryCaseDialogState extends State<AddDisciplinaryCaseDialog> {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context)),
                 ],
               ),

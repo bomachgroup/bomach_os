@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -72,20 +73,20 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                     children: [
                       MyText(
                         'Disciplinary Process',
-                        style: AppText.black_500_32,
+                        style: AppText.displayLg,
                       ),
                       SizedBox(height: 8),
                       MyText(
                         'Track and manage disciplinary cases',
                         size: 14,
                         weight: 400,
-                        color: Color(0xFF64748B),
+                        color: AppColors.neutral500,
                       ),
                     ],
                   ),
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Iconsax.add_circle,
                       color: AppColors.white,
                     ),
                     child: "New Case",
@@ -120,14 +121,14 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                     child: MyTextFormField(
                       hintText: 'Search cases...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: _loadData,
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Iconsax.refresh),
                     tooltip: "Refresh",
                   ),
                 ],
@@ -213,7 +214,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
           DataCell(
             MyText(
               kase.employeeId,
-              style: AppText.black_500_16,
+              style: AppText.bodyLg,
             ),
           ),
           DataCell(
@@ -239,7 +240,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
           DataCell(
             MyText(
               kase.violationTitle,
-              style: AppText.sideMText_300_14,
+              style: AppText.bodyMd,
             ),
           ),
           DataCell(
@@ -247,7 +248,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
               kase.actionDate != null
                   ? DateFormat('dd MMM yyyy').format(kase.actionDate!)
                   : '-',
-              style: AppText.sideMText_300_14,
+              style: AppText.bodyMd,
             ),
           ),
           DataCell(
@@ -267,7 +268,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                 }
               },
               child:
-                  const Icon(Icons.visibility, size: 20, color: AppColors.blue),
+                  const Icon(Iconsax.eye, size: 20, color: AppColors.primary),
             ),
           ),
         ],
@@ -278,10 +279,10 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
   Color _getActionColor(String actionType) {
     final type = actionType.toLowerCase();
     if (type.contains('termination') || type.contains('dismissal')) {
-      return AppColors.red;
+      return AppColors.danger;
     }
     if (type.contains('suspension')) return Colors.orange;
     if (type.contains('warning')) return Colors.blue;
-    return AppColors.grey1;
+    return AppColors.neutral500;
   }
 }

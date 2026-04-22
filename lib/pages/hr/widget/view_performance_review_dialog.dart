@@ -1,4 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/chart/star_5.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -50,12 +53,12 @@ class _ViewPerformanceReviewDialogState
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, size: 24),
+                    child: const Icon(Iconsax.close_circle, size: 24),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE5E5E5)),
+            const Divider(height: 1, color: AppColors.neutral200),
             Expanded(
               child: Scrollbar(
                 controller: _scrollController,
@@ -113,37 +116,28 @@ class _ViewPerformanceReviewDialogState
                       alignment: WrapAlignment.end,
                       children: [
                         MyElevatedButton(
-                          bgColor: AppColors.red,
+                          bgColor: AppColors.danger,
                           child: 'Delete',
                           onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (dCtx) => AlertDialog(
-                                title: const Text('Delete Review'),
-                                content: const Text(
+                            DialogScaffold.show(
+      context,
+      title: 'Delete Review',
+      size: DialogSize.sm,
+      body: const Text(
                                     'Are you sure you want to delete this review?'),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () => Navigator.of(dCtx).pop(),
+      actions: [TextButton(
+                                      onPressed: () => Navigator.of(context).pop(),
                                       child: const Text('Cancel')),
                                   TextButton(
                                       onPressed: () async {
                                         await controller
                                             .deleteReview(widget.review.id!);
-                                        Navigator.of(dCtx).pop();
                                         Navigator.of(context).pop();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Review deleted'),
-                                            backgroundColor: Colors.green,
-                                          ),
-                                        );
+                                        Navigator.of(context).pop();
+                                        AppToast.success(context, 'Review deleted');
                                       },
-                                      child: const Text('Delete')),
-                                ],
-                              ),
-                            );
+                                      child: const Text('Delete')),],
+    );
                           },
                         ),
                         MyElevatedButton(
@@ -183,7 +177,7 @@ class _ViewPerformanceReviewDialogState
             child: Text(
               value,
               style: TextStyle(
-                color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
+                color: isBlue ? AppColors.primary : Colors.black87,
                 fontWeight: FontWeight.w500,
               ),
             ),

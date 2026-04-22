@@ -1,4 +1,5 @@
 import 'package:web/web.dart' as web;
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -66,7 +67,7 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
               value,
               style: TextStyle(
                 fontSize: 14,
-                color: highlight ? AppColors.blue : Colors.black87,
+                color: highlight ? AppColors.primary : Colors.black87,
                 fontWeight: highlight ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
@@ -166,7 +167,7 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.05),
+                  color: AppColors.primary.withValues(alpha: 0.05),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
@@ -192,7 +193,7 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.grey1,
+                            color: AppColors.neutral500,
                           ),
                         ),
                       ],
@@ -202,7 +203,7 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                         _buildStatusBadge(),
                         const SizedBox(width: 16),
                         IconButton(
-                          icon: const Icon(Icons.close, size: 28),
+                          icon: const Icon(Iconsax.close_circle, size: 28),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ],
@@ -311,12 +312,12 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                               ...widget.payment.proofOfPayment.map((proof) {
                                 return ListTile(
                                   leading: const Icon(
-                                    Icons.attach_file,
-                                    color: AppColors.blue,
+                                    Iconsax.attach_circle,
+                                    color: AppColors.primary,
                                   ),
                                   title: Text(proof.split('/').last),
                                   trailing: IconButton(
-                                    icon: const Icon(Icons.visibility),
+                                    icon: const Icon(Iconsax.eye),
                                     onPressed: () {
                                       web.window.open(proof, '_blank');
                                     },
@@ -460,14 +461,14 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                         const SizedBox(width: 16),
                         MyElevatedButton(
                           bgColor: Colors.green,
-                          icon: const Icon(Icons.check_circle,
+                          icon: const Icon(Iconsax.tick_circle,
                               color: Colors.white),
                           child: 'Approve Payment',
                           onTap: _approvePayment,
                         ),
                       ] else ...[
                         MyOutlinedButton(
-                          textColor: AppColors.darkGrey1,
+                          textColor: AppColors.neutral500,
                           borderColor: null,
                           child: 'Cancel',
                           onTap: () {
@@ -480,7 +481,7 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
                         const SizedBox(width: 16),
                         MyElevatedButton(
                           bgColor: Colors.red,
-                          icon: const Icon(Icons.cancel, color: Colors.white),
+                          icon: const Icon(Iconsax.close_circle, color: Colors.white),
                           child: 'Confirm Rejection',
                           onTap: _rejectPayment,
                         ),
@@ -520,7 +521,7 @@ class _ApprovePaymentDialogState extends State<ApprovePaymentDialog> {
           width: 4,
           height: 24,
           decoration: BoxDecoration(
-            color: AppColors.blue,
+            color: AppColors.primary,
             borderRadius: BorderRadius.circular(2),
           ),
         ),

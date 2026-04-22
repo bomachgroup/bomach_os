@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/avatar_picker.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -45,7 +46,7 @@ class BaseEditDialog extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red),
+                    icon: const Icon(Iconsax.close_circle, color: Colors.red),
                     onPressed: isSaving ? null : onCancel,
                     style: IconButton.styleFrom(
                         backgroundColor: const Color(0xFFFFEEEE)),
@@ -78,7 +79,7 @@ class BaseEditDialog extends StatelessWidget {
                     child: isSaving ? 'Saving...' : 'Save',
                     icon: isSaving
                         ? null
-                        : const Icon(Icons.check,
+                        : const Icon(Iconsax.tick_circle,
                             color: Colors.white, size: 18),
                   ),
                 ],
@@ -357,11 +358,11 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: isSel ? const Color(0xFF005CE8) : Colors.white,
+                    color: isSel ? AppColors.primary : Colors.white,
                     border: Border.all(
                         color: isSel
-                            ? const Color(0xFF005CE8)
-                            : const Color(0xFFE2E8F0)),
+                            ? AppColors.primary
+                            : AppColors.neutral200),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(opt,
@@ -381,11 +382,11 @@ class _EditGlobalBusinessDialogState extends State<EditGlobalBusinessDialog> {
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: val.value ? const Color(0xFF005CE8) : Colors.white,
+              color: val.value ? AppColors.primary : Colors.white,
               border: Border.all(
                   color: val.value
-                      ? const Color(0xFF005CE8)
-                      : const Color(0xFFE2E8F0)),
+                      ? AppColors.primary
+                      : AppColors.neutral200),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(label,

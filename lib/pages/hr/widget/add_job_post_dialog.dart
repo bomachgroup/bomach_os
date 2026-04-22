@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -47,7 +48,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF0055FF), // Blue header
+              primary: AppColors.primary, // Blue header
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -89,13 +90,13 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                         fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey),
+                    icon: const Icon(Iconsax.close_circle, color: Colors.grey),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.neutral100),
 
             // Form Content
             Expanded(
@@ -255,7 +256,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
+                border: Border(top: BorderSide(color: AppColors.neutral100)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -268,7 +269,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
                   const SizedBox(width: 16),
                   Obx(() => MyElevatedButton(
                         width: 140,
-                        bgColor: const Color(0xFF0055FF),
+                        bgColor: AppColors.primary,
                         child: controller.isSaving.value
                             ? 'Saving...'
                             : 'Save changes',

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/crm/models.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../../../components/text/my_text.dart';
@@ -104,7 +105,7 @@ class ContactDetails extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(Icons.mail_outline, size: 14, color: Colors.grey.shade600),
+            Icon(Iconsax.sms, size: 14, color: Colors.grey.shade600),
             const SizedBox(width: 4),
             Expanded(
               child: Text(email,
@@ -115,7 +116,7 @@ class ContactDetails extends StatelessWidget {
         if (phone != null)
           Row(
             children: [
-              Icon(Icons.phone_outlined, size: 14, color: Colors.grey.shade600),
+              Icon(Iconsax.call, size: 14, color: Colors.grey.shade600),
               const SizedBox(width: 4),
               Text(phone,
                   style: const TextStyle(fontSize: 13, color: Colors.black87)),

@@ -1,6 +1,9 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/helper/responsive_breakpoints.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -81,7 +84,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.arrow_back, size: 16, color: Colors.grey),
+                const Icon(Iconsax.arrow_left_2, size: 16, color: Colors.grey),
                 const SizedBox(width: 8),
                 Text(
                   'Back to Directory',
@@ -175,7 +178,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                     const SizedBox(width: 12),
                     MyElevatedButton(
                       child: 'Edit Profile',
-                      bgColor: const Color(0xFF0055FF),
+                      bgColor: AppColors.primary,
                       height: 40,
                       onTap: () {
                         showDialog(
@@ -189,7 +192,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       child: 'Give Review',
                       bgColor: const Color(0xFFD500F9),
                       icon:
-                          const Icon(Icons.star, color: Colors.white, size: 16),
+                          const Icon(Iconsax.star1, color: Colors.white, size: 16),
                       height: 40,
                       onTap: () {
                         showDialog(
@@ -225,7 +228,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   tabs[index],
                   style: TextStyle(
                     color: isSelected
-                        ? const Color(0xFF0055FF)
+                        ? AppColors.primary
                         : Colors.grey.shade600,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     fontSize: 14,
@@ -236,7 +239,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   Container(
                     height: 2,
                     width: 20,
-                    color: const Color(0xFF0055FF),
+                    color: AppColors.primary,
                   )
               ],
             ),
@@ -271,7 +274,7 @@ class _ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width > 900;
+    final isDesktop = context.breakpoint.isDesktop;
 
     return Wrap(
       spacing: 24,
@@ -283,15 +286,15 @@ class _ProfileTab extends StatelessWidget {
           width: isDesktop ? 0.3 : 1.0,
           children: [
             _InfoRow(
-                icon: Icons.email_outlined,
+                icon: Iconsax.sms,
                 label: "Email Address",
                 value: employee.email),
             _InfoRow(
-                icon: Icons.phone_outlined,
+                icon: Iconsax.call,
                 label: "Phone Number",
                 value: employee.phoneNumber ?? "N/A"),
             _InfoRow(
-                icon: Icons.location_on_outlined,
+                icon: Iconsax.location,
                 label: "Location",
                 value: employee.location ?? employee.branchName ?? "N/A"),
           ],
@@ -497,7 +500,7 @@ class _DocumentsTabState extends State<_DocumentsTab> {
                 const MyText("Digital Personnel File", weight: 600, size: 16),
                 MyElevatedButton(
                   child: "Upload Document",
-                  bgColor: const Color(0xFF0055FF),
+                  bgColor: AppColors.primary,
                   height: 36,
                   onTap: () {
                     showDialog(
@@ -588,7 +591,7 @@ class _DocumentsTabState extends State<_DocumentsTab> {
             child: Align(
               alignment: Alignment.centerRight,
               child: PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
+                icon: const Icon(Iconsax.more, size: 18, color: Colors.grey),
                 onSelected: (value) {
                   if (value == 'delete' && docId.isNotEmpty) {
                     widget.controller
@@ -739,7 +742,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             child: Row(
               children: List.generate(5, (index) {
                 return Icon(
-                  index < ratingInt ? Icons.star : Icons.star_border,
+                  index < ratingInt ? Iconsax.star1 : Iconsax.star,
                   color: Colors.amber,
                   size: 16,
                 );
@@ -751,7 +754,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             child: Align(
               alignment: Alignment.centerRight,
               child: PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
+                icon: const Icon(Iconsax.more, size: 18, color: Colors.grey),
                 onSelected: (value) {
                   if (value == 'delete' && reviewId.isNotEmpty) {
                     widget.controller
@@ -837,7 +840,7 @@ class _BenefitsTab extends StatelessWidget {
           customAction: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-                color: const Color(0xFF0055FF),
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(4)),
             child: const Text("Add",
                 style: TextStyle(
@@ -872,7 +875,7 @@ class _BenefitsTab extends StatelessWidget {
               MyText(entry.key, weight: 600, size: 14),
               MyText("${entry.value}", color: Colors.grey, size: 12),
             ]),
-            const Icon(Icons.delete_outline, color: Colors.red, size: 18)
+            const Icon(Iconsax.trash, color: Colors.red, size: 18)
           ],
         ),
       );
@@ -923,12 +926,12 @@ class _InfoCard extends StatelessWidget {
               MyText(title, weight: 700, size: 16),
               if (hasEdit)
                 const MyText("Edit",
-                    color: Color(0xFF0055FF), weight: 600, size: 12)
+                    color: AppColors.primary, weight: 600, size: 12)
               else if (customAction != null)
                 customAction!
               else
                 const MyText("Edit",
-                    color: Color(0xFF0055FF), weight: 600, size: 12),
+                    color: AppColors.primary, weight: 600, size: 12),
             ],
           ),
           const SizedBox(height: 20),

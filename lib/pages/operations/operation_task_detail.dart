@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/components/text/row_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -58,7 +59,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                             ),
                             kSizedBoxWidthSM,
                             const MyText('Back',
-                                style: AppText.black_500_20,
+                                style: AppText.h2,
                                 isSelectable: false),
                           ],
                         ),
@@ -67,11 +68,11 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          MyText(task.name, style: AppText.black_500_20),
+                          MyText(task.name, style: AppText.h2),
                           const SizedBox(height: 8),
                           MyText(
                             'Created ${task.createdAt} • Updated ${task.updatedAt}',
-                            style: AppText.black_400_16,
+                            style: AppText.bodyLg,
                           ),
                         ],
                       ),
@@ -83,7 +84,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                     children: [
                       MyElevatedButton(child: 'Edit', onTap: () {}),
                       MyElevatedButton(
-                        bgColor: AppColors.red,
+                        bgColor: AppColors.danger,
                         child: 'Delete',
                         onTap: () {},
                       ),
@@ -100,7 +101,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: Column(
             children: [
@@ -110,13 +111,13 @@ class TaskDetailPageState extends State<TaskDetailPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText("Assigned To", style: AppText.black_300_16),
+                  const MyText("Assigned To", style: AppText.bodyLg),
                   Container(
                     width: 300,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         borderRadius: BorderRadius.circular(8)),
                     child: Row(
                       children: [
@@ -125,7 +126,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                               const BoxDecoration(shape: BoxShape.circle),
                           width: 36,
                           height: 36,
-                          child: const Icon(Icons.person),
+                          child: const Icon(Iconsax.profile_circle),
                         ),
                         kSizedBoxWidth,
                         Expanded(

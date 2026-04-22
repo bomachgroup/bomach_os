@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/analytics/widgets/metrics_card.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import '../../components/text/my_text.dart';
@@ -97,17 +98,17 @@ class _SecurityPageState extends State<SecurityPage> {
                     spacing: 12,
                     children: [
                       _buildActionButton(
-                          icon: Icons.settings,
+                          icon: Iconsax.setting_2,
                           label: 'Security Settings',
                           onPressed: () {},
                           isWide: !isMobile),
                       if (_currentIndex == 0)
                         _buildActionButton(
-                            icon: Icons.key,
+                            icon: Iconsax.key,
                             label: 'Generate code',
                             onPressed: showSecurityCodeDialog,
                             foregroundColor: Colors.white,
-                            backgroundColor: AppColors.blue,
+                            backgroundColor: AppColors.primary,
                             isWide: !isMobile)
                     ],
                   ),
@@ -213,42 +214,42 @@ class _SecurityPageState extends State<SecurityPage> {
 List<MetricCard> securityMetrics = [
   MetricCard(
     title: 'Active Codes',
-    icon: Icons.vpn_key_outlined,
+    icon: Iconsax.key,
     iconColor: Colors.blue,
     value: '1',
     subtitle: 'Security codes',
   ),
   MetricCard(
     title: 'Active Workflows',
-    icon: Icons.alt_route,
+    icon: Iconsax.routing_2,
     iconColor: Colors.green,
     value: '1',
     subtitle: 'Approval processes',
   ),
   MetricCard(
     title: 'Open Alerts',
-    icon: Icons.warning_amber_outlined,
+    icon: Iconsax.warning_2,
     iconColor: Colors.red,
     value: '2',
     subtitle: 'Require attention',
   ),
   MetricCard(
     title: 'Successful Logins',
-    icon: Icons.check_circle_outline,
+    icon: Iconsax.tick_circle,
     iconColor: Colors.green,
     value: '1',
     subtitle: 'This week',
   ),
   MetricCard(
     title: 'Failed Attempts',
-    icon: Icons.cancel_outlined,
+    icon: Iconsax.close_circle,
     iconColor: Colors.red,
     value: '0',
     subtitle: 'Security events',
   ),
   MetricCard(
     title: 'Critical Alerts',
-    icon: Icons.gpp_bad_outlined,
+    icon: Iconsax.shield_cross,
     iconColor: Colors.red,
     value: '0',
     subtitle: 'High priority',

@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -90,7 +92,7 @@ class SecurityLogs extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.description_outlined,
+                  const Icon(Iconsax.document_text,
                       color: Colors.black, size: 24),
                   const SizedBox(width: 8),
                   Flexible(
@@ -120,13 +122,13 @@ class SecurityLogs extends StatelessWidget {
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search logs...',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    prefixIcon: const Icon(Iconsax.search_normal, color: Colors.grey),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: const Color(0xFFF0F0F0),
+                    fillColor: AppColors.neutral100,
                     contentPadding:
                         const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                   ),
@@ -140,14 +142,14 @@ class SecurityLogs extends StatelessWidget {
                   hintText: 'All Status',
                   items: const ['All Status', 'Success', 'Failure', 'Warning'],
                   onChanged: (String? newValue) {},
-                  fillColor: const Color(0xFFF0F0F0),
+                  fillColor: AppColors.neutral100,
                   height: 48,
                 ),
               ),
               const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: () {},
-                icon: const Icon(Icons.download, size: 20),
+                icon: const Icon(Iconsax.document_download, size: 20),
                 label: const Text('Export',
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
@@ -168,7 +170,7 @@ class SecurityLogs extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.search, size: 20),
+                icon: const Icon(Iconsax.search_normal, size: 20),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
@@ -181,7 +183,7 @@ class SecurityLogs extends StatelessWidget {
               const SizedBox(width: 8),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.align_horizontal_left_sharp, size: 20),
+                icon: const Icon(Iconsax.textalign_left, size: 20),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
@@ -194,7 +196,7 @@ class SecurityLogs extends StatelessWidget {
               const SizedBox(width: 8),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.download, size: 20),
+                icon: const Icon(Iconsax.document_download, size: 20),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
@@ -234,14 +236,14 @@ class _AuditLogTileLive extends StatelessWidget {
   IconData _getStatusIcon(String status) {
     switch (status.toLowerCase()) {
       case 'success':
-        return Icons.check_circle_outline;
+        return Iconsax.tick_circle;
       case 'failure':
       case 'failed':
-        return Icons.cancel_outlined;
+        return Iconsax.close_circle;
       case 'warning':
-        return Icons.warning_amber_outlined;
+        return Iconsax.warning_2;
       default:
-        return Icons.info_outline;
+        return Iconsax.info_circle;
     }
   }
 

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'dart:developer';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
@@ -419,22 +421,17 @@ class EmployeeController extends GetxController {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
-    );
+    AppToast.success(context, message);
   }
 
   void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text("Error"),
-        content: Text(message),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c), child: const Text("OK")),
-        ],
-      ),
+    DialogScaffold.show(
+      context,
+      title: "Error",
+      size: DialogSize.sm,
+      body: Text(message),
+      actions: [TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text("OK")),],
     );
   }
 

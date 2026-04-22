@@ -26,11 +26,11 @@ class _ServiceOrderState extends State<ServiceOrder> {
       children: [
         const MyText(
           'Service Order',
-          style: AppText.black_500_32,
+          style: AppText.displayLg,
         ),
         const MyText(
           'Service Order',
-          style: AppText.black_600_14,
+          style: AppText.h4,
         ),
         const SizedBox(
           height: 21,

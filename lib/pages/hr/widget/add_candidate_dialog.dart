@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -126,7 +128,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey),
+                    icon: const Icon(Iconsax.close_circle, color: Colors.grey),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -149,7 +151,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
                             _tabs[index],
                             style: TextStyle(
                               color: isActive
-                                  ? const Color(0xFF0055FF)
+                                  ? AppColors.primary
                                   : Colors.grey.shade600,
                               fontWeight:
                                   isActive ? FontWeight.w700 : FontWeight.w500,
@@ -161,7 +163,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
                             Container(
                                 height: 2,
                                 width: 30,
-                                color: const Color(0xFF0055FF))
+                                color: AppColors.primary)
                         ],
                       ),
                     ),
@@ -169,7 +171,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
                 }),
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const Divider(height: 1, color: AppColors.neutral100),
 
             // Body
             Expanded(
@@ -183,7 +185,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
+                border: Border(top: BorderSide(color: AppColors.neutral100)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -205,7 +207,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
                   const SizedBox(width: 16),
                   Obx(() => MyElevatedButton(
                         width: 160,
-                        bgColor: const Color(0xFF0055FF),
+                        bgColor: AppColors.primary,
                         child: controller.isSaving.value
                             ? 'Saving...'
                             : (_currentStep == 2
@@ -380,7 +382,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
             children: [
               Text(hint,
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-              const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+              const Icon(Iconsax.arrow_down_1, color: Colors.grey),
             ],
           ),
         ),

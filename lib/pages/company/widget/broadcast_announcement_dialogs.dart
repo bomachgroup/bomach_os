@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -110,7 +112,7 @@ class _CreateEditAnnouncementDialogState
                           fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -171,7 +173,7 @@ class _CreateEditAnnouncementDialogState
                     const SizedBox(width: 8),
                     Switch(
                       value: isActive,
-                      activeThumbColor: AppColors.blue,
+                      activeThumbColor: AppColors.primary,
                       onChanged: (val) => setState(() => isActive = val),
                     ),
                     Text(isActive ? 'Yes' : 'No',
@@ -192,7 +194,7 @@ class _CreateEditAnnouncementDialogState
                             controller: publishAtCtrl,
                             hintText: 'Select date',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
+                            trailing: const Icon(Iconsax.calendar_1,
                                 size: 18, color: Colors.grey),
                             onTap: () => _pickDate(publishAtCtrl),
                             validator: (val) => (val == null || val.isEmpty)
@@ -212,7 +214,7 @@ class _CreateEditAnnouncementDialogState
                             controller: expiresAtCtrl,
                             hintText: 'Select date',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
+                            trailing: const Icon(Iconsax.calendar_1,
                                 size: 18, color: Colors.grey),
                             onTap: () => _pickDate(expiresAtCtrl),
                             validator: (val) => (val == null || val.isEmpty)
@@ -248,8 +250,8 @@ class _CreateEditAnnouncementDialogState
                           }
                         }),
                         selectedColor:
-                            const Color(0xFF1976D2).withValues(alpha: 0.15),
-                        checkmarkColor: const Color(0xFF1976D2),
+                            AppColors.primary.withValues(alpha: 0.15),
+                        checkmarkColor: AppColors.primary,
                       );
                     }).toList(),
                   );
@@ -278,8 +280,8 @@ class _CreateEditAnnouncementDialogState
                           }
                         }),
                         selectedColor:
-                            const Color(0xFF1976D2).withValues(alpha: 0.15),
-                        checkmarkColor: const Color(0xFF1976D2),
+                            AppColors.primary.withValues(alpha: 0.15),
+                        checkmarkColor: AppColors.primary,
                       );
                     }).toList(),
                   );
@@ -301,7 +303,7 @@ class _CreateEditAnnouncementDialogState
                               : 'Create Announcement',
                           isLoading: controller.isSavingAnnouncement.value,
                           onTap: _onSave,
-                          icon: const Icon(Icons.check,
+                          icon: const Icon(Iconsax.tick_circle,
                               color: Colors.white, size: 18),
                         )),
                   ],
@@ -344,7 +346,7 @@ class _CreateEditAnnouncementDialogState
           hint: const Text('Select type',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: typeItems
               .map((t) => DropdownMenuItem(
                   value: t,
@@ -378,7 +380,7 @@ class _CreateEditAnnouncementDialogState
           hint: const Text('Select priority',
               style: TextStyle(color: Colors.grey, fontSize: 14)),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          icon: const Icon(Iconsax.arrow_down_1, color: Colors.grey),
           items: priorityItems
               .map((p) => DropdownMenuItem(
                   value: p,
@@ -414,12 +416,7 @@ class _CreateEditAnnouncementDialogState
     if (!_formKey.currentState!.validate()) return;
 
     if (selectedAnnouncementType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an announcement type'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please select an announcement type');
       return;
     }
 
@@ -494,7 +491,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -533,7 +530,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   _buildActionButton(
                     label: 'Edit',
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     onTap: () {
                       Navigator.pop(context);
                       showDialog(
@@ -571,7 +568,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
           SizedBox(
             width: 130,
             child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: const TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Expanded(
             child: Text(value,
@@ -594,7 +591,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
           const SizedBox(
             width: 130,
             child: Text('Status',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: TextStyle(color: AppColors.neutral500, fontSize: 13)),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -605,7 +602,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.circle, size: 8, color: color),
+                Icon(Iconsax.record_circle, size: 8, color: color),
                 const SizedBox(width: 6),
                 Text(label,
                     style: TextStyle(

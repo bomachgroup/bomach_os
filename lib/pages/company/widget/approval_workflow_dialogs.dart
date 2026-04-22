@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/model/approval_model.dart';
@@ -104,7 +105,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
+                color: AppColors.neutral50,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -122,7 +123,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -205,18 +206,18 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                                   height: 20,
                                   decoration: BoxDecoration(
                                     color: isChecked
-                                        ? AppColors.blue
+                                        ? AppColors.primary
                                         : Colors.transparent,
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(
                                       color: isChecked
-                                          ? AppColors.blue
-                                          : const Color(0xFFE2E8F0),
+                                          ? AppColors.primary
+                                          : AppColors.neutral200,
                                       width: 1.5,
                                     ),
                                   ),
                                   child: isChecked
-                                      ? const Icon(Icons.check,
+                                      ? const Icon(Iconsax.tick_circle,
                                           size: 14, color: Colors.white)
                                       : null,
                                 ),
@@ -288,7 +289,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white),
                               )
-                            : const Icon(Icons.check,
+                            : const Icon(Iconsax.tick_circle,
                                 size: 16, color: Colors.white),
                         child: isEdit ? 'Save' : 'Create',
                         onTap: controller.isSavingFlow.value ? null : _onSave,
@@ -312,7 +313,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButtonHideUnderline(
@@ -320,7 +321,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
           isExpanded: true,
           value: items.any((i) => i.value == value) ? value : null,
           hint: Text(hint,
-              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
+              style: const TextStyle(color: AppColors.neutral400, fontSize: 14)),
           items: items
               .map((opt) =>
                   DropdownMenuItem(value: opt.value, child: Text(opt.label)))
@@ -353,7 +354,7 @@ class ViewWorkflowDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
+                color: AppColors.neutral50,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -373,7 +374,7 @@ class ViewWorkflowDialog extends StatelessWidget {
                       : flow.status),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -445,7 +446,7 @@ class ViewWorkflowDialog extends StatelessWidget {
             width: 120,
             child: Text(label,
                 style: const TextStyle(
-                    color: Color(0xFF64748B),
+                    color: AppColors.neutral500,
                     fontSize: 13,
                     fontWeight: FontWeight.w500)),
           ),
@@ -463,12 +464,12 @@ class ViewWorkflowDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.blue.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(label,
           style: const TextStyle(
-            color: AppColors.blue,
+            color: AppColors.primary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           )),
@@ -488,7 +489,7 @@ class ViewWorkflowDialog extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.circle, size: 7, color: color),
+          Icon(Iconsax.record_circle, size: 7, color: color),
           const SizedBox(width: 5),
           Text(
             status,

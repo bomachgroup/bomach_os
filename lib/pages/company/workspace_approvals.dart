@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/permission/permission_gate.dart';
 import 'package:bms_front_end/components/section/responsive_widget.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -35,12 +37,12 @@ class WorkspaceApprovalsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText('Workspace Approvals', style: AppText.black_600_32),
+          const MyText('Workspace Approvals', style: AppText.displayLg),
           const SizedBox(height: 8),
           const Text(
             'Review employee-submitted work locations. Approve to enable '
             'clock-in, or reject with a reason the employee will see.',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+            style: TextStyle(color: AppColors.neutral500, fontSize: 14),
           ),
           const SizedBox(height: 24),
 
@@ -56,25 +58,25 @@ class WorkspaceApprovalsPage extends StatelessWidget {
                   children: [
                     MyText(
                       _titleForView(ctrl.view.value),
-                      style: AppText.black_600_16,
+                      style: AppText.h4,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _subtitleForView(ctrl.view.value),
                       style: const TextStyle(
-                          color: Color(0xFF64748B), fontSize: 13),
+                          color: AppColors.neutral500, fontSize: 13),
                     ),
                   ],
                 )),
             search: MyTextFormField(
               hintText: 'Search by name, employee, or branch',
               leading:
-                  const Icon(Icons.search, color: Colors.grey, size: 20),
+                  const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
               onChanged: (v) => ctrl.searchQuery.value = v,
             ),
             action: OutlinedButton.icon(
               onPressed: ctrl.fetch,
-              icon: const Icon(Icons.refresh_rounded, size: 16),
+              icon: const Icon(Iconsax.refresh, size: 16),
               label: const Text('Refresh'),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -149,7 +151,7 @@ class _ViewTabs extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: AppColors.neutral100,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -186,8 +188,8 @@ class _ViewTabs extends StatelessWidget {
                       fontWeight:
                           selected ? FontWeight.w700 : FontWeight.w500,
                       color: selected
-                          ? const Color(0xFF0F172A)
-                          : const Color(0xFF64748B),
+                          ? AppColors.neutral900
+                          : AppColors.neutral500,
                     ),
                   ),
                 ),
@@ -230,46 +232,46 @@ class _StatsSection extends StatelessWidget {
               DashboardStatCard(
                 title: 'Pending Reviews',
                 count: '$total',
-                borderColor: const Color(0xFFC27803),
-                countColor: const Color(0xFFC27803),
+                borderColor: AppColors.warning,
+                countColor: AppColors.warning,
               ),
               DashboardStatCard(
                 title: 'Employees Waiting',
                 count: '${_uniqueEmployees(list)}',
-                borderColor: AppColors.blue,
-                countColor: AppColors.blue,
+                borderColor: AppColors.primary,
+                countColor: AppColors.primary,
               ),
               DashboardStatCard(
                 title: 'Oldest Pending',
                 count: _oldestLabel(list),
-                borderColor: const Color(0xFFDC2626),
-                countColor: const Color(0xFFDC2626),
+                borderColor: AppColors.danger,
+                countColor: AppColors.danger,
               ),
             ]
           : <DashboardStatCard>[
               DashboardStatCard(
                 title: 'Approved',
                 count: '$approved',
-                borderColor: const Color(0xFF10B981),
-                countColor: const Color(0xFF10B981),
+                borderColor: AppColors.success,
+                countColor: AppColors.success,
               ),
               DashboardStatCard(
                 title: 'Pending',
                 count: '$pending',
-                borderColor: const Color(0xFFC27803),
-                countColor: const Color(0xFFC27803),
+                borderColor: AppColors.warning,
+                countColor: AppColors.warning,
               ),
               DashboardStatCard(
                 title: 'Rejected',
                 count: '$rejected',
-                borderColor: const Color(0xFFDC2626),
-                countColor: const Color(0xFFDC2626),
+                borderColor: AppColors.danger,
+                countColor: AppColors.danger,
               ),
               DashboardStatCard(
                 title: 'Total',
                 count: '$total',
-                borderColor: AppColors.blue,
-                countColor: AppColors.blue,
+                borderColor: AppColors.primary,
+                countColor: AppColors.primary,
               ),
             ];
 
@@ -318,19 +320,19 @@ class _ApprovalsTable extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
           headingTextStyle: const TextStyle(
             fontWeight: FontWeight.w700,
-            color: Color(0xFF475569),
+            color: AppColors.neutral600,
             fontSize: 12,
             letterSpacing: 0.5,
           ),
           headingRowColor:
-              WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+              WidgetStateProperty.all(AppColors.neutral50),
           dataRowMinHeight: 56,
           dataRowMaxHeight: 68,
           columnSpacing: 28,
@@ -385,7 +387,7 @@ class _ApprovalsTable extends StatelessWidget {
             w.employeeName ?? 'Employee #${w.employeeId ?? '—'}',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
-              color: Color(0xFF0F172A),
+              color: AppColors.neutral900,
               fontSize: 13,
             ),
           ),
@@ -394,7 +396,7 @@ class _ApprovalsTable extends StatelessWidget {
               w.branchName!,
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF64748B),
+                color: AppColors.neutral500,
               ),
             ),
         ],
@@ -409,7 +411,7 @@ class _ApprovalsTable extends StatelessWidget {
               w.workspaceName,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF0F172A),
+                color: AppColors.neutral900,
                 fontSize: 13,
               ),
               overflow: TextOverflow.ellipsis,
@@ -421,7 +423,7 @@ class _ApprovalsTable extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF64748B),
+                  color: AppColors.neutral500,
                 ),
               ),
           ],
@@ -430,14 +432,14 @@ class _ApprovalsTable extends StatelessWidget {
       DataCell(Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFFEFF6FF),
+          color: AppColors.primarySubtle,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
           _prettyType(w.locationType),
           style: const TextStyle(
             fontSize: 11,
-            color: AppColors.blue,
+            color: AppColors.primary,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -470,12 +472,12 @@ class _ApprovalsTable extends StatelessWidget {
               onPressed: ctrl.isMutating.value
                   ? null
                   : () => _openApproveDialog(context, w),
-              icon: const Icon(Icons.check_circle_rounded,
-                  color: Color(0xFF10B981), size: 16),
+              icon: const Icon(Iconsax.tick_circle,
+                  color: AppColors.success, size: 16),
               label: const Text(
                 'Approve',
                 style: TextStyle(
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -488,12 +490,12 @@ class _ApprovalsTable extends StatelessWidget {
               onPressed: ctrl.isMutating.value
                   ? null
                   : () => _openRejectDialog(context, w),
-              icon: const Icon(Icons.cancel_rounded,
-                  color: Color(0xFFDC2626), size: 16),
+              icon: const Icon(Iconsax.close_circle,
+                  color: AppColors.danger, size: 16),
               label: const Text(
                 'Reject',
                 style: TextStyle(
-                  color: Color(0xFFDC2626),
+                  color: AppColors.danger,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -509,12 +511,12 @@ class _ApprovalsTable extends StatelessWidget {
                 onPressed: ctrl.isMutating.value
                     ? null
                     : () => _openEditDialog(context, w),
-                icon: const Icon(Icons.edit_rounded,
-                    color: AppColors.blue, size: 16),
+                icon: const Icon(Iconsax.edit,
+                    color: AppColors.primary, size: 16),
                 label: const Text(
                   'Edit',
                   style: TextStyle(
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -528,12 +530,12 @@ class _ApprovalsTable extends StatelessWidget {
               onPressed: ctrl.isMutating.value
                   ? null
                   : () => _openForceDeleteDialog(context, w),
-              icon: const Icon(Icons.delete_outline_rounded,
-                  color: Color(0xFFDC2626), size: 16),
+              icon: const Icon(Iconsax.trash,
+                  color: AppColors.danger, size: 16),
               label: const Text(
                 'Delete',
                 style: TextStyle(
-                  color: Color(0xFFDC2626),
+                  color: AppColors.danger,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -570,27 +572,27 @@ class _ApprovalsTable extends StatelessWidget {
     switch (s) {
       case WorkspaceStatus.approved:
         return (
-          const Color(0xFF10B981),
-          const Color(0xFF10B981).withValues(alpha: 0.12),
-          Icons.check_circle_rounded,
+          AppColors.success,
+          AppColors.success.withValues(alpha: 0.12),
+          Iconsax.tick_circle,
         );
       case WorkspaceStatus.pending:
         return (
-          const Color(0xFFF59E0B),
-          const Color(0xFFF59E0B).withValues(alpha: 0.12),
-          Icons.hourglass_top_rounded,
+          AppColors.warning,
+          AppColors.warning.withValues(alpha: 0.12),
+          Iconsax.timer,
         );
       case WorkspaceStatus.rejected:
         return (
-          const Color(0xFFEF4444),
-          const Color(0xFFEF4444).withValues(alpha: 0.12),
-          Icons.cancel_rounded,
+          AppColors.danger,
+          AppColors.danger.withValues(alpha: 0.12),
+          Iconsax.close_circle,
         );
       case WorkspaceStatus.unknown:
         return (
-          const Color(0xFF64748B),
-          const Color(0xFF64748B).withValues(alpha: 0.12),
-          Icons.help_outline_rounded,
+          AppColors.neutral500,
+          AppColors.neutral500.withValues(alpha: 0.12),
+          Iconsax.info_circle,
         );
     }
   }
@@ -610,8 +612,8 @@ class _ApprovalsTable extends StatelessWidget {
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: _dialogTitle(
-          icon: Icons.check_circle_rounded,
-          color: const Color(0xFF10B981),
+          icon: Iconsax.tick_circle,
+          color: AppColors.success,
           text: 'Approve workspace?',
         ),
         content: Form(
@@ -626,7 +628,7 @@ class _ApprovalsTable extends StatelessWidget {
                 'the geofence.',
                 style: const TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF475569),
+                  color: AppColors.neutral600,
                   height: 1.5,
                 ),
               ),
@@ -647,7 +649,7 @@ class _ApprovalsTable extends StatelessWidget {
               const SizedBox(height: 6),
               const Text(
                 'Employees can only clock in when inside this radius.',
-                style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                style: TextStyle(fontSize: 11, color: AppColors.neutral400),
               ),
             ],
           ),
@@ -664,7 +666,7 @@ class _ApprovalsTable extends StatelessWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
+              backgroundColor: AppColors.success,
               foregroundColor: Colors.white,
             ),
             child: const Text('Approve'),
@@ -691,8 +693,8 @@ class _ApprovalsTable extends StatelessWidget {
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: _dialogTitle(
-          icon: Icons.cancel_rounded,
-          color: const Color(0xFFDC2626),
+          icon: Iconsax.close_circle,
+          color: AppColors.danger,
           text: 'Reject workspace?',
         ),
         content: Form(
@@ -706,7 +708,7 @@ class _ApprovalsTable extends StatelessWidget {
                 'reason and can then delete and resubmit.',
                 style: const TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF475569),
+                  color: AppColors.neutral600,
                   height: 1.5,
                 ),
               ),
@@ -742,7 +744,7 @@ class _ApprovalsTable extends StatelessWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
             child: const Text('Reject'),
@@ -799,8 +801,8 @@ class _ApprovalsTable extends StatelessWidget {
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12)),
           title: _dialogTitle(
-            icon: Icons.edit_rounded,
-            color: AppColors.blue,
+            icon: Iconsax.edit,
+            color: AppColors.primary,
             text: 'Edit workspace',
           ),
           content: SizedBox(
@@ -817,7 +819,7 @@ class _ApprovalsTable extends StatelessWidget {
                       "if you don't want to touch it.",
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF64748B),
+                        color: AppColors.neutral500,
                         height: 1.5,
                       ),
                     ),
@@ -865,7 +867,7 @@ class _ApprovalsTable extends StatelessWidget {
                               contentPadding: EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 10),
                               prefixIcon:
-                                  Icon(Icons.calendar_today_rounded, size: 18),
+                                  Icon(Iconsax.calendar_1, size: 18),
                             ),
                           ),
                         ),
@@ -873,7 +875,7 @@ class _ApprovalsTable extends StatelessWidget {
                           const SizedBox(width: 8),
                           IconButton(
                             tooltip: 'Clear expiry',
-                            icon: const Icon(Icons.close, size: 18),
+                            icon: const Icon(Iconsax.close_circle, size: 18),
                             onPressed: () =>
                                 setState(() => expiryCtrl.text = ''),
                           ),
@@ -888,7 +890,7 @@ class _ApprovalsTable extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF0F172A),
+                          color: AppColors.neutral900,
                         ),
                       ),
                       subtitle: const Text(
@@ -896,7 +898,7 @@ class _ApprovalsTable extends StatelessWidget {
                         'location even though it stays APPROVED.',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                       value: isActive,
@@ -942,7 +944,7 @@ class _ApprovalsTable extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Save'),
@@ -978,8 +980,8 @@ class _ApprovalsTable extends StatelessWidget {
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: _dialogTitle(
-          icon: Icons.delete_outline_rounded,
-          color: const Color(0xFFDC2626),
+          icon: Iconsax.trash,
+          color: AppColors.danger,
           text: 'Delete workspace?',
         ),
         content: Text(
@@ -989,7 +991,7 @@ class _ApprovalsTable extends StatelessWidget {
           'to clock in.',
           style: const TextStyle(
             fontSize: 13,
-            color: Color(0xFF475569),
+            color: AppColors.neutral600,
             height: 1.5,
           ),
         ),
@@ -1001,7 +1003,7 @@ class _ApprovalsTable extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
             child: const Text('Delete'),
@@ -1043,7 +1045,7 @@ class _ApprovalsTable extends StatelessWidget {
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF64748B),
+        color: AppColors.neutral500,
       ),
     );
   }
@@ -1064,12 +1066,7 @@ class _ApprovalsTable extends StatelessWidget {
   }
 
   void _snack(BuildContext context, bool ok) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-        ok ? ctrl.successMessage.value : ctrl.errorMessage.value,
-      ),
-      backgroundColor: ok ? Colors.green : Colors.red,
-    ));
+    AppToast.info(context, ok ? ctrl.successMessage.value : ctrl.errorMessage.value,);
   }
 }
 
@@ -1107,7 +1104,7 @@ class _EmptyState extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         children: [
@@ -1125,7 +1122,7 @@ class _EmptyState extends StatelessWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF0F172A),
+              color: AppColors.neutral900,
             ),
           ),
           const SizedBox(height: 4),
@@ -1133,7 +1130,7 @@ class _EmptyState extends StatelessWidget {
             subtitle,
             textAlign: TextAlign.center,
             style:
-                const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                const TextStyle(fontSize: 13, color: AppColors.neutral500),
           ),
         ],
       ),
@@ -1144,31 +1141,31 @@ class _EmptyState extends StatelessWidget {
     switch (view) {
       case ApprovalsView.pending:
         return (
-          Icons.inbox_rounded,
+          Iconsax.archive_1,
           'All caught up',
           'There are no workspace submissions awaiting review.',
-          const Color(0xFF10B981),
+          AppColors.success,
         );
       case ApprovalsView.approved:
         return (
-          Icons.location_off_rounded,
+          Iconsax.location_slash,
           'No approved locations',
           'Once you approve a pending submission it will appear here.',
-          AppColors.blue,
+          AppColors.primary,
         );
       case ApprovalsView.rejected:
         return (
-          Icons.check_circle_outline_rounded,
+          Iconsax.tick_circle,
           'No rejections',
           'Nothing has been rejected — or the employees have cleaned up.',
-          const Color(0xFF10B981),
+          AppColors.success,
         );
       case ApprovalsView.all:
         return (
-          Icons.location_searching_rounded,
+          Iconsax.location,
           'No work locations yet',
           'Once employees submit workspaces they will show up here.',
-          AppColors.blue,
+          AppColors.primary,
         );
     }
   }

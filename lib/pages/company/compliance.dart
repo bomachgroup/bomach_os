@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -46,7 +48,7 @@ class _CompliancePageState extends State<CompliancePage> {
         // Header
         const MyText(
           'Compliance & Registration',
-          style: AppText.black_600_16,
+          style: AppText.h4,
         ),
         const SizedBox(height: 4),
         const MyText(
@@ -65,7 +67,7 @@ class _CompliancePageState extends State<CompliancePage> {
                 child: MyTextFormField(
                   controller: searchController,
                   hintText: 'Search',
-                  leading: const Icon(Icons.search, color: Colors.grey),
+                  leading: const Icon(Iconsax.search_normal, color: Colors.grey),
                   onChanged: (val) {
                     controller.complianceSearchQuery.value = val;
                     setState(() => _currentPage = 1);
@@ -76,7 +78,7 @@ class _CompliancePageState extends State<CompliancePage> {
             const SizedBox(width: 12),
             MyElevatedButton(
               height: 40,
-              icon: const Icon(Icons.add, color: Colors.white, size: 18),
+              icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
               child: "New Compliance",
               onTap: () => showDialog(
                 context: context,
@@ -136,11 +138,11 @@ class _CompliancePageState extends State<CompliancePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         children: [
-          Icon(Icons.folder_open_outlined, size: 48, color: Colors.grey[400]),
+          Icon(Iconsax.folder_2, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 12),
           const MyText(
             'No compliance records found',
@@ -166,7 +168,7 @@ class _CompliancePageState extends State<CompliancePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,7 +207,7 @@ class _CompliancePageState extends State<CompliancePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildActionButton(
-                icon: Icons.edit_outlined,
+                icon: Iconsax.edit,
                 tooltip: 'Edit',
                 onTap: () => showDialog(
                   context: context,
@@ -214,7 +216,7 @@ class _CompliancePageState extends State<CompliancePage> {
               ),
               const SizedBox(width: 8),
               _buildActionButton(
-                icon: Icons.delete_outline,
+                icon: Iconsax.trash,
                 tooltip: 'Delete',
                 onTap: () => _confirmDelete(item),
               ),
@@ -257,7 +259,7 @@ class _CompliancePageState extends State<CompliancePage> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.card),
+          border: Border.all(color: AppColors.borderSubtle),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, size: 18, color: Colors.grey[700]),
@@ -266,27 +268,24 @@ class _CompliancePageState extends State<CompliancePage> {
   }
 
   void _confirmDelete(Compliance item) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Compliance Record'),
-        content: Text(
+    DialogScaffold.show(
+      context,
+      title: 'Delete Compliance Record',
+      size: DialogSize.sm,
+      body: Text(
             'Are you sure you want to delete "${item.complianceType} - ${item.referenceNumber}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
+      actions: [TextButton(
+            onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              Navigator.pop(context);
               controller.deleteCompliance(context, item.id);
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
             child: const Text('Delete'),
-          ),
-        ],
-      ),
+          ),],
     );
   }
 

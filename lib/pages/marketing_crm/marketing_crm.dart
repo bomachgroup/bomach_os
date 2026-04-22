@@ -5,6 +5,7 @@ import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 /// Combined landing page for the merged Marketing & CRM module. Surfaces
 /// every sub-route as a shortcut card so the dashboard matches the
@@ -39,21 +40,21 @@ class MarketingCrmDashboard extends StatelessWidget {
           'Client relationships, lead pipelines, and marketing activity in one place.',
       shortcuts: [
         card(
-          icon: Icons.people_alt_outlined,
+          icon: Iconsax.user_octagon,
           title: 'Clients',
           subtitle: 'Manage your customer list',
           route: RouteConstants.crmClients,
           resources: const [PermissionConstants.resClients],
         ),
         card(
-          icon: Icons.handshake_outlined,
+          icon: Iconsax.flash_1,
           title: 'Leads',
           subtitle: 'Pipeline and new prospects',
           route: RouteConstants.crmLeads,
           resources: const [PermissionConstants.resLeads],
         ),
         card(
-          icon: Icons.forum_outlined,
+          icon: Iconsax.message_2,
           title: 'Interactions',
           subtitle: 'Conversations and touchpoints',
           route: RouteConstants.crmInteractions,
@@ -63,14 +64,14 @@ class MarketingCrmDashboard extends StatelessWidget {
           ],
         ),
         card(
-          icon: Icons.campaign_outlined,
+          icon: Iconsax.chart_2,
           title: 'Marketing',
           subtitle: 'Campaigns, content, and events',
           route: RouteConstants.marketing,
           resources: const [PermissionConstants.resMarketingCampaigns],
         ),
         card(
-          icon: Icons.insights_outlined,
+          icon: Iconsax.chart_square,
           title: 'Analytics',
           subtitle: 'Revenue and performance insights',
           route: RouteConstants.crmAnalytics,

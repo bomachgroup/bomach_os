@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class ViewAssociateDialog extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context)),
                 ],
               ),
@@ -47,7 +48,7 @@ class ViewAssociateDialog extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: AppColors.greyBg,
+                        backgroundColor: AppColors.background,
                         backgroundImage: associate.profilePicture != null
                             ? NetworkImage(associate.profilePicture!)
                             : null,
@@ -111,7 +112,7 @@ class ViewAssociateDialog extends StatelessWidget {
         children: [
           SizedBox(
             width: 140,
-            child: MyText(label, color: const Color(0xFF64748B), size: 14),
+            child: MyText(label, color: AppColors.neutral500, size: 14),
           ),
           Expanded(
             child: MyText(value, weight: 500, size: 14),

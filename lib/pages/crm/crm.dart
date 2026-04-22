@@ -1,8 +1,12 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/pages/crm/widgets/line_chart.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
-import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import 'controllers/crm_controller.dart';
 import 'dialogs/client_dialog.dart';
@@ -29,32 +33,42 @@ class CrmDashboardPage extends StatelessWidget {
       Color? foregroundColor,
       Color? backgroundColor,
     }) {
+      final bg = backgroundColor ?? AppColors.surface;
+      final fg = foregroundColor ?? AppColors.textPrimary;
       if (isWide) {
         return ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
-            backgroundColor: backgroundColor ?? Colors.white,
-            foregroundColor: foregroundColor ?? Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
+            backgroundColor: bg,
+            foregroundColor: fg,
+            elevation: 0,
+            side: backgroundColor == null
+                ? const BorderSide(color: AppColors.borderSubtle)
+                : BorderSide.none,
+            shape: const RoundedRectangleBorder(
+              borderRadius: AppRadii.brMd,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
           ),
-          icon: Icon(icon, size: 18),
-          label: Text(label, style: const TextStyle(fontSize: 12)),
+          icon: Icon(icon, size: 16),
+          label: Text(label),
           onPressed: onPressed,
         );
       } else {
         return IconButton(
           tooltip: label,
           style: IconButton.styleFrom(
-            backgroundColor: backgroundColor ?? Colors.white,
-            foregroundColor: foregroundColor ?? Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
+            backgroundColor: bg,
+            foregroundColor: fg,
+            side: backgroundColor == null
+                ? const BorderSide(color: AppColors.borderSubtle)
+                : null,
+            shape: const RoundedRectangleBorder(
+              borderRadius: AppRadii.brMd,
             ),
           ),
           onPressed: onPressed,
-          icon: Icon(icon, size: 20),
+          icon: Icon(icon, size: 18),
         );
       }
     }
@@ -66,53 +80,36 @@ class CrmDashboardPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            spacing: 12,
-            children: [
-              Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const MyText(
-                      'Customer Relationship Management',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    MyText(
-                      'Manage clients, leads, and customer interactions',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                spacing: 8,
-                children: [
-                  buildActionButton(
-                      onPressed: () {},
-                      icon: Icons.message,
-                      label: 'Log Interactions',
-                      isWide: !isMobile),
-                  buildActionButton(
-                      onPressed: () {
-                        AddNewLeadDialog.show(context);
-                      },
-                      icon: Icons.control_point_duplicate_sharp,
-                      label: 'Add Lead',
-                      isWide: !isMobile),
-                  buildActionButton(
-                      onPressed: () {
-                        AddNewClientDialog.show(context);
-                      },
-                      icon: Icons.person_add_alt_1_rounded,
-                      label: 'Add Client',
-                      backgroundColor: AppColors.blue,
-                      foregroundColor: Colors.white,
-                      isWide: !isMobile),
-                ],
-              ),
-            ],
+          PageHeader(
+            title: 'CRM Dashboard',
+            subtitle: 'Overview of your clients, leads, and pipeline',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 8,
+              children: [
+                buildActionButton(
+                    onPressed: () {},
+                    icon: Iconsax.message,
+                    label: 'Log Interactions',
+                    isWide: !isMobile),
+                buildActionButton(
+                    onPressed: () {
+                      AddNewLeadDialog.show(context);
+                    },
+                    icon: Iconsax.flash_1,
+                    label: 'Add Lead',
+                    isWide: !isMobile),
+                buildActionButton(
+                    onPressed: () {
+                      AddNewClientDialog.show(context);
+                    },
+                    icon: Iconsax.user_add,
+                    label: 'Add Client',
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.textOnPrimary,
+                    isWide: !isMobile),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           Obx(() {
@@ -120,28 +117,28 @@ class CrmDashboardPage extends StatelessWidget {
               MetricData(
                   title: 'Total Clients',
                   value: controller.totalClients.value.toString(),
-                  icon: Icons.people_alt,
-                  color: Colors.blue.shade600,
+                  icon: Iconsax.profile_2user,
+                  color: AppColors.primary,
                   subtitle: 'Active client base'),
               MetricData(
                   title: 'Total Leads',
                   value: controller.totalLeads.value.toString(),
-                  icon: Icons.trending_up,
-                  color: Colors.green.shade600,
+                  icon: Iconsax.trend_up,
+                  color: AppColors.success,
                   subtitle: 'Current leads'),
               MetricData(
                   title: 'Conversion Rate',
                   value: controller.totalLeads.value > 0
                       ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
                       : '0%',
-                  icon: Icons.attach_money,
-                  color: Colors.purple.shade600,
+                  icon: Iconsax.dollar_circle,
+                  color: const Color(0xFF8B5CF6),
                   subtitle: 'Lead to client'),
               MetricData(
                   title: 'Retention Rate',
                   value: '—',
-                  icon: Icons.star,
-                  color: Colors.orange.shade600,
+                  icon: Iconsax.star_1,
+                  color: AppColors.warning,
                   subtitle: 'Client retention'),
             ];
 
@@ -197,32 +194,24 @@ class TopClientsByValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Top Clients by Value',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text('Your most valuable client relationships',
-                    style:
-                        TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                const Text('Top Clients by Value', style: AppText.h3),
+                const SizedBox(height: 2),
+                Text(
+                  'Your most valuable client relationships',
+                  style: AppText.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -231,7 +220,10 @@ class TopClientsByValue extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: mockTopClients.length,
             itemBuilder: (context, index) {
-              return TopClientListItem(client: mockTopClients[index]);
+              return TopClientListItem(
+                client: mockTopClients[index],
+                isLast: index == mockTopClients.length - 1,
+              );
             },
           ),
         ],
@@ -242,18 +234,25 @@ class TopClientsByValue extends StatelessWidget {
 
 class TopClientListItem extends StatelessWidget {
   final ClientItem client;
+  final bool isLast;
 
-  const TopClientListItem({super.key, required this.client});
+  const TopClientListItem({
+    super.key,
+    required this.client,
+    this.isLast = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100, width: 1),
-        ),
+        border: isLast
+            ? null
+            : const Border(
+                bottom:
+                    BorderSide(color: AppColors.borderSubtle, width: 1),
+              ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -263,19 +262,26 @@ class TopClientListItem extends StatelessWidget {
             children: [
               Text(
                 client.name,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                style: AppText.bodyMd.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
               ),
+              const SizedBox(height: 2),
               Text(
                 '${client.projects} projects',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                style: AppText.caption.copyWith(
+                  color: AppColors.textMuted,
+                ),
               ),
             ],
           ),
           Text(
             client.value,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+            style: AppText.h4.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),

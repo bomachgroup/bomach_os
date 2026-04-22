@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/permission/permission_gate.dart';
@@ -33,11 +34,11 @@ class RolesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText('Roles & Permissions', style: AppText.black_600_32),
+          const MyText('Roles & Permissions', style: AppText.displayLg),
           const SizedBox(height: 8),
           const Text(
             'Manage organizational roles and access control',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+            style: TextStyle(color: AppColors.neutral500, fontSize: 14),
           ),
           const SizedBox(height: 24),
 
@@ -50,24 +51,24 @@ class RolesPage extends StatelessWidget {
             title: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText('All Roles', style: AppText.black_600_16),
+                MyText('All Roles', style: AppText.h4),
                 SizedBox(height: 2),
                 Text(
                   'Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                  style: TextStyle(color: AppColors.neutral500, fontSize: 13),
                 ),
               ],
             ),
             search: MyTextFormField(
               hintText: 'Search roles',
-              leading: const Icon(Icons.search, color: Colors.grey, size: 20),
+              leading: const Icon(Iconsax.search_normal, color: Colors.grey, size: 20),
               onChanged: ctrl.onSearchChanged,
             ),
             action: PermissionGate(
               require: Perms.rolesCreate,
               child: MyElevatedButton(
                 height: 40,
-                icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                icon: const Icon(Iconsax.add, color: Colors.white, size: 18),
                 child: 'Create Role',
                 onTap: () => _showCreateEditRoleDialog(context, ctrl),
               ),
@@ -108,8 +109,8 @@ class RolesPage extends StatelessWidget {
           DashboardStatCard(
             title: 'Total Roles',
             count: '${ctrl.rolesCount.value}',
-            borderColor: const Color(0xFF1976D2),
-            countColor: const Color(0xFF1976D2),
+            borderColor: AppColors.primary,
+            countColor: AppColors.primary,
           ),
           DashboardStatCard(
             title: 'Total Employees',
@@ -120,8 +121,8 @@ class RolesPage extends StatelessWidget {
           DashboardStatCard(
             title: 'Pending Approvals',
             count: stats != null ? '${stats.pendingApprovals}' : '–',
-            borderColor: const Color(0xFFC27803),
-            countColor: const Color(0xFFC27803),
+            borderColor: AppColors.warning,
+            countColor: AppColors.warning,
           ),
         ],
       );
@@ -139,7 +140,7 @@ class RolesPage extends StatelessWidget {
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFFE2E8F0)),
+            side: const BorderSide(color: AppColors.neutral200),
           ),
           child: Column(
             children: [
@@ -148,7 +149,7 @@ class RolesPage extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFC),
+                  color: AppColors.neutral50,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),
@@ -163,35 +164,35 @@ class RolesPage extends StatelessWidget {
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 2,
                         child: Text('Scope',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 2,
                         child: Text('Permissions',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     Expanded(
                         flex: 1,
                         child: Text('Status',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                     SizedBox(
                         width: 48,
                         child: Text('Action',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF64748B)))),
+                                color: AppColors.neutral500))),
                   ],
                 ),
               ),
@@ -243,7 +244,7 @@ class RolesPage extends StatelessWidget {
             flex: 2,
             child: role.branches.isEmpty
                 ? const Text('All Branches',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF64748B)))
+                    style: TextStyle(fontSize: 13, color: AppColors.neutral500))
                 : Wrap(
                     spacing: 4,
                     runSpacing: 4,
@@ -252,13 +253,13 @@ class RolesPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
+                          color: AppColors.neutral100,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           b.branchName,
                           style: const TextStyle(
-                              fontSize: 11, color: Color(0xFF475569)),
+                              fontSize: 11, color: AppColors.neutral600),
                         ),
                       );
                     }).toList(),
@@ -276,13 +277,13 @@ class RolesPage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     '${role.totalPermissionCount} permissions',
                     style: const TextStyle(
-                      color: AppColors.blue,
+                      color: AppColors.primary,
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                     ),
@@ -323,7 +324,7 @@ class RolesPage extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, size: 7, color: color),
+            Icon(Iconsax.record_circle, size: 7, color: color),
             const SizedBox(width: 5),
             Text(
               isActive ? 'Active' : 'Inactive',
@@ -339,7 +340,7 @@ class RolesPage extends StatelessWidget {
   Widget _buildActionMenu(
       BuildContext context, RolesController ctrl, Role role) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
+      icon: const Icon(Iconsax.more, size: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         switch (value) {
@@ -358,7 +359,7 @@ class RolesPage extends StatelessWidget {
             const PopupMenuItem(
               value: 'edit',
               child: Row(children: [
-                Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+                Icon(Iconsax.edit, size: 18, color: Colors.grey),
                 SizedBox(width: 8),
                 Text('Edit'),
               ]),
@@ -367,7 +368,7 @@ class RolesPage extends StatelessWidget {
             const PopupMenuItem(
               value: 'delete',
               child: Row(children: [
-                Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                Icon(Iconsax.trash, size: 18, color: Colors.red),
                 SizedBox(width: 8),
                 Text('Delete', style: TextStyle(color: Colors.red)),
               ]),
@@ -419,11 +420,11 @@ class RolesPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: AppColors.neutral100,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.admin_panel_settings_outlined,
-                  size: 48, color: Color(0xFF94A3B8)),
+              child: const Icon(Iconsax.shield_tick,
+                  size: 48, color: AppColors.neutral400),
             ),
             const SizedBox(height: 20),
             const Text('No roles found',
@@ -431,13 +432,13 @@ class RolesPage extends StatelessWidget {
             const SizedBox(height: 8),
             const Text(
               'Create a new role to manage permissions and access control.',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+              style: TextStyle(color: AppColors.neutral500, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             MyElevatedButton(
               child: 'Create Role',
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
+              icon: const Icon(Iconsax.add, size: 18, color: Colors.white),
               onTap: () => _showCreateEditRoleDialog(context, ctrl),
             ),
           ],
@@ -630,7 +631,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.grey),
+                    icon: const Icon(Iconsax.close_circle, color: Colors.grey),
                   ),
                 ],
               ),
@@ -671,7 +672,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                       const Text(
                         'Select which branches this role applies to (at least one required)',
                         style:
-                            TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                            TextStyle(color: AppColors.neutral500, fontSize: 12),
                       ),
                       const SizedBox(height: 8),
                       _buildBranchChips(),
@@ -688,7 +689,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                             child: MyTextFormField(
                               controller: _permSearchCtrl,
                               hintText: 'Search permissions...',
-                              leading: const Icon(Icons.search,
+                              leading: const Icon(Iconsax.search_normal,
                                   color: Colors.grey, size: 20),
                               onChanged: (v) => setState(() {
                                 _permSearch = v;
@@ -701,7 +702,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                               ? TextButton.icon(
                                   onPressed: () => setState(
                                       () => _selectedPermissions.clear()),
-                                  icon: const Icon(Icons.deselect, size: 18),
+                                  icon: const Icon(Iconsax.square, size: 18),
                                   label: const Text('Unselect All'),
                                   style: TextButton.styleFrom(
                                     foregroundColor: Colors.red.shade600,
@@ -717,10 +718,10 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                                       });
                                     });
                                   },
-                                  icon: const Icon(Icons.select_all, size: 18),
+                                  icon: const Icon(Iconsax.tick_square, size: 18),
                                   label: const Text('Select All'),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: AppColors.blue,
+                                    foregroundColor: AppColors.primary,
                                   ),
                                 ),
                         ],
@@ -732,7 +733,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                           child: Text(
                             '$_totalSelectedCount permissions selected',
                             style: const TextStyle(
-                                color: Color(0xFF64748B),
+                                color: AppColors.neutral500,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500),
                           ),
@@ -744,7 +745,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                           padding: EdgeInsets.all(24),
                           child: Center(
                             child: Text('No matching permissions found',
-                                style: TextStyle(color: Color(0xFF94A3B8))),
+                                style: TextStyle(color: AppColors.neutral400)),
                           ),
                         )
                       else ...[
@@ -762,7 +763,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                                   onPressed: _permPage > 0
                                       ? () => setState(() => _permPage--)
                                       : null,
-                                  icon: const Icon(Icons.chevron_left),
+                                  icon: const Icon(Iconsax.arrow_left_2),
                                   iconSize: 20,
                                 ),
                                 ...List.generate(totalPages, (i) {
@@ -780,7 +781,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
                                           color: isActive
-                                              ? AppColors.blue
+                                              ? AppColors.primary
                                               : Colors.transparent,
                                           borderRadius:
                                               BorderRadius.circular(6),
@@ -792,7 +793,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                                             fontWeight: FontWeight.w500,
                                             color: isActive
                                                 ? Colors.white
-                                                : const Color(0xFF64748B),
+                                                : AppColors.neutral500,
                                           ),
                                         ),
                                       ),
@@ -803,7 +804,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                                   onPressed: _permPage < totalPages - 1
                                       ? () => setState(() => _permPage++)
                                       : null,
-                                  icon: const Icon(Icons.chevron_right),
+                                  icon: const Icon(Iconsax.arrow_right_3),
                                   iconSize: 20,
                                 ),
                               ],
@@ -863,12 +864,12 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: AppColors.neutral50,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.neutral200),
         ),
         child: const Text('No branches available',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
+            style: TextStyle(color: AppColors.neutral400, fontSize: 13)),
       );
     }
 
@@ -892,11 +893,11 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.blue.withValues(alpha: 0.1)
-                  : const Color(0xFFF8FAFC),
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : AppColors.neutral50,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isSelected ? AppColors.blue : const Color(0xFFE2E8F0),
+                color: isSelected ? AppColors.primary : AppColors.neutral200,
                 width: isSelected ? 1.5 : 1,
               ),
             ),
@@ -904,9 +905,9 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  isSelected ? Icons.check_circle : Icons.circle_outlined,
+                  isSelected ? Iconsax.tick_circle : Iconsax.record,
                   size: 16,
-                  color: isSelected ? AppColors.blue : const Color(0xFF94A3B8),
+                  color: isSelected ? AppColors.primary : AppColors.neutral400,
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -914,7 +915,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                   style: TextStyle(
                     fontSize: 13,
                     color:
-                        isSelected ? AppColors.blue : const Color(0xFF334155),
+                        isSelected ? AppColors.primary : AppColors.neutral700,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
@@ -943,7 +944,7 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -963,9 +964,9 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
             child: Row(
               children: [
                 Icon(
-                  allSelected ? Icons.check_box : Icons.check_box_outline_blank,
+                  allSelected ? Iconsax.tick_square : Iconsax.square,
                   size: 20,
-                  color: allSelected ? AppColors.blue : Colors.grey,
+                  color: allSelected ? AppColors.primary : Colors.grey,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -1007,21 +1008,21 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.blue.withValues(alpha: 0.1)
-                        : const Color(0xFFF8FAFC),
+                        ? AppColors.primary.withValues(alpha: 0.1)
+                        : AppColors.neutral50,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color:
-                          isSelected ? AppColors.blue : const Color(0xFFE2E8F0),
+                          isSelected ? AppColors.primary : AppColors.neutral200,
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isSelected ? Icons.check_circle : Icons.circle_outlined,
+                        isSelected ? Iconsax.tick_circle : Iconsax.record,
                         size: 14,
-                        color: isSelected ? AppColors.blue : Colors.grey,
+                        color: isSelected ? AppColors.primary : Colors.grey,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -1029,8 +1030,8 @@ class _CreateEditRoleDialogState extends State<_CreateEditRoleDialog> {
                         style: TextStyle(
                           fontSize: 12,
                           color: isSelected
-                              ? AppColors.blue
-                              : const Color(0xFF64748B),
+                              ? AppColors.primary
+                              : AppColors.neutral500,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.w400,
                         ),

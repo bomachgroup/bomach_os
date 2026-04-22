@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/pages/legal/controllers/compliance_controller.dart';
 import 'package:bms_front_end/pages/legal/models/compliance_record_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -98,9 +100,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_dateOfIssue == null || _expiryDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select both dates')),
-      );
+      AppToast.info(context, 'Please select both dates');
       return;
     }
 
@@ -347,7 +347,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
           return ElevatedButton(
             onPressed: controller.isSaving.value ? null : _submit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.blue,
+              backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0)),
@@ -431,7 +431,7 @@ class _AddComplianceItemDialogState extends State<AddComplianceItemDialog> {
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          suffixIcon: const Icon(Icons.calendar_today, size: 18),
+          suffixIcon: const Icon(Iconsax.calendar_1, size: 18),
         ),
         child: Text(
           _formatDate(date),

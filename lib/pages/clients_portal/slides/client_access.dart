@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../dialog/new_client.dart';
@@ -74,7 +75,7 @@ class ClientAcessSlideState extends State<ClientAcessSlide> {
       );
     } else {
       return Container(
-        color: const Color(0xFFF7F8FA),
+        color: AppColors.neutral100,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -172,13 +173,13 @@ class ClientAcessSlideState extends State<ClientAcessSlide> {
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Search clients..',
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              prefixIcon: const Icon(Iconsax.search_normal, color: Colors.grey),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: const Color(0xFFF0F0F0),
+              fillColor: AppColors.neutral100,
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
             ),
@@ -189,14 +190,14 @@ class ClientAcessSlideState extends State<ClientAcessSlide> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFF0F0F0),
+            color: AppColors.neutral100,
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Row(
             children: [
               Text('All Status',
                   style: TextStyle(color: Colors.black, fontSize: 13)),
-              Icon(Icons.arrow_drop_down, color: Colors.grey),
+              Icon(Iconsax.arrow_down_1, color: Colors.grey),
             ],
           ),
         ),
@@ -205,10 +206,10 @@ class ClientAcessSlideState extends State<ClientAcessSlide> {
           onPressed: () {
             AddPortalClientDialog.show(context);
           },
-          icon: const Icon(Icons.add, size: 18),
+          icon: const Icon(Iconsax.add, size: 18),
           label: const Text('Add Client', style: TextStyle(fontSize: 14)),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.blue,
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),

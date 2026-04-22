@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -87,9 +89,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Failed to upload file: $e"),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to upload file: $e');
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -110,9 +110,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
 
   void _handleSubmit() async {
     if (_hoursWorkedController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Hours worked is required"),
-          backgroundColor: Colors.red));
+      AppToast.error(context, 'Hours worked is required');
       return;
     }
 
@@ -149,11 +147,9 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
 
     if (success && mounted) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Report submitted"), backgroundColor: Colors.green));
+      AppToast.success(context, 'Report submitted');
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Failed to submit"), backgroundColor: Colors.red));
+      AppToast.error(context, 'Failed to submit');
     }
   }
 
@@ -179,9 +175,9 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyText(isEdit ? 'Edit Work Report' : 'New Work Report',
-                      style: AppText.black_500_20),
+                      style: AppText.h2),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.of(context).pop()),
                 ],
               ),
@@ -199,7 +195,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const MyText('Report Date *',
-                                  style: AppText.black_600_14),
+                                  style: AppText.h4),
                               const SizedBox(height: 8),
                               InkWell(
                                 onTap: _selectDate,
@@ -215,7 +211,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                                   child: MyText(
                                       DateFormat('MMM dd, yyyy')
                                           .format(_reportDate),
-                                      style: AppText.black_400_14),
+                                      style: AppText.bodyMd),
                                 ),
                               ),
                             ],
@@ -257,7 +253,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                         hintText: 'What do you plan to work on tomorrow...'),
                     kSizedBox,
                     // ─── Attachments Section ───
-                    const MyText('Attachments', style: AppText.black_600_14),
+                    const MyText('Attachments', style: AppText.h4),
                     const SizedBox(height: 4),
                     Text('Upload supporting documents',
                         style: TextStyle(
@@ -271,11 +267,11 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                               height: 16,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.upload_file, size: 18),
+                          : const Icon(Iconsax.document_upload, size: 18),
                       label:
                           Text(_isUploading ? 'Uploading...' : 'Choose File'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.blue,
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
@@ -301,7 +297,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.attach_file,
+                              const Icon(Iconsax.attach_circle,
                                   size: 16, color: Colors.grey),
                               const SizedBox(width: 8),
                               Expanded(
@@ -312,7 +308,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                               InkWell(
                                 onTap: () =>
                                     setState(() => _attachments.removeAt(idx)),
-                                child: const Icon(Icons.close,
+                                child: const Icon(Iconsax.close_circle,
                                     size: 16, color: Colors.red),
                               ),
                             ],
@@ -332,7 +328,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     child: 'Cancel',
                     onTap: () => Navigator.pop(context),
                   ),

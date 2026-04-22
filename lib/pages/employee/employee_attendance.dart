@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -24,12 +25,12 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
               children: [
                 MyText(
                   'Attendance Management',
-                  style: AppText.black_600_32,
+                  style: AppText.displayLg,
                 ),
                 SizedBox(height: 8),
                 MyText(
                   'Monitor and manage employee attendance records',
-                  style: AppText.black_600_14,
+                  style: AppText.h4,
                 ),
               ],
             ),
@@ -40,7 +41,7 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
               width: double.infinity,
               height: 300,
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey7),
+                border: Border.all(color: AppColors.neutral200),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Center(
@@ -48,14 +49,14 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.calendar_today_outlined,
+                      Iconsax.calendar_1,
                       size: 48,
-                      color: AppColors.grey4,
+                      color: AppColors.neutral300,
                     ),
                     SizedBox(height: 16),
                     MyText(
                       'No attendance records found',
-                      style: AppText.black_400_14,
+                      style: AppText.bodyMd,
                     ),
                   ],
                 ),

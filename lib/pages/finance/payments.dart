@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/finance/controllers/payment_controller.dart';
@@ -32,11 +33,11 @@ class PaymentsPage extends StatelessWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText('Payments', style: AppText.black_500_32),
+                      MyText('Payments', style: AppText.displayLg),
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded,
+                    icon: const Icon(Iconsax.add_circle,
                         color: AppColors.white),
                     child: "New Payment",
                     onTap: () {
@@ -64,8 +65,8 @@ class PaymentsPage extends StatelessWidget {
                     width: 250,
                     child: MyTextFormField(
                       hintText: 'Search for payment...',
-                      leading: Icon(Icons.search,
-                          color: AppColors.grey1.withValues(alpha: 0.5)),
+                      leading: Icon(Iconsax.search_normal,
+                          color: AppColors.neutral500.withValues(alpha: 0.5)),
                     ),
                   ),
                   Row(
@@ -73,7 +74,7 @@ class PaymentsPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.refresh),
+                        icon: const Icon(Iconsax.refresh),
                         onPressed: () =>
                             controller.fetchPayments(refresh: true),
                       ),
@@ -138,7 +139,7 @@ class PaymentsPage extends StatelessWidget {
                             DataCell(MyText(payment.paymentDate)),
                             DataCell(
                               PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert),
+                                icon: const Icon(Iconsax.more),
                                 onSelected: (value) {
                                   if (value == 'delete') {
                                     controller.deletePayment(

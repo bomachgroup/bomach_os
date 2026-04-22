@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -239,15 +241,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   }
 
   void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    AppToast.error(context, message);
   }
 
   void _showSuccessSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
-    );
+    AppToast.success(context, message);
   }
 
   @override
@@ -282,7 +280,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: _isSubmitting
                           ? null
                           : () => Navigator.of(context).pop(),
@@ -407,7 +405,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                           horizontal: 12, vertical: 14),
                                       decoration: BoxDecoration(
                                         border:
-                                            Border.all(color: AppColors.grey4),
+                                            Border.all(color: AppColors.neutral300),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
@@ -422,14 +420,14 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                                 fontSize: 14,
                                                 color: _validUntil != null
                                                     ? Colors.black87
-                                                    : AppColors.grey1,
+                                                    : AppColors.neutral500,
                                               ),
                                             ),
                                           ),
                                           const Icon(
-                                            Icons.calendar_today,
+                                            Iconsax.calendar_1,
                                             size: 18,
-                                            color: AppColors.grey1,
+                                            color: AppColors.neutral500,
                                           ),
                                         ],
                                       ),
@@ -516,7 +514,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: _isSubmitting
@@ -583,7 +581,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.grey4),
+              border: Border.all(color: AppColors.neutral300),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Row(
@@ -596,7 +594,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 SizedBox(width: 12),
                 Text(
                   'Loading clients...',
-                  style: TextStyle(fontSize: 14, color: AppColors.grey1),
+                  style: TextStyle(fontSize: 14, color: AppColors.neutral500),
                 ),
               ],
             ),
@@ -609,11 +607,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 decoration: InputDecoration(
                   hintText: 'Search client by name or email...',
                   hintStyle:
-                      const TextStyle(fontSize: 14, color: AppColors.grey1),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.grey1),
+                      const TextStyle(fontSize: 14, color: AppColors.neutral500),
+                  prefixIcon: const Icon(Iconsax.search_normal, color: AppColors.neutral500),
                   suffixIcon: _selectedClient != null
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
+                          icon: const Icon(Iconsax.close_circle, size: 18),
                           onPressed: () {
                             setState(() {
                               _selectedClient = null;
@@ -626,15 +624,15 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.blue),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -653,7 +651,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.grey4),
+                    border: Border.all(color: AppColors.neutral300),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.08),
@@ -668,7 +666,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                           child: Text(
                             'No clients found',
                             style:
-                                TextStyle(fontSize: 14, color: AppColors.grey1),
+                                TextStyle(fontSize: 14, color: AppColors.neutral500),
                           ),
                         )
                       : ListView.builder(
@@ -685,7 +683,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                   border: index < _filteredClients.length - 1
                                       ? const Border(
                                           bottom: BorderSide(
-                                              color: AppColors.grey4,
+                                              color: AppColors.neutral300,
                                               width: 0.5),
                                         )
                                       : null,
@@ -705,7 +703,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                       client.email,
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.grey1,
+                                        color: AppColors.neutral500,
                                       ),
                                     ),
                                   ],
@@ -738,7 +736,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey4),
+                border: Border.all(color: AppColors.neutral300),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Row(
@@ -751,7 +749,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   SizedBox(width: 12),
                   Text(
                     'Loading quotes...',
-                    style: TextStyle(fontSize: 14, color: AppColors.grey1),
+                    style: TextStyle(fontSize: 14, color: AppColors.neutral500),
                   ),
                 ],
               ),
@@ -765,11 +763,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 decoration: InputDecoration(
                   hintText: 'Search by quote number or service name...',
                   hintStyle:
-                      const TextStyle(fontSize: 14, color: AppColors.grey1),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.grey1),
+                      const TextStyle(fontSize: 14, color: AppColors.neutral500),
+                  prefixIcon: const Icon(Iconsax.search_normal, color: AppColors.neutral500),
                   suffixIcon: _selectedQuote != null
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
+                          icon: const Icon(Iconsax.close_circle, size: 18),
                           onPressed: () {
                             setState(() {
                               _selectedQuote = null;
@@ -783,15 +781,15 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.blue),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -813,7 +811,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.grey4),
+                    border: Border.all(color: AppColors.neutral300),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.08),
@@ -828,7 +826,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                           child: Text(
                             'No quotes found',
                             style:
-                                TextStyle(fontSize: 14, color: AppColors.grey1),
+                                TextStyle(fontSize: 14, color: AppColors.neutral500),
                           ),
                         )
                       : ListView.builder(
@@ -845,7 +843,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                   border: index < _filteredQuotes.length - 1
                                       ? const Border(
                                           bottom: BorderSide(
-                                              color: AppColors.grey4,
+                                              color: AppColors.neutral300,
                                               width: 0.5),
                                         )
                                       : null,
@@ -865,7 +863,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                       '₦${quote.amount} | ${quote.status.capitalizeFirst}',
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.grey1,
+                                        color: AppColors.neutral500,
                                       ),
                                     ),
                                   ],

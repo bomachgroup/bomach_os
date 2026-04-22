@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
@@ -116,13 +117,13 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
         Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Iconsax.arrow_left_2),
               onPressed: () => Navigator.pop(context),
             ),
             const Expanded(
               child: MyText(
                 'Estate Details',
-                style: AppText.black_500_32,
+                style: AppText.displayLg,
               ),
             ),
           ],
@@ -159,8 +160,8 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                         child: MyTextFormField(
                           hintText: 'Search plots...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -171,7 +172,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                       ),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "Add Plot",
@@ -189,7 +190,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                       ),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "Generate Invoice",
@@ -234,7 +235,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -263,15 +264,15 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.location_on,
-                            size: 18, color: AppColors.grey1),
+                        const Icon(Iconsax.location,
+                            size: 18, color: AppColors.neutral500),
                         const SizedBox(width: 4),
                         Expanded(
                           child: MyText(
                             widget.estate.location,
                             style: const TextStyle(
                               fontSize: 16,
-                              color: AppColors.grey1,
+                              color: AppColors.neutral500,
                             ),
                           ),
                         ),
@@ -304,7 +305,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
             widget.estate.description,
             style: const TextStyle(
               fontSize: 14,
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
               height: 1.5,
             ),
           ),
@@ -316,13 +317,13 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
             runSpacing: 16,
             children: [
               _buildInfoItem(
-                  'Developer', widget.estate.developer, Icons.business),
+                  'Developer', widget.estate.developer, Iconsax.building_4),
               _buildInfoItem(
                   'Total Area',
                   '${widget.estate.totalArea?.toStringAsFixed(0) ?? '0'} sqm',
-                  Icons.square_foot),
+                  Iconsax.ruler),
               _buildInfoItem(
-                  'Location', widget.estate.location, Icons.location_on),
+                  'Location', widget.estate.location, Iconsax.location),
             ],
           ),
         ],
@@ -334,7 +335,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 20, color: AppColors.blue),
+        Icon(icon, size: 20, color: AppColors.primary),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,7 +344,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
               label,
               style: const TextStyle(
                 fontSize: 12,
-                color: AppColors.grey1,
+                color: AppColors.neutral500,
               ),
             ),
             MyText(
@@ -369,12 +370,12 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       runSpacing: 16,
       children: [
         _buildStatCard(
-            'Total Plots', '${_plots.length}', Icons.grid_on, AppColors.blue),
+            'Total Plots', '${_plots.length}', Iconsax.element_4, AppColors.primary),
         _buildStatCard(
-            'Available', '$availablePlots', Icons.check_circle, Colors.green),
+            'Available', '$availablePlots', Iconsax.tick_circle, Colors.green),
         _buildStatCard(
-            'Reserved', '$reservedPlots', Icons.schedule, Colors.orange),
-        _buildStatCard('Sold', '$soldPlots', Icons.done_all, Colors.purple),
+            'Reserved', '$reservedPlots', Iconsax.clock, Colors.orange),
+        _buildStatCard('Sold', '$soldPlots', Iconsax.tick_circle, Colors.purple),
       ],
     );
   }
@@ -387,7 +388,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -419,7 +420,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                 label,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: AppColors.grey1,
+                  color: AppColors.neutral500,
                 ),
               ),
             ],
@@ -440,16 +441,16 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.blue : AppColors.white,
+          color: isSelected ? AppColors.primary : AppColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.blue : AppColors.grey4,
+            color: isSelected ? AppColors.primary : AppColors.neutral300,
           ),
         ),
         child: MyText(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.grey1,
+            color: isSelected ? AppColors.white : AppColors.neutral500,
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
@@ -466,16 +467,16 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
           child: Column(
             children: [
               Icon(
-                Icons.grid_off,
+                Iconsax.element_4,
                 size: 64,
-                color: AppColors.grey1.withValues(alpha: 0.5),
+                color: AppColors.neutral500.withValues(alpha: 0.5),
               ),
               kSizedBox,
               const MyText(
                 'No plots found',
                 style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.grey1,
+                  color: AppColors.neutral500,
                 ),
               ),
             ],
@@ -513,7 +514,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -561,20 +562,20 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
               plot.blockNumber!,
               style: const TextStyle(
                 fontSize: 12,
-                color: AppColors.grey1,
+                color: AppColors.neutral500,
               ),
             ),
           ],
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.square_foot, size: 14, color: AppColors.grey1),
+              const Icon(Iconsax.ruler, size: 14, color: AppColors.neutral500),
               const SizedBox(width: 4),
               MyText(
                 '${plot.size.toStringAsFixed(0)} sqm',
                 style: const TextStyle(
                   fontSize: 12,
-                  color: AppColors.grey1,
+                  color: AppColors.neutral500,
                 ),
               ),
             ],
@@ -585,21 +586,21 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.blue,
+              color: AppColors.primary,
             ),
           ),
           if (plot.buyerName != null) ...[
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.person, size: 14, color: AppColors.grey1),
+                const Icon(Iconsax.profile_circle, size: 14, color: AppColors.neutral500),
                 const SizedBox(width: 4),
                 Expanded(
                   child: MyText(
                     plot.buyerName!,
                     style: const TextStyle(
                       fontSize: 11,
-                      color: AppColors.grey1,
+                      color: AppColors.neutral500,
                       overflow: TextOverflow.ellipsis,
                     ),
                     maxLines: 1,
@@ -630,7 +631,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       case 'Completed':
         return Colors.teal;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

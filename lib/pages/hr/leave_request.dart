@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
@@ -25,10 +26,10 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
   final LeaveRequestController _ctrl = Get.put(LeaveRequestController());
 
   // Colors
-  final Color _orangeColor = const Color(0xFFC27803);
-  final Color _blueColor = const Color(0xFF1976D2);
-  final Color _greenColor = const Color(0xFF27AE60);
-  final Color _redColor = const Color(0xFFEB5757);
+  final Color _orangeColor = AppColors.warning;
+  final Color _blueColor = AppColors.primary;
+  final Color _greenColor = AppColors.success;
+  final Color _redColor = AppColors.danger;
 
   @override
   void initState() {
@@ -67,7 +68,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                 OutlinedButton(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    side: const BorderSide(color: AppColors.neutral200),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -82,7 +83,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                 const SizedBox(width: 12),
                 MyElevatedButton(
                   icon: const Icon(
-                    Icons.add_circle_outline_rounded,
+                    Iconsax.add_circle,
                     color: AppColors.white,
                     size: 20,
                   ),
@@ -174,8 +175,8 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                       controller: _ctrl.searchController,
                       hintText: 'Search...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -184,13 +185,13 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
+                        color: AppColors.neutral50,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.grey.shade200)),
                     child: Obx(() => DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _ctrl.selectedStatusFilter.value,
-                            icon: const Icon(Icons.keyboard_arrow_down,
+                            icon: const Icon(Iconsax.arrow_down_1,
                                 size: 18, color: Colors.black54),
                             elevation: 4,
                             style: const TextStyle(
@@ -225,8 +226,8 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                   return Center(
                     child: Column(
                       children: [
-                        const Icon(Icons.error_outline,
-                            size: 48, color: AppColors.red),
+                        const Icon(Iconsax.danger,
+                            size: 48, color: AppColors.danger),
                         const SizedBox(height: 8),
                         Text(_ctrl.errorMessage.value),
                         TextButton(
@@ -271,7 +272,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
               const SizedBox(height: 16),
 
               // --- 5. Pagination Footer ---
-              const Divider(color: Color(0xFFEEEEEE)),
+              const Divider(color: AppColors.neutral100),
               const SizedBox(height: 16),
 
               Obx(() => PaginatorFooter(
@@ -336,7 +337,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
           color: isActive ? _blueColor : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-              color: isActive ? _blueColor : const Color(0xFFE0E0E0)),
+              color: isActive ? _blueColor : AppColors.neutral200),
         ),
         child: Text(
           text,
@@ -379,9 +380,9 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             Row(
               children: [
                 const CircleAvatar(
-                  backgroundColor: Color(0xFFEEEEEE),
+                  backgroundColor: AppColors.neutral100,
                   radius: 18,
-                  child: Icon(Icons.person, color: Colors.grey, size: 20),
+                  child: Icon(Iconsax.profile_circle, color: Colors.grey, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Column(
@@ -496,7 +497,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                 color: text, fontSize: 12, fontWeight: FontWeight.w600),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.keyboard_arrow_down, size: 14, color: text)
+          Icon(Iconsax.arrow_down_1, size: 14, color: text)
         ],
       ),
     );

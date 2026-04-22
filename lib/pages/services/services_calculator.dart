@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -272,7 +274,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
           // Header
           const MyText(
             'Services Cost Calculator',
-            style: AppText.black_500_32,
+            style: AppText.displayLg,
           ),
           kSizedBox,
           const MyText(
@@ -300,7 +302,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -369,7 +371,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -461,7 +463,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -491,7 +493,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                                 _includeSiteVisit = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
@@ -504,7 +506,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                                 _includeDetailedReport = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
@@ -517,7 +519,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                                 _includeTechnicalDrawings = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                         ],
@@ -532,7 +534,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -609,7 +611,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                         MyElevatedButton(
                           child: 'Reset',
                           onTap: _resetForm,
-                          bgColor: AppColors.grey2,
+                          bgColor: AppColors.neutral400,
                           textColor: AppColors.black,
                         ),
                         const SizedBox(width: 16),
@@ -628,7 +630,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppColors.blue, Color(0xFF0044CC)],
+                            colors: [AppColors.primary, AppColors.primaryPressed],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -644,7 +646,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                         child: Column(
                           children: [
                             const Icon(
-                              Icons.price_check_outlined,
+                              Iconsax.money_tick,
                               color: Colors.white,
                               size: 48,
                             ),
@@ -697,16 +699,10 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                             MyElevatedButton(
                               child: 'Request Detailed Quote',
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Quote request sent successfully!'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
+                                AppToast.success(context, 'Quote request sent successfully!');
                               },
                               bgColor: Colors.white,
-                              textColor: AppColors.blue,
+                              textColor: AppColors.primary,
                             ),
                           ],
                         ),
@@ -741,7 +737,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -786,7 +782,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -829,7 +825,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -872,7 +868,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(

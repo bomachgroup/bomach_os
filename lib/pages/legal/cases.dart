@@ -1,9 +1,18 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../../components/button/my_elevated_button.dart';
 import '../../components/input/my_textformfield.dart';
-import '../../components/text/my_text.dart';
 import '../../src/constants/colors.dart';
 import 'controllers/legal_case_controller.dart';
 import 'detailed_view.dart';
@@ -17,137 +26,85 @@ class CasesPageView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(LegalCaseController());
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 600;
+    return Builder(
+      builder: (context) {
+        final isMobile = context.isMobile;
         return SingleChildScrollView(
           padding: EdgeInsets.all(isMobile ? 8.0 : 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              isMobile
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Legal Cases",
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 2),
-                        const MyText(
-                            "Manage litigation, disputes, and legal proceedings",
-                            style:
-                                TextStyle(fontSize: 13, color: Colors.black54)),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyTextFormField(
-                                hintText: 'Search for cases...',
-                                leading: Icon(
-                                  Icons.search,
-                                  color: AppColors.grey1.withValues(alpha: 0.5),
-                                ),
-                                onChanged: controller.onSearchChanged,
+              PageHeader(
+                title: 'Legal Cases',
+                subtitle: 'Manage litigation, disputes, and legal proceedings',
+                trailing: isMobile
+                    ? null
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 250,
+                            child: MyTextFormField(
+                              hintText: 'Search for cases...',
+                              leading: const Icon(
+                                Iconsax.search_normal_1,
+                                size: 18,
+                                color: AppColors.textMuted,
                               ),
+                              onChanged: controller.onSearchChanged,
                             ),
-                            const SizedBox(width: 8),
-                            MyElevatedButton(
-                              child: 'Create Cases',
-                              onTap: () {
-                                CreateNewLegalCaseDialog.show(context);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Legal Cases",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w600)),
-                            SizedBox(height: 2),
-                            MyText(
-                                "Manage litigation, disputes, and legal proceedings",
-                                style: TextStyle(
-                                    fontSize: 13, color: Colors.black54)),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Flexible(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                width: 250,
-                                child: MyTextFormField(
-                                  hintText: 'Search for cases...',
-                                  leading: Icon(
-                                    Icons.search,
-                                    color:
-                                        AppColors.grey1.withValues(alpha: 0.5),
-                                  ),
-                                  onChanged: controller.onSearchChanged,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              MyElevatedButton(
-                                child: 'Create Cases',
-                                onTap: () {
-                                  CreateNewLegalCaseDialog.show(context);
-                                },
-                              ),
-                            ],
                           ),
-                        )
-                      ],
+                          const SizedBox(width: 12),
+                          MyElevatedButton(
+                            child: 'Create Cases',
+                            onTap: () {
+                              CreateNewLegalCaseDialog.show(context);
+                            },
+                          ),
+                        ],
+                      ),
+              ),
+              if (isMobile) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        hintText: 'Search for cases...',
+                        leading: const Icon(
+                          Iconsax.search_normal_1,
+                          size: 18,
+                          color: AppColors.textMuted,
+                        ),
+                        onChanged: controller.onSearchChanged,
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    MyElevatedButton(
+                      child: 'Create Cases',
+                      onTap: () {
+                        CreateNewLegalCaseDialog.show(context);
+                      },
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 20),
               Obx(() {
                 if (controller.isLoading.value) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(40.0),
-                      child: CircularProgressIndicator(),
-                    ),
+                  return AppCard(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
                   );
                 }
 
                 if (controller.caseList.isEmpty) {
-                  return Container(
-                    padding: const EdgeInsets.all(40),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Column(
-                        children: [
-                          Icon(Icons.gavel_outlined,
-                              size: 48, color: Colors.grey),
-                          SizedBox(height: 12),
-                          Text("No legal cases found",
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.grey)),
-                          SizedBox(height: 4),
-                          Text("Create a new case to get started",
-                              style:
-                                  TextStyle(fontSize: 13, color: Colors.grey)),
-                        ],
-                      ),
+                  return const AppCard(
+                    padding: EdgeInsets.all(32),
+                    child: EmptyState(
+                      icon: Iconsax.judge,
+                      title: 'No legal cases found',
+                      subtitle: 'Create a new case to get started.',
                     ),
                   );
                 }
@@ -180,30 +137,6 @@ class CasesTable extends StatelessWidget {
   final ScrollController _scrollController = ScrollController();
 
   DataRow _buildDataRow(LegalCase data, BuildContext context) {
-    Color statusColor;
-    switch (data.statusDisplay.toLowerCase()) {
-      case 'in progress':
-        statusColor = Colors.orange;
-        break;
-      case 'settled':
-        statusColor = Colors.green;
-        break;
-      case 'open':
-        statusColor = Colors.blue;
-        break;
-      case 'won':
-        statusColor = Colors.green;
-        break;
-      case 'lost':
-        statusColor = Colors.red;
-        break;
-      case 'closed':
-        statusColor = Colors.grey;
-        break;
-      default:
-        statusColor = Colors.grey;
-    }
-
     return DataRow(
       cells: [
         DataCell(
@@ -213,43 +146,27 @@ class CasesTable extends StatelessWidget {
               data.caseName,
               softWrap: true,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: isMobile ? 12 : 14),
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
         DataCell(
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isMobile ? 70 : 120),
-            child: Chip(
-              label: Text(
-                data.caseTypeDisplay,
-                style: TextStyle(
-                    color: Colors.white, fontSize: isMobile ? 10 : 12),
-              ),
-              backgroundColor: Colors.grey[700],
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            constraints: BoxConstraints(maxWidth: isMobile ? 90 : 140),
+            child: StatusChip(
+              label: data.caseTypeDisplay,
+              tone: StatusTone.neutral,
+              dense: isMobile,
             ),
           ),
         ),
         DataCell(
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isMobile ? 70 : 120),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: statusColor.withValues(alpha: 0.5)),
-              ),
-              child: Text(
-                data.statusDisplay,
-                style: TextStyle(
-                  color: statusColor,
-                  fontSize: isMobile ? 10 : 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            constraints: BoxConstraints(maxWidth: isMobile ? 90 : 140),
+            child: StatusChip.fromStatus(data.statusDisplay, dense: isMobile),
           ),
         ),
         DataCell(
@@ -259,7 +176,7 @@ class CasesTable extends StatelessWidget {
               data.exposure ?? 'N/A',
               softWrap: true,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: isMobile ? 11 : 13, color: Colors.red),
+              style: AppText.bodySm.copyWith(color: AppColors.danger),
             ),
           ),
         ),
@@ -270,7 +187,7 @@ class CasesTable extends StatelessWidget {
               data.nextHearing ?? 'N/A',
               softWrap: true,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: isMobile ? 11 : 13),
+              style: AppText.bodySm.copyWith(color: AppColors.textPrimary),
             ),
           ),
         ),
@@ -278,7 +195,11 @@ class CasesTable extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              OutlinedButton.icon(
+              _buildActionButton(
+                context,
+                icon: Iconsax.eye,
+                label: 'View',
+                color: AppColors.textPrimary,
                 onPressed: () {
                   final Map<String, String> legalCaseDetails = {
                     'Case Number': data.caseNumber ?? 'N/A',
@@ -299,81 +220,56 @@ class CasesTable extends StatelessWidget {
                     ),
                   );
                 },
-                icon: Icon(Icons.remove_red_eye_outlined,
-                    color: Colors.black, size: isMobile ? 16 : 20),
-                label: Text("View",
-                    style: TextStyle(
-                        color: Colors.black, fontSize: isMobile ? 11 : 13)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.grey),
-                  minimumSize: Size(isMobile ? 40 : 60, 32),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 6 : 12, vertical: 4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
               ),
               const SizedBox(width: 4),
-              OutlinedButton.icon(
+              _buildActionButton(
+                context,
+                icon: Iconsax.edit,
+                label: 'Edit',
+                color: AppColors.textPrimary,
                 onPressed: () {
                   CreateNewLegalCaseDialog.show(context);
                 },
-                icon: Icon(Icons.edit_outlined,
-                    color: Colors.black, size: isMobile ? 16 : 20),
-                label: Text("Edit",
-                    style: TextStyle(
-                        color: Colors.black, fontSize: isMobile ? 11 : 13)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.grey),
-                  minimumSize: Size(isMobile ? 40 : 60, 32),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 6 : 12, vertical: 4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
               ),
               const SizedBox(width: 4),
-              OutlinedButton.icon(
+              _buildActionButton(
+                context,
+                icon: Iconsax.trash,
+                label: 'Delete',
+                color: AppColors.danger,
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (c) => AlertDialog(
-                      title: const Text("Delete Case"),
-                      content: Text(
-                          "Are you sure you want to delete '${data.caseName}'?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(c),
-                          child: const Text("Cancel"),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(c);
-                            controller.deleteCase(context, data.id);
-                          },
-                          child: const Text("Delete",
-                              style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
+                  DialogScaffold.show<void>(
+                    context,
+                    title: 'Delete Case',
+                    size: DialogSize.sm,
+                    body: Text(
+                      "Are you sure you want to delete '${data.caseName}'? This action cannot be undone.",
+                      style: AppText.bodyMd
+                          .copyWith(color: AppColors.textSecondary),
                     ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          'Cancel',
+                          style: AppText.bodyMd
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.danger,
+                          foregroundColor: AppColors.textOnPrimary,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          controller.deleteCase(context, data.id);
+                        },
+                        child: const Text('Delete'),
+                      ),
+                    ],
                   );
                 },
-                icon: Icon(Icons.delete_outline,
-                    color: Colors.red, size: isMobile ? 16 : 20),
-                label: Text("Delete",
-                    style: TextStyle(
-                        color: Colors.red, fontSize: isMobile ? 11 : 13)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red),
-                  minimumSize: Size(isMobile ? 40 : 60, 32),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 6 : 12, vertical: 4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
               ),
             ],
           ),
@@ -382,38 +278,51 @@ class CasesTable extends StatelessWidget {
     );
   }
 
+  Widget _buildActionButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: color, size: isMobile ? 14 : 16),
+      label: Text(
+        label,
+        style: AppText.bodySm.copyWith(
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(
+          color: color == AppColors.danger
+              ? AppColors.danger
+              : AppColors.borderSubtle,
+        ),
+        minimumSize: Size(isMobile ? 40 : 60, 32),
+        padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 6 : 12, vertical: 4),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadii.brSm,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(isMobile ? 8 : 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Legal Cases",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isMobile ? 16 : 20,
-                ),
-          ),
+          const Text('Legal Cases', style: AppText.h2),
           const SizedBox(height: 4),
           Text(
-            "Track all legal proceedings and disputes",
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                  fontSize: isMobile ? 12 : 14,
-                ),
+            'Track all legal proceedings and disputes',
+            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           Scrollbar(
@@ -429,7 +338,15 @@ class CasesTable extends StatelessWidget {
                 ),
                 child: DataTable(
                   columnSpacing: isMobile ? 12 : 24,
-                  headingRowColor: WidgetStateProperty.all(Colors.grey[200]),
+                  headingRowColor: WidgetStateProperty.all(
+                      AppColors.surfaceMuted),
+                  headingTextStyle: AppText.label.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  dataTextStyle: AppText.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                  dividerThickness: 1.0,
                   columns: const [
                     DataColumn(label: Text('Case')),
                     DataColumn(label: Text('Type')),
@@ -439,9 +356,9 @@ class CasesTable extends StatelessWidget {
                     DataColumn(label: Text('Actions')),
                   ],
                   rows: cases.map((e) => _buildDataRow(e, context)).toList(),
-                  dataRowMinHeight: isMobile ? 36 : 48,
-                  dataRowMaxHeight: isMobile ? 56 : 72,
-                  headingRowHeight: isMobile ? 32 : 40,
+                  dataRowMinHeight: isMobile ? 48 : 60,
+                  dataRowMaxHeight: isMobile ? 64 : 80,
+                  headingRowHeight: isMobile ? 36 : 44,
                 ),
               ),
             ),

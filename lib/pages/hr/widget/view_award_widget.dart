@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/models/awards_model.dart';
@@ -39,7 +41,7 @@ class ViewAwardDialog extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 decoration: const BoxDecoration(
                   border: Border(
-                      bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
+                      bottom: BorderSide(color: AppColors.neutral200, width: 1)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,7 +50,7 @@ class ViewAwardDialog extends StatelessWidget {
                       child: MyText(award.title, size: 20, weight: 600),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -87,7 +89,7 @@ class ViewAwardDialog extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.red,
+                      textColor: AppColors.danger,
                       child: 'Delete',
                       onTap: () async {
                         final confirm = await showDialog<bool>(
@@ -110,11 +112,7 @@ class ViewAwardDialog extends StatelessWidget {
                           await controller.deleteAward(token, award.id);
                           if (context.mounted) {
                             Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Award Deleted"),
-                                  backgroundColor: Colors.red),
-                            );
+                            AppToast.error(context, 'Award Deleted');
                           }
                         }
                       },
@@ -151,7 +149,7 @@ class ViewAwardDialog extends StatelessWidget {
         SizedBox(
           width: 120,
           child: MyText(label,
-              size: 14, weight: 400, color: const Color(0xFF64748B)),
+              size: 14, weight: 400, color: AppColors.neutral500),
         ),
         Expanded(
           child: MyText(value, size: 14, weight: 500),
