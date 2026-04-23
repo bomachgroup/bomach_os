@@ -45,7 +45,7 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
-      maxContentWidth: 1440,
+      maxContentWidth: 1200,
       header: PageHeader(
         title: 'Monthly Scorecard',
         subtitle:

@@ -60,7 +60,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
             MyOutlinedButton(
               height: 48,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: "Leave Policy",
+              child: "Training Policy",
               onTap: () {},
             ),
             const SizedBox(width: 12),

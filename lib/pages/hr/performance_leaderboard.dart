@@ -47,7 +47,7 @@ class _PerformanceLeaderboardPageState
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
-      maxContentWidth: 1440,
+      maxContentWidth: 1200,
       header: PageHeader(
         title: 'Performance Leaderboard',
         subtitle:
@@ -195,14 +195,16 @@ class _PerformanceLeaderboardPageState
           ],
         );
       }
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (int i = 0; i < topThree.length; i++) ...[
-            Expanded(child: _buildTopPerformerCard(topThree[i])),
-            if (i != topThree.length - 1) const SizedBox(width: 16),
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (int i = 0; i < topThree.length; i++) ...[
+              Expanded(child: _buildTopPerformerCard(topThree[i])),
+              if (i != topThree.length - 1) const SizedBox(width: 16),
+            ],
           ],
-        ],
+        ),
       );
     });
   }
@@ -227,11 +229,12 @@ class _PerformanceLeaderboardPageState
               border: Border.all(color: medalColor, width: 2),
             ),
             child: Center(
-              child: EmptyState.empty(
-                title: 'No metrics recorded',
-                subtitle: 'This scorecard has no performance metrics logged.',
-                compact: true,
-              ),
+              child: entry.rank == 1
+                  ? Icon(Iconsax.crown, color: medalColor, size: 32)
+                  : Text(
+                      entry.initials,
+                      style: AppText.h2.copyWith(color: medalColor),
+                    ),
             ),
           ),
           const SizedBox(height: 12),
@@ -448,14 +451,16 @@ class _PerformanceLeaderboardPageState
                 ],
               );
             }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (int i = 0; i < children.length; i++) ...[
-                  Expanded(child: children[i]),
-                  if (i != children.length - 1) const SizedBox(width: 16),
+            return IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (int i = 0; i < children.length; i++) ...[
+                    Expanded(child: children[i]),
+                    if (i != children.length - 1) const SizedBox(width: 16),
+                  ],
                 ],
-              ],
+              ),
             );
           }),
         ],

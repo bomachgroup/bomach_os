@@ -1,12 +1,15 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/components/text/row_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'controllers/work_site_controller.dart';
 import 'models/models.dart';
@@ -23,88 +26,97 @@ class WorksiteDetailPage extends StatelessWidget {
         worksite ?? ModalRoute.of(context)?.settings.arguments as Worksite?;
 
     if (ws == null) {
-      return const Scaffold(
-        body: Center(
-          child: MyText('Worksite not found', style: AppText.h2),
-        ),
+      return const PageScaffold(
+        children: [
+          Center(
+            child: MyText('Worksite not found', style: AppText.bodyLg),
+          ),
+        ],
       );
     }
 
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      header: PageHeader(
+        title: ws.name,
+        subtitle: 'Worksite location and operational status',
+        trailing: Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
-            // Header
-            Row(
-              children: [
-                Expanded(
-                  child: Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      InkWell(
-                        onTap: () => Navigator.pop(context),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset("assets/svg/arrow-left.svg",
-                                colorFilter: const ColorFilter.mode(
-                                    AppColors.black, BlendMode.srcIn)),
-                            kSizedBoxWidthSM,
-                            const MyText('Back', style: AppText.h2),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        spacing: 10,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          MyElevatedButton(
-                            child: 'Edit',
-                            onTap: () {},
-                          ),
-                          MyElevatedButton(
-                            bgColor: AppColors.danger,
-                            child: 'Delete',
-                            onTap: () => controller.deleteWorksite(
-                                context, ws.id, ws.projectId),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            OutlinedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Iconsax.edit, size: 18),
+              label: const Text('Edit'),
             ),
-            kSizedBox,
-
-            // Details Card
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.borderSubtle)),
-              child: Column(
-                children: [
-                  RowText(label: "Site Name", value: ws.name),
-                  RowText(label: "Location", value: ws.location),
-                  RowText(label: "Status", value: ws.status),
-                  RowText(
-                      label: "Created At",
-                      value: ws.createdAt.isEmpty ? 'N/A' : ws.createdAt),
-                  const Divider(height: 30),
-                  RowText(label: "Description", value: ws.description),
-                ],
-              ),
-            )
+            MyElevatedButton(
+              bgColor: AppColors.danger,
+              child: 'Delete',
+              icon: const Icon(Iconsax.trash, size: 18, color: Colors.white),
+              onTap: () => controller.deleteWorksite(context, ws.id, ws.projectId),
+            ),
           ],
         ),
       ),
+      children: [
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Worksite Overview', style: AppText.h3),
+              const SizedBox(height: 16),
+              RowText(label: "Site Name", value: ws.name),
+              RowText(label: "Location", value: ws.location),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    const SizedBox(
+                        width: 200, child: Text("Status", style: AppText.label)),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: StatusChip(
+                          label: ws.status,
+                          tone: _getStatusTone(ws.status),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              RowText(
+                  label: "Created At",
+                  value: ws.createdAt.isEmpty ? 'N/A' : ws.createdAt),
+              const Divider(height: 32),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Description", style: AppText.label),
+                  const SizedBox(height: 8),
+                  Text(
+                      ws.description.isEmpty
+                          ? 'No description provided.'
+                          : ws.description,
+                      style: AppText.bodyMd),
+                ],
+              ),
+            ],
+          ),
+        )
+      ],
     );
+  }
+
+  StatusTone _getStatusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return StatusTone.success;
+      case 'pending':
+        return StatusTone.warning;
+      case 'inactive':
+        return StatusTone.neutral;
+      default:
+        return StatusTone.neutral;
+    }
   }
 }

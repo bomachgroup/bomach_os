@@ -1,13 +1,15 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../src/app_routes/app_route_constants.dart';
 import 'controllers/work_site_controller.dart';
 import 'models/models.dart';
 import 'widget/add_worksite_dialog.dart';
@@ -34,86 +36,69 @@ class _WorkSiteState extends State<WorkSite> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 20,
-                runSpacing: 20,
-                children: [
-                  const MyText("Worksites", size: 28, weight: 500),
-                  MyElevatedButton(
-                    child: "Add Worksite",
-                    icon: const Icon(Iconsax.add_circle,
-                        color: AppColors.white),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const AddWorksiteDialog(),
-                      );
-                    },
-                  )
-                ],
-              ),
-            ),
-          ],
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Worksites',
+        subtitle: 'Management of field worksites and locations',
+        trailing: OutlinedButton.icon(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => const AddWorksiteDialog(),
+            );
+          },
+          icon: const Icon(Iconsax.add_circle, size: 18),
+          label: const Text('Add Worksite'),
         ),
-        kSizedBoxBG,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
+      ),
+      children: [
+        AppCard(
+          padding: const EdgeInsets.all(0),
           child: Obx(() {
             if (controller.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: LoadingSkeleton.listRows(count: 8),
+              );
             }
 
             if (controller.worksites.isEmpty) {
-              return const Center(
-                  child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Text("No worksites found."),
-              ));
+              return Padding(
+                padding: const EdgeInsets.all(48),
+                child: EmptyState.empty(
+                  title: 'No worksites found',
+                  subtitle: 'Add a new worksite to start tracking field operations.',
+                ),
+              );
             }
 
-            return Column(
-              children: [
-                Scrollbar(
-                  controller: _scrollController,
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                          minWidth: MediaQuery.of(context).size.width - 100),
-                      child: DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows: _createRows(context, controller.worksites),
-                        showBottomBorder: true,
-                      ),
+            return Scrollbar(
+              controller: _scrollController,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                child: SingleChildScrollView(
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.resolveWith(
+                        (states) => AppColors.surfaceMuted.withValues(alpha: 0.5)),
+                    headingTextStyle: AppText.label.copyWith(
+                      color: AppColors.textSecondary,
                     ),
+                    dataTextStyle: AppText.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    dataRowMinHeight: 64,
+                    dataRowMaxHeight: 64,
+                    columnSpacing: 24,
+                    horizontalMargin: 20,
+                    dividerThickness: 1.0,
+                    columns: _createColumns(),
+                    rows: _createRows(context, controller.worksites),
+                    showBottomBorder: false,
                   ),
                 ),
-                // PaginatorFooter(
-                //   totalRecords: controller.totalCount.value,
-                //   onPageChanged: (page, limit) {
-                //     controller.currentLimit.value = limit;
-                //     controller.currentOffset.value = (page - 1) * limit;
-                //     controller.fetchWorksites(context);
-                //   },
-                // ),
-              ],
+              ),
             );
           }),
         ),
@@ -123,11 +108,11 @@ class _WorkSiteState extends State<WorkSite> {
 
   List<DataColumn> _createColumns() {
     return const [
-      DataColumn(label: MyText("Name")),
-      DataColumn(label: MyText("Location")),
-      DataColumn(label: MyText("Status")),
-      DataColumn(label: MyText("Description")),
-      DataColumn(label: MyText("Action")),
+      DataColumn(label: Text("Site Name")),
+      DataColumn(label: Text("Location")),
+      DataColumn(label: Text("Status")),
+      DataColumn(label: Text("Description")),
+      DataColumn(label: Text("Action")),
     ];
   }
 
@@ -136,26 +121,25 @@ class _WorkSiteState extends State<WorkSite> {
       return DataRow(cells: [
         DataCell(
           onTap: () {
-            context.push(RouteConstants.operationsWorksiteDetail, extra: site);
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (_) => WorksiteDetailPage(worksite: site)));
           },
-          MyText(site.name, weight: 500),
+          Text(site.name, style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary)),
         ),
-        DataCell(MyText(site.location)),
-        DataCell(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(4)),
-          child: MyText(site.status, color: AppColors.primary),
+        DataCell(Text(site.location)),
+        DataCell(StatusChip(
+          label: site.status,
+          tone: site.status.toLowerCase() == 'active'
+              ? StatusTone.success
+              : StatusTone.warning,
         )),
         DataCell(
-            SizedBox(width: 200, child: MyText(site.description, maxLines: 1))),
+            SizedBox(width: 250, child: Text(site.description, maxLines: 1, overflow: TextOverflow.ellipsis))),
         DataCell(
           PopupMenuButton(
+            icon: const Icon(Iconsax.more, size: 18),
             itemBuilder: (context) => [
               PopupMenuItem(
                 child: const Text("Delete"),
@@ -163,7 +147,6 @@ class _WorkSiteState extends State<WorkSite> {
                     controller.deleteWorksite(context, site.id, site.id),
               )
             ],
-            child: const Icon(Iconsax.more),
           ),
         ),
       ]);

@@ -1,13 +1,13 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/components/text/row_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 
 import 'models/models.dart';
 
@@ -32,130 +32,108 @@ class TaskDetailPageState extends State<TaskDetailPage> {
   Widget build(BuildContext context) {
     final task = widget.task;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return PageScaffold(
+      header: PageHeader(
+        title: task.name,
+        subtitle: 'Created ${task.createdAt} • Updated ${task.updatedAt}',
+        trailing: Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () => context.pop(),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/svg/arrow-left.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.black, BlendMode.srcIn),
-                            ),
-                            kSizedBoxWidthSM,
-                            const MyText('Back',
-                                style: AppText.h2,
-                                isSelectable: false),
-                          ],
-                        ),
-                      ),
-                      kSizedBoxWidth,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(task.name, style: AppText.h2),
-                          const SizedBox(height: 8),
-                          MyText(
-                            'Created ${task.createdAt} • Updated ${task.updatedAt}',
-                            style: AppText.bodyLg,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MyElevatedButton(child: 'Edit', onTap: () {}),
-                      MyElevatedButton(
-                        bgColor: AppColors.danger,
-                        child: 'Delete',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            OutlinedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Iconsax.edit, size: 18),
+              label: const Text('Edit'),
+            ),
+            MyElevatedButton(
+              bgColor: AppColors.danger,
+              child: 'Delete',
+              icon: const Icon(Iconsax.trash, size: 18, color: Colors.white),
+              onTap: () {},
             ),
           ],
         ),
-        kSizedBox,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
+      ),
+      children: [
+        AppCard(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text('Task Information', style: AppText.h3),
+              const SizedBox(height: 16),
               RowText(label: "Task ID", value: "#${task.id}"),
-              RowText(label: "Description", value: task.description),
-              kSizedBoxTiny,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText("Assigned To", style: AppText.bodyLg),
-                  Container(
-                    width: 300,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.neutral300),
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration:
-                              const BoxDecoration(shape: BoxShape.circle),
-                          width: 36,
-                          height: 36,
-                          child: const Icon(Iconsax.profile_circle),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    const SizedBox(
+                        width: 200, child: Text("Status", style: AppText.label)),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: StatusChip(
+                          label: task.status,
+                          tone: _getStatusTone(task.status),
                         ),
-                        kSizedBoxWidth,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              MyText(
-                                  "Employee IDs: ${task.assignedTo.join(', ')}",
-                                  weight: 400,
-                                  size: 16),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              kSizedBoxTiny,
-              RowText(label: "Status", value: task.status),
               RowText(label: "Priority", value: task.priority),
               RowText(label: "Due Date", value: task.dueDate),
               RowText(
-                  label: "Estimated Hours",
-                  value: task.estimatedHours.toString()),
+                  label: "Estimated Hours", value: "${task.estimatedHours} hrs"),
+              const Divider(height: 32),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Assigned To", style: AppText.label),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: task.assignedTo
+                        .map((id) => Chip(
+                              avatar: const Icon(Iconsax.profile_circle, size: 16),
+                              label: Text("Employee #$id", style: AppText.bodySm),
+                              backgroundColor: AppColors.surfaceMuted,
+                              side: BorderSide.none,
+                            ))
+                        .toList(),
+                  ),
+                ],
+              ),
+              const Divider(height: 32),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Description", style: AppText.label),
+                  const SizedBox(height: 8),
+                  Text(
+                      task.description.isEmpty
+                          ? 'No description provided.'
+                          : task.description,
+                      style: AppText.bodyMd),
+                ],
+              ),
             ],
           ),
         )
       ],
     );
+  }
+
+  StatusTone _getStatusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return StatusTone.success;
+      case 'in progress':
+        return StatusTone.primary;
+      case 'pending':
+        return StatusTone.warning;
+      default:
+        return StatusTone.neutral;
+    }
   }
 }
