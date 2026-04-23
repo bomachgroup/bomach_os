@@ -71,8 +71,6 @@ class _ServicesPageState extends State<ServicesPage> {
         ),
       ),
       children: [
-        _buildQuickNav(),
-        const SizedBox(height: 24),
         _buildTopStats(context),
         const SizedBox(height: 32),
         _buildTabs(context, (index) => setState(() => _selectedTab = index)),
@@ -81,50 +79,6 @@ class _ServicesPageState extends State<ServicesPage> {
         if (_selectedTab == 1) _quotes(),
         if (_selectedTab == 2) _orders(),
         if (_selectedTab == 3) const ServiceLeadsPage(),
-      ],
-    );
-  }
-
-  Widget _buildQuickNav() {
-    final perms = Get.find<PermissionService>();
-    ModuleShortcutCard card({
-      required IconData icon,
-      required String title,
-      required String subtitle,
-      required String route,
-      required List<String> resources,
-    }) =>
-        ModuleShortcutCard(
-          icon: icon,
-          title: title,
-          subtitle: subtitle,
-          route: route,
-          enabled: perms.canAccessRoute(route, resources),
-        );
-
-    return ModuleQuickNav(
-      shortcuts: [
-        card(
-          icon: Iconsax.people,
-          title: 'Clients',
-          subtitle: 'Service clients directory',
-          route: RouteConstants.serviceClients,
-          resources: const [PermissionConstants.resClients],
-        ),
-        card(
-          icon: Iconsax.building_4,
-          title: 'Property Management',
-          subtitle: 'Rentals and listings',
-          route: RouteConstants.propertyList,
-          resources: const [PermissionConstants.resProperties],
-        ),
-        card(
-          icon: Iconsax.tree,
-          title: 'Estate Management',
-          subtitle: 'Estates and performance',
-          route: RouteConstants.estateManagement,
-          resources: const [PermissionConstants.resEstates],
-        ),
       ],
     );
   }

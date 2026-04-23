@@ -138,8 +138,6 @@ class _ClientsPortalState extends State<ClientsPortal> {
                   ],
                 ),
           kSizedBox,
-          _buildQuickNav(),
-          kSizedBox,
           _buildTopStats(context, isMobile: isMobile),
           const SizedBox(height: 18),
           SizedBox(
@@ -158,57 +156,6 @@ class _ClientsPortalState extends State<ClientsPortal> {
         ],
       );
     });
-  }
-
-  Widget _buildQuickNav() {
-    final perms = Get.find<PermissionService>();
-    ModuleShortcutCard card({
-      required IconData icon,
-      required String title,
-      required String subtitle,
-      required String route,
-      required List<String> resources,
-    }) =>
-        ModuleShortcutCard(
-          icon: icon,
-          title: title,
-          subtitle: subtitle,
-          route: route,
-          enabled: perms.canAccessRoute(route, resources),
-        );
-
-    return ModuleQuickNav(
-      shortcuts: [
-        card(
-          icon: Iconsax.people,
-          title: 'Client Access',
-          subtitle: 'Portal users and invites',
-          route: RouteConstants.clientAccess,
-          resources: const [PermissionConstants.resClients],
-        ),
-        card(
-          icon: Iconsax.folder_2,
-          title: 'Document Sharing',
-          subtitle: 'Shared files and folders',
-          route: RouteConstants.documentSharing,
-          resources: const [PermissionConstants.resDocuments],
-        ),
-        card(
-          icon: Iconsax.messages,
-          title: 'Communications',
-          subtitle: 'Messages with clients',
-          route: RouteConstants.communications,
-          resources: const [PermissionConstants.resClients],
-        ),
-        card(
-          icon: Iconsax.chart_2,
-          title: 'Portal Analytics',
-          subtitle: 'Usage and engagement',
-          route: RouteConstants.portalAnalytics,
-          resources: const [PermissionConstants.resStats],
-        ),
-      ],
-    );
   }
 
   Widget _buildTopStats(BuildContext context, {required bool isMobile}) {

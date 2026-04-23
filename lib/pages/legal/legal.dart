@@ -114,57 +114,6 @@ class _LegalsPageState extends State<LegalsPage> {
     });
   }
 
-  Widget _buildQuickNav() {
-    final perms = Get.find<PermissionService>();
-    ModuleShortcutCard card({
-      required IconData icon,
-      required String title,
-      required String subtitle,
-      required String route,
-      required List<String> resources,
-    }) =>
-        ModuleShortcutCard(
-          icon: icon,
-          title: title,
-          subtitle: subtitle,
-          route: route,
-          enabled: perms.canAccessRoute(route, resources),
-        );
-
-    return ModuleQuickNav(
-      shortcuts: [
-        card(
-          icon: Iconsax.document_text,
-          title: 'Contracts',
-          subtitle: 'Agreements and documents',
-          route: RouteConstants.legalContracts,
-          resources: const [PermissionConstants.resContracts],
-        ),
-        card(
-          icon: Iconsax.shield_tick,
-          title: 'Compliance',
-          subtitle: 'Policies and records',
-          route: RouteConstants.legalCompliance,
-          resources: const [PermissionConstants.resComplianceRecords],
-        ),
-        card(
-          icon: Iconsax.judge,
-          title: 'Cases',
-          subtitle: 'Active legal matters',
-          route: RouteConstants.legalCases,
-          resources: const [PermissionConstants.resLegalCases],
-        ),
-        card(
-          icon: Iconsax.task_square,
-          title: 'Audits',
-          subtitle: 'Compliance audits',
-          route: RouteConstants.legalAudits,
-          resources: const [PermissionConstants.resComplianceAudits],
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -227,8 +176,6 @@ class _LegalsPageState extends State<LegalsPage> {
                     child: "New Contract",
                   ),
                 ),
-              const SizedBox(height: 24),
-              _buildQuickNav(),
               const SizedBox(height: 24),
               DynamicSummaryRow(dashboardData: _dashboardData),
               const SizedBox(height: 24),

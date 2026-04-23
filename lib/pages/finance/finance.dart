@@ -40,63 +40,10 @@ class _FinancePageState extends State<FinancePage> {
             title: 'Finance & Accounting',
             subtitle: 'Invoices, payments, budgets, and financial reporting',
           ),
-          kSizedBox,
-          _buildQuickNav(),
           kSizedBoxBG,
           _buildSummaryGrid(),
         ],
       ),
-    );
-  }
-
-  Widget _buildQuickNav() {
-    final perms = Get.find<PermissionService>();
-    ModuleShortcutCard card({
-      required IconData icon,
-      required String title,
-      required String subtitle,
-      required String route,
-      required List<String> resources,
-    }) =>
-        ModuleShortcutCard(
-          icon: icon,
-          title: title,
-          subtitle: subtitle,
-          route: route,
-          enabled: perms.canAccessRoute(route, resources),
-        );
-
-    return ModuleQuickNav(
-      shortcuts: [
-        card(
-          icon: Iconsax.receipt_2_1,
-          title: 'Invoices',
-          subtitle: 'Issue and track billings',
-          route: RouteConstants.invoice,
-          resources: const [PermissionConstants.resEstateInvoices],
-        ),
-        card(
-          icon: Iconsax.money_send,
-          title: 'Payments',
-          subtitle: 'Record incoming funds',
-          route: RouteConstants.payment,
-          resources: const [PermissionConstants.resPayments],
-        ),
-        card(
-          icon: Iconsax.money_remove,
-          title: 'Expenses',
-          subtitle: 'Review and approve spend',
-          route: RouteConstants.expense,
-          resources: const [PermissionConstants.resExpenses],
-        ),
-        card(
-          icon: Iconsax.wallet_3,
-          title: 'Budgets',
-          subtitle: 'Plan and allocate funds',
-          route: RouteConstants.budget,
-          resources: const [PermissionConstants.resBudgets],
-        ),
-      ],
     );
   }
 
