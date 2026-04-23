@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 
-import '../../components/text/my_text.dart';
+import '../../components/text/app_text.dart';
 import '../../src/constants/spaces.dart';
 import '../../src/constants/textstyle.dart';
 import 'controllers/analytics_controller.dart';
@@ -43,17 +43,13 @@ class AnalyticsOverviewPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          MyText(
+                          AppText.displayLg(
                             'Analytics',
-                            style: AppTextStyles.displayLg,
                           ),
                           SizedBox(height: 4),
-                          MyText(
+                          AppText.bodyMd(
                             'Business intelligence and performance metrics',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
-                            ),
+                            fontWeight: FontWeight.w500,
                           ),
                         ],
                       ),
@@ -64,17 +60,13 @@ class AnalyticsOverviewPage extends StatelessWidget {
               : const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyText(
+                    AppText.displayLg(
                       'Analytics',
-                      style: AppTextStyles.displayLg,
                     ),
                     SizedBox(height: 4),
-                    MyText(
+                    AppText.bodyMd(
                       'Business intelligence and performance metrics',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
+                      fontWeight: FontWeight.w500,
                     ),
                     SizedBox(height: 16),
                     AnalyticsActions(),

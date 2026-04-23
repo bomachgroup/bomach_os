@@ -1,5 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -122,9 +122,9 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppTextStyles.h3('Add New Plot'),
+                        AppText.h3('Add New Plot'),
                         const SizedBox(height: 4),
-                        AppTextStyles.bodySm(
+                        AppText.bodySm(
                           widget.estate.name,
                           color: AppColors.neutral500,
                         ),
@@ -298,7 +298,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                               child: Row(
                                 children: [
                                   Flexible(
-                                    child: AppTextStyles.bodyLg(
+                                    child: AppText.bodyLg(
                                       'Buyer & Document Details (Optional)',
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -316,7 +316,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                             ),
                             if (_showOptionalFields) ...[
                               const SizedBox(height: 16),
-                              AppTextStyles.bodyMd(
+                              AppText.bodyMd(
                                 'Buyer Information',
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.neutral700,
@@ -366,7 +366,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                                 ],
                               ),
                               const SizedBox(height: 24),
-                              AppTextStyles.bodyMd(
+                              AppText.bodyMd(
                                 'Upload Documents (Survey Plan, Title, etc.)',
                                 fontWeight: FontWeight.w500,
                               ),

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/country_state_city_picker.dart';
@@ -92,7 +93,7 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    AppTextStyles.h3('Add New Estate'),
+                    AppText.h3('Add New Estate'),
                     IconButton(
                       icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
@@ -285,7 +286,7 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
-          child: AppTextStyles.bodySm(
+          child: AppText.bodySm(
             label,
             fontWeight: FontWeight.w500,
           ),
@@ -301,14 +302,14 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
             child: DropdownButton<String>(
               isExpanded: true,
               value: value,
-              hint: AppTextStyles.bodySm(
+              hint: AppText.bodySm(
                 'Select ${label.replaceAll(' *', '')}',
                 color: AppColors.neutral500,
               ),
               items: choices.map((c) {
                 return DropdownMenuItem<String>(
                   value: c['value']?.toString() ?? '',
-                  child: AppTextStyles.bodySm(c['display_name']?.toString() ?? ''),
+                  child: AppText.bodySm(c['display_name']?.toString() ?? ''),
                 );
               }).toList(),
               onChanged: onChanged,
