@@ -418,16 +418,19 @@ class _SideMenuState extends State<SideMenu> {
       searchQuery: _searchQuery,
       onHeaderTap: () {
         setState(() {
-          selectedMainMenu = menuItem.id;
-          // Ensure the group is open when the header is tapped
-          _openMenu = menuItem.id;
-        });
+          if (_openMenu == menuItem.id) {
+            _openMenu = null;
+          } else {
+            selectedMainMenu = menuItem.id;
+            _openMenu = menuItem.id;
 
-        // Automatically navigate to the first authorized child
-        if (authorizedSubItems.isNotEmpty) {
-          final firstChild = authorizedSubItems.first;
-          _navigate(firstChild.route, menuItem.id, firstChild.id);
-        }
+            // Automatically navigate to the first authorized child
+            if (authorizedSubItems.isNotEmpty) {
+              final firstChild = authorizedSubItems.first;
+              _navigate(firstChild.route, menuItem.id, firstChild.id);
+            }
+          }
+        });
 
         _saveMenuState(menuItem.id, selectedSubMenu);
         _saveOpenMenu(_openMenu);

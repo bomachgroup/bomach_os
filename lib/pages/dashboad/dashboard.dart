@@ -10,10 +10,7 @@ import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
-
-import '../../src/app_routes/app_route_constants.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -66,8 +63,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 16),
             _buildWelcomeHeader(),
-            const SizedBox(height: 24),
-            _buildQuickActions(),
             const SizedBox(height: 24),
             _buildStatsGrid(),
             const SizedBox(height: 24),
@@ -262,95 +257,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ── Quick Actions ─────────────────────────────────────────────────────
-  Widget _buildQuickActions() {
-    return Row(
-      children: [
-        _buildActionCard(
-          icon: Iconsax.task_square,
-          label: 'My Tasks',
-          color: _accentIndigo,
-          onTap: () => context.go(RouteConstants.employeeMyTasks),
-        ),
-        const SizedBox(width: 12),
-        _buildActionCard(
-          icon: Iconsax.document_text,
-          label: 'Work Reports',
-          color: _accentCyan,
-          onTap: () => context.go(RouteConstants.employeeMyReports),
-        ),
-        const SizedBox(width: 12),
-        _buildActionCard(
-          icon: Iconsax.refresh,
-          label: 'Refresh',
-          color: _accentGreen,
-          onTap: () => controller.fetchAll(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadii.brMd,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.08),
-            borderRadius: AppRadii.brMd,
-            border: Border.all(color: color.withValues(alpha: 0.15)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: AppRadii.brSm,
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(width: 10),
-              Flexible(
-                child: MyText(
-                  label,
-                  style: AppTextStyles.bodyMd.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   // ── Stats Grid ────────────────────────────────────────────────────────
   Widget _buildStatsGrid() {
     final st = controller.stats.value;
     if (st == null) return const SizedBox.shrink();
 
     final stats = [
-      _StatItem('Projects', st.totalProjects.toString(),
-          Iconsax.folder_cloud, _accentIndigo),
+      _StatItem('Projects', st.totalProjects.toString(), Iconsax.folder_cloud,
+          _accentIndigo),
       _StatItem('Contracts', st.totalContracts.toString(),
           Iconsax.document_text, _accentCyan),
       _StatItem('Worksites', st.totalWorksites.toString(), Iconsax.location,
           _accentAmber),
       _StatItem('Budget Used', '${st.budgetUtilization.toStringAsFixed(1)}%',
           Iconsax.wallet_3, _accentGreen),
-      _StatItem('Timelines', st.totalTimelines.toString(),
-          Iconsax.timer_1, _accentRed),
+      _StatItem('Timelines', st.totalTimelines.toString(), Iconsax.timer_1,
+          _accentRed),
     ];
 
     return LayoutBuilder(
@@ -580,14 +502,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildProgressStat('Score', wr.score / 100, '${wr.score.toInt()}%',
-              _accentCyan),
+          _buildProgressStat(
+              'Score', wr.score / 100, '${wr.score.toInt()}%', _accentCyan),
           const SizedBox(height: 14),
           _buildInfoRow(Iconsax.send_1, 'Submitted', '${wr.reportsSubmitted}',
               _accentIndigo),
           const SizedBox(height: 10),
-          _buildInfoRow(Iconsax.tick_circle, 'Approved', '${wr.approved}',
-              _accentGreen),
+          _buildInfoRow(
+              Iconsax.tick_circle, 'Approved', '${wr.approved}', _accentGreen),
           const SizedBox(height: 10),
           _buildInfoRow(Iconsax.star_1, 'Avg Rating',
               wr.averageRating.toStringAsFixed(1), _accentAmber),
@@ -616,8 +538,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: _accentGreen.withValues(alpha: 0.1),
                   borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Iconsax.clock,
-                    color: _accentGreen, size: 18),
+                child: const Icon(Iconsax.clock, color: _accentGreen, size: 18),
               ),
               const SizedBox(width: 10),
               MyText(
@@ -630,20 +551,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildProgressStat('Score', pr.score / 100, '${pr.score.toInt()}%',
-              _accentGreen),
+          _buildProgressStat(
+              'Score', pr.score / 100, '${pr.score.toInt()}%', _accentGreen),
           const SizedBox(height: 14),
           _buildInfoRow(Iconsax.calendar_1, 'Total Days', '${pr.totalDays}',
               _accentIndigo),
           const SizedBox(height: 10),
-          _buildInfoRow(Iconsax.tick_square, 'On Time', '${pr.onTimeDays}',
-              _accentGreen),
+          _buildInfoRow(
+              Iconsax.tick_square, 'On Time', '${pr.onTimeDays}', _accentGreen),
           const SizedBox(height: 10),
-          _buildInfoRow(Iconsax.timer_1, 'Late', '${pr.lateDays}',
-              _accentAmber),
+          _buildInfoRow(
+              Iconsax.timer_1, 'Late', '${pr.lateDays}', _accentAmber),
           const SizedBox(height: 10),
-          _buildInfoRow(Iconsax.close_circle, 'Absent', '${pr.absentDays}',
-              _accentRed),
+          _buildInfoRow(
+              Iconsax.close_circle, 'Absent', '${pr.absentDays}', _accentRed),
         ],
       ),
     );
@@ -658,7 +579,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             MyText(label,
-                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
             MyText(
               value,
               style: AppTextStyles.label.copyWith(
@@ -690,7 +612,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: MyText(
             label,
-            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ),
         MyText(
@@ -763,11 +686,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           _accentGreen)),
                   SizedBox(
                       width: cardWidth,
-                      child: _buildOverviewCard(
-                          'Open Roles',
-                          '${ov.openRoles}',
-                          Iconsax.briefcase,
-                          _accentAmber)),
+                      child: _buildOverviewCard('Open Roles', '${ov.openRoles}',
+                          Iconsax.briefcase, _accentAmber)),
                 ],
               );
             },
@@ -864,7 +784,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 MyText(
                   label,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
