@@ -41,7 +41,8 @@ dependencies:
   country_picker: ^2.0.27
   iconsax: ^0.0.8
 
-  flutter_localizations: any
+  flutter_localizations:
+    sdk: flutter
 dev_dependencies:
   flutter_test:
     sdk: flutter
