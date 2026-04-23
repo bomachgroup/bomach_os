@@ -1,19 +1,19 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/clients_portal/controller/client_portal_controller.dart';
 import 'package:bms_front_end/pages/clients_portal/slides/client_access.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
 // Using similar stat card from services
 import 'dialog/new_client.dart';
 import 'slides/analytics.dart';
@@ -77,19 +77,16 @@ class _ClientsPortalState extends State<ClientsPortal> {
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        MyText(
+                        AppText.displayLg(
                           'Client & Partner Portal',
-                          style: AppTextStyles.displayLg,
                         ),
-                        MyText(
+                        AppText.bodyMd(
                           'Manage client access and self-service portal',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
                         ),
                       ],
                     ),
@@ -113,19 +110,16 @@ class _ClientsPortalState extends State<ClientsPortal> {
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            MyText(
+                            AppText.displayLg(
                               'Client & Partner Portal',
-                              style: AppTextStyles.displayLg,
                             ),
-                            MyText(
+                            AppText.bodyMd(
                               'Manage client access and self-service portal',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 15,
-                              ),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
                             ),
                           ],
                         ),
@@ -249,7 +243,11 @@ class _ClientsPortalState extends State<ClientsPortal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 12,
           children: items
-              .map((it) => StatsCard(label: it['label']!, count: it['value']!))
+              .map((it) => StatsHeaderCard(
+                    label: it['label']!,
+                    count: it['value']!,
+                    icon: Iconsax.profile_circle,
+                  ))
               .toList(),
         );
       }

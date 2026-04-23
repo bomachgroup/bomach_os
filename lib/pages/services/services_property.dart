@@ -134,32 +134,32 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
 
   List<DataColumn> _createColumns() {
     return [
-      const DataColumn(
+       DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
         label: AppText.bodyMd(
           "Service name",
         ),
       ),
-      const DataColumn(
+       DataColumn(
         label: AppText.bodyMd(
           "Sub service",
         ),
       ),
-      const DataColumn(
+       DataColumn(
           label: AppText.bodyMd(
         "Added inventory",
       )),
-      const DataColumn(
+       DataColumn(
         label: AppText.bodyMd(
           "Order sales count",
         ),
       ),
-      const DataColumn(
+       DataColumn(
         label: AppText.bodyMd(
           "Aurthor date",
         ),
       ),
-      const DataColumn(
+       DataColumn(
         label: AppText.bodyMd(
           "Notes/Comments",
         ),
@@ -179,7 +179,7 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
             isSelectable: false,
           ),
         ),
-        const DataCell(
+         DataCell(
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,7 +199,7 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
             ],
           ),
         ),
-        const DataCell(
+         DataCell(
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,13 +219,13 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
             ],
           ),
         ),
-        const DataCell(
+         DataCell(
           AppText.bodyMd("10 Order / sales - 35,00"),
         ),
-        const DataCell(
+         DataCell(
           AppText.bodyMd("11/02/2024"),
         ),
-        const DataCell(
+         DataCell(
           AppText.bodyMd(""),
         ),
       ]);
