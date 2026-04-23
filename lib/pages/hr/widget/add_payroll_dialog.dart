@@ -1,14 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/pay_roll_controller.dart';
@@ -110,6 +111,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
     );
     if (picked != null) {
       disbursementDateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      setState(() {});
     }
   }
 
@@ -157,123 +159,171 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    widget.payrollToEdit == null
-                        ? 'New Payroll'
-                        : 'Edit Payroll',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
+    final isEdit = widget.payrollToEdit != null;
+    return DialogScaffold(
+      title: isEdit ? 'Edit Payroll' : 'New Payroll',
+      subtitle: isEdit
+          ? 'Update payroll details, allowances, and deductions.'
+          : 'Capture a payroll record with allowances, deductions, and disbursement.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSection(
+            title: 'Employee & Period',
+            child: Column(
+              children: [
+                MyTextFormField(
+                  title: 'Employee ID',
+                  controller: employeeIdCtrl,
+                  hintText: 'Enter Employee ID',
+                ),
+                const SizedBox(height: 16),
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyTextFormField(
-                        title: 'Employee ID', controller: employeeIdCtrl),
-                    const SizedBox(height: 16),
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Payroll Period (e.g. 2025-07)',
-                              controller: payrollPeriodCtrl)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Status (pending/paid)',
-                              controller: statusCtrl)),
-                    ]),
-                    const SizedBox(height: 16),
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Gross Salary',
-                              controller: grossSalaryCtrl)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Net Salary', controller: netSalaryCtrl)),
-                    ]),
-                    const SizedBox(height: 16),
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Total Allowances',
-                              controller: totalAllowancesCtrl)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Total Deductions',
-                              controller: totalDeductionsCtrl)),
-                    ]),
-                    const SizedBox(height: 24),
-                    const MyText("Allowances (Check active)"),
-                    kSizedBoxSM,
-                    _buildCheckboxGroup(allowancesMap),
-                    kSizedBox,
-                    const MyText("Deductions (Check active)"),
-                    kSizedBoxSM,
-                    _buildCheckboxGroup(deductionsMap),
-                    kSizedBox,
-                    InkWell(
-                      onTap: _selectDate,
-                      child: IgnorePointer(
-                        child: MyTextFormField(
-                            title: 'Disbursement Date',
-                            controller: disbursementDateCtrl,
-                            hintText: 'YYYY-MM-DD'),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Payroll Period',
+                        controller: payrollPeriodCtrl,
+                        hintText: 'e.g. 2025-07',
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Status',
+                        controller: statusCtrl,
+                        hintText: 'pending / paid',
                       ),
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.neutral500,
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        child: controller.isSaving.value ? 'Saving...' : 'Save',
-                        onTap: controller.isSaving.value ? () {} : _save,
-                        icon: SvgPicture.asset("assets/svg/check.svg",
-                            colorFilter: const ColorFilter.mode(
-                                AppColors.white, BlendMode.srcIn)),
-                      )),
-                ],
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Salary Breakdown',
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Gross Salary',
+                        controller: grossSalaryCtrl,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Net Salary',
+                        controller: netSalaryCtrl,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Total Allowances',
+                        controller: totalAllowancesCtrl,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Total Deductions',
+                        controller: totalDeductionsCtrl,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Allowances',
+            subtitle: 'Check the allowances that are active',
+            child: _buildCheckboxGroup(allowancesMap),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Deductions',
+            subtitle: 'Check the deductions that apply',
+            child: _buildCheckboxGroup(deductionsMap),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Disbursement',
+            child: _buildDateField(
+              label: 'Disbursement Date',
+              value: DateTime.tryParse(disbursementDateCtrl.text),
+              onTap: _selectDate,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              isLoading: controller.isSaving.value,
+              icon: SvgPicture.asset(
+                "assets/svg/check.svg",
+                colorFilter: const ColorFilter.mode(
+                    AppColors.white, BlendMode.srcIn),
               ),
+              child: 'Save',
+              onTap: controller.isSaving.value ? () {} : _save,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }
@@ -282,11 +332,12 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.neutral500.withValues(alpha: 0.3)),
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Wrap(
-        runSpacing: 12,
+        runSpacing: 8,
         spacing: 12,
         children: map.keys.map((key) {
           return Row(
@@ -294,17 +345,69 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
             children: [
               Checkbox(
                 value: map[key],
+                activeColor: AppColors.primary,
                 onChanged: (val) {
                   setState(() {
                     map[key] = val ?? false;
                   });
                 },
               ),
-              Text(key),
+              Text(key, style: AppText.bodyMd),
             ],
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required DateTime? value,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppText.bodyMd.copyWith(
+            color: AppColors.textPrimary,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          borderRadius: AppRadii.brMd,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadii.brMd,
+              border: Border.all(color: AppColors.borderSubtle),
+            ),
+            child: Row(
+              children: [
+                const Icon(Iconsax.calendar_1,
+                    size: 16, color: AppColors.textSecondary),
+                const SizedBox(width: 10),
+                Text(
+                  value != null
+                      ? DateFormat('MMM d, yyyy').format(value)
+                      : 'Select date',
+                  style: AppText.bodyMd.copyWith(
+                    color: value != null
+                        ? AppColors.textPrimary
+                        : AppColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

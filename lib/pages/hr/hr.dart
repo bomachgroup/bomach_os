@@ -5,7 +5,7 @@ import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/section/page_scaffold.dart';
-import 'package:bms_front_end/components/section/responsive_stat_row.dart';
+import '../../components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';

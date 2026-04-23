@@ -1,13 +1,19 @@
 import 'dart:developer';
-import 'package:iconsax/iconsax.dart';
 
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/biometrics_controller.dart';
 
@@ -38,11 +44,11 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
   // declares the field as a plain string (no enum constraint), so if the
   // backend ever broadens its choices we'll need to update this map.
   static const _locationTypes = <String, String>{
-    'branch': 'Branch',
-    'remote': 'Remote',
-    'site': 'Site',
+    'Branch': 'branch',
+    'Remote': 'remote',
+    'Site': 'site',
   };
-  String _locationType = 'branch';
+  String _locationLabel = 'Branch';
 
   Position? _position;
   bool _fetchingLocation = false;
@@ -92,7 +98,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
       latitude: _position!.latitude,
       longitude: _position!.longitude,
       workspaceName: _nameCtrl.text.trim(),
-      locationType: _locationType,
+      locationType: _locationTypes[_locationLabel] ?? 'branch',
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
     );
 
@@ -107,216 +113,147 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: Colors.white,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 600),
-        padding: const EdgeInsets.all(24),
+    return DialogScaffold(
+      title: 'Submit Workspace',
+      subtitle: 'Submit a new work location for admin approval.',
+      size: DialogSize.lg,
+      body: Form(
+        key: _formKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Iconsax.location_add,
-                          color: AppColors.primary, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    const MyText(
-                      'Submit Workspace',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Iconsax.close_circle),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            const Divider(height: 24),
-
-            // Body
-            Expanded(
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Your submission will be reviewed by an admin before '
-                        "it's usable for clock-in.",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.neutral500,
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // GPS section
-                      const MyText(
-                        'GPS Location',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildLocationSection(),
-
-                      const SizedBox(height: 20),
-
-                      // Workspace name
-                      const MyText(
-                        'Workspace Name',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _nameCtrl,
-                        decoration: const InputDecoration(
-                          hintText: 'e.g., Home Office, Lagos Branch',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                        ),
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Workspace name is required'
-                            : null,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Location type (required by backend)
-                      const MyText(
-                        'Location Type',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: _locationType,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                        ),
-                        items: _locationTypes.entries
-                            .map((e) => DropdownMenuItem(
-                                  value: e.key,
-                                  child: Text(e.value),
-                                ))
-                            .toList(),
-                        onChanged: (v) {
-                          if (v != null) setState(() => _locationType = v);
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Notes
-                      const MyText(
-                        'Notes (optional)',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _notesCtrl,
-                        minLines: 2,
-                        maxLines: 3,
-                        decoration: const InputDecoration(
-                          hintText:
-                              "Anything the admin should know about this location",
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.infoSubtle,
+                borderRadius: AppRadii.brMd,
+                border: Border.all(
+                    color: AppColors.info.withValues(alpha: 0.2)),
               ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Actions
-            Obx(() {
-              final submitting = Get.find<BiometricsController>()
-                  .isSettingUpWorkspace
-                  .value;
-              return Row(
+              child: Row(
                 children: [
+                  const Icon(Iconsax.info_circle,
+                      color: AppColors.info, size: 18),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: submitting
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: submitting ? null : _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: submitting
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Submit for Approval',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                            ),
+                    child: Text(
+                      "Your submission will be reviewed by an admin before "
+                      "it's usable for clock-in.",
+                      style: AppText.bodySm
+                          .copyWith(color: AppColors.textPrimary, height: 1.4),
                     ),
                   ),
                 ],
-              );
-            }),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildSection(
+              title: 'GPS Location',
+              subtitle:
+                  'Capture your current coordinates. We use these to define the geofence.',
+              child: _buildLocationSection(),
+            ),
+            const SizedBox(height: 20),
+            _buildSection(
+              title: 'Workspace details',
+              subtitle: 'Give this location a name and choose its type.',
+              child: Column(
+                children: [
+                  MyTextFormField(
+                    controller: _nameCtrl,
+                    title: 'Workspace Name',
+                    hintText: 'e.g. Home Office, Lagos Branch',
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Workspace name is required'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  MyDropdown(
+                    title: 'Location Type',
+                    hintText: _locationLabel,
+                    items: _locationTypes.keys.toList(),
+                    initialSelection: _locationLabel,
+                    onChanged: (val) {
+                      if (val != null) setState(() => _locationLabel = val);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildSection(
+              title: 'Notes',
+              child: MyTextFormField(
+                controller: _notesCtrl,
+                title: 'Notes (optional)',
+                hintText:
+                    'Anything the admin should know about this location',
+                maxLines: 3,
+              ),
+            ),
           ],
         ),
+      ),
+      actions: [
+        Obx(() {
+          final submitting = Get.find<BiometricsController>()
+              .isSettingUpWorkspace
+              .value;
+          return MyOutlinedButton(
+            child: 'Cancel',
+            height: 44,
+            onTap:
+                submitting ? null : () => Navigator.of(context).pop(),
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+          );
+        }),
+        Obx(() {
+          final submitting = Get.find<BiometricsController>()
+              .isSettingUpWorkspace
+              .value;
+          return MyElevatedButton(
+            width: 200,
+            height: 44,
+            child: submitting ? 'Submitting...' : 'Submit for Approval',
+            icon: submitting
+                ? null
+                : const Icon(Iconsax.send_2,
+                    size: 18, color: AppColors.textOnPrimary),
+            onTap: submitting ? null : _submit,
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style:
+                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }
@@ -328,23 +265,24 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.successSubtle,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+          borderRadius: AppRadii.brMd,
+          border:
+              Border.all(color: AppColors.success.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Iconsax.tick_circle,
+                const Icon(Iconsax.tick_circle,
                     color: AppColors.success, size: 16),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'Location captured',
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF047857)),
+                  style: AppText.bodySm.copyWith(
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -353,17 +291,18 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
               'Lat: ${_position!.latitude.toStringAsFixed(6)}\n'
               'Lng: ${_position!.longitude.toStringAsFixed(6)}\n'
               'Accuracy: ${_position!.accuracy.toStringAsFixed(1)}m',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF166534),
-                height: 1.5,
-              ),
+              style: AppText.bodySm
+                  .copyWith(color: AppColors.textPrimary, height: 1.5),
             ),
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: _fetchingLocation ? null : _fetchLocation,
               icon: const Icon(Iconsax.refresh, size: 14),
-              label: const Text('Re-fetch', style: TextStyle(fontSize: 12)),
+              label: Text(
+                'Re-fetch',
+                style:
+                    AppText.bodySm.copyWith(fontWeight: FontWeight.w500),
+              ),
             ),
           ],
         ),
@@ -374,45 +313,37 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.neutral50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Column(
         children: [
           if (_locationError != null) ...[
             Text(
               _locationError!,
-              style: const TextStyle(color: Colors.red, fontSize: 12),
+              style: AppText.bodySm.copyWith(color: AppColors.danger),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
           ],
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _fetchingLocation ? null : _fetchLocation,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
+            child: MyElevatedButton(
+              height: 44,
+              child: _fetchingLocation
+                  ? 'Getting location...'
+                  : 'Capture Current Location',
               icon: _fetchingLocation
                   ? const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2, color: AppColors.textOnPrimary),
                     )
-                  : const Icon(Iconsax.location, size: 18),
-              label: Text(
-                _fetchingLocation
-                    ? 'Getting location...'
-                    : 'Capture Current Location',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
+                  : const Icon(Iconsax.location,
+                      size: 18, color: AppColors.textOnPrimary),
+              onTap: _fetchingLocation ? null : _fetchLocation,
             ),
           ),
         ],

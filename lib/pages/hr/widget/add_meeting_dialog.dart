@@ -1,16 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/input/my_date_field.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/hr/controller/meeting_controller.dart';
 import 'package:bms_front_end/pages/hr/models/meeting_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 
 const _statusItems = {
   'Scheduled': 'scheduled',
@@ -34,22 +35,24 @@ class AddMeetingDialog extends StatefulWidget {
 }
 
 class _AddMeetingDialogState extends State<AddMeetingDialog> {
+  final _formKey = GlobalKey<FormState>();
   late final MeetingController controller;
 
   late TextEditingController titleCtrl;
   late TextEditingController agendaCtrl;
   late TextEditingController dateCtrl;
-  late TextEditingController timeCtrl;
   late TextEditingController durationCtrl;
   late TextEditingController locationCtrl;
   late TextEditingController notesCtrl;
-  final TextEditingController _attendeeSearchCtrl = TextEditingController();
+  late TextEditingController attendeeCtrl;
 
+  String? selectedTime; // display label e.g. "9:00 AM"
   String selectedStatusLabel = 'Scheduled';
   String selectedLocationLabel = 'Physical';
   List<int> selectedAttendeeIds = [];
-  String _attendeeQuery = '';
   bool _isSaving = false;
+
+  bool get isEdit => widget.meeting != null;
 
   @override
   void initState() {
@@ -61,13 +64,31 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
     final m = widget.meeting;
     titleCtrl = TextEditingController(text: m?.title ?? '');
     agendaCtrl = TextEditingController(text: m?.agenda ?? '');
-    dateCtrl = TextEditingController(text: m?.meetingDate ?? '');
-    timeCtrl = TextEditingController(text: m?.meetingTime ?? '');
     durationCtrl = TextEditingController(
-        text: m != null ? m.durationMinutes.toString() : '');
+        text: m != null && m.durationMinutes > 0
+            ? m.durationMinutes.toString()
+            : '');
     locationCtrl = TextEditingController(text: m?.location ?? '');
     notesCtrl = TextEditingController(text: m?.notes ?? '');
+    attendeeCtrl = TextEditingController();
     selectedAttendeeIds = List<int>.from(m?.attendeeIds ?? []);
+
+    // Format date for display
+    String dateText = '';
+    if (m != null && m.meetingDate.isNotEmpty) {
+      try {
+        final parsed = DateTime.parse(m.meetingDate);
+        dateText = DateFormat('MMM d, yyyy').format(parsed);
+      } catch (_) {
+        dateText = m.meetingDate;
+      }
+    }
+    dateCtrl = TextEditingController(text: dateText);
+
+    // Time
+    if (m != null && m.meetingTime.isNotEmpty) {
+      selectedTime = _formatTimeForDisplay(m.meetingTime);
+    }
 
     if (m != null) {
       final statusEntry =
@@ -92,240 +113,133 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
     titleCtrl.dispose();
     agendaCtrl.dispose();
     dateCtrl.dispose();
-    timeCtrl.dispose();
     durationCtrl.dispose();
     locationCtrl.dispose();
     notesCtrl.dispose();
-    _attendeeSearchCtrl.dispose();
+    attendeeCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _pickTime() async {
-    TimeOfDay initial = TimeOfDay.now();
-    if (timeCtrl.text.isNotEmpty) {
-      final parts = timeCtrl.text.split(':');
-      if (parts.length >= 2) {
-        initial = TimeOfDay(
-          hour: int.tryParse(parts[0]) ?? 0,
-          minute: int.tryParse(parts[1]) ?? 0,
-        );
-      }
-    }
-    final picked = await showTimePicker(context: context, initialTime: initial);
-    if (picked != null) {
-      timeCtrl.text =
-          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}:00';
+  String _formatTimeForDisplay(String apiTime) {
+    try {
+      final parts = apiTime.split(':');
+      int h = int.parse(parts[0]);
+      int min = int.parse(parts[1]);
+      final period = h >= 12 ? 'PM' : 'AM';
+      if (h > 12) h -= 12;
+      if (h == 0) h = 12;
+      return '$h:${min.toString().padLeft(2, '0')} $period';
+    } catch (_) {
+      return apiTime;
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final isEdit = widget.meeting != null;
+  List<String> _timeSlots() {
+    final times = <String>[];
+    for (int h = 7; h <= 20; h++) {
+      for (int m = 0; m < 60; m += 30) {
+        final hour = h > 12 ? h - 12 : h;
+        final period = h >= 12 ? 'PM' : 'AM';
+        final minute = m.toString().padLeft(2, '0');
+        times.add('$hour:$minute $period');
+      }
+    }
+    return times;
+  }
 
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700),
-        height: 680,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    isEdit ? 'Edit Meeting' : 'Create Meeting',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    MyTextFormField(
-                      controller: titleCtrl,
-                      title: 'Meeting Title*',
-                      hintText: 'e.g. Q1 Review',
-                    ),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                      controller: agendaCtrl,
-                      title: 'Agenda*',
-                      maxLines: 3,
-                      hintText: 'Meeting agenda...',
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyDateField(
-                            controller: dateCtrl,
-                            title: 'Meeting Date*',
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: timeCtrl,
-                            title: 'Meeting Time*',
-                            hintText: 'HH:MM',
-                            readOnly: true,
-                            trailing: const Icon(Iconsax.clock,
-                                size: 18),
-                            onTap: _pickTime,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: durationCtrl,
-                            title: 'Duration (minutes)*',
-                            hintText: '60',
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyDropdown(
-                            hintText: '',
-                            title: 'Status',
-                            items: _statusItems.keys.toList(),
-                            controller: TextEditingController(
-                                text: selectedStatusLabel),
-                            onChanged: (val) =>
-                                setState(() => selectedStatusLabel = val!),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyDropdown(
-                            hintText: '',
-                            title: 'Location Type',
-                            items: _locationTypes.keys.toList(),
-                            controller: TextEditingController(
-                                text: selectedLocationLabel),
-                            onChanged: (val) =>
-                                setState(() => selectedLocationLabel = val!),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: locationCtrl,
-                            title: 'Location',
-                            hintText: 'e.g. Board Room / Zoom link',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Attendees
-                    _AttendeesField(
-                      controller: controller,
-                      selectedIds: selectedAttendeeIds,
-                      searchCtrl: _attendeeSearchCtrl,
-                      query: _attendeeQuery,
-                      onQueryChanged: (q) {
-                        setState(() => _attendeeQuery = q);
-                        if (q.length >= 2) {
-                          controller.fetchEmployees(search: q);
-                        }
-                      },
-                      onToggle: (id) => setState(() {
-                        if (selectedAttendeeIds.contains(id)) {
-                          selectedAttendeeIds.remove(id);
-                        } else {
-                          selectedAttendeeIds.add(id);
-                        }
-                      }),
-                    ),
-                    const SizedBox(height: 24),
-
-                    MyTextFormField(
-                      controller: notesCtrl,
-                      title: 'Notes',
-                      maxLines: 3,
-                      hintText: 'Additional notes...',
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-
-            // Footer
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  _isSaving
-                      ? const CircularProgressIndicator()
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset('assets/svg/check.svg',
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn)),
-                          child: isEdit ? 'Update' : 'Save',
-                          onTap: _save,
-                        ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
     );
+    if (picked != null) {
+      setState(() {
+        dateCtrl.text = DateFormat('MMM d, yyyy').format(picked);
+      });
+    }
+  }
+
+  void _addAttendeeByName() {
+    final query = attendeeCtrl.text.trim();
+    if (query.isEmpty) return;
+
+    // Try to match an employee by name or ID; if found, add them.
+    final emp = controller.employees.firstWhereOrNull((e) {
+      final fullName = '${e.firstName} ${e.lastName}'.toLowerCase();
+      final q = query.toLowerCase();
+      return fullName.contains(q) || e.id.toLowerCase() == q;
+    });
+
+    if (emp != null) {
+      final id = int.tryParse(emp.id);
+      if (id != null && !selectedAttendeeIds.contains(id)) {
+        setState(() {
+          selectedAttendeeIds.add(id);
+          attendeeCtrl.clear();
+        });
+      } else {
+        attendeeCtrl.clear();
+      }
+    } else {
+      // No match — trigger a remote search to populate.
+      controller.fetchEmployees(search: query);
+    }
+  }
+
+  void _removeAttendee(int id) {
+    setState(() => selectedAttendeeIds.remove(id));
+  }
+
+  String _attendeeLabel(int id) {
+    final emp =
+        controller.employees.firstWhereOrNull((e) => int.tryParse(e.id) == id);
+    if (emp == null) return '$id';
+    return '${emp.firstName} ${emp.lastName}'.trim().isEmpty
+        ? '$id'
+        : '${emp.firstName} ${emp.lastName}';
   }
 
   Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
     if (titleCtrl.text.isEmpty ||
         agendaCtrl.text.isEmpty ||
         dateCtrl.text.isEmpty ||
-        timeCtrl.text.isEmpty ||
+        selectedTime == null ||
         durationCtrl.text.isEmpty) {
       return;
     }
 
     setState(() => _isSaving = true);
 
+    // Convert display date to API format
+    String apiDate = '';
+    try {
+      final parsed = DateFormat('MMM d, yyyy').parse(dateCtrl.text);
+      apiDate = DateFormat('yyyy-MM-dd').format(parsed);
+    } catch (_) {
+      apiDate = dateCtrl.text;
+    }
+
+    // Convert display time to API format
+    String apiTime = '';
+    if (selectedTime != null) {
+      try {
+        final parsed = DateFormat('h:mm a').parse(selectedTime!);
+        apiTime = DateFormat('HH:mm:ss').format(parsed);
+      } catch (_) {
+        apiTime = selectedTime ?? '';
+      }
+    }
+
     final meeting = Meeting(
       id: widget.meeting?.id ?? 0,
       meetingId: widget.meeting?.meetingId ?? '',
       title: titleCtrl.text,
       agenda: agendaCtrl.text,
-      meetingDate: dateCtrl.text,
-      meetingTime: timeCtrl.text,
+      meetingDate: apiDate,
+      meetingTime: apiTime,
       durationMinutes: int.tryParse(durationCtrl.text) ?? 60,
       durationDisplay: '',
       status: _statusItems[selectedStatusLabel] ?? 'scheduled',
@@ -350,185 +264,365 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
       if (mounted) setState(() => _isSaving = false);
     }
   }
-}
-
-// ── Attendee picker widget ────────────────────────────────────────────────────
-
-class _AttendeesField extends StatelessWidget {
-  final MeetingController controller;
-  final List<int> selectedIds;
-  final TextEditingController searchCtrl;
-  final String query;
-  final ValueChanged<String> onQueryChanged;
-  final ValueChanged<int> onToggle;
-
-  const _AttendeesField({
-    required this.controller,
-    required this.selectedIds,
-    required this.searchCtrl,
-    required this.query,
-    required this.onQueryChanged,
-    required this.onToggle,
-  });
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final isLoading = controller.isLoadingEmployees.value;
-      final employees = controller.employees;
-
-      final filtered = query.isEmpty
-          ? employees
-          : employees
-              .where((e) =>
-                  '${e.firstName} ${e.lastName}'
-                      .toLowerCase()
-                      .contains(query.toLowerCase()) ||
-                  (e.id).toLowerCase().contains(query.toLowerCase()))
-              .toList();
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const MyText('Attendees', weight: 500),
-          const SizedBox(height: 8),
-
-          // Selected chips
-          if (selectedIds.isNotEmpty) ...[
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: selectedIds.map((id) {
-                final emp = employees
-                    .where((e) => int.tryParse(e.id) == id)
-                    .firstOrNull;
-                final label =
-                    emp != null ? '${emp.firstName} ${emp.lastName}' : '$id';
-                return Chip(
-                  label: Text(label, style: const TextStyle(fontSize: 12)),
-                  deleteIcon: const Icon(Iconsax.close_circle, size: 14),
-                  onDeleted: () => onToggle(id),
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  side:
-                      BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 8),
-          ],
-
-          // Search
-          TextField(
-            controller: searchCtrl,
-            onChanged: onQueryChanged,
-            decoration: InputDecoration(
-              hintText: 'Search employees by name or ID...',
-              prefixIcon:
-                  const Icon(Iconsax.search_normal, size: 18, color: Colors.grey),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0XFFD5D5D5)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0XFFD5D5D5)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppColors.primary),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-
-          // Employee list
-          Container(
-            constraints: const BoxConstraints(maxHeight: 200),
-            decoration: BoxDecoration(
-              border: Border.all(color: const Color(0XFFD5D5D5)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: isLoading
-                ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : employees.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text(
-                          'Start typing to search employees.',
-                          style: TextStyle(color: Colors.grey),
+    return DialogScaffold(
+      title: isEdit ? 'Edit Meeting' : 'Create Meeting',
+      subtitle: isEdit
+          ? 'Update meeting details, attendees, and logistics.'
+          : 'Schedule a new meeting with agenda, date, and attendees.',
+      size: DialogSize.lg,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSection(
+              title: 'Meeting details',
+              subtitle: 'Set the title, date, time, and agenda.',
+              child: Column(
+                children: [
+                  MyTextFormField(
+                    controller: titleCtrl,
+                    title: 'Meeting Title',
+                    hintText: 'e.g. Q1 Review',
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Required' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: dateCtrl,
+                          title: 'Date',
+                          hintText: 'Select date',
+                          readOnly: true,
+                          trailing: const Icon(Iconsax.calendar_1,
+                              size: 18, color: AppColors.textSecondary),
+                          onTap: _pickDate,
+                          validator: (v) =>
+                              (v == null || v.isEmpty) ? 'Required' : null,
                         ),
-                      )
-                    : filtered.isEmpty
-                        ? const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Text(
-                              'No employees match your search.',
-                              style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: MyDropdown(
+                          title: 'Time',
+                          hintText: selectedTime ?? 'Select time',
+                          items: _timeSlots(),
+                          initialSelection: selectedTime,
+                          onChanged: (val) =>
+                              setState(() => selectedTime = val),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  MyTextFormField(
+                    controller: agendaCtrl,
+                    title: 'Agenda',
+                    hintText: 'Outline the key discussion points',
+                    maxLines: 3,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Required' : null,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildSection(
+              title: 'Type & duration',
+              subtitle:
+                  'Specify the meeting type, status and how long it runs.',
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: durationCtrl,
+                          title: 'Duration (minutes)',
+                          hintText: '60',
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: MyDropdown(
+                          title: 'Status',
+                          hintText: selectedStatusLabel,
+                          items: _statusItems.keys.toList(),
+                          initialSelection: selectedStatusLabel,
+                          onChanged: (val) => setState(
+                              () => selectedStatusLabel = val ?? 'Scheduled'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: MyDropdown(
+                          title: 'Location Type',
+                          hintText: selectedLocationLabel,
+                          items: _locationTypes.keys.toList(),
+                          initialSelection: selectedLocationLabel,
+                          onChanged: (val) => setState(
+                              () => selectedLocationLabel = val ?? 'Physical'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: locationCtrl,
+                          title: 'Location',
+                          hintText: 'e.g. Board Room / Zoom link',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildSection(
+              title: 'Attendees',
+              subtitle: 'Add the people expected to attend this meeting.',
+              child: Obx(() {
+                // Touch employees so chip names update when fetch completes.
+                final _ = controller.employees.length;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (selectedAttendeeIds.isNotEmpty) ...[
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: selectedAttendeeIds.map((id) {
+                          return Chip(
+                            label: Text(
+                              _attendeeLabel(id),
+                              style: AppText.bodySm
+                                  .copyWith(fontWeight: FontWeight.w500),
                             ),
-                          )
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: filtered.length,
-                            separatorBuilder: (_, __) => const Divider(
-                                height: 1, color: Color(0XFFD5D5D5)),
-                            itemBuilder: (ctx, i) {
-                              final emp = filtered[i];
-                              final userId = int.tryParse(emp.id) ?? 0;
-                              final isSelected = selectedIds.contains(userId);
-                              return InkWell(
-                                onTap: () => onToggle(userId),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                  child: Row(
-                                    children: [
-                                      Checkbox(
-                                        value: isSelected,
-                                        onChanged: (_) => onToggle(userId),
-                                        activeColor: AppColors.primary,
-                                        materialTapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                        visualDensity: VisualDensity.compact,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${emp.firstName} ${emp.lastName}',
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                            Text(
-                                              emp.id,
-                                              style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
+                            deleteIcon: const Icon(Iconsax.close_circle,
+                                size: 16),
+                            onDeleted: () => _removeAttendee(id),
+                            backgroundColor: AppColors.primarySubtle,
+                            side: const BorderSide(
+                                color: AppColors.primarySubtle),
+                            shape: const RoundedRectangleBorder(
+                                borderRadius: AppRadii.brPill),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: MyTextFormField(
+                            controller: attendeeCtrl,
+                            hintText: 'Search employee by name or ID',
+                            onChanged: (q) {
+                              if (q.length >= 2) {
+                                controller.fetchEmployees(search: q);
+                              }
                             },
                           ),
-          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Material(
+                          color: AppColors.primary,
+                          borderRadius: AppRadii.brMd,
+                          child: InkWell(
+                            borderRadius: AppRadii.brMd,
+                            onTap: _addAttendeeByName,
+                            child: Container(
+                              width: 50,
+                              height: 50,
+                              alignment: Alignment.center,
+                              child: const Icon(Iconsax.add,
+                                  color: AppColors.textOnPrimary, size: 20),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (controller.isLoadingEmployees.value) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Searching employees...',
+                            style: AppText.bodySm
+                                .copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (attendeeCtrl.text.length >= 2 &&
+                        !controller.isLoadingEmployees.value &&
+                        controller.employees.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 180),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: AppRadii.brMd,
+                          border: Border.all(color: AppColors.borderSubtle),
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: controller.employees.length,
+                          separatorBuilder: (_, __) => const Divider(
+                              height: 1, color: AppColors.borderSubtle),
+                          itemBuilder: (ctx, i) {
+                            final emp = controller.employees[i];
+                            final userId = int.tryParse(emp.id) ?? 0;
+                            final isSelected =
+                                selectedAttendeeIds.contains(userId);
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedAttendeeIds.remove(userId);
+                                  } else {
+                                    selectedAttendeeIds.add(userId);
+                                  }
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: isSelected,
+                                      onChanged: (_) {
+                                        setState(() {
+                                          if (isSelected) {
+                                            selectedAttendeeIds
+                                                .remove(userId);
+                                          } else {
+                                            selectedAttendeeIds.add(userId);
+                                          }
+                                        });
+                                      },
+                                      activeColor: AppColors.primary,
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${emp.firstName} ${emp.lastName}',
+                                            style: AppText.bodyMd.copyWith(
+                                              color: AppColors.textPrimary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            emp.id,
+                                            style: AppText.bodySm.copyWith(
+                                                color:
+                                                    AppColors.textSecondary),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              }),
+            ),
+            const SizedBox(height: 20),
+            _buildSection(
+              title: 'Notes',
+              child: MyTextFormField(
+                controller: notesCtrl,
+                title: 'Additional notes',
+                hintText: 'Optional notes',
+                maxLines: 3,
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          width: 140,
+          height: 44,
+          child: _isSaving ? 'Saving...' : (isEdit ? 'Update' : 'Save'),
+          icon: _isSaving
+              ? null
+              : const Icon(Iconsax.tick_circle,
+                  size: 18, color: AppColors.textOnPrimary),
+          onTap: _isSaving ? null : _save,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
         ],
-      );
-    });
+      ),
+    );
   }
 }

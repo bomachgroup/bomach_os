@@ -1,12 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/jobposting_control.dart';
@@ -48,9 +50,9 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.primary, // Blue header
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
+              primary: AppColors.primary,
+              onPrimary: AppColors.textOnPrimary,
+              onSurface: AppColors.textPrimary,
             ),
           ),
           child: child!,
@@ -68,221 +70,202 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700, maxHeight: 850),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final isEditing = widget.job != null;
+
+    return DialogScaffold(
+      title: isEditing ? 'Edit Job Posting' : 'Create New Job Posting',
+      subtitle: isEditing
+          ? 'Update the details of this job posting.'
+          : 'Publish a new role to the recruiting pipeline.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildSection(
+            title: 'Role overview',
+            children: [
+              MyTextFormField(
+                controller: controller.titleController,
+                hintText: 'e.g. Senior Product Designer',
+                title: 'Job Title',
+              ),
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  MyText(
-                    widget.job == null
-                        ? 'Create New Job Posting'
-                        : 'Edit Job Posting',
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle, color: Colors.grey),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.neutral100),
-
-            // Form Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    // Job Title
-                    MyTextFormField(
-                      controller: controller.titleController,
-                      hintText: 'e.g. Senior Product Designer',
-                      title: 'Job Title',
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: controller.departmentController,
+                      hintText: 'e.g. IT',
+                      title: 'Department',
                     ),
-                    const SizedBox(height: 16),
-
-                    // Department & Location
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: controller.departmentController,
-                            hintText: 'e.g. IT',
-                            title: 'Department',
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: controller.branchController,
-                            hintText:
-                                'Select', // In real app, make this a dropdown
-                            title: 'Location',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Employment Type & Vacancies
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Obx(() => MyDropdown(
-                                items: const [
-                                  'Full-Time',
-                                  'Part-Time',
-                                  'Contract'
-                                ],
-                                hintText: controller.selectedJobType.value,
-                                title: 'Employment Type',
-                                onChanged: (val) {
-                                  if (val != null)
-                                    controller.selectedJobType.value = val;
-                                },
-                              )),
-                        ),
-                        const SizedBox(width: 16),
-                        // Using Max Salary controller for vacancies temporarily or add new controller
-                        const Expanded(
-                          child: MyTextFormField(
-                            // controller: controller.vacanciesController, // Add this to controller if needed
-                            hintText: '1',
-                            title: 'Vacancies',
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Salary Min & Max
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: controller.minSalaryController,
-                            hintText: 'e.g 200000',
-                            title: 'Salary Min',
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: controller.maxSalaryController,
-                            hintText: 'e.g 500000',
-                            title: 'Salary Max',
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Deadline & Status
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _selectDate(context),
-                            child: AbsorbPointer(
-                              child: MyTextFormField(
-                                controller: controller.deadlineController,
-                                hintText: 'dd/mm/yyyy',
-                                title: 'Application Deadline',
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Obx(() => MyDropdown(
-                                items: const ['Active', 'Draft', 'Closed'],
-                                hintText: controller.selectedStatus.value,
-                                title: 'Status',
-                                onChanged: (val) {
-                                  if (val != null)
-                                    controller.selectedStatus.value = val;
-                                },
-                              )),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Description
-                    MyTextFormField(
-                      controller: controller.descriptionController,
-                      hintText: "Type here",
-                      maxLines: 4,
-                      title: 'Job Description',
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Responsibilities
-                    MyTextFormField(
-                      controller: controller.responsibilitiesController,
-                      hintText: "Lead backend dev, Code reviews, Architecture",
-                      maxLines: 3,
-                      title: 'Responsibilities (Comma Separated)',
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Requirements
-                    MyTextFormField(
-                      controller: controller.requirementsController,
-                      hintText: "5+ years Node.js, AWS, PostgreSQL",
-                      maxLines: 3,
-                      title: 'Requirements (Comma Separated)',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Footer
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: AppColors.neutral100)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: Colors.black87,
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        width: 140,
-                        bgColor: AppColors.primary,
-                        child: controller.isSaving.value
-                            ? 'Saving...'
-                            : 'Save changes',
-                        onTap: controller.isSaving.value
-                            ? () {}
-                            : () =>
-                                controller.saveJob(context, id: widget.job?.id),
-                      )),
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: controller.branchController,
+                      hintText: 'Select',
+                      title: 'Location',
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Obx(() => MyDropdown(
+                          items: const ['Full-Time', 'Part-Time', 'Contract'],
+                          hintText: controller.selectedJobType.value,
+                          title: 'Employment Type',
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.selectedJobType.value = val;
+                            }
+                          },
+                        )),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: MyTextFormField(
+                      hintText: '1',
+                      title: 'Vacancies',
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Compensation & timing',
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: controller.minSalaryController,
+                      hintText: 'e.g 200000',
+                      title: 'Salary Min',
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: controller.maxSalaryController,
+                      hintText: 'e.g 500000',
+                      title: 'Salary Max',
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: AbsorbPointer(
+                        child: MyTextFormField(
+                          controller: controller.deadlineController,
+                          hintText: 'dd/mm/yyyy',
+                          title: 'Application Deadline',
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Obx(() => MyDropdown(
+                          items: const ['Active', 'Draft', 'Closed'],
+                          hintText: controller.selectedStatus.value,
+                          title: 'Status',
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.selectedStatus.value = val;
+                            }
+                          },
+                        )),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Job details',
+            children: [
+              MyTextFormField(
+                controller: controller.descriptionController,
+                hintText: 'Type here',
+                maxLines: 4,
+                title: 'Job Description',
+              ),
+              const SizedBox(height: 16),
+              MyTextFormField(
+                controller: controller.responsibilitiesController,
+                hintText: 'Lead backend dev, Code reviews, Architecture',
+                maxLines: 3,
+                title: 'Responsibilities (Comma Separated)',
+              ),
+              const SizedBox(height: 16),
+              MyTextFormField(
+                controller: controller.requirementsController,
+                hintText: '5+ years Node.js, AWS, PostgreSQL',
+                maxLines: 3,
+                title: 'Requirements (Comma Separated)',
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
+        Obx(() => MyElevatedButton(
+              height: 44,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              isLoading: controller.isSaving.value,
+              icon: const Icon(Iconsax.tick_circle,
+                  size: 18, color: AppColors.textOnPrimary),
+              child: controller.isSaving.value ? 'Saving...' : 'Save changes',
+              onTap: controller.isSaving.value
+                  ? () {}
+                  : () => controller.saveJob(context, id: widget.job?.id),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 16),
+          ...children,
+        ],
       ),
     );
   }

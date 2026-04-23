@@ -8,10 +8,14 @@ import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/pages/hr/widget/add_leave_request_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 
 import 'controller/leave_request_controller.dart';
 import 'models/leave_request_model.dart';
@@ -27,12 +31,6 @@ class LeaveRequestPage extends StatefulWidget {
 class LeaveRequestPageState extends State<LeaveRequestPage> {
   final ScrollController _scrollController = ScrollController();
   final LeaveRequestController _ctrl = Get.put(LeaveRequestController());
-
-  // Colors
-  final Color _orangeColor = AppColors.warning;
-  final Color _blueColor = AppColors.primary;
-  final Color _greenColor = AppColors.success;
-  final Color _redColor = AppColors.danger;
 
   @override
   void initState() {
@@ -58,35 +56,25 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.neutral200),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              ),
-              child: const Text(
-                "Leave Policy",
-                style: TextStyle(color: Colors.black87),
-              ),
+            MyOutlinedButton(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: 'Leave Policy',
+              onTap: () {},
             ),
             const SizedBox(width: 12),
             MyElevatedButton(
+              height: 48,
               icon: const Icon(
                 Iconsax.add_circle,
-                color: AppColors.white,
+                color: AppColors.textOnPrimary,
                 size: 20,
               ),
               child: "Leave Application",
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) {
-                    return const AddLeaveRequestDialog();
-                  },
+                  builder: (context) => const AddLeaveRequestDialog(),
                 );
               },
             ),
@@ -97,29 +85,29 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
         // --- 2. Stats Cards Section ---
         Obx(() => ResponsiveStatRow(
               cards: [
-                _buildStatCard(
+                _StatCard(
                   title: 'Pending Requests',
                   count: _ctrl.stats['pending'].toString(),
-                  borderColor: _orangeColor,
-                  countColor: _orangeColor,
+                  icon: Iconsax.timer,
+                  accent: AppColors.warning,
                 ),
-                _buildStatCard(
+                _StatCard(
                   title: 'On Leave Today',
                   count: _ctrl.stats['onLeave'].toString(),
-                  borderColor: _blueColor,
-                  countColor: _blueColor,
+                  icon: Iconsax.user_tag,
+                  accent: AppColors.primary,
                 ),
-                _buildStatCard(
+                _StatCard(
                   title: 'Approved This Month',
                   count: _ctrl.stats['approved'].toString(),
-                  borderColor: _greenColor,
-                  countColor: _greenColor,
+                  icon: Iconsax.tick_circle,
+                  accent: AppColors.success,
                 ),
-                _buildStatCard(
+                _StatCard(
                   title: 'Rejected',
                   count: _ctrl.stats['rejected'].toString(),
-                  borderColor: _redColor,
-                  countColor: _redColor,
+                  icon: Iconsax.close_circle,
+                  accent: AppColors.danger,
                 ),
               ],
             )),
@@ -139,68 +127,60 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
         const SizedBox(height: 24),
 
         // --- 4. Filters & Table Section ---
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ],
-          ),
+        AppCard(
+          padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Filters Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // --- Search Field ---
-                  SizedBox(
-                    width: 300,
-                    child: MyTextFormField(
-                      controller: _ctrl.searchController,
-                      hintText: 'Search...',
-                      leading: Icon(
-                        Iconsax.search_normal,
-                        color: AppColors.neutral500.withValues(alpha: 0.5),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // --- Search Field ---
+                    SizedBox(
+                      width: 300,
+                      child: MyTextFormField(
+                        controller: _ctrl.searchController,
+                        hintText: 'Search...',
+                        leading: Icon(
+                          Iconsax.search_normal,
+                          color: AppColors.textMuted.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
-                  ),
 
-                  // --- Status Filter (Dropdown) ---
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                        color: AppColors.neutral50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade200)),
-                    child: Obx(() => DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _ctrl.selectedStatusFilter.value,
-                            icon: const Icon(Iconsax.arrow_down_1,
-                                size: 18, color: Colors.black54),
-                            elevation: 4,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.black87),
-                            onChanged: (String? newValue) {
-                              _ctrl.updateStatusFilter(newValue, context);
-                            },
-                            items: _ctrl.filterStatusOptions
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        )),
-                  ),
-                ],
+                    // --- Status Filter (Dropdown) ---
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                          color: AppColors.surfaceMuted,
+                          borderRadius: AppRadii.brMd,
+                          border: Border.all(color: AppColors.borderSubtle)),
+                      child: Obx(() => DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _ctrl.selectedStatusFilter.value,
+                              icon: const Icon(Iconsax.arrow_down_1,
+                                  size: 18, color: AppColors.textSecondary),
+                              elevation: 4,
+                              style: AppText.bodySm.copyWith(
+                                  color: AppColors.textPrimary),
+                              onChanged: (String? newValue) {
+                                _ctrl.updateStatusFilter(newValue, context);
+                              },
+                              items: _ctrl.filterStatusOptions
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -220,7 +200,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                         const Icon(Iconsax.danger,
                             size: 48, color: AppColors.danger),
                         const SizedBox(height: 8),
-                        Text(_ctrl.errorMessage.value),
+                        Text(_ctrl.errorMessage.value, style: AppText.bodyMd),
                         TextButton(
                             onPressed: () => _ctrl.fetchLeaveRequests(context),
                             child: const Text("Retry"))
@@ -232,7 +212,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                 if (_ctrl.leaveList.isEmpty) {
                   return const SizedBox(
                     height: 200,
-                    child: Center(child: Text("No records found")),
+                    child: Center(child: Text("No records found", style: AppText.bodyMd)),
                   );
                 }
 
@@ -251,12 +231,11 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                             WidgetStateProperty.all(Colors.transparent),
                         dataRowColor:
                             WidgetStateProperty.all(Colors.transparent),
-                        columnSpacing: 20,
-                        horizontalMargin: 0,
-                        headingTextStyle: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
-                            fontSize: 14),
+                        columnSpacing: 24,
+                        horizontalMargin: 20,
+                        headingTextStyle: AppText.label.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 13),
                         dataRowMaxHeight: 72,
                         columns: _createColumns(),
                         rows: _createRows(context, _ctrl.leaveList),
@@ -269,20 +248,23 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
               const SizedBox(height: 16),
 
               // --- 5. Pagination Footer ---
-              const Divider(color: AppColors.neutral100),
-              const SizedBox(height: 16),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              const SizedBox(height: 12),
 
-              Obx(() => PaginatorFooter(
-                    totalItems: _ctrl.totalCount.value,
-                    limit: _ctrl.itemsPerPage.value,
-                    currentPage: _ctrl.currentPage.value,
-                    onPageChanged: (newPage) {
-                      _ctrl.changePage(newPage, context);
-                    },
-                    onLimitChanged: (newLimit) {
-                      _ctrl.changeLimit(newLimit, context);
-                    },
-                  )),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Obx(() => PaginatorFooter(
+                      totalItems: _ctrl.totalCount.value,
+                      limit: _ctrl.itemsPerPage.value,
+                      currentPage: _ctrl.currentPage.value,
+                      onPageChanged: (newPage) {
+                        _ctrl.changePage(newPage, context);
+                      },
+                      onLimitChanged: (newLimit) {
+                        _ctrl.changeLimit(newLimit, context);
+                      },
+                    )),
+              ),
             ],
           ),
         ),
@@ -292,53 +274,23 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
 
   // --- Helper Widgets ---
 
-  Widget _buildStatCard({
-    required String title,
-    required String count,
-    required Color borderColor,
-    required Color countColor,
-  }) {
-    return AppCard(
-      padding: const EdgeInsets.all(20),
-      borderColor: borderColor,
-      showBorder: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
-          const SizedBox(height: 12),
-          Text(count,
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: countColor)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTabButton(String text, bool isActive) {
     return InkWell(
       onTap: () => _ctrl.setActiveTab(text, context),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppRadii.brPill,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? _blueColor : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border:
-              Border.all(color: isActive ? _blueColor : AppColors.neutral200),
+          color: isActive ? AppColors.primary : AppColors.surface,
+          borderRadius: AppRadii.brPill,
+          border: Border.all(
+              color: isActive ? AppColors.primary : AppColors.borderSubtle),
         ),
         child: Text(
           text,
-          style: TextStyle(
-            color: isActive ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
+          style: AppText.bodySm.copyWith(
+            color: isActive ? AppColors.textOnPrimary : AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -374,10 +326,10 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             Row(
               children: [
                 const CircleAvatar(
-                  backgroundColor: AppColors.neutral100,
+                  backgroundColor: AppColors.surfaceMuted,
                   radius: 18,
                   child: Icon(Iconsax.profile_circle,
-                      color: Colors.grey, size: 20),
+                      color: AppColors.textMuted, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Column(
@@ -386,12 +338,12 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                   children: [
                     Text(
                       r.employeeId,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14),
+                      style: AppText.bodyMd.copyWith(
+                          fontWeight: FontWeight.w600),
                     ),
-                    const Text(
+                    Text(
                       "Software Engineer",
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                      style: AppText.caption.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -401,7 +353,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
           DataCell(Text(
             toBeginningOfSentenceCase(r.leaveType.replaceAll('_', ' ')) ??
                 r.leaveType,
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
           )),
           DataCell(Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -409,34 +361,33 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
             children: [
               Text(
                 r.startDate != null
-                    ? DateFormat('yyyy-MM-dd').format(r.startDate!)
+                    ? DateFormat('dd MMM yyyy').format(r.startDate!)
                     : '',
-                style: const TextStyle(fontSize: 13),
+                style: AppText.bodySm,
               ),
               Text(
-                "to ${r.endDate != null ? DateFormat('yyyy-MM-dd').format(r.endDate!) : ''}",
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                "to ${r.endDate != null ? DateFormat('dd MMM yyyy').format(r.endDate!) : ''}",
+                style: AppText.caption.copyWith(color: AppColors.textSecondary),
               ),
             ],
           )),
-          DataCell(Text(duration.toString())),
+          DataCell(Text(duration.toString(), style: AppText.bodyMd)),
           DataCell(SizedBox(
             width: 150,
             child: Text(
               r.reason ?? "No reason",
+              style: AppText.bodySm,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
           )),
-          DataCell(_buildStatusBadge(status)),
+          DataCell(StatusChip.fromStatus(status)),
           DataCell(
             ThreeDotPop(
               onTapView: () {
                 showDialog(
                   context: context,
-                  builder: (context) {
-                    return ViewLeaveRequestDialog(request: r);
-                  },
+                  builder: (context) => ViewLeaveRequestDialog(request: r),
                 );
               },
               onTapEdit: () {
@@ -451,48 +402,57 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
       );
     }).toList();
   }
+}
 
-  Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color text;
-    String label;
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String count;
+  final IconData icon;
+  final Color accent;
 
-    if (status == 'approved') {
-      bg = _greenColor.withValues(alpha: 0.1);
-      text = _greenColor;
-      label = "Approved";
-    } else if (status == 'rejected') {
-      bg = _redColor.withValues(alpha: 0.1);
-      text = _redColor;
-      label = "Rejected";
-    } else {
-      bg = _orangeColor.withValues(alpha: 0.1);
-      text = _orangeColor;
-      label = "Pending";
-    }
+  const _StatCard({
+    required this.title,
+    required this.count,
+    required this.icon,
+    required this.accent,
+  });
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(color: text, shape: BoxShape.circle),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: Icon(icon, size: 18, color: accent),
+              ),
+              const Spacer(),
+            ],
           ),
-          const SizedBox(width: 8),
+          const SizedBox(height: 16),
           Text(
-            label,
-            style: TextStyle(
-                color: text, fontSize: 12, fontWeight: FontWeight.w600),
+            title,
+            style: AppText.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-          const SizedBox(width: 4),
-          Icon(Iconsax.arrow_down_1, size: 14, color: text)
+          const SizedBox(height: 4),
+          Text(
+            count,
+            style: AppText.h1.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );

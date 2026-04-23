@@ -1,10 +1,13 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/disciplinary_controller.dart';
@@ -25,127 +28,239 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final DisciplinaryController controller = Get.find();
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: Colors.white,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return DialogScaffold(
+      title: kase.violationTitle.isNotEmpty
+          ? kase.violationTitle
+          : 'Disciplinary Case',
+      subtitle: 'Case details and action history',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(kase),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Case information',
             children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: AppColors.neutral200)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const MyText('Case Details', size: 20, weight: 600),
-                    IconButton(
-                        icon: const Icon(Iconsax.close_circle),
-                        onPressed: () => Navigator.pop(context)),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    _buildRow('Employee ID', kase.employeeId),
-                    _buildRow('Violation Title', kase.violationTitle),
-                    _buildRow('Category', kase.violationCategory),
-                    _buildRow('Action Type', kase.actionType,
-                        isHighlight: true),
-                    _buildRow(
-                        'Action Date',
-                        kase.actionDate != null
-                            ? DateFormat('yyyy-MM-dd').format(kase.actionDate!)
-                            : '-'),
-                    const SizedBox(height: 16),
-                    _buildSection('Description', kase.violationDescription),
-                    _buildSection('Investigation Details',
-                        kase.investigationDetails ?? 'None provided'),
-                    if (kase.severancePaymentDue)
-                      _buildRow('Severance Amount',
-                          kase.severanceAmount?.toStringAsFixed(2) ?? '0.00'),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                    border:
-                        Border(top: BorderSide(color: Colors.grey.shade300))),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyOutlinedButton(
-                      textColor: AppColors.danger,
-                      child: 'Delete',
-                      onTap: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (c) => AlertDialog(
-                            title: const Text('Delete Case'),
-                            content: const Text(
-                                'Are you sure you want to delete this case?'),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Navigator.pop(c, false),
-                                  child: const Text('No')),
-                              TextButton(
-                                  onPressed: () => Navigator.pop(c, true),
-                                  child: const Text('Yes')),
-                            ],
-                          ),
-                        );
-
-                        if (confirm == true) {
-                          await controller.deleteCase(token, kase.id);
-                          if (context.mounted) Navigator.pop(context);
-                        }
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    MyElevatedButton(
-                      child: 'Edit',
-                      onTap: () {
-                        Navigator.pop(context);
-                        showDialog(
-                          context: context,
-                          builder: (c) => AddDisciplinaryCaseDialog(
-                              token: token, caseToEdit: kase),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+              _detailRow('Employee ID', kase.employeeId),
+              _detailRow(
+                  'Violation Title',
+                  kase.violationTitle.isNotEmpty
+                      ? kase.violationTitle
+                      : '—'),
+              _detailRow(
+                  'Category',
+                  kase.violationCategory.isNotEmpty
+                      ? kase.violationCategory
+                      : '—'),
+              _detailRow('Action Type',
+                  kase.actionType.isNotEmpty ? kase.actionType : '—'),
+              _detailRow(
+                'Action Date',
+                kase.actionDate != null
+                    ? DateFormat('MMM d, yyyy').format(kase.actionDate!)
+                    : '—',
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Description',
+            children: [
+              Text(
+                kase.violationDescription.isNotEmpty
+                    ? kase.violationDescription
+                    : 'No description provided',
+                style: AppText.bodyMd,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Investigation Details',
+            children: [
+              Text(
+                (kase.investigationDetails != null &&
+                        kase.investigationDetails!.isNotEmpty)
+                    ? kase.investigationDetails!
+                    : 'None provided',
+                style: AppText.bodyMd,
+              ),
+            ],
+          ),
+          if (kase.severancePaymentDue) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Severance',
+              children: [
+                _detailRow(
+                  'Severance Amount',
+                  kase.severanceAmount?.toStringAsFixed(2) ?? '0.00',
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.danger,
+          borderColor: AppColors.danger,
+          child: 'Delete',
+          onTap: () async {
+            final confirm = await DialogScaffold.show<bool>(
+              context,
+              title: 'Delete Case',
+              size: DialogSize.sm,
+              body: const Text(
+                'Are you sure you want to delete this disciplinary case? This action cannot be undone.',
+                style: AppText.bodyMd,
+              ),
+              actions: [
+                MyOutlinedButton(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 12),
+                  textColor: AppColors.textSecondary,
+                  borderColor: AppColors.borderStrong,
+                  child: 'No',
+                  onTap: () => Navigator.pop(context, false),
+                ),
+                MyElevatedButton(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 12),
+                  bgColor: AppColors.danger,
+                  child: 'Yes, Delete',
+                  onTap: () => Navigator.pop(context, true),
+                ),
+              ],
+            );
+
+            if (confirm == true) {
+              await controller.deleteCase(token, kase.id);
+              if (context.mounted) Navigator.pop(context);
+            }
+          },
         ),
+        MyElevatedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          child: 'Edit',
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (c) => AddDisciplinaryCaseDialog(
+                  token: token, caseToEdit: kase),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBanner(DisciplinaryCase c) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.warningSubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            child: const Icon(Iconsax.warning_2,
+                color: AppColors.warning, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  c.violationTitle.isNotEmpty
+                      ? c.violationTitle
+                      : 'Disciplinary case',
+                  style: AppText.h3,
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (c.actionType.isNotEmpty)
+                      StatusChip(
+                        label: c.actionType,
+                        tone: _actionTone(c.actionType),
+                        icon: Iconsax.shield_tick,
+                      ),
+                    if (c.violationCategory.isNotEmpty)
+                      StatusChip(
+                        label: c.violationCategory,
+                        tone: _severityTone(c.violationCategory),
+                        icon: Iconsax.tag,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildRow(String label, String value, {bool isHighlight = false}) {
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 150,
-            child: MyText(label, color: Colors.grey.shade600, size: 14),
+            width: 160,
+            child: Text(
+              label,
+              style:
+                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
           ),
           Expanded(
-            child: MyText(
-              value,
-              size: 14,
-              color: isHighlight ? AppColors.primary : Colors.black,
+            child: Text(
+              value.isEmpty ? '—' : value,
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -153,26 +268,25 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MyText(title, size: 14),
-          const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: MyText(content, size: 14),
-          ),
-        ],
-      ),
-    );
+  StatusTone _actionTone(String actionType) {
+    final s = actionType.toLowerCase();
+    if (s.contains('verbal')) return StatusTone.info;
+    if (s.contains('final')) return StatusTone.danger;
+    if (s.contains('written')) return StatusTone.warning;
+    if (s.contains('suspension')) return StatusTone.warning;
+    if (s.contains('termination') || s.contains('dismissal')) {
+      return StatusTone.danger;
+    }
+    return StatusTone.neutral;
+  }
+
+  StatusTone _severityTone(String category) {
+    final s = category.toLowerCase();
+    if (s.contains('gross')) return StatusTone.danger;
+    if (s.contains('misconduct') || s.contains('performance')) {
+      return StatusTone.warning;
+    }
+    if (s.contains('attendance')) return StatusTone.info;
+    return StatusTone.neutral;
   }
 }

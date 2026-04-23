@@ -1,9 +1,14 @@
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/biometrics_controller.dart';
 import '../models/workspace_model.dart';
@@ -22,212 +27,271 @@ class WorkspaceDetailsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (statusColor, statusBg, statusIcon) = _statusStyles(workspace.status);
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: Colors.white,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 620),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return DialogScaffold(
+      title: 'Workspace details',
+      subtitle: workspace.workspaceName,
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(workspace),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Location',
+            children: [
+              _detailRow(
+                'Coordinates',
+                '${workspace.latitude.toStringAsFixed(6)}, '
+                    '${workspace.longitude.toStringAsFixed(6)}',
+              ),
+              if (workspace.branchName != null &&
+                  workspace.branchName!.isNotEmpty)
+                _detailRow('Branch', workspace.branchName!),
+              if (workspace.createdAt != null)
+                _detailRow('Submitted', _formatDate(workspace.createdAt!)),
+            ],
+          ),
+          if (workspace.status == WorkspaceStatus.approved) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Approval',
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Iconsax.location,
-                          color: AppColors.primary, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    const MyText(
-                      'Workspace Details',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Iconsax.close_circle),
-                  onPressed: () => Navigator.pop(context),
+                if (workspace.verifiedByName != null)
+                  _detailRow('Approved by', workspace.verifiedByName!),
+                if (workspace.verifiedAt != null)
+                  _detailRow('Approved at', _formatDate(workspace.verifiedAt!)),
+                if (workspace.expiresAt != null)
+                  _detailRow('Expires', _formatDate(workspace.expiresAt!)),
+              ],
+            ),
+          ],
+          if (workspace.status == WorkspaceStatus.rejected &&
+              workspace.rejectionReason != null &&
+              workspace.rejectionReason!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Rejection reason',
+              children: [
+                Text(
+                  workspace.rejectionReason!,
+                  style: AppText.bodyMd.copyWith(
+                    color: AppColors.danger,
+                    height: 1.5,
+                  ),
                 ),
               ],
             ),
-            const Divider(height: 24),
+          ],
+          if (workspace.notes.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Notes',
+              children: [
+                Text(
+                  workspace.notes,
+                  style: AppText.bodyMd
+                      .copyWith(color: AppColors.textPrimary, height: 1.5),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        Obx(() {
+          final deleting = Get.find<BiometricsController>()
+              .isDeletingWorkspace
+              .value;
+          return MyOutlinedButton(
+            child: 'Close',
+            height: 44,
+            onTap: deleting ? null : () => Navigator.pop(context),
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+          );
+        }),
+        Obx(() {
+          final deleting = Get.find<BiometricsController>()
+              .isDeletingWorkspace
+              .value;
+          return MyElevatedButton(
+            width: 140,
+            height: 44,
+            child: deleting ? 'Deleting...' : 'Delete',
+            icon: deleting
+                ? null
+                : const Icon(Iconsax.trash,
+                    size: 18, color: AppColors.textOnPrimary),
+            bgColor: AppColors.danger,
+            onTap: deleting ? null : () => _confirmDelete(context),
+          );
+        }),
+      ],
+    );
+  }
 
-            // Body
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildSummaryBanner(WorkspaceConfig workspace) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            child: const Icon(Iconsax.location,
+                color: AppColors.primary, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(workspace.workspaceName, style: AppText.h3),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    // Status badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: statusBg,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(statusIcon, size: 14, color: statusColor),
-                          const SizedBox(width: 6),
-                          Text(
-                            workspace.status.label.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: statusColor,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
+                    StatusChip(
+                      label: workspace.status.label,
+                      tone: _statusTone(workspace.status),
+                      icon: _statusIcon(workspace.status),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Name
-                    Text(
-                      workspace.workspaceName,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.neutral900,
+                    if (workspace.locationType.isNotEmpty)
+                      _metaChip(
+                        icon: Iconsax.tag,
+                        label: workspace.locationType,
                       ),
-                    ),
                     if (workspace.branchName != null &&
-                        workspace.branchName!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        workspace.branchName!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.neutral500,
-                        ),
+                        workspace.branchName!.isNotEmpty)
+                      _metaChip(
+                        icon: Iconsax.building,
+                        label: workspace.branchName!,
                       ),
-                    ],
-                    const SizedBox(height: 24),
-
-                    // Fields
-                    _kv('Coordinates',
-                        '${workspace.latitude.toStringAsFixed(6)}, '
-                            '${workspace.longitude.toStringAsFixed(6)}'),
-                    if (workspace.createdAt != null)
-                      _kv('Submitted', _formatDate(workspace.createdAt!)),
-                    if (workspace.status == WorkspaceStatus.approved) ...[
-                      if (workspace.verifiedByName != null)
-                        _kv('Approved by', workspace.verifiedByName!),
-                      if (workspace.verifiedAt != null)
-                        _kv('Approved at', _formatDate(workspace.verifiedAt!)),
-                      if (workspace.expiresAt != null)
-                        _kv('Expires', _formatDate(workspace.expiresAt!)),
-                    ],
-                    if (workspace.status == WorkspaceStatus.rejected &&
-                        workspace.rejectionReason != null &&
-                        workspace.rejectionReason!.isNotEmpty)
-                      _kv('Rejection reason', workspace.rejectionReason!,
-                          valueColor: AppColors.danger),
-                    if (workspace.notes.isNotEmpty)
-                      _kv('Notes', workspace.notes),
                   ],
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _metaChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppText.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style:
+                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '—' : value,
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            // Actions
-            Obx(() {
-              final deleting = Get.find<BiometricsController>()
-                  .isDeletingWorkspace
-                  .value;
-              return Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed:
-                          deleting ? null : () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Close'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed:
-                          deleting ? null : () => _confirmDelete(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.danger,
-                        side: const BorderSide(color: AppColors.danger),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      icon: deleting
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.danger,
-                              ),
-                            )
-                          : const Icon(Iconsax.trash, size: 18),
-                      label: const Text(
-                        'Delete',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Delete workspace?'),
-        content: Text(
-          'Remove "${workspace.workspaceName}" from your submissions? '
-          'This cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(c, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
+    final confirmed = await DialogScaffold.show<bool>(
+      context,
+      title: 'Delete workspace?',
+      subtitle: 'This action cannot be undone.',
+      size: DialogSize.sm,
+      body: Text(
+        'Remove "${workspace.workspaceName}" from your submissions?',
+        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context, false),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          width: 140,
+          height: 44,
+          child: 'Delete',
+          icon: const Icon(Iconsax.trash,
+              size: 18, color: AppColors.textOnPrimary),
+          bgColor: AppColors.danger,
+          onTap: () => Navigator.pop(context, true),
+        ),
+      ],
     );
     if (confirmed != true) return;
     if (workspace.id == null) return;
@@ -236,68 +300,38 @@ class WorkspaceDetailsDialog extends StatelessWidget {
     final success = await controller.deleteWorkspace(token, workspace.id!);
     if (!context.mounted) return;
     Navigator.of(context).pop();
-    AppToast.info(context, success
+    AppToast.info(
+      context,
+      success
           ? controller.successMessage.value
-          : controller.errorMessage.value);
+          : controller.errorMessage.value,
+    );
   }
 
-  (Color, Color, IconData) _statusStyles(WorkspaceStatus s) {
+  StatusTone _statusTone(WorkspaceStatus s) {
     switch (s) {
       case WorkspaceStatus.approved:
-        return (
-          AppColors.success,
-          AppColors.success.withValues(alpha: 0.1),
-          Iconsax.tick_circle,
-        );
+        return StatusTone.success;
       case WorkspaceStatus.pending:
-        return (
-          AppColors.warning,
-          AppColors.warning.withValues(alpha: 0.1),
-          Iconsax.timer,
-        );
+        return StatusTone.warning;
       case WorkspaceStatus.rejected:
-        return (
-          AppColors.danger,
-          AppColors.danger.withValues(alpha: 0.1),
-          Iconsax.close_circle,
-        );
+        return StatusTone.danger;
       case WorkspaceStatus.unknown:
-        return (
-          AppColors.neutral500,
-          AppColors.neutral500.withValues(alpha: 0.1),
-          Iconsax.info_circle,
-        );
+        return StatusTone.neutral;
     }
   }
 
-  Widget _kv(String label, String value, {Color? valueColor}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppColors.neutral400,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: valueColor ?? AppColors.neutral900,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
+  IconData _statusIcon(WorkspaceStatus s) {
+    switch (s) {
+      case WorkspaceStatus.approved:
+        return Iconsax.tick_circle;
+      case WorkspaceStatus.pending:
+        return Iconsax.timer;
+      case WorkspaceStatus.rejected:
+        return Iconsax.close_circle;
+      case WorkspaceStatus.unknown:
+        return Iconsax.info_circle;
+    }
   }
 
   String _formatDate(String raw) {

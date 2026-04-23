@@ -288,16 +288,18 @@ class _MonthlyScorecardPageState extends State<MonthlyScorecardPage> {
         );
       }
 
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(width: 180, child: big),
-          const SizedBox(width: 16),
-          for (int i = 0; i < smalls.length; i++) ...[
-            Expanded(child: smalls[i]),
-            if (i != smalls.length - 1) const SizedBox(width: 16),
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: 180, child: big),
+            const SizedBox(width: 16),
+            for (int i = 0; i < smalls.length; i++) ...[
+              Expanded(child: smalls[i]),
+              if (i != smalls.length - 1) const SizedBox(width: 16),
+            ],
           ],
-        ],
+        ),
       );
     });
   }

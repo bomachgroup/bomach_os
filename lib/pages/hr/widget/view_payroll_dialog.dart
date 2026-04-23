@@ -1,11 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/pay_roll_controller.dart';
@@ -19,167 +22,272 @@ class ViewPayrollDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PayrollController controller = Get.find();
-    final ScrollController scrollController = ScrollController();
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Payroll Details',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child:
-                        const Icon(Iconsax.close_circle, size: 24, color: Colors.grey),
-                  ),
-                ],
+    return DialogScaffold(
+      title: 'Payroll Details',
+      subtitle: payroll.payrollPeriod.isNotEmpty
+          ? 'Period: ${payroll.payrollPeriod}'
+          : 'Payroll record details',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(payroll),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Employee & Period',
+            children: [
+              _detailRow('Employee ID', payroll.employeeId),
+              _detailRow(
+                  'Payroll Period',
+                  payroll.payrollPeriod.isNotEmpty
+                      ? payroll.payrollPeriod
+                      : '—'),
+              _detailRow(
+                'Disbursement Date',
+                payroll.disbursementDate != null
+                    ? DateFormat('MMM d, yyyy')
+                        .format(payroll.disbursementDate!)
+                    : 'N/A',
               ),
-            ),
-            const Divider(height: 1, color: AppColors.neutral200),
-            Expanded(
-              child: Scrollbar(
-                controller: scrollController,
-                thumbVisibility: true,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailRow('Employee ID', payroll.employeeId),
-                      _buildDetailRow('Payroll Period', payroll.payrollPeriod),
-                      _buildDetailRow('Status', payroll.status, isBlue: true),
-                      _buildDetailRow(
-                          'Gross Salary', payroll.grossSalary.toString()),
-                      kSizedBoxSM,
-                      if (payroll.additions != null &&
-                          payroll.additions!.isNotEmpty) ...[
-                        const MyText("Allowances Included:",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: payroll.additions!.keys
-                              .map((k) => Chip(label: Text(k)))
-                              .toList(),
-                        ),
-                        kSizedBox,
-                      ],
-                      if (payroll.deductions != null &&
-                          payroll.deductions!.isNotEmpty) ...[
-                        const MyText("Deductions Included:",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: payroll.deductions!.keys
-                              .map((k) => Chip(label: Text(k)))
-                              .toList(),
-                        ),
-                        kSizedBox,
-                      ],
-                      _buildDetailRow('Total Allowances',
-                          payroll.totalAllowances.toString()),
-                      _buildDetailRow('Total Deductions',
-                          payroll.totalDeductions.toString()),
-                      _buildDetailRow(
-                          'Net Salary', payroll.netSalary.toString(),
-                          isBlue: true),
-                      _buildDetailRow(
-                          'Disbursement Date',
-                          payroll.disbursementDate != null
-                              ? DateFormat('yyyy-MM-dd')
-                                  .format(payroll.disbursementDate!)
-                              : 'N/A'),
-                    ],
-                  ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Salary Breakdown',
+            children: [
+              _detailRow('Gross Salary', payroll.grossSalary.toStringAsFixed(2)),
+              _detailRow(
+                  'Total Allowances',
+                  payroll.totalAllowances.toStringAsFixed(2)),
+              _detailRow(
+                  'Total Deductions',
+                  payroll.totalDeductions.toStringAsFixed(2)),
+              _detailRow('Net Salary', payroll.netSalary.toStringAsFixed(2)),
+            ],
+          ),
+          if (payroll.additions != null &&
+              payroll.additions!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Allowances Included',
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: payroll.additions!.keys
+                      .map((k) => StatusChip(
+                            label: k,
+                            tone: StatusTone.primary,
+                            icon: Iconsax.tick_circle,
+                          ))
+                      .toList(),
                 ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyElevatedButton(
-                    bgColor: AppColors.danger,
-                    child: 'Delete',
-                    onTap: () async {
-                      final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (c) => AlertDialog(
-                                title: const Text('Delete Payroll'),
-                                content: const Text('Are you sure?'),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(c, false),
-                                      child: const Text('No')),
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(c, true),
-                                      child: const Text('Yes')),
-                                ],
-                              ));
-
-                      if (confirm == true) {
-                        await controller.deletePayroll(payroll.id);
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                          AppToast.error(context, 'Payroll deleted');
-                        }
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  MyElevatedButton(
-                    child: 'Edit',
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (c) =>
-                            AddPayRollDialog(payrollToEdit: payroll),
-                      );
-                    },
-                  ),
-                ],
-              ),
+              ],
             ),
           ],
+          if (payroll.deductions != null &&
+              payroll.deductions!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Deductions Included',
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: payroll.deductions!.keys
+                      .map((k) => StatusChip(
+                            label: k,
+                            tone: StatusTone.warning,
+                            icon: Iconsax.minus_cirlce,
+                          ))
+                      .toList(),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.danger,
+          borderColor: AppColors.danger,
+          child: 'Delete',
+          onTap: () async {
+            final confirm = await DialogScaffold.show<bool>(
+              context,
+              title: 'Delete Payroll',
+              size: DialogSize.sm,
+              body: const Text(
+                'Are you sure you want to delete this payroll record? This action cannot be undone.',
+                style: AppText.bodyMd,
+              ),
+              actions: [
+                MyOutlinedButton(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 12),
+                  textColor: AppColors.textSecondary,
+                  borderColor: AppColors.borderStrong,
+                  child: 'No',
+                  onTap: () => Navigator.pop(context, false),
+                ),
+                MyElevatedButton(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 12),
+                  bgColor: AppColors.danger,
+                  child: 'Yes, Delete',
+                  onTap: () => Navigator.pop(context, true),
+                ),
+              ],
+            );
+
+            if (confirm == true) {
+              await controller.deletePayroll(payroll.id);
+              if (context.mounted) {
+                Navigator.pop(context);
+                AppToast.error(context, 'Payroll deleted');
+              }
+            }
+          },
         ),
+        MyElevatedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          child: 'Edit',
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (c) => AddPayRollDialog(payrollToEdit: payroll),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBanner(Payroll p) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            child: const Icon(Iconsax.wallet_money,
+                color: AppColors.primary, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Net Salary: ${p.netSalary.toStringAsFixed(2)}',
+                  style: AppText.h3,
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      label: _statusLabel(p.status),
+                      tone: _payrollTone(p.status),
+                      icon: Iconsax.record_circle,
+                    ),
+                    if (p.payrollPeriod.isNotEmpty)
+                      _metaChip(
+                        icon: Iconsax.calendar_1,
+                        label: p.payrollPeriod,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {bool isBlue = false}) {
+  Widget _metaChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppText.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 200,
-            child: Text(label, style: TextStyle(color: Colors.grey[600])),
+            width: 180,
+            child: Text(
+              label,
+              style:
+                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
           ),
           Expanded(
             child: Text(
-              value,
-              style: TextStyle(
-                color: isBlue ? AppColors.primary : Colors.black87,
+              value.isEmpty ? '—' : value,
+              style: AppText.bodyMd.copyWith(
+                color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -187,5 +295,27 @@ class ViewPayrollDialog extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _statusLabel(String status) {
+    if (status.isEmpty) return 'Unknown';
+    return status[0].toUpperCase() + status.substring(1);
+  }
+
+  StatusTone _payrollTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return StatusTone.success;
+      case 'processing':
+        return StatusTone.info;
+      case 'pending':
+        return StatusTone.warning;
+      case 'failed':
+        return StatusTone.danger;
+      case 'scheduled':
+        return StatusTone.primary;
+      default:
+        return StatusTone.neutral;
+    }
   }
 }

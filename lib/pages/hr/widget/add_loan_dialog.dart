@@ -1,12 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/loans_controller.dart';
@@ -26,6 +29,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
 
   // Controllers
   String? selectedEmployeeId;
+  String? selectedEmployeeLabel;
   late TextEditingController amountCtrl;
   late TextEditingController repaymentDateCtrl;
   late TextEditingController reasonCtrl;
@@ -41,6 +45,9 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
       final match = controller.allEmployees.firstWhereOrNull(
           (e) => '${e.firstName} ${e.lastName}' == l.employeeName);
       selectedEmployeeId = match?.id;
+      selectedEmployeeLabel = match != null
+          ? '${match.firstName} ${match.lastName}'
+          : null;
     }
     amountCtrl = TextEditingController(text: l?.loanAmount ?? '');
     repaymentDateCtrl = TextEditingController(text: l?.repaymentDate ?? '');
@@ -71,6 +78,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
     );
     if (picked != null) {
       repaymentDateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      setState(() {});
     }
   }
 
@@ -98,250 +106,240 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // --- Header ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText(
-                    'Loan Application',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Iconsax.close_circle, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.neutral100),
-
-            // --- Form ---
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Employee Name
-                    const Text('Employee Name',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 8),
-                    Obx(() {
-                      final employees = controller.allEmployees;
-                      return Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.neutral200),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            value:
-                                employees.any((e) => e.id == selectedEmployeeId)
-                                    ? selectedEmployeeId
-                                    : null,
-                            hint: const Text('Select employee',
-                                style: TextStyle(
-                                    color: AppColors.neutral400, fontSize: 14)),
-                            items: employees
-                                .map((e) => DropdownMenuItem<String>(
-                                    value: e.id,
-                                    child:
-                                        Text('${e.firstName} ${e.lastName}')))
-                                .toList(),
-                            onChanged: (val) =>
-                                setState(() => selectedEmployeeId = val),
-                          ),
-                        ),
-                      );
-                    }),
-                    const SizedBox(height: 20),
-
-                    // Loan Amount
-                    MyTextFormField(
-                      title: 'Loan Amount',
-                      controller: amountCtrl,
-                      hintText: '₦100,000',
-                      spaceBetweenText: 8,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Repayment Date
-                    InkWell(
-                      onTap: _selectDate,
-                      child: IgnorePointer(
-                        child: MyTextFormField(
-                          title: 'Repayment Date',
-                          controller: repaymentDateCtrl,
-                          hintText: 'dd/mm/yyyy',
-                          spaceBetweenText: 8,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Reason
-                    MyTextFormField(
-                      title: 'Reason For Loan',
-                      controller: reasonCtrl,
-                      maxLines: 4,
-                      hintText: 'Provide a brief Explanation',
-                      spaceBetweenText: 8,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Emergency Contacts
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyTextFormField(
-                            title: 'Emergency Contact Name',
-                            controller: emergencyNameCtrl,
-                            hintText: 'Type Name',
-                            spaceBetweenText: 8,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyTextFormField(
-                            title: 'Emergency Contact Phone',
-                            controller: emergencyPhoneCtrl,
-                            hintText: 'Phone Number',
-                            spaceBetweenText: 8,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Attachment Upload
-                    const MyText("Attachment (Evidence or proof, etc.)",
-                        weight: 600, size: 14),
-                    const SizedBox(height: 8),
-                    _buildUploadZone(),
-                  ],
+    return DialogScaffold(
+      title: 'Loan Application',
+      subtitle:
+          'Submit a loan request with repayment plan and emergency contacts.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSection(
+            title: 'Applicant',
+            child: Obx(() {
+              final employees = controller.allEmployees;
+              final items = employees
+                  .map((e) => '${e.firstName} ${e.lastName}')
+                  .toList();
+              return MyDropdown(
+                title: 'Employee Name',
+                items: items,
+                initialSelection: selectedEmployeeLabel,
+                hintText: selectedEmployeeLabel ?? 'Select employee',
+                onChanged: (val) {
+                  final match = employees.firstWhereOrNull(
+                      (e) => '${e.firstName} ${e.lastName}' == val);
+                  setState(() {
+                    selectedEmployeeId = match?.id;
+                    selectedEmployeeLabel = val;
+                  });
+                },
+              );
+            }),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Loan Details',
+            child: Column(
+              children: [
+                MyTextFormField(
+                  title: 'Loan Amount',
+                  controller: amountCtrl,
+                  hintText: 'NGN 100,000',
+                  keyboardType: TextInputType.number,
                 ),
-              ),
+                const SizedBox(height: 16),
+                _buildDateField(
+                  label: 'Repayment Date',
+                  value: DateTime.tryParse(repaymentDateCtrl.text),
+                  onTap: _selectDate,
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Reason For Loan',
+                  controller: reasonCtrl,
+                  maxLines: 4,
+                  hintText: 'Provide a brief explanation',
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Emergency Contact',
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    title: 'Contact Name',
+                    controller: emergencyNameCtrl,
+                    hintText: 'Type Name',
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    title: 'Contact Phone',
+                    controller: emergencyPhoneCtrl,
+                    hintText: 'Phone Number',
+                    keyboardType: TextInputType.phone,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Attachment',
+            subtitle: 'Optional supporting evidence or proof',
+            child: _buildUploadZone(),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        MyElevatedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          bgColor: AppColors.primary,
+          child: 'Apply',
+          onTap: _submit,
+        ),
+      ],
+    );
+  }
 
-            // --- Footer ---
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    width: 120,
-                    child: MyOutlinedButton(
-                      textColor: Colors.black87,
-                      child: 'Cancel',
-                      onTap: () => Navigator.pop(context),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  SizedBox(
-                    width: 120,
-                    child: MyElevatedButton(
-                      bgColor: AppColors.primary,
-                      child: 'Apply',
-                      onTap: _submit,
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required DateTime? value,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppText.bodyMd.copyWith(
+            color: AppColors.textPrimary,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          borderRadius: AppRadii.brMd,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadii.brMd,
+              border: Border.all(color: AppColors.borderSubtle),
+            ),
+            child: Row(
+              children: [
+                const Icon(Iconsax.calendar_1,
+                    size: 16, color: AppColors.textSecondary),
+                const SizedBox(width: 10),
+                Text(
+                  value != null
+                      ? DateFormat('MMM d, yyyy').format(value)
+                      : 'dd/mm/yyyy',
+                  style: AppText.bodyMd.copyWith(
+                    color: value != null
+                        ? AppColors.textPrimary
+                        : AppColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildUploadZone() {
     return Container(
-      height: 120,
+      height: 140,
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.primarySubtle,
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: AppColors.primary, style: BorderStyle.none),
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.primary),
       ),
-      child: CustomPaint(
-        painter: _DashedBorderPainter(color: AppColors.primary),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                  color: AppColors.primary, shape: BoxShape.circle),
-              child: const Icon(Iconsax.document_upload,
-                  color: Colors.white, size: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+                color: AppColors.primary, shape: BoxShape.circle),
+            child: const Icon(Iconsax.document_upload,
+                color: AppColors.white, size: 20),
+          ),
+          const SizedBox(height: 12),
+          RichText(
+            text: TextSpan(
+              style: AppText.bodySm.copyWith(color: AppColors.textPrimary),
+              children: [
+                const TextSpan(
+                    text: 'Drag & Drop or ',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                TextSpan(
+                    text: 'choose file',
+                    style: AppText.bodySm.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    )),
+                const TextSpan(text: ' to upload'),
+              ],
             ),
-            const SizedBox(height: 12),
-            RichText(
-              text: const TextSpan(
-                  style: TextStyle(fontSize: 13, color: Colors.black87),
-                  children: [
-                    TextSpan(
-                        text: "Drag & Drop or ",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text: "choose file",
-                        style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold)),
-                    TextSpan(text: " to upload"),
-                  ]),
-            ),
-            const SizedBox(height: 4),
-            const Text("Supported formats :doc, pdf",
-                style: TextStyle(fontSize: 11, color: Colors.grey)),
-          ],
-        ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Supported formats: doc, pdf',
+            style: AppText.caption.copyWith(color: AppColors.textMuted),
+          ),
+        ],
       ),
     );
   }
-}
-
-// Reuse the dashed painter
-class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  _DashedBorderPainter({required this.color});
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-
-    final Path path = Path();
-
-    // Simple rect path logic for brevity
-    path.addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        const Radius.circular(12)));
-
-    // Note: To draw true dashes on RRect requires PathMetric or a loop.
-    // For this snippet, we draw a solid line for stability or assume standard DottedBorder package is used.
-    // Use 'dotted_border' package in production.
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

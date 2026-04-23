@@ -1,13 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/awards_controller.dart';
@@ -32,6 +33,8 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
   late TextEditingController rankCtrl;
   late TextEditingController descCtrl;
   late TextEditingController dateCtrl;
+
+  bool get isEdit => widget.awardToEdit != null;
 
   @override
   void initState() {
@@ -66,7 +69,9 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
       lastDate: DateTime(2101),
     );
     if (picked != null) {
-      dateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      setState(() {
+        dateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
     }
   }
 
@@ -101,82 +106,125 @@ class _AddAwardDialogState extends State<AddAwardDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: Colors.white,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Award' : 'New Award',
+          subtitle: isEdit
+              ? 'Update award details, category and rank.'
+              : 'Recognise an employee with a new award.',
+          size: DialogSize.lg,
+          body: Form(
+            key: _formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    MyText(
-                      widget.awardToEdit == null ? 'New Award' : 'Edit Award',
-                      size: 20,
-                      weight: 600,
-                    ),
-                    IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                MyTextFormField(title: 'Award Title', controller: titleCtrl),
-                kSizedBox,
-                Row(
-                  children: [
-                    Expanded(
-                        child: MyTextFormField(
-                            title: 'Category', controller: categoryCtrl)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                        child: MyTextFormField(
-                            title: 'Rank / Level', controller: rankCtrl)),
-                  ],
-                ),
-                kSizedBox,
-                InkWell(
-                  onTap: _selectDate,
-                  child: IgnorePointer(
-                    child: MyTextFormField(
-                      title: 'Date Awarded',
-                      controller: dateCtrl,
-                      hintText: 'YYYY-MM-DD',
-                    ),
+                _buildSection(
+                  title: 'Award details',
+                  subtitle:
+                      'Title, category and rank shown across the awards list.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
+                        title: 'Award Title',
+                        controller: titleCtrl,
+                        hintText: 'e.g. Employee of the Month',
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              title: 'Category',
+                              controller: categoryCtrl,
+                              hintText: 'e.g. Excellence',
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              title: 'Rank / Level',
+                              controller: rankCtrl,
+                              hintText: 'e.g. Gold',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        title: 'Date Awarded',
+                        controller: dateCtrl,
+                        hintText: 'YYYY-MM-DD',
+                        readOnly: true,
+                        trailing: const Icon(Iconsax.calendar_1,
+                            size: 18, color: AppColors.textSecondary),
+                        onTap: _selectDate,
+                      ),
+                    ],
                   ),
                 ),
-                kSizedBox,
-                MyTextFormField(
-                    title: 'Description', controller: descCtrl, maxLines: 3),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyOutlinedButton(
-                      textColor: AppColors.neutral500,
-                      child: 'Cancel',
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    const SizedBox(width: 12),
-                    Obx(() => MyElevatedButton(
-                          child:
-                              controller.isSaving.value ? 'Saving...' : 'Save',
-                          onTap: controller.isSaving.value ? () {} : _save,
-                        )),
-                  ],
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Description',
+                  subtitle: 'A short note about why this award is being given.',
+                  child: MyTextFormField(
+                    title: 'Description',
+                    controller: descCtrl,
+                    maxLines: 4,
+                    hintText: 'Provide a brief description',
+                  ),
                 ),
               ],
             ),
           ),
-        ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 140,
+              height: 44,
+              child: controller.isSaving.value ? 'Saving...' : 'Save',
+              icon: controller.isSaving.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+              onTap: controller.isSaving.value ? null : _save,
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style:
+                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

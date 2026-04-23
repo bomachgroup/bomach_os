@@ -1,18 +1,19 @@
 import 'dart:typed_data';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:iconsax/iconsax.dart';
 
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/country_state_city_picker.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../../../src/model/employees_model.dart';
@@ -381,141 +382,112 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        width: 700,
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.9,
+    return DialogScaffold(
+      title: isEditMode ? 'Edit Employee' : 'Add New Employee',
+      subtitle: isEditMode
+          ? 'Update profile details for this team member.'
+          : 'Create a comprehensive profile for a new team member.',
+      size: DialogSize.lg,
+      bodyPadding: EdgeInsets.zero,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildStepperHeader(),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: _buildCurrentStep(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        if (_currentStep > 0)
+          MyOutlinedButton(
+            child: 'Previous',
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            onTap: () => setState(() => _currentStep--),
+            textColor: AppColors.textSecondary,
+            borderColor: AppColors.borderStrong,
+          ),
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        Obx(
+          () => MyElevatedButton(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            isLoading: controller.isSaving.value,
+            icon: _currentStep == 3
+                ? const Icon(Iconsax.tick_circle,
+                    size: 18, color: AppColors.textOnPrimary)
+                : const Icon(Iconsax.arrow_right_3,
+                    size: 18, color: AppColors.textOnPrimary),
+            child: _currentStep == 3
+                ? (controller.isSaving.value
+                    ? (isEditMode ? 'Updating...' : 'Creating...')
+                    : (isEditMode ? 'Update Profile' : 'Create Profile'))
+                : 'Next Step',
+            onTap: controller.isSaving.value ? () {} : _nextStep,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepperHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(_steps.length, (index) {
+            final isActive = index == _currentStep;
+            return Padding(
+              padding: const EdgeInsets.only(right: 24.0),
+              child: InkWell(
+                onTap: () => setState(() => _currentStep = index),
+                borderRadius: AppRadii.brSm,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      MyText(
-                        isEditMode ? 'Edit Employee' : 'Add New Employee',
-                        style: AppText.displayLg,
-                      ),
-                      const SizedBox(height: 4),
-                      MyText(
-                        isEditMode
-                            ? 'Update profile details for this team member.'
-                            : 'Create a comprehensive profile for a new team member.',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 13,
+                      Text(
+                        _steps[index],
+                        style: AppText.bodyMd.copyWith(
+                          color: isActive
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                          fontWeight: isActive
+                              ? FontWeight.w700
+                              : FontWeight.w500,
                         ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 2,
+                        width: 30,
+                        color: isActive
+                            ? AppColors.primary
+                            : Colors.transparent,
                       ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Iconsax.close_circle, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-
-            // Stepper Header
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                children: List.generate(_steps.length, (index) {
-                  final isActive = index == _currentStep;
-                  return GestureDetector(
-                    onTap: () => setState(() => _currentStep = index),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 32.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            _steps[index],
-                            style: TextStyle(
-                              color: isActive
-                                  ? AppColors.primary
-                                  : Colors.grey.shade600,
-                              fontWeight:
-                                  isActive ? FontWeight.bold : FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          if (isActive)
-                            Container(
-                              height: 2,
-                              width: 20,
-                              color: AppColors.primary,
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-
-            // Form Body
-            Flexible(
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: _buildCurrentStep(),
                 ),
               ),
-            ),
-
-            // Footer
-            const Divider(height: 1),
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (_currentStep > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16.0),
-                      child: MyOutlinedButton(
-                        child: 'Previous',
-                        textColor: Colors.black87,
-                        onTap: () => setState(() => _currentStep--),
-                      ),
-                    ),
-                  MyOutlinedButton(
-                    child: 'Cancel',
-                    textColor: Colors.red,
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(
-                    () => MyElevatedButton(
-                      child: _currentStep == 3
-                          ? (controller.isSaving.value
-                              ? (isEditMode ? 'Updating...' : 'Creating...')
-                              : (isEditMode
-                                  ? 'Update Profile'
-                                  : 'Create Profile'))
-                          : 'Next Step',
-                      onTap: controller.isSaving.value ? null : _nextStep,
-                      bgColor: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            );
+          }),
         ),
       ),
     );
@@ -541,51 +513,54 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Profile Picture Upload
-        const MyText('Profile Picture *', size: 13, weight: 600),
-        const SizedBox(height: 8),
-        _buildProfilePictureZone(),
-        kSizedBox,
-        _buildRow([
-          _buildField("First Name", _firstNameCtrl),
-          _buildField("Middle Name", _middleNameCtrl),
-        ]),
-        kSizedBox,
-        _buildRow([
-          _buildField("Last Name", _lastNameCtrl),
-          _buildDatePicker("Date of Birth", _dob, true),
-        ]),
-        kSizedBox,
-        _buildRow([
-          _buildDropdown(
-              "Gender",
-              _selectedGender,
-              [
-                'male',
-                'female',
-              ],
-              (v) => setState(() => _selectedGender = v!)),
-          _buildDropdown(
-            "Marital Status",
-            _selectedMaritalStatus,
-            ['single', 'married', 'divorced'],
-            (v) => setState(() => _selectedMaritalStatus = v!),
-          ),
-        ]),
-        kSizedBox,
-        _buildDropdown(
-            "Nationality",
-            _nationality,
-            [
-              'Nigerian',
-              'Ghanaian',
-              'Other',
+        _buildSection(
+          title: 'Profile picture',
+          children: [
+            _buildProfilePictureZone(),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildSection(
+          title: 'Personal information',
+          children: [
+            _buildRow([
+              _buildField('First Name', _firstNameCtrl),
+              _buildField('Middle Name', _middleNameCtrl),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildField('Last Name', _lastNameCtrl),
+              _buildDatePicker('Date of Birth', _dob, true),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildDropdown(
+                'Gender',
+                _selectedGender,
+                ['male', 'female'],
+                (v) => setState(() => _selectedGender = v ?? _selectedGender),
+              ),
+              _buildDropdown(
+                'Marital Status',
+                _selectedMaritalStatus,
+                ['single', 'married', 'divorced'],
+                (v) => setState(() =>
+                    _selectedMaritalStatus = v ?? _selectedMaritalStatus),
+              ),
+            ]),
+            const SizedBox(height: 16),
+            _buildDropdown(
+              'Nationality',
+              _nationality,
+              ['Nigerian', 'Ghanaian', 'Other'],
+              (v) => setState(() => _nationality = v ?? _nationality),
+            ),
+            if (!isEditMode) ...[
+              const SizedBox(height: 16),
+              _buildField('Default Password', _passwordCtrl),
             ],
-            (v) => setState(() => _nationality = v!)),
-        if (!isEditMode) ...[
-          kSizedBox,
-          _buildField("Default Password", _passwordCtrl),
-        ],
+          ],
+        ),
       ],
     );
   }
@@ -595,42 +570,52 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText('Contact Info', weight: 600, size: 14),
-        const SizedBox(height: 16),
-        _buildRow([
-          _buildField("Work Email", _workEmailCtrl),
-          _buildField("Personal Email", _personalEmailCtrl),
-        ]),
-        kSizedBox,
-        _buildRow([
-          _buildField("Phone", _phoneCtrl),
-          _buildField("Other Phone", _otherPhoneCtrl),
-        ]),
-        kSizedBox,
-        const MyText('Current Address', weight: 600, size: 14),
-        const SizedBox(height: 16),
-        _buildField("Street Address", _streetCtrl),
-        kSizedBox,
-        CountryStateCityPicker(
-          initialCountry: _countryCtrl.text.isEmpty ? null : _countryCtrl.text,
-          initialState: _stateCtrl.text.isEmpty ? null : _stateCtrl.text,
-          initialCity: _cityCtrl.text.isEmpty ? null : _cityCtrl.text,
-          cityRequired: false,
-          onCountryChanged: (name, _) => _countryCtrl.text = name,
-          onStateChanged: (v) => _stateCtrl.text = v,
-          onCityChanged: (v) => _cityCtrl.text = v,
+        _buildSection(
+          title: 'Contact information',
+          children: [
+            _buildRow([
+              _buildField('Work Email', _workEmailCtrl),
+              _buildField('Personal Email', _personalEmailCtrl),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildField('Phone', _phoneCtrl),
+              _buildField('Other Phone', _otherPhoneCtrl),
+            ]),
+          ],
         ),
-        kSizedBox,
-        _buildField("Zip Code", _zipCtrl),
-        kSizedBox,
-        const MyText('Emergency Contact (Optional)', weight: 600, size: 14),
         const SizedBox(height: 16),
-        _buildField("Full Name", _emergNameCtrl),
-        kSizedBox,
-        _buildRow([
-          _buildField("Relationship", _emergRelCtrl),
-          _buildField("Phone", _emergPhoneCtrl),
-        ]),
+        _buildSection(
+          title: 'Current address',
+          children: [
+            _buildField('Street Address', _streetCtrl),
+            const SizedBox(height: 16),
+            CountryStateCityPicker(
+              initialCountry:
+                  _countryCtrl.text.isEmpty ? null : _countryCtrl.text,
+              initialState: _stateCtrl.text.isEmpty ? null : _stateCtrl.text,
+              initialCity: _cityCtrl.text.isEmpty ? null : _cityCtrl.text,
+              cityRequired: false,
+              onCountryChanged: (name, _) => _countryCtrl.text = name,
+              onStateChanged: (v) => _stateCtrl.text = v,
+              onCityChanged: (v) => _cityCtrl.text = v,
+            ),
+            const SizedBox(height: 16),
+            _buildField('Zip Code', _zipCtrl),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildSection(
+          title: 'Emergency contact (optional)',
+          children: [
+            _buildField('Full Name', _emergNameCtrl),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildField('Relationship', _emergRelCtrl),
+              _buildField('Phone', _emergPhoneCtrl),
+            ]),
+          ],
+        ),
       ],
     );
   }
@@ -640,144 +625,145 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText('Role Information', weight: 600, size: 14),
+        _buildSection(
+          title: 'Role information',
+          children: [
+            _buildRow([
+              _buildField('Designation', _designationCtrl),
+              Obx(
+                () => _buildApiDropdown(
+                  'Department',
+                  _selectedDeptId,
+                  controller.departments
+                      .map(
+                        (d) => DropdownMenuItem(
+                          value: d.id,
+                          child:
+                              Text(d.name, style: AppText.bodyMd),
+                        ),
+                      )
+                      .toList(),
+                  (v) {
+                    setState(() {
+                      _selectedDeptId = v;
+                      _selectedUnitId = null;
+                    });
+                    if (v != null) {
+                      controller.fetchDepartmentUnits(departmentId: v);
+                    }
+                  },
+                ),
+              ),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              Obx(
+                () => _buildApiDropdown(
+                  'Unit',
+                  _selectedUnitId,
+                  controller.departmentUnits
+                      .map(
+                        (u) => DropdownMenuItem(
+                          value: u.id,
+                          child:
+                              Text(u.name, style: AppText.bodyMd),
+                        ),
+                      )
+                      .toList(),
+                  (v) => setState(() => _selectedUnitId = v),
+                ),
+              ),
+              Obx(
+                () => _buildApiDropdown(
+                  'Branch',
+                  _selectedBranchId,
+                  controller.branches
+                      .map(
+                        (b) => DropdownMenuItem(
+                          value: b.id.toString(),
+                          child: Text(
+                            b.branchName,
+                            style: AppText.bodyMd,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  (v) => setState(() => _selectedBranchId = v),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildField('Location', _locationCtrl),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              Obx(
+                () => _buildApiDropdown(
+                  'Reporting To',
+                  _selectedReportingToId,
+                  controller.allEmployees
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e.id,
+                          child: Text(
+                            e.fullName,
+                            style: AppText.bodyMd,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  (v) => setState(() => _selectedReportingToId = v),
+                ),
+              ),
+              Obx(
+                () => _buildApiDropdown(
+                  'Role',
+                  _selectedRoleId,
+                  controller.roles
+                      .map(
+                        (r) => DropdownMenuItem(
+                          value: r.id.toString(),
+                          child: Text(
+                            r.name,
+                            style: AppText.bodyMd,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  (v) => setState(() => _selectedRoleId = v),
+                ),
+              ),
+            ]),
+          ],
+        ),
         const SizedBox(height: 16),
-        _buildRow([
-          _buildField("Designation", _designationCtrl),
-          // Department dropdown from API
-          Obx(
-            () => _buildApiDropdown(
-              "Department",
-              _selectedDeptId,
-              controller.departments
-                  .map(
-                    (d) => DropdownMenuItem(
-                      value: d.id,
-                      child: Text(d.name, style: const TextStyle(fontSize: 14)),
-                    ),
-                  )
-                  .toList(),
-              (v) {
-                setState(() {
-                  _selectedDeptId = v;
-                  _selectedUnitId = null; // Reset unit
-                });
-                if (v != null) {
-                  controller.fetchDepartmentUnits(departmentId: v);
-                }
-              },
-            ),
-          ),
-        ]),
-        kSizedBox,
-        _buildRow([
-          // Unit dropdown — cascading from department
-          Obx(
-            () => _buildApiDropdown(
-              "Unit",
-              _selectedUnitId,
-              controller.departmentUnits
-                  .map(
-                    (u) => DropdownMenuItem(
-                      value: u.id,
-                      child: Text(u.name, style: const TextStyle(fontSize: 14)),
-                    ),
-                  )
-                  .toList(),
-              (v) => setState(() => _selectedUnitId = v),
-            ),
-          ),
-          // Branch dropdown from API
-          Obx(
-            () => _buildApiDropdown(
-              "Branch",
-              _selectedBranchId,
-              controller.branches
-                  .map(
-                    (b) => DropdownMenuItem(
-                      value: b.id.toString(),
-                      child: Text(
-                        b.branchName,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              (v) => setState(() => _selectedBranchId = v),
-            ),
-          ),
-        ]),
-        kSizedBox,
-        _buildRow([
-          _buildField("Location", _locationCtrl),
-        ]),
-        kSizedBox,
-        _buildRow([
-          // Reporting To dropdown from allEmployees
-          Obx(
-            () => _buildApiDropdown(
-              "Reporting To",
-              _selectedReportingToId,
-              controller.allEmployees
-                  .map(
-                    (e) => DropdownMenuItem(
-                      value: e.id,
-                      child: Text(
-                        e.fullName,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              (v) => setState(() => _selectedReportingToId = v),
-            ),
-          ),
-          // Role dropdown from API
-          Obx(
-            () => _buildApiDropdown(
-              "Role",
-              _selectedRoleId,
-              controller.roles
-                  .map(
-                    (r) => DropdownMenuItem(
-                      value: r.id.toString(),
-                      child: Text(
-                        r.name,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              (v) => setState(() => _selectedRoleId = v),
-            ),
-          ),
-        ]),
-        kSizedBox,
-        const MyText('Employment', weight: 600, size: 14),
-        const SizedBox(height: 16),
-        _buildRow([
-          _buildDropdown(
-            "Employment Type",
-            _selectedEmpType,
-            ['full-time', 'part-time', 'contract'],
-            (v) => setState(() => _selectedEmpType = v!),
-          ),
-          _buildDropdown(
-              "Status",
-              _selectedStatus,
-              [
-                'active',
-                'inactive',
-              ],
-              (v) => setState(() => _selectedStatus = v!)),
-        ]),
-        kSizedBox,
-        _buildRow([
-          _buildDatePicker("Join Date", _joinDate, false),
-          _buildField("Probation Period (months)", _probationCtrl),
-        ]),
-        kSizedBox,
-        _buildField("Work Schedule", _workScheduleCtrl),
+        _buildSection(
+          title: 'Employment',
+          children: [
+            _buildRow([
+              _buildDropdown(
+                'Employment Type',
+                _selectedEmpType,
+                ['full-time', 'part-time', 'contract'],
+                (v) => setState(() => _selectedEmpType = v ?? _selectedEmpType),
+              ),
+              _buildDropdown(
+                'Status',
+                _selectedStatus,
+                ['active', 'inactive'],
+                (v) => setState(() => _selectedStatus = v ?? _selectedStatus),
+              ),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildDatePicker('Join Date', _joinDate, false),
+              _buildField('Probation Period (months)', _probationCtrl),
+            ]),
+            const SizedBox(height: 16),
+            _buildField('Work Schedule', _workScheduleCtrl),
+          ],
+        ),
       ],
     );
   }
@@ -787,68 +773,102 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText('Salary Information', weight: 600, size: 14),
+        _buildSection(
+          title: 'Salary information',
+          children: [
+            _buildRow([
+              _buildField('Gross Salary', _basicSalaryCtrl),
+              _buildDropdown(
+                'Salary Frequency',
+                _selectedSalaryFrequency,
+                ['monthly', 'weekly', 'bi-weekly', 'annually'],
+                (v) => setState(() =>
+                    _selectedSalaryFrequency = v ?? _selectedSalaryFrequency),
+              ),
+            ]),
+          ],
+        ),
         const SizedBox(height: 16),
-        _buildRow([
-          _buildField("Gross Salary", _basicSalaryCtrl),
-          _buildDropdown(
-            "Salary Frequency",
-            _selectedSalaryFrequency,
-            ['monthly', 'weekly', 'bi-weekly', 'annually'],
-            (v) => setState(() => _selectedSalaryFrequency = v!),
-          ),
-        ]),
-        kSizedBox,
-        const MyText('Bank Details', weight: 600, size: 14),
+        _buildSection(
+          title: 'Bank details',
+          children: [
+            _buildRow([
+              _buildField('Bank Name', _bankNameCtrl),
+              _buildField('Account Number', _accountNumberCtrl),
+            ]),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildField('Tax ID', _taxIdCtrl),
+              _buildField('Pension Number', _pensionNumberCtrl),
+            ]),
+          ],
+        ),
         const SizedBox(height: 16),
-        _buildRow([
-          _buildField("Bank Name", _bankNameCtrl),
-          _buildField("Account Number", _accountNumberCtrl),
-        ]),
-        kSizedBox,
-        _buildRow([
-          _buildField("Tax ID", _taxIdCtrl),
-          _buildField("Pension Number", _pensionNumberCtrl),
-        ]),
-        kSizedBox,
-        const MyText('Pension & HMO', weight: 600, size: 14),
-        const SizedBox(height: 16),
-        _buildRow([
-          _buildField("PFA Provider", _pfaProviderCtrl),
-          _buildField("RSA Number", _rsaNumberCtrl),
-        ]),
-        kSizedBox,
-        _buildField("Employer Contribution (%)", _employerContribCtrl),
-        kSizedBox,
-        _buildRow([
-          _buildField("HMO Current Plan", _hmoPlanCtrl),
-          _buildField("HMO ID Number", _hmoIdCtrl),
-        ]),
-        kSizedBox,
-        _buildField("HMO Dependents Covered", _hmoDependentsCtrl),
+        _buildSection(
+          title: 'Pension & HMO',
+          children: [
+            _buildRow([
+              _buildField('PFA Provider', _pfaProviderCtrl),
+              _buildField('RSA Number', _rsaNumberCtrl),
+            ]),
+            const SizedBox(height: 16),
+            _buildField('Employer Contribution (%)', _employerContribCtrl),
+            const SizedBox(height: 16),
+            _buildRow([
+              _buildField('HMO Current Plan', _hmoPlanCtrl),
+              _buildField('HMO ID Number', _hmoIdCtrl),
+            ]),
+            const SizedBox(height: 16),
+            _buildField('HMO Dependents Covered', _hmoDependentsCtrl),
+          ],
+        ),
       ],
     );
   }
 
   // ─── SHARED FORM WIDGETS ────────────────────────────────────────────
 
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppText.h4),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
+    );
+  }
+
   Widget _buildProfilePictureZone() {
     final bool hasNewImage = _imageBytes != null;
     final bool hasExistingImage =
         _existingImageUrl != null && _existingImageUrl!.isNotEmpty;
+    final bool hasAnyImage = hasNewImage || hasExistingImage;
 
     return InkWell(
       onTap: _pickProfileImage,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: AppRadii.brLg,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: AppColors.neutral50,
-          borderRadius: BorderRadius.circular(12),
+          color: AppColors.surface,
+          borderRadius: AppRadii.brLg,
           border: Border.all(
-            color: (hasNewImage || hasExistingImage)
-                ? Colors.green.withValues(alpha: 0.5)
+            color: hasAnyImage
+                ? AppColors.success.withValues(alpha: 0.5)
                 : AppColors.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
@@ -857,7 +877,6 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (hasNewImage) ...[
-              // Show picked image preview
               ClipRRect(
                 borderRadius: BorderRadius.circular(40),
                 child: Image.memory(
@@ -870,19 +889,19 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               const SizedBox(height: 12),
               Text(
                 _imageName ?? 'Image selected',
-                style: const TextStyle(
-                  fontSize: 13,
+                style: AppText.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
               Text(
-                "Tap to change image",
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                'Tap to change image',
+                style: AppText.bodySm
+                    .copyWith(color: AppColors.textSecondary),
               ),
             ] else if (hasExistingImage) ...[
-              // Show existing image from URL
               ClipRRect(
                 borderRadius: BorderRadius.circular(40),
                 child: Image.network(
@@ -893,61 +912,65 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   errorBuilder: (_, __, ___) => Container(
                     width: 80,
                     height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
+                    decoration: const BoxDecoration(
+                      color: AppColors.surfaceMuted,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Iconsax.profile_circle,
                       size: 40,
-                      color: Colors.grey,
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                "Current profile picture",
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              Text(
+                'Current profile picture',
+                style: AppText.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
-                "Tap to replace",
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                'Tap to replace',
+                style: AppText.bodySm
+                    .copyWith(color: AppColors.textSecondary),
               ),
             ] else ...[
-              // Empty state — drag & drop / click
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(50),
+                  shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Iconsax.document_upload,
-                  color: Colors.white,
+                  color: AppColors.textOnPrimary,
                   size: 24,
                 ),
               ),
               const SizedBox(height: 14),
               RichText(
                 textAlign: TextAlign.center,
-                text: const TextSpan(
-                  style: TextStyle(fontSize: 13, color: Colors.black87),
-                  children: [
+                text: TextSpan(
+                  style: AppText.bodyMd
+                      .copyWith(color: AppColors.textPrimary),
+                  children: const [
                     TextSpan(
-                      text: "Drag & Drop or ",
+                      text: 'Drag & Drop or ',
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     TextSpan(
-                      text: "choose file",
+                      text: 'choose file',
                       style: TextStyle(
                         color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     TextSpan(
-                      text: " to upload",
+                      text: ' to upload',
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ],
@@ -955,8 +978,9 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               ),
               const SizedBox(height: 6),
               Text(
-                "Supported formats: JPG, PNG, GIF (max 5MB)",
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                'Supported formats: JPG, PNG, GIF (max 5MB)',
+                style: AppText.bodySm
+                    .copyWith(color: AppColors.textSecondary),
               ),
             ],
           ],
@@ -983,13 +1007,10 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   }
 
   Widget _buildField(String title, TextEditingController ctrl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MyText(title, size: 13, weight: 500),
-        const SizedBox(height: 8),
-        MyTextFormField(controller: ctrl, hintText: "Type"),
-      ],
+    return MyTextFormField(
+      title: title,
+      controller: ctrl,
+      hintText: 'Type',
     );
   }
 
@@ -1001,49 +1022,23 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   ) {
     final safeValue = items.contains(value) ? value : items.first;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MyText(title, size: 13, weight: 500),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: safeValue,
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 14,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-          ),
-          items: items
-              .map(
-                (e) => DropdownMenuItem(
-                  value: e,
-                  child: Text(e, style: const TextStyle(fontSize: 14)),
-                ),
-              )
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ],
+    return MyDropdown(
+      title: title,
+      hintText: safeValue,
+      items: items,
+      initialSelection: safeValue,
+      onChanged: onChanged,
     );
   }
 
-  /// API-driven dropdown (for departments, branches, units, levels, employees)
+  /// API-driven dropdown using DropdownMenuItem<String> values. Styled to match
+  /// the design system (slate borders, primary focus, AppRadii.brMd).
   Widget _buildApiDropdown(
     String title,
     String? selectedValue,
     List<DropdownMenuItem<String>> items,
     Function(String?) onChanged,
   ) {
-    // Ensure selected value is in items, otherwise null
     final validValues = items.map((i) => i.value).toSet();
     final safeValue =
         validValues.contains(selectedValue) ? selectedValue : null;
@@ -1051,26 +1046,38 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MyText(title, size: 13, weight: 500),
+        Text(
+          title,
+          style: AppText.label,
+        ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: safeValue,
           hint: Text(
-            "Select $title",
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+            'Select $title',
+            style: AppText.bodyMd.copyWith(color: AppColors.textMuted),
           ),
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
+          decoration: const InputDecoration(
+            filled: true,
+            fillColor: AppColors.surface,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 14,
               vertical: 14,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderRadius: AppRadii.brMd,
+              borderSide: BorderSide(color: AppColors.borderSubtle),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderRadius: AppRadii.brMd,
+              borderSide: BorderSide(color: AppColors.borderSubtle),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: AppRadii.brMd,
+              borderSide: BorderSide(
+                color: AppColors.primary,
+                width: 1.5,
+              ),
             ),
           ),
           items: items,
@@ -1085,16 +1092,18 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MyText(title, size: 13, weight: 500),
+        Text(title, style: AppText.label),
         const SizedBox(height: 8),
         InkWell(
           onTap: () => _selectDate(isDob),
+          borderRadius: AppRadii.brMd,
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.borderSubtle),
+              borderRadius: AppRadii.brMd,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1103,12 +1112,14 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   date != null
                       ? DateFormat('yyyy-MM-dd').format(date)
                       : 'Select Date',
-                  style: TextStyle(
-                    color: date != null ? Colors.black : Colors.grey,
-                    fontSize: 14,
+                  style: AppText.bodyMd.copyWith(
+                    color: date != null
+                        ? AppColors.textPrimary
+                        : AppColors.textMuted,
                   ),
                 ),
-                const Icon(Iconsax.calendar_1, size: 16, color: Colors.grey),
+                const Icon(Iconsax.calendar_1,
+                    size: 16, color: AppColors.textSecondary),
               ],
             ),
           ),
