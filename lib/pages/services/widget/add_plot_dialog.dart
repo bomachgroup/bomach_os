@@ -280,7 +280,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                       ),
 
                       // Optional Section
-                      Divider(
+                      const Divider(
                         color: AppColors.neutral300,
                       ),
                       Padding(
@@ -385,7 +385,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
                     top: BorderSide(color: AppColors.neutral300),
                   ),

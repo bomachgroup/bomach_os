@@ -2,14 +2,14 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/widget/add_estate_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+// import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -37,14 +37,12 @@ class EstateManagementPage extends StatelessWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
+                      AppText.displayLg(
                         'Estate Management',
-                        style: AppTextStyles.displayLg,
                       ),
                       SizedBox(height: 8),
-                      MyText(
+                      AppText.bodyMd(
                         'Manage your real estate developments',
-                        style: AppTextStyles.bodyMd,
                       ),
                     ],
                   ),

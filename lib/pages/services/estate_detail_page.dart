@@ -7,7 +7,6 @@ import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/widget/add_plot_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 
@@ -122,9 +121,8 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
               onPressed: () => Navigator.pop(context),
             ),
             const Expanded(
-              child: MyText(
+              child: AppText.displayLg(
                 'Estate Details',
-                style: AppText.displayLg,
               ),
             ),
           ],
@@ -352,7 +350,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
             'Available', '$availablePlots', Iconsax.tick_circle, AppColors.success),
         _buildStatCard(
             'Reserved', '$reservedPlots', Iconsax.clock, AppColors.warning),
-        _buildStatCard('Sold', '$soldPlots', Iconsax.tick_circle, AppColors.secondary),
+        _buildStatCard('Sold', '$soldPlots', Iconsax.tick_circle, AppColors.success),
       ],
     );
   }
@@ -434,7 +432,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                 color: AppColors.neutral500.withValues(alpha: 0.5),
               ),
               kSizedBox,
-              const AppText.h3(
+              AppText.h3(
                 'No plots found',
                 color: AppColors.textMuted,
               ),
@@ -556,7 +554,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       case 'Under Development':
         return AppColors.warning;
       case 'Sold':
-        return AppColors.secondary;
+        return AppColors.success;
       case 'Under Offer':
         return AppColors.info;
       case 'Planning':

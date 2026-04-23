@@ -330,7 +330,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
             // Action Buttons
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
                   top: BorderSide(color: AppColors.neutral300),
                 ),

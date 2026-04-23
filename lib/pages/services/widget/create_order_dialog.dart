@@ -5,7 +5,7 @@ import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -272,7 +272,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    AppTextStyles.h3('Create New Order'),
+                    AppText.h3('Create New Order'),
                     IconButton(
                       icon: const Icon(Iconsax.close_circle),
                       onPressed: _isSubmitting
@@ -306,7 +306,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                AppTextStyles.bodySm(
+                                AppText.bodySm(
                                   'Service*',
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -382,7 +382,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppTextStyles.bodySm(
+                                  AppText.bodySm(
                                     'Valid Until*',
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -522,7 +522,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppTextStyles.bodySm(
+        AppText.bodySm(
           'Client*',
           fontWeight: FontWeight.w500,
         ),
@@ -542,7 +542,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 const SizedBox(width: 12),
-                AppTextStyles.bodySm(
+                AppText.bodySm(
                   'Loading clients...',
                   color: AppColors.neutral500,
                 ),
@@ -614,7 +614,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   child: _filteredClients.isEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(16),
-                          child: AppTextStyles.bodySm(
+                          child: AppText.bodySm(
                             'No clients found',
                             color: AppColors.neutral500,
                           ),
@@ -641,12 +641,12 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    AppTextStyles.bodyMd(
+                                    AppText.bodyMd(
                                       client.fullName,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    AppTextStyles.bodySm(
+                                    AppText.bodySm(
                                       client.email,
                                       color: AppColors.neutral500,
                                     ),
@@ -667,7 +667,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppTextStyles.bodySm(
+        AppText.bodySm(
           'Quote',
           fontWeight: FontWeight.w500,
         ),
@@ -688,7 +688,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                   const SizedBox(width: 12),
-                  AppTextStyles.bodySm(
+                  AppText.bodySm(
                     'Loading quotes...',
                     color: AppColors.neutral500,
                   ),
@@ -765,7 +765,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   child: _filteredQuotes.isEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(16),
-                          child: AppTextStyles.bodySm(
+                          child: AppText.bodySm(
                             'No quotes found',
                             color: AppColors.neutral500,
                           ),
@@ -792,12 +792,12 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    AppTextStyles.bodyMd(
+                                    AppText.bodyMd(
                                       '${quote.quoteNumber} - ${quote.service.name}',
                                       fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    AppTextStyles.bodySm(
+                                    AppText.bodySm(
                                       quote.description,
                                       color: AppColors.neutral500,
                                       maxLines: 1,

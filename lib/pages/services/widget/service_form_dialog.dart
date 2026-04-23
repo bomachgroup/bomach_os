@@ -1,15 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/service_controller.dart';
 import '../models/service_model.dart';
@@ -295,10 +295,9 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                           title: 'Status*',
                           onChanged: (value) {
                             setState(() {
-                              _selectedStatus =
-                                  value?.toLowerCase() == 'active'
-                                      ? 'active'
-                                      : 'inactive';
+                              _selectedStatus = value?.toLowerCase() == 'active'
+                                  ? 'active'
+                                  : 'inactive';
                             });
                           },
                         ),
@@ -312,7 +311,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
                     top: BorderSide(color: AppColors.neutral300),
                   ),
@@ -344,7 +343,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                               colorFilter: const ColorFilter.mode(
                                   AppColors.white, BlendMode.srcIn),
                             ),
-                            child: _isEditMode ? 'Update Service' : 'Add Service',
+                            child:
+                                _isEditMode ? 'Update Service' : 'Add Service',
                             onTap: _handleSubmit,
                           ),
                   ],

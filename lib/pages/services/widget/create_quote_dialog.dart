@@ -5,7 +5,7 @@ import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -225,12 +225,10 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    AppText.h3(
                       'Create New Quote',
-                      style: AppTextStyles.h3.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary500,
-                      ),
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary500,
                     ),
                     IconButton(
                       icon: const Icon(Iconsax.close_circle),
@@ -261,7 +259,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                AppTextStyles.bodySm(
+                                AppText.bodySm(
                                   'Service*',
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -337,7 +335,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppTextStyles.bodySm(
+                                  AppText.bodySm(
                                     'Valid Until*',
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -413,7 +411,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
                     top: BorderSide(color: AppColors.neutral300),
                   ),
@@ -462,7 +460,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppTextStyles.bodySm(
+        AppText.bodySm(
           'Client*',
           fontWeight: FontWeight.w500,
         ),
@@ -482,7 +480,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 const SizedBox(width: 12),
-                AppTextStyles.bodySm(
+                AppText.bodySm(
                   'Loading clients...',
                   color: AppColors.neutral500,
                 ),
@@ -554,7 +552,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                   child: _filteredClients.isEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(16),
-                          child: AppTextStyles.bodySm(
+                          child: AppText.bodySm(
                             'No clients found',
                             color: AppColors.neutral500,
                           ),
@@ -581,12 +579,12 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    AppTextStyles.bodyMd(
+                                    AppText.bodyMd(
                                       client.fullName,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    AppTextStyles.bodySm(
+                                    AppText.bodySm(
                                       client.email,
                                       color: AppColors.neutral500,
                                     ),

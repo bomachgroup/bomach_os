@@ -653,7 +653,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             // Action Buttons
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
                   top: BorderSide(color: AppColors.neutral300),
                 ),

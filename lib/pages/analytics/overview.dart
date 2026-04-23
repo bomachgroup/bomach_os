@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 
 import '../../components/text/app_text.dart';
 import '../../src/constants/spaces.dart';
-import '../../src/constants/textstyle.dart';
 import 'controllers/analytics_controller.dart';
 import 'widgets/metrics_card.dart';
 import 'widgets/section_card.dart';
@@ -57,7 +56,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
                     AnalyticsActions(),
                   ],
                 )
-              : const Column(
+              : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AppText.displayLg(

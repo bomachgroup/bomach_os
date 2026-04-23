@@ -286,7 +286,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
             // Action Buttons
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
                   top: BorderSide(color: AppColors.neutral300),
                 ),
@@ -534,7 +534,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
           _buildSummaryRow('Tax ($_taxRate%):',
               '₦${NumberFormat('#,###.##').format(_taxAmount)}'),
           const SizedBox(height: 16),
-          Divider(color: AppColors.neutral300),
+          const Divider(color: AppColors.neutral300),
           const SizedBox(height: 16),
           _buildSummaryRow(
             'Total:',

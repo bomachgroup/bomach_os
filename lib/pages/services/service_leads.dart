@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/permission_gate.dart';
@@ -98,7 +99,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppText.h4(
+                    AppText.h4(
                       'Add New Service Lead',
                       fontWeight: FontWeight.w600,
                     ),
@@ -326,7 +327,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                     AppText.h3(
                       "Service Leads",
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     AppText.bodySm(
                       "Manage service leads and convert to clients",
                       color: AppColors.textSecondary,
@@ -490,11 +491,11 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                   bgColor: AppColors.primary,
                                   onTap: () async {
                                     // Show confirmation dialog
-                                    final confirmed = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const AppText.h4(
-                                            'Convert Lead to Client'),
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: AppText.h4(
+                                          'Convert Lead to Client'),
                                         content: AppText.bodyMd(
                                           'Are you sure you want to convert ${lead.fullName} to a client?',
                                         ),

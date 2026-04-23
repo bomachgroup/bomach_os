@@ -15,7 +15,6 @@ import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // Using similar stat card from services
-import '../services/services.dart';
 import 'dialog/new_client.dart';
 import 'slides/analytics.dart';
 import 'slides/communications.dart';

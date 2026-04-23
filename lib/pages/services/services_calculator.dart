@@ -5,7 +5,6 @@ import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 class ServicesCalculatorPage extends StatefulWidget {
@@ -370,7 +369,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const AppText.h3('Project Information'),
+                          AppText.h3('Project Information'),
                           const SizedBox(height: 20),
                           MyTextFormField(
                             controller: _projectDescriptionController,
@@ -456,7 +455,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const AppText.h3('Additional Services'),
+                          AppText.h3('Additional Services'),
                           const SizedBox(height: 20),
                           CheckboxListTile(
                             title: const Text('Site Visit (+₦80,000)'),
@@ -521,7 +520,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const AppText.h3('Contact Information (Optional)'),
+                          AppText.h3('Contact Information (Optional)'),
                           const SizedBox(height: 20),
                           MyTextFormField(
                             controller: _clientNameController,
@@ -620,7 +619,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                               size: 48,
                             ),
                             const SizedBox(height: 16),
-                            const AppText.bodyLg(
+                            AppText.bodyLg(
                               'Estimated Cost',
                               color: AppColors.white,
                               fontWeight: FontWeight.w500,
@@ -683,7 +682,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.label('Service Category'),
+        AppText.label('Service Category'),
         const SizedBox(height: 10),
         Container(
           height: 50,
@@ -722,7 +721,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.label('Service Type'),
+        AppText.label('Service Type'),
         const SizedBox(height: 10),
         Container(
           height: 50,
@@ -759,7 +758,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.label('Project Scale'),
+        AppText.label('Project Scale'),
         const SizedBox(height: 10),
         Container(
           height: 50,
@@ -796,7 +795,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.label('Project Urgency'),
+        AppText.label('Project Urgency'),
         const SizedBox(height: 10),
         Container(
           height: 50,

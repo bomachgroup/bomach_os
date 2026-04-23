@@ -1,7 +1,6 @@
 import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -76,7 +75,7 @@ class DashboardPage extends StatelessWidget {
                         AppText.displayLg(
                           'Analytics',
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         AppText.bodyMd(
                           'Business intelligence and performance metrics',
                           fontWeight: FontWeight.w500,
@@ -84,21 +83,20 @@ class DashboardPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  AnalyticsActions(),
+                  const AnalyticsActions(),
                 ],
               )
-            : const Column(
+            : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText.displayLg(
                     'Analytics',
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   AppText.bodyMd(
                     'Business intelligence and performance metrics',
                     fontWeight: FontWeight.w500,
                   ),
-                  SizedBox(height: 16),
                   AnalyticsActions(),
                 ],
               ),

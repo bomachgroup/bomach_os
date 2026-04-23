@@ -9,7 +9,6 @@ import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/payment_approval_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -269,12 +268,12 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
               color: Colors.grey.shade400,
             ),
             const SizedBox(height: 16),
-            const AppText.h3(
+            AppText.h3(
               'No pending payments',
               color: AppColors.textSecondary,
             ),
             const SizedBox(height: 8),
-            const AppText.bodyMd(
+            AppText.bodyMd(
               'All payments have been processed',
               color: AppColors.textTertiary,
             ),
@@ -374,7 +373,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 12),
-            const AppText.h4('Invoice Items'),
+            AppText.h4('Invoice Items'),
             const SizedBox(height: 8),
             ...items.map((item) {
               final description =
@@ -406,7 +405,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 12),
-            const AppText.h4('Approval Steps'),
+            AppText.h4('Approval Steps'),
             const SizedBox(height: 12),
             ...approvals.map((approval) => _buildApprovalStep(
                   approval,
@@ -541,8 +540,8 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         label = 'Overdue';
         break;
       case 'sent':
-        backgroundColor = AppColors.secondary.withValues(alpha: 0.1);
-        textColor = AppColors.secondary;
+        backgroundColor = AppColors.info.withValues(alpha: 0.1);
+        textColor = AppColors.info;
         label = 'Sent';
         break;
       case 'draft':
@@ -590,7 +589,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppText.bodyMd('Are you sure you want to approve this payment?'),
+            AppText.bodyMd('Are you sure you want to approve this payment?'),
             const SizedBox(height: 16),
             AppText.bodyMd(
               'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
@@ -633,7 +632,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppText.bodyMd('Please provide a reason for rejection:'),
+            AppText.bodyMd('Please provide a reason for rejection:'),
             const SizedBox(height: 16),
             MyTextFormField(
               controller: reasonController,

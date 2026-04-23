@@ -161,9 +161,9 @@ class _ServicesPageState extends State<ServicesPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppText.h3('Service Catalog'),
+                    AppText.h3('Service Catalog'),
                     const SizedBox(height: 4),
-                    const AppText.bodySm(
+                    AppText.bodySm(
                       'Manage your service offerings and pricing',
                       color: AppColors.textSecondary,
                     ),
@@ -395,9 +395,9 @@ class _ServicesPageState extends State<ServicesPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppText.h3('Quotes Management'),
+                    AppText.h3('Quotes Management'),
                     const SizedBox(height: 4),
-                    const AppText.bodySm(
+                    AppText.bodySm(
                       'Manage and track your service quotes',
                       color: AppColors.textSecondary,
                     ),
@@ -599,9 +599,9 @@ class _ServicesPageState extends State<ServicesPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppText.h3('Service Orders'),
+                    AppText.h3('Service Orders'),
                     const SizedBox(height: 4),
-                    const AppText.bodySm(
+                    AppText.bodySm(
                       'Track active and completed service orders',
                       color: AppColors.textSecondary,
                     ),
@@ -935,29 +935,29 @@ class InvoiceCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const AppText.h4("INV-SVC-2024-002"),
+                    AppText.h4("INV-SVC-2024-002"),
                     const SizedBox(width: 12),
                     const StatusChip(
                         label: "Partially Paid", status: "warning"),
                   ],
                 ),
                 const SizedBox(height: 8),
-                const AppText.bodyMd(
+                AppText.bodyMd(
                   "Abuja Infrastructure Company",
                   fontWeight: FontWeight.w600,
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Iconsax.calendar,
+                    const Icon(Iconsax.calendar,
                         size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 6),
-                    const AppText.caption("Issue: 25 Jul 2024"),
+                    AppText.caption("Issue: 25 Jul 2024"),
                     const SizedBox(width: 16),
-                    Icon(Iconsax.timer_1,
+                    const Icon(Iconsax.timer_1,
                         size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 6),
-                    const AppText.caption("Due: 25 Aug 2024"),
+                    AppText.caption("Due: 25 Aug 2024"),
                   ],
                 ),
               ],
@@ -966,12 +966,12 @@ class InvoiceCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const AppText.h4(
+              AppText.h4(
                 "Total: ₦698,750.00",
                 color: AppColors.primary,
               ),
               const SizedBox(height: 4),
-              const AppText.bodySm(
+              AppText.bodySm(
                 "Paid: ₦300,000.00",
                 color: AppColors.success,
                 fontWeight: FontWeight.w600,
@@ -1050,7 +1050,7 @@ class QuoteCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Iconsax.calendar,
+                    const Icon(Iconsax.calendar,
                         size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 6),
                     AppText.caption('Valid until: $validUntil'),
@@ -1182,14 +1182,14 @@ class ServiceCard extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              Icon(Iconsax.money_send, size: 16, color: AppColors.primary),
+              const Icon(Iconsax.money_send, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
               AppText.bodySm(
                 price,
                 fontWeight: FontWeight.w700,
               ),
               const Spacer(),
-              Icon(Iconsax.timer_1, size: 16, color: AppColors.textSecondary),
+              const Icon(Iconsax.timer_1, size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 8),
               AppText.caption(duration),
             ],
@@ -1220,7 +1220,7 @@ class ServiceCard extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        side: BorderSide(color: AppColors.neutral200),
+        side: const BorderSide(color: AppColors.neutral200),
         foregroundColor: AppColors.textPrimary,
       ),
     );
