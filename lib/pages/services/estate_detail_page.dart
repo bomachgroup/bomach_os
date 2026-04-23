@@ -1,14 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/widget/add_plot_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class EstateDetailPage extends StatefulWidget {
   final Estate estate;
@@ -120,7 +120,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
               icon: const Icon(Iconsax.arrow_left_2),
               onPressed: () => Navigator.pop(context),
             ),
-            const Expanded(
+            Expanded(
               child: AppText.displayLg(
                 'Estate Details',
               ),
@@ -344,13 +344,14 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _buildStatCard(
-            'Total Plots', '${_plots.length}', Iconsax.element_4, AppColors.primary),
-        _buildStatCard(
-            'Available', '$availablePlots', Iconsax.tick_circle, AppColors.success),
+        _buildStatCard('Total Plots', '${_plots.length}', Iconsax.element_4,
+            AppColors.primary),
+        _buildStatCard('Available', '$availablePlots', Iconsax.tick_circle,
+            AppColors.success),
         _buildStatCard(
             'Reserved', '$reservedPlots', Iconsax.clock, AppColors.warning),
-        _buildStatCard('Sold', '$soldPlots', Iconsax.tick_circle, AppColors.success),
+        _buildStatCard(
+            'Sold', '$soldPlots', Iconsax.tick_circle, AppColors.success),
       ],
     );
   }
@@ -528,7 +529,8 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Iconsax.profile_circle, size: 14, color: AppColors.neutral500),
+                const Icon(Iconsax.profile_circle,
+                    size: 14, color: AppColors.neutral500),
                 const SizedBox(width: 4),
                 Expanded(
                   child: AppText.caption(

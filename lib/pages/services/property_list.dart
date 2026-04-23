@@ -2,7 +2,7 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/widget/add_property_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
@@ -105,17 +105,15 @@ class _PropertyListPageState extends State<PropertyListPage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
+                      AppText.displayLg(
                         'Properties',
-                        style: AppTextStyles.displayLg,
                       ),
-                      SizedBox(height: 8),
-                      MyText(
+                      const SizedBox(height: 8),
+                      AppText.bodyMd(
                         'Manage your property inventory and listings',
-                        style: AppTextStyles.bodyMd,
                       ),
                     ],
                   ),
@@ -410,14 +408,12 @@ class _PropertyListPageState extends State<PropertyListPage> {
             color: isSelected ? AppColors.primary : AppColors.neutral300,
           ),
         ),
-        child: MyText(
+        child: AppText.bodyMd(
           label,
           isSelectable: false,
-          style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.neutral500,
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
+          color: isSelected ? AppColors.white : AppColors.neutral500,
+          fontSize: 14,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
     );

@@ -1,15 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ServicesPropertyPage extends StatefulWidget {
   const ServicesPropertyPage({super.key});
@@ -41,19 +40,17 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
+                      AppText.displayLg(
                         'Services',
-                        style: AppTextStyles.displayLg,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 8,
                       ),
-                      MyText(
+                      AppText.bodyMd(
                         'Services',
-                        style: AppTextStyles.bodyMd,
                       ),
                     ],
                   ),
@@ -139,31 +136,31 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
     return [
       const DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
+        label: AppText.bodyMd(
           "Service name",
         ),
       ),
       const DataColumn(
-        label: MyText(
+        label: AppText.bodyMd(
           "Sub service",
         ),
       ),
       const DataColumn(
-          label: MyText(
+          label: AppText.bodyMd(
         "Added inventory",
       )),
       const DataColumn(
-        label: MyText(
+        label: AppText.bodyMd(
           "Order sales count",
         ),
       ),
       const DataColumn(
-        label: MyText(
+        label: AppText.bodyMd(
           "Aurthor date",
         ),
       ),
       const DataColumn(
-        label: MyText(
+        label: AppText.bodyMd(
           "Notes/Comments",
         ),
       ),
@@ -177,7 +174,7 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
           onTap: () {
             context.go(RouteConstants.serviceDetail);
           },
-          const MyText(
+          AppText.bodyMd(
             "Real Estate",
             isSelectable: false,
           ),
@@ -187,16 +184,16 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(
+              AppText.bodyMd(
                 "- Development and sales",
-                size: 16,
-                weight: 400,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
                 isSelectable: false,
               ),
-              MyText(
+              AppText.bodyMd(
                 "- Buy/Sales of property",
-                size: 16,
-                weight: 400,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
                 isSelectable: false,
               ),
             ],
@@ -207,29 +204,29 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(
+              AppText.bodyMd(
                 "- Fortress city Estate",
-                size: 16,
-                weight: 400,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
                 isSelectable: false,
               ),
-              MyText(
+              AppText.bodyMd(
                 "- Bethel city Estate",
-                size: 16,
-                weight: 400,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
                 isSelectable: false,
               ),
             ],
           ),
         ),
         const DataCell(
-          MyText("10 Order / sales - 35,00"),
+          AppText.bodyMd("10 Order / sales - 35,00"),
         ),
         const DataCell(
-          MyText("11/02/2024"),
+          AppText.bodyMd("11/02/2024"),
         ),
         const DataCell(
-          MyText(""),
+          AppText.bodyMd(""),
         ),
       ]);
     });

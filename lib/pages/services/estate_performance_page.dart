@@ -1,7 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/models/performance_invoice_model.dart';
 import 'package:bms_front_end/pages/services/widget/add_performance_invoice_dialog.dart';
@@ -217,11 +217,10 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                 onPressed: () => Navigator.pop(context),
               ),
             Expanded(
-              child: MyText(
+              child: AppText.displayLg(
                 widget.estate != null
                     ? '${widget.estate!.name} - Performance'
                     : 'Estate Performance & Invoices',
-                style: AppTextStyles.displayLg,
               ),
             ),
           ],

@@ -1,12 +1,11 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class LandSurveyCalculatorPage extends StatefulWidget {
   const LandSurveyCalculatorPage({super.key});
@@ -188,18 +187,15 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const MyText(
+          AppText.displayLg(
             'Land Survey Cost Calculator',
-            style: AppTextStyles.displayLg,
           ),
           kSizedBox,
-          const MyText(
+          AppText.bodyMd(
             'Get an instant estimate for your land surveying project',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 15,
-              color: Colors.black54,
-            ),
+            fontWeight: FontWeight.w500,
+            fontSize: 15,
+            color: Colors.black54,
           ),
           const SizedBox(height: 30),
 
@@ -504,7 +500,10 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppColors.primary, AppColors.primaryPressed],
+                            colors: [
+                              AppColors.primary,
+                              AppColors.primaryPressed
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -566,7 +565,8 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
                               child: 'Request Quote',
                               onTap: () {
                                 // Navigate to quote request or show dialog
-                                AppToast.success(context, 'Quote request sent successfully!');
+                                AppToast.success(context,
+                                    'Quote request sent successfully!');
                               },
                               bgColor: Colors.white,
                               textColor: AppColors.primary,

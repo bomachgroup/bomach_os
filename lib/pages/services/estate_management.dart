@@ -1,8 +1,8 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/widget/add_estate_dialog.dart';
@@ -13,6 +13,7 @@ import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 class EstateManagementPage extends StatelessWidget {
   const EstateManagementPage({super.key});
@@ -34,13 +35,13 @@ class EstateManagementPage extends StatelessWidget {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AppText.displayLg(
                         'Estate Management',
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       AppText.bodyMd(
                         'Manage your real estate developments',
                       ),
@@ -121,7 +122,8 @@ class EstateManagementPage extends StatelessWidget {
                     kSizedBox,
                     const MyText(
                       'No estates found',
-                      style: TextStyle(fontSize: 18, color: AppColors.neutral500),
+                      style:
+                          TextStyle(fontSize: 18, color: AppColors.neutral500),
                     ),
                   ],
                 ),
@@ -151,7 +153,8 @@ class EstateManagementPage extends StatelessWidget {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _buildStatCard('Total Estates', '$total', Iconsax.building_4, AppColors.primary),
+        _buildStatCard(
+            'Total Estates', '$total', Iconsax.building_4, AppColors.primary),
         _buildStatCard('Active', '$active', Iconsax.tick_circle, Colors.green),
       ],
     );
@@ -188,7 +191,8 @@ class EstateManagementPage extends StatelessWidget {
                   const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           MyText(label,
-              style: const TextStyle(fontSize: 14, color: AppColors.neutral500)),
+              style:
+                  const TextStyle(fontSize: 14, color: AppColors.neutral500)),
         ],
       ),
     );
@@ -223,13 +227,16 @@ class EstateManagementPage extends StatelessWidget {
                       color: isSelected ? AppColors.primary : AppColors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : AppColors.neutral300,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.neutral300,
                       ),
                     ),
                     child: MyText(
                       labels[f] ?? f,
                       style: TextStyle(
-                        color: isSelected ? AppColors.white : AppColors.neutral500,
+                        color:
+                            isSelected ? AppColors.white : AppColors.neutral500,
                         fontSize: 14,
                         fontWeight:
                             isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -277,7 +284,8 @@ class EstateManagementPage extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Iconsax.building_4, size: 40, color: AppColors.primary),
+              child: const Icon(Iconsax.building_4,
+                  size: 40, color: AppColors.primary),
             ),
             kSizedBoxWidthSM,
             // Estate Details

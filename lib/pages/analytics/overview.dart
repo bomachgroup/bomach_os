@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../../components/text/app_text.dart';
 import '../../src/constants/spaces.dart';
@@ -35,7 +35,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           screenWidth > 800
-              ? const Row(
+              ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
@@ -45,7 +45,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
                           AppText.displayLg(
                             'Analytics',
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           AppText.bodyMd(
                             'Business intelligence and performance metrics',
                             fontWeight: FontWeight.w500,
@@ -53,7 +53,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    AnalyticsActions(),
+                    const AnalyticsActions(),
                   ],
                 )
               : Column(
@@ -62,13 +62,13 @@ class AnalyticsOverviewPage extends StatelessWidget {
                     AppText.displayLg(
                       'Analytics',
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     AppText.bodyMd(
                       'Business intelligence and performance metrics',
                       fontWeight: FontWeight.w500,
                     ),
-                    SizedBox(height: 16),
-                    AnalyticsActions(),
+                    const SizedBox(height: 16),
+                    const AnalyticsActions(),
                   ],
                 ),
           kSizedBox,

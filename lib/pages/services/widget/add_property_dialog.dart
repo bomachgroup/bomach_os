@@ -4,7 +4,7 @@ import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/pages/services/models/property_model.dart';
@@ -322,7 +322,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AppTextStyles.h3(isEditing ? 'Edit Property' : 'Add New Property'),
+                  AppText.h3(isEditing ? 'Edit Property' : 'Add New Property'),
                   IconButton(
                     icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
@@ -511,7 +511,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         const SizedBox(height: 24),
 
                         // Property Images
-                        AppTextStyles.bodyMd(
+                        AppText.bodyMd(
                           'Property Images',
                           fontWeight: FontWeight.w500,
                         ),
@@ -541,7 +541,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                             strokeWidth: 2),
                                       ),
                                       const SizedBox(height: 8),
-                                      AppTextStyles.bodySm(
+                                      AppText.bodySm(
                                         'Uploading image...',
                                         color: AppColors.neutral500,
                                       ),
@@ -555,13 +555,13 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                         color: AppColors.primary,
                                       ),
                                       const SizedBox(height: 8),
-                                      AppTextStyles.bodySm(
+                                      AppText.bodySm(
                                         'Click to upload images',
                                         color: AppColors.primary,
                                         fontWeight: FontWeight.w500,
                                       ),
                                       const SizedBox(height: 4),
-                                      AppTextStyles.bodySm(
+                                      AppText.bodySm(
                                         'Supported: PNG, JPG, JPEG',
                                         color: AppColors.neutral500,
                                         fontSize: 12,
@@ -613,12 +613,12 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          AppTextStyles.bodySm(
+                                          AppText.bodySm(
                                             'Image ${index + 1}',
                                             fontWeight: FontWeight.w500,
                                           ),
                                           const SizedBox(height: 2),
-                                          AppTextStyles.bodySm(
+                                          AppText.bodySm(
                                             url,
                                             color: AppColors.neutral500,
                                             fontSize: 11,
@@ -701,7 +701,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
       children: [
         Row(
           children: [
-            AppTextStyles.bodySm(
+            AppText.bodySm(
               'Client',
               fontWeight: FontWeight.w500,
             ),
@@ -712,7 +712,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                 color: AppColors.neutral200,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: AppTextStyles.bodySm(
+              child: AppText.bodySm(
                 'Optional',
                 fontSize: 10,
                 color: AppColors.neutral500,
@@ -737,7 +737,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 const SizedBox(width: 12),
-                AppTextStyles.bodySm(
+                AppText.bodySm(
                   'Loading clients...',
                   color: AppColors.neutral500,
                 ),
@@ -808,7 +808,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   child: _filteredClients.isEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(16),
-                          child: AppTextStyles.bodySm(
+                          child: AppText.bodySm(
                             'No clients found',
                             color: AppColors.neutral500,
                           ),
@@ -835,12 +835,12 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    AppTextStyles.bodyMd(
+                                    AppText.bodyMd(
                                       client.fullName,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    AppTextStyles.bodySm(
+                                    AppText.bodySm(
                                       client.email,
                                       color: AppColors.neutral500,
                                     ),

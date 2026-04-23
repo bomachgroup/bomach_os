@@ -1,11 +1,11 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ServicesCalculatorPage extends StatefulWidget {
   const ServicesCalculatorPage({super.key});
@@ -271,9 +271,9 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const AppText.displayLg('Services Cost Calculator'),
+          AppText.displayLg('Services Cost Calculator'),
           kSizedBox,
-          const AppText.bodyLg(
+          AppText.bodyLg(
             'Get instant estimates for various professional services',
             color: AppColors.textSecondary,
           ),
@@ -306,7 +306,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const AppText.h3('Service Details'),
+                          AppText.h3('Service Details'),
                           const SizedBox(height: 20),
                           if (isWideScreen)
                             Row(
@@ -598,7 +598,10 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppColors.primary, AppColors.primaryPressed],
+                            colors: [
+                              AppColors.primary,
+                              AppColors.primaryPressed
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -657,7 +660,8 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                             MyElevatedButton(
                               child: 'Request Detailed Quote',
                               onTap: () {
-                                AppToast.success(context, 'Quote request sent successfully!');
+                                AppToast.success(context,
+                                    'Quote request sent successfully!');
                               },
                               bgColor: Colors.white,
                               textColor: AppColors.primary,

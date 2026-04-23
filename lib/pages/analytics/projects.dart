@@ -1,8 +1,8 @@
-import 'package:bms_front_end/pages/analytics/overview.dart';
-import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-
 import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/pages/analytics/overview.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+
 import 'widgets/metrics_card.dart';
 
 class ProjectsAnalytics extends StatelessWidget {
@@ -59,7 +59,7 @@ class ProjectBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               !isMobile
-                  ? const Row(
+                  ? Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
@@ -69,7 +69,7 @@ class ProjectBody extends StatelessWidget {
                               AppText.displayLg(
                                 'Analytics',
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               AppText.bodyMd(
                                 'Business intelligence and performance metrics',
                                 fontWeight: FontWeight.w500,
@@ -77,22 +77,22 @@ class ProjectBody extends StatelessWidget {
                             ],
                           ),
                         ),
-                        AnalyticsActions(),
+                        const AnalyticsActions(),
                       ],
                     )
-                  : const Column(
+                  : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AppText.displayLg(
                           'Analytics',
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         AppText.bodyMd(
                           'Business intelligence and performance metrics',
                           fontWeight: FontWeight.w500,
                         ),
-                        SizedBox(height: 16),
-                        AnalyticsActions(),
+                        const SizedBox(height: 16),
+                        const AnalyticsActions(),
                       ],
                     ),
               const SizedBox(height: 20),

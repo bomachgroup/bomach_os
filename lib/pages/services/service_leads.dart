@@ -1,15 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/permission_gate.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'controller/lead_controller.dart';
@@ -320,7 +319,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -376,8 +375,8 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
               ),
             )
           else if (_controller.leads.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(40.0),
+            Padding(
+              padding: const EdgeInsets.all(40.0),
               child: Center(
                 child: AppText.bodySm(
                   'No leads available',
@@ -491,11 +490,11 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                   bgColor: AppColors.primary,
                                   onTap: () async {
                                     // Show confirmation dialog
-                                  final confirmed = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: AppText.h4(
-                                          'Convert Lead to Client'),
+                                    final confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: AppText.h4(
+                                            'Convert Lead to Client'),
                                         content: AppText.bodyMd(
                                           'Are you sure you want to convert ${lead.fullName} to a client?',
                                         ),
@@ -503,7 +502,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                           TextButton(
                                             onPressed: () =>
                                                 Navigator.pop(context, false),
-                                            child: const AppText.bodyMd('Cancel',
+                                            child: AppText.bodyMd('Cancel',
                                                 color: AppColors.textSecondary),
                                           ),
                                           ElevatedButton(
@@ -559,11 +558,11 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                         color: AppColors.success
                                             .withValues(alpha: 0.3)),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(Iconsax.tick_circle,
+                                      const Icon(Iconsax.tick_circle,
                                           size: 16, color: AppColors.success),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       AppText.bodySm(
                                         'Converted to Client',
                                         color: AppColors.success,

@@ -8,7 +8,8 @@ import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
+// import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -185,15 +186,13 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Cases register', style: AppTextStyles.h3),
+                      AppText.h3('Cases register'),
                       const SizedBox(height: 4),
-                      Text(
+                      AppText.bodyMd(
                         loading
                             ? 'Loading disciplinary cases...'
                             : '${filtered.length} case${filtered.length == 1 ? '' : 's'} on record',
-                        style: AppTextStyles.bodyMd.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                        color: AppColors.textSecondary,
                       ),
                     ],
                   ),
@@ -253,12 +252,10 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
   }
 
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
-    final content = Text(
+    final content = AppText.bodySm(
       label,
-      style: AppTextStyles.bodySm.copyWith(
-        color: AppColors.textSecondary,
-        fontWeight: FontWeight.w600,
-      ),
+      color: AppColors.textSecondary,
+      fontWeight: FontWeight.w600,
     );
     if (width != null) return SizedBox(width: width, child: content);
     return Expanded(flex: flex ?? 1, child: content);
@@ -275,12 +272,10 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
         children: [
           Expanded(
             flex: 2,
-            child: Text(
+            child: AppText.bodyMd(
               kase.employeeId,
-              style: AppTextStyles.bodyMd.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -297,28 +292,28 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
           ),
           Expanded(
             flex: 2,
-            child: Text(
+            child: AppText.bodySm(
               kase.violationCategory,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              color: AppColors.textSecondary,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
             flex: 3,
-            child: Text(
+            child: AppText.bodyMd(
               kase.violationTitle,
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              color: AppColors.textPrimary,
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
           ),
           Expanded(
             flex: 2,
-            child: Text(
+            child: AppText.bodySm(
               kase.actionDate != null
                   ? DateFormat('dd MMM yyyy').format(kase.actionDate!)
                   : '—',
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              color: AppColors.textSecondary,
               overflow: TextOverflow.ellipsis,
             ),
           ),

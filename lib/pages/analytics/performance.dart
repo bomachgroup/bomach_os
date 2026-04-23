@@ -65,7 +65,7 @@ class DashboardPage extends StatelessWidget {
 
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         !isMobile
-            ? const Row(
+            ? Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(

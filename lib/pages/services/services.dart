@@ -1,11 +1,10 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:bms_front_end/components/section/page_header.dart';
-import 'package:bms_front_end/components/section/page_scaffold.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/lead_controller.dart';
 import 'package:bms_front_end/pages/services/controller/service_controller.dart';
@@ -22,6 +21,7 @@ import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import './models/service_model.dart';
 
@@ -139,7 +139,7 @@ class _ServicesPageState extends State<ServicesPage> {
               children: [
                 AppText.bodyMd(
                   _controller.errorMessage.value,
-                  color: AppColors.error,
+                  color: AppColors.danger,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -204,8 +204,8 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             )
           else if (_controller.services.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(40.0),
+            Padding(
+              padding: const EdgeInsets.all(40.0),
               child: Center(
                 child: AppText.bodyMd(
                   'No services available',
@@ -372,7 +372,7 @@ class _ServicesPageState extends State<ServicesPage> {
               children: [
                 AppText.bodyMd(
                   _controller.errorMessage.value,
-                  color: AppColors.error,
+                  color: AppColors.danger,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -525,13 +525,13 @@ class _ServicesPageState extends State<ServicesPage> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                '$pageNumber',
-                                color: isCurrentPage
-                                    ? AppColors.white
-                                    : AppColors.textPrimary,
-                                fontWeight: isCurrentPage
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
+                                  '$pageNumber',
+                                  color: isCurrentPage
+                                      ? AppColors.white
+                                      : AppColors.textPrimary,
+                                  fontWeight: isCurrentPage
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -576,7 +576,7 @@ class _ServicesPageState extends State<ServicesPage> {
               children: [
                 AppText.bodyMd(
                   _controller.errorMessage.value,
-                  color: AppColors.error,
+                  color: AppColors.danger,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -734,13 +734,13 @@ class _ServicesPageState extends State<ServicesPage> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                '$pageNumber',
-                                color: isCurrentPage
-                                    ? AppColors.white
-                                    : AppColors.textPrimary,
-                                fontWeight: isCurrentPage
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
+                                  '$pageNumber',
+                                  color: isCurrentPage
+                                      ? AppColors.white
+                                      : AppColors.textPrimary,
+                                  fontWeight: isCurrentPage
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -904,11 +904,11 @@ class _ServicesPageState extends State<ServicesPage> {
                           ]
                         : null,
                   ),
-                    AppText.bodySm(
-                      tabs[index],
-                      color: isActive ? AppColors.white : AppColors.textPrimary,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                    ),
+                  AppText.bodySm(
+                    tabs[index],
+                    color: isActive ? AppColors.white : AppColors.textPrimary,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                  ),
                 ),
               ),
             );
@@ -1182,14 +1182,16 @@ class ServiceCard extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              const Icon(Iconsax.money_send, size: 16, color: AppColors.primary),
+              const Icon(Iconsax.money_send,
+                  size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
               AppText.bodySm(
                 price,
                 fontWeight: FontWeight.w700,
               ),
               const Spacer(),
-              const Icon(Iconsax.timer_1, size: 16, color: AppColors.textSecondary),
+              const Icon(Iconsax.timer_1,
+                  size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 8),
               AppText.caption(duration),
             ],

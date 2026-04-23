@@ -228,7 +228,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                     AppText.h3(
                       'Create New Quote',
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primary500,
+                      color: AppColors.primary,
                     ),
                     IconButton(
                       icon: const Icon(Iconsax.close_circle),
