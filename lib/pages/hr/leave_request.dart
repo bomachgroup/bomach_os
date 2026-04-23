@@ -164,7 +164,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                               icon: const Icon(Iconsax.arrow_down_1,
                                   size: 18, color: AppColors.textSecondary),
                               elevation: 4,
-                              style: AppText.bodySm.copyWith(
+                              style: AppTextStyles.bodySm.copyWith(
                                   color: AppColors.textPrimary),
                               onChanged: (String? newValue) {
                                 _ctrl.updateStatusFilter(newValue, context);
@@ -200,7 +200,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                         const Icon(Iconsax.danger,
                             size: 48, color: AppColors.danger),
                         const SizedBox(height: 8),
-                        Text(_ctrl.errorMessage.value, style: AppText.bodyMd),
+                        Text(_ctrl.errorMessage.value, style: AppTextStyles.bodyMd),
                         TextButton(
                             onPressed: () => _ctrl.fetchLeaveRequests(context),
                             child: const Text("Retry"))
@@ -212,7 +212,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                 if (_ctrl.leaveList.isEmpty) {
                   return const SizedBox(
                     height: 200,
-                    child: Center(child: Text("No records found", style: AppText.bodyMd)),
+                    child: Center(child: Text("No records found", style: AppTextStyles.bodyMd)),
                   );
                 }
 
@@ -233,7 +233,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                             WidgetStateProperty.all(Colors.transparent),
                         columnSpacing: 24,
                         horizontalMargin: 20,
-                        headingTextStyle: AppText.label.copyWith(
+                        headingTextStyle: AppTextStyles.label.copyWith(
                             color: AppColors.textSecondary,
                             fontSize: 13),
                         dataRowMaxHeight: 72,
@@ -288,7 +288,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
         ),
         child: Text(
           text,
-          style: AppText.bodySm.copyWith(
+          style: AppTextStyles.bodySm.copyWith(
             color: isActive ? AppColors.textOnPrimary : AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
@@ -338,12 +338,12 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                   children: [
                     Text(
                       r.employeeId,
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                           fontWeight: FontWeight.w600),
                     ),
                     Text(
                       "Software Engineer",
-                      style: AppText.caption.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -353,7 +353,7 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
           DataCell(Text(
             toBeginningOfSentenceCase(r.leaveType.replaceAll('_', ' ')) ??
                 r.leaveType,
-            style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+            style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
           )),
           DataCell(Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -363,20 +363,20 @@ class LeaveRequestPageState extends State<LeaveRequestPage> {
                 r.startDate != null
                     ? DateFormat('dd MMM yyyy').format(r.startDate!)
                     : '',
-                style: AppText.bodySm,
+                style: AppTextStyles.bodySm,
               ),
               Text(
                 "to ${r.endDate != null ? DateFormat('dd MMM yyyy').format(r.endDate!) : ''}",
-                style: AppText.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
               ),
             ],
           )),
-          DataCell(Text(duration.toString(), style: AppText.bodyMd)),
+          DataCell(Text(duration.toString(), style: AppTextStyles.bodyMd)),
           DataCell(SizedBox(
             width: 150,
             child: Text(
               r.reason ?? "No reason",
-              style: AppText.bodySm,
+              style: AppTextStyles.bodySm,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
@@ -440,7 +440,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
@@ -448,7 +448,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             count,
-            style: AppText.h1.copyWith(
+            style: AppTextStyles.h1.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
             ),

@@ -33,7 +33,7 @@ class BudgetPage extends StatelessWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText('Budget', style: AppText.displayLg),
+                      MyText('Budget', style: AppTextStyles.displayLg),
                     ],
                   ),
                   MyElevatedButton(

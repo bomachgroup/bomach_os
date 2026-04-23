@@ -194,7 +194,7 @@ class _BranchPerformanceAnalysisPageState
             children: [
               const MyText(
                 'Branch Performance Analysis',
-                style: AppText.displayLg,
+                style: AppTextStyles.displayLg,
               ),
               const SizedBox(height: 8),
               MyText(
@@ -408,7 +408,7 @@ class _BranchPerformanceAnalysisPageState
             const SizedBox(height: 12),
             MyText(
               value,
-              style: AppText.h1,
+              style: AppTextStyles.h1,
             ),
           ],
         ),
@@ -518,7 +518,7 @@ class _BranchPerformanceAnalysisPageState
                     children: [
                       MyText(
                         branch.branchName,
-                        style: AppText.bodyLg,
+                        style: AppTextStyles.bodyLg,
                       ),
                       const SizedBox(height: 4),
                       MyText(
@@ -672,7 +672,7 @@ class _SectionCard extends StatelessWidget {
                 if (titleIcon != null) Icon(titleIcon, size: 20),
                 MyText(
                   title,
-                  style: AppText.bodyLg,
+                  style: AppTextStyles.bodyLg,
                 ),
               ],
             ),

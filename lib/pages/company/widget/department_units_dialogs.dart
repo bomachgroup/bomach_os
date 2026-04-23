@@ -35,12 +35,12 @@ Widget _buildSection({
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppText.h4),
+        Text(title, style: AppTextStyles.h4),
         if (subtitle != null) ...[
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ],
         const SizedBox(height: 16),
@@ -60,13 +60,13 @@ Widget _detailRow(String label, String value) {
           width: 140,
           child: Text(
             label,
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ),
         Expanded(
           child: Text(
             value.isEmpty ? '-' : value,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w500,
             ),
@@ -574,7 +574,7 @@ Widget _buildSummaryBanner({
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: AppText.h3),
+              Text(title, style: AppTextStyles.h3),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,

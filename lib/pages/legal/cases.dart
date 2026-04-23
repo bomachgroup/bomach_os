@@ -146,7 +146,7 @@ class CasesTable extends StatelessWidget {
               data.caseName,
               softWrap: true,
               overflow: TextOverflow.ellipsis,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -176,7 +176,7 @@ class CasesTable extends StatelessWidget {
               data.exposure ?? 'N/A',
               softWrap: true,
               overflow: TextOverflow.ellipsis,
-              style: AppText.bodySm.copyWith(color: AppColors.danger),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.danger),
             ),
           ),
         ),
@@ -187,7 +187,7 @@ class CasesTable extends StatelessWidget {
               data.nextHearing ?? 'N/A',
               softWrap: true,
               overflow: TextOverflow.ellipsis,
-              style: AppText.bodySm.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
             ),
           ),
         ),
@@ -244,7 +244,7 @@ class CasesTable extends StatelessWidget {
                     size: DialogSize.sm,
                     body: Text(
                       "Are you sure you want to delete '${data.caseName}'? This action cannot be undone.",
-                      style: AppText.bodyMd
+                      style: AppTextStyles.bodyMd
                           .copyWith(color: AppColors.textSecondary),
                     ),
                     actions: [
@@ -252,7 +252,7 @@ class CasesTable extends StatelessWidget {
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
                           'Cancel',
-                          style: AppText.bodyMd
+                          style: AppTextStyles.bodyMd
                               .copyWith(color: AppColors.textSecondary),
                         ),
                       ),
@@ -290,7 +290,7 @@ class CasesTable extends StatelessWidget {
       icon: Icon(icon, color: color, size: isMobile ? 14 : 16),
       label: Text(
         label,
-        style: AppText.bodySm.copyWith(
+        style: AppTextStyles.bodySm.copyWith(
           color: color,
           fontWeight: FontWeight.w500,
         ),
@@ -318,11 +318,11 @@ class CasesTable extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Legal Cases', style: AppText.h2),
+          const Text('Legal Cases', style: AppTextStyles.h2),
           const SizedBox(height: 4),
           Text(
             'Track all legal proceedings and disputes',
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           Scrollbar(
@@ -340,10 +340,10 @@ class CasesTable extends StatelessWidget {
                   columnSpacing: isMobile ? 12 : 24,
                   headingRowColor: WidgetStateProperty.all(
                       AppColors.surfaceMuted),
-                  headingTextStyle: AppText.label.copyWith(
+                  headingTextStyle: AppTextStyles.label.copyWith(
                     color: AppColors.textSecondary,
                   ),
-                  dataTextStyle: AppText.bodyMd.copyWith(
+                  dataTextStyle: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                   ),
                   dividerThickness: 1.0,

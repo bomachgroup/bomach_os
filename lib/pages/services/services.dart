@@ -1,10 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/lead_controller.dart';
 import 'package:bms_front_end/pages/services/controller/service_controller.dart';
 import 'package:bms_front_end/pages/services/service_leads.dart';
@@ -52,73 +54,32 @@ class _ServicesPageState extends State<ServicesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Services',
-                        style: AppText.displayLg,
-                      ),
-                      MyText(
-                        'Manage your service catalog, quotes, and orders',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Iconsax.add_circle,
-                      color: AppColors.white,
-                    ),
-                    child: "Add Service",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const ServiceFormDialog();
-                        },
-                      );
-                    },
-                  )
-                ],
-              ),
-            ),
-          ],
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Services Dashboard',
+        subtitle: 'Manage your service catalog, quotes, and orders',
+        trailing: MyElevatedButton(
+          icon: const Icon(Iconsax.add_circle, color: AppColors.white),
+          child: "Add Service",
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const ServiceFormDialog(),
+            );
+          },
         ),
-        kSizedBox,
+      ),
+      children: [
         _buildQuickNav(),
-        kSizedBox,
+        const SizedBox(height: 24),
         _buildTopStats(context),
-        const SizedBox(height: 18),
+        const SizedBox(height: 32),
         _buildTabs(context, (index) => setState(() => _selectedTab = index)),
-        const SizedBox(height: 18),
+        const SizedBox(height: 24),
         if (_selectedTab == 0) _catalog(),
         if (_selectedTab == 1) _quotes(),
         if (_selectedTab == 2) _orders(),
-        // if (_selectedTab == 3) _billing(),
-        // if (_selectedTab == 4) const GenerateInvoicePage(),
         if (_selectedTab == 3) const ServiceLeadsPage(),
-        // if (_selectedTab == 6) const ServiceInvoicesPage(),
-
-        // _catalog(),
-        // _quotes(),
-        // _orders(),
-        // _billing(),
       ],
     );
   }
@@ -176,9 +137,9 @@ class _ServicesPageState extends State<ServicesPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                AppText.bodyMd(
                   _controller.errorMessage.value,
-                  style: const TextStyle(color: Colors.red),
+                  color: AppColors.error,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -197,52 +158,41 @@ class _ServicesPageState extends State<ServicesPage> {
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  spacing: 10,
-                  runSpacing: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title + subtitle
-                        Text('Service Catalog',
-                            style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.w600)),
-                        SizedBox(height: 8),
-                        Text('Manage your service offerings and pricing',
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.black54)),
-                      ],
+                    const AppText.h3('Service Catalog'),
+                    const SizedBox(height: 4),
+                    const AppText.bodySm(
+                      'Manage your service offerings and pricing',
+                      color: AppColors.textSecondary,
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          width: 250,
-                          child: MyTextFormField(
-                            controller: _searchController,
-                            hintText: 'Search for services...',
-                            leading: Icon(
-                              Iconsax.search_normal,
-                              color: AppColors.neutral500.withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        MyElevatedButton(
-                          child: 'Filter',
-                          onTap: () => _onSearch(
-                            _searchController.text.trim(),
-                          ),
-                        ),
-                      ],
-                    )
                   ],
                 ),
               ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 300,
+                    child: MyTextFormField(
+                      controller: _searchController,
+                      hintText: 'Search services...',
+                      leading: Icon(
+                        Iconsax.search_normal,
+                        color: AppColors.textSecondary.withValues(alpha: 0.5),
+                        size: 18,
+                      ),
+                      onChanged: (v) => _onSearch(v.trim()),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  MyElevatedButton(
+                    child: 'Filter',
+                    onTap: () => _onSearch(_searchController.text.trim()),
+                  ),
+                ],
+              )
             ],
           ),
           const SizedBox(height: 18),
@@ -257,9 +207,9 @@ class _ServicesPageState extends State<ServicesPage> {
             const Padding(
               padding: EdgeInsets.all(40.0),
               child: Center(
-                child: Text(
+                child: AppText.bodyMd(
                   'No services available',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  color: AppColors.textSecondary,
                 ),
               ),
             )
@@ -331,8 +281,9 @@ class _ServicesPageState extends State<ServicesPage> {
                         : null,
                     icon: const Icon(Iconsax.arrow_left_2),
                     style: IconButton.styleFrom(
-                      backgroundColor:
-                          currentPage > 1 ? AppColors.primary : Colors.grey[300],
+                      backgroundColor: currentPage > 1
+                          ? AppColors.primary
+                          : Colors.grey[300],
                       foregroundColor:
                           currentPage > 1 ? Colors.white : Colors.grey[600],
                     ),
@@ -358,8 +309,9 @@ class _ServicesPageState extends State<ServicesPage> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color:
-                                  isCurrentPage ? AppColors.primary : Colors.white,
+                              color: isCurrentPage
+                                  ? AppColors.primary
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: isCurrentPage
@@ -370,14 +322,12 @@ class _ServicesPageState extends State<ServicesPage> {
                             alignment: Alignment.center,
                             child: Text(
                               '$pageNumber',
-                              style: TextStyle(
-                                color: isCurrentPage
-                                    ? Colors.white
-                                    : Colors.black87,
-                                fontWeight: isCurrentPage
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
+                              color: isCurrentPage
+                                  ? AppColors.white
+                                  : AppColors.textPrimary,
+                              fontWeight: isCurrentPage
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -420,9 +370,9 @@ class _ServicesPageState extends State<ServicesPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                AppText.bodyMd(
                   _controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  color: AppColors.error,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -442,41 +392,27 @@ class _ServicesPageState extends State<ServicesPage> {
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  spacing: 10,
-                  runSpacing: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Quotes Management',
-                            style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.w600)),
-                        SizedBox(height: 8),
-                        Text('Track and manage service quotes',
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.black54)),
-                      ],
-                    ),
-                    MyElevatedButton(
-                      icon: const Icon(
-                        Iconsax.add_circle,
-                        color: AppColors.white,
-                      ),
-                      child: "Create Quote",
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const CreateQuoteDialog();
-                          },
-                        );
-                      },
+                    const AppText.h3('Quotes Management'),
+                    const SizedBox(height: 4),
+                    const AppText.bodySm(
+                      'Manage and track your service quotes',
+                      color: AppColors.textSecondary,
                     ),
                   ],
                 ),
+              ),
+              MyElevatedButton(
+                icon: const Icon(Iconsax.add_circle, color: AppColors.white),
+                child: "Create Quote",
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const CreateQuoteDialog(),
+                  );
+                },
               ),
             ],
           ),
@@ -492,9 +428,9 @@ class _ServicesPageState extends State<ServicesPage> {
             const Padding(
               padding: EdgeInsets.all(40.0),
               child: Center(
-                child: Text(
+                child: AppText.bodyMd(
                   'No quotes available',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  color: AppColors.textSecondary,
                 ),
               ),
             )
@@ -538,16 +474,19 @@ class _ServicesPageState extends State<ServicesPage> {
                         onPressed: currentPage > 1
                             ? () => _controller.previousQuotePage()
                             : null,
-                        icon: const Icon(Iconsax.arrow_left_2),
+                        icon: const Icon(Iconsax.arrow_left_2, size: 20),
                         style: IconButton.styleFrom(
                           backgroundColor: currentPage > 1
                               ? AppColors.primary
-                              : Colors.grey[300],
-                          foregroundColor:
-                              currentPage > 1 ? Colors.white : Colors.grey[600],
+                              : AppColors.neutral200,
+                          foregroundColor: currentPage > 1
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       ...List.generate(
                         endPage - startPage + 1,
                         (index) {
@@ -559,48 +498,61 @@ class _ServicesPageState extends State<ServicesPage> {
                             child: InkWell(
                               onTap: () =>
                                   _controller.goToQuotePage(pageNumber),
+                              borderRadius: BorderRadius.circular(10),
                               child: Container(
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: isCurrentPage
                                       ? AppColors.primary
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
+                                      : AppColors.white,
+                                  borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: isCurrentPage
                                         ? AppColors.primary
-                                        : Colors.grey[300]!,
+                                        : AppColors.neutral200,
                                   ),
+                                  boxShadow: isCurrentPage
+                                      ? [
+                                          BoxShadow(
+                                            color: AppColors.primary
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          )
+                                        ]
+                                      : null,
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  '$pageNumber',
-                                  style: TextStyle(
-                                    color: isCurrentPage
-                                        ? Colors.white
-                                        : Colors.black87,
-                                    fontWeight: isCurrentPage
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
+                                '$pageNumber',
+                                color: isCurrentPage
+                                    ? AppColors.white
+                                    : AppColors.textPrimary,
+                                fontWeight: isCurrentPage
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
                                 ),
                               ),
                             ),
                           );
                         },
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       IconButton(
                         onPressed: hasNextPage
                             ? () => _controller.nextQuotePage()
                             : null,
-                        icon: const Icon(Iconsax.arrow_right_3),
+                        icon: const Icon(Iconsax.arrow_right_3, size: 20),
                         style: IconButton.styleFrom(
-                          backgroundColor:
-                              hasNextPage ? AppColors.primary : Colors.grey[300],
-                          foregroundColor:
-                              hasNextPage ? Colors.white : Colors.grey[600],
+                          backgroundColor: hasNextPage
+                              ? AppColors.primary
+                              : AppColors.neutral200,
+                          foregroundColor: hasNextPage
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ],
@@ -622,9 +574,9 @@ class _ServicesPageState extends State<ServicesPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                AppText.bodyMd(
                   _controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  color: AppColors.error,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -644,41 +596,27 @@ class _ServicesPageState extends State<ServicesPage> {
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  spacing: 10,
-                  runSpacing: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Service Orders',
-                            style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.w600)),
-                        SizedBox(height: 8),
-                        Text('Track active and completed service orders',
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.black54)),
-                      ],
-                    ),
-                    MyElevatedButton(
-                      icon: const Icon(
-                        Iconsax.add_circle,
-                        color: AppColors.white,
-                      ),
-                      child: "Create Order",
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const CreateOrderDialog();
-                          },
-                        );
-                      },
+                    const AppText.h3('Service Orders'),
+                    const SizedBox(height: 4),
+                    const AppText.bodySm(
+                      'Track active and completed service orders',
+                      color: AppColors.textSecondary,
                     ),
                   ],
                 ),
+              ),
+              MyElevatedButton(
+                icon: const Icon(Iconsax.add_circle, color: AppColors.white),
+                child: "Create Order",
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const CreateOrderDialog(),
+                  );
+                },
               ),
             ],
           ),
@@ -694,9 +632,9 @@ class _ServicesPageState extends State<ServicesPage> {
             const Padding(
               padding: EdgeInsets.all(40.0),
               child: Center(
-                child: Text(
+                child: AppText.bodyMd(
                   'No orders available',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  color: AppColors.textSecondary,
                 ),
               ),
             )
@@ -745,16 +683,19 @@ class _ServicesPageState extends State<ServicesPage> {
                         onPressed: currentPage > 1
                             ? () => _controller.previousOrderPage()
                             : null,
-                        icon: const Icon(Iconsax.arrow_left_2),
+                        icon: const Icon(Iconsax.arrow_left_2, size: 20),
                         style: IconButton.styleFrom(
                           backgroundColor: currentPage > 1
                               ? AppColors.primary
-                              : Colors.grey[300],
-                          foregroundColor:
-                              currentPage > 1 ? Colors.white : Colors.grey[600],
+                              : AppColors.neutral200,
+                          foregroundColor: currentPage > 1
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       ...List.generate(
                         endPage - startPage + 1,
                         (index) {
@@ -766,48 +707,61 @@ class _ServicesPageState extends State<ServicesPage> {
                             child: InkWell(
                               onTap: () =>
                                   _controller.goToOrderPage(pageNumber),
+                              borderRadius: BorderRadius.circular(10),
                               child: Container(
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: isCurrentPage
                                       ? AppColors.primary
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
+                                      : AppColors.white,
+                                  borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: isCurrentPage
                                         ? AppColors.primary
-                                        : Colors.grey[300]!,
+                                        : AppColors.neutral200,
                                   ),
+                                  boxShadow: isCurrentPage
+                                      ? [
+                                          BoxShadow(
+                                            color: AppColors.primary
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          )
+                                        ]
+                                      : null,
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  '$pageNumber',
-                                  style: TextStyle(
-                                    color: isCurrentPage
-                                        ? Colors.white
-                                        : Colors.black87,
-                                    fontWeight: isCurrentPage
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
+                                '$pageNumber',
+                                color: isCurrentPage
+                                    ? AppColors.white
+                                    : AppColors.textPrimary,
+                                fontWeight: isCurrentPage
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
                                 ),
                               ),
                             ),
                           );
                         },
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       IconButton(
                         onPressed: hasNextPage
                             ? () => _controller.nextOrderPage()
                             : null,
-                        icon: const Icon(Iconsax.arrow_right_3),
+                        icon: const Icon(Iconsax.arrow_right_3, size: 20),
                         style: IconButton.styleFrom(
-                          backgroundColor:
-                              hasNextPage ? AppColors.primary : Colors.grey[300],
-                          foregroundColor:
-                              hasNextPage ? Colors.white : Colors.grey[600],
+                          backgroundColor: hasNextPage
+                              ? AppColors.primary
+                              : AppColors.neutral200,
+                          foregroundColor: hasNextPage
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ],
@@ -822,41 +776,88 @@ class _ServicesPageState extends State<ServicesPage> {
 
   Widget _buildTopStats(BuildContext context) {
     return Obx(() {
-      final items = [
-        {'label': 'Services', 'count': _controller.services.length.toString()},
-        {'label': 'Orders', 'count': _controller.orders.length.toString()},
-        {'label': 'Quotes', 'count': _controller.quotes.length.toString()},
-        {'label': 'Leads', 'count': _leadController.leads.length.toString()},
-      ];
+      final servicesCount = _controller.services.length.toString();
+      final ordersCount = _controller.orders.length.toString();
+      final quotesCount = _controller.quotes.length.toString();
+      final leadsCount = _leadController.leads.length.toString();
 
       return LayoutBuilder(
         builder: (context, constraints) {
-          double width = constraints.maxWidth;
-          // show 4 cards in a row on wide screens, otherwise stack
-          if (width > 900) {
-            return Row(
-              spacing: 18,
-              children: items
-                  .map((it) => Expanded(
-                        child:
-                            StatsCard(label: it['label']!, count: it['count']!),
-                      ))
-                  .toList(),
-            );
-          } else {
-            return Wrap(
-              spacing: 18,
-              runSpacing: 18,
-              children: items
-                  .map((it) => Expanded(
-                      child:
-                          StatsCard(label: it['label']!, count: it['count']!)))
-                  .toList(),
-            );
-          }
+          final bool isMobile = constraints.maxWidth < 650;
+          final int crossAxisCount =
+              isMobile ? 1 : (constraints.maxWidth > 1100 ? 4 : 2);
+
+          return GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+            childAspectRatio: isMobile ? 2.8 : 2.2,
+            children: [
+              _buildStatCard(
+                  "Services", servicesCount, AppColors.primary, Iconsax.box),
+              _buildStatCard("Orders", ordersCount, AppColors.success,
+                  Iconsax.shopping_bag),
+              _buildStatCard("Quotes", quotesCount, AppColors.warning,
+                  Iconsax.document_text),
+              _buildStatCard("Leads", leadsCount, const Color(0xFF8B5CF6),
+                  Iconsax.user_tag),
+            ],
+          );
         },
       );
     });
+  }
+
+  Widget _buildStatCard(
+      String title, String value, Color color, IconData icon) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withValues(alpha: 0.15),
+                  color.withValues(alpha: 0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: color.withValues(alpha: 0.1),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(icon, color: color, size: 26),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AppText.bodySm(
+                  title,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+                const SizedBox(height: 4),
+                AppText.h2(
+                  value,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTabs(BuildContext context, void Function(int) onTap) {
@@ -878,27 +879,36 @@ class _ServicesPageState extends State<ServicesPage> {
             final isActive = _selectedTab == index;
             return Padding(
               padding: const EdgeInsets.only(right: 12),
-              child: GestureDetector(
+              child: InkWell(
                 onTap: () => onTap(index),
-                child: Container(
+                borderRadius: BorderRadius.circular(12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
                   padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: isActive
-                        ? AppColors.primary
-                        : AppColors.white.withValues(alpha: 0.90),
-                    borderRadius: BorderRadius.circular(20),
+                    color: isActive ? AppColors.primary : AppColors.white,
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: isActive ? AppColors.primary : AppColors.neutral300),
-                  ),
-                  child: Text(
-                    tabs[index],
-                    style: TextStyle(
-                      color: isActive ? Colors.white : Colors.black87,
-                      fontWeight:
-                          isActive ? FontWeight.w600 : FontWeight.normal,
+                      color:
+                          isActive ? AppColors.primary : AppColors.neutral200,
+                      width: 1,
                     ),
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            )
+                          ]
+                        : null,
                   ),
+                    AppText.bodySm(
+                      tabs[index],
+                      color: isActive ? AppColors.white : AppColors.textPrimary,
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                    ),
                 ),
               ),
             );
@@ -914,130 +924,83 @@ class InvoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left Section
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Invoice No + Status
                 Row(
                   children: [
-                    const Text(
-                      "INV-SVC-2024-002",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.grey.shade100,
-                      ),
-                      child: const Text(
-                        "Partially Paid",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
+                    const AppText.h4("INV-SVC-2024-002"),
+                    const SizedBox(width: 12),
+                    const StatusChip(
+                        label: "Partially Paid", status: "warning"),
                   ],
                 ),
-                const SizedBox(height: 6),
-                const Text(
+                const SizedBox(height: 8),
+                const AppText.bodyMd(
                   "Abuja Infrastructure Company",
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(height: 4),
-                const Row(
+                const SizedBox(height: 8),
+                Row(
                   children: [
-                    Text(
-                      "Issue Date: 25 Jul 2024",
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
-                    ),
-                    SizedBox(width: 16),
-                    Text(
-                      "Due Date: 25 Aug 2024",
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
-                    ),
+                    Icon(Iconsax.calendar,
+                        size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 6),
+                    const AppText.caption("Issue: 25 Jul 2024"),
+                    const SizedBox(width: 16),
+                    Icon(Iconsax.timer_1,
+                        size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 6),
+                    const AppText.caption("Due: 25 Aug 2024"),
                   ],
                 ),
               ],
             ),
           ),
-
-          // Right Section
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
-                "Amount: ₦650,000.00",
-                style: TextStyle(fontSize: 13, color: Colors.black54),
-              ),
-              const Text(
-                "Tax: ₦48,750.00",
-                style: TextStyle(fontSize: 13, color: Colors.black87),
-              ),
-              const Text(
+              const AppText.h4(
                 "Total: ₦698,750.00",
-                style: TextStyle(fontSize: 13, color: Colors.black87),
+                color: AppColors.primary,
               ),
-              const Text(
+              const SizedBox(height: 4),
+              const AppText.bodySm(
                 "Paid: ₦300,000.00",
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.green,
-                  fontWeight: FontWeight.w500,
-                ),
+                color: AppColors.success,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Row(
                 children: [
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(50, 32),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 6),
-                    ),
-                    onPressed: () {},
-                    child: const Text("View"),
-                  ),
+                  _cardButton("View", Iconsax.eye, () {}),
                   const SizedBox(width: 8),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(50, 32),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 6),
-                    ),
-                    onPressed: () {},
-                    child: const Text("Edit"),
-                  ),
+                  _cardButton("Edit", Iconsax.edit, () {}),
                 ],
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _cardButton(String label, IconData icon, VoidCallback onTap) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 14),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        minimumSize: Size.zero,
+        textStyle: AppText.caption.copyWith(fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -1067,113 +1030,77 @@ class QuoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final isAccepted = status == 'Accepted';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
-      ),
-      padding: const EdgeInsets.all(16),
+    return AppCard(
+      padding: const EdgeInsets.all(20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Left Text Section
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  company,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                AppText.h4(company),
+                const SizedBox(height: 6),
+                AppText.bodyMd(
+                  service,
+                  color: AppColors.textPrimary,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  service,
-                  style: const TextStyle(color: Colors.black87),
+                AppText.caption(email),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Iconsax.calendar,
+                        size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 6),
+                    AppText.caption('Valid until: $validUntil'),
+                  ],
                 ),
-                Text(
-                  email,
-                  style: const TextStyle(color: Colors.black54),
-                ),
-                Text(
-                  'Valid until: $validUntil',
-                  style: const TextStyle(color: Colors.black54),
-                ),
-                Text(
+                const SizedBox(height: 8),
+                AppText.bodySm(
                   description,
-                  style: const TextStyle(color: Colors.black87),
+                  color: AppColors.textSecondary,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          // Price & Status Section
+          const SizedBox(width: 24),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
+              AppText.h4(
                 price,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
+                color: AppColors.primary,
               ),
-              const SizedBox(height: 8),
-              Row(
-                spacing: 10,
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
                 children: statuses
-                    .map(
-                      (status) => Builder(builder: (context) {
-                        final isAccepted =
-                            ['Completed', 'Accepted'].contains(status)
-                                ? true
-                                : false;
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color:
-                                isAccepted ? Colors.black : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                            border: isAccepted
-                                ? null
-                                : Border.all(color: Colors.black26, width: 1),
-                          ),
-                          child: Text(
-                            status,
-                            style: TextStyle(
-                              color: isAccepted ? Colors.white : Colors.black87,
-                              fontSize: 13,
-                            ),
-                          ),
-                        );
-                      }),
-                    )
+                    .map((status) => StatusChip(
+                          label: status,
+                          status: _mapStatusToTone(status),
+                        ))
                     .toList(),
               ),
               if (paymentLink != null && paymentLink!.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: paymentLink!));
-                    AppToast.success(context, 'Payment link copied to clipboard');
+                    AppToast.success(
+                        context, 'Payment link copied to clipboard');
                   },
-                  icon: const Icon(Iconsax.copy, size: 16),
-                  label: const Text('Copy Payment Link'),
+                  icon: const Icon(Iconsax.copy, size: 14),
+                  label: const Text('Payment Link'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: const BorderSide(color: AppColors.primary),
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    textStyle: const TextStyle(fontSize: 12),
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    textStyle:
+                        AppText.caption.copyWith(fontWeight: FontWeight.w600),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
               ],
@@ -1183,44 +1110,14 @@ class QuoteCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class StatsCard extends StatelessWidget {
-  final String label;
-  final String count;
-  const StatsCard({super.key, required this.label, required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      // height: 160,
-      constraints: const BoxConstraints(minWidth: 200, maxHeight: 160),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, 8))
-        ],
-      ),
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-            radius: 16,
-            child: const Icon(Iconsax.profile_circle, color: AppColors.primary, size: 18),
-          ),
-          const Spacer(),
-          Text(count,
-              style:
-                  const TextStyle(fontSize: 36, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(label,
-              style: const TextStyle(fontSize: 14, color: Colors.black54)),
-        ],
-      ),
-    );
+  String _mapStatusToTone(String status) {
+    final s = status.toLowerCase();
+    if (s.contains('completed') || s.contains('accepted') || s.contains('paid'))
+      return 'success';
+    if (s.contains('pending') || s.contains('partial')) return 'warning';
+    if (s.contains('cancelled') || s.contains('rejected')) return 'error';
+    return 'neutral';
   }
 }
 
@@ -1246,115 +1143,85 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, 8))
-        ],
-      ),
-      padding: const EdgeInsets.all(14),
+    return AppCard(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(title,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w700)),
+              Expanded(child: AppText.h4(title)),
+              StatusChip(
+                label: status.capitalizeFirst ?? "",
+                status:
+                    status.toLowerCase() == 'active' ? 'success' : 'neutral',
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(status.capitalizeFirst ?? "",
-                    style: const TextStyle(color: Colors.white, fontSize: 12)),
-              )
             ],
           ),
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
+              color: AppColors.neutral100,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey.shade300),
-              color: Colors.white,
             ),
-            child: Text(category.replaceFirst("_", " ").capitalizeFirst ?? "",
-                style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            child: AppText.caption(
+              category.replaceFirst("_", " ").capitalizeFirst ?? "",
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(height: 12),
-          Text(description,
-              style: const TextStyle(
-                  fontSize: 13, color: Colors.black54, height: 1.35)),
           const SizedBox(height: 16),
+          AppText.bodySm(
+            description,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+          const SizedBox(height: 20),
           Row(
             children: [
-              Text('Base Price: $price',
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w500)),
+              Icon(Iconsax.money_send, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
+              AppText.bodySm(
+                price,
+                fontWeight: FontWeight.w700,
+              ),
               const Spacer(),
-              Text(duration,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54)),
+              Icon(Iconsax.timer_1, size: 16, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              AppText.caption(duration),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return ServiceFormDialog(service: service);
-                      },
-                    );
-                  },
-                  icon: const Icon(Iconsax.eye),
-                  label: const Text('View'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    side: BorderSide(color: Colors.grey.shade300),
-                    foregroundColor: Colors.black87,
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-              ),
+              Expanded(child: _actionButton("View", Iconsax.eye, context)),
               const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return ServiceFormDialog(service: service);
-                      },
-                    );
-                  },
-                  icon: const Icon(Iconsax.edit),
-                  label: const Text('Edit'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    side: BorderSide(color: Colors.grey.shade300),
-                    foregroundColor: Colors.black87,
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-              ),
+              Expanded(child: _actionButton("Edit", Iconsax.edit, context)),
             ],
           )
         ],
+      ),
+    );
+  }
+
+  Widget _actionButton(String label, IconData icon, BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => ServiceFormDialog(service: service),
+        );
+      },
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        side: BorderSide(color: AppColors.neutral200),
+        foregroundColor: AppColors.textPrimary,
       ),
     );
   }

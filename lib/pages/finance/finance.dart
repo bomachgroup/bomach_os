@@ -157,7 +157,7 @@ class _FinancePageState extends State<FinancePage> {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppText.displayMd.copyWith(
+                  style: AppTextStyles.displayMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
@@ -178,7 +178,7 @@ class _FinancePageState extends State<FinancePage> {
           const SizedBox(height: 12),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),

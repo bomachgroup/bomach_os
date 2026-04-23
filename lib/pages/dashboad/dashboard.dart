@@ -140,7 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Center(
                   child: Text(
                     _getInitials(s?.fullName ?? 'U'),
-                    style: AppText.h3.copyWith(
+                    style: AppTextStyles.h3.copyWith(
                       color: AppColors.textOnPrimary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -154,7 +154,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     MyText(
                       'Welcome back, ${s?.fullName ?? 'User'}!',
-                      style: AppText.h2.copyWith(
+                      style: AppTextStyles.h2.copyWith(
                         color: AppColors.textOnPrimary,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.3,
@@ -163,7 +163,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 4),
                     MyText(
                       '${s?.jobTitle ?? ''}${s?.departmentName != null && s!.departmentName.isNotEmpty ? ' \u2022 ${s.departmentName}' : ''}',
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textOnPrimary.withValues(alpha: 0.75),
                       ),
                     ),
@@ -242,14 +242,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               MyText(
                 value,
-                style: AppText.bodyLg.copyWith(
+                style: AppTextStyles.bodyLg.copyWith(
                   color: AppColors.textOnPrimary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               MyText(
                 label,
-                style: AppText.overline.copyWith(
+                style: AppTextStyles.overline.copyWith(
                   color: AppColors.textOnPrimary.withValues(alpha: 0.65),
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0,
@@ -322,7 +322,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Flexible(
                 child: MyText(
                   label,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     fontWeight: FontWeight.w600,
                     color: color,
                   ),
@@ -396,7 +396,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 16),
           MyText(
             item.value,
-            style: AppText.displayMd.copyWith(
+            style: AppTextStyles.displayMd.copyWith(
               fontSize: 26,
               color: AppColors.textPrimary,
             ),
@@ -404,7 +404,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 4),
           MyText(
             item.label,
-            style: AppText.label.copyWith(color: AppColors.textMuted),
+            style: AppTextStyles.label.copyWith(color: AppColors.textMuted),
           ),
         ],
       ),
@@ -434,7 +434,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: AppColors.primary, size: 20),
               ),
               const SizedBox(width: 12),
-              const MyText('Performance Overview', style: AppText.h3),
+              const MyText('Performance Overview', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 24),
@@ -509,7 +509,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     MyText(
                       '${pc.overallScore.toInt()}%',
-                      style: AppText.displayLg.copyWith(
+                      style: AppTextStyles.displayLg.copyWith(
                         fontSize: 32,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
@@ -517,7 +517,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     MyText(
                       'Score',
-                      style: AppText.caption.copyWith(
+                      style: AppTextStyles.caption.copyWith(
                         color: AppColors.textMuted,
                       ),
                     ),
@@ -535,7 +535,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: MyText(
               pc.rankText,
-              style: AppText.label.copyWith(
+              style: AppTextStyles.label.copyWith(
                 fontWeight: FontWeight.w600,
                 color: scoreColor,
               ),
@@ -572,7 +572,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(width: 10),
               MyText(
                 'Work Reports',
-                style: AppText.h4.copyWith(
+                style: AppTextStyles.h4.copyWith(
                   fontSize: 15,
                   color: AppColors.textSecondary,
                 ),
@@ -622,7 +622,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(width: 10),
               MyText(
                 'Punctuality',
-                style: AppText.h4.copyWith(
+                style: AppTextStyles.h4.copyWith(
                   fontSize: 15,
                   color: AppColors.textSecondary,
                 ),
@@ -658,10 +658,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             MyText(label,
-                style: AppText.caption.copyWith(color: AppColors.textMuted)),
+                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
             MyText(
               value,
-              style: AppText.label.copyWith(
+              style: AppTextStyles.label.copyWith(
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -690,12 +690,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: MyText(
             label,
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ),
         MyText(
           value,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
@@ -727,7 +727,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: _accentIndigo, size: 20),
               ),
               const SizedBox(width: 12),
-              const MyText('Organization Overview', style: AppText.h3),
+              const MyText('Organization Overview', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 24),
@@ -776,7 +776,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
             MyText(
               'Headcount by Department',
-              style: AppText.h4.copyWith(
+              style: AppTextStyles.h4.copyWith(
                 fontSize: 15,
                 color: AppColors.textSecondary,
               ),
@@ -799,7 +799,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       MyText(
                         dept.department,
-                        style: AppText.label.copyWith(
+                        style: AppTextStyles.label.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -813,7 +813,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: MyText(
                           '${dept.count}',
-                          style: AppText.caption.copyWith(
+                          style: AppTextStyles.caption.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
                           ),
@@ -856,7 +856,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 MyText(
                   count,
-                  style: AppText.h2.copyWith(
+                  style: AppTextStyles.h2.copyWith(
                     fontSize: 22,
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -864,7 +864,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 MyText(
                   label,
-                  style: AppText.caption.copyWith(color: AppColors.textMuted),
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),

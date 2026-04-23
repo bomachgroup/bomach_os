@@ -313,12 +313,12 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -352,7 +352,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                   });
                 },
               ),
-              Text(key, style: AppText.bodyMd),
+              Text(key, style: AppTextStyles.bodyMd),
             ],
           );
         }).toList(),
@@ -370,7 +370,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
       children: [
         Text(
           label,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -397,7 +397,7 @@ class _AddPayRollDialogState extends State<AddPayRollDialog> {
                   value != null
                       ? DateFormat('MMM d, yyyy').format(value)
                       : 'Select date',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: value != null
                         ? AppColors.textPrimary
                         : AppColors.textMuted,

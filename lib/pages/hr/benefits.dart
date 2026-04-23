@@ -154,13 +154,13 @@ class _BenefitsPageState extends State<BenefitsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Staff benefits', style: AppText.h3),
+                      const Text('Staff benefits', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             loading
                                 ? 'Loading benefits...'
                                 : '${_ctrl.totalCount.value} enrolled employee${_ctrl.totalCount.value == 1 ? '' : 's'}',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -234,7 +234,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -263,7 +263,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                     record.employeeName.isNotEmpty
                         ? record.employeeName[0].toUpperCase()
                         : '?',
-                    style: AppText.label.copyWith(
+                    style: AppTextStyles.label.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -276,7 +276,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                     children: [
                       Text(
                         record.employeeName,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -285,7 +285,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                       const SizedBox(height: 2),
                       Text(
                         record.employeeRole,
-                        style: AppText.bodySm.copyWith(
+                        style: AppTextStyles.bodySm.copyWith(
                           color: AppColors.textSecondary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -302,7 +302,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
               record.activeBenefits.isEmpty
                   ? '—'
                   : record.activeBenefits.join(', '),
-              style: AppText.bodySm.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
@@ -311,7 +311,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
             flex: 2,
             child: Text(
               DateFormat('dd MMM yyyy').format(record.startDate),
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -378,7 +378,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                   Expanded(
                     child: Text(
                       b,
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w500,
                       ),
@@ -482,12 +482,12 @@ class _BenefitsPageState extends State<BenefitsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Active benefits', style: AppText.h4),
+                const Text('Active benefits', style: AppTextStyles.h4),
                 const SizedBox(height: 12),
                 if (record.activeBenefits.isEmpty)
                   Text(
                     'No active benefits assigned.',
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   )
@@ -502,7 +502,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                             Expanded(
                               child: Text(
                                 b,
-                                style: AppText.bodyMd.copyWith(
+                                style: AppTextStyles.bodyMd.copyWith(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -564,14 +564,14 @@ class _BenefitsPageState extends State<BenefitsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Available benefits', style: AppText.h4),
+                  const Text('Available benefits', style: AppTextStyles.h4),
                   const SizedBox(height: 8),
                   if (_ctrl.availableBenefits.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
                         'No benefits configured yet.',
-                        style: AppText.bodySm.copyWith(
+                        style: AppTextStyles.bodySm.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -588,7 +588,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                               dense: true,
                               title: Text(
                                 b,
-                                style: AppText.bodyMd.copyWith(
+                                style: AppTextStyles.bodyMd.copyWith(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -656,7 +656,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
               record.employeeName.isNotEmpty
                   ? record.employeeName[0].toUpperCase()
                   : '?',
-              style: AppText.h4.copyWith(color: AppColors.primary),
+              style: AppTextStyles.h4.copyWith(color: AppColors.primary),
             ),
           ),
           const SizedBox(width: 12),
@@ -666,7 +666,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
               children: [
                 Text(
                   record.employeeName,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
@@ -674,7 +674,7 @@ class _BenefitsPageState extends State<BenefitsPage> {
                 const SizedBox(height: 2),
                 Text(
                   '${record.employeeId} • ${record.employeeRole}',
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),

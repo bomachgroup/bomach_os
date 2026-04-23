@@ -152,7 +152,7 @@ class _FaceLivenessDialogState extends State<FaceLivenessDialog> {
             ),
             child: Text(
               _statusMessage,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: _isError ? AppColors.danger : AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),

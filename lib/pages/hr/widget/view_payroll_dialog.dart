@@ -121,7 +121,7 @@ class ViewPayrollDialog extends StatelessWidget {
               size: DialogSize.sm,
               body: const Text(
                 'Are you sure you want to delete this payroll record? This action cannot be undone.',
-                style: AppText.bodyMd,
+                style: AppTextStyles.bodyMd,
               ),
               actions: [
                 MyOutlinedButton(
@@ -193,7 +193,7 @@ class ViewPayrollDialog extends StatelessWidget {
               children: [
                 Text(
                   'Net Salary: ${p.netSalary.toStringAsFixed(2)}',
-                  style: AppText.h3,
+                  style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 6),
                 Wrap(
@@ -236,7 +236,7 @@ class ViewPayrollDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -261,7 +261,7 @@ class ViewPayrollDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -280,13 +280,13 @@ class ViewPayrollDialog extends StatelessWidget {
             child: Text(
               label,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),

@@ -28,12 +28,12 @@ class _EmployeePageState extends State<EmployeePage> {
               children: [
                 MyText(
                   'Employee Management',
-                  style: AppText.displayLg,
+                  style: AppTextStyles.displayLg,
                 ),
                 SizedBox(height: 8),
                 MyText(
                   'Manage and track employee information',
-                  style: AppText.h4,
+                  style: AppTextStyles.h4,
                 ),
               ],
             ),
@@ -114,13 +114,13 @@ class _EmployeePageState extends State<EmployeePage> {
             const SizedBox(height: 16),
             MyText(
               title,
-              style: AppText.h4,
+              style: AppTextStyles.h4,
               maxLines: 2,
             ),
             const SizedBox(height: 8),
             MyText(
               description,
-              style: AppText.bodyMd,
+              style: AppTextStyles.bodyMd,
               maxLines: 2,
             ),
             const SizedBox(height: 16),

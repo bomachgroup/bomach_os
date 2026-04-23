@@ -39,12 +39,12 @@ class EstateManagementPage extends StatelessWidget {
                     children: [
                       MyText(
                         'Estate Management',
-                        style: AppText.displayLg,
+                        style: AppTextStyles.displayLg,
                       ),
                       SizedBox(height: 8),
                       MyText(
                         'Manage your real estate developments',
-                        style: AppText.bodyMd,
+                        style: AppTextStyles.bodyMd,
                       ),
                     ],
                   ),

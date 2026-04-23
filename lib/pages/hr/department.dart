@@ -172,13 +172,13 @@ class DepartmentCard extends StatelessWidget {
                       department.name.capitalizeFirst ?? department.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppText.h3,
+                      style: AppTextStyles.h3,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${department.employeeCount} '
                       '${department.employeeCount == 1 ? 'member' : 'members'}',
-                      style: AppText.bodySm
+                      style: AppTextStyles.bodySm
                           .copyWith(color: AppColors.textSecondary),
                     ),
                   ],
@@ -200,7 +200,7 @@ class DepartmentCard extends StatelessWidget {
               child: Text(
                 'No employees in this department',
                 style:
-                    AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                    AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               ),
             )
           else
@@ -258,7 +258,7 @@ class _EmployeeRow extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         initials.isEmpty ? '?' : initials,
-        style: AppText.label.copyWith(
+        style: AppTextStyles.label.copyWith(
           color: AppColors.primary,
           fontWeight: FontWeight.w700,
         ),
@@ -281,7 +281,7 @@ class _EmployeeRow extends StatelessWidget {
                 employee.fullName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -292,7 +292,7 @@ class _EmployeeRow extends StatelessWidget {
                     employee.employmentType,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppText.bodySm
+                style: AppTextStyles.bodySm
                     .copyWith(color: AppColors.textSecondary),
               ),
             ],
@@ -424,13 +424,13 @@ class _CreateDepartmentDialogState extends State<CreateDepartmentDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),

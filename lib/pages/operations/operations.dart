@@ -68,7 +68,7 @@ class _OperationsPageState extends State<OperationsPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const MyText('Recent Projects', style: AppText.h3),
+            const MyText('Recent Projects', style: AppTextStyles.h3),
             SizedBox(
               width: 250,
               child: MyTextFormField(
@@ -97,7 +97,7 @@ class _OperationsPageState extends State<OperationsPage> {
                     Icon(Iconsax.folder_open,
                         size: 48, color: AppColors.textMuted),
                     SizedBox(height: 16),
-                    Text("No projects found", style: AppText.bodyLg),
+                    Text("No projects found", style: AppTextStyles.bodyLg),
                   ],
                 ),
               ),
@@ -182,7 +182,7 @@ class _OperationsPageState extends State<OperationsPage> {
               children: [
                 Text(
                   title,
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
@@ -190,7 +190,7 @@ class _OperationsPageState extends State<OperationsPage> {
                 const SizedBox(height: 6),
                 Text(
                   value,
-                  style: AppText.h2.copyWith(
+                  style: AppTextStyles.h2.copyWith(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
@@ -244,7 +244,7 @@ class _OperationsPageState extends State<OperationsPage> {
               children: [
                 Text(
                   project.name,
-                  style: AppText.h4.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.h4.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 6),
                 Row(
@@ -260,7 +260,7 @@ class _OperationsPageState extends State<OperationsPage> {
                       ),
                       child: Text(
                         project.shortCode,
-                        style: AppText.overline.copyWith(
+                        style: AppTextStyles.overline.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -269,12 +269,12 @@ class _OperationsPageState extends State<OperationsPage> {
                     Text(
                       "•",
                       style:
-                          AppText.bodySm.copyWith(color: AppColors.textMuted),
+                          AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       project.status,
-                      style: AppText.bodySm.copyWith(
+                      style: AppTextStyles.bodySm.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
@@ -290,7 +290,7 @@ class _OperationsPageState extends State<OperationsPage> {
             children: [
               Text(
                 "₦${project.budget}",
-                style: AppText.h4.copyWith(
+                style: AppTextStyles.h4.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w800,
                 ),
@@ -306,7 +306,7 @@ class _OperationsPageState extends State<OperationsPage> {
                   const SizedBox(width: 4),
                   Text(
                     project.deadline,
-                    style: AppText.bodySm.copyWith(color: AppColors.textMuted),
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
                   ),
                 ],
               ),

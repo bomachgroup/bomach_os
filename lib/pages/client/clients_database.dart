@@ -41,11 +41,11 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
               children: [
                 MyText(
                   'Clients',
-                  style: AppText.displayLg,
+                  style: AppTextStyles.displayLg,
                 ),
                 MyText(
                   'Clients',
-                  style: AppText.h4,
+                  style: AppTextStyles.h4,
                 ),
               ],
             ),

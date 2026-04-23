@@ -29,7 +29,7 @@ class WorksiteDetailPage extends StatelessWidget {
       return const PageScaffold(
         children: [
           Center(
-            child: MyText('Worksite not found', style: AppText.bodyLg),
+            child: MyText('Worksite not found', style: AppTextStyles.bodyLg),
           ),
         ],
       );
@@ -62,7 +62,7 @@ class WorksiteDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Worksite Overview', style: AppText.h3),
+              const Text('Worksite Overview', style: AppTextStyles.h3),
               const SizedBox(height: 16),
               RowText(label: "Site Name", value: ws.name),
               RowText(label: "Location", value: ws.location),
@@ -71,7 +71,7 @@ class WorksiteDetailPage extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(
-                        width: 200, child: Text("Status", style: AppText.label)),
+                        width: 200, child: Text("Status", style: AppTextStyles.label)),
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
@@ -91,13 +91,13 @@ class WorksiteDetailPage extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Description", style: AppText.label),
+                  const Text("Description", style: AppTextStyles.label),
                   const SizedBox(height: 8),
                   Text(
                       ws.description.isEmpty
                           ? 'No description provided.'
                           : ws.description,
-                      style: AppText.bodyMd),
+                      style: AppTextStyles.bodyMd),
                 ],
               ),
             ],

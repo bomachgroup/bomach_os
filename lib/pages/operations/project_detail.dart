@@ -29,7 +29,7 @@ class ProjectDetailPage extends StatelessWidget {
       return const PageScaffold(
         children: [
           Center(
-            child: MyText('Project not found', style: AppText.bodyLg),
+            child: MyText('Project not found', style: AppTextStyles.bodyLg),
           ),
         ],
       );
@@ -53,7 +53,7 @@ class ProjectDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Project Overview', style: AppText.h3),
+              const Text('Project Overview', style: AppTextStyles.h3),
               const SizedBox(height: 16),
               RowText(label: "Project Name", value: proj.name),
               RowText(label: "Short Code", value: proj.shortCode),
@@ -64,7 +64,7 @@ class ProjectDetailPage extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(
-                        width: 200, child: Text("Status", style: AppText.label)),
+                        width: 200, child: Text("Status", style: AppTextStyles.label)),
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
@@ -87,9 +87,9 @@ class ProjectDetailPage extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Description", style: AppText.label),
+                  const Text("Description", style: AppTextStyles.label),
                   const SizedBox(height: 8),
-                  Text(proj.summary, style: AppText.bodyMd),
+                  Text(proj.summary, style: AppTextStyles.bodyMd),
                 ],
               ),
             ],

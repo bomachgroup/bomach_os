@@ -38,7 +38,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
         children: [
           const Text(
             'Are you sure you want to reject this request?',
-            style: AppText.bodyMd,
+            style: AppTextStyles.bodyMd,
           ),
           const SizedBox(height: 16),
           MyTextFormField(
@@ -146,7 +146,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
                 r.reason == null || r.reason!.isEmpty
                     ? 'No reason provided.'
                     : r.reason!,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   height: 1.5,
                 ),
@@ -234,7 +234,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
             alignment: Alignment.center,
             child: Text(
               initial,
-              style: AppText.h2.copyWith(color: AppColors.primary),
+              style: AppTextStyles.h2.copyWith(color: AppColors.primary),
             ),
           ),
           const SizedBox(width: 14),
@@ -244,7 +244,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
               children: [
                 Text(
                   r.employeeId.isEmpty ? 'Unknown employee' : r.employeeId,
-                  style: AppText.h3,
+                  style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 6),
                 Wrap(
@@ -291,7 +291,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -316,7 +316,7 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -334,14 +334,14 @@ class _ViewLeaveRequestDialogState extends State<ViewLeaveRequestDialog> {
             width: 160,
             child: Text(
               label,
-              style: AppText.bodySm
+              style: AppTextStyles.bodySm
                   .copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),

@@ -59,7 +59,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Task Information', style: AppText.h3),
+              const Text('Task Information', style: AppTextStyles.h3),
               const SizedBox(height: 16),
               RowText(label: "Task ID", value: "#${task.id}"),
               Padding(
@@ -67,7 +67,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                 child: Row(
                   children: [
                     const SizedBox(
-                        width: 200, child: Text("Status", style: AppText.label)),
+                        width: 200, child: Text("Status", style: AppTextStyles.label)),
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
@@ -88,7 +88,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Assigned To", style: AppText.label),
+                  const Text("Assigned To", style: AppTextStyles.label),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
@@ -96,7 +96,7 @@ class TaskDetailPageState extends State<TaskDetailPage> {
                     children: task.assignedTo
                         .map((id) => Chip(
                               avatar: const Icon(Iconsax.profile_circle, size: 16),
-                              label: Text("Employee #$id", style: AppText.bodySm),
+                              label: Text("Employee #$id", style: AppTextStyles.bodySm),
                               backgroundColor: AppColors.surfaceMuted,
                               side: BorderSide.none,
                             ))
@@ -108,13 +108,13 @@ class TaskDetailPageState extends State<TaskDetailPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Description", style: AppText.label),
+                  const Text("Description", style: AppTextStyles.label),
                   const SizedBox(height: 8),
                   Text(
                       task.description.isEmpty
                           ? 'No description provided.'
                           : task.description,
-                      style: AppText.bodyMd),
+                      style: AppTextStyles.bodyMd),
                 ],
               ),
             ],

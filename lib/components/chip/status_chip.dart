@@ -63,7 +63,7 @@ class StatusChip extends StatelessWidget {
           ],
           Text(
             label,
-            style: AppText.caption.copyWith(
+            style: AppTextStyles.caption.copyWith(
               color: palette.foreground,
               fontWeight: FontWeight.w600,
               fontSize: dense ? 11 : 12,

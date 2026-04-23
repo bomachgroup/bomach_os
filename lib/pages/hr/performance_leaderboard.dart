@@ -233,7 +233,7 @@ class _PerformanceLeaderboardPageState
                   ? Icon(Iconsax.crown, color: medalColor, size: 32)
                   : Text(
                       entry.initials,
-                      style: AppText.h2.copyWith(color: medalColor),
+                      style: AppTextStyles.h2.copyWith(color: medalColor),
                     ),
             ),
           ),
@@ -242,7 +242,7 @@ class _PerformanceLeaderboardPageState
           const SizedBox(height: 12),
           Text(
             entry.employeeName,
-            style: AppText.h4,
+            style: AppTextStyles.h4,
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -250,15 +250,15 @@ class _PerformanceLeaderboardPageState
           const SizedBox(height: 4),
           Text(
             entry.branch,
-            style: AppText.bodySm,
+            style: AppTextStyles.bodySm,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
           Text(
             entry.score.toStringAsFixed(1),
-            style: AppText.displayMd.copyWith(color: AppColors.primary),
+            style: AppTextStyles.displayMd.copyWith(color: AppColors.primary),
           ),
-          const Text('Score', style: AppText.caption),
+          const Text('Score', style: AppTextStyles.caption),
           if (entry.award != null && entry.award!.isNotEmpty) ...[
             const SizedBox(height: 10),
             StatusChip(
@@ -321,7 +321,7 @@ class _PerformanceLeaderboardPageState
   }
 
   TextStyle _headerStyle() {
-    return AppText.overline.copyWith(
+    return AppTextStyles.overline.copyWith(
       color: AppColors.textSecondary,
       fontWeight: FontWeight.w600,
     );
@@ -351,20 +351,20 @@ class _PerformanceLeaderboardPageState
                       const SizedBox(width: 4),
                       Text(
                         entry.rank.toString(),
-                        style: AppText.label,
+                        style: AppTextStyles.label,
                       ),
                     ],
                   )
                 : Text(
                     entry.rank.toString(),
-                    style: AppText.label,
+                    style: AppTextStyles.label,
                   ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               entry.employeeName,
-              style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+              style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -372,7 +372,7 @@ class _PerformanceLeaderboardPageState
           Expanded(
             child: Text(
               entry.branch,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -381,7 +381,7 @@ class _PerformanceLeaderboardPageState
             width: 80,
             child: Text(
               entry.score.toStringAsFixed(1),
-              style: AppText.label.copyWith(
+              style: AppTextStyles.label.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
@@ -400,7 +400,7 @@ class _PerformanceLeaderboardPageState
                   )
                 : Text(
                     '—',
-                    style: AppText.bodySm.copyWith(color: AppColors.textMuted),
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
                   ),
           ),
         ],
@@ -415,11 +415,11 @@ class _PerformanceLeaderboardPageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Performance Summary', style: AppText.h3),
+          const Text('Performance Summary', style: AppTextStyles.h3),
           const SizedBox(height: 4),
           Text(
             'Aggregate metrics for the selected period.',
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           LayoutBuilder(builder: (context, constraints) {
@@ -503,14 +503,14 @@ class _PerformanceLeaderboardPageState
               children: [
                 Text(
                   label,
-                  style: AppText.caption,
+                  style: AppTextStyles.caption,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: AppText.h4.copyWith(color: AppColors.primary),
+                  style: AppTextStyles.h4.copyWith(color: AppColors.primary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -151,13 +151,13 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Board directory', style: AppText.h3),
+                      const Text('Board directory', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         loading
                             ? 'Loading board members...'
                             : '${filtered.length} board member${filtered.length == 1 ? '' : 's'} on record',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -237,7 +237,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -282,7 +282,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
                           member.firstName.isNotEmpty
                               ? member.firstName[0].toUpperCase()
                               : '?',
-                          style: AppText.label.copyWith(
+                          style: AppTextStyles.label.copyWith(
                             color: color,
                             fontWeight: FontWeight.w700,
                           ),
@@ -296,7 +296,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
                     children: [
                       Text(
                         member.fullName,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -305,7 +305,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
                       const SizedBox(height: 2),
                       Text(
                         '${member.sharePercentage}% share',
-                        style: AppText.bodySm.copyWith(
+                        style: AppTextStyles.bodySm.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -331,7 +331,7 @@ class _BoardMembersPageState extends State<BoardMembersPage> {
             flex: 3,
             child: Text(
               member.email.isEmpty ? '—' : member.email,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),

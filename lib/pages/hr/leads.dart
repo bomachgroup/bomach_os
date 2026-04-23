@@ -167,11 +167,11 @@ class _LeadsPageState extends State<LeadsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Lead pipeline', style: AppText.h3),
+                      const Text('Lead pipeline', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         '$totalCount lead${totalCount == 1 ? '' : 's'} in the pipeline',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -248,7 +248,7 @@ class _LeadsPageState extends State<LeadsPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -283,7 +283,7 @@ class _LeadsPageState extends State<LeadsPage> {
               flex: 2,
               child: Text(
                 lead.id,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -298,7 +298,7 @@ class _LeadsPageState extends State<LeadsPage> {
                     backgroundColor: AppColors.primarySubtle,
                     child: Text(
                       lead.name.isNotEmpty ? lead.name[0].toUpperCase() : '?',
-                      style: AppText.label.copyWith(
+                      style: AppTextStyles.label.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w700,
                       ),
@@ -311,7 +311,7 @@ class _LeadsPageState extends State<LeadsPage> {
                       children: [
                         Text(
                           lead.name,
-                          style: AppText.bodyMd.copyWith(
+                          style: AppTextStyles.bodyMd.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -320,7 +320,7 @@ class _LeadsPageState extends State<LeadsPage> {
                         const SizedBox(height: 2),
                         Text(
                           lead.company,
-                          style: AppText.bodySm.copyWith(
+                          style: AppTextStyles.bodySm.copyWith(
                             color: AppColors.textSecondary,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -335,7 +335,7 @@ class _LeadsPageState extends State<LeadsPage> {
               flex: 3,
               child: Text(
                 lead.email,
-                style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -343,7 +343,7 @@ class _LeadsPageState extends State<LeadsPage> {
               flex: 2,
               child: Text(
                 lead.phone,
-                style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -362,7 +362,7 @@ class _LeadsPageState extends State<LeadsPage> {
               flex: 2,
               child: Text(
                 lead.owner,
-                style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -370,7 +370,7 @@ class _LeadsPageState extends State<LeadsPage> {
               flex: 2,
               child: Text(
                 lead.createdAt,
-                style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -490,7 +490,7 @@ class _ViewLeadsDialog extends StatelessWidget {
               Text(
                 'Detail about this lead — enquiry notes, follow-ups, and other '
                 'relevant context captured during outreach.',
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   height: 1.5,
                 ),
@@ -563,7 +563,7 @@ class _ViewLeadsDialog extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               initial,
-              style: AppText.h2.copyWith(color: AppColors.primary),
+              style: AppTextStyles.h2.copyWith(color: AppColors.primary),
             ),
           ),
           const SizedBox(width: 14),
@@ -571,12 +571,12 @@ class _ViewLeadsDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: AppText.h3),
+                Text(name, style: AppTextStyles.h3),
                 const SizedBox(height: 2),
                 Text(
                   company,
                   style:
-                      AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                      AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 6),
                 Wrap(
@@ -618,7 +618,7 @@ class _ViewLeadsDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -643,7 +643,7 @@ class _ViewLeadsDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -661,13 +661,13 @@ class _ViewLeadsDialog extends StatelessWidget {
             width: 120,
             child: Text(
               label,
-              style: AppText.label.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -692,7 +692,7 @@ class _ViewLeadsDialog extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             '$index',
-            style: AppText.caption.copyWith(
+            style: AppTextStyles.caption.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w700,
             ),
@@ -702,7 +702,7 @@ class _ViewLeadsDialog extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
           ),
         ),
       ],
@@ -762,7 +762,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
@@ -770,7 +770,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             count,
-            style: AppText.h1.copyWith(
+            style: AppTextStyles.h1.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
             ),

@@ -185,13 +185,13 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Cases register', style: AppText.h3),
+                      const Text('Cases register', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         loading
                             ? 'Loading disciplinary cases...'
                             : '${filtered.length} case${filtered.length == 1 ? '' : 's'} on record',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -255,7 +255,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -277,7 +277,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
             flex: 2,
             child: Text(
               kase.employeeId,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -299,7 +299,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
             flex: 2,
             child: Text(
               kase.violationCategory,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -307,7 +307,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
             flex: 3,
             child: Text(
               kase.violationTitle,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
@@ -318,7 +318,7 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
               kase.actionDate != null
                   ? DateFormat('dd MMM yyyy').format(kase.actionDate!)
                   : '—',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),

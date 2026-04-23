@@ -71,7 +71,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                 kase.violationDescription.isNotEmpty
                     ? kase.violationDescription
                     : 'No description provided',
-                style: AppText.bodyMd,
+                style: AppTextStyles.bodyMd,
               ),
             ],
           ),
@@ -84,7 +84,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                         kase.investigationDetails!.isNotEmpty)
                     ? kase.investigationDetails!
                     : 'None provided',
-                style: AppText.bodyMd,
+                style: AppTextStyles.bodyMd,
               ),
             ],
           ),
@@ -115,7 +115,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
               size: DialogSize.sm,
               body: const Text(
                 'Are you sure you want to delete this disciplinary case? This action cannot be undone.',
-                style: AppText.bodyMd,
+                style: AppTextStyles.bodyMd,
               ),
               actions: [
                 MyOutlinedButton(
@@ -187,7 +187,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
                   c.violationTitle.isNotEmpty
                       ? c.violationTitle
                       : 'Disciplinary case',
-                  style: AppText.h3,
+                  style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 6),
                 Wrap(
@@ -232,7 +232,7 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -251,13 +251,13 @@ class ViewDisciplinaryCaseDialog extends StatelessWidget {
             child: Text(
               label,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),

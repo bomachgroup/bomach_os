@@ -39,7 +39,7 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
                     children: [
                       MyText(
                         'Virtual Workspace',
-                        style: AppText.displayLg,
+                        style: AppTextStyles.displayLg,
                       ),
                       MyText(
                         'Collaborate with your team on projects and communicate effectively',

@@ -126,12 +126,12 @@ class DialogScaffold extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: AppText.h3),
+                Text(title, style: AppTextStyles.h3),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     subtitle!,
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),

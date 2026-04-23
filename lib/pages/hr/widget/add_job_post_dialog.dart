@@ -262,7 +262,7 @@ class _AddJobPostDialogState extends State<AddJobPostDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 16),
           ...children,
         ],

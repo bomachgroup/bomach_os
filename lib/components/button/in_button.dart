@@ -30,8 +30,8 @@ class InButton extends StatelessWidget {
         child: Text(
           title,
           style: isSelected
-              ? AppText.bodyLg.copyWith(color: AppColors.textOnPrimary)
-              : AppText.bodyLg,
+              ? AppTextStyles.bodyLg.copyWith(color: AppColors.textOnPrimary)
+              : AppTextStyles.bodyLg,
         ),
       ),
     );

@@ -408,7 +408,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
                           return Chip(
                             label: Text(
                               _attendeeLabel(id),
-                              style: AppText.bodySm
+                              style: AppTextStyles.bodySm
                                   .copyWith(fontWeight: FontWeight.w500),
                             ),
                             deleteIcon: const Icon(Iconsax.close_circle,
@@ -468,7 +468,7 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
                           const SizedBox(width: 8),
                           Text(
                             'Searching employees...',
-                            style: AppText.bodySm
+                            style: AppTextStyles.bodySm
                                 .copyWith(color: AppColors.textSecondary),
                           ),
                         ],
@@ -535,14 +535,14 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
                                         children: [
                                           Text(
                                             '${emp.firstName} ${emp.lastName}',
-                                            style: AppText.bodyMd.copyWith(
+                                            style: AppTextStyles.bodyMd.copyWith(
                                               color: AppColors.textPrimary,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                           Text(
                                             emp.id,
-                                            style: AppText.bodySm.copyWith(
+                                            style: AppTextStyles.bodySm.copyWith(
                                                 color:
                                                     AppColors.textSecondary),
                                           ),
@@ -611,12 +611,12 @@ class _AddMeetingDialogState extends State<AddMeetingDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),

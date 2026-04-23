@@ -125,11 +125,11 @@ class WorkspaceApprovalsPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_titleForView(view), style: AppText.h3),
+                      Text(_titleForView(view), style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         _subtitleForView(view, rowCount, loading),
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -287,7 +287,7 @@ class _ViewTabs extends StatelessWidget {
             children: [
               Text(
                 v.label,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: isActive
                       ? AppColors.textPrimary
                       : AppColors.textSecondary,
@@ -312,7 +312,7 @@ class _ViewTabs extends StatelessWidget {
                   ),
                   child: Text(
                     '$count',
-                    style: AppText.caption.copyWith(
+                    style: AppTextStyles.caption.copyWith(
                       color: isActive
                           ? AppColors.primary
                           : AppColors.textSecondary,
@@ -406,7 +406,7 @@ class _ApprovalsTable extends StatelessWidget {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -443,7 +443,7 @@ class _ApprovalsTable extends StatelessWidget {
               children: [
                 Text(
                   w.employeeName ?? 'Employee #${w.employeeId ?? '—'}',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -453,7 +453,7 @@ class _ApprovalsTable extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     w.branchName!,
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -469,7 +469,7 @@ class _ApprovalsTable extends StatelessWidget {
               children: [
                 Text(
                   w.workspaceName,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -481,7 +481,7 @@ class _ApprovalsTable extends StatelessWidget {
                     w.notes,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -504,14 +504,14 @@ class _ApprovalsTable extends StatelessWidget {
             flex: 1,
             child: Text(
               '${w.radiusMeters}m',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               '${w.latitude.toStringAsFixed(5)},\n${w.longitude.toStringAsFixed(5)}',
-              style: AppText.bodySm.copyWith(
+              style: AppTextStyles.bodySm.copyWith(
                 color: AppColors.textSecondary,
                 fontFamily: 'monospace',
                 height: 1.35,
@@ -522,7 +522,7 @@ class _ApprovalsTable extends StatelessWidget {
             flex: 2,
             child: Text(
               _formatDate(w.createdAt),
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           SizedBox(
@@ -700,7 +700,7 @@ class _ApprovalsTable extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Allowed radius (meters)',
-                style: AppText.label.copyWith(
+                style: AppTextStyles.label.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
@@ -713,7 +713,7 @@ class _ApprovalsTable extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Employees can only clock in when inside this radius.',
-              style: AppText.caption.copyWith(color: AppColors.textMuted),
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
             ),
           ],
         ),
@@ -764,7 +764,7 @@ class _ApprovalsTable extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Reason *',
-                style: AppText.label.copyWith(
+                style: AppTextStyles.label.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
@@ -916,14 +916,14 @@ class _ApprovalsTable extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Active',
-                                style: AppText.bodyMd.copyWith(
+                                style: AppTextStyles.bodyMd.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary)),
                             const SizedBox(height: 2),
                             Text(
                               'When off, employees cannot clock in from this '
                               'location even though it stays APPROVED.',
-                              style: AppText.caption
+                              style: AppTextStyles.caption
                                   .copyWith(color: AppColors.textSecondary),
                             ),
                           ],
@@ -1036,7 +1036,7 @@ class _ApprovalsTable extends StatelessWidget {
   Widget _fieldLabel(String label) {
     return Text(
       label,
-      style: AppText.label.copyWith(
+      style: AppTextStyles.label.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),

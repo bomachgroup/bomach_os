@@ -115,7 +115,7 @@ class ApprovalWorkflowPage extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color:
                   isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
@@ -169,11 +169,11 @@ Widget _buildTableCard({
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: AppText.h3),
+                    Text(title, style: AppTextStyles.h3),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -198,7 +198,7 @@ Widget _buildTableCard({
 Widget _buildHeaderCell(String label, {double? width, int? flex}) {
   final content = Text(
     label,
-    style: AppText.bodySm.copyWith(
+    style: AppTextStyles.bodySm.copyWith(
       color: AppColors.textSecondary,
       fontWeight: FontWeight.w600,
     ),
@@ -229,7 +229,7 @@ PopupMenuItem<String> _menuItem({
         const SizedBox(width: 8),
         Text(
           label,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: destructive ? AppColors.danger : AppColors.textPrimary,
           ),
         ),
@@ -393,7 +393,7 @@ class _WorkflowsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               flow.name,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -404,7 +404,7 @@ class _WorkflowsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               flow.actionDisplay.isNotEmpty ? flow.actionDisplay : flow.action,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -412,7 +412,7 @@ class _WorkflowsTab extends StatelessWidget {
             flex: 1,
             child: Text(
               '${flow.levels} Level${flow.levels != 1 ? 's' : ''}',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -496,7 +496,7 @@ class _WorkflowsTab extends StatelessWidget {
               size: DialogSize.sm,
               body: Text(
                 'Are you sure you want to deactivate "${flow.name}"?',
-                style: AppText.bodyMd,
+                style: AppTextStyles.bodyMd,
               ),
               actions: [
                 MyOutlinedButton(
@@ -651,7 +651,7 @@ class _RequestsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               req.flowName.isNotEmpty ? req.flowName : 'Flow #${req.flowId}',
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -664,7 +664,7 @@ class _RequestsTab extends StatelessWidget {
               req.requestTypeDisplay.isNotEmpty
                   ? req.requestTypeDisplay
                   : req.requestType,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -674,7 +674,7 @@ class _RequestsTab extends StatelessWidget {
               req.requestedByName.isNotEmpty
                   ? req.requestedByName
                   : req.requestedBy,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -692,7 +692,7 @@ class _RequestsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               displayDate,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           SizedBox(
@@ -738,7 +738,7 @@ class _RequestsTab extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: Text(
                       '—',
-                      style: AppText.bodyMd
+                      style: AppTextStyles.bodyMd
                           .copyWith(color: AppColors.textMuted),
                     ),
                   ),

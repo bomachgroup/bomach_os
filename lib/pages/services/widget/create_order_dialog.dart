@@ -1,17 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/service_controller.dart';
@@ -272,13 +272,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const MyText(
-                      'Create New Order',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    AppTextStyles.h3('Create New Order'),
                     IconButton(
                       icon: const Icon(Iconsax.close_circle),
                       onPressed: _isSubmitting
@@ -309,18 +303,16 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                         // Service Selection
                         Obx(() {
                           if (serviceController.isLoading.value) {
-                            return const Column(
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                MyText(
+                                AppTextStyles.bodySm(
                                   'Service*',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                SizedBox(height: 10),
-                                Center(child: CircularProgressIndicator()),
+                                const SizedBox(height: 10),
+                                const Center(
+                                    child: CircularProgressIndicator()),
                               ],
                             );
                           }
@@ -390,12 +382,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const MyText(
+                                  AppTextStyles.bodySm(
                                     'Valid Until*',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    fontWeight: FontWeight.w500,
                                   ),
                                   const SizedBox(height: 10),
                                   InkWell(
@@ -404,8 +393,8 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 14),
                                       decoration: BoxDecoration(
-                                        border:
-                                            Border.all(color: AppColors.neutral300),
+                                        border: Border.all(
+                                            color: AppColors.neutral300),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
@@ -440,61 +429,25 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Order Status and Payment Status
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyDropdown(
-                                controller: _orderStatusController,
-                                spaceBetweenText: 10,
-                                hintText: 'Select order status',
-                                items: const [
-                                  'Pending',
-                                  'In Progress',
-                                  'Completed',
-                                  'Cancelled',
-                                ],
-                                title: 'Order Status*',
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedOrderStatus =
-                                        _orderStatusToApi(value ?? 'Pending');
-                                  });
-                                },
-                              ),
-                            ),
-                            // const SizedBox(width: 16),
-                            // Expanded(
-                            //   child: MyDropdown(
-                            //     controller: _paymentStatusController,
-                            //     spaceBetweenText: 10,
-                            //     hintText: 'Select payment status',
-                            //     items: const [
-                            //       'Unpaid',
-                            //       'Partially Paid',
-                            //       'Paid',
-                            //       'Refunded',
-                            //     ],
-                            //     title: 'Payment Status*',
-                            //     onChanged: (value) {
-                            //       setState(() {
-                            //         _selectedPaymentStatus =
-                            //             _paymentStatusToApi(value ?? 'Unpaid');
-                            //       });
-                            //     },
-                            //   ),
-                            // ),
+                        // Order Status
+                        MyDropdown(
+                          controller: _orderStatusController,
+                          spaceBetweenText: 10,
+                          hintText: 'Select order status',
+                          items: const [
+                            'Pending',
+                            'In Progress',
+                            'Completed',
+                            'Cancelled',
                           ],
+                          title: 'Order Status*',
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedOrderStatus =
+                                  _orderStatusToApi(value ?? 'Pending');
+                            });
+                          },
                         ),
-                        // const SizedBox(height: 24),
-
-                        // Assigned To
-                        // MyTextFormField(
-                        //   controller: _assignedToController,
-                        //   hintText: 'Enter employee ID (optional)',
-                        //   spaceBetweenText: 10,
-                        //   title: 'Assigned To',
-                        // ),
                       ],
                     ),
                   ),
@@ -505,9 +458,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
+                    top: BorderSide(color: AppColors.neutral300),
                   ),
                 ),
                 child: Row(
@@ -569,12 +522,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText(
+        AppTextStyles.bodySm(
           'Client*',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          fontWeight: FontWeight.w500,
         ),
         const SizedBox(height: 10),
         if (_isLoadingClients)
@@ -584,17 +534,17 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
               border: Border.all(color: AppColors.neutral300),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                SizedBox(width: 12),
-                Text(
+                const SizedBox(width: 12),
+                AppTextStyles.bodySm(
                   'Loading clients...',
-                  style: TextStyle(fontSize: 14, color: AppColors.neutral500),
+                  color: AppColors.neutral500,
                 ),
               ],
             ),
@@ -606,9 +556,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 controller: _clientSearchController,
                 decoration: InputDecoration(
                   hintText: 'Search client by name or email...',
-                  hintStyle:
-                      const TextStyle(fontSize: 14, color: AppColors.neutral500),
-                  prefixIcon: const Icon(Iconsax.search_normal, color: AppColors.neutral500),
+                  hintStyle: const TextStyle(
+                      fontSize: 14, color: AppColors.neutral500),
+                  prefixIcon: const Icon(Iconsax.search_normal,
+                      color: AppColors.neutral500),
                   suffixIcon: _selectedClient != null
                       ? IconButton(
                           icon: const Icon(Iconsax.close_circle, size: 18),
@@ -661,12 +612,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     ],
                   ),
                   child: _filteredClients.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text(
+                      ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: AppTextStyles.bodySm(
                             'No clients found',
-                            style:
-                                TextStyle(fontSize: 14, color: AppColors.neutral500),
+                            color: AppColors.neutral500,
                           ),
                         )
                       : ListView.builder(
@@ -691,20 +641,14 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    AppTextStyles.bodyMd(
                                       client.fullName,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
+                                    AppTextStyles.bodySm(
                                       client.email,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.neutral500,
-                                      ),
+                                      color: AppColors.neutral500,
                                     ),
                                   ],
                                 ),
@@ -723,12 +667,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText(
+        AppTextStyles.bodySm(
           'Quote',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          fontWeight: FontWeight.w500,
         ),
         const SizedBox(height: 10),
         Obx(() {
@@ -739,17 +680,17 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 border: Border.all(color: AppColors.neutral300),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  SizedBox(width: 12),
-                  Text(
+                  const SizedBox(width: 12),
+                  AppTextStyles.bodySm(
                     'Loading quotes...',
-                    style: TextStyle(fontSize: 14, color: AppColors.neutral500),
+                    color: AppColors.neutral500,
                   ),
                 ],
               ),
@@ -762,9 +703,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 controller: _quoteSearchController,
                 decoration: InputDecoration(
                   hintText: 'Search by quote number or service name...',
-                  hintStyle:
-                      const TextStyle(fontSize: 14, color: AppColors.neutral500),
-                  prefixIcon: const Icon(Iconsax.search_normal, color: AppColors.neutral500),
+                  hintStyle: const TextStyle(
+                      fontSize: 14, color: AppColors.neutral500),
+                  prefixIcon: const Icon(Iconsax.search_normal,
+                      color: AppColors.neutral500),
                   suffixIcon: _selectedQuote != null
                       ? IconButton(
                           icon: const Icon(Iconsax.close_circle, size: 18),
@@ -821,12 +763,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     ],
                   ),
                   child: _filteredQuotes.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text(
+                      ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: AppTextStyles.bodySm(
                             'No quotes found',
-                            style:
-                                TextStyle(fontSize: 14, color: AppColors.neutral500),
+                            color: AppColors.neutral500,
                           ),
                         )
                       : ListView.builder(
@@ -851,20 +792,16 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    AppTextStyles.bodyMd(
                                       '${quote.quoteNumber} - ${quote.service.name}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
-                                      '₦${quote.amount} | ${quote.status.capitalizeFirst}',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.neutral500,
-                                      ),
+                                    AppTextStyles.bodySm(
+                                      quote.description,
+                                      color: AppColors.neutral500,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),

@@ -189,7 +189,7 @@ class _CompliancePageState extends State<CompliancePage> {
       flex: flex,
       child: Text(
         label.toUpperCase(),
-        style: AppText.caption.copyWith(
+        style: AppTextStyles.caption.copyWith(
           color: AppColors.textSecondary,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.5,
@@ -222,7 +222,7 @@ class _CompliancePageState extends State<CompliancePage> {
                   alignment: Alignment.center,
                   child: Text(
                     abbreviation,
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -235,7 +235,7 @@ class _CompliancePageState extends State<CompliancePage> {
                     children: [
                       Text(
                         typeLabel,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -244,7 +244,7 @@ class _CompliancePageState extends State<CompliancePage> {
                       if (item.fullName.isNotEmpty)
                         Text(
                           item.fullName,
-                          style: AppText.caption
+                          style: AppTextStyles.caption
                               .copyWith(color: AppColors.textSecondary),
                         ),
                     ],
@@ -257,7 +257,7 @@ class _CompliancePageState extends State<CompliancePage> {
             flex: 2,
             child: Text(
               item.referenceNumber.isNotEmpty ? item.referenceNumber : '—',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -265,7 +265,7 @@ class _CompliancePageState extends State<CompliancePage> {
             flex: 3,
             child: Text(
               item.issuingAuthority.isNotEmpty ? item.issuingAuthority : '—',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -273,7 +273,7 @@ class _CompliancePageState extends State<CompliancePage> {
             flex: 2,
             child: Text(
               _formatDate(item.expiryDate),
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: _isExpired(item.expiryDate)
                     ? AppColors.danger
                     : AppColors.textPrimary,
@@ -357,7 +357,7 @@ class _CompliancePageState extends State<CompliancePage> {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to delete this record for "${item.complianceType}"? This action cannot be undone.',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(

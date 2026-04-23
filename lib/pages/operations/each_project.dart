@@ -42,7 +42,7 @@ class _EachProjectsState extends State<EachProjects> {
       return const PageScaffold(
         children: [
           Center(
-            child: MyText('Project not found', style: AppText.h2),
+            child: MyText('Project not found', style: AppTextStyles.h2),
           ),
         ],
       );

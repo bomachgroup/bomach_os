@@ -87,7 +87,7 @@ class EmptyState extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: compact ? AppText.h4 : AppText.h3,
+            style: compact ? AppTextStyles.h4 : AppTextStyles.h3,
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
@@ -96,7 +96,7 @@ class EmptyState extends StatelessWidget {
               child: Text(
                 subtitle!,
                 textAlign: TextAlign.center,
-                style: AppText.bodyMd.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
               ),
             ),
           ],

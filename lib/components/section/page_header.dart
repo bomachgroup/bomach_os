@@ -39,7 +39,7 @@ class PageHeader extends StatelessWidget {
         ],
         Text(
           title,
-          style: isMobile ? AppText.h1 : AppText.displayMd,
+          style: isMobile ? AppTextStyles.h1 : AppTextStyles.displayMd,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -47,8 +47,8 @@ class PageHeader extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle!,
-            style: AppText.bodyMd.copyWith(
-              color: AppText.bodySm.color,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppTextStyles.bodySm.color,
             ),
           ),
         ],

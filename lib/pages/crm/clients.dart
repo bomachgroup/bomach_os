@@ -50,7 +50,7 @@ class CrmClientsPage extends StatelessWidget {
               borderRadius: AppRadii.brMd,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+            textStyle: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
           ),
           icon: Icon(icon, size: 16),
           label: Text(label),
@@ -175,18 +175,18 @@ class _ClientsTableLive extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Clients', style: AppText.h2),
+          const Text('Clients', style: AppTextStyles.h2),
           const SizedBox(height: 4),
           Text(
             'Manage your client relationships',
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           TextField(
-            style: AppText.bodyMd,
+            style: AppTextStyles.bodyMd,
             decoration: InputDecoration(
               hintText: 'Search clients...',
-              hintStyle: AppText.bodyMd.copyWith(color: AppColors.textMuted),
+              hintStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
               prefixIcon: const Icon(Iconsax.search_normal_1,
                   size: 18, color: AppColors.textMuted),
               border: const OutlineInputBorder(
@@ -248,10 +248,10 @@ class _ClientDataTableLive extends StatelessWidget {
           dataRowMinHeight: 60,
           dataRowMaxHeight: 80,
           dividerThickness: 1.0,
-          headingTextStyle: AppText.label.copyWith(
+          headingTextStyle: AppTextStyles.label.copyWith(
             color: AppColors.textSecondary,
           ),
-          dataTextStyle: AppText.bodyMd.copyWith(
+          dataTextStyle: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
           ),
           columns: const [
@@ -263,13 +263,13 @@ class _ClientDataTableLive extends StatelessWidget {
           rows: clients.map((c) {
             return DataRow(cells: [
               DataCell(Text(c.fullName,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary))),
               DataCell(Text(c.email)),
               DataCell(Text(c.phoneNumber ?? '—')),
               DataCell(Text('₦${c.balance.toStringAsFixed(2)}',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary))),
             ]);

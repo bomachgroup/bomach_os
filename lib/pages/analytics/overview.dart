@@ -45,7 +45,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
                         children: [
                           MyText(
                             'Analytics',
-                            style: AppText.displayLg,
+                            style: AppTextStyles.displayLg,
                           ),
                           SizedBox(height: 4),
                           MyText(
@@ -66,7 +66,7 @@ class AnalyticsOverviewPage extends StatelessWidget {
                   children: [
                     MyText(
                       'Analytics',
-                      style: AppText.displayLg,
+                      style: AppTextStyles.displayLg,
                     ),
                     SizedBox(height: 4),
                     MyText(

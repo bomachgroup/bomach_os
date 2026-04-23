@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/models/performance_invoice_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -32,23 +33,17 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
         children: [
           SizedBox(
             width: 180,
-            child: Text(
+            child: AppText.bodyMd(
               label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
+              color: AppColors.neutral500,
+              fontWeight: FontWeight.w500,
             ),
           ),
           Expanded(
-            child: Text(
+            child: AppText.bodyMd(
               value,
-              style: TextStyle(
-                fontSize: 14,
-                color: isBlue ? AppColors.primary : Colors.black87,
-                fontWeight: FontWeight.w600,
-              ),
+              color: isBlue ? AppColors.primary : AppColors.neutral800,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -79,16 +74,13 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: color, width: 1.5),
       ),
-      child: Text(
+      child: AppText.bodySm(
         status,
-        style: TextStyle(
-          fontSize: 14,
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
+        color: color,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -124,22 +116,12 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Invoice Details',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
+                      AppText.h3('Invoice Details'),
                       const SizedBox(height: 4),
-                      Text(
+                      AppText.bodyMd(
                         invoice.invoiceNumber ?? 'N/A',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primary,
-                        ),
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
                       ),
                     ],
                   ),
@@ -170,9 +152,9 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
+                        color: AppColors.neutral50,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
+                        border: Border.all(color: AppColors.neutral200),
                       ),
                       child: Column(
                         children: [
@@ -205,9 +187,9 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
+                        color: AppColors.neutral50,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
+                        border: Border.all(color: AppColors.neutral200),
                       ),
                       child: Column(
                         children: [
@@ -232,9 +214,9 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: AppColors.neutral50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!),
+                          border: Border.all(color: AppColors.neutral200),
                         ),
                         child: Column(
                           children: [
@@ -258,23 +240,23 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.05),
+                        color: AppColors.primary.withValues(alpha: 0.02),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.2)),
+                            color: AppColors.primary.withValues(alpha: 0.1)),
                       ),
                       child: Column(
                         children: [
                           _buildFinancialRow('Total Amount', invoice.amount),
                           if (invoice.amountPaid != null) ...[
-                            const Divider(height: 24),
+                            Divider(height: 24, color: AppColors.primary.withValues(alpha: 0.1)),
                             _buildFinancialRow(
                                 'Amount Paid', invoice.amountPaid!,
                                 color: Colors.green),
                           ],
                           if (invoice.balance != null &&
                               invoice.balance! > 0) ...[
-                            const Divider(height: 24),
+                            Divider(height: 24, color: AppColors.primary.withValues(alpha: 0.1)),
                             _buildFinancialRow('Balance', invoice.balance!,
                                 color: Colors.orange),
                           ],
@@ -290,9 +272,9 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
+                        color: AppColors.neutral50,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
+                        border: Border.all(color: AppColors.neutral200),
                       ),
                       child: Column(
                         children: [
@@ -317,9 +299,9 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: AppColors.neutral50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!),
+                          border: Border.all(color: AppColors.neutral200),
                         ),
                         child: Column(
                           children: [
@@ -350,14 +332,14 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
+                  top: BorderSide(color: AppColors.neutral300),
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyElevatedButton(
-                    bgColor: Colors.grey.shade600,
+                    bgColor: AppColors.neutral600,
                     icon: const Icon(Iconsax.printer, color: AppColors.white),
                     child: 'Print Invoice',
                     onTap: () {
@@ -407,13 +389,9 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Text(
+        AppText.h4(
           title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+          color: AppColors.neutral800,
         ),
       ],
     );
@@ -425,21 +403,14 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          AppText.bodyLg(
             label,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: color ?? Colors.black87,
-            ),
+            fontWeight: FontWeight.w600,
+            color: color ?? AppColors.neutral800,
           ),
-          Text(
+          AppText.h3(
             '₦${_formatAmount(amount)}',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color ?? AppColors.primary,
-            ),
+            color: color ?? AppColors.primary,
           ),
         ],
       ),

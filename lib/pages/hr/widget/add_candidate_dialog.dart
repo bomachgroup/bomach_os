@@ -189,7 +189,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
                   children: [
                     Text(
                       _tabs[index],
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: isActive
                             ? AppColors.primary
                             : AppColors.textSecondary,
@@ -231,7 +231,7 @@ class _AddCandidateDialogState extends State<AddCandidateDialog> {
   Widget _sectionLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(label, style: AppText.h4),
+      child: Text(label, style: AppTextStyles.h4),
     );
   }
 

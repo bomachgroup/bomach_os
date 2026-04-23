@@ -175,13 +175,13 @@ class _AssociatesPageState extends State<AssociatesPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Associate directory', style: AppText.h3),
+                      const Text('Associate directory', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         loading
                             ? 'Loading associates...'
                             : '$totalCount associate${totalCount == 1 ? '' : 's'} on record',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -252,7 +252,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -287,7 +287,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
                   child: !hasPicture
                       ? Text(
                           initials,
-                          style: AppText.label.copyWith(
+                          style: AppTextStyles.label.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -301,7 +301,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
                     children: [
                       Text(
                         '${associate.firstName} ${associate.lastName}',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -311,7 +311,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
                         const SizedBox(height: 2),
                         Text(
                           associate.employmentType!,
-                          style: AppText.bodySm.copyWith(
+                          style: AppTextStyles.bodySm.copyWith(
                             color: AppColors.textSecondary,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -327,7 +327,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
             flex: 3,
             child: Text(
               associate.email.isEmpty ? '—' : associate.email,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -350,7 +350,7 @@ class _AssociatesPageState extends State<AssociatesPage> {
               (associate.phoneNumber ?? '').isEmpty
                   ? '—'
                   : associate.phoneNumber!,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),

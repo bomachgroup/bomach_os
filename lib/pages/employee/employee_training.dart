@@ -25,12 +25,12 @@ class _EmployeeTrainingPageState extends State<EmployeeTrainingPage> {
               children: [
                 MyText(
                   'Training Programs',
-                  style: AppText.displayLg,
+                  style: AppTextStyles.displayLg,
                 ),
                 SizedBox(height: 8),
                 MyText(
                   'Manage employee training and development programs',
-                  style: AppText.h4,
+                  style: AppTextStyles.h4,
                 ),
               ],
             ),
@@ -56,7 +56,7 @@ class _EmployeeTrainingPageState extends State<EmployeeTrainingPage> {
                     SizedBox(height: 16),
                     MyText(
                       'No training programs found',
-                      style: AppText.bodyMd,
+                      style: AppTextStyles.bodyMd,
                     ),
                   ],
                 ),

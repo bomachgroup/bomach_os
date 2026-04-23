@@ -223,7 +223,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
               children: [
                 Text(
                   label,
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
@@ -231,7 +231,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                 const SizedBox(height: 8),
                 Text(
                   value,
-                  style: AppText.displayMd.copyWith(
+                  style: AppTextStyles.displayMd.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -332,7 +332,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
           ),
           child: Text(
             title,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color: isActive
                   ? AppColors.textPrimary
                   : AppColors.textSecondary,
@@ -369,14 +369,14 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                         _selectedTab == 'Active'
                             ? 'Active employees'
                             : 'Past employees',
-                        style: AppText.h3,
+                        style: AppTextStyles.h3,
                       ),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             loading
                                 ? 'Loading employees...'
                                 : '${controller.totalItems.value} employee${controller.totalItems.value == 1 ? '' : 's'} on record',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -486,7 +486,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -522,7 +522,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                           emp.firstName.isNotEmpty
                               ? emp.firstName[0].toUpperCase()
                               : '?',
-                          style: AppText.label.copyWith(
+                          style: AppTextStyles.label.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.textSecondary,
                           ),
@@ -537,7 +537,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                     children: [
                       Text(
                         '${emp.firstName} ${emp.lastName}',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -546,7 +546,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
                       const SizedBox(height: 2),
                       Text(
                         emp.employeeId ?? emp.id,
-                        style: AppText.bodySm.copyWith(
+                        style: AppTextStyles.bodySm.copyWith(
                           color: AppColors.textSecondary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -561,7 +561,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
             flex: 3,
             child: Text(
               emp.designation ?? emp.role,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -569,7 +569,7 @@ class _EmployeeDatabaseState extends State<EmployeeDatabase>
             flex: 3,
             child: Text(
               emp.departmentName ?? emp.departmentId?.toString() ?? '—',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),

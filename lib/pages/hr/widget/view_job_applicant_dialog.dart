@@ -240,7 +240,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             alignment: Alignment.center,
             child: Text(
               initial,
-              style: AppText.h2.copyWith(color: AppColors.primary),
+              style: AppTextStyles.h2.copyWith(color: AppColors.primary),
             ),
           ),
           const SizedBox(width: 14),
@@ -250,7 +250,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
               children: [
                 Text(
                   fullName.isEmpty ? 'Unknown applicant' : fullName,
-                  style: AppText.h3,
+                  style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 6),
                 Wrap(
@@ -296,7 +296,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -331,7 +331,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
           children: [
             Text(
               title,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color:
                     isActive ? AppColors.primary : AppColors.textSecondary,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
@@ -394,7 +394,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                       widget.applicant.notes!.isEmpty
                   ? 'No notes available.'
                   : widget.applicant.notes!,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 height: 1.5,
               ),
@@ -432,7 +432,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                   Expanded(
                     child: Text(
                       'Resume.pdf',
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
@@ -580,7 +580,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Interviews', style: AppText.h4),
+            const Text('Interviews', style: AppTextStyles.h4),
             MyElevatedButton(
               child: 'Schedule Interview',
               height: 40,
@@ -649,7 +649,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                   interview.scheduledAt.isNotEmpty
                       ? _formatDateTime(interview.scheduledAt)
                       : 'No date set',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -658,14 +658,14 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                   const SizedBox(height: 4),
                   Text(
                     interview.meetingLink!,
-                    style: AppText.bodySm.copyWith(color: AppColors.primary),
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.primary),
                   ),
                 ],
                 if (interview.feedback?.isNotEmpty == true) ...[
                   const SizedBox(height: 4),
                   Text(
                     'Feedback: ${interview.feedback!}',
-                    style: AppText.bodySm
+                    style: AppTextStyles.bodySm
                         .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
@@ -688,7 +688,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Offer Letters', style: AppText.h4),
+            const Text('Offer Letters', style: AppTextStyles.h4),
             MyElevatedButton(
               child: 'Create Offer Letter',
               height: 40,
@@ -756,7 +756,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
               children: [
                 Text(
                   offer.template.isNotEmpty ? offer.template : 'Offer Letter',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -764,13 +764,13 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
                 const SizedBox(height: 4),
                 Text(
                   'Salary: ₦${offer.annualSalary}',
-                  style: AppText.bodySm
+                  style: AppTextStyles.bodySm
                       .copyWith(color: AppColors.textSecondary),
                 ),
                 if (offer.startDate.isNotEmpty)
                   Text(
                     'Start: ${offer.startDate}',
-                    style: AppText.bodySm
+                    style: AppTextStyles.bodySm
                         .copyWith(color: AppColors.textSecondary),
                   ),
               ],
@@ -803,12 +803,12 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
         children: [
           Icon(icon, size: 40, color: AppColors.textMuted),
           const SizedBox(height: 12),
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 4),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -830,7 +830,7 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -848,14 +848,14 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
             width: 140,
             child: Text(
               label,
-              style: AppText.bodySm
+              style: AppTextStyles.bodySm
                   .copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
@@ -1083,7 +1083,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
               Expanded(
                 child: Text(
                   label,
-                  style: AppText.bodyMd
+                  style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textPrimary),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1286,7 +1286,7 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
               Expanded(
                 child: Text(
                   label,
-                  style: AppText.bodyMd
+                  style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textPrimary),
                   overflow: TextOverflow.ellipsis,
                 ),

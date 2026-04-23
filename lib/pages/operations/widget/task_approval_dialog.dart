@@ -174,7 +174,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                     children: [
                       MyText(
                         'Task Review',
-                        style: AppText.h2,
+                        style: AppTextStyles.h2,
                       ),
                       SizedBox(height: 4),
                       MyText(
@@ -224,7 +224,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                                   children: [
                                     MyText(
                                       widget.task.code,
-                                      style: AppText.h4,
+                                      style: AppTextStyles.h4,
                                     ),
                                     const SizedBox(height: 4),
                                     MyText(
@@ -287,7 +287,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       // Task Description
                       const MyText(
                         'Description',
-                        style: AppText.h4,
+                        style: AppTextStyles.h4,
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -313,7 +313,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       // Review Actions Section
                       const MyText(
                         'Your Review',
-                        style: AppText.h4,
+                        style: AppTextStyles.h4,
                       ),
                       const SizedBox(height: 16),
 
@@ -352,7 +352,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       // Feedback Field
                       const MyText(
                         'Feedback *',
-                        style: AppText.h4,
+                        style: AppTextStyles.h4,
                       ),
                       const SizedBox(height: 8),
                       MyTextFormField(
@@ -370,7 +370,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                           children: [
                             const MyText(
                               'Rework Instructions *',
-                              style: AppText.h4,
+                              style: AppTextStyles.h4,
                             ),
                             const SizedBox(height: 8),
                             MyTextFormField(

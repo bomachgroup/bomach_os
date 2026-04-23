@@ -295,7 +295,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
                                   Flexible(
                                     child: Text(
                                       'Is Mandatory?',
-                                      style: AppText.bodySm.copyWith(
+                                      style: AppTextStyles.bodySm.copyWith(
                                         color: AppColors.textPrimary,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -399,13 +399,13 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),

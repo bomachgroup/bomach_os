@@ -53,7 +53,7 @@ class _Breadcrumbs extends StatelessWidget {
       children: [
         Text(
           'Workspace',
-          style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
         ),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8),
@@ -61,7 +61,7 @@ class _Breadcrumbs extends StatelessWidget {
         ),
         Text(
           'Overview',
-          style: AppText.bodySm.copyWith(
+          style: AppTextStyles.bodySm.copyWith(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),

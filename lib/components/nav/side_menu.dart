@@ -419,10 +419,16 @@ class _SideMenuState extends State<SideMenu> {
       onHeaderTap: () {
         setState(() {
           selectedMainMenu = menuItem.id;
-          // Accordion: tapping the already-open group collapses it,
-          // tapping any other group opens it and closes the previous one.
-          _openMenu = _openMenu == menuItem.id ? null : menuItem.id;
+          // Ensure the group is open when the header is tapped
+          _openMenu = menuItem.id;
         });
+
+        // Automatically navigate to the first authorized child
+        if (authorizedSubItems.isNotEmpty) {
+          final firstChild = authorizedSubItems.first;
+          _navigate(firstChild.route, menuItem.id, firstChild.id);
+        }
+
         _saveMenuState(menuItem.id, selectedSubMenu);
         _saveOpenMenu(_openMenu);
       },
@@ -590,10 +596,21 @@ class _SideMenuState extends State<SideMenu> {
         isSelected: isSelected,
         onTap: () {
           if (menuItem.isExpandable) {
+            final authorizedSubItems = menuItem.children
+                .where((s) =>
+                    permissionService.canAccessRoute(s.route, s.resources))
+                .toList();
+
             setState(() {
               selectedMainMenu = menuItem.id;
               _openMenu = menuItem.id;
             });
+
+            if (authorizedSubItems.isNotEmpty) {
+              final firstChild = authorizedSubItems.first;
+              _navigate(firstChild.route, menuItem.id, firstChild.id);
+            }
+
             _saveMenuState(menuItem.id, selectedSubMenu);
             _saveOpenMenu(_openMenu);
             widget.onToggleCollapse?.call();
@@ -642,9 +659,25 @@ class _SideMenuState extends State<SideMenu> {
       }).toList();
 
       if (sectionItems.isNotEmpty) {
+        final firstItem = sectionItems.first;
         rows.add(_SectionHeader(
           label: section.label,
           showDivider: firstSectionSeen,
+          onTap: () {
+            if (firstItem.isExpandable) {
+              final subItems = firstItem.children
+                  .where((s) =>
+                      permissionService.canAccessRoute(s.route, s.resources))
+                  .toList();
+              if (subItems.isNotEmpty) {
+                final firstSub = subItems.first;
+                _navigate(firstSub.route, firstItem.id, firstSub.id);
+                setState(() => _openMenu = firstItem.id);
+              }
+            } else {
+              _navigate(firstItem.route, firstItem.id, null);
+            }
+          },
         ));
         firstSectionSeen = true;
         for (final item in sectionItems) {
@@ -659,7 +692,7 @@ class _SideMenuState extends State<SideMenu> {
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Text(
             'No menu items match "$_searchQuery"',
-            style: AppText.bodyMd,
+            style: AppTextStyles.bodyMd,
             textAlign: TextAlign.center,
           ),
         ),
@@ -735,7 +768,7 @@ class _SideMenuState extends State<SideMenu> {
                 children: [
                   Text(
                     'BOMACH',
-                    style: AppText.h2.copyWith(
+                    style: AppTextStyles.h2.copyWith(
                       color: AppColors.primary,
                       letterSpacing: -0.5,
                       fontWeight: FontWeight.w900,
@@ -744,7 +777,7 @@ class _SideMenuState extends State<SideMenu> {
                   const SizedBox(width: 2),
                   Text(
                     'OS',
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.bold,
                     ),
@@ -1241,10 +1274,12 @@ class _ExpandableMenuRow extends StatelessWidget {
 class _SectionHeader extends StatelessWidget {
   final String label;
   final bool showDivider;
+  final VoidCallback? onTap;
 
   const _SectionHeader({
     required this.label,
     required this.showDivider,
+    this.onTap,
   });
 
   @override
@@ -1259,28 +1294,32 @@ class _SectionHeader extends StatelessWidget {
           : const SizedBox(height: 4);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (showDivider)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Divider(height: 1, color: AppColors.neutral200),
-          ),
-        const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
-              color: AppColors.neutral500,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (showDivider)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Divider(height: 1, color: AppColors.neutral200),
+            ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Text(
+              label.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.8,
+                color: AppColors.neutral500,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -1426,7 +1465,7 @@ class _AccountCard extends StatelessWidget {
                                         ? user.username[0]
                                         : '?')
                                 .toUpperCase(),
-                            style: AppText.bodySm.copyWith(
+                            style: AppTextStyles.bodySm.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
                             ),
@@ -1474,7 +1513,7 @@ class _AccountCard extends StatelessWidget {
                                           ? user.username[0]
                                           : '?')
                                   .toUpperCase(),
-                              style: AppText.bodyMd.copyWith(
+                              style: AppTextStyles.bodyMd.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1489,7 +1528,7 @@ class _AccountCard extends StatelessWidget {
                         children: [
                           Text(
                             name,
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               fontWeight: FontWeight.bold,
                               color: AppColors.textPrimary,
                             ),
@@ -1498,7 +1537,7 @@ class _AccountCard extends StatelessWidget {
                           ),
                           Text(
                             role,
-                            style: AppText.caption.copyWith(
+                            style: AppTextStyles.caption.copyWith(
                               fontSize: 11,
                             ),
                             maxLines: 1,

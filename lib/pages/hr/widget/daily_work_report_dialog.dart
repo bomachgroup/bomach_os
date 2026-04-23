@@ -268,7 +268,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                           Expanded(
                             child: Text(
                               fileName,
-                              style: AppText.bodySm.copyWith(
+                              style: AppTextStyles.bodySm.copyWith(
                                 color: AppColors.textPrimary,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -331,12 +331,12 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -356,7 +356,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       children: [
         Text(
           label,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -381,7 +381,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
                 const SizedBox(width: 10),
                 Text(
                   DateFormat('MMM d, yyyy').format(value),
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),

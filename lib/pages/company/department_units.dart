@@ -106,7 +106,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color:
                   isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
@@ -166,14 +166,14 @@ class DepartmentsUnitsPage extends StatelessWidget {
                         isDepartments
                             ? 'Department register'
                             : 'Unit register',
-                        style: AppText.h3,
+                        style: AppTextStyles.h3,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         loading
                             ? 'Loading ${isDepartments ? 'departments' : 'units'}...'
                             : '$total ${isDepartments ? 'departments' : 'units'} available',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -368,7 +368,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                     children: [
                       Text(
                         dept.name,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -380,7 +380,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                           dept.description,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppText.bodySm
+                          style: AppTextStyles.bodySm
                               .copyWith(color: AppColors.textSecondary),
                         ),
                       ],
@@ -394,7 +394,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
             flex: 2,
             child: Text(
               code,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           SizedBox(
@@ -510,7 +510,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                     children: [
                       Text(
                         unit.name,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -522,7 +522,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                           unit.description,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppText.bodySm
+                          style: AppTextStyles.bodySm
                               .copyWith(color: AppColors.textSecondary),
                         ),
                       ],
@@ -536,7 +536,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
             flex: 2,
             child: Text(
               unit.departmentName ?? '-',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -544,7 +544,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
             flex: 2,
             child: Text(
               unit.hod ?? 'Not Assigned',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -602,7 +602,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),

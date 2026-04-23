@@ -161,11 +161,11 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Recent Awards', style: AppText.h3),
+                    const Text('Recent Awards', style: AppTextStyles.h3),
                     const SizedBox(height: 4),
                     Text(
                       DateTime.now().year.toString(),
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -231,14 +231,14 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
             const SizedBox(height: 14),
             Text(
               award.title,
-              style: AppText.h4.copyWith(color: AppColors.textOnPrimary),
+              style: AppTextStyles.h4.copyWith(color: AppColors.textOnPrimary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
             Text(
               award.category,
-              style: AppText.bodySm.copyWith(
+              style: AppTextStyles.bodySm.copyWith(
                 color: Colors.white.withValues(alpha: 0.85),
               ),
               maxLines: 1,
@@ -249,7 +249,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
               award.dateAwarded != null
                   ? DateFormat('MMM yyyy').format(award.dateAwarded!)
                   : 'N/A',
-              style: AppText.bodySm.copyWith(
+              style: AppTextStyles.bodySm.copyWith(
                 color: Colors.white.withValues(alpha: 0.75),
               ),
             ),
@@ -293,11 +293,11 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Award History', style: AppText.h3),
+                      const Text('Award History', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         '${filteredAwards.length} award${filteredAwards.length == 1 ? '' : 's'} recorded',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -362,7 +362,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
       flex: flex,
       child: Text(
         label,
-        style: AppText.bodySm.copyWith(
+        style: AppTextStyles.bodySm.copyWith(
           color: AppColors.textSecondary,
           fontWeight: FontWeight.w600,
         ),
@@ -394,7 +394,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                 flex: 3,
                 child: Text(
                   award.title,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -418,7 +418,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                   award.dateAwarded != null
                       ? DateFormat('MMM dd, yyyy').format(award.dateAwarded!)
                       : '—',
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -427,7 +427,7 @@ class _AwardsRecognitionPageState extends State<AwardsRecognitionPage> {
                 flex: 2,
                 child: Text(
                   award.rankLevel.isEmpty ? '—' : award.rankLevel,
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),

@@ -105,10 +105,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   child: DataTable(
                     headingRowColor: WidgetStateProperty.resolveWith(
                         (states) => AppColors.surfaceMuted.withValues(alpha: 0.5)),
-                    headingTextStyle: AppText.label.copyWith(
+                    headingTextStyle: AppTextStyles.label.copyWith(
                       color: AppColors.textSecondary,
                     ),
-                    dataTextStyle: AppText.bodyMd.copyWith(
+                    dataTextStyle: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textPrimary,
                     ),
                     dataRowMinHeight: 64,
@@ -158,7 +158,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             width: 152,
             child: Text(
               project.name,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
@@ -169,7 +169,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           width: 100,
           child: Text(
             '₦${project.budget}',
-            style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600),
+            style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
           ),
         )),
         DataCell(SizedBox(width: 100, child: MyText(project.startDate))),

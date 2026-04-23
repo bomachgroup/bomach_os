@@ -58,7 +58,7 @@ class SiteDetailPageState extends State<SiteDetailPage> {
                             kSizedBoxWidthSM,
                             const MyText(
                               'Back',
-                              style: AppText.h2,
+                              style: AppTextStyles.h2,
                               isSelectable: false,
                             ),
                           ],
@@ -70,14 +70,14 @@ class SiteDetailPageState extends State<SiteDetailPage> {
                         children: [
                           MyText(
                             'Port Harcourt Industrial Site Office',
-                            style: AppText.h2,
+                            style: AppTextStyles.h2,
                           ),
                           SizedBox(
                             height: 8,
                           ),
                           MyText(
                             'Created 9/5/2023 • Updated 1/31/2024',
-                            style: AppText.bodyLg,
+                            style: AppTextStyles.bodyLg,
                           ),
                         ],
                       ),

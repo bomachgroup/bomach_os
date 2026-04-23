@@ -66,21 +66,21 @@ ThemeData _buildTheme() {
   );
 
   const textTheme = TextTheme(
-    displayLarge: AppText.displayLg,
-    displayMedium: AppText.displayMd,
-    displaySmall: AppText.h1,
-    headlineLarge: AppText.h1,
-    headlineMedium: AppText.h2,
-    headlineSmall: AppText.h3,
-    titleLarge: AppText.h3,
-    titleMedium: AppText.h4,
-    titleSmall: AppText.label,
-    bodyLarge: AppText.bodyLg,
-    bodyMedium: AppText.bodyMd,
-    bodySmall: AppText.bodySm,
-    labelLarge: AppText.label,
-    labelMedium: AppText.caption,
-    labelSmall: AppText.overline,
+    displayLarge: AppTextStyles.displayLg,
+    displayMedium: AppTextStyles.displayMd,
+    displaySmall: AppTextStyles.h1,
+    headlineLarge: AppTextStyles.h1,
+    headlineMedium: AppTextStyles.h2,
+    headlineSmall: AppTextStyles.h3,
+    titleLarge: AppTextStyles.h3,
+    titleMedium: AppTextStyles.h4,
+    titleSmall: AppTextStyles.label,
+    bodyLarge: AppTextStyles.bodyLg,
+    bodyMedium: AppTextStyles.bodyMd,
+    bodySmall: AppTextStyles.bodySm,
+    labelLarge: AppTextStyles.label,
+    labelMedium: AppTextStyles.caption,
+    labelSmall: AppTextStyles.overline,
   );
 
   return ThemeData(
@@ -106,7 +106,7 @@ ThemeData _buildTheme() {
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-        textStyle: AppText.label.copyWith(fontWeight: FontWeight.w600),
+        textStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -115,13 +115,13 @@ ThemeData _buildTheme() {
         side: const BorderSide(color: AppColors.borderSubtle),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-        textStyle: AppText.label.copyWith(fontWeight: FontWeight.w600),
+        textStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.primary,
-        textStyle: AppText.label.copyWith(fontWeight: FontWeight.w600),
+        textStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -129,8 +129,8 @@ ThemeData _buildTheme() {
       fillColor: AppColors.surface,
       contentPadding:
           const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      hintStyle: AppText.bodyMd.copyWith(color: AppColors.textMuted),
-      labelStyle: AppText.label.copyWith(color: AppColors.textSecondary),
+      hintStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
+      labelStyle: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
       border: const OutlineInputBorder(
         borderRadius: AppRadii.brMd,
         borderSide: BorderSide(color: AppColors.borderSubtle),
@@ -162,18 +162,18 @@ ThemeData _buildTheme() {
       backgroundColor: AppColors.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: AppRadii.brLg),
-      titleTextStyle: AppText.h3,
-      contentTextStyle: AppText.bodyMd,
+      titleTextStyle: AppTextStyles.h3,
+      contentTextStyle: AppTextStyles.bodyMd,
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColors.neutral900,
-      contentTextStyle: AppText.bodyMd.copyWith(color: AppColors.white),
+      contentTextStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.white),
       behavior: SnackBarBehavior.floating,
       shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
     ),
     chipTheme: const ChipThemeData(
       backgroundColor: AppColors.surfaceMuted,
-      labelStyle: AppText.caption,
+      labelStyle: AppTextStyles.caption,
       shape: RoundedRectangleBorder(borderRadius: AppRadii.brPill),
       side: BorderSide(color: AppColors.borderSubtle),
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -183,7 +183,7 @@ ThemeData _buildTheme() {
         color: AppColors.neutral900,
         borderRadius: AppRadii.brSm,
       ),
-      textStyle: AppText.caption.copyWith(color: AppColors.white),
+      textStyle: AppTextStyles.caption.copyWith(color: AppColors.white),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     ),
   );

@@ -110,12 +110,12 @@ class _PropertyListPageState extends State<PropertyListPage> {
                     children: [
                       MyText(
                         'Properties',
-                        style: AppText.displayLg,
+                        style: AppTextStyles.displayLg,
                       ),
                       SizedBox(height: 8),
                       MyText(
                         'Manage your property inventory and listings',
-                        style: AppText.bodyMd,
+                        style: AppTextStyles.bodyMd,
                       ),
                     ],
                   ),

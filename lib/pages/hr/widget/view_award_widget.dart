@@ -60,7 +60,7 @@ class ViewAwardDialog extends StatelessWidget {
               children: [
                 Text(
                   award.description,
-                  style: AppText.bodyMd
+                  style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textPrimary, height: 1.5),
                 ),
               ],
@@ -135,7 +135,7 @@ class ViewAwardDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(award.title, style: AppText.h3),
+                Text(award.title, style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -175,7 +175,7 @@ class ViewAwardDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -200,7 +200,7 @@ class ViewAwardDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -219,13 +219,13 @@ class ViewAwardDialog extends StatelessWidget {
             child: Text(
               label,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
@@ -257,7 +257,7 @@ class ViewAwardDialog extends StatelessWidget {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to delete "$name"?',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(

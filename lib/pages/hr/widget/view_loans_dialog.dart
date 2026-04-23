@@ -70,7 +70,7 @@ class ViewLoanDialog extends StatelessWidget {
             children: [
               Text(
                 loan.reason.isNotEmpty ? loan.reason : 'No reason provided',
-                style: AppText.bodyMd,
+                style: AppTextStyles.bodyMd,
               ),
             ],
           ),
@@ -107,7 +107,7 @@ class ViewLoanDialog extends StatelessWidget {
                       Expanded(
                         child: Text(
                           loan.attachment,
-                          style: AppText.bodySm.copyWith(
+                          style: AppTextStyles.bodySm.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -197,7 +197,7 @@ class ViewLoanDialog extends StatelessWidget {
             child: Center(
               child: Text(
                 initial,
-                style: AppText.h3.copyWith(color: AppColors.primary),
+                style: AppTextStyles.h3.copyWith(color: AppColors.primary),
               ),
             ),
           ),
@@ -210,13 +210,13 @@ class ViewLoanDialog extends StatelessWidget {
                   loan.employeeName.isNotEmpty
                       ? loan.employeeName
                       : 'Unknown employee',
-                  style: AppText.h3,
+                  style: AppTextStyles.h3,
                 ),
                 if (loan.jobTitle.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(
                     loan.jobTitle,
-                    style: AppText.bodySm
+                    style: AppTextStyles.bodySm
                         .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
@@ -260,7 +260,7 @@ class ViewLoanDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -285,7 +285,7 @@ class ViewLoanDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -304,13 +304,13 @@ class ViewLoanDialog extends StatelessWidget {
             child: Text(
               label,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),

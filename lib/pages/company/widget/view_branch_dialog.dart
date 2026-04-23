@@ -102,9 +102,9 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                   ),
                   dividerColor: Colors.transparent,
                   labelStyle:
-                      AppText.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                      AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
                   unselectedLabelStyle:
-                      AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+                      AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
                   padding: const EdgeInsets.all(6),
                   tabs: const [
                     Tab(text: 'Overview'),
@@ -186,7 +186,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(branch.branchName, style: AppText.h2),
+                Text(branch.branchName, style: AppTextStyles.h2),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -243,7 +243,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),

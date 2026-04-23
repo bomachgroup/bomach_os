@@ -74,14 +74,14 @@ class ViewComplianceDialog extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Description',
-                style: AppText.bodySm
+                style: AppTextStyles.bodySm
                     .copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 6),
               Text(
                 'This compliance record contains all necessary documentation '
                 'and certifications required by regulatory authorities.',
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   height: 1.5,
                 ),
@@ -160,7 +160,7 @@ class ViewComplianceDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(type, style: AppText.h3),
+                Text(type, style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -206,7 +206,7 @@ class ViewComplianceDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -233,7 +233,7 @@ class ViewComplianceDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -252,13 +252,13 @@ class ViewComplianceDialog extends StatelessWidget {
             child: Text(
               label,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
@@ -284,7 +284,7 @@ class ViewComplianceDialog extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             initial,
-            style: AppText.h3.copyWith(
+            style: AppTextStyles.h3.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w700,
             ),
@@ -297,7 +297,7 @@ class ViewComplianceDialog extends StatelessWidget {
             children: [
               Text(
                 user.isEmpty ? 'Unknown' : user,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -307,7 +307,7 @@ class ViewComplianceDialog extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   email,
-                  style: AppText.bodySm
+                  style: AppTextStyles.bodySm
                       .copyWith(color: AppColors.textSecondary),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -350,7 +350,7 @@ class ViewComplianceDialog extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -359,7 +359,7 @@ class ViewComplianceDialog extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   size,
-                  style: AppText.bodySm
+                  style: AppTextStyles.bodySm
                       .copyWith(color: AppColors.textSecondary),
                 ),
               ],

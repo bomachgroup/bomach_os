@@ -322,13 +322,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  MyText(
-                    isEditing ? 'Edit Property' : 'Add New Property',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  AppTextStyles.h3(isEditing ? 'Edit Property' : 'Add New Property'),
                   IconButton(
                     icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
@@ -517,12 +511,9 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                         const SizedBox(height: 24),
 
                         // Property Images
-                        const MyText(
+                        AppTextStyles.bodyMd(
                           'Property Images',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
+                          fontWeight: FontWeight.w500,
                         ),
                         const SizedBox(height: 10),
 
@@ -541,47 +532,39 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                               ),
                             ),
                             child: _isUploading
-                                ? const Column(
+                                ? Column(
                                     children: [
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 24,
                                         height: 24,
                                         child: CircularProgressIndicator(
                                             strokeWidth: 2),
                                       ),
-                                      SizedBox(height: 8),
-                                      Text(
+                                      const SizedBox(height: 8),
+                                      AppTextStyles.bodySm(
                                         'Uploading image...',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.neutral500,
-                                        ),
+                                        color: AppColors.neutral500,
                                       ),
                                     ],
                                   )
-                                : const Column(
+                                : Column(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Iconsax.document_upload,
                                         size: 32,
                                         color: AppColors.primary,
                                       ),
-                                      SizedBox(height: 8),
-                                      Text(
+                                      const SizedBox(height: 8),
+                                      AppTextStyles.bodySm(
                                         'Click to upload images',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      SizedBox(height: 4),
-                                      Text(
+                                      const SizedBox(height: 4),
+                                      AppTextStyles.bodySm(
                                         'Supported: PNG, JPG, JPEG',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.neutral500,
-                                        ),
+                                        color: AppColors.neutral500,
+                                        fontSize: 12,
                                       ),
                                     ],
                                   ),
@@ -630,20 +613,15 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
+                                          AppTextStyles.bodySm(
                                             'Image ${index + 1}',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                            fontWeight: FontWeight.w500,
                                           ),
                                           const SizedBox(height: 2),
-                                          Text(
+                                          AppTextStyles.bodySm(
                                             url,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: AppColors.neutral500,
-                                            ),
+                                            color: AppColors.neutral500,
+                                            fontSize: 11,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -677,7 +655,7 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
+                  top: BorderSide(color: AppColors.neutral300),
                 ),
               ),
               child: Row(
@@ -723,27 +701,22 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
       children: [
         Row(
           children: [
-            const MyText(
+            AppTextStyles.bodySm(
               'Client',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-              ),
+              fontWeight: FontWeight.w500,
             ),
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: AppColors.neutral300,
+                color: AppColors.neutral200,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Text(
+              child: AppTextStyles.bodySm(
                 'Optional',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.neutral500,
-                  fontWeight: FontWeight.w500,
-                ),
+                fontSize: 10,
+                color: AppColors.neutral500,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -756,17 +729,17 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
               border: Border.all(color: AppColors.neutral300),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                SizedBox(width: 12),
-                Text(
+                const SizedBox(width: 12),
+                AppTextStyles.bodySm(
                   'Loading clients...',
-                  style: TextStyle(fontSize: 14, color: AppColors.neutral500),
+                  color: AppColors.neutral500,
                 ),
               ],
             ),
@@ -833,12 +806,11 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                     ],
                   ),
                   child: _filteredClients.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text(
+                      ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: AppTextStyles.bodySm(
                             'No clients found',
-                            style:
-                                TextStyle(fontSize: 14, color: AppColors.neutral500),
+                            color: AppColors.neutral500,
                           ),
                         )
                       : ListView.builder(
@@ -863,20 +835,14 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    AppTextStyles.bodyMd(
                                       client.fullName,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
+                                    AppTextStyles.bodySm(
                                       client.email,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.neutral500,
-                                      ),
+                                      color: AppColors.neutral500,
                                     ),
                                   ],
                                 ),

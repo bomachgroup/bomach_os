@@ -46,7 +46,7 @@ class _MarketingPageState extends State<MarketingPage> {
                     children: [
                       MyText(
                         'Marketing',
-                        style: AppText.displayLg,
+                        style: AppTextStyles.displayLg,
                       ),
                       MyText(
                         'Manage projects, tasks, worksites, and operational workflows',

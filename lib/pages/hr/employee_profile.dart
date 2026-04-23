@@ -205,7 +205,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                       employee.firstName.isNotEmpty
                           ? employee.firstName[0].toUpperCase()
                           : '?',
-                      style: AppText.h2.copyWith(
+                      style: AppTextStyles.h2.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w700,
                       ),
@@ -218,7 +218,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(employee.fullName, style: AppText.h2),
+                Text(employee.fullName, style: AppTextStyles.h2),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -227,7 +227,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                   children: [
                     Text(
                       employee.designation ?? employee.role,
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -247,7 +247,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                 const SizedBox(height: 6),
                 Text(
                   '${employee.employeeId ?? employee.id} • ${employee.email}',
-                  style: AppText.bodySm,
+                  style: AppTextStyles.bodySm,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -299,7 +299,7 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
                     ),
                     child: Text(
                       tabs[index],
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: isActive
                             ? AppColors.textPrimary
                             : AppColors.textSecondary,
@@ -413,7 +413,7 @@ class _ProfileTab extends StatelessWidget {
                         (employee.reportingToName ?? 'N').isNotEmpty
                             ? (employee.reportingToName ?? 'N')[0].toUpperCase()
                             : 'N',
-                        style: AppText.label.copyWith(
+                        style: AppTextStyles.label.copyWith(
                           color: AppColors.warning,
                           fontWeight: FontWeight.w700,
                         ),
@@ -426,7 +426,7 @@ class _ProfileTab extends StatelessWidget {
                         children: [
                           Text(
                             employee.reportingToName ?? 'Not Assigned',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
@@ -435,7 +435,7 @@ class _ProfileTab extends StatelessWidget {
                           const SizedBox(height: 2),
                           const Text(
                             'Reporting Manager',
-                            style: AppText.bodySm,
+                            style: AppTextStyles.bodySm,
                           ),
                         ],
                       ),
@@ -592,11 +592,11 @@ class _DocumentsTabState extends State<_DocumentsTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Digital Personnel File', style: AppText.h3),
+                      const Text('Digital Personnel File', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             '${widget.controller.documents.length} document${widget.controller.documents.length == 1 ? '' : 's'} on file',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -700,7 +700,7 @@ class _DocumentsTabState extends State<_DocumentsTab> {
                 Flexible(
                   child: Text(
                     title,
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
@@ -725,7 +725,7 @@ class _DocumentsTabState extends State<_DocumentsTab> {
             flex: 3,
             child: Text(
               uploader.toString(),
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -790,11 +790,11 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Performance Reviews', style: AppText.h3),
+                      const Text('Performance Reviews', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             '${widget.controller.reviews.length} review${widget.controller.reviews.length == 1 ? '' : 's'} recorded',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -887,7 +887,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                   backgroundColor: AppColors.primarySubtle,
                   child: Text(
                     reviewer.isNotEmpty ? reviewer[0].toUpperCase() : '?',
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -897,7 +897,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                 Flexible(
                   child: Text(
                     reviewer,
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
@@ -911,7 +911,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             flex: 3,
             child: Text(
               formattedDate,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
@@ -1026,7 +1026,7 @@ class _BenefitsTab extends StatelessWidget {
                 ),
                 child: Text(
                   'Add',
-                  style: AppText.caption.copyWith(
+                  style: AppTextStyles.caption.copyWith(
                     color: AppColors.textOnPrimary,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1048,7 +1048,7 @@ class _BenefitsTab extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
             'No allowances configured.',
-            style: AppText.bodyMd.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
           ),
         ),
       ];
@@ -1069,7 +1069,7 @@ class _BenefitsTab extends StatelessWidget {
                 children: [
                   Text(
                     entry.key,
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
@@ -1077,7 +1077,7 @@ class _BenefitsTab extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${entry.value}',
-                    style: AppText.bodySm,
+                    style: AppTextStyles.bodySm,
                   ),
                 ],
               ),
@@ -1102,7 +1102,7 @@ class _HeaderCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -1136,13 +1136,13 @@ class _InfoCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: AppText.h4),
+              Text(title, style: AppTextStyles.h4),
               if (customAction != null)
                 customAction!
               else if (hasEdit)
                 Text(
                   'Edit',
-                  style: AppText.caption.copyWith(
+                  style: AppTextStyles.caption.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1210,11 +1210,11 @@ class _InfoRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(label, style: AppText.bodySm),
+                Text(label, style: AppTextStyles.bodySm),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
@@ -1266,14 +1266,14 @@ class _DataField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppText.bodySm),
+        Text(label, style: AppTextStyles.bodySm),
         const SizedBox(height: 4),
         if (customValue != null)
           customValue!
         else
           Text(
             value ?? '—',
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               fontWeight: isBoldValue ? FontWeight.w700 : FontWeight.w600,
               color: AppColors.textPrimary,
             ),

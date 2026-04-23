@@ -287,73 +287,18 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                         }),
                         const SizedBox(height: 24),
 
-                        // Description
-                        MyTextFormField(
-                          controller: _descriptionController,
-                          maxLines: 4,
-                          hintText: 'Enter service description',
-                          spaceBetweenText: 10,
-                          title: 'Description*',
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Description is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Base Price and Delivery Time
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _basePriceController,
-                                hintText: 'e.g., 10000',
-                                spaceBetweenText: 10,
-                                title: 'Base Price (₦)*',
-                                keyboardType: TextInputType.number,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Base price is required';
-                                  }
-                                  if (double.tryParse(value) == null) {
-                                    return 'Enter a valid number';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _deliveryTimeController,
-                                spaceBetweenText: 10,
-                                hintText: 'e.g., 7 days',
-                                title: 'Delivery Time*',
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Delivery time is required';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Status
                         MyDropdown(
                           controller: _statusController,
+                          items: const ['Active', 'Inactive'],
+                          hintText: 'Select status',
                           spaceBetweenText: 10,
-                          hintText: "Select status",
-                          items: const ["Active", "Inactive", "Draft"],
                           title: 'Status*',
                           onChanged: (value) {
                             setState(() {
                               _selectedStatus =
-                                  value?.toLowerCase() ?? 'active';
+                                  value?.toLowerCase() == 'active'
+                                      ? 'active'
+                                      : 'inactive';
                             });
                           },
                         ),
@@ -369,7 +314,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
+                    top: BorderSide(color: AppColors.neutral300),
                   ),
                 ),
                 child: Row(
@@ -399,7 +344,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                               colorFilter: const ColorFilter.mode(
                                   AppColors.white, BlendMode.srcIn),
                             ),
-                            child: _isEditMode ? 'Update' : 'Save',
+                            child: _isEditMode ? 'Update Service' : 'Add Service',
                             onTap: _handleSubmit,
                           ),
                   ],

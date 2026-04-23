@@ -1041,7 +1041,7 @@ class AttendancePageState extends State<AttendancePage> {
                           style: const TextStyle(fontSize: 13))),
                       DataCell(Text(
                         day.hoursWorked,
-                        style: AppText.h4,
+                        style: AppTextStyles.h4,
                       )),
                     ]);
                   }).toList(),

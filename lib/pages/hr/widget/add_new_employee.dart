@@ -465,7 +465,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     children: [
                       Text(
                         _steps[index],
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: isActive
                               ? AppColors.primary
                               : AppColors.textSecondary,
@@ -639,7 +639,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         (d) => DropdownMenuItem(
                           value: d.id,
                           child:
-                              Text(d.name, style: AppText.bodyMd),
+                              Text(d.name, style: AppTextStyles.bodyMd),
                         ),
                       )
                       .toList(),
@@ -666,7 +666,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         (u) => DropdownMenuItem(
                           value: u.id,
                           child:
-                              Text(u.name, style: AppText.bodyMd),
+                              Text(u.name, style: AppTextStyles.bodyMd),
                         ),
                       )
                       .toList(),
@@ -683,7 +683,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                           value: b.id.toString(),
                           child: Text(
                             b.branchName,
-                            style: AppText.bodyMd,
+                            style: AppTextStyles.bodyMd,
                           ),
                         ),
                       )
@@ -708,7 +708,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                           value: e.id,
                           child: Text(
                             e.fullName,
-                            style: AppText.bodyMd,
+                            style: AppTextStyles.bodyMd,
                           ),
                         ),
                       )
@@ -726,7 +726,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                           value: r.id.toString(),
                           child: Text(
                             r.name,
-                            style: AppText.bodyMd,
+                            style: AppTextStyles.bodyMd,
                           ),
                         ),
                       )
@@ -843,7 +843,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 16),
           ...children,
         ],
@@ -889,7 +889,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               const SizedBox(height: 12),
               Text(
                 _imageName ?? 'Image selected',
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -898,7 +898,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               const SizedBox(height: 4),
               Text(
                 'Tap to change image',
-                style: AppText.bodySm
+                style: AppTextStyles.bodySm
                     .copyWith(color: AppColors.textSecondary),
               ),
             ] else if (hasExistingImage) ...[
@@ -927,7 +927,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               const SizedBox(height: 12),
               Text(
                 'Current profile picture',
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -935,7 +935,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               const SizedBox(height: 4),
               Text(
                 'Tap to replace',
-                style: AppText.bodySm
+                style: AppTextStyles.bodySm
                     .copyWith(color: AppColors.textSecondary),
               ),
             ] else ...[
@@ -955,7 +955,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: AppText.bodyMd
+                  style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textPrimary),
                   children: const [
                     TextSpan(
@@ -979,7 +979,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               const SizedBox(height: 6),
               Text(
                 'Supported formats: JPG, PNG, GIF (max 5MB)',
-                style: AppText.bodySm
+                style: AppTextStyles.bodySm
                     .copyWith(color: AppColors.textSecondary),
               ),
             ],
@@ -1048,14 +1048,14 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       children: [
         Text(
           title,
-          style: AppText.label,
+          style: AppTextStyles.label,
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: safeValue,
           hint: Text(
             'Select $title',
-            style: AppText.bodyMd.copyWith(color: AppColors.textMuted),
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
           ),
           decoration: const InputDecoration(
             filled: true,
@@ -1092,7 +1092,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppText.label),
+        Text(title, style: AppTextStyles.label),
         const SizedBox(height: 8),
         InkWell(
           onTap: () => _selectDate(isDob),
@@ -1112,7 +1112,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   date != null
                       ? DateFormat('yyyy-MM-dd').format(date)
                       : 'Select Date',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: date != null
                         ? AppColors.textPrimary
                         : AppColors.textMuted,

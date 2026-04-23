@@ -31,7 +31,7 @@ class ContractDetailPage extends StatelessWidget {
       return const PageScaffold(
         children: [
           Center(
-            child: MyText('Contract not found', style: AppText.bodyLg),
+            child: MyText('Contract not found', style: AppTextStyles.bodyLg),
           ),
         ],
       );
@@ -70,7 +70,7 @@ class ContractDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Contract Information', style: AppText.h3),
+              const Text('Contract Information', style: AppTextStyles.h3),
               const SizedBox(height: 16),
               RowText(label: "Contract Name", value: contract.name),
               RowText(label: "Contract Number", value: contract.contractNumber),
@@ -80,11 +80,11 @@ class ContractDetailPage extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(
-                        width: 200, child: Text("Value", style: AppText.label)),
+                        width: 200, child: Text("Value", style: AppTextStyles.label)),
                     Expanded(
                       child: Text(
                         "₦${contract.value.toStringAsFixed(2)}",
-                        style: AppText.bodyLg.copyWith(
+                        style: AppTextStyles.bodyLg.copyWith(
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary),
                       ),
@@ -98,7 +98,7 @@ class ContractDetailPage extends StatelessWidget {
                   children: [
                     const SizedBox(
                         width: 200,
-                        child: Text("Status", style: AppText.label)),
+                        child: Text("Status", style: AppTextStyles.label)),
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,

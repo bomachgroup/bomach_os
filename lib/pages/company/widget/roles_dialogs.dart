@@ -170,7 +170,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Role Name', style: AppText.label),
+                  const Text('Role Name', style: AppTextStyles.label),
                   const SizedBox(height: 8),
                   MyTextFormField(
                     controller: _nameCtrl,
@@ -178,10 +178,10 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                     height: 48,
                   ),
                   const SizedBox(height: 20),
-                  const Text('Branches', style: AppText.label),
+                  const Text('Branches', style: AppTextStyles.label),
                   const Text(
                     'Select which branches this role applies to',
-                    style: AppText.caption,
+                    style: AppTextStyles.caption,
                   ),
                   const SizedBox(height: 12),
                   _buildBranchChips(),
@@ -241,7 +241,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                       padding: const EdgeInsets.only(top: 8, bottom: 4),
                       child: Text(
                         '$_totalSelectedCount permissions selected',
-                        style: AppText.caption.copyWith(
+                        style: AppTextStyles.caption.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600),
                       ),
@@ -292,7 +292,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
           padding: const EdgeInsets.only(left: 4, bottom: 12),
           child: Text(
             title,
-            style: AppText.h4.copyWith(color: AppColors.textPrimary),
+            style: AppTextStyles.h4.copyWith(color: AppColors.textPrimary),
           ),
         ),
         Container(
@@ -312,7 +312,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
     final branches = widget.ctrl.branches;
     if (branches.isEmpty) {
       return Text('No branches available',
-          style: AppText.caption.copyWith(color: AppColors.textMuted));
+          style: AppTextStyles.caption.copyWith(color: AppColors.textMuted));
     }
 
     return Wrap(
@@ -355,7 +355,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                 const SizedBox(width: 8),
                 Text(
                   branch.branchName,
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color:
                         isSelected ? AppColors.primary : AppColors.textPrimary,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
@@ -411,7 +411,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                 const SizedBox(width: 10),
                 Text(
                   label,
-                  style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -470,7 +470,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                       const SizedBox(width: 6),
                       Text(
                         actionLabel,
-                        style: AppText.caption.copyWith(
+                        style: AppTextStyles.caption.copyWith(
                           color: isSelected
                               ? AppColors.primary
                               : AppColors.textSecondary,
@@ -518,7 +518,7 @@ class _CreateEditRoleDialogState extends State<CreateEditRoleDialog> {
                   ),
                   child: Text(
                     '${i + 1}',
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       fontWeight: FontWeight.w600,
                       color: isActive ? Colors.white : AppColors.textSecondary,
                     ),

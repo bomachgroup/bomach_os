@@ -139,7 +139,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                     child: Text(
                       "Your submission will be reviewed by an admin before "
                       "it's usable for clock-in.",
-                      style: AppText.bodySm
+                      style: AppTextStyles.bodySm
                           .copyWith(color: AppColors.textPrimary, height: 1.4),
                     ),
                   ),
@@ -242,13 +242,13 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -279,7 +279,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
                 const SizedBox(width: 8),
                 Text(
                   'Location captured',
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.success,
                     fontWeight: FontWeight.w600,
                   ),
@@ -291,7 +291,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
               'Lat: ${_position!.latitude.toStringAsFixed(6)}\n'
               'Lng: ${_position!.longitude.toStringAsFixed(6)}\n'
               'Accuracy: ${_position!.accuracy.toStringAsFixed(1)}m',
-              style: AppText.bodySm
+              style: AppTextStyles.bodySm
                   .copyWith(color: AppColors.textPrimary, height: 1.5),
             ),
             const SizedBox(height: 8),
@@ -301,7 +301,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
               label: Text(
                 'Re-fetch',
                 style:
-                    AppText.bodySm.copyWith(fontWeight: FontWeight.w500),
+                    AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -322,7 +322,7 @@ class _SubmitWorkspaceDialogState extends State<SubmitWorkspaceDialog> {
           if (_locationError != null) ...[
             Text(
               _locationError!,
-              style: AppText.bodySm.copyWith(color: AppColors.danger),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.danger),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),

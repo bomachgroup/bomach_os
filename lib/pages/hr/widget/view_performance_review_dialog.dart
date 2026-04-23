@@ -61,7 +61,7 @@ class _ViewPerformanceReviewDialogState
                         width: 200,
                         child: Text(
                           'Overall Rating',
-                          style: AppText.label
+                          style: AppTextStyles.label
                               .copyWith(color: AppColors.textSecondary),
                         ),
                       ),
@@ -101,7 +101,7 @@ class _ViewPerformanceReviewDialogState
               size: DialogSize.sm,
               body: Text(
                 'Are you sure you want to delete this review? This action cannot be undone.',
-                style: AppText.bodyMd
+                style: AppTextStyles.bodyMd
                     .copyWith(color: AppColors.textSecondary),
               ),
               actions: [
@@ -161,12 +161,12 @@ class _ViewPerformanceReviewDialogState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 12),
@@ -186,13 +186,13 @@ class _ViewPerformanceReviewDialogState
             width: 200,
             child: Text(
               label,
-              style: AppText.label.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),

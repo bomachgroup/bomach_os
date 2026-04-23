@@ -242,7 +242,7 @@ class _CreateEditAnnouncementDialogState
                         if (branches.isEmpty) {
                           return Text(
                             'No branches available.',
-                            style: AppText.bodySm
+                            style: AppTextStyles.bodySm
                                 .copyWith(color: AppColors.textMuted),
                           );
                         }
@@ -254,7 +254,7 @@ class _CreateEditAnnouncementDialogState
                                 selectedBranchIds.contains(branch.id);
                             return FilterChip(
                               label: Text(branch.branchName,
-                                  style: AppText.bodySm),
+                                  style: AppTextStyles.bodySm),
                               selected: selected,
                               onSelected: (val) => setState(() {
                                 if (val) {
@@ -286,7 +286,7 @@ class _CreateEditAnnouncementDialogState
                         if (depts.isEmpty) {
                           return Text(
                             'No departments available.',
-                            style: AppText.bodySm
+                            style: AppTextStyles.bodySm
                                 .copyWith(color: AppColors.textMuted),
                           );
                         }
@@ -298,7 +298,7 @@ class _CreateEditAnnouncementDialogState
                                 selectedDepartmentIds.contains(dept.id);
                             return FilterChip(
                               label:
-                                  Text(dept.name, style: AppText.bodySm),
+                                  Text(dept.name, style: AppTextStyles.bodySm),
                               selected: selected,
                               onSelected: (val) => setState(() {
                                 if (val) {
@@ -399,7 +399,7 @@ class _CreateEditAnnouncementDialogState
       children: [
         Text(
           'Active',
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
@@ -422,7 +422,7 @@ class _CreateEditAnnouncementDialogState
   Widget _buildAudienceLabel(String text) {
     return Text(
       text,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textPrimary,
         fontWeight: FontWeight.w600,
       ),
@@ -444,12 +444,12 @@ class _CreateEditAnnouncementDialogState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -547,7 +547,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
             children: [
               Text(
                 announcement.content.isEmpty ? '-' : announcement.content,
-                style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               ),
             ],
           ),
@@ -630,7 +630,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(announcement.title, style: AppText.h3),
+                Text(announcement.title, style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -681,7 +681,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -706,7 +706,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -724,13 +724,13 @@ class ViewAnnouncementDialog extends StatelessWidget {
             width: 130,
             child: Text(
               label,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
@@ -759,7 +759,7 @@ class ViewAnnouncementDialog extends StatelessWidget {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to delete "$name"?',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(

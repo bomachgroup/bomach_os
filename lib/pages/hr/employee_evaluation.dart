@@ -182,7 +182,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             child: Center(
               child: Text(
                 scorecard.initials,
-                style: AppText.h4.copyWith(
+                style: AppTextStyles.h4.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -195,16 +195,16 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(scorecard.employeeName, style: AppText.h4),
+                Text(scorecard.employeeName, style: AppTextStyles.h4),
                 const SizedBox(height: 4),
                 Text(
                   'Level: ${scorecard.formattedLevel}',
-                  style: AppText.bodySm,
+                  style: AppTextStyles.bodySm,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Period: ${_monthNames[scorecard.month - 1]} ${scorecard.year}',
-                  style: AppText.caption,
+                  style: AppTextStyles.caption,
                 ),
               ],
             ),
@@ -215,12 +215,12 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Overall Score',
-                  style: AppText.overline
+                  style: AppTextStyles.overline
                       .copyWith(color: AppColors.textSecondary)),
               const SizedBox(height: 4),
               Text(
                 '${scorecard.overallScore.toStringAsFixed(1)}%',
-                style: AppText.h2.copyWith(color: AppColors.primary),
+                style: AppTextStyles.h2.copyWith(color: AppColors.primary),
               ),
               const SizedBox(height: 6),
               StatusChip(
@@ -280,11 +280,11 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Performance Scores', style: AppText.h3),
+          const Text('Performance Scores', style: AppTextStyles.h3),
           const SizedBox(height: 4),
           Text(
             'Breakdown of evaluation metrics for this period.',
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           if (scorecard.metrics.isEmpty)
@@ -323,7 +323,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             Expanded(
               child: Text(
                 metric.metricName,
-                style: AppText.label,
+                style: AppTextStyles.label,
               ),
             ),
             const SizedBox(width: 12),
@@ -355,11 +355,11 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('KPIs Review', style: AppText.h3),
+          const Text('KPIs Review', style: AppTextStyles.h3),
           const SizedBox(height: 4),
           Text(
             'Summary of target achievement and ranking.',
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           Column(
@@ -401,9 +401,9 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(label, style: AppText.label),
+              Text(label, style: AppTextStyles.label),
               const SizedBox(height: 4),
-              Text('$value$unit', style: AppText.caption),
+              Text('$value$unit', style: AppTextStyles.caption),
             ],
           ),
         ),
@@ -420,21 +420,21 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Manager's Comments", style: AppText.h3),
+          const Text("Manager's Comments", style: AppTextStyles.h3),
           const SizedBox(height: 4),
           Text(
             'Document feedback and context for this review.',
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _commentsController,
             maxLines: 4,
             onChanged: (value) => _controller.managerComments.value = value,
-            style: AppText.bodyMd,
+            style: AppTextStyles.bodyMd,
             decoration: InputDecoration(
               hintText: 'Enter manager comments...',
-              hintStyle: AppText.bodyMd.copyWith(color: AppColors.textMuted),
+              hintStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
               filled: true,
               fillColor: AppColors.surface,
               contentPadding: const EdgeInsets.all(14),
@@ -464,11 +464,11 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Recommendation & Decision', style: AppText.h3),
+          const Text('Recommendation & Decision', style: AppTextStyles.h3),
           const SizedBox(height: 4),
           Text(
             'Flag any follow-up actions for this employee.',
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           Obx(() {
@@ -519,7 +519,7 @@ class _EmployeeEvaluationPageState extends State<EmployeeEvaluationPage> {
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             const SizedBox(width: 4),
-            Text(label, style: AppText.bodyMd),
+            Text(label, style: AppTextStyles.bodyMd),
           ],
         ),
       ),

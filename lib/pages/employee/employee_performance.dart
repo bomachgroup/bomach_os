@@ -26,12 +26,12 @@ class _EmployeePerformancePageState extends State<EmployeePerformancePage> {
               children: [
                 MyText(
                   'Performance Reviews',
-                  style: AppText.displayLg,
+                  style: AppTextStyles.displayLg,
                 ),
                 SizedBox(height: 8),
                 MyText(
                   'Track and manage employee performance reviews',
-                  style: AppText.h4,
+                  style: AppTextStyles.h4,
                 ),
               ],
             ),
@@ -57,7 +57,7 @@ class _EmployeePerformancePageState extends State<EmployeePerformancePage> {
                     SizedBox(height: 16),
                     MyText(
                       'No performance reviews found',
-                      style: AppText.bodyMd,
+                      style: AppTextStyles.bodyMd,
                     ),
                   ],
                 ),

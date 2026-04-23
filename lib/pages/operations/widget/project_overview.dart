@@ -41,7 +41,7 @@ class ProjectOverview extends StatelessWidget {
                             circularStrokeCap: CircularStrokeCap.round,
                             center: Text(
                               '${project.progress.toInt()}%',
-                              style: AppText.h3.copyWith(color: AppColors.primary),
+                              style: AppTextStyles.h3.copyWith(color: AppColors.primary),
                             ),
                             linearGradient: const LinearGradient(
                               colors: [AppColors.primary, AppColors.primaryHover],
@@ -55,7 +55,7 @@ class ProjectOverview extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text('Project Progress', style: AppText.label),
+                                const Text('Project Progress', style: AppTextStyles.label),
                                 const SizedBox(height: 12),
                                 _buildDateRow(Iconsax.calendar_1, 'Start:', project.startDate),
                                 const SizedBox(height: 8),
@@ -74,7 +74,7 @@ class ProjectOverview extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Primary Client', style: AppText.label),
+                          const Text('Primary Client', style: AppTextStyles.label),
                           const SizedBox(height: 16),
                           Row(
                             children: [
@@ -89,9 +89,9 @@ class ProjectOverview extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('Client ID: ${project.clientId}',
-                                        style: AppText.bodyLg.copyWith(fontWeight: FontWeight.w600)),
+                                        style: AppTextStyles.bodyLg.copyWith(fontWeight: FontWeight.w600)),
                                     const Text('Corporate Client',
-                                        style: AppText.bodySm),
+                                        style: AppTextStyles.bodySm),
                                   ],
                                 ),
                               ),
@@ -107,7 +107,7 @@ class ProjectOverview extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 32),
-        const Text('Financial Overview', style: AppText.h3),
+        const Text('Financial Overview', style: AppTextStyles.h3),
         const SizedBox(height: 16),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -139,11 +139,11 @@ class ProjectOverview extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Project Summary', style: AppText.h4),
+              const Text('Project Summary', style: AppTextStyles.h4),
               const SizedBox(height: 12),
               Text(
                 project.summary.isEmpty ? "No description provided." : project.summary,
-                style: AppText.bodyMd.copyWith(height: 1.5),
+                style: AppTextStyles.bodyMd.copyWith(height: 1.5),
               ),
             ],
           ),
@@ -157,9 +157,9 @@ class ProjectOverview extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: AppColors.textMuted),
         const SizedBox(width: 6),
-        Text(label, style: AppText.bodySm.copyWith(color: AppColors.textMuted)),
+        Text(label, style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted)),
         const SizedBox(width: 4),
-        Text(date.isEmpty ? 'N/A' : date, style: AppText.bodySm.copyWith(fontWeight: FontWeight.w500)),
+        Text(date.isEmpty ? 'N/A' : date, style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -196,13 +196,13 @@ class ProjectExpenseTrack extends StatelessWidget {
             children: [
               Icon(icon, size: 20, color: color),
               const SizedBox(width: 10),
-              Text(label, style: AppText.label.copyWith(fontSize: 12)),
+              Text(label, style: AppTextStyles.label.copyWith(fontSize: 12)),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             '₦${amount.toStringAsFixed(2)}',
-            style: AppText.h3.copyWith(color: color),
+            style: AppTextStyles.h3.copyWith(color: color),
           ),
         ],
       ),

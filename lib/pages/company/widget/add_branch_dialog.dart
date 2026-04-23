@@ -334,7 +334,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text('Active Status',
-                                      style: AppText.label),
+                                      style: AppTextStyles.label),
                                   const SizedBox(height: 12),
                                   SwitchListTile(
                                     value: isActive,
@@ -345,7 +345,7 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                                     activeThumbColor: AppColors.success,
                                     title: Text(
                                       isActive ? 'Active' : 'Inactive',
-                                      style: AppText.bodyMd.copyWith(
+                                      style: AppTextStyles.bodyMd.copyWith(
                                         color: isActive
                                             ? AppColors.success
                                             : AppColors.danger,
@@ -412,12 +412,12 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),

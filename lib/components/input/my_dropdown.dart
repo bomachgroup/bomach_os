@@ -68,7 +68,7 @@ class MyDropdown extends StatelessWidget {
                 if (title != null)
                   MyText(
                     title ?? '',
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -98,7 +98,7 @@ class MyDropdown extends StatelessWidget {
                     menuHeight: media.height * 0.4,
                     hintText: hintText,
                     requestFocusOnTap: false,
-                    textStyle: AppText.bodyMd.copyWith(
+                    textStyle: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textPrimary,
                     ),
                     onSelected: (value) {
@@ -141,7 +141,7 @@ class MyDropdown extends StatelessWidget {
                       fillColor: effectiveFill,
                       focusColor: effectiveFill,
                       hoverColor: effectiveFill,
-                      hintStyle: AppText.bodyMd.copyWith(
+                      hintStyle: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textMuted,
                         fontWeight: FontWeight.w400,
                       ),
@@ -222,7 +222,7 @@ class MyDropdown extends StatelessWidget {
                                 return AppColors.textPrimary;
                               }),
                               textStyle: WidgetStateProperty.all(
-                                AppText.bodyMd.copyWith(
+                                AppTextStyles.bodyMd.copyWith(
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),

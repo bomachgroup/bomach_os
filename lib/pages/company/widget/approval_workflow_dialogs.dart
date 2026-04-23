@@ -290,7 +290,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                         ),
                         child: Text(
                           '${entry.key + 1}',
-                          style: AppText.bodySm.copyWith(
+                          style: AppTextStyles.bodySm.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -300,7 +300,7 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
                       Expanded(
                         child: Text(
                           label,
-                          style: AppText.bodyMd.copyWith(
+                          style: AppTextStyles.bodyMd.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w500,
                           ),
@@ -368,13 +368,13 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
           else if (options.isEmpty)
             Text(
               'Approver types will appear once available.',
-              style: AppText.bodySm
+              style: AppTextStyles.bodySm
                   .copyWith(color: AppColors.textSecondary),
             )
           else
             Text(
               'All available approver types have been added.',
-              style: AppText.bodySm
+              style: AppTextStyles.bodySm
                   .copyWith(color: AppColors.textSecondary),
             ),
         ],
@@ -397,12 +397,12 @@ class _CreateEditWorkflowDialogState extends State<CreateEditWorkflowDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -468,7 +468,7 @@ class ViewWorkflowDialog extends StatelessWidget {
                 Text(
                   'No approvers configured for this workflow.',
                   style:
-                      AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                      AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                 )
               else
                 Column(
@@ -495,7 +495,7 @@ class ViewWorkflowDialog extends StatelessWidget {
                             ),
                             child: Text(
                               '${entry.key + 1}',
-                              style: AppText.bodySm.copyWith(
+                              style: AppTextStyles.bodySm.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -505,7 +505,7 @@ class ViewWorkflowDialog extends StatelessWidget {
                           Expanded(
                             child: Text(
                               entry.value,
-                              style: AppText.bodyMd.copyWith(
+                              style: AppTextStyles.bodyMd.copyWith(
                                 color: AppColors.textPrimary,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -572,7 +572,7 @@ class ViewWorkflowDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(flow.name, style: AppText.h3),
+                Text(flow.name, style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -616,7 +616,7 @@ class ViewWorkflowDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -641,7 +641,7 @@ class ViewWorkflowDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -659,13 +659,13 @@ class ViewWorkflowDialog extends StatelessWidget {
             width: 130,
             child: Text(
               label,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),

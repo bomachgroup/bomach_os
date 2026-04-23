@@ -126,13 +126,13 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
                 // Title
                 const MyText(
                   'Biometric Login',
-                  style: AppText.displayLg,
+                  style: AppTextStyles.displayLg,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 MyText(
                   isAuthenticated ? 'Success!' : 'Tap to unlock',
-                  style: AppText.bodyMd,
+                  style: AppTextStyles.bodyMd,
                   color: AppColors.neutral400,
                 ),
                 const SizedBox(height: 48),

@@ -170,7 +170,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                     children: [
                       Text(
                         _displayValue(data.companyName),
-                        style: AppText.displayMd.copyWith(
+                        style: AppTextStyles.displayMd.copyWith(
                           color: AppColors.textPrimary,
                           height: 1.15,
                         ),
@@ -182,7 +182,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                           fallback:
                               'A central record for identity, governance, and brand operations.',
                         ),
-                        style: AppText.bodyLg.copyWith(
+                        style: AppTextStyles.bodyLg.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -217,7 +217,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                         const SizedBox(height: 18),
                         Text(
                           address,
-                          style: AppText.bodyMd.copyWith(
+                          style: AppTextStyles.bodyMd.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -346,7 +346,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
           const SizedBox(width: 8),
           Text(
             _displayValue(label),
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: foregroundColor ?? AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -366,13 +366,13 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
             width: 88,
             child: Text(
               label,
-              style: AppText.caption.copyWith(color: AppColors.textMuted),
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
             ),
           ),
           Expanded(
             child: Text(
               _displayValue(value),
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -472,7 +472,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
           ),
           child: Text(
             label,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
@@ -513,11 +513,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
               final title = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Company information', style: AppText.h2),
+                  const Text('Company information', style: AppTextStyles.h2),
                   const SizedBox(height: 6),
                   Text(
                     'Core records for communications and registration details.',
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -658,7 +658,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                 child: Icon(icon, size: 18, color: AppColors.primary),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(title, style: AppText.h4)),
+              Expanded(child: Text(title, style: AppTextStyles.h4)),
             ],
           ),
           const SizedBox(height: 18),
@@ -675,11 +675,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: AppText.caption.copyWith(color: AppColors.textMuted)),
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
           const SizedBox(height: 4),
           Text(
             _displayValue(value),
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -696,7 +696,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: AppText.caption.copyWith(color: AppColors.textMuted)),
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
           const SizedBox(height: 6),
           Row(
             children: [
@@ -712,7 +712,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
               const SizedBox(width: 8),
               Text(
                 _displayValue(value),
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -792,11 +792,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
               final intro = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Global business settings', style: AppText.h2),
+                  const Text('Global business settings', style: AppTextStyles.h2),
                   const SizedBox(height: 6),
                   Text(
                     'Brand presentation, operating defaults, and approval behavior live here.',
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -867,11 +867,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                 final intro = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Ownership & shareholders', style: AppText.h2),
+                    const Text('Ownership & shareholders', style: AppTextStyles.h2),
                     const SizedBox(height: 6),
                     Text(
                       'Track equity distribution, active shareholders, and board-linked ownership records.',
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -994,11 +994,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text('Shareholder register',
-                                  style: AppText.h3),
+                                  style: AppTextStyles.h3),
                               const SizedBox(height: 4),
                               Text(
                                 '${list.length} active ownership records',
-                                style: AppText.bodyMd.copyWith(
+                                style: AppTextStyles.bodyMd.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
                               ),
@@ -1027,35 +1027,35 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                               Expanded(
                                 flex: 4,
                                 child: Text('Shareholder',
-                                    style: AppText.label.copyWith(
+                                    style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
                                     )),
                               ),
                               Expanded(
                                 flex: 2,
                                 child: Text('Role',
-                                    style: AppText.label.copyWith(
+                                    style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
                                     )),
                               ),
                               Expanded(
                                 flex: 2,
                                 child: Text('Shares',
-                                    style: AppText.label.copyWith(
+                                    style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
                                     )),
                               ),
                               Expanded(
                                 flex: 2,
                                 child: Text('Ownership',
-                                    style: AppText.label.copyWith(
+                                    style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
                                     )),
                               ),
                               Expanded(
                                 flex: 2,
                                 child: Text('Status',
-                                    style: AppText.label.copyWith(
+                                    style: AppTextStyles.label.copyWith(
                                       color: AppColors.textSecondary,
                                     )),
                               ),
@@ -1125,7 +1125,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                     children: [
                       Text(
                         shareholder.fullName,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1134,7 +1134,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                       const SizedBox(height: 4),
                       Text(
                         shareholder.email,
-                        style: AppText.bodySm.copyWith(
+                        style: AppTextStyles.bodySm.copyWith(
                           color: AppColors.textSecondary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -1171,7 +1171,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
             flex: 2,
             child: Text(
               numberFormat.format(shareholder.shareCount),
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -1181,7 +1181,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
             flex: 2,
             child: Text(
               '${shareholder.sharePercentage}%',
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -1266,7 +1266,7 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
         : '?';
     return Text(
       initial,
-      style: AppText.label.copyWith(
+      style: AppTextStyles.label.copyWith(
         color: color,
         fontWeight: FontWeight.w700,
       ),
@@ -1292,11 +1292,11 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Shareholder details', style: AppText.h2),
+                        const Text('Shareholder details', style: AppTextStyles.h2),
                         const SizedBox(height: 6),
                         Text(
                           'A closer look at role, contact information, and ownership position.',
-                          style: AppText.bodyMd.copyWith(
+                          style: AppTextStyles.bodyMd.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -1341,13 +1341,13 @@ class _CompanyProfilePageState extends State<CompanyProfilePage> {
             width: 120,
             child: Text(
               label,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               _displayValue(value),
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 fontWeight: FontWeight.w500,
                 color: AppColors.textPrimary,
               ),
@@ -1516,7 +1516,7 @@ class DashboardStatCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   resolvedTitle,
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1536,7 +1536,7 @@ class DashboardStatCard extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             resolvedCount,
-            style: AppText.displayMd.copyWith(
+            style: AppTextStyles.displayMd.copyWith(
               color: countColor ?? AppColors.textPrimary,
               height: 1,
             ),
@@ -1557,7 +1557,7 @@ class DashboardStatCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     resolvedSubtext,
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),

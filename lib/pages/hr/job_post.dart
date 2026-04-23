@@ -132,7 +132,7 @@ class JobPostPageState extends State<JobPostPage> {
         ),
         child: Text(
           title,
-          style: AppText.bodySm.copyWith(
+          style: AppTextStyles.bodySm.copyWith(
             color: isSelected ? AppColors.primary : AppColors.textSecondary,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
@@ -202,7 +202,7 @@ class _JobOpeningTable extends StatelessWidget {
               dataRowMaxHeight: 64,
               columnSpacing: 24,
               horizontalMargin: 24,
-              headingTextStyle: AppText.bodySm.copyWith(
+              headingTextStyle: AppTextStyles.bodySm.copyWith(
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
@@ -338,7 +338,7 @@ class PipelineTab extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Text("Page 1 of 1", style: AppText.bodySm),
+              const Text("Page 1 of 1", style: AppTextStyles.bodySm),
               const SizedBox(width: 16),
               IconButton(
                   onPressed: () {},
@@ -386,7 +386,7 @@ class PipelineTab extends StatelessWidget {
               child: applicants.isEmpty
                   ? Center(
                       child: Text("No candidates",
-                          style: AppText.bodySm
+                          style: AppTextStyles.bodySm
                               .copyWith(color: AppColors.textSecondary)))
                   : ListView.separated(
                       itemCount: applicants.length,
@@ -662,7 +662,7 @@ class OffboardingTab extends StatelessWidget {
             dataRowMaxHeight: 72,
             columnSpacing: 24,
             horizontalMargin: 24,
-            headingTextStyle: AppText.bodySm.copyWith(
+            headingTextStyle: AppTextStyles.bodySm.copyWith(
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             ),

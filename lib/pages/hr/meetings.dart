@@ -138,13 +138,13 @@ class _MeetingsState extends State<Meetings> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Meetings register', style: AppText.h3),
+                      const Text('Meetings register', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             loading
                                 ? 'Loading meetings...'
                                 : '${controller.meetings.length} meeting${controller.meetings.length == 1 ? '' : 's'} scheduled',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -219,7 +219,7 @@ class _MeetingsState extends State<Meetings> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -249,7 +249,7 @@ class _MeetingsState extends State<Meetings> {
             flex: 3,
             child: Text(
               m.title,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -260,7 +260,7 @@ class _MeetingsState extends State<Meetings> {
             flex: 2,
             child: Text(
               m.meetingDate.isEmpty ? '—' : m.meetingDate,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -268,21 +268,21 @@ class _MeetingsState extends State<Meetings> {
             flex: 2,
             child: Text(
               _formatTime(m.meetingTime),
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               durationLabel,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               locationLabel.isEmpty ? '—' : locationLabel,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -290,7 +290,7 @@ class _MeetingsState extends State<Meetings> {
             flex: 2,
             child: Text(
               '${m.attendeeCount}',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(

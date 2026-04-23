@@ -165,7 +165,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 if (_ctrl.totalCount.value == 0) {
                   return const SizedBox(
                       height: 200,
-                      child: Center(child: Text("No records found.", style: AppText.bodyMd)));
+                      child: Center(child: Text("No records found.", style: AppTextStyles.bodyMd)));
                 }
 
                 return SingleChildScrollView(
@@ -214,7 +214,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
       dataRowColor: WidgetStateProperty.all(Colors.transparent),
       columnSpacing: 24,
       horizontalMargin: 20,
-      headingTextStyle: AppText.label.copyWith(
+      headingTextStyle: AppTextStyles.label.copyWith(
           color: AppColors.textSecondary, fontSize: 13),
       columns: const [
         DataColumn(label: Text("Program")),
@@ -247,9 +247,9 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(program.programName,
-                      style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600)),
+                      style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
                   Text("3 Weeks",
-                      style: AppText.caption.copyWith(
+                      style: AppTextStyles.caption.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textSecondary)), // Dummy Data
                 ],
@@ -265,10 +265,10 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                   program.startDate != null
                       ? DateFormat('dd MMM yyyy').format(program.startDate!)
                       : '-',
-                  style: AppText.bodySm),
+                  style: AppTextStyles.bodySm),
               Text(
                   "to ${program.endDate != null ? DateFormat('dd MMM yyyy').format(program.endDate!) : '-'}",
-                  style: AppText.caption.copyWith(color: AppColors.textMuted)),
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
             ],
           )),
           const DataCell(Text("5")), // Dummy Data
@@ -298,7 +298,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
       dataRowColor: WidgetStateProperty.all(Colors.transparent),
       columnSpacing: 24,
       horizontalMargin: 20,
-      headingTextStyle: AppText.label.copyWith(
+      headingTextStyle: AppTextStyles.label.copyWith(
           color: AppColors.textSecondary, fontSize: 13),
       columns: const [
         DataColumn(label: Text("Employee")),
@@ -317,7 +317,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 backgroundColor: AppColors.infoSubtle,
                 child: Text(
                     item.employeeName.isNotEmpty ? item.employeeName[0] : 'U',
-                    style: AppText.caption.copyWith(
+                    style: AppTextStyles.caption.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary)),
               ),
@@ -327,15 +327,15 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(item.employeeName,
-                      style: AppText.bodySm.copyWith(fontWeight: FontWeight.w600)),
+                      style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w600)),
                   Text(item.employeeRole,
-                      style: AppText.caption.copyWith(color: AppColors.textMuted)),
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
                 ],
               ),
             ],
           )),
           DataCell(Text(item.gap,
-              style: AppText.bodySm.copyWith(fontWeight: FontWeight.w600))),
+              style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w600))),
           DataCell(_buildPriorityBadge(item.priority)),
           DataCell(Row(
             children: [
@@ -346,7 +346,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                     item.requestedByName.isNotEmpty
                         ? item.requestedByName[0]
                         : 'U',
-                    style: AppText.caption.copyWith(
+                    style: AppTextStyles.caption.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary)),
               ),
@@ -356,9 +356,9 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(item.requestedByName,
-                      style: AppText.bodySm.copyWith(fontWeight: FontWeight.w600)),
+                      style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w600)),
                   Text("Software Engineer",
-                      style: AppText.caption.copyWith(color: AppColors.textMuted)),
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
                 ],
               ),
             ],
@@ -384,7 +384,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
         ),
         child: Text(
           text,
-          style: AppText.bodySm.copyWith(
+          style: AppTextStyles.bodySm.copyWith(
             color: isActive ? AppColors.textOnPrimary : AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
@@ -406,7 +406,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
               icon: const Icon(Iconsax.arrow_down_1,
                   size: 18, color: AppColors.textSecondary),
               elevation: 4,
-              style: AppText.bodySm.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
               onChanged: (val) => _ctrl.updateStatusFilter(val),
               items: _ctrl.statusOptions
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -426,7 +426,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
       child: Row(
         children: [
           Text(text,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary)),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary)),
           const SizedBox(width: 8),
           const Icon(Iconsax.arrow_down_1, size: 18, color: AppColors.textSecondary)
         ],
@@ -444,7 +444,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
           BoxDecoration(color: bg, borderRadius: AppRadii.brSm),
       child: Text(mode,
           style:
-              AppText.caption.copyWith(color: txt, fontWeight: FontWeight.bold)),
+              AppTextStyles.caption.copyWith(color: txt, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -467,7 +467,7 @@ class TrainingProgramPageState extends State<TrainingProgramPage> {
           BoxDecoration(color: bg, borderRadius: AppRadii.brSm),
       child: Text(priority,
           style:
-              AppText.caption.copyWith(color: txt, fontWeight: FontWeight.bold)),
+              AppTextStyles.caption.copyWith(color: txt, fontWeight: FontWeight.bold)),
     );
   }
 }
@@ -508,7 +508,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
@@ -516,7 +516,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             count,
-            style: AppText.h1.copyWith(
+            style: AppTextStyles.h1.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
             ),

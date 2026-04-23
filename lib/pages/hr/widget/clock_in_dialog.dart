@@ -228,7 +228,7 @@
 //                       const SizedBox(width: 12),
 //                       const MyText(
 //                         'Clock In/Out',
-//                         style: AppText.h2,
+//                         style: AppTextStyles.h2,
 //                       ),
 //                     ],
 //                   ),
@@ -291,7 +291,7 @@
 //                                   children: [
 //                                     const MyText(
 //                                       'Date',
-//                                       style: AppText.h4,
+//                                       style: AppTextStyles.h4,
 //                                     ),
 //                                     const SizedBox(height: 8),
 //                                     GestureDetector(
@@ -316,7 +316,7 @@
 //                                             MyText(
 //                                               DateFormat('MMM dd, yyyy')
 //                                                   .format(_selectedDate),
-//                                               style: AppText.bodyMd,
+//                                               style: AppTextStyles.bodyMd,
 //                                             ),
 //                                             const Icon(
 //                                               Iconsax.calendar_1,
@@ -337,7 +337,7 @@
 //                                   children: [
 //                                     const MyText(
 //                                       'Check-in Time',
-//                                       style: AppText.h4,
+//                                       style: AppTextStyles.h4,
 //                                     ),
 //                                     const SizedBox(height: 8),
 //                                     GestureDetector(
@@ -361,7 +361,7 @@
 //                                           children: [
 //                                             MyText(
 //                                               _formatTimeOfDay(_checkInTime),
-//                                               style: AppText.bodyMd,
+//                                               style: AppTextStyles.bodyMd,
 //                                             ),
 //                                             const Icon(
 //                                               Iconsax.clock,
@@ -386,7 +386,7 @@
 //                                   children: [
 //                                     const MyText(
 //                                       'Check-out Time (Optional)',
-//                                       style: AppText.h4,
+//                                       style: AppTextStyles.h4,
 //                                     ),
 //                                     const SizedBox(height: 8),
 //                                     GestureDetector(
@@ -413,7 +413,7 @@
 //                                                   ? _formatTimeOfDay(
 //                                                       _checkOutTime!)
 //                                                   : '---',
-//                                               style: AppText.bodyMd,
+//                                               style: AppTextStyles.bodyMd,
 //                                             ),
 //                                             const Icon(
 //                                               Iconsax.clock,

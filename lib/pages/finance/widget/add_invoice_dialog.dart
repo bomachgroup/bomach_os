@@ -140,7 +140,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                             ],
                           ),
                           SizedBox(height: 24),
-                          MyText("Items", style: AppText.bodyLg),
+                          MyText("Items", style: AppTextStyles.bodyLg),
                           kSizedBoxSM,
                           InvoiceTable(),
                           SizedBox(height: 24),

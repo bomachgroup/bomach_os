@@ -119,7 +119,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
           const SizedBox(height: 16),
           Text(
             'Upload File',
-            style: AppText.label.copyWith(fontWeight: FontWeight.w500),
+            style: AppTextStyles.label.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
           _buildUploadZone(),
@@ -178,7 +178,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               const SizedBox(height: 10),
               Text(
                 _fileName!,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
@@ -188,7 +188,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               const SizedBox(height: 4),
               Text(
                 'Tap to change file',
-                style: AppText.bodySm.copyWith(
+                style: AppTextStyles.bodySm.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -209,7 +209,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
@@ -230,7 +230,7 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
               Text(
                 'Supported formats: PDF, DOC, PNG, JPG',
                 style:
-                    AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                    AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ],

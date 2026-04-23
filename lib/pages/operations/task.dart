@@ -105,10 +105,10 @@ class TaskPageState extends State<TaskPage> {
                   child: DataTable(
                     headingRowColor: WidgetStateProperty.resolveWith(
                         (states) => AppColors.surfaceMuted.withValues(alpha: 0.5)),
-                    headingTextStyle: AppText.label.copyWith(
+                    headingTextStyle: AppTextStyles.label.copyWith(
                       color: AppColors.textSecondary,
                     ),
-                    dataTextStyle: AppText.bodyMd.copyWith(
+                    dataTextStyle: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textPrimary,
                     ),
                     dataRowMinHeight: 64,
@@ -144,13 +144,13 @@ class TaskPageState extends State<TaskPage> {
   List<DataRow> _createRows(BuildContext context, List<Task> tasks) {
     return tasks.map((task) {
       return DataRow(cells: <DataCell>[
-        DataCell(Text("#${task.id}", style: AppText.label)),
+        DataCell(Text("#${task.id}", style: AppTextStyles.label)),
         DataCell(
           onTap: () {
             context.push(RouteConstants.taskDetail, extra: task);
           },
           SizedBox(
-              width: 250, child: Text(task.name, style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary), maxLines: 1, overflow: TextOverflow.ellipsis)),
+              width: 250, child: Text(task.name, style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary), maxLines: 1, overflow: TextOverflow.ellipsis)),
         ),
         DataCell(Text(task.priority)),
         DataCell(Text(task.dueDate)),

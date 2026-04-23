@@ -2,7 +2,7 @@ import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -272,18 +272,11 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const MyText(
-            'Services Cost Calculator',
-            style: AppText.displayLg,
-          ),
+          const AppText.displayLg('Services Cost Calculator'),
           kSizedBox,
-          const MyText(
+          const AppText.bodyLg(
             'Get instant estimates for various professional services',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 15,
-              color: Colors.black54,
-            ),
+            color: AppColors.textSecondary,
           ),
           const SizedBox(height: 30),
 
@@ -314,13 +307,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Service Details',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          const AppText.h3('Service Details'),
                           const SizedBox(height: 20),
                           if (isWideScreen)
                             Row(
@@ -383,13 +370,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Project Information',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          const AppText.h3('Project Information'),
                           const SizedBox(height: 20),
                           MyTextFormField(
                             controller: _projectDescriptionController,
@@ -475,13 +456,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Additional Services',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          const AppText.h3('Additional Services'),
                           const SizedBox(height: 20),
                           CheckboxListTile(
                             title: const Text('Site Visit (+₦80,000)'),
@@ -546,13 +521,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Contact Information (Optional)',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          const AppText.h3('Contact Information (Optional)'),
                           const SizedBox(height: 20),
                           MyTextFormField(
                             controller: _clientNameController,
@@ -651,30 +620,20 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                               size: 48,
                             ),
                             const SizedBox(height: 16),
-                            const Text(
+                            const AppText.bodyLg(
                               'Estimated Cost',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w500,
                             ),
                             const SizedBox(height: 8),
-                            Text(
+                            AppText.displayMd(
                               '₦${_calculatedCost.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 42,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              color: AppColors.white,
                             ),
                             const SizedBox(height: 8),
-                            Text(
+                            AppText.bodyMd(
                               _selectedServiceType,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
+                              color: AppColors.white.withValues(alpha: 0.7),
                             ),
                             const SizedBox(height: 16),
                             Container(
@@ -724,13 +683,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Service Category',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        const AppText.label('Service Category'),
         const SizedBox(height: 10),
         Container(
           height: 50,
@@ -769,13 +722,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Service Type',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        const AppText.label('Service Type'),
         const SizedBox(height: 10),
         Container(
           height: 50,
@@ -812,13 +759,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Project Scale',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        const AppText.label('Project Scale'),
         const SizedBox(height: 10),
         Container(
           height: 50,
@@ -855,13 +796,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Project Urgency',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        const AppText.label('Project Urgency'),
         const SizedBox(height: 10),
         Container(
           height: 50,

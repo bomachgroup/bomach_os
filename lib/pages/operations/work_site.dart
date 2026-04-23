@@ -82,10 +82,10 @@ class _WorkSiteState extends State<WorkSite> {
                   child: DataTable(
                     headingRowColor: WidgetStateProperty.resolveWith(
                         (states) => AppColors.surfaceMuted.withValues(alpha: 0.5)),
-                    headingTextStyle: AppText.label.copyWith(
+                    headingTextStyle: AppTextStyles.label.copyWith(
                       color: AppColors.textSecondary,
                     ),
-                    dataTextStyle: AppText.bodyMd.copyWith(
+                    dataTextStyle: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textPrimary,
                     ),
                     dataRowMinHeight: 64,
@@ -126,7 +126,7 @@ class _WorkSiteState extends State<WorkSite> {
                 MaterialPageRoute(
                     builder: (_) => WorksiteDetailPage(worksite: site)));
           },
-          Text(site.name, style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary)),
+          Text(site.name, style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary)),
         ),
         DataCell(Text(site.location)),
         DataCell(StatusChip(

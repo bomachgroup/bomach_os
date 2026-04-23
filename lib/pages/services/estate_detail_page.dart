@@ -1,7 +1,8 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/widget/add_plot_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -254,26 +255,17 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyText(
-                      widget.estate.name,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    AppText.displayMd(widget.estate.name),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         const Icon(Iconsax.location,
-                            size: 18, color: AppColors.neutral500),
+                            size: 18, color: AppColors.textSecondary),
                         const SizedBox(width: 4),
                         Expanded(
-                          child: MyText(
+                          child: AppText.bodyLg(
                             widget.estate.location,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: AppColors.neutral500,
-                            ),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -289,13 +281,10 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                       .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: MyText(
+                child: AppText.caption(
                   widget.estate.status,
-                  style: TextStyle(
-                    color: _getStatusColor(widget.estate.status),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  color: _getStatusColor(widget.estate.status),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -340,20 +329,8 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MyText(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.neutral500,
-              ),
-            ),
-            MyText(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            AppText.caption(label),
+            AppText.bodyMd(value, fontWeight: FontWeight.w600),
           ],
         ),
       ],
@@ -372,10 +349,10 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
         _buildStatCard(
             'Total Plots', '${_plots.length}', Iconsax.element_4, AppColors.primary),
         _buildStatCard(
-            'Available', '$availablePlots', Iconsax.tick_circle, Colors.green),
+            'Available', '$availablePlots', Iconsax.tick_circle, AppColors.success),
         _buildStatCard(
-            'Reserved', '$reservedPlots', Iconsax.clock, Colors.orange),
-        _buildStatCard('Sold', '$soldPlots', Iconsax.tick_circle, Colors.purple),
+            'Reserved', '$reservedPlots', Iconsax.clock, AppColors.warning),
+        _buildStatCard('Sold', '$soldPlots', Iconsax.tick_circle, AppColors.secondary),
       ],
     );
   }
@@ -409,20 +386,8 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(
-                value,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              MyText(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.neutral500,
-                ),
-              ),
+              AppText.displayLg(value),
+              AppText.caption(label),
             ],
           ),
         ],
@@ -447,13 +412,10 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
             color: isSelected ? AppColors.primary : AppColors.neutral300,
           ),
         ),
-        child: MyText(
+        child: AppText.bodyMd(
           label,
-          style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.neutral500,
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
+          color: isSelected ? AppColors.white : AppColors.textSecondary,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
         ),
       ),
     );
@@ -472,12 +434,9 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                 color: AppColors.neutral500.withValues(alpha: 0.5),
               ),
               kSizedBox,
-              const MyText(
+              const AppText.h3(
                 'No plots found',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: AppColors.neutral500,
-                ),
+                color: AppColors.textMuted,
               ),
             ],
           ),
@@ -531,13 +490,7 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: MyText(
-                  plot.plotNumber,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: AppText.h4(plot.plotNumber),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -545,49 +498,33 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                   color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: MyText(
+                child: AppText.caption(
                   plot.status,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  color: statusColor,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
           if (plot.blockNumber != null) ...[
             const SizedBox(height: 4),
-            MyText(
-              plot.blockNumber!,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.neutral500,
-              ),
-            ),
+            AppText.caption(plot.blockNumber!, color: AppColors.textSecondary),
           ],
           const SizedBox(height: 8),
           Row(
             children: [
               const Icon(Iconsax.ruler, size: 14, color: AppColors.neutral500),
               const SizedBox(width: 4),
-              MyText(
+              AppText.caption(
                 '${plot.size.toStringAsFixed(0)} sqm',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.neutral500,
-                ),
+                color: AppColors.textSecondary,
               ),
             ],
           ),
           const SizedBox(height: 4),
-          MyText(
+          AppText.h4(
             '₦${plot.price.toStringAsFixed(0)}',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
+            color: AppColors.primary,
           ),
           if (plot.buyerName != null) ...[
             const SizedBox(height: 8),
@@ -596,13 +533,9 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
                 const Icon(Iconsax.profile_circle, size: 14, color: AppColors.neutral500),
                 const SizedBox(width: 4),
                 Expanded(
-                  child: MyText(
+                  child: AppText.caption(
                     plot.buyerName!,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.neutral500,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    color: AppColors.textSecondary,
                     maxLines: 1,
                   ),
                 ),
@@ -618,20 +551,20 @@ class _EstateDetailPageState extends State<EstateDetailPage> {
     switch (status) {
       case 'Available':
       case 'Active':
-        return Colors.green;
+        return AppColors.success;
       case 'Reserved':
       case 'Under Development':
-        return Colors.orange;
+        return AppColors.warning;
       case 'Sold':
-        return Colors.purple;
+        return AppColors.secondary;
       case 'Under Offer':
-        return Colors.blue;
+        return AppColors.info;
       case 'Planning':
-        return Colors.cyan;
+        return AppColors.infoSubtle;
       case 'Completed':
-        return Colors.teal;
+        return AppColors.success;
       default:
-        return AppColors.neutral500;
+        return AppColors.textMuted;
     }
   }
 }

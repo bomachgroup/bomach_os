@@ -141,7 +141,7 @@ class RolesPage extends StatelessWidget {
       flex: flex,
       child: Text(
         label,
-        style: AppText.bodySm.copyWith(
+        style: AppTextStyles.bodySm.copyWith(
           fontWeight: FontWeight.w600,
           color: AppColors.textSecondary,
         ),
@@ -164,7 +164,7 @@ class RolesPage extends StatelessWidget {
             flex: 2,
             child: Text(
               role.name,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
@@ -177,7 +177,7 @@ class RolesPage extends StatelessWidget {
             flex: 2,
             child: role.branches.isEmpty
                 ? Text('All Branches',
-                    style: AppText.bodySm.copyWith(color: AppColors.textMuted))
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted))
                 : Wrap(
                     spacing: 6,
                     runSpacing: 6,
@@ -261,7 +261,7 @@ class RolesPage extends StatelessWidget {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to delete "${role.name}"? This action cannot be undone.',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(

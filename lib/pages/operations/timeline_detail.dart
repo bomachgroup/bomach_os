@@ -32,7 +32,7 @@ class TimelineDetailPage extends StatelessWidget {
       return const PageScaffold(
         children: [
           Center(
-            child: MyText('Timeline phase not found', style: AppText.bodyLg),
+            child: MyText('Timeline phase not found', style: AppTextStyles.bodyLg),
           ),
         ],
       );
@@ -76,7 +76,7 @@ class TimelineDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Phase Overview', style: AppText.h3),
+              const Text('Phase Overview', style: AppTextStyles.h3),
               const SizedBox(height: 16),
               RowText(label: "Phase Name", value: timeline.name),
               Padding(
@@ -84,7 +84,7 @@ class TimelineDetailPage extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(
-                        width: 200, child: Text("Status", style: AppText.label)),
+                        width: 200, child: Text("Status", style: AppTextStyles.label)),
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
@@ -105,13 +105,13 @@ class TimelineDetailPage extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Description", style: AppText.label),
+                  const Text("Description", style: AppTextStyles.label),
                   const SizedBox(height: 8),
                   Text(
                       timeline.description.isEmpty
                           ? "No description provided."
                           : timeline.description,
-                      style: AppText.bodyMd),
+                      style: AppTextStyles.bodyMd),
                 ],
               ),
             ],

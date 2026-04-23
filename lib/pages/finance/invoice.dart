@@ -112,10 +112,10 @@ class InvoicePageState extends State<InvoicePage> {
                     child: DataTable(
                       headingRowColor: WidgetStateProperty.resolveWith(
                           (states) => AppColors.surfaceMuted),
-                      headingTextStyle: AppText.label.copyWith(
+                      headingTextStyle: AppTextStyles.label.copyWith(
                         color: AppColors.textSecondary,
                       ),
-                      dataTextStyle: AppText.bodyMd.copyWith(
+                      dataTextStyle: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textPrimary,
                       ),
                       dataRowMinHeight: 68,
@@ -158,7 +158,7 @@ class InvoicePageState extends State<InvoicePage> {
         DataCell(
           Text(
             'FJ9387HDS',
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
@@ -175,7 +175,7 @@ class InvoicePageState extends State<InvoicePage> {
           },
           Text(
             'MTN Group',
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w500,
             ),
@@ -184,19 +184,19 @@ class InvoicePageState extends State<InvoicePage> {
         DataCell(
           Text(
             '24-05-2025',
-            style: AppText.bodyMd.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
           ),
         ),
         DataCell(
           Text(
             '24-05-2025',
-            style: AppText.bodyMd.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
           ),
         ),
         DataCell(
           Text(
             '₦121,500',
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),

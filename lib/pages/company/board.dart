@@ -167,7 +167,7 @@ class BoardPage extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color:
                   isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
@@ -265,11 +265,11 @@ Widget _buildTableCard({
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: AppText.h3),
+                    Text(title, style: AppTextStyles.h3),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -294,7 +294,7 @@ Widget _buildTableCard({
 Widget _buildHeaderCell(String label, {double? width, int? flex}) {
   final content = Text(
     label,
-    style: AppText.bodySm.copyWith(
+    style: AppTextStyles.bodySm.copyWith(
       color: AppColors.textSecondary,
       fontWeight: FontWeight.w600,
     ),
@@ -326,7 +326,7 @@ PopupMenuItem<String> _menuItem({
         const SizedBox(width: 8),
         Text(
           label,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: destructive ? AppColors.danger : AppColors.textPrimary,
           ),
         ),
@@ -462,7 +462,7 @@ class _MeetingsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               meeting.title,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -476,7 +476,7 @@ class _MeetingsTab extends StatelessWidget {
               children: [
                 Text(
                   displayDate,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),
@@ -484,7 +484,7 @@ class _MeetingsTab extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     displayTime,
-                    style: AppText.bodySm
+                    style: AppTextStyles.bodySm
                         .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
@@ -496,7 +496,7 @@ class _MeetingsTab extends StatelessWidget {
             child: Text(
               meeting.agenda,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -561,7 +561,7 @@ class _MeetingsTab extends StatelessWidget {
               title: 'Cancel Meeting',
               size: DialogSize.sm,
               body: Text('Are you sure you want to cancel "${meeting.title}"?',
-                  style: AppText.bodyMd),
+                  style: AppTextStyles.bodyMd),
               actions: [
                 MyOutlinedButton(
                   child: 'No',
@@ -714,7 +714,7 @@ class _ResolutionsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               resolution.title,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -725,14 +725,14 @@ class _ResolutionsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               resolution.resolutionTypeDisplay,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               displayDate,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -796,7 +796,7 @@ class _ResolutionsTab extends StatelessWidget {
               size: DialogSize.sm,
               body: Text(
                 'Are you sure you want to archive "${resolution.title}"?',
-                style: AppText.bodyMd,
+                style: AppTextStyles.bodyMd,
               ),
               actions: [
                 MyOutlinedButton(
@@ -943,7 +943,7 @@ class _InvestorsTab extends StatelessWidget {
                   backgroundColor: AppColors.primarySubtle,
                   child: Text(
                     s.firstName.isNotEmpty ? s.firstName[0].toUpperCase() : '?',
-                    style: AppText.label.copyWith(
+                    style: AppTextStyles.label.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -953,7 +953,7 @@ class _InvestorsTab extends StatelessWidget {
                 Flexible(
                   child: Text(
                     s.fullName,
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
@@ -968,7 +968,7 @@ class _InvestorsTab extends StatelessWidget {
             child: Text(
               s.email,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -976,14 +976,14 @@ class _InvestorsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               s.titleDisplay,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
               '${s.sharePercentage}%',
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -1020,7 +1020,7 @@ class _InvestorsTab extends StatelessWidget {
                       size: DialogSize.sm,
                       body: Text(
                           'Are you sure you want to remove ${s.fullName}?',
-                          style: AppText.bodyMd),
+                          style: AppTextStyles.bodyMd),
                       actions: [
                         MyOutlinedButton(
                           child: 'Cancel',
@@ -1204,7 +1204,7 @@ class _PartnersTab extends StatelessWidget {
                   backgroundColor: AppColors.primarySubtle,
                   child: Text(
                     p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
-                    style: AppText.label.copyWith(
+                    style: AppTextStyles.label.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1214,7 +1214,7 @@ class _PartnersTab extends StatelessWidget {
                 Flexible(
                   child: Text(
                     p.name,
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1229,7 +1229,7 @@ class _PartnersTab extends StatelessWidget {
             child: Text(
               p.email,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1237,7 +1237,7 @@ class _PartnersTab extends StatelessWidget {
             flex: 2,
             child: Text(
               p.categoryDisplay,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -1255,7 +1255,7 @@ class _PartnersTab extends StatelessWidget {
             flex: 1,
             child: Text(
               '${p.agreementCount}',
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -1283,7 +1283,7 @@ class _PartnersTab extends StatelessWidget {
                       size: DialogSize.sm,
                       body: Text(
                         'Are you sure you want to delete "${p.name}"? This will also delete all associated agreements.',
-                        style: AppText.bodyMd,
+                        style: AppTextStyles.bodyMd,
                       ),
                       actions: [
                         MyOutlinedButton(
@@ -1480,7 +1480,7 @@ class _EmployeeListTab extends StatelessWidget {
                           employee.firstName.isNotEmpty
                               ? employee.firstName[0].toUpperCase()
                               : '?',
-                          style: AppText.label.copyWith(
+                          style: AppTextStyles.label.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1494,7 +1494,7 @@ class _EmployeeListTab extends StatelessWidget {
                     children: [
                       Text(
                         employee.fullName,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1504,7 +1504,7 @@ class _EmployeeListTab extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           employee.role,
-                          style: AppText.bodySm
+                          style: AppTextStyles.bodySm
                               .copyWith(color: AppColors.textSecondary),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1520,7 +1520,7 @@ class _EmployeeListTab extends StatelessWidget {
             child: Text(
               employee.email,
               style:
-                  AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1528,7 +1528,7 @@ class _EmployeeListTab extends StatelessWidget {
             flex: 2,
             child: Text(
               employee.phoneNumber ?? '—',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1536,7 +1536,7 @@ class _EmployeeListTab extends StatelessWidget {
             flex: 2,
             child: Text(
               employee.departmentName ?? '—',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1612,7 +1612,7 @@ class _EmployeeListTab extends StatelessWidget {
                           employee.firstName.isNotEmpty
                               ? employee.firstName[0].toUpperCase()
                               : '?',
-                          style: AppText.h3.copyWith(
+                          style: AppTextStyles.h3.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1624,7 +1624,7 @@ class _EmployeeListTab extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(employee.fullName, style: AppText.h3),
+                      Text(employee.fullName, style: AppTextStyles.h3),
                       const SizedBox(height: 6),
                       Wrap(
                         spacing: 8,
@@ -1678,13 +1678,13 @@ class _EmployeeListTab extends StatelessWidget {
             width: 130,
             child: Text(
               label,
-              style: AppText.caption.copyWith(color: AppColors.textMuted),
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),

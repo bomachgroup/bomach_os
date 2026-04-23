@@ -148,7 +148,7 @@ class _LeavesPageState extends State<LeavesPage> {
               children: [
                 Text(
                   value,
-                  style: AppText.h1.copyWith(
+                  style: AppTextStyles.h1.copyWith(
                     color: color,
                     fontWeight: FontWeight.w700,
                   ),
@@ -156,7 +156,7 @@ class _LeavesPageState extends State<LeavesPage> {
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  style: AppText.caption.copyWith(
+                  style: AppTextStyles.caption.copyWith(
                     color: AppColors.textSecondary,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -208,11 +208,11 @@ class _LeavesPageState extends State<LeavesPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Leave History', style: AppText.h3),
+                          const Text('Leave History', style: AppTextStyles.h3),
                           const SizedBox(height: 4),
                           Obx(() => Text(
                                 '${_ctrl.totalCount.value} request${_ctrl.totalCount.value == 1 ? '' : 's'} on record',
-                                style: AppText.bodyMd.copyWith(
+                                style: AppTextStyles.bodyMd.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
                               )),
@@ -357,7 +357,7 @@ class _LeavesPageState extends State<LeavesPage> {
             showBottomBorder: false,
             headingRowColor:
                 WidgetStateProperty.all(AppColors.surfaceMuted),
-            headingTextStyle: AppText.bodySm.copyWith(
+            headingTextStyle: AppTextStyles.bodySm.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
@@ -397,7 +397,7 @@ class _LeavesPageState extends State<LeavesPage> {
                   children: [
                     Text(
                       startStr,
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w500,
                       ),
@@ -406,7 +406,7 @@ class _LeavesPageState extends State<LeavesPage> {
                       const SizedBox(height: 2),
                       Text(
                         '→ $endStr',
-                        style: AppText.bodySm.copyWith(
+                        style: AppTextStyles.bodySm.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -416,7 +416,7 @@ class _LeavesPageState extends State<LeavesPage> {
                 // Duration
                 DataCell(Text(
                   '$days day${days == 1 ? '' : 's'}',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -426,7 +426,7 @@ class _LeavesPageState extends State<LeavesPage> {
                   width: 220,
                   child: Text(
                     leave.reason ?? '-',
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textSecondary,
                     ),
                     maxLines: 2,

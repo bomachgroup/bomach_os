@@ -89,20 +89,10 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: const BoxDecoration(
-                  color: AppColors.neutral50,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
-                      child: Text('Add New Estate',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600)),
-                    ),
+                    AppTextStyles.h3('Add New Estate'),
                     IconButton(
                       icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
@@ -295,26 +285,30 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
-          child: Text(label,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+          child: AppTextStyles.bodySm(
+            label,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.neutral200),
+            border: Border.all(color: AppColors.neutral300),
             borderRadius: BorderRadius.circular(8),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
               value: value,
-              hint: Text('Select ${label.replaceAll(' *', '')}'),
+              hint: AppTextStyles.bodySm(
+                'Select ${label.replaceAll(' *', '')}',
+                color: AppColors.neutral500,
+              ),
               items: choices.map((c) {
                 return DropdownMenuItem<String>(
                   value: c['value']?.toString() ?? '',
-                  child: Text(c['display_name']?.toString() ?? ''),
+                  child: AppTextStyles.bodySm(c['display_name']?.toString() ?? ''),
                 );
               }).toList(),
               onChanged: onChanged,

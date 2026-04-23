@@ -96,11 +96,11 @@ class _CountryStateCityPickerState extends State<CountryStateCityPicker> {
           topRight: Radius.circular(16),
         ),
         backgroundColor: AppColors.surface,
-        textStyle: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
-        searchTextStyle: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        textStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+        searchTextStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
         inputDecoration: InputDecoration(
           hintText: 'Search country',
-          hintStyle: AppText.bodyMd.copyWith(color: AppColors.textMuted),
+          hintStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
           prefixIcon: const Icon(Iconsax.search_normal_1,
               size: 18, color: AppColors.textMuted),
           filled: true,
@@ -282,7 +282,7 @@ class _CountryField extends StatelessWidget {
           children: [
             Text(
               label,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -326,7 +326,7 @@ class _CountryField extends StatelessWidget {
                       Expanded(
                         child: Text(
                           isEmpty ? 'Select country' : country!,
-                          style: AppText.bodyMd.copyWith(
+                          style: AppTextStyles.bodyMd.copyWith(
                             color: isEmpty
                                 ? AppColors.textMuted
                                 : AppColors.textPrimary,

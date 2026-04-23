@@ -69,7 +69,7 @@ class PerformanceReviewPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Reviews Registry', style: AppText.h3),
+                    Text('Reviews Registry', style: AppTextStyles.h3),
                     SizedBox(height: 4),
                     Text(
                       'Historical performance data for all staff',
@@ -112,7 +112,7 @@ class PerformanceReviewPage extends StatelessWidget {
                       horizontalMargin: 24,
                       headingRowColor:
                           WidgetStateProperty.all(AppColors.surfaceMuted),
-                      headingTextStyle: AppText.bodySm.copyWith(
+                      headingTextStyle: AppTextStyles.bodySm.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
                       ),
@@ -150,19 +150,19 @@ class PerformanceReviewPage extends StatelessWidget {
             children: [
               Text(
                 review.employeeId,
-                style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
               ),
               Text(
                 'ID: ${review.employeeId}',
-                style: AppText.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
         ),
-        DataCell(Text(review.reviewPeriod, style: AppText.bodyMd)),
+        DataCell(Text(review.reviewPeriod, style: AppTextStyles.bodyMd)),
         DataCell(Text(
           review.reviewDate?.toIso8601String().split('T').first ?? '',
-          style: AppText.bodyMd,
+          style: AppTextStyles.bodyMd,
         )),
         const DataCell(Star5()),
         DataCell(

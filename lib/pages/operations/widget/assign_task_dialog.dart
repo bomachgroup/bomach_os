@@ -228,7 +228,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                       const SizedBox(width: 12),
                       const MyText(
                         'Assign Task to Employee',
-                        style: AppText.h2,
+                        style: AppTextStyles.h2,
                       ),
                     ],
                   ),
@@ -254,7 +254,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                       // Task Information Section
                       const MyText(
                         'Task Information',
-                        style: AppText.h4,
+                        style: AppTextStyles.h4,
                       ),
                       kSizedBox,
 
@@ -324,7 +324,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                       // Assignment Section
                       const MyText(
                         'Assign Employee',
-                        style: AppText.h4,
+                        style: AppTextStyles.h4,
                       ),
                       kSizedBox,
 
@@ -350,7 +350,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                         children: [
                           const MyText(
                             'Due Date *',
-                            style: AppText.h4,
+                            style: AppTextStyles.h4,
                           ),
                           const SizedBox(height: 8),
                           GestureDetector(
@@ -373,7 +373,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                                 children: [
                                   MyText(
                                     DateFormat('MMM dd, yyyy').format(_dueDate),
-                                    style: AppText.bodyMd,
+                                    style: AppTextStyles.bodyMd,
                                   ),
                                   const Icon(
                                     Iconsax.calendar_1,
@@ -411,13 +411,13 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
                           children: [
                             const MyText(
                               'Assignment Preview',
-                              style: AppText.h4,
+                              style: AppTextStyles.h4,
                             ),
                             const SizedBox(height: 12),
                             if (_taskTitleController.text.isNotEmpty)
                               MyText(
                                 _taskTitleController.text,
-                                style: AppText.bodyLg,
+                                style: AppTextStyles.bodyLg,
                               ),
                             const SizedBox(height: 8),
                             Row(

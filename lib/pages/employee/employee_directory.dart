@@ -25,12 +25,12 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
             children: [
               MyText(
                 'Employee Directory',
-                style: AppText.displayLg,
+                style: AppTextStyles.displayLg,
               ),
               SizedBox(height: 8),
               MyText(
                 'Complete list of all employees',
-                style: AppText.h4,
+                style: AppTextStyles.h4,
               ),
             ],
           ),
@@ -89,7 +89,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 150,
                             child: MyText(
                               'Name',
-                              style: AppText.h4,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                           SizedBox(width: 16),
@@ -97,7 +97,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 150,
                             child: MyText(
                               'Department',
-                              style: AppText.h4,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                           SizedBox(width: 16),
@@ -105,7 +105,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 150,
                             child: MyText(
                               'Position',
-                              style: AppText.h4,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                           SizedBox(width: 16),
@@ -113,7 +113,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 100,
                             child: MyText(
                               'Status',
-                              style: AppText.h4,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                         ],
@@ -134,7 +134,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                           SizedBox(height: 16),
                           MyText(
                             'No employees found',
-                            style: AppText.bodyMd,
+                            style: AppTextStyles.bodyMd,
                           ),
                         ],
                       ),

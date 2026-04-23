@@ -121,7 +121,7 @@ class BroadcastPage extends StatelessWidget {
                   ),
                   child: Text(
                     tab,
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: isSelected
                           ? AppColors.textOnPrimary
@@ -186,11 +186,11 @@ Widget _buildTableCard({
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: AppText.h3),
+                    Text(title, style: AppTextStyles.h3),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: AppText.bodySm.copyWith(
+                      style: AppTextStyles.bodySm.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -215,7 +215,7 @@ Widget _buildTableCard({
 Widget _buildHeaderCell(String label, {double? width, int? flex}) {
   final content = Text(
     label,
-    style: AppText.bodySm.copyWith(
+    style: AppTextStyles.bodySm.copyWith(
       color: AppColors.textSecondary,
       fontWeight: FontWeight.w600,
     ),
@@ -436,7 +436,7 @@ class _AnnouncementsTab extends StatelessWidget {
                 flex: 3,
                 child: Text(
                   announcement.title,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -451,13 +451,13 @@ class _AnnouncementsTab extends StatelessWidget {
                     Text(
                       displayDate,
                       style:
-                          AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                          AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
                     ),
                     if (displayTime.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
                         displayTime,
-                        style: AppText.caption
+                        style: AppTextStyles.caption
                             .copyWith(color: AppColors.textSecondary),
                       ),
                     ],
@@ -468,7 +468,7 @@ class _AnnouncementsTab extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   announcement.announcementTypeDisplay,
-                  style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                  style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
                 ),
               ),
               Expanded(
@@ -509,7 +509,7 @@ class _AnnouncementsTab extends StatelessWidget {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to delete "${announcement.title}"?',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(
@@ -666,7 +666,7 @@ class _EventsTab extends StatelessWidget {
                 flex: 3,
                 child: Text(
                   event.title,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -681,13 +681,13 @@ class _EventsTab extends StatelessWidget {
                     Text(
                       displayDate,
                       style:
-                          AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                          AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
                     ),
                     if (displayTime.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
                         displayTime,
-                        style: AppText.bodySm
+                        style: AppTextStyles.bodySm
                             .copyWith(color: AppColors.textSecondary),
                       ),
                     ],
@@ -699,7 +699,7 @@ class _EventsTab extends StatelessWidget {
                 child: event.targetAudienceLabels.isEmpty
                     ? Text(
                         '-',
-                        style: AppText.bodyMd
+                        style: AppTextStyles.bodyMd
                             .copyWith(color: AppColors.textSecondary),
                       )
                     : Wrap(
@@ -720,7 +720,7 @@ class _EventsTab extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   event.eventTypeDisplay,
-                  style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+                  style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -753,7 +753,7 @@ class _EventsTab extends StatelessWidget {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to delete "${event.title}"?',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(
@@ -876,7 +876,7 @@ class _NotificationsTab extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color:
                   isActive ? AppColors.textOnPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
@@ -914,7 +914,7 @@ class _NotificationsTab extends StatelessWidget {
                     Expanded(
                       child: Text(
                         notification.title,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -930,14 +930,14 @@ class _NotificationsTab extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   notification.subtitle,
-                  style: AppText.bodySm
+                  style: AppTextStyles.bodySm
                       .copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   notification.description,
                   style:
-                      AppText.bodySm.copyWith(color: AppColors.textMuted),
+                      AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -945,7 +945,7 @@ class _NotificationsTab extends StatelessWidget {
           const SizedBox(width: 16),
           Text(
             notification.time,
-            style: AppText.caption.copyWith(color: AppColors.textMuted),
+            style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
           ),
         ],
       ),

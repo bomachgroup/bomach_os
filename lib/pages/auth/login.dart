@@ -86,13 +86,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           const Text(
                             'Welcome back',
                             textAlign: TextAlign.center,
-                            style: AppText.h1,
+                            style: AppTextStyles.h1,
                           ),
                           const SizedBox(height: 6),
                           Text(
                             'Sign in to continue to Bomach OS',
                             textAlign: TextAlign.center,
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -156,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               child: Text(
                                 'Forgot password?',
-                                style: AppText.label.copyWith(
+                                style: AppTextStyles.label.copyWith(
                                   color: AppColors.primary,
                                 ),
                               ),
@@ -176,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: AppRadii.brMd,
                                 ),
-                                textStyle: AppText.bodyMd.copyWith(
+                                textStyle: AppTextStyles.bodyMd.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -206,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     horizontal: 12),
                                 child: Text(
                                   'or',
-                                  style: AppText.caption.copyWith(
+                                  style: AppTextStyles.caption.copyWith(
                                     color: AppColors.textMuted,
                                   ),
                                 ),
@@ -236,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               shape: const RoundedRectangleBorder(
                                 borderRadius: AppRadii.brMd,
                               ),
-                              textStyle: AppText.bodyMd.copyWith(
+                              textStyle: AppTextStyles.bodyMd.copyWith(
                                 fontWeight: FontWeight.w500,
                               ),
                             ),

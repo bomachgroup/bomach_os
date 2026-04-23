@@ -281,7 +281,7 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
                                 ),
                                 Text(
                                   'Board Member',
-                                  style: AppText.bodyMd.copyWith(
+                                  style: AppTextStyles.bodyMd.copyWith(
                                     color: AppColors.textPrimary,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -295,7 +295,7 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
                                 ),
                                 Text(
                                   'Active',
-                                  style: AppText.bodyMd.copyWith(
+                                  style: AppTextStyles.bodyMd.copyWith(
                                     color: AppColors.textPrimary,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -360,12 +360,12 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),

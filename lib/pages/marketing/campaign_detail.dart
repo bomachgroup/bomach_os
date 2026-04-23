@@ -58,7 +58,7 @@ class CampaignDetailPageState extends State<CampaignDetailPage> {
                             kSizedBoxWidthSM,
                             const MyText(
                               'Back',
-                              style: AppText.h2,
+                              style: AppTextStyles.h2,
                               isSelectable: false,
                             ),
                           ],
@@ -70,14 +70,14 @@ class CampaignDetailPageState extends State<CampaignDetailPage> {
                         children: [
                           MyText(
                             'PQ1 Land Survey Awareness',
-                            style: AppText.h2,
+                            style: AppTextStyles.h2,
                           ),
                           SizedBox(
                             height: 8,
                           ),
                           MyText(
                             'Created 8/15/2023',
-                            style: AppText.bodyLg,
+                            style: AppTextStyles.bodyLg,
                           ),
                         ],
                       ),

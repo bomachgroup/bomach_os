@@ -99,7 +99,7 @@ class AppToast {
               Expanded(
                 child: Text(
                   message,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),

@@ -48,7 +48,7 @@ class CrmDashboardPage extends StatelessWidget {
               borderRadius: AppRadii.brMd,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+            textStyle: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
           ),
           icon: Icon(icon, size: 16),
           label: Text(label),
@@ -204,11 +204,11 @@ class TopClientsByValue extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Top Clients by Value', style: AppText.h3),
+                const Text('Top Clients by Value', style: AppTextStyles.h3),
                 const SizedBox(height: 2),
                 Text(
                   'Your most valuable client relationships',
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -262,7 +262,7 @@ class TopClientListItem extends StatelessWidget {
             children: [
               Text(
                 client.name,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
@@ -270,7 +270,7 @@ class TopClientListItem extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 '${client.projects} projects',
-                style: AppText.caption.copyWith(
+                style: AppTextStyles.caption.copyWith(
                   color: AppColors.textMuted,
                 ),
               ),
@@ -278,7 +278,7 @@ class TopClientListItem extends StatelessWidget {
           ),
           Text(
             client.value,
-            style: AppText.h4.copyWith(
+            style: AppTextStyles.h4.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
             ),

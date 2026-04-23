@@ -133,7 +133,7 @@ class _LoanPageState extends State<LoanPage> {
           ),
           child: Text(
             text,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color: isActive
                   ? AppColors.textOnPrimary
                   : AppColors.textPrimary,
@@ -213,13 +213,13 @@ class _LoanPageState extends State<LoanPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Loan applications', style: AppText.h3),
+                      const Text('Loan applications', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             loading
                                 ? 'Loading loan applications...'
                                 : '${_ctrl.totalCount.value} application${_ctrl.totalCount.value == 1 ? '' : 's'} on file',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -294,7 +294,7 @@ class _LoanPageState extends State<LoanPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -323,7 +323,7 @@ class _LoanPageState extends State<LoanPage> {
                     loan.employeeName.isNotEmpty
                         ? loan.employeeName[0].toUpperCase()
                         : '?',
-                    style: AppText.label.copyWith(
+                    style: AppTextStyles.label.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -336,7 +336,7 @@ class _LoanPageState extends State<LoanPage> {
                     children: [
                       Text(
                         loan.employeeName,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -345,7 +345,7 @@ class _LoanPageState extends State<LoanPage> {
                       const SizedBox(height: 2),
                       Text(
                         loan.jobTitle,
-                        style: AppText.bodySm.copyWith(
+                        style: AppTextStyles.bodySm.copyWith(
                           color: AppColors.textSecondary,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -360,7 +360,7 @@ class _LoanPageState extends State<LoanPage> {
             flex: 2,
             child: Text(
               '₦${loan.loanAmount}',
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -371,7 +371,7 @@ class _LoanPageState extends State<LoanPage> {
             flex: 2,
             child: Text(
               loan.repaymentDate,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -379,7 +379,7 @@ class _LoanPageState extends State<LoanPage> {
             flex: 3,
             child: Text(
               loan.reason,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),

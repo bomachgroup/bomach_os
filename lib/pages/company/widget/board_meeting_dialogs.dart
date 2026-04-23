@@ -257,7 +257,7 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
                               attendeeNames.asMap().entries.map((entry) {
                             return Chip(
                               label: Text(entry.value,
-                                  style: AppText.bodySm.copyWith(
+                                  style: AppTextStyles.bodySm.copyWith(
                                       fontWeight: FontWeight.w500)),
                               deleteIcon: const Icon(Iconsax.close_circle,
                                   size: 16),
@@ -353,12 +353,12 @@ class _ScheduleMeetingDialogState extends State<ScheduleMeetingDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -517,7 +517,7 @@ class ViewMeetingDialog extends StatelessWidget {
                         borderRadius: AppRadii.brPill,
                       ),
                       child: Text(a.name,
-                          style: AppText.caption.copyWith(
+                          style: AppTextStyles.caption.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600)),
                     );
@@ -533,7 +533,7 @@ class ViewMeetingDialog extends StatelessWidget {
               children: [
                 Text(
                   meeting.notes!,
-                  style: AppText.bodyMd
+                  style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textPrimary),
                 ),
               ],
@@ -607,7 +607,7 @@ class ViewMeetingDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(meeting.title, style: AppText.h3),
+                Text(meeting.title, style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -661,7 +661,7 @@ class ViewMeetingDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -686,7 +686,7 @@ class ViewMeetingDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -704,13 +704,13 @@ class ViewMeetingDialog extends StatelessWidget {
             width: 130,
             child: Text(
               label,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
@@ -748,7 +748,7 @@ class ViewMeetingDialog extends StatelessWidget {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to cancel "$name"?',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(

@@ -83,7 +83,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                       children: [
                         MyText(
                           'Client & Partner Portal',
-                          style: AppText.displayLg,
+                          style: AppTextStyles.displayLg,
                         ),
                         MyText(
                           'Manage client access and self-service portal',
@@ -119,7 +119,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                           children: [
                             MyText(
                               'Client & Partner Portal',
-                              style: AppText.displayLg,
+                              style: AppTextStyles.displayLg,
                             ),
                             MyText(
                               'Manage client access and self-service portal',

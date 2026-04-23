@@ -152,7 +152,7 @@ class MyProfilePage extends StatelessWidget {
               children: [
                 MyText(
                   fullName.isNotEmpty ? fullName : user.username,
-                  style: AppText.h1.copyWith(
+                  style: AppTextStyles.h1.copyWith(
                     color: AppColors.textOnPrimary,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.3,
@@ -162,7 +162,7 @@ class MyProfilePage extends StatelessWidget {
                 if (user.employeeId != null && user.employeeId!.isNotEmpty)
                   MyText(
                     user.employeeId!,
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       fontWeight: FontWeight.w500,
                       color: AppColors.textOnPrimary.withValues(alpha: 0.7),
                     ),
@@ -202,7 +202,7 @@ class MyProfilePage extends StatelessWidget {
     return Center(
       child: Text(
         _getInitials(name),
-        style: AppText.displayMd.copyWith(
+        style: AppTextStyles.displayMd.copyWith(
           fontSize: 28,
           color: AppColors.textOnPrimary,
           fontWeight: FontWeight.w700,
@@ -232,7 +232,7 @@ class MyProfilePage extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.label.copyWith(color: color),
+            style: AppTextStyles.label.copyWith(color: color),
           ),
         ],
       ),
@@ -313,14 +313,14 @@ class MyProfilePage extends StatelessWidget {
                   children: [
                     MyText(
                       'Start Date',
-                      style: AppText.caption.copyWith(
+                      style: AppTextStyles.caption.copyWith(
                         color: AppColors.textMuted,
                       ),
                     ),
                     const SizedBox(height: 6),
                     MyText(
                       _formatDate(user.startDate),
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
@@ -334,7 +334,7 @@ class MyProfilePage extends StatelessWidget {
                   children: [
                     MyText(
                       'Status',
-                      style: AppText.caption.copyWith(
+                      style: AppTextStyles.caption.copyWith(
                         color: AppColors.textMuted,
                       ),
                     ),
@@ -372,14 +372,14 @@ class MyProfilePage extends StatelessWidget {
                   children: [
                     MyText(
                       'Username',
-                      style: AppText.caption.copyWith(
+                      style: AppTextStyles.caption.copyWith(
                         color: AppColors.textMuted,
                       ),
                     ),
                     const SizedBox(height: 6),
                     MyText(
                       user.username,
-                      style: AppText.bodyMd.copyWith(
+                      style: AppTextStyles.bodyMd.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
@@ -393,7 +393,7 @@ class MyProfilePage extends StatelessWidget {
                   children: [
                     MyText(
                       'Verified',
-                      style: AppText.caption.copyWith(
+                      style: AppTextStyles.caption.copyWith(
                         color: AppColors.textMuted,
                       ),
                     ),
@@ -443,7 +443,7 @@ class MyProfilePage extends StatelessWidget {
               const SizedBox(width: 12),
               MyText(
                 title,
-                style: AppText.h4.copyWith(fontSize: 17),
+                style: AppTextStyles.h4.copyWith(fontSize: 17),
               ),
             ],
           ),
@@ -465,12 +465,12 @@ class MyProfilePage extends StatelessWidget {
               children: [
                 MyText(
                   field.label,
-                  style: AppText.caption.copyWith(color: AppColors.textMuted),
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 6),
                 MyText(
                   field.value.isNotEmpty ? field.value : 'N/A',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     fontWeight: FontWeight.w600,
                     color: field.valueColor ?? AppColors.textPrimary,
                   ),
@@ -502,12 +502,12 @@ class MyProfilePage extends StatelessWidget {
             children: [
               MyText(
                 label,
-                style: AppText.caption.copyWith(color: AppColors.textMuted),
+                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
               ),
               const SizedBox(height: 2),
               MyText(
                 value,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),

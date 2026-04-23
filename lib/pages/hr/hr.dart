@@ -96,7 +96,7 @@ class HRPage extends StatelessWidget {
             side: const BorderSide(color: AppColors.borderSubtle),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w500),
+            textStyle: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
           ),
         ),
         kSizedBoxWidth,
@@ -110,7 +110,7 @@ class HRPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             elevation: 0,
             shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
-            textStyle: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600),
+            textStyle: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -260,7 +260,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
@@ -268,7 +268,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             count,
-            style: AppText.h1.copyWith(
+            style: AppTextStyles.h1.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
             ),
@@ -300,7 +300,7 @@ class _ChartSection extends StatelessWidget {
                 child: const Icon(Iconsax.chart_square, size: 18, color: _accentIndigo),
               ),
               const SizedBox(width: 12),
-              const MyText('Headcount by Department', style: AppText.h3),
+              const MyText('Headcount by Department', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 24),
@@ -367,13 +367,13 @@ class _LegendItem extends StatelessWidget {
                 Flexible(
                   child: MyText(
                     label,
-                    style: AppText.label.copyWith(color: AppColors.textPrimary),
+                    style: AppTextStyles.label.copyWith(color: AppColors.textPrimary),
                   ),
                 ),
                 const SizedBox(width: 4),
                 MyText(
                   sub,
-                  style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -405,7 +405,7 @@ class _BirthdaysSection extends StatelessWidget {
                 child: const Icon(Iconsax.cake, size: 18, color: _accentPink),
               ),
               const SizedBox(width: 12),
-              const MyText('Upcoming Birthdays', style: AppText.h3),
+              const MyText('Upcoming Birthdays', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 20),
@@ -435,7 +435,7 @@ class _BirthdayTile extends StatelessWidget {
             backgroundColor: color.withValues(alpha: 0.12),
             child: Text(
               init,
-              style: AppText.label.copyWith(
+              style: AppTextStyles.label.copyWith(
                 color: color,
                 fontWeight: FontWeight.w700,
               ),
@@ -448,21 +448,21 @@ class _BirthdayTile extends StatelessWidget {
               children: [
                 MyText(
                   name,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 MyText(
                   role,
-                  style: AppText.bodySm.copyWith(color: AppColors.textMuted),
+                  style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
           ),
           MyText(
             date,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
@@ -494,7 +494,7 @@ class _AuditLogsSection extends StatelessWidget {
                 child: const Icon(Iconsax.clipboard_text, size: 18, color: AppColors.primary),
               ),
               const SizedBox(width: 12),
-              const MyText('Audit Logs', style: AppText.h3),
+              const MyText('Audit Logs', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 20),
@@ -539,13 +539,13 @@ class _AuditItem extends StatelessWidget {
               children: [
                 MyText(
                   title,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 2),
-                MyText(time, style: AppText.caption.copyWith(color: AppColors.textMuted)),
+                MyText(time, style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
               ],
             ),
           )
@@ -576,7 +576,7 @@ class _LeavesSection extends StatelessWidget {
                 child: const Icon(Iconsax.calendar_remove, size: 18, color: _accentAmber),
               ),
               const SizedBox(width: 12),
-              const MyText('Recent Leaves', style: AppText.h3),
+              const MyText('Recent Leaves', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 20),
@@ -612,13 +612,13 @@ class _LeaveItem extends StatelessWidget {
               children: [
                 MyText(
                   name,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
-                MyText(date, style: AppText.caption.copyWith(color: AppColors.textMuted)),
+                MyText(date, style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
               ],
             ),
           ),

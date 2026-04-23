@@ -138,13 +138,13 @@ class PayrollPageState extends State<PayrollPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Payroll ledger', style: AppText.h3),
+                      const Text('Payroll ledger', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         loading
                             ? 'Loading payroll records...'
                             : '${filtered.length} record${filtered.length == 1 ? '' : 's'} on file',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -218,7 +218,7 @@ class PayrollPageState extends State<PayrollPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -247,7 +247,7 @@ class PayrollPageState extends State<PayrollPage> {
               },
               child: Text(
                 payroll.employeeId,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -259,7 +259,7 @@ class PayrollPageState extends State<PayrollPage> {
             flex: 2,
             child: Text(
               payroll.payrollPeriod,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -269,7 +269,7 @@ class PayrollPageState extends State<PayrollPage> {
               payroll.disbursementDate != null
                   ? DateFormat('dd MMM yyyy').format(payroll.disbursementDate!)
                   : '—',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -277,7 +277,7 @@ class PayrollPageState extends State<PayrollPage> {
             flex: 2,
             child: Text(
               payroll.grossSalary.toStringAsFixed(2),
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -285,7 +285,7 @@ class PayrollPageState extends State<PayrollPage> {
             flex: 2,
             child: Text(
               payroll.netSalary.toStringAsFixed(2),
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),

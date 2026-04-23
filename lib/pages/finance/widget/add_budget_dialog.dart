@@ -189,7 +189,7 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
                             ],
                           ),
                           SizedBox(height: 24),
-                          MyText("Items", style: AppText.bodyLg),
+                          MyText("Items", style: AppTextStyles.bodyLg),
                           kSizedBoxSM,
                           BudgetTable(),
                         ],

@@ -33,7 +33,7 @@ class PaymentsPage extends StatelessWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText('Payments', style: AppText.displayLg),
+                      MyText('Payments', style: AppTextStyles.displayLg),
                     ],
                   ),
                   MyElevatedButton(

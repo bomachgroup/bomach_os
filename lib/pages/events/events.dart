@@ -56,7 +56,7 @@ class _EventsPageState extends State<EventsPage> {
                         children: [
                           MyText(
                             'Events & Calendar',
-                            style: AppText.displayLg,
+                            style: AppTextStyles.displayLg,
                           ),
                           SizedBox(height: 8),
                           MyText(

@@ -48,7 +48,7 @@ class ViewAssociateDialog extends StatelessWidget {
                   child: !hasPicture
                       ? Text(
                           initial,
-                          style: AppText.h2.copyWith(color: AppColors.primary),
+                          style: AppTextStyles.h2.copyWith(color: AppColors.primary),
                         )
                       : null,
                 ),
@@ -59,12 +59,12 @@ class ViewAssociateDialog extends StatelessWidget {
                     children: [
                       Text(
                         fullName.isEmpty ? 'Unknown' : fullName,
-                        style: AppText.h3,
+                        style: AppTextStyles.h3,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         associate.employmentType ?? 'Associate',
-                        style: AppText.bodySm
+                        style: AppTextStyles.bodySm
                             .copyWith(color: AppColors.textSecondary),
                       ),
                       const SizedBox(height: 8),
@@ -135,7 +135,7 @@ class ViewAssociateDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -153,13 +153,13 @@ class ViewAssociateDialog extends StatelessWidget {
             width: 140,
             child: Text(
               label,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),

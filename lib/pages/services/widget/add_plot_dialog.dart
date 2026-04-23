@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -121,20 +122,11 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const MyText(
-                          'Add New Plot',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        AppTextStyles.h3('Add New Plot'),
                         const SizedBox(height: 4),
-                        MyText(
+                        AppTextStyles.bodySm(
                           widget.estate.name,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.neutral500,
-                          ),
+                          color: AppColors.neutral500,
                         ),
                       ],
                     ),
@@ -161,38 +153,26 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _plotNumberController,
-                                        hintText: 'e.g., Plot 001',
-                                        spaceBetweenText: 10,
-                                        title: 'Plot Number*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter plot number';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _plotNumberController,
+                                    hintText: 'e.g., Plot 001',
+                                    spaceBetweenText: 10,
+                                    title: 'Plot Number*',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter plot number';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _blockNumberController,
-                                        spaceBetweenText: 10,
-                                        hintText: 'e.g., Block A',
-                                        title: 'Block Number (Optional)',
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _blockNumberController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'e.g., Block A',
+                                    title: 'Block Number (Optional)',
                                   ),
                                 ),
                               ],
@@ -203,54 +183,42 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyDropdown(
-                                        items: const [
-                                          'Residential',
-                                          'Commercial',
-                                          'Mixed-Use',
-                                          'Industrial'
-                                        ],
-                                        hintText: 'Select type',
-                                        spaceBetweenText: 10,
-                                        title: 'Plot Type*',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedPlotType =
-                                                value ?? 'Residential';
-                                          });
-                                        },
-                                      ),
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Residential',
+                                      'Commercial',
+                                      'Mixed-Use',
+                                      'Industrial'
                                     ],
+                                    hintText: 'Select type',
+                                    spaceBetweenText: 10,
+                                    title: 'Plot Type*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedPlotType =
+                                            value ?? 'Residential';
+                                      });
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyDropdown(
-                                        items: const [
-                                          'Available',
-                                          'Reserved',
-                                          'Sold',
-                                          'Under Offer'
-                                        ],
-                                        hintText: 'Select status',
-                                        spaceBetweenText: 10,
-                                        title: 'Status*',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedStatus =
-                                                value ?? 'Available';
-                                          });
-                                        },
-                                      ),
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Available',
+                                      'Reserved',
+                                      'Sold',
+                                      'Under Offer'
                                     ],
+                                    hintText: 'Select status',
+                                    spaceBetweenText: 10,
+                                    title: 'Status*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedStatus =
+                                            value ?? 'Available';
+                                      });
+                                    },
                                   ),
                                 ),
                               ],
@@ -261,50 +229,38 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _sizeController,
-                                        hintText: 'Enter plot size',
-                                        spaceBetweenText: 10,
-                                        title: 'Size (sqm)*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter plot size';
-                                          }
-                                          if (double.tryParse(value) == null) {
-                                            return 'Enter a valid number';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _sizeController,
+                                    hintText: 'Enter plot size',
+                                    spaceBetweenText: 10,
+                                    title: 'Size (sqm)*',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter plot size';
+                                      }
+                                      if (double.tryParse(value) == null) {
+                                        return 'Enter a valid number';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _priceController,
-                                        spaceBetweenText: 10,
-                                        hintText: 'Enter price',
-                                        title: 'Price (₦)*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter price';
-                                          }
-                                          if (double.tryParse(value) == null) {
-                                            return 'Enter a valid number';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _priceController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'Enter price',
+                                    title: 'Price (₦)*',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter price';
+                                      }
+                                      if (double.tryParse(value) == null) {
+                                        return 'Enter a valid number';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                 ),
                               ],
@@ -312,25 +268,20 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                             const SizedBox(height: 24),
 
                             // Description
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  controller: _descriptionController,
-                                  maxLines: 3,
-                                  hintText: 'Enter plot description',
-                                  spaceBetweenText: 10,
-                                  title: 'Description (Optional)',
-                                ),
-                              ],
+                            MyTextFormField(
+                              controller: _descriptionController,
+                              maxLines: 3,
+                              hintText: 'Enter plot description',
+                              spaceBetweenText: 10,
+                              title: 'Description (Optional)',
                             ),
                           ],
                         ),
                       ),
 
                       // Optional Section
-                      const Divider(
-                        color: AppColors.borderSubtle,
+                      Divider(
+                        color: AppColors.neutral300,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -346,108 +297,78 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                               },
                               child: Row(
                                 children: [
-                                  const Flexible(
-                                    child: MyText(
+                                  Flexible(
+                                    child: AppTextStyles.bodyLg(
                                       'Buyer & Document Details (Optional)',
-                                      size: 18,
-                                      weight: 600,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  kSizedBoxWidthSM,
+                                  const SizedBox(width: 8),
                                   Icon(
                                     _showOptionalFields
                                         ? Iconsax.arrow_up_3
                                         : Iconsax.arrow_down_1,
-                                    size: 28,
+                                    size: 20,
+                                    color: AppColors.neutral500,
                                   )
                                 ],
                               ),
                             ),
                             if (_showOptionalFields) ...[
-                              kSizedBox,
-                              const MyText(
+                              const SizedBox(height: 16),
+                              AppTextStyles.bodyMd(
                                 'Buyer Information',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.neutral500,
-                                ),
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.neutral700,
                               ),
-                              kSizedBoxSM,
+                              const SizedBox(height: 12),
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _buyerNameController,
-                                          hintText: 'Buyer name',
-                                          spaceBetweenText: 10,
-                                          title: 'Buyer Name',
-                                        ),
-                                      ],
+                                    child: MyTextFormField(
+                                      controller: _buyerNameController,
+                                      hintText: 'Buyer name',
+                                      spaceBetweenText: 10,
+                                      title: 'Buyer Name',
                                     ),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _buyerPhoneController,
-                                          spaceBetweenText: 10,
-                                          hintText: 'Phone number',
-                                          title: 'Phone',
-                                        ),
-                                      ],
+                                    child: MyTextFormField(
+                                      controller: _buyerPhoneController,
+                                      spaceBetweenText: 10,
+                                      hintText: 'Phone number',
+                                      title: 'Phone',
                                     ),
                                   ),
                                 ],
                               ),
-                              kSizedBox,
+                              const SizedBox(height: 16),
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _buyerEmailController,
-                                          hintText: 'Email address',
-                                          spaceBetweenText: 10,
-                                          title: 'Email',
-                                        ),
-                                      ],
+                                    child: MyTextFormField(
+                                      controller: _buyerEmailController,
+                                      hintText: 'Email address',
+                                      spaceBetweenText: 10,
+                                      title: 'Email',
                                     ),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _surveyPlanController,
-                                          spaceBetweenText: 10,
-                                          hintText: 'Survey plan number',
-                                          title: 'Survey Plan No.',
-                                        ),
-                                      ],
+                                    child: MyTextFormField(
+                                      controller: _surveyPlanController,
+                                      spaceBetweenText: 10,
+                                      hintText: 'Survey plan number',
+                                      title: 'Survey Plan No.',
                                     ),
                                   ),
                                 ],
                               ),
-                              kSizedBox,
-                              const MyText(
+                              const SizedBox(height: 24),
+                              AppTextStyles.bodyMd(
                                 'Upload Documents (Survey Plan, Title, etc.)',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                fontWeight: FontWeight.w500,
                               ),
                               const SizedBox(height: 8),
                               const UploadFile(),
@@ -466,7 +387,7 @@ class _AddPlotDialogState extends State<AddPlotDialog> {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
+                    top: BorderSide(color: AppColors.neutral300),
                   ),
                 ),
                 child: Row(

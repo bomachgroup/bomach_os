@@ -47,7 +47,7 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
                     children: [
                       MyText(
                         'Vendor/Contract Payment',
-                        style: AppText.displayLg,
+                        style: AppTextStyles.displayLg,
                       ),
                     ],
                   ),

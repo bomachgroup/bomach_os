@@ -190,7 +190,7 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
           // Header
           const MyText(
             'Land Survey Cost Calculator',
-            style: AppText.displayLg,
+            style: AppTextStyles.displayLg,
           ),
           kSizedBox,
           const MyText(

@@ -189,13 +189,13 @@ class _WorkReportPageState extends State<WorkReportPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Reports timeline', style: AppText.h3),
+                      const Text('Reports timeline', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Text(
                         loading
                             ? 'Loading work reports...'
                             : '${filtered.length} report${filtered.length == 1 ? '' : 's'} on record',
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -260,7 +260,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -282,7 +282,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 2,
             child: Text(
               report.employeeId.toString(),
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -295,7 +295,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
               report.day != null
                   ? DateFormat('dd MMM yyyy').format(report.day!)
                   : '—',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -303,7 +303,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 1,
             child: Text(
               '${report.hoursWorked.toStringAsFixed(1)} hrs',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -311,7 +311,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 2,
             child: Text(
               report.operationalBase ?? '—',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -319,7 +319,7 @@ class _WorkReportPageState extends State<WorkReportPage> {
             flex: 3,
             child: Text(
               report.workActivities ?? '—',
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),

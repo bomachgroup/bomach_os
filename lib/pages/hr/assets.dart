@@ -105,13 +105,13 @@ class _AssetsTableCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Assets', style: AppText.h3),
+                        const Text('Assets', style: AppTextStyles.h3),
                         const SizedBox(height: 4),
                         Obx(() => Text(
                               loading
                                   ? 'Loading assets...'
                                   : '${controller.totalItems.value} asset${controller.totalItems.value == 1 ? '' : 's'} on record',
-                              style: AppText.bodyMd.copyWith(
+                              style: AppTextStyles.bodyMd.copyWith(
                                 color: AppColors.textSecondary,
                               ),
                             )),
@@ -197,7 +197,7 @@ class _AssetsTableCard extends StatelessWidget {
   Widget _headerCell(String label, {int? flex, double? width}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -226,7 +226,7 @@ class _AssetsTableCard extends StatelessWidget {
             flex: 3,
             child: Text(
               asset.name,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -254,7 +254,7 @@ class _AssetsTableCard extends StatelessWidget {
                 Flexible(
                   child: Text(
                     asset.branch.isEmpty ? '—' : asset.branch,
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.textPrimary,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -267,14 +267,14 @@ class _AssetsTableCard extends StatelessWidget {
             flex: 2,
             child: Text(
               displayDate,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               asset.value.toStringAsFixed(2),
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.success,
                 fontWeight: FontWeight.w600,
               ),
@@ -329,7 +329,7 @@ class _AssetsTableCard extends StatelessWidget {
                 size: DialogSize.sm,
                 body: Text(
                   'Are you sure you want to delete "${asset.name}"? This action cannot be undone.',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),

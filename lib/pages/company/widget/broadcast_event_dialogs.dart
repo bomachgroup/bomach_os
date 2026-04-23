@@ -288,7 +288,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: AppText.bodySm.copyWith(
+        style: AppTextStyles.bodySm.copyWith(
           fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
@@ -310,7 +310,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
             const SizedBox(width: 8),
             Text(
               title,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
@@ -351,7 +351,7 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
             const SizedBox(width: 8),
             Text(
               label,
-              style: AppText.bodySm.copyWith(
+              style: AppTextStyles.bodySm.copyWith(
                 fontWeight: value ? FontWeight.w600 : FontWeight.w400,
                 color: value ? AppColors.primary : AppColors.textSecondary,
               ),
@@ -655,11 +655,11 @@ class ViewEventDialog extends StatelessWidget {
           SizedBox(
             width: 150,
             child: Text(label,
-                style: AppText.bodySm.copyWith(color: AppColors.textMuted)),
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted)),
           ),
           Expanded(
             child: Text(value,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                     fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
           ),
         ],
@@ -684,7 +684,7 @@ class ViewEventDialog extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppText.bodySm.copyWith(
+        style: AppTextStyles.bodySm.copyWith(
           color: isBranch ? AppColors.success : AppColors.primary,
           fontWeight: FontWeight.w600,
         ),

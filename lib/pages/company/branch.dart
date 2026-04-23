@@ -230,7 +230,7 @@ class _BranchListPageState extends State<BranchListPage> {
           dropdownColor: AppColors.surface,
           icon: const Icon(Iconsax.arrow_down_1,
               size: 16, color: AppColors.textMuted),
-          style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+          style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
           items: safeItems
               .map((item) => DropdownMenuItem<String>(
                     value: item,
@@ -261,11 +261,11 @@ class _BranchListPageState extends State<BranchListPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Branch register', style: AppText.h3),
+                      const Text('Branch register', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             '${controller.totalItems.value} records available',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -373,16 +373,16 @@ class _BranchListPageState extends State<BranchListPage> {
               child: const Row(
                 children: [
                   SizedBox(
-                      width: 300, child: Text('Branch', style: AppText.label)),
+                      width: 300, child: Text('Branch', style: AppTextStyles.label)),
                   SizedBox(
-                      width: 200, child: Text('Type', style: AppText.label)),
+                      width: 200, child: Text('Type', style: AppTextStyles.label)),
                   SizedBox(
                       width: 250,
-                      child: Text('Location', style: AppText.label)),
+                      child: Text('Location', style: AppTextStyles.label)),
                   SizedBox(
-                      width: 150, child: Text('Manager', style: AppText.label)),
+                      width: 150, child: Text('Manager', style: AppTextStyles.label)),
                   SizedBox(
-                      width: 120, child: Text('Status', style: AppText.label)),
+                      width: 120, child: Text('Status', style: AppTextStyles.label)),
                   SizedBox(width: 40),
                 ],
               ),
@@ -425,7 +425,7 @@ class _BranchListPageState extends State<BranchListPage> {
       children: [
         Text(
           branch.branchName,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
@@ -433,7 +433,7 @@ class _BranchListPageState extends State<BranchListPage> {
         const SizedBox(height: 4),
         Text(
           branch.branchId.isNotEmpty ? branch.branchId : '#${branch.id}',
-          style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -446,7 +446,7 @@ class _BranchListPageState extends State<BranchListPage> {
       children: [
         Text(
           type,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w500,
           ),
@@ -454,7 +454,7 @@ class _BranchListPageState extends State<BranchListPage> {
         const SizedBox(height: 4),
         Text(
           'Operational role',
-          style: AppText.bodySm.copyWith(color: AppColors.textMuted),
+          style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
         ),
       ],
     );
@@ -466,7 +466,7 @@ class _BranchListPageState extends State<BranchListPage> {
       children: [
         Text(
           _branchLocation(branch),
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w500,
           ),
@@ -478,7 +478,7 @@ class _BranchListPageState extends State<BranchListPage> {
               : 'No address added',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -489,7 +489,7 @@ class _BranchListPageState extends State<BranchListPage> {
       branch.managerName.isNotEmpty ? branch.managerName : 'Unassigned',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+      style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
     );
   }
 
@@ -617,7 +617,7 @@ class _BranchListPageState extends State<BranchListPage> {
           const SizedBox(width: 6),
           Text(
             value,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),

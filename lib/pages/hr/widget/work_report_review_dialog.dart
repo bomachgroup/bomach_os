@@ -102,7 +102,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
             children: [
               Text(
                 'Rating',
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
@@ -181,7 +181,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Employee #${widget.report.employeeId}',
-                    style: AppText.h3),
+                    style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -223,7 +223,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -248,7 +248,7 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -264,12 +264,12 @@ class _WorkReportReviewDialogState extends State<WorkReportReviewDialog> {
         children: [
           Text(
             title,
-            style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             (content == null || content.isEmpty) ? 'N/A' : content,
-            style: AppText.bodyMd.copyWith(
+            style: AppTextStyles.bodyMd.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w500,
             ),

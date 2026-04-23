@@ -164,13 +164,13 @@ class _AuditLogPageState extends State<AuditLogPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Activity register', style: AppText.h3),
+                      const Text('Activity register', style: AppTextStyles.h3),
                       const SizedBox(height: 4),
                       Obx(() => Text(
                             loading
                                 ? 'Loading audit logs...'
                                 : '${controller.auditLogsTotal.value} events recorded',
-                            style: AppText.bodyMd.copyWith(
+                            style: AppTextStyles.bodyMd.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           )),
@@ -238,7 +238,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(
       label,
-      style: AppText.bodySm.copyWith(
+      style: AppTextStyles.bodySm.copyWith(
         color: AppColors.textSecondary,
         fontWeight: FontWeight.w600,
       ),
@@ -271,7 +271,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
                 Text(
                   log.userFullName,
                   overflow: TextOverflow.ellipsis,
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -280,7 +280,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
                 Text(
                   log.userEmail,
                   overflow: TextOverflow.ellipsis,
-                  style: AppText.bodySm.copyWith(
+                  style: AppTextStyles.bodySm.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -293,7 +293,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
               log.activity,
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
-              style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -327,7 +327,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
             child: Text(
               log.ipAddress.isEmpty ? '—' : log.ipAddress,
               overflow: TextOverflow.ellipsis,
-              style: AppText.bodySm.copyWith(
+              style: AppTextStyles.bodySm.copyWith(
                 color: AppColors.textSecondary,
                 fontFamily: 'monospace',
               ),
@@ -338,7 +338,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
             child: Text(
               _formatDate(log.createdAt),
               overflow: TextOverflow.ellipsis,
-              style: AppText.bodySm.copyWith(
+              style: AppTextStyles.bodySm.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),

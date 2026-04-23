@@ -221,7 +221,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                 widget.estate != null
                     ? '${widget.estate!.name} - Performance'
                     : 'Estate Performance & Invoices',
-                style: AppText.displayLg,
+                style: AppTextStyles.displayLg,
               ),
             ),
           ],

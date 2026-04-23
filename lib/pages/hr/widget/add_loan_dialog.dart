@@ -230,12 +230,12 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -255,7 +255,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
       children: [
         Text(
           label,
-          style: AppText.bodyMd.copyWith(
+          style: AppTextStyles.bodyMd.copyWith(
             color: AppColors.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -282,7 +282,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
                   value != null
                       ? DateFormat('MMM d, yyyy').format(value)
                       : 'dd/mm/yyyy',
-                  style: AppText.bodyMd.copyWith(
+                  style: AppTextStyles.bodyMd.copyWith(
                     color: value != null
                         ? AppColors.textPrimary
                         : AppColors.textMuted,
@@ -318,14 +318,14 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
           const SizedBox(height: 12),
           RichText(
             text: TextSpan(
-              style: AppText.bodySm.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
               children: [
                 const TextSpan(
                     text: 'Drag & Drop or ',
                     style: TextStyle(fontWeight: FontWeight.w600)),
                 TextSpan(
                     text: 'choose file',
-                    style: AppText.bodySm.copyWith(
+                    style: AppTextStyles.bodySm.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600,
                     )),
@@ -336,7 +336,7 @@ class _AddLoanDialogState extends State<AddLoanDialog> {
           const SizedBox(height: 4),
           Text(
             'Supported formats: doc, pdf',
-            style: AppText.caption.copyWith(color: AppColors.textMuted),
+            style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
           ),
         ],
       ),

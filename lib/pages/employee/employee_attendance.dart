@@ -25,12 +25,12 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
               children: [
                 MyText(
                   'Attendance Management',
-                  style: AppText.displayLg,
+                  style: AppTextStyles.displayLg,
                 ),
                 SizedBox(height: 8),
                 MyText(
                   'Monitor and manage employee attendance records',
-                  style: AppText.h4,
+                  style: AppTextStyles.h4,
                 ),
               ],
             ),
@@ -56,7 +56,7 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
                     SizedBox(height: 16),
                     MyText(
                       'No attendance records found',
-                      style: AppText.bodyMd,
+                      style: AppTextStyles.bodyMd,
                     ),
                   ],
                 ),

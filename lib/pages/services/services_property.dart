@@ -46,14 +46,14 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                     children: [
                       MyText(
                         'Services',
-                        style: AppText.displayLg,
+                        style: AppTextStyles.displayLg,
                       ),
                       SizedBox(
                         height: 8,
                       ),
                       MyText(
                         'Services',
-                        style: AppText.bodyMd,
+                        style: AppTextStyles.bodyMd,
                       ),
                     ],
                   ),

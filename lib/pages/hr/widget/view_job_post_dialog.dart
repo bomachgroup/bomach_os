@@ -164,7 +164,7 @@ class ViewJobPostDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(job.title.isEmpty ? 'Untitled Job' : job.title,
-                    style: AppText.h3),
+                    style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -209,7 +209,7 @@ class ViewJobPostDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -234,7 +234,7 @@ class ViewJobPostDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -252,14 +252,14 @@ class ViewJobPostDialog extends StatelessWidget {
             width: 180,
             child: Text(
               label,
-              style: AppText.bodySm
+              style: AppTextStyles.bodySm
                   .copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
@@ -273,7 +273,7 @@ class ViewJobPostDialog extends StatelessWidget {
   Widget _longTextRow(String value) {
     return Text(
       value.isEmpty ? '—' : value,
-      style: AppText.bodyMd.copyWith(
+      style: AppTextStyles.bodyMd.copyWith(
         color: AppColors.textPrimary,
         height: 1.5,
       ),

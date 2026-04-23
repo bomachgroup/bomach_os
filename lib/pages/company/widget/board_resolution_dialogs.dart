@@ -224,12 +224,12 @@ class _NewResolutionDialogState extends State<NewResolutionDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 16),
@@ -341,7 +341,7 @@ class ViewResolutionDialog extends StatelessWidget {
               children: [
                 Text(
                   resolution.description,
-                  style: AppText.bodyMd
+                  style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textPrimary),
                 ),
               ],
@@ -368,7 +368,7 @@ class ViewResolutionDialog extends StatelessWidget {
                           size: 16, color: AppColors.textSecondary),
                       const SizedBox(width: 8),
                       Text('View Attachment',
-                          style: AppText.bodySm.copyWith(
+                          style: AppTextStyles.bodySm.copyWith(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w600)),
                     ],
@@ -384,7 +384,7 @@ class ViewResolutionDialog extends StatelessWidget {
               children: [
                 Text(
                   resolution.notes!,
-                  style: AppText.bodyMd
+                  style: AppTextStyles.bodyMd
                       .copyWith(color: AppColors.textPrimary),
                 ),
               ],
@@ -457,7 +457,7 @@ class ViewResolutionDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(resolution.title, style: AppText.h3),
+                Text(resolution.title, style: AppTextStyles.h3),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -506,7 +506,7 @@ class ViewResolutionDialog extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
@@ -531,7 +531,7 @@ class ViewResolutionDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppText.h4),
+          Text(title, style: AppTextStyles.h4),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -549,13 +549,13 @@ class ViewResolutionDialog extends StatelessWidget {
             width: 130,
             child: Text(
               label,
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: AppText.bodyMd.copyWith(
+              style: AppTextStyles.bodyMd.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
@@ -590,7 +590,7 @@ class ViewResolutionDialog extends StatelessWidget {
       size: DialogSize.sm,
       body: Text(
         'Are you sure you want to archive "$name"?',
-        style: AppText.bodyMd.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
       ),
       actions: [
         MyOutlinedButton(

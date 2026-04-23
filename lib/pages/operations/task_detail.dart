@@ -33,7 +33,7 @@ class _TaskDetailState extends State<TaskDetail> {
       return const PageScaffold(
         children: [
           Center(
-            child: MyText('Task not found', style: AppText.bodyLg),
+            child: MyText('Task not found', style: AppTextStyles.bodyLg),
           ),
         ],
       );
@@ -126,8 +126,8 @@ class _TaskDetailState extends State<TaskDetail> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: AppText.label.copyWith(fontSize: 10, color: AppColors.textMuted)),
-            Text(value, style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600)),
+            Text(label, style: AppTextStyles.label.copyWith(fontSize: 10, color: AppColors.textMuted)),
+            Text(value, style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
           ],
         ),
       ],

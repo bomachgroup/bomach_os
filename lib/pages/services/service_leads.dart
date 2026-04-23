@@ -1,14 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/permission_gate.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:iconsax/iconsax.dart';
 
-import 'package:bms_front_end/components/permission_gate.dart';
 import 'controller/lead_controller.dart';
 
 // Legacy class for backward compatibility with invoice widgets
@@ -50,18 +52,18 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
   final LeadController _controller = Get.put(LeadController());
   final _storage = const FlutterSecureStorage();
 
-  Color _getStatusColor(String status) {
+  String _mapStatusToTone(String status) {
     switch (status.toLowerCase()) {
       case 'new':
-        return Colors.blue;
+        return 'info';
       case 'qualified':
-        return Colors.purple;
+        return 'primary';
       case 'contacted':
-        return Colors.orange;
+        return 'warning';
       case 'converted':
-        return Colors.green;
+        return 'success';
       default:
-        return Colors.grey;
+        return 'neutral';
     }
   }
 
@@ -96,22 +98,14 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const MyText(
+                    const AppText.h4(
                       'Add New Service Lead',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      fontWeight: FontWeight.w600,
                     ),
                     const SizedBox(height: 6),
-                    MyText(
+                    AppText.bodySm(
                       'Fill in the lead details',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w400,
-                      ),
+                      color: AppColors.textSecondary,
                     ),
                     const SizedBox(height: 24),
 
@@ -250,9 +244,11 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
 
                                         if (success && mounted) {
                                           Navigator.pop(context);
-                                          AppToast.success(context, '${firstNameController.text} added successfully');
+                                          AppToast.success(context,
+                                              '${firstNameController.text} added successfully');
                                         } else if (mounted) {
-                                          AppToast.error(context, 'Failed to add lead. Please try again.');
+                                          AppToast.error(context,
+                                              'Failed to add lead. Please try again.');
                                         }
                                       } catch (e) {
                                         if (mounted) {
@@ -300,9 +296,9 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                AppText.bodyMd(
                   _controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  color: Colors.red,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -323,23 +319,17 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    AppText.h3(
                       "Service Leads",
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
+                    SizedBox(height: 6),
+                    AppText.bodySm(
                       "Manage service leads and convert to clients",
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                      color: AppColors.textSecondary,
                     ),
                   ],
                 ),
@@ -357,11 +347,13 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Search Bar
-          TextField(
+          MyTextFormField(
             controller: _searchController,
+            hintText: "Search by client name...",
+            leading: const Icon(Iconsax.search_normal),
             onChanged: (val) {
               // Debounce search to avoid too many API calls
               Future.delayed(const Duration(milliseconds: 500), () {
@@ -370,17 +362,6 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                 }
               });
             },
-            decoration: InputDecoration(
-              hintText: "Search by client name...",
-              prefixIcon: const Icon(Iconsax.search_normal),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(vertical: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-            ),
           ),
 
           const SizedBox(height: 24),
@@ -397,9 +378,9 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
             const Padding(
               padding: EdgeInsets.all(40.0),
               child: Center(
-                child: Text(
+                child: AppText.bodySm(
                   'No leads available',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  color: AppColors.textSecondary,
                 ),
               ),
             )
@@ -413,216 +394,186 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                   itemCount: _controller.leads.length,
                   itemBuilder: (context, index) {
                     final lead = _controller.leads[index];
-                    final statusColor = _getStatusColor(lead.status);
 
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                    return AppCard(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AppText.h4(
+                                      lead.fullName,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    AppText.caption(
+                                      lead.email,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    AppText.caption(
+                                      lead.phoneNumber,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              StatusChip(
+                                label:
+                                    lead.status.capitalizeFirst ?? lead.status,
+                                status: _mapStatusToTone(lead.status),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.neutral100,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                if (lead.interestedServices.isNotEmpty)
+                                  Row(
                                     children: [
-                                      Text(
-                                        lead.fullName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        lead.email,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        lead.phoneNumber,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 14,
+                                      const Icon(Iconsax.building_4,
+                                          size: 14,
+                                          color: AppColors.textSecondary),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: AppText.caption(
+                                          lead.interestedServices,
+                                          color: AppColors.textPrimary,
                                         ),
                                       ),
                                     ],
                                   ),
+                                if (lead.assignedToName.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Iconsax.profile_circle,
+                                          size: 14,
+                                          color: AppColors.textSecondary),
+                                      const SizedBox(width: 8),
+                                      AppText.caption(
+                                        'Assigned to: ${lead.assignedToName}',
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          if (lead.notes.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            AppText.bodySm(
+                              'Notes: ${lead.notes}',
+                              color: AppColors.textSecondary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (lead.status.toLowerCase() != 'converted')
+                                MyElevatedButton(
+                                  child: 'Convert to Client',
+                                  bgColor: AppColors.primary,
+                                  onTap: () async {
+                                    // Show confirmation dialog
+                                    final confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const AppText.h4(
+                                            'Convert Lead to Client'),
+                                        content: AppText.bodyMd(
+                                          'Are you sure you want to convert ${lead.fullName} to a client?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
+                                            child: const AppText.bodyMd('Cancel',
+                                                color: AppColors.textSecondary),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, true),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
+                                            ),
+                                            child: const Text(
+                                              'Convert',
+                                              style: TextStyle(
+                                                  color: AppColors.white,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (confirmed == true && mounted) {
+                                      final success = await _controller
+                                          .convertLeadToClient(lead.id);
+
+                                      if (success && mounted) {
+                                        AppToast.success(
+                                          context,
+                                          '${lead.fullName} successfully converted to client',
+                                        );
+                                      } else if (mounted) {
+                                        AppToast.error(
+                                          context,
+                                          'Failed to convert lead. Please try again.',
+                                        );
+                                      }
+                                    }
+                                  },
                                 ),
+                              if (lead.status.toLowerCase() == 'converted')
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
-                                    vertical: 6,
+                                    vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: statusColor.withValues(alpha: 0.1),
+                                    color: AppColors.success
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: AppColors.success
+                                            .withValues(alpha: 0.3)),
                                   ),
-                                  child: Text(
-                                    lead.status.capitalizeFirst ?? lead.status,
-                                    style: TextStyle(
-                                      color: statusColor,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[50],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (lead.interestedServices.isNotEmpty)
-                                    Row(
-                                      children: [
-                                        const Icon(Iconsax.building_4,
-                                            size: 16, color: Colors.grey),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            lead.interestedServices,
-                                            style: TextStyle(
-                                              color: Colors.grey[700],
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  if (lead.assignedToName.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        const Icon(Iconsax.profile_circle,
-                                            size: 16, color: Colors.grey),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Assigned to: ${lead.assignedToName}',
-                                          style: TextStyle(
-                                            color: Colors.grey[700],
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            if (lead.notes.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Text(
-                                  'Notes: ${lead.notes}',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 13,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                if (lead.status.toLowerCase() != 'converted')
-                                  MyElevatedButton(
-                                    child: 'Convert to Client',
-                                    bgColor: AppColors.primary,
-                                    onTap: () async {
-                                      // Show confirmation dialog
-                                      final confirmed = await showDialog<bool>(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: const Text(
-                                              'Convert Lead to Client'),
-                                          content: Text(
-                                            'Are you sure you want to convert ${lead.fullName} to a client?',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context, false),
-                                              child: const Text('Cancel'),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context, true),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: AppColors.primary,
-                                              ),
-                                              child: const Text(
-                                                'Convert',
-                                                style: TextStyle(
-                                                    color: AppColors.white),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-
-                                      if (confirmed == true && mounted) {
-                                        final success = await _controller
-                                            .convertLeadToClient(lead.id);
-
-                                        if (success && mounted) {
-                                          AppToast.success(context, '${lead.fullName} successfully converted to client',);
-                                        } else if (mounted) {
-                                          AppToast.error(context, 'Failed to convert lead. Please try again.',);
-                                        }
-                                      }
-                                    },
-                                  ),
-                                if (lead.status.toLowerCase() == 'converted')
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green[50],
-                                      borderRadius: BorderRadius.circular(8),
-                                      border:
-                                          Border.all(color: Colors.green[300]!),
-                                    ),
-                                    child: Text(
-                                      'Converted to Client',
-                                      style: TextStyle(
-                                        color: Colors.green[700],
+                                  child: const Row(
+                                    children: [
+                                      Icon(Iconsax.tick_circle,
+                                          size: 16, color: AppColors.success),
+                                      SizedBox(width: 8),
+                                      AppText.bodySm(
+                                        'Converted to Client',
+                                        color: AppColors.success,
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 14,
                                       ),
-                                    ),
+                                    ],
                                   ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -650,16 +601,19 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                       : _searchController.text.trim(),
                                 )
                             : null,
-                        icon: const Icon(Iconsax.arrow_left_2),
+                        icon: const Icon(Iconsax.arrow_left_2, size: 20),
                         style: IconButton.styleFrom(
                           backgroundColor: currentPage > 1
                               ? AppColors.primary
-                              : Colors.grey[300],
-                          foregroundColor:
-                              currentPage > 1 ? Colors.white : Colors.grey[600],
+                              : AppColors.neutral200,
+                          foregroundColor: currentPage > 1
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       ...List.generate(
                         endPage - startPage + 1,
                         (index) {
@@ -675,38 +629,47 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                     ? null
                                     : _searchController.text.trim(),
                               ),
+                              borderRadius: BorderRadius.circular(10),
                               child: Container(
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: isCurrentPage
                                       ? AppColors.primary
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
+                                      : AppColors.white,
+                                  borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: isCurrentPage
                                         ? AppColors.primary
-                                        : Colors.grey[300]!,
+                                        : AppColors.neutral200,
                                   ),
+                                  boxShadow: isCurrentPage
+                                      ? [
+                                          BoxShadow(
+                                            color: AppColors.primary
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          )
+                                        ]
+                                      : null,
                                 ),
                                 alignment: Alignment.center,
-                                child: Text(
+                                child: AppText.bodySm(
                                   '$pageNumber',
-                                  style: TextStyle(
-                                    color: isCurrentPage
-                                        ? Colors.white
-                                        : Colors.black87,
-                                    fontWeight: isCurrentPage
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
+                                  color: isCurrentPage
+                                      ? Colors.white
+                                      : AppColors.textPrimary,
+                                  fontWeight: isCurrentPage
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
                                 ),
                               ),
                             ),
                           );
                         },
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       IconButton(
                         onPressed: hasNextPage
                             ? () => _controller.nextPage(
@@ -715,12 +678,16 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                       : _searchController.text.trim(),
                                 )
                             : null,
-                        icon: const Icon(Iconsax.arrow_right_3),
+                        icon: const Icon(Iconsax.arrow_right_3, size: 20),
                         style: IconButton.styleFrom(
-                          backgroundColor:
-                              hasNextPage ? AppColors.primary : Colors.grey[300],
-                          foregroundColor:
-                              hasNextPage ? Colors.white : Colors.grey[600],
+                          backgroundColor: hasNextPage
+                              ? AppColors.primary
+                              : AppColors.neutral200,
+                          foregroundColor: hasNextPage
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ],

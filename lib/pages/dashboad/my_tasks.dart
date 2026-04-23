@@ -177,11 +177,11 @@ class _MyTasksPageState extends State<MyTasksPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const MyText('My Tasks', style: AppText.h1),
+                  const MyText('My Tasks', style: AppTextStyles.h1),
                   const SizedBox(height: 2),
                   MyText(
                     'Manage and track your assigned tasks',
-                    style: AppText.bodyMd.copyWith(
+                    style: AppTextStyles.bodyMd.copyWith(
                       color: AppColors.textMuted,
                     ),
                   ),
@@ -263,7 +263,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
               children: [
                 MyText(
                   count,
-                  style: AppText.h2.copyWith(
+                  style: AppTextStyles.h2.copyWith(
                     fontSize: 22,
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -271,7 +271,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
                 ),
                 MyText(
                   label,
-                  style: AppText.caption.copyWith(color: AppColors.textMuted),
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -333,7 +333,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
                         MyText(
                           f['label'] as String,
                           isSelectable: false,
-                          style: AppText.label.copyWith(
+                          style: AppTextStyles.label.copyWith(
                             fontWeight:
                                 isActive ? FontWeight.w600 : FontWeight.w500,
                             color: isActive
@@ -396,7 +396,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
               child: DataTable(
                 headingRowColor:
                     WidgetStateProperty.all(AppColors.surfaceMuted),
-                headingTextStyle: AppText.label.copyWith(
+                headingTextStyle: AppTextStyles.label.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -452,7 +452,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
                       width: 180,
                       child: MyText(
                         task.name,
-                        style: AppText.bodyMd.copyWith(
+                        style: AppTextStyles.bodyMd.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -462,7 +462,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
                     const SizedBox(height: 2),
                     MyText(
                       '#${task.id}',
-                      style: AppText.caption.copyWith(
+                      style: AppTextStyles.caption.copyWith(
                         fontSize: 11,
                         color: AppColors.textMuted,
                       ),
@@ -475,10 +475,10 @@ class _MyTasksPageState extends State<MyTasksPage> {
           DataCell(_buildPriorityChip(task.priority)),
           DataCell(MyText(
               task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary))),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary))),
           DataCell(MyText(
               task.estimatedHours > 0 ? '${task.estimatedHours}h' : '\u2014',
-              style: AppText.bodySm.copyWith(color: AppColors.textSecondary))),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary))),
           DataCell(StatusChip.fromStatus(task.status)),
           DataCell(_buildActionMenu(task)),
         ],
@@ -556,7 +556,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
           const SizedBox(width: 10),
           Text(
             label,
-            style: AppText.bodySm.copyWith(
+            style: AppTextStyles.bodySm.copyWith(
               fontWeight: FontWeight.w500,
               color: AppColors.textPrimary,
             ),
@@ -629,7 +629,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
               const SizedBox(width: 6),
               MyText(
                 label,
-                style: AppText.caption.copyWith(color: AppColors.textMuted),
+                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
               ),
             ],
           ),
@@ -637,7 +637,7 @@ class _MyTasksPageState extends State<MyTasksPage> {
           badge ??
               MyText(
                 value,
-                style: AppText.bodyMd.copyWith(
+                style: AppTextStyles.bodyMd.copyWith(
                   fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
                 ),

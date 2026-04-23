@@ -43,7 +43,7 @@ class _BranchPageState extends State<BranchPage> {
                     children: [
                       MyText(
                         'Enugu Branch',
-                        style: AppText.displayLg,
+                        style: AppTextStyles.displayLg,
                       ),
                       kSizedBoxWidthSM,
                       Icon(
