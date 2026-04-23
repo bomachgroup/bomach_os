@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -41,7 +42,7 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -362,7 +363,7 @@ class _ViewExpenseDialogState extends State<ViewExpenseDialog> {
                       alignment: WrapAlignment.end,
                       children: [
                         MyElevatedButton(
-                          bgColor: AppColors.red,
+                          bgColor: AppColors.danger,
                           child: 'Delete',
                           onTap: () {
                             Navigator.pop(context);

@@ -1,7 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/assets_controller.dart';
@@ -140,317 +147,273 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
+    return DialogScaffold(
+      title: isEdit ? 'Edit Asset' : 'New Asset',
+      subtitle: isEdit
+          ? 'Update the details for this company asset.'
+          : 'Capture the details of a new company asset.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSection(
+            title: 'Asset information',
+            children: [
+              MyTextFormField(
+                title: 'Asset Name',
+                hintText: 'e.g. MacBook Pro 14"',
+                spaceBetweenText: 8,
+                controller: _nameCtrl,
               ),
-              child: Row(
+              const SizedBox(height: 16),
+              MyDropdown(
+                title: 'Asset Type',
+                hintText: _selectedAssetType ?? 'Select type',
+                initialSelection: _selectedAssetType,
+                spaceBetweenText: 8,
+                items: _assetTypes,
+                onChanged: (val) => setState(() => _selectedAssetType = val),
+              ),
+              const SizedBox(height: 16),
+              Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      isEdit ? 'Edit Asset' : 'New Asset',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w600),
+                    child: MyTextFormField(
+                      title: 'Serial Number',
+                      hintText: 'Enter serial number',
+                      spaceBetweenText: 8,
+                      controller: _serialCtrl,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyTextFormField(
+                      title: 'Manufacturer',
+                      hintText: 'e.g. Apple',
+                      spaceBetweenText: 8,
+                      controller: _manufacturerCtrl,
+                    ),
                   ),
                 ],
               ),
-            ),
-            const Divider(height: 1),
-
-            // Body
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ─── Asset Information ──────────────────────
-                    const Text('Asset Information',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 12),
-
-                    const Text('Asset Name',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _nameCtrl,
-                      hintText: 'Type here',
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('Asset Type',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    _buildDropdown(
-                      value: _selectedAssetType,
-                      hint: 'Select type',
-                      items: _assetTypes,
-                      onChanged: (val) =>
-                          setState(() => _selectedAssetType = val),
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('Serial Number',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _serialCtrl,
-                      hintText: 'Type here',
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('Manufacturer',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _manufacturerCtrl,
-                      hintText: 'Type here',
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ─── Location & Assignment ──────────────────
-                    const Text('Location & Assignment',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 12),
-
-                    const Text('Branch',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    _buildDropdown(
-                      value: _selectedBranch,
-                      hint: 'Select branch',
-                      items:
-                          controller.branches.where((b) => b != 'All').toList(),
-                      onChanged: (val) => setState(() => _selectedBranch = val),
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('Assigned To',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    Obx(() {
-                      final employees = controller.allEmployees;
-                      return _buildDropdown(
-                        value: _selectedAssignedTo,
-                        hint: 'Select employee',
-                        items: employees.map((e) => e.id.toString()).toList(),
-                        labels: employees
-                            .map((e) => '${e.firstName} ${e.lastName}')
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedAssignedTo = val),
-                      );
-                    }),
-                    const SizedBox(height: 16),
-
-                    const Text('Department',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    Obx(() {
-                      final depts = controller.departments
-                          .where((d) => d['id'] != 'All')
-                          .toList();
-                      return _buildDropdown(
-                        value: _selectedDepartmentId,
-                        hint: 'Select department',
-                        items: depts.map((d) => d['id']!).toList(),
-                        labels: depts.map((d) => d['name']!).toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedDepartmentId = val),
-                      );
-                    }),
-                    const SizedBox(height: 24),
-
-                    // ─── Financial Information ──────────────────
-                    const Text('Financial Information',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 12),
-
-                    const Text('Purchase Date',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    InkWell(
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Location & assignment',
+            children: [
+              MyDropdown(
+                title: 'Branch',
+                hintText: _selectedBranch ?? 'Select branch',
+                initialSelection: _selectedBranch,
+                spaceBetweenText: 8,
+                items:
+                    controller.branches.where((b) => b != 'All').toList(),
+                onChanged: (val) => setState(() => _selectedBranch = val),
+              ),
+              const SizedBox(height: 16),
+              Obx(() {
+                final employees = controller.allEmployees;
+                final ids = employees.map((e) => e.id.toString()).toList();
+                final labels = employees
+                    .map((e) => '${e.firstName} ${e.lastName}')
+                    .toList();
+                final currentLabel = _selectedAssignedTo == null
+                    ? null
+                    : (() {
+                        final idx = ids.indexOf(_selectedAssignedTo!);
+                        return idx >= 0 ? labels[idx] : null;
+                      })();
+                return MyDropdown(
+                  title: 'Assigned To',
+                  hintText: currentLabel ?? 'Select employee',
+                  initialSelection: currentLabel,
+                  spaceBetweenText: 8,
+                  items: labels,
+                  onChanged: (val) {
+                    if (val == null) return;
+                    final idx = labels.indexOf(val);
+                    setState(() {
+                      _selectedAssignedTo = idx >= 0 ? ids[idx] : null;
+                    });
+                  },
+                );
+              }),
+              const SizedBox(height: 16),
+              Obx(() {
+                final depts = controller.departments
+                    .where((d) => d['id'] != 'All')
+                    .toList();
+                final ids =
+                    depts.map((d) => d['id']!).toList(growable: false);
+                final names =
+                    depts.map((d) => d['name']!).toList(growable: false);
+                final currentLabel = _selectedDepartmentId == null
+                    ? null
+                    : (() {
+                        final idx = ids.indexOf(_selectedDepartmentId!);
+                        return idx >= 0 ? names[idx] : null;
+                      })();
+                return MyDropdown(
+                  title: 'Department',
+                  hintText: currentLabel ?? 'Select department',
+                  initialSelection: currentLabel,
+                  spaceBetweenText: 8,
+                  items: names,
+                  onChanged: (val) {
+                    if (val == null) return;
+                    final idx = names.indexOf(val);
+                    setState(() {
+                      _selectedDepartmentId = idx >= 0 ? ids[idx] : null;
+                    });
+                  },
+                );
+              }),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Financial information',
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: MyTextFormField(
+                      title: 'Purchase Date',
+                      hintText: 'YYYY-MM-DD',
+                      spaceBetweenText: 8,
+                      controller: _purchaseDateCtrl,
+                      readOnly: true,
+                      trailing: const Icon(Iconsax.calendar_1,
+                          size: 18, color: AppColors.textMuted),
                       onTap: () => _selectDate(_purchaseDateCtrl),
-                      child: IgnorePointer(
-                        child: MyTextFormField(
-                          controller: _purchaseDateCtrl,
-                          hintText: 'YYYY-MM-DD',
-                        ),
-                      ),
                     ),
-                    const SizedBox(height: 16),
-
-                    const Text('Asset Value',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _valueCtrl,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyTextFormField(
+                      title: 'Asset Value',
                       hintText: '0.00',
+                      spaceBetweenText: 8,
+                      controller: _valueCtrl,
                       keyboardType: TextInputType.number,
                     ),
-                    const SizedBox(height: 16),
-
-                    const Text('Vendor',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _vendorCtrl,
-                      hintText: 'Type here',
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('Invoice Number',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _invoiceCtrl,
-                      hintText: 'Type here',
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ─── Status & Warranty ──────────────────────
-                    const Text('Status & Warranty',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 12),
-
-                    const Text('Status',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    _buildDropdown(
-                      value: _selectedStatus,
-                      hint: 'Select status',
-                      items: _statuses,
-                      onChanged: (val) => setState(() => _selectedStatus = val),
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('Warranty Expiry Date',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    InkWell(
-                      onTap: () => _selectDate(_warrantyDateCtrl),
-                      child: IgnorePointer(
-                        child: MyTextFormField(
-                          controller: _warrantyDateCtrl,
-                          hintText: 'YYYY-MM-DD',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    const Text('Notes',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    MyTextFormField(
-                      controller: _notesCtrl,
-                      hintText: 'Type here',
-                      maxLines: 3,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const Divider(height: 1),
-
-            // Footer
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
                   ),
-                  const SizedBox(width: 12),
-                  Obx(() => MyElevatedButton(
-                        height: 40,
-                        icon: controller.isSaving.value
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Icon(Icons.check,
-                                size: 16, color: Colors.white),
-                        child: isEdit ? 'Save' : 'Create',
-                        onTap: controller.isSaving.value ? null : _onSave,
-                      )),
                 ],
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: MyTextFormField(
+                      title: 'Vendor',
+                      hintText: 'e.g. Bestbuy',
+                      spaceBetweenText: 8,
+                      controller: _vendorCtrl,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyTextFormField(
+                      title: 'Invoice Number',
+                      hintText: 'INV-XXXXX',
+                      spaceBetweenText: 8,
+                      controller: _invoiceCtrl,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Status & warranty',
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: MyDropdown(
+                      title: 'Status',
+                      hintText: _selectedStatus ?? 'Select status',
+                      initialSelection: _selectedStatus,
+                      spaceBetweenText: 8,
+                      items: _statuses,
+                      onChanged: (val) =>
+                          setState(() => _selectedStatus = val),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyTextFormField(
+                      title: 'Warranty Expiry Date',
+                      hintText: 'YYYY-MM-DD',
+                      spaceBetweenText: 8,
+                      controller: _warrantyDateCtrl,
+                      readOnly: true,
+                      trailing: const Icon(Iconsax.calendar_1,
+                          size: 18, color: AppColors.textMuted),
+                      onTap: () => _selectDate(_warrantyDateCtrl),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              MyTextFormField(
+                title: 'Notes',
+                hintText: 'Additional notes about this asset',
+                spaceBetweenText: 8,
+                controller: _notesCtrl,
+                maxLines: 3,
+              ),
+            ],
+          ),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              height: 44,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              icon: controller.isSaving.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+              child: controller.isSaving.value
+                  ? 'Saving...'
+                  : (isEdit ? 'Save' : 'Create'),
+              onTap: controller.isSaving.value ? null : _onSave,
+            )),
+      ],
     );
   }
 
-  Widget _buildDropdown({
-    required String? value,
-    required String hint,
-    required List<String> items,
-    List<String>? labels,
-    required ValueChanged<String?> onChanged,
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: items.contains(value) ? value : null,
-          hint: Text(hint,
-              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14)),
-          items: List.generate(items.length, (i) {
-            return DropdownMenuItem(
-              value: items[i],
-              child: Text(labels != null ? labels[i] : items[i]),
-            );
-          }),
-          onChanged: onChanged,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
       ),
     );
   }

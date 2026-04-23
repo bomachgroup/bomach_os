@@ -235,36 +235,13 @@ class EmployeeService {
     }
   }
 
-  // ─── EMPLOYEE LEVELS ────────────────────────────────────────────────
-
-  Future<List<dynamic>> getEmployeeLevels(
-    String token, {
-    int limit = 100,
-    int offset = 0,
-  }) async {
-    try {
-      final response = await _dio.get(
-        '/api/v1/employees/employee-levels',
-        queryParameters: {
-          'limit': limit,
-          'offset': offset,
-        },
-        options: _authOptions(token),
-      );
-      final data = response.data;
-      return (data is Map && data.containsKey('items')) ? data['items'] : data;
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
   // ─── EMPLOYEE DOCUMENTS ─────────────────────────────────────────────
 
   Future<List<dynamic>> getEmployeeDocuments(
       String token, String userId) async {
     try {
       final response = await _dio.get(
-        '/api/v1/employees/employees/$userId/documents',
+        '/api/v1/employees/$userId/documents',
         options: _authOptions(token),
       );
       final data = response.data;
@@ -280,7 +257,7 @@ class EmployeeService {
       String token, String userId, FormData formData) async {
     try {
       final response = await _dio.post(
-        '/api/v1/employees/employees/$userId/documents',
+        '/api/v1/employees/$userId/documents',
         data: formData,
         options: Options(
           headers: {
@@ -299,7 +276,7 @@ class EmployeeService {
       String token, String userId, String docId) async {
     try {
       await _dio.delete(
-        '/api/v1/employees/employees/$userId/documents/$docId',
+        '/api/v1/employees/$userId/documents/$docId',
         options: _authOptions(token),
       );
     } catch (e) {
@@ -312,7 +289,7 @@ class EmployeeService {
   Future<List<dynamic>> getEmployeeReviews(String token, String userId) async {
     try {
       final response = await _dio.get(
-        '/api/v1/employees/employees/$userId/reviews',
+        '/api/v1/employees/$userId/reviews',
         options: _authOptions(token),
       );
       final data = response.data;
@@ -328,7 +305,7 @@ class EmployeeService {
       String token, String userId, Map<String, dynamic> data) async {
     try {
       final response = await _dio.post(
-        '/api/v1/employees/employees/$userId/reviews',
+        '/api/v1/employees/$userId/reviews',
         data: data,
         options: _authOptions(token),
       );

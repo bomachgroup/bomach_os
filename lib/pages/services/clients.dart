@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -83,8 +85,8 @@ class _ClientListPageState extends State<ClientListPage> {
               const SizedBox(width: 16),
               MyElevatedButton(
                 child: 'Add Client',
-                bgColor: AppColors.blue,
-                icon: const Icon(Icons.add, color: Colors.white),
+                bgColor: AppColors.primary,
+                icon: const Icon(Iconsax.add, color: Colors.white),
                 onTap: _showAddClientDialog,
               ),
             ],
@@ -104,7 +106,7 @@ class _ClientListPageState extends State<ClientListPage> {
             },
             decoration: InputDecoration(
               hintText: "Search by client name...",
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Iconsax.search_normal),
               filled: true,
               fillColor: Colors.white,
               contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -164,7 +166,7 @@ class _ClientListPageState extends State<ClientListPage> {
                         leading: CircleAvatar(
                           radius: 28,
                           backgroundColor:
-                              AppColors.blue.withValues(alpha: 0.1),
+                              AppColors.primary.withValues(alpha: 0.1),
                           backgroundImage: client.profilePicture != null &&
                                   client.profilePicture!.isNotEmpty &&
                                   client.profilePicture != 'string'
@@ -180,7 +182,7 @@ class _ClientListPageState extends State<ClientListPage> {
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.blue,
+                                    color: AppColors.primary,
                                   ),
                                 )
                               : null,
@@ -281,10 +283,10 @@ class _ClientListPageState extends State<ClientListPage> {
                                       : _searchController.text.trim(),
                                 )
                             : null,
-                        icon: const Icon(Icons.chevron_left),
+                        icon: const Icon(Iconsax.arrow_left_2),
                         style: IconButton.styleFrom(
                           backgroundColor: currentPage > 1
-                              ? AppColors.blue
+                              ? AppColors.primary
                               : Colors.grey[300],
                           foregroundColor:
                               currentPage > 1 ? Colors.white : Colors.grey[600],
@@ -312,12 +314,12 @@ class _ClientListPageState extends State<ClientListPage> {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: isCurrentPage
-                                      ? AppColors.blue
+                                      ? AppColors.primary
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
                                     color: isCurrentPage
-                                        ? AppColors.blue
+                                        ? AppColors.primary
                                         : Colors.grey[300]!,
                                   ),
                                 ),
@@ -348,10 +350,10 @@ class _ClientListPageState extends State<ClientListPage> {
                                       : _searchController.text.trim(),
                                 )
                             : null,
-                        icon: const Icon(Icons.chevron_right),
+                        icon: const Icon(Iconsax.arrow_right_3),
                         style: IconButton.styleFrom(
                           backgroundColor:
-                              hasNextPage ? AppColors.blue : Colors.grey[300],
+                              hasNextPage ? AppColors.primary : Colors.grey[300],
                           foregroundColor:
                               hasNextPage ? Colors.white : Colors.grey[600],
                         ),
@@ -504,7 +506,7 @@ class _ClientListPageState extends State<ClientListPage> {
                                 )
                               : MyElevatedButton(
                                   child: 'Add Client',
-                                  bgColor: AppColors.blue,
+                                  bgColor: AppColors.primary,
                                   onTap: () async {
                                     if (formKey.currentState!.validate()) {
                                       setState(() {
@@ -527,23 +529,9 @@ class _ClientListPageState extends State<ClientListPage> {
 
                                         if (success && mounted) {
                                           Navigator.pop(context);
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  '${firstNameController.text} added successfully'),
-                                              backgroundColor: Colors.green,
-                                            ),
-                                          );
+                                          AppToast.success(context, '${firstNameController.text} added successfully');
                                         } else if (mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  'Failed to add client. Please try again.'),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          AppToast.error(context, 'Failed to add client. Please try again.');
                                         }
                                       } catch (e) {
                                         if (mounted) {

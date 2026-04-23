@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
@@ -700,13 +701,9 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
                     Expanded(
                       child: MyElevatedButton(
                         child: 'Print Invoice',
-                        bgColor: AppColors.blue,
+                        bgColor: AppColors.primary,
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Print functionality coming soon'),
-                            ),
-                          );
+                          AppToast.info(context, 'Print functionality coming soon');
                         },
                       ),
                     ),

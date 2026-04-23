@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/finance/controllers/budget_controller.dart';
@@ -32,11 +33,11 @@ class BudgetPage extends StatelessWidget {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText('Budget', style: AppText.black_500_32),
+                      MyText('Budget', style: AppTextStyles.displayLg),
                     ],
                   ),
                   MyElevatedButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded,
+                    icon: const Icon(Iconsax.add_circle,
                         color: AppColors.white),
                     child: "New Budget",
                     onTap: () {
@@ -64,8 +65,8 @@ class BudgetPage extends StatelessWidget {
                     width: 250,
                     child: MyTextFormField(
                       hintText: 'Search for budget...',
-                      leading: Icon(Icons.search,
-                          color: AppColors.grey1.withValues(alpha: 0.5)),
+                      leading: Icon(Iconsax.search_normal,
+                          color: AppColors.neutral500.withValues(alpha: 0.5)),
                       onChanged: (val) => controller.searchQuery.value = val,
                     ),
                   ),
@@ -74,7 +75,7 @@ class BudgetPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.refresh),
+                        icon: const Icon(Iconsax.refresh),
                         onPressed: () => controller.fetchBudgets(refresh: true),
                       ),
                     ],
@@ -140,7 +141,7 @@ class BudgetPage extends StatelessWidget {
                             DataCell(MyText(budget.remainingBudget)),
                             DataCell(
                               PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert),
+                                icon: const Icon(Iconsax.more),
                                 onSelected: (value) {
                                   if (value == 'delete') {
                                     controller.deleteBudget(context, budget.id);

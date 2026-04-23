@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +26,12 @@ class _EmployeePerformancePageState extends State<EmployeePerformancePage> {
               children: [
                 MyText(
                   'Performance Reviews',
-                  style: AppText.black_600_32,
+                  style: AppTextStyles.displayLg,
                 ),
                 SizedBox(height: 8),
                 MyText(
                   'Track and manage employee performance reviews',
-                  style: AppText.black_600_14,
+                  style: AppTextStyles.h4,
                 ),
               ],
             ),
@@ -41,7 +42,7 @@ class _EmployeePerformancePageState extends State<EmployeePerformancePage> {
               width: double.infinity,
               height: 300,
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey7),
+                border: Border.all(color: AppColors.neutral200),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Center(
@@ -49,14 +50,14 @@ class _EmployeePerformancePageState extends State<EmployeePerformancePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.assessment_outlined,
+                      Iconsax.chart_21,
                       size: 48,
-                      color: AppColors.grey4,
+                      color: AppColors.neutral300,
                     ),
                     SizedBox(height: 16),
                     MyText(
                       'No performance reviews found',
-                      style: AppText.black_400_14,
+                      style: AppTextStyles.bodyMd,
                     ),
                   ],
                 ),

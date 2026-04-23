@@ -1,10 +1,11 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ServicesCalculatorPage extends StatefulWidget {
   const ServicesCalculatorPage({super.key});
@@ -270,18 +271,11 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          const MyText(
-            'Services Cost Calculator',
-            style: AppText.black_500_32,
-          ),
+          AppText.displayLg('Services Cost Calculator'),
           kSizedBox,
-          const MyText(
+          AppText.bodyLg(
             'Get instant estimates for various professional services',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 15,
-              color: Colors.black54,
-            ),
+            color: AppColors.textSecondary,
           ),
           const SizedBox(height: 30),
 
@@ -300,7 +294,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -312,13 +306,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Service Details',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          AppText.h3('Service Details'),
                           const SizedBox(height: 20),
                           if (isWideScreen)
                             Row(
@@ -369,7 +357,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -381,13 +369,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Project Information',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          AppText.h3('Project Information'),
                           const SizedBox(height: 20),
                           MyTextFormField(
                             controller: _projectDescriptionController,
@@ -461,7 +443,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -473,13 +455,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Additional Services',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          AppText.h3('Additional Services'),
                           const SizedBox(height: 20),
                           CheckboxListTile(
                             title: const Text('Site Visit (+₦80,000)'),
@@ -491,7 +467,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                                 _includeSiteVisit = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
@@ -504,7 +480,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                                 _includeDetailedReport = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                           CheckboxListTile(
@@ -517,7 +493,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                                 _includeTechnicalDrawings = value ?? false;
                               });
                             },
-                            activeColor: AppColors.blue,
+                            activeColor: AppColors.primary,
                             contentPadding: EdgeInsets.zero,
                           ),
                         ],
@@ -532,7 +508,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey4),
+                        border: Border.all(color: AppColors.neutral300),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -544,13 +520,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Contact Information (Optional)',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          AppText.h3('Contact Information (Optional)'),
                           const SizedBox(height: 20),
                           MyTextFormField(
                             controller: _clientNameController,
@@ -609,7 +579,7 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                         MyElevatedButton(
                           child: 'Reset',
                           onTap: _resetForm,
-                          bgColor: AppColors.grey2,
+                          bgColor: AppColors.neutral400,
                           textColor: AppColors.black,
                         ),
                         const SizedBox(width: 16),
@@ -628,7 +598,10 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppColors.blue, Color(0xFF0044CC)],
+                            colors: [
+                              AppColors.primary,
+                              AppColors.primaryPressed
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -644,35 +617,25 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                         child: Column(
                           children: [
                             const Icon(
-                              Icons.price_check_outlined,
+                              Iconsax.money_tick,
                               color: Colors.white,
                               size: 48,
                             ),
                             const SizedBox(height: 16),
-                            const Text(
+                            AppText.bodyLg(
                               'Estimated Cost',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w500,
                             ),
                             const SizedBox(height: 8),
-                            Text(
+                            AppText.displayMd(
                               '₦${_calculatedCost.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 42,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              color: AppColors.white,
                             ),
                             const SizedBox(height: 8),
-                            Text(
+                            AppText.bodyMd(
                               _selectedServiceType,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
+                              color: AppColors.white.withValues(alpha: 0.7),
                             ),
                             const SizedBox(height: 16),
                             Container(
@@ -697,16 +660,11 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
                             MyElevatedButton(
                               child: 'Request Detailed Quote',
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Quote request sent successfully!'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
+                                AppToast.success(context,
+                                    'Quote request sent successfully!');
                               },
                               bgColor: Colors.white,
-                              textColor: AppColors.blue,
+                              textColor: AppColors.primary,
                             ),
                           ],
                         ),
@@ -728,20 +686,14 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Service Category',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        AppText.label('Service Category'),
         const SizedBox(height: 10),
         Container(
           height: 50,
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -773,20 +725,14 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Service Type',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        AppText.label('Service Type'),
         const SizedBox(height: 10),
         Container(
           height: 50,
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -816,20 +762,14 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Project Scale',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        AppText.label('Project Scale'),
         const SizedBox(height: 10),
         Container(
           height: 50,
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -859,20 +799,14 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Project Urgency',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+        AppText.label('Project Urgency'),
         const SizedBox(height: 10),
         Container(
           height: 50,
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.card),
+            border: Border.all(color: AppColors.borderSubtle),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(

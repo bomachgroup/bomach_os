@@ -1,7 +1,11 @@
 import 'dart:developer';
 
+import 'package:bms_front_end/components/dialog/user_profile_dialog.dart';
 import 'package:bms_front_end/main.dart';
+import 'package:bms_front_end/pages/auth/controller.dart';
+import 'package:bms_front_end/pages/company/controllers/broadcast_controller.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/src/app_routes/menu_structure.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -9,196 +13,32 @@ import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_expanded_tile/flutter_expanded_tile.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-
-// Enums for menu identification
-enum MainMenuItem {
-  dashboard,
-  company,
-  hr,
-  employee,
-  work,
-  marketing,
-  calendar,
-  events,
-  services,
-  notification,
-  settings,
-  help,
-  financeAccounting,
-  workspace,
-  analytics,
-  legalCompliance,
-  clientPortal,
-  security,
-  crm,
-}
-
-enum SubMenuItem {
-  // Dashboard sub-items
-  dashboardHome,
-  myProfile,
-  myTasks,
-  myReports,
-
-  // Company sub-items
-  company,
-  branch,
-  board,
-  broadcast,
-  roles,
-  approvalWorkflow,
-  auditLog,
-  compliance,
-  enugu,
-  portHarcourt,
-  abuja,
-
-  // HR sub-items
-  employees,
-
-  // Employee sub-items
-  employeeDirectory,
-  employeePerformance,
-  employeeAttendance,
-  employeeTraining,
-  leaves,
-  clients,
-  leads,
-  department,
-
-  // new
-  hrDashboad,
-  jobPost,
-  jobApplicants,
-  attendance,
-  loans,
-  leaveRequest,
-  performance,
-  benefits,
-  trainingProgram,
-  associates,
-  assets,
-  workReport,
-  monthlyScorecard,
-  awardsRecognition,
-  performanceLeaderboard,
-  employeeEvaluation,
-  disciplinaryProcess,
-
-  // Warketing sub-items
-  marketing,
-
-  // Work sub-items
-  operations,
-  project,
-  worksite,
-  tasks,
-  contracts,
-  meetings,
-
-  // Services sub-items
-  servicesDashboard,
-  serviceClients,
-  serviceOrder,
-  realEstate,
-  landSurvey,
-  servicesItem,
-  propertyManagement,
-  estateManagement,
-  estatePerformance,
-  paymentApproval,
-  landSurveyCalculator,
-  servicesCalculator,
-  generateInvoice,
-  serviceLeads,
-  serviceInvoices,
-
-  // Finance & Accounting sub-items
-  financeDashboard,
-  invoice,
-  payments,
-  expenses,
-  budget,
-  vendorContributor,
-
-  // Workspace
-  workspace,
-  workspaceDashboard,
-
-  // Analytics
-  overview,
-  revenue,
-  projects,
-  analyticsPerformance,
-  branchPerformance,
-
-  // Legal & Compliance
-  legalContracts,
-  legalCompliance,
-  legalCases,
-  legalAudits,
-
-  // Client Portal
-  clientAccess,
-  documentSharing,
-  communications,
-  portalAnalytics,
-
-  // Security
-  securityOverview,
-  securityCodes,
-  securityWorkflow,
-  securityAlerts,
-  securityLogs,
-
-  // CRM
-  crmClients,
-  crmLeads,
-  crmAnalytics,
-  crmInteractions,
-}
-
-// Data classes for menu structure
-class MenuItem {
-  final MainMenuItem id;
-  final String label;
-  final String iconPath;
-  final String? route;
-  final List<String>? resources;
-  final bool isExpandable;
-  final List<SubMenuItemData> children;
-
-  const MenuItem({
-    required this.id,
-    required this.label,
-    required this.iconPath,
-    this.route,
-    this.resources,
-    required this.isExpandable,
-    this.children = const [],
-  });
-}
-
-class SubMenuItemData {
-  final SubMenuItem id;
-  final String label;
-  final String? route;
-  final List<String>? resources;
-
-  const SubMenuItemData({
-    required this.id,
-    required this.label,
-    this.route,
-    this.resources,
-  });
-}
+import 'package:iconsax/iconsax.dart';
 
 class SideMenu extends StatefulWidget {
-  const SideMenu({super.key});
+  /// When true, the sidebar renders as a narrow icon-only rail with tooltips;
+  /// labels, search, and section headers are hidden.
+  final bool isCollapsed;
+
+  /// Toggles between expanded and collapsed modes. Invoked from the in-sidebar
+  /// toggle button (and from the \u2318K handler when the user triggers search
+  /// on a collapsed rail — the rail expands first so the search field exists).
+  final VoidCallback? onToggleCollapse;
+
+  const SideMenu({
+    super.key,
+    this.isCollapsed = false,
+    this.onToggleCollapse,
+  });
+
+  static SideMenu of(BuildContext context) {
+    final SideMenu? result = context.findAncestorWidgetOfExactType<SideMenu>();
+    assert(result != null, 'No SideMenu found in context');
+    return result!;
+  }
 
   @override
   State<SideMenu> createState() => _SideMenuState();
@@ -207,593 +47,201 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends State<SideMenu> {
   MainMenuItem? selectedMainMenu;
   SubMenuItem? selectedSubMenu;
-  late final List<MenuItem> menuItems;
+
+  /// Accordion state: the single expandable group that is currently open,
+  /// or `null` when every group is collapsed. Search mode overrides this
+  /// (all groups with matches open) via the build-time `isOpen` calc.
+  MainMenuItem? _openMenu;
+  List<MenuItem> get menuItems =>
+      sidebarStructure.expand((s) => s.items).toList();
   late final Map<String, MenuSelection> routeToMenuMapping;
+  final TextEditingController _searchCtrl = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode(debugLabel: 'sidebar-search');
+  final ScrollController _scrollController = ScrollController();
+  String _searchQuery = '';
+
+  /// Pinned sub-items (e.g. "Employees", "Leave Requests"). Rendered as a
+  /// "Pinned" section at the top of the expanded sidebar in addition to
+  /// their natural position under the parent group.
+  final Set<SubMenuItem> _pinnedSubs = <SubMenuItem>{};
+
+  /// Pinned top-level items (e.g. "Events") — same idea, for non-expandable
+  /// entries.
+  final Set<MainMenuItem> _pinnedMains = <MainMenuItem>{};
 
   @override
   void initState() {
     super.initState();
-    _initializeMenuItems();
     _initializeRouteMapping();
+    _loadPinned();
+    // Register a global shortcut so \u2318K / Ctrl+K focuses the sidebar
+    // search from anywhere in the app (no matter which page or field is
+    // focused). HardwareKeyboard fires before any widget-level handlers.
+    HardwareKeyboard.instance.addHandler(_handleGlobalKey);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateSelectionBasedOnCurrentRoute();
     });
   }
 
-  void _initializeMenuItems() {
-    menuItems = [
-      const MenuItem(
-        id: MainMenuItem.dashboard,
-        label: 'Dashboard',
-        iconPath: 'assets/svg/sidebar/home.svg',
-        route: RouteConstants.home,
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resDashboard,
-          PermissionConstants.resEmployees,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.dashboardHome,
-            label: 'Overview',
-            route: RouteConstants.home,
-            resources: [
-              PermissionConstants.resDashboard,
-              PermissionConstants.resEmployees,
+  void _loadPinned() {
+    final subs = prefs.getStringList('sidebarPinnedSubs') ?? const <String>[];
+    for (final s in subs) {
+      final i = int.tryParse(s);
+      if (i != null && i >= 0 && i < SubMenuItem.values.length) {
+        _pinnedSubs.add(SubMenuItem.values[i]);
+      }
+    }
+    final mains = prefs.getStringList('sidebarPinnedMains') ?? const <String>[];
+    for (final s in mains) {
+      final i = int.tryParse(s);
+      if (i != null && i >= 0 && i < MainMenuItem.values.length) {
+        _pinnedMains.add(MainMenuItem.values[i]);
+      }
+    }
+  }
+
+  Future<void> _savePinned() async {
+    await prefs.setStringList(
+      'sidebarPinnedSubs',
+      _pinnedSubs.map((e) => e.index.toString()).toList(),
+    );
+    await prefs.setStringList(
+      'sidebarPinnedMains',
+      _pinnedMains.map((e) => e.index.toString()).toList(),
+    );
+  }
+
+  void _togglePinSub(SubMenuItem id) {
+    setState(() {
+      if (_pinnedSubs.contains(id)) {
+        _pinnedSubs.remove(id);
+      } else {
+        _pinnedSubs.add(id);
+      }
+    });
+    _savePinned();
+  }
+
+  void _togglePinMain(MainMenuItem id) {
+    setState(() {
+      if (_pinnedMains.contains(id)) {
+        _pinnedMains.remove(id);
+      } else {
+        _pinnedMains.add(id);
+      }
+    });
+    _savePinned();
+  }
+
+  /// Show the pin/unpin context menu at [globalPos] for a row.
+  Future<void> _showRowContextMenu({
+    required Offset globalPos,
+    required bool isPinned,
+    required VoidCallback onToggle,
+  }) async {
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (overlay == null) return;
+    final position = RelativeRect.fromLTRB(
+      globalPos.dx,
+      globalPos.dy,
+      overlay.size.width - globalPos.dx,
+      overlay.size.height - globalPos.dy,
+    );
+    final result = await showMenu<String>(
+      context: context,
+      position: position,
+      items: [
+        PopupMenuItem<String>(
+          value: 'toggle',
+          height: 36,
+          child: Row(
+            children: [
+              Icon(
+                isPinned ? Iconsax.bookmark_2 : Iconsax.bookmark,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
+              const SizedBox(width: 10),
+              Text(isPinned ? 'Unpin from top' : 'Pin to top'),
             ],
           ),
-          SubMenuItemData(
-            id: SubMenuItem.myProfile,
-            label: 'My Profile',
-            route: RouteConstants.employeeMyProfile,
-            resources: [PermissionConstants.resEmployees],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.myTasks,
-            label: 'My Tasks',
-            route: RouteConstants.employeeMyTasks,
-            resources: [PermissionConstants.resTasks],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.myReports,
-            label: 'My Work Reports',
-            route: RouteConstants.employeeMyReports,
-            resources: [PermissionConstants.resWorkReports],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.company,
-        label: 'Company',
-        iconPath: 'assets/svg/sidebar/person-plus.svg',
-        isExpandable: true,
-        resources: [PermissionConstants.resCompanySettings],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.company,
-            label: 'Profile',
-            route: RouteConstants.company,
-            resources: [PermissionConstants.resCompanySettings],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.branch,
-            label: 'Branch',
-            route: RouteConstants.branch,
-            resources: [PermissionConstants.resBranches],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.board,
-            label: 'Board',
-            route: RouteConstants.board,
-            resources: [PermissionConstants.resBoardResolutions],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.broadcast,
-            label: 'Broadcast',
-            route: RouteConstants.broadcast,
-            resources: [PermissionConstants.resAnnouncements],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.roles,
-            label: 'Roles & Permissions',
-            route: RouteConstants.roles,
-            resources: [PermissionConstants.resRoles],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.approvalWorkflow,
-            label: 'Approval Workflows',
-            route: RouteConstants.approvalWorkflow,
-            resources: [PermissionConstants.resApprovalFlows],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.department,
-            label: 'Departments & Units',
-            route: RouteConstants.department,
-            resources: [PermissionConstants.resDepartments],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.assets,
-            label: 'Assets',
-            route: RouteConstants.assets,
-            resources: [PermissionConstants.resAssets],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.auditLog,
-            label: 'Audit Log',
-            route: RouteConstants.auditLog,
-            resources: [PermissionConstants.resAuditLogs],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.hr,
-        label: 'HR/Admin',
-        iconPath: 'assets/svg/sidebar/people.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resEmployees,
-          PermissionConstants.resJobPostings,
-          PermissionConstants.resLeaveRequests,
-          PermissionConstants.resPayroll,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.employees,
-            label: 'Employees',
-            route: RouteConstants.employees,
-            resources: [PermissionConstants.resEmployees],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.attendance,
-            label: 'Attendance',
-            route: RouteConstants.attendance,
-            resources: [PermissionConstants.resEmployees],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.jobPost,
-            label: 'Recruitment',
-            route: RouteConstants.jobPost,
-            resources: [PermissionConstants.resJobPostings],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leaves,
-            label: 'My Leaves',
-            route: RouteConstants.leaves,
-            resources: [PermissionConstants.resLeaveRequests],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.leaveRequest,
-            label: 'Leave Requests',
-            route: RouteConstants.leaveRequest,
-            resources: [PermissionConstants.resLeaveRequests],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.trainingProgram,
-            label: 'Training',
-            route: RouteConstants.trainingProgram,
-            resources: [PermissionConstants.resTrainingPrograms],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.loans,
-            label: 'Loans',
-            route: RouteConstants.loans,
-            resources: [PermissionConstants.resLoans],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.benefits,
-            label: 'Benefits',
-            route: RouteConstants.benefits,
-            resources: [PermissionConstants.resPayroll],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.performance,
-            label: 'Performance',
-            route: RouteConstants.performanceReview,
-            resources: [PermissionConstants.resPerformanceReviews],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.workReport,
-            label: 'Work Reports',
-            route: RouteConstants.workReport,
-            resources: [PermissionConstants.resWorkReports],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.monthlyScorecard,
-            label: 'Monthly Scorecard',
-            route: RouteConstants.monthlyScorecard,
-            resources: [PermissionConstants.resMonthlyScorecards],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.awardsRecognition,
-            label: 'Awards & Recognition',
-            route: RouteConstants.awardsRecognition,
-            resources: [PermissionConstants.resAwards],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.performanceLeaderboard,
-            label: 'Performance Leaderboard',
-            route: RouteConstants.performanceLeaderboard,
-            resources: [PermissionConstants.resKpis],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.employeeEvaluation,
-            label: 'Employee Evaluation',
-            route: RouteConstants.employeeEvaluation,
-            resources: [PermissionConstants.resEmployeeEvaluations],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.disciplinaryProcess,
-            label: 'Disciplinary Process',
-            route: RouteConstants.disciplinaryProcess,
-            resources: [PermissionConstants.resDisciplinaryCases],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.work,
-        label: 'Operations',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resProjects,
-          PermissionConstants.resTasks,
-          PermissionConstants.resContracts,
-          PermissionConstants.resWorksites,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.operations,
-            label: 'Operations',
-            route: RouteConstants.operations,
-            resources: [PermissionConstants.resProjects],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.project,
-            label: 'Project',
-            route: RouteConstants.projects,
-            resources: [PermissionConstants.resProjects],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.worksite,
-            label: 'Worksite',
-            route: RouteConstants.worksite,
-            resources: [PermissionConstants.resWorksites],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.tasks,
-            label: 'Tasks',
-            route: RouteConstants.tasks,
-            resources: [PermissionConstants.resTasks],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.contracts,
-            label: 'Contracts',
-            route: RouteConstants.contracts,
-            resources: [PermissionConstants.resContracts],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.meetings,
-            label: 'Meetings',
-            route: RouteConstants.meetings,
-            resources: [PermissionConstants.resMeetings],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.financeAccounting,
-        label: 'Finance & Accounting',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resBudgets,
-          PermissionConstants.resExpenses,
-          PermissionConstants.resPayments,
-          PermissionConstants.resEstateInvoices,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.financeDashboard,
-            label: 'Dashboard',
-            route: RouteConstants.finance,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resBudgets,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.invoice,
-            label: 'Invoice',
-            route: RouteConstants.invoice,
-            resources: [
-              PermissionConstants.resEstateInvoices,
-              PermissionConstants.resServiceInvoices,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.payments,
-            label: 'Payments',
-            route: RouteConstants.payment,
-            resources: [PermissionConstants.resPayments],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.expenses,
-            label: 'Expenses',
-            route: RouteConstants.expense,
-            resources: [PermissionConstants.resExpenses],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.budget,
-            label: 'Budget',
-            route: RouteConstants.budget,
-            resources: [PermissionConstants.resBudgets],
-          ),
-          // Vendor/Contributor — hidden (no dedicated vendor-payments API yet)
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.events,
-        label: 'Events',
-        iconPath: 'assets/svg/sidebar/calendar.svg',
-        route: RouteConstants.events,
-        isExpandable: false,
-        resources: [PermissionConstants.resEvents],
-      ),
-      const MenuItem(
-        id: MainMenuItem.services,
-        label: 'Services',
-        iconPath: 'assets/svg/sidebar/calendar.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resServices,
-          PermissionConstants.resProperties,
-          PermissionConstants.resEstates,
-          PermissionConstants.resClients,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.servicesDashboard,
-            label: 'Dashboard',
-            route: RouteConstants.services,
-            resources: [PermissionConstants.resServices],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.serviceClients,
-            label: 'Clients',
-            route: RouteConstants.serviceClients,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.propertyManagement,
-            label: 'Property Management',
-            route: RouteConstants.propertyList,
-            resources: [PermissionConstants.resProperties],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.estateManagement,
-            label: 'Estate Management',
-            route: RouteConstants.estateManagement,
-            resources: [PermissionConstants.resEstates],
-          ),
-        ],
-      ),
-      // Workspace — temporarily hidden (uses dummy data, no API connection yet)
-      // const MenuItem(
-      //   id: MainMenuItem.workspace,
-      //   label: 'Workspace',
-      //   iconPath: 'assets/svg/sidebar/joined-square.svg',
-      //   isExpandable: true,
-      //   resources: [
-      //     PermissionConstants.resDocuments,
-      //     PermissionConstants.resContent,
-      //   ],
-      //   children: [
-      //     SubMenuItemData(
-      //       id: SubMenuItem.workspace,
-      //       label: 'Overview',
-      //       route: RouteConstants.workspace,
-      //       resources: [
-      //         PermissionConstants.resDocuments,
-      //         PermissionConstants.resContent,
-      //       ],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.workspaceDashboard,
-      //       label: 'Dashboard',
-      //       route: RouteConstants.workspaceDashboard,
-      //       resources: [
-      //         PermissionConstants.resDocuments,
-      //         PermissionConstants.resContent,
-      //       ],
-      //     ),
-      //   ],
-      // ),
-      const MenuItem(
-        id: MainMenuItem.analytics,
-        label: 'Analytics & Insights',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [PermissionConstants.resStats],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.overview,
-            label: 'Overview',
-            route: RouteConstants.analyticsOverview,
-            resources: [PermissionConstants.resStats],
-          ),
-          // Revenue, Projects, Performance — hidden (dummy data, no dedicated API endpoints)
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.legalCompliance,
-        label: 'Legal & Compliance',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resLegalCases,
-          PermissionConstants.resComplianceRecords,
-          PermissionConstants.resComplianceAudits,
-          PermissionConstants.resContracts,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.legalContracts,
-            label: 'Contracts',
-            route: RouteConstants.legalContracts,
-            resources: [PermissionConstants.resContracts],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.legalCompliance,
-            label: 'Compliance',
-            route: RouteConstants.legalCompliance,
-            resources: [PermissionConstants.resComplianceRecords],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.legalCases,
-            label: 'Cases',
-            route: RouteConstants.legalCases,
-            resources: [PermissionConstants.resLegalCases],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.legalAudits,
-            label: 'Audits',
-            route: RouteConstants.legalAudits,
-            resources: [PermissionConstants.resComplianceAudits],
-          ),
-        ],
-      ),
-      const MenuItem(
-        id: MainMenuItem.clientPortal,
-        label: 'Client Portal',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resClients,
-          PermissionConstants.resDocuments,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.clientAccess,
-            label: 'Client Access',
-            route: RouteConstants.clientAccess,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.documentSharing,
-            label: 'Document Sharing',
-            route: RouteConstants.documentSharing,
-            resources: [PermissionConstants.resDocuments],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.communications,
-            label: 'Communications',
-            route: RouteConstants.communications,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.portalAnalytics,
-            label: 'Portal Analytics',
-            route: RouteConstants.portalAnalytics,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resClients,
-            ],
-          ),
-        ],
-      ),
-      // const MenuItem(
-      //   id: MainMenuItem.security,
-      //   label: 'Security & Authorization',
-      //   iconPath: 'assets/svg/sidebar/joined-square.svg',
-      //   isExpandable: true,
-      //   resources: [
-      //     PermissionConstants.resAuditLogs,
-      //     PermissionConstants.resRoles,
-      //     PermissionConstants.resApprovalFlows,
-      //   ],
-      //   children: [
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityOverview,
-      //       label: 'Overview',
-      //       route: RouteConstants.securityOverview,
-      //       resources: [PermissionConstants.resAuditLogs],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityCodes,
-      //       label: 'Security Codes',
-      //       route: RouteConstants.securityCodes,
-      //       resources: [PermissionConstants.resRoles],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityWorkflow,
-      //       label: 'Workflows',
-      //       route: RouteConstants.securityWorkflow,
-      //       resources: [PermissionConstants.resApprovalFlows],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityAlerts,
-      //       label: 'Security Alerts',
-      //       route: RouteConstants.securityAlerts,
-      //       resources: [PermissionConstants.resAuditLogs],
-      //     ),
-      //     SubMenuItemData(
-      //       id: SubMenuItem.securityLogs,
-      //       label: 'Audit Logs',
-      //       route: RouteConstants.securityLogs,
-      //       resources: [PermissionConstants.resAuditLogs],
-      //     ),
-      //   ],
-      // ),
-      const MenuItem(
-        id: MainMenuItem.crm,
-        label: 'CRM',
-        iconPath: 'assets/svg/sidebar/joined-square.svg',
-        isExpandable: true,
-        resources: [
-          PermissionConstants.resClients,
-          PermissionConstants.resLeads,
-          PermissionConstants.resMarketingCampaigns,
-        ],
-        children: [
-          SubMenuItemData(
-            id: SubMenuItem.crmClients,
-            label: 'Clients',
-            route: RouteConstants.crmClients,
-            resources: [PermissionConstants.resClients],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmLeads,
-            label: 'Leads',
-            route: RouteConstants.crmLeads,
-            resources: [PermissionConstants.resLeads],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmInteractions,
-            label: 'Interactions',
-            route: RouteConstants.crmInteractions,
-            resources: [
-              PermissionConstants.resClients,
-              PermissionConstants.resLeads,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.crmAnalytics,
-            label: 'Analytics',
-            route: RouteConstants.crmAnalytics,
-            resources: [
-              PermissionConstants.resStats,
-              PermissionConstants.resClients,
-            ],
-          ),
-          SubMenuItemData(
-            id: SubMenuItem.marketing,
-            label: 'Marketing',
-            route: RouteConstants.marketing,
-            resources: [PermissionConstants.resMarketingCampaigns],
-          ),
-        ],
-      ),
-    ];
+        ),
+      ],
+    );
+    if (result == 'toggle') onToggle();
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleGlobalKey);
+    _searchCtrl.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  /// Global key filter. Catches \u2318K on macOS, Ctrl+K on Windows/Linux/web
+  /// and focuses the sidebar search. Returns `true` to consume the event so
+  /// the browser's default "open location" binding doesn't fire.
+  bool _handleGlobalKey(KeyEvent event) {
+    if (event is! KeyDownEvent) return false;
+    final isK = event.logicalKey == LogicalKeyboardKey.keyK;
+    final hasMod = HardwareKeyboard.instance.isMetaPressed ||
+        HardwareKeyboard.instance.isControlPressed;
+    if (isK && hasMod) {
+      // If the rail is collapsed, expand it first so the search field has
+      // somewhere to render. Defer focus until the expansion animation has
+      // laid out the new widget.
+      if (widget.isCollapsed && widget.onToggleCollapse != null) {
+        widget.onToggleCollapse!();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _searchFocusNode.requestFocus();
+          _searchCtrl.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _searchCtrl.text.length,
+          );
+        });
+      } else {
+        _searchFocusNode.requestFocus();
+        _searchCtrl.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _searchCtrl.text.length,
+        );
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /// Applies [_searchQuery] to the given menu item. Returns null when the
+  /// item (and none of its children) match; otherwise returns a menu item
+  /// whose children are filtered down to the matches.
+  MenuItem? _filterForSearch(MenuItem item) {
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return item;
+
+    final labelHit = item.label.toLowerCase().contains(q);
+    if (!item.isExpandable) {
+      return labelHit ? item : null;
+    }
+
+    // If the parent label matches, show all children.
+    if (labelHit) return item;
+
+    final matchingChildren =
+        item.children.where((c) => c.label.toLowerCase().contains(q)).toList();
+    if (matchingChildren.isEmpty) return null;
+
+    return MenuItem(
+      id: item.id,
+      label: item.label,
+      icon: item.icon,
+      route: item.route,
+      resources: item.resources,
+      isExpandable: item.isExpandable,
+      children: matchingChildren,
+    );
   }
 
   void _initializeRouteMapping() {
@@ -834,8 +282,14 @@ class _SideMenuState extends State<SideMenu> {
       setState(() {
         selectedMainMenu = selection.mainMenuItem;
         selectedSubMenu = selection.subMenuItem;
+        // Auto-open the group whose child owns the active route, so a deep
+        // link or back/forward navigation lands with the right tab expanded.
+        if (selection.subMenuItem != null) {
+          _openMenu = selection.mainMenuItem;
+        }
       });
       _saveMenuState(selection.mainMenuItem, selection.subMenuItem);
+      _saveOpenMenu(_openMenu);
       log('Menu selection updated based on route: main=$selectedMainMenu, sub=$selectedSubMenu');
     } else {
       // If route is not found in mapping, load from preferences as fallback
@@ -846,6 +300,7 @@ class _SideMenuState extends State<SideMenu> {
   void _loadMenuState() {
     final mainMenuIndex = prefs.getInt('selectedMenu');
     final subMenuIndex = prefs.getInt('selectedSubMenu');
+    final openMenuIndex = prefs.getInt('sidebarOpenMenu');
 
     setState(() {
       selectedMainMenu = mainMenuIndex != null
@@ -854,8 +309,16 @@ class _SideMenuState extends State<SideMenu> {
       selectedSubMenu = subMenuIndex != null && subMenuIndex >= 0
           ? SubMenuItem.values[subMenuIndex]
           : null;
+      // Restore accordion state: prefer the saved open group; fall back to
+      // the parent of the selected sub-item so a first-time user with no
+      // saved pref still lands with the right group expanded.
+      if (openMenuIndex != null && openMenuIndex >= 0) {
+        _openMenu = MainMenuItem.values[openMenuIndex];
+      } else if (selectedSubMenu != null) {
+        _openMenu = selectedMainMenu;
+      }
     });
-    log('Menu state loaded from preferences: main=$selectedMainMenu, sub=$selectedSubMenu');
+    log('Menu state loaded from preferences: main=$selectedMainMenu, sub=$selectedSubMenu, open=$_openMenu');
   }
 
   Future<void> _saveMenuState(
@@ -863,6 +326,12 @@ class _SideMenuState extends State<SideMenu> {
     await prefs.setInt('selectedMenu', mainMenu.index);
     await prefs.setInt('selectedSubMenu', subMenu?.index ?? -1);
     log('Menu state saved to preferences: main=$mainMenu, sub=$subMenu');
+  }
+
+  /// Persist the currently-open accordion group (or `null` if everything is
+  /// collapsed) so the sidebar reopens with the same group after a restart.
+  Future<void> _saveOpenMenu(MainMenuItem? openMenu) async {
+    await prefs.setInt('sidebarOpenMenu', openMenu?.index ?? -1);
   }
 
   void _navigate(
@@ -874,6 +343,13 @@ class _SideMenuState extends State<SideMenu> {
     setState(() {
       selectedMainMenu = mainMenuItem;
       selectedSubMenu = subMenuItem;
+      // Tapping a child implies its parent group should stay open (matters
+      // when the tap originated from search mode, where _openMenu may still
+      // be pointing at a different group).
+      if (subMenuItem != null) {
+        _openMenu = mainMenuItem;
+        _saveOpenMenu(_openMenu);
+      }
     });
 
     _saveMenuState(mainMenuItem, subMenuItem);
@@ -895,19 +371,15 @@ class _SideMenuState extends State<SideMenu> {
       return const SizedBox.shrink();
     }
 
-    // Filter sub-items via typed route permissions (falls back to resource
-    // check for legacy menu items that still pass a `resources` list).
+    // Filter sub-items via typed route permissions.
     final authorizedSubItems = menuItem.children
         .where((subItem) =>
             permissionService.canAccessRoute(subItem.route, subItem.resources))
         .toList();
 
-    // Expandable parent with no visible children → hide the parent too.
     if (menuItem.isExpandable && authorizedSubItems.isEmpty) {
       return const SizedBox.shrink();
     }
-
-    // Non-expandable / clickable parent: gate by its own resource list.
     if (!menuItem.isExpandable &&
         !permissionService.canAccessResources(menuItem.resources)) {
       return const SizedBox.shrink();
@@ -915,85 +387,541 @@ class _SideMenuState extends State<SideMenu> {
 
     final bool isSelected = selectedMainMenu == menuItem.id;
 
-    final icon = SvgPicture.asset(
-      menuItem.iconPath,
-      colorFilter: ColorFilter.mode(
-          isSelected ? AppColors.white : AppColors.black, BlendMode.srcIn),
-    );
-
-    final title = Text(
-      menuItem.label,
-      style: isSelected ? AppText.sideMWhite_400_14 : AppText.black_400_14,
-    );
-
     if (!menuItem.isExpandable) {
-      return NonExpandableSideBarItem(
-        titleColor: isSelected ? AppColors.blue : Colors.transparent,
-        icon: icon,
-        title: title,
+      final bool isPinned = _pinnedMains.contains(menuItem.id);
+      return _MenuRow(
+        icon: menuItem.icon,
+        label: menuItem.label,
+        isSelected: isSelected,
+        isPinned: isPinned,
         onTap: () => _navigate(menuItem.route, menuItem.id, null),
+        onContextMenu: (pos) => _showRowContextMenu(
+          globalPos: pos,
+          isPinned: isPinned,
+          onToggle: () => _togglePinMain(menuItem.id),
+        ),
       );
     }
 
-    return ExpandableSideBarItem(
-      expandedTileController: ExpandedTileController(isExpanded: isSelected),
-      titleColor: isSelected ? AppColors.blue : Colors.transparent,
-      icon: icon,
-      title: title,
-      onTap: () {
+    // Search mode overrides accordion: every group with matches stays open
+    // so the user can see all hits at once. When search is cleared, the
+    // normal single-open accordion rule resumes.
+    final bool isOpen =
+        _searchQuery.trim().isNotEmpty ? true : _openMenu == menuItem.id;
+
+    return _ExpandableMenuRow(
+      key: ValueKey('expandable-${menuItem.id.name}'),
+      icon: menuItem.icon,
+      label: menuItem.label,
+      isSelected: isSelected,
+      isOpen: isOpen,
+      searchQuery: _searchQuery,
+      onHeaderTap: () {
         setState(() {
           selectedMainMenu = menuItem.id;
+          // Ensure the group is open when the header is tapped
+          _openMenu = menuItem.id;
         });
+
+        // Automatically navigate to the first authorized child
+        if (authorizedSubItems.isNotEmpty) {
+          final firstChild = authorizedSubItems.first;
+          _navigate(firstChild.route, menuItem.id, firstChild.id);
+        }
+
         _saveMenuState(menuItem.id, selectedSubMenu);
+        _saveOpenMenu(_openMenu);
       },
-      children: authorizedSubItems.map<Widget>((subMenuItem) {
-        return _buildSubItem(subMenuItem, menuItem.id);
-      }).toList(),
+      onExpand: () {
+        if (!isOpen) {
+          setState(() => _openMenu = menuItem.id);
+          _saveOpenMenu(_openMenu);
+        } else {
+          // If already open, Right arrow moves focus to the first child.
+          FocusScope.of(context).nextFocus();
+        }
+      },
+      onCollapse: () {
+        if (isOpen) {
+          setState(() => _openMenu = null);
+          _saveOpenMenu(_openMenu);
+        }
+      },
+      children: authorizedSubItems
+          .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
+          .toList(),
+    );
+  }
+
+  /// Render a pinned non-expandable top-level item in the Pinned section.
+  /// Always full-size (not the sub-item treatment) and marks itself selected
+  /// when its route is active.
+  Widget _buildPinnedMainRow(MenuItem menuItem) {
+    final isSelected = selectedMainMenu == menuItem.id;
+    return _MenuRow(
+      key: ValueKey('pinned-main-${menuItem.id.name}'),
+      icon: menuItem.icon,
+      label: menuItem.label,
+      isSelected: isSelected,
+      isPinned: true,
+      onTap: () => _navigate(menuItem.route, menuItem.id, null),
+      onContextMenu: (pos) => _showRowContextMenu(
+        globalPos: pos,
+        isPinned: true,
+        onToggle: () => _togglePinMain(menuItem.id),
+      ),
+    );
+  }
+
+  /// Render a pinned sub-item in the Pinned section. Uses the top-level
+  /// visual weight (not `isSub: true`) because the pin appears in its own
+  /// section, not nested under a parent group.
+  Widget _buildPinnedSubRow(SubMenuItemData sub, MainMenuItem parentId) {
+    final isSelected = selectedSubMenu == sub.id;
+    return _MenuRow(
+      key: ValueKey('pinned-sub-${sub.id.name}'),
+      icon: sub.icon,
+      label: sub.label,
+      isSelected: isSelected,
+      isPinned: true,
+      onTap: () => _navigate(sub.route, parentId, sub.id),
+      onContextMenu: (pos) => _showRowContextMenu(
+        globalPos: pos,
+        isPinned: true,
+        onToggle: () => _togglePinSub(sub.id),
+      ),
     );
   }
 
   Widget _buildSubItem(
       SubMenuItemData subMenuItem, MainMenuItem parentMenuItem) {
     final isSelected = selectedSubMenu == subMenuItem.id;
-
-    return SubSideBarItems(
-      title: Text(
-        subMenuItem.label,
-        style: isSelected
-            ? AppText.sideMBlueText_400_14
-            : AppText.sideMText_300_14,
-      ),
+    final bool isPinned = _pinnedSubs.contains(subMenuItem.id);
+    return _MenuRow(
+      icon: subMenuItem.icon,
+      label: subMenuItem.label,
       isSelected: isSelected,
+      isSub: true,
+      isPinned: isPinned,
+      searchQuery: _searchQuery,
       onTap: () => _navigate(subMenuItem.route, parentMenuItem, subMenuItem.id),
+      onContextMenu: (pos) => _showRowContextMenu(
+        globalPos: pos,
+        isPinned: isPinned,
+        onToggle: () => _togglePinSub(subMenuItem.id),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.sideMenu,
-      padding: const EdgeInsets.only(right: 16, left: 16),
+      color: AppColors.surfaceMuted,
+      // Expanded mode: right padding only, so selected-row accent bars sit
+      // flush with the left edge. Collapsed mode: horizontal padding hugs the
+      // centered rail buttons.
+      padding: widget.isCollapsed
+          ? const EdgeInsets.symmetric(horizontal: 8)
+          : const EdgeInsets.only(right: 8),
       height: MediaQuery.sizeOf(context).height,
       child: Obx(() {
         // Subscribe to permission changes so the menu rebuilds on role changes.
         // ignore: unused_local_variable
         final _ = Get.find<PermissionService>().version;
-        return ListView(
-          physics: const BouncingScrollPhysics(),
+
+        final filtered =
+            menuItems.map(_filterForSearch).whereType<MenuItem>().toList();
+
+        return Column(
           children: [
-            kSizedBoxBG,
-            const Row(
-              children: [
-                Text('BOMACH', style: AppText.black_500_20),
-                Text('OS', style: AppText.black_500_32),
-              ],
+            // FIXED HEADER: Brand + Search (responsive)
+            _buildFixedHeader(),
+
+            // SCROLLABLE CONTENT with polished scrollbar
+            Expanded(
+              child: ScrollConfiguration(
+                behavior:
+                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                child: Scrollbar(
+                  controller: _scrollController,
+                  thickness: 4,
+                  radius: const Radius.circular(8),
+                  child: ListView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 20),
+                    children: widget.isCollapsed
+                        ? _buildRailItems(filtered)
+                        : _buildExpandedItems(filtered),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 24),
-            ...menuItems.map((menuItem) => _buildMenuItem(menuItem)),
-            kSizedBox,
+
+            // FIXED FOOTER: Account Card (responsive)
+            _AccountCard(isCollapsed: widget.isCollapsed),
+            const SizedBox(height: 8),
           ],
         );
       }),
+    );
+  }
+
+  List<Widget> _buildRailItems(List<MenuItem> filtered) {
+    final permissionService = Get.find<PermissionService>();
+    final items = <Widget>[];
+
+    for (final menuItem in filtered) {
+      if (menuItem.id == MainMenuItem.dashboard &&
+          (permissionService.isSuperAdmin ||
+              permissionService.hasAnyPermissionForResource(
+                  PermissionConstants.resCompanySettings))) {
+        continue;
+      }
+
+      if (menuItem.isExpandable) {
+        final authorizedSubItems = menuItem.children
+            .where(
+                (s) => permissionService.canAccessRoute(s.route, s.resources))
+            .toList();
+        if (authorizedSubItems.isEmpty) continue;
+      } else if (!permissionService.canAccessResources(menuItem.resources)) {
+        continue;
+      }
+
+      final isSelected = selectedMainMenu == menuItem.id;
+      items.add(_CollapsedMenuButton(
+        icon: menuItem.icon,
+        label: menuItem.label,
+        isSelected: isSelected,
+        onTap: () {
+          if (menuItem.isExpandable) {
+            final authorizedSubItems = menuItem.children
+                .where((s) =>
+                    permissionService.canAccessRoute(s.route, s.resources))
+                .toList();
+
+            setState(() {
+              selectedMainMenu = menuItem.id;
+              _openMenu = menuItem.id;
+            });
+
+            if (authorizedSubItems.isNotEmpty) {
+              final firstChild = authorizedSubItems.first;
+              _navigate(firstChild.route, menuItem.id, firstChild.id);
+            }
+
+            _saveMenuState(menuItem.id, selectedSubMenu);
+            _saveOpenMenu(_openMenu);
+            widget.onToggleCollapse?.call();
+          } else {
+            _navigate(menuItem.route, menuItem.id, null);
+          }
+        },
+      ));
+    }
+    return items;
+  }
+
+  List<Widget> _buildExpandedItems(List<MenuItem> filtered) {
+    final rows = <Widget>[];
+    final permissionService = Get.find<PermissionService>();
+
+    // ── Pinned section ──
+    final bool pinnedSectionVisible = _searchQuery.trim().isEmpty &&
+        (_pinnedSubs.isNotEmpty || _pinnedMains.isNotEmpty);
+    if (pinnedSectionVisible) {
+      rows.add(const _SectionHeader(label: 'Pinned', showDivider: false));
+      for (final menuItem in menuItems) {
+        if (_pinnedMains.contains(menuItem.id) && !menuItem.isExpandable) {
+          rows.add(_buildPinnedMainRow(menuItem));
+        }
+        if (menuItem.isExpandable) {
+          for (final sub in menuItem.children) {
+            if (_pinnedSubs.contains(sub.id)) {
+              rows.add(_buildPinnedSubRow(sub, menuItem.id));
+            }
+          }
+        }
+      }
+    }
+
+    // ── Regular sections ──
+    bool firstSectionSeen = pinnedSectionVisible;
+    for (final section in sidebarStructure) {
+      final sectionItems =
+          section.items.map(_filterForSearch).whereType<MenuItem>().where((m) {
+        if (m.isExpandable) {
+          return m.children.any(
+              (s) => permissionService.canAccessRoute(s.route, s.resources));
+        }
+        return permissionService.canAccessRoute(m.route, m.resources);
+      }).toList();
+
+      if (sectionItems.isNotEmpty) {
+        final firstItem = sectionItems.first;
+        rows.add(_SectionHeader(
+          label: section.label,
+          showDivider: firstSectionSeen,
+          onTap: () {
+            if (firstItem.isExpandable) {
+              final subItems = firstItem.children
+                  .where((s) =>
+                      permissionService.canAccessRoute(s.route, s.resources))
+                  .toList();
+              if (subItems.isNotEmpty) {
+                final firstSub = subItems.first;
+                _navigate(firstSub.route, firstItem.id, firstSub.id);
+                setState(() => _openMenu = firstItem.id);
+              }
+            } else {
+              _navigate(firstItem.route, firstItem.id, null);
+            }
+          },
+        ));
+        firstSectionSeen = true;
+        for (final item in sectionItems) {
+          rows.add(_buildMenuItem(item));
+        }
+      }
+    }
+
+    if (filtered.isEmpty && _searchQuery.isNotEmpty) {
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Text(
+            'No menu items match "$_searchQuery"',
+            style: AppTextStyles.bodyMd,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return rows;
+  }
+
+  Widget _buildFixedHeader() {
+    if (widget.isCollapsed) {
+      return Column(
+        children: [
+          kSizedBoxBG,
+          Center(
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              alignment: Alignment.center,
+              child: const Text(
+                'B',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (widget.onToggleCollapse != null) ...[
+            IconButton(
+              icon: const Icon(Iconsax.notification,
+                  size: 18, color: AppColors.textSecondary),
+              onPressed: () {
+                Get.find<BroadcastController>().currentTab.value =
+                    'Notifications';
+                context.go(RouteConstants.broadcast);
+              },
+              splashRadius: 18,
+            ),
+            const SizedBox(height: 4),
+            IconButton(
+              icon: const Icon(Iconsax.sidebar_right,
+                  size: 18, color: AppColors.textSecondary),
+              onPressed: widget.onToggleCollapse,
+              splashRadius: 18,
+            ),
+          ],
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: AppColors.neutral200),
+          const SizedBox(height: 8),
+        ],
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        kSizedBoxBG,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+          child: Row(
+            children: [
+              // Unified Brand wordmark
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    'BOMACH',
+                    style: AppTextStyles.h2.copyWith(
+                      color: AppColors.primary,
+                      letterSpacing: -0.5,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    'OS',
+                    style: AppTextStyles.bodySm.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Iconsax.notification,
+                    size: 18, color: AppColors.textSecondary),
+                onPressed: () {
+                  Get.find<BroadcastController>().currentTab.value =
+                      'Notifications';
+                  context.go(RouteConstants.broadcast);
+                },
+                splashRadius: 18,
+                padding: const EdgeInsets.all(6),
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 4),
+              if (widget.onToggleCollapse != null)
+                Tooltip(
+                  message: 'Collapse sidebar',
+                  child: IconButton(
+                    icon: const Icon(Iconsax.sidebar_left,
+                        size: 18, color: AppColors.textSecondary),
+                    onPressed: widget.onToggleCollapse,
+                    splashRadius: 18,
+                    padding: const EdgeInsets.all(6),
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _SidebarSearchField(
+            controller: _searchCtrl,
+            focusNode: _searchFocusNode,
+            onChanged: (v) => setState(() => _searchQuery = v),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+class _SidebarSearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ValueChanged<String> onChanged;
+
+  const _SidebarSearchField({
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Show the platform-appropriate shortcut hint so users discover \u2318K / Ctrl+K.
+    final bool isMac = Theme.of(context).platform == TargetPlatform.macOS;
+    final String shortcutHint = isMac ? '\u2318K' : 'Ctrl K';
+
+    return CallbackShortcuts(
+      // Handle Escape *only* while the search field owns focus. If there's
+      // text, clear it; otherwise unfocus so Escape does the expected thing
+      // for an empty search field too.
+      bindings: <ShortcutActivator, VoidCallback>{
+        const SingleActivator(LogicalKeyboardKey.escape): () {
+          if (controller.text.isNotEmpty) {
+            controller.clear();
+            onChanged('');
+          } else {
+            focusNode.unfocus();
+          }
+        },
+      },
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        onChanged: onChanged,
+        style: const TextStyle(fontSize: 14),
+        decoration: InputDecoration(
+          hintText: 'Search menu...',
+          hintStyle: const TextStyle(
+            fontSize: 13,
+            color: AppColors.neutral500,
+          ),
+          prefixIcon: const Icon(Iconsax.search_normal,
+              size: 18, color: AppColors.neutral500),
+          suffixIcon: controller.text.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Center(
+                    widthFactor: 1,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.neutral100,
+                        border: Border.all(color: AppColors.borderSubtle),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        shortcutHint,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.neutral500,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Iconsax.close_circle, size: 16),
+                  onPressed: () {
+                    controller.clear();
+                    onChanged('');
+                  },
+                ),
+          filled: true,
+          fillColor: AppColors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          isDense: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.borderSubtle),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.borderSubtle),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: AppColors.primary),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1014,113 +942,619 @@ class MenuSelection {
   }
 }
 
-class SubSideBarItems extends StatelessWidget {
-  final Text title;
-  final VoidCallback onTap;
+// ─────────────────────────────────────────────────────────────────────────────
+// Sidebar row widgets — Pass 1 visual redesign
+//
+// One canonical row (`_MenuRow`) drives both top-level and sub-level items.
+// Selected state = [primarySubtle] fill + [primary] accent bar flush-left +
+// [primary]-colored icon/label. Hover state = [neutral200] fill. Transparent
+// when neither — so the row sits quietly against the [surfaceMuted] sidebar
+// background.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// A single interactive row in the sidebar. Handles hover + selected states
+/// with a flush-left accent bar and rounded-right fill.
+class _MenuRow extends StatefulWidget {
+  final IconData icon;
+  final String label;
   final bool isSelected;
-  const SubSideBarItems({
+  final bool isSub;
+  final VoidCallback onTap;
+  final Widget? trailing;
+
+  /// Whether this row represents a currently-pinned item. Pinned rows get a
+  /// small bookmark indicator in the trailing area (when no custom trailing
+  /// is supplied).
+  final bool isPinned;
+
+  /// Right-click / long-press callback. Receives the global tap position so
+  /// the caller can open a context menu anchored to the cursor.
+  final ValueChanged<Offset>? onContextMenu;
+  final VoidCallback? onExpand;
+  final VoidCallback? onCollapse;
+  final String searchQuery;
+
+  const _MenuRow({
     super.key,
-    required this.title,
-    required this.onTap,
+    required this.icon,
+    required this.label,
     required this.isSelected,
+    required this.onTap,
+    this.isSub = false,
+    this.trailing,
+    this.isPinned = false,
+    this.onContextMenu,
+    this.onExpand,
+    this.onCollapse,
+    this.searchQuery = '',
   });
 
   @override
+  State<_MenuRow> createState() => _MenuRowState();
+}
+
+class _MenuRowState extends State<_MenuRow> {
+  bool _hover = false;
+  bool _focused = false;
+
+  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.all(0),
-      onTap: onTap,
-      leading: Visibility(
-          visible: isSelected,
-          child: const CircleAvatar(
-            backgroundColor: AppColors.blue,
-            radius: 5,
-          )),
-      title: title,
+    final bool selected = widget.isSelected;
+
+    final Color bg = selected
+        ? AppColors.primarySoft
+        : (_hover || _focused ? AppColors.neutral200 : Colors.transparent);
+
+    final Color accent = selected ? AppColors.primary : Colors.transparent;
+
+    // Focus ring color. Always 1 px wide (even when transparent) so the row
+    // height never jitters as focus moves between rows.
+    // If selected, we use a slightly different color or just keep the ring.
+    final Color ringColor = _focused ? AppColors.primary : Colors.transparent;
+
+    final Color iconColor = selected
+        ? AppColors.primary
+        : (widget.isSub ? AppColors.textSecondary : AppColors.textPrimary);
+
+    final Color labelColor = selected
+        ? AppColors.primary
+        : (widget.isSub ? AppColors.textSecondary : AppColors.textPrimary);
+
+    final double iconSize = widget.isSub ? 16 : 20;
+    final double height = widget.isSub ? 36 : 40;
+    final double accentWidth = widget.isSub ? 2 : 3;
+    // Sub-rows indent further so the hierarchy reads at a glance.
+    final double leadingPad = widget.isSub ? 28 : 12;
+
+    // Trailing widget: caller-supplied trailing takes precedence (used by
+    // expandable rows for the chevron). Otherwise, pinned rows get a quiet
+    // bookmark glyph so pinned state is visible at a glance.
+    final Widget? trailing = widget.trailing ??
+        (widget.isPinned
+            ? const Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: Icon(
+                  Iconsax.bookmark_2,
+                  size: 12,
+                  color: AppColors.neutral400,
+                ),
+              )
+            : null);
+
+    return Focus(
+      onFocusChange: (v) => setState(() => _focused = v),
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+
+        // Enter / Space → activate the row, matching tap behaviour.
+        if (event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.space) {
+          widget.onTap();
+          return KeyEventResult.handled;
+        }
+
+        // Right Arrow → Expand if a callback is provided.
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          if (widget.onExpand != null) {
+            widget.onExpand!();
+            return KeyEventResult.handled;
+          }
+        }
+
+        // Left Arrow → Collapse if a callback is provided.
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (widget.onCollapse != null) {
+            widget.onCollapse!();
+            return KeyEventResult.handled;
+          }
+        }
+
+        return KeyEventResult.ignored;
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          // Right-click (desktop / web) and long-press (touch) both surface
+          // the same context menu — the caller receives the global position
+          // so the menu can anchor to the cursor.
+          onSecondaryTapDown: widget.onContextMenu == null
+              ? null
+              : (d) => widget.onContextMenu!(d.globalPosition),
+          onLongPressStart: widget.onContextMenu == null
+              ? null
+              : (d) => widget.onContextMenu!(d.globalPosition),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            height: height,
+            margin: const EdgeInsets.symmetric(vertical: 1),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(8),
+              ),
+            ),
+            child: Stack(
+              children: [
+                // Left accent bar for selected state
+                if (selected)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: accentWidth,
+                      color: accent,
+                    ),
+                  ),
+                // Focus ring on all sides. Border.all is uniform, so it
+                // won't conflict with the borderRadius.
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: ringColor,
+                        width: 1,
+                      ),
+                      borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                // Content row
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: leadingPad, right: 12),
+                    child: Row(
+                      children: [
+                        Icon(widget.icon, size: iconSize, color: iconColor),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildLabel(labelColor),
+                        ),
+                        if (trailing != null) trailing,
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(Color color) {
+    final style = TextStyle(
+      fontSize: widget.isSub ? 13 : 14,
+      fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w500,
+      color: color,
+    );
+
+    if (widget.searchQuery.trim().isEmpty) {
+      return Text(
+        widget.label,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    final String label = widget.label;
+    final String query = widget.searchQuery.toLowerCase();
+    final int matchIdx = label.toLowerCase().indexOf(query);
+
+    if (matchIdx == -1) {
+      return Text(
+        label,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        style: style,
+        children: [
+          TextSpan(text: label.substring(0, matchIdx)),
+          TextSpan(
+            text: label.substring(matchIdx, matchIdx + query.length),
+            style: style.copyWith(
+              fontWeight: FontWeight.w900,
+              color: AppColors.primary,
+            ),
+          ),
+          TextSpan(text: label.substring(matchIdx + query.length)),
+        ],
+      ),
     );
   }
 }
 
-class ExpandableSideBarItem extends StatelessWidget {
-  final ExpandedTileController expandedTileController;
-  final Widget title;
-  final Color titleColor;
-  final VoidCallback onTap;
-  final Widget icon;
+/// A two-level menu group: a [_MenuRow] header with a rotating chevron, plus
+/// an [AnimatedCrossFade]-toggled column of child rows.
+///
+/// Fully controlled — [isOpen] comes from the parent so the sidebar can
+/// enforce a single-open accordion across all groups.
+class _ExpandableMenuRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final bool isOpen;
+  final VoidCallback onHeaderTap;
   final List<Widget> children;
-  const ExpandableSideBarItem({
+  final VoidCallback? onExpand;
+  final VoidCallback? onCollapse;
+  final String searchQuery;
+
+  const _ExpandableMenuRow({
     super.key,
-    required this.title,
     required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.isOpen,
+    required this.onHeaderTap,
     required this.children,
-    required this.onTap,
-    required this.titleColor,
-    required this.expandedTileController,
+    this.onExpand,
+    this.onCollapse,
+    this.searchQuery = '',
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ExpandedTile(
-        onTap: onTap,
-        theme: ExpandedTileThemeData(
-          footerBackgroundColor: Colors.transparent,
-          headerPadding: const EdgeInsets.all(12),
-          contentPadding: const EdgeInsets.only(top: 0),
-          contentBackgroundColor: Colors.transparent,
-          headerBorder: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(10)),
-          headerColor: titleColor,
-          headerSplashColor: Colors.transparent,
-          contentSeparatorColor: Colors.transparent,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _MenuRow(
+          icon: icon,
+          label: label,
+          isSelected: isSelected,
+          onTap: onHeaderTap,
+          onExpand: onExpand,
+          onCollapse: onCollapse,
+          trailing: AnimatedRotation(
+            turns: isOpen ? 0.5 : 0.0,
+            duration: const Duration(milliseconds: 180),
+            child: Icon(
+              Iconsax.arrow_down_1,
+              size: 16,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            ),
+          ),
         ),
-        title: title,
-        leading: icon,
-        content: Column(children: children),
-        controller: expandedTileController,
-        trailing: SvgPicture.asset(
-          "assets/svg/arrow-ios-down.svg",
-          colorFilter: ColorFilter.mode(
-              expandedTileController.isExpanded
-                  ? AppColors.white
-                  : AppColors.black,
-              BlendMode.srcIn),
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 180),
+          crossFadeState:
+              isOpen ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          firstChild: Padding(
+            padding: const EdgeInsets.only(top: 2, bottom: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: children,
+            ),
+          ),
+          secondChild: const SizedBox(width: double.infinity, height: 0),
         ),
-        trailingRotation: 180,
+      ],
+    );
+  }
+}
+
+/// Quiet section label between sidebar groups. Renders an optional top
+/// divider, then an uppercase caption in [neutral500].
+class _SectionHeader extends StatelessWidget {
+  final String label;
+  final bool showDivider;
+  final VoidCallback? onTap;
+
+  const _SectionHeader({
+    required this.label,
+    required this.showDivider,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Hide section headers in collapsed mode for a clean rail
+    if (SideMenu.of(context).isCollapsed) {
+      return showDivider
+          ? const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Divider(height: 1, color: AppColors.neutral200),
+            )
+          : const SizedBox(height: 4);
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (showDivider)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Divider(height: 1, color: AppColors.neutral200),
+            ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Text(
+              label.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.8,
+                color: AppColors.neutral500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class NonExpandableSideBarItem extends StatelessWidget {
-  final Widget title;
+/// Icon-only button rendered in the collapsed rail. Shows a tooltip with the
+/// row's label on hover and handles selection / hover fills consistent with
+/// the expanded [_MenuRow] treatment.
+class _CollapsedMenuButton extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
   final VoidCallback onTap;
-  final Color titleColor;
-  final Widget icon;
-  const NonExpandableSideBarItem({
-    super.key,
-    required this.title,
+
+  const _CollapsedMenuButton({
     required this.icon,
+    required this.label,
+    required this.isSelected,
     required this.onTap,
-    required this.titleColor,
   });
 
   @override
+  State<_CollapsedMenuButton> createState() => _CollapsedMenuButtonState();
+}
+
+class _CollapsedMenuButtonState extends State<_CollapsedMenuButton> {
+  bool _hover = false;
+  bool _focused = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: titleColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        tileColor: titleColor,
-        leading: icon,
-        onTap: onTap,
-        title: title,
+    final bool selected = widget.isSelected;
+
+    // Focus ring colour. Always 1 px wide (even when transparent) so the button
+    // doesn't jitter during focus changes.
+
+    final Color bg = selected
+        ? AppColors.primarySoft
+        : (_hover || _focused ? AppColors.neutral200 : Colors.transparent);
+
+    final Color iconColor =
+        selected ? AppColors.primary : AppColors.textPrimary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Center(
+        child: Tooltip(
+          message: widget.label,
+          waitDuration: const Duration(milliseconds: 400),
+          preferBelow: false,
+          child: Focus(
+            onFocusChange: (v) => setState(() => _focused = v),
+            onKeyEvent: (node, event) {
+              if (event is KeyDownEvent &&
+                  (event.logicalKey == LogicalKeyboardKey.enter ||
+                      event.logicalKey == LogicalKeyboardKey.space)) {
+                widget.onTap();
+                return KeyEventResult.handled;
+              }
+              return KeyEventResult.ignored;
+            },
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              onEnter: (_) => setState(() => _hover = true),
+              onExit: (_) => setState(() => _hover = false),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: widget.onTap,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 120),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      width: 1,
+                      color: selected || _focused
+                          ? AppColors.primary
+                          : Colors.transparent,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(widget.icon, size: 20, color: iconColor),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
+}
+
+class _AccountCard extends StatelessWidget {
+  final bool isCollapsed;
+  const _AccountCard({required this.isCollapsed});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Get.find<AuthController>();
+
+    return Obx(() {
+      final user = auth.currentUser.value;
+      if (user == null) return const SizedBox.shrink();
+
+      final name = user.firstName.isEmpty && user.lastName.isEmpty
+          ? user.username
+          : '${user.firstName} ${user.lastName}';
+      final role =
+          (user.employmentType != null && user.employmentType!.isNotEmpty)
+              ? user.employmentType!
+              : 'Super Admin';
+
+      if (isCollapsed) {
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (c) => UserProfileDialog(user: user),
+              );
+            },
+            hoverColor: AppColors.neutral100,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: Tooltip(
+                  message: name,
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AppColors.primarySoft,
+                    backgroundImage: user.profilePicture != null &&
+                            user.profilePicture!.isNotEmpty
+                        ? NetworkImage(user.profilePicture!)
+                        : null,
+                    child: user.profilePicture == null ||
+                            user.profilePicture!.isEmpty
+                        ? Text(
+                            (user.firstName.isNotEmpty
+                                    ? user.firstName[0]
+                                    : user.username.isNotEmpty
+                                        ? user.username[0]
+                                        : '?')
+                                .toUpperCase(),
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          const Divider(height: 1, color: AppColors.neutral200),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (c) => UserProfileDialog(user: user),
+                );
+              },
+              hoverColor: AppColors.neutral100,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppColors.primarySoft,
+                      backgroundImage: user.profilePicture != null &&
+                              user.profilePicture!.isNotEmpty
+                          ? NetworkImage(user.profilePicture!)
+                          : null,
+                      child: user.profilePicture == null ||
+                              user.profilePicture!.isEmpty
+                          ? Text(
+                              (user.firstName.isNotEmpty
+                                      ? user.firstName[0]
+                                      : user.username.isNotEmpty
+                                          ? user.username[0]
+                                          : '?')
+                                  .toUpperCase(),
+                              style: AppTextStyles.bodyMd.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            name,
+                            style: AppTextStyles.bodyMd.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            role,
+                            style: AppTextStyles.caption.copyWith(
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  // Removed _showAccountMenu and _buildPopupItem as they are no longer needed.
 }

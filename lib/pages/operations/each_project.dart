@@ -1,6 +1,9 @@
 import 'package:bms_front_end/components/button/in_button.dart';
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/pages/operations/widget/add_project_member_dialog.dart';
@@ -14,7 +17,6 @@ import 'package:bms_front_end/pages/operations/widget/project_overview.dart';
 import 'package:bms_front_end/pages/operations/widget/project_task_table.dart';
 import 'package:bms_front_end/pages/operations/widget/project_work_sites.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
@@ -37,70 +39,44 @@ class _EachProjectsState extends State<EachProjects> {
         ModalRoute.of(context)?.settings.arguments as Project?;
 
     if (project == null) {
-      return const Center(
-        child: MyText('Project not found', style: AppText.black_500_20),
+      return const PageScaffold(
+        children: [
+          Center(
+            child: MyText('Project not found', style: AppTextStyles.h2),
+          ),
+        ],
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return PageScaffold(
+      header: PageHeader(
+        title: project.name,
+        subtitle: 'Project Detail: ${project.shortCode}',
+        trailing: Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  MyText(project.name, style: AppText.black_500_32),
-                  Wrap(
-                    spacing: 15,
-                    runSpacing: 15,
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        child: MyTextFormField(
-                          hintText: 'Search...',
-                          leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      if ([1, 2, 4, 5].contains(_currentTab))
-                        MyElevatedButton(
-                          icon: const Icon(
-                            Icons.add_circle_outline_rounded,
-                            color: AppColors.white,
-                          ),
-                          child: _getButtonTitle(_currentTab),
-                          onTap: () =>
-                              _handleButtonTap(context, _currentTab, project),
-                        )
-                    ],
-                  )
-                ],
+            const SizedBox(
+              width: 200,
+              child: MyTextFormField(
+                hintText: 'Search...',
+                leading: Icon(Iconsax.search_normal, size: 18, color: AppColors.textMuted),
               ),
             ),
+            if ([1, 2, 4, 5].contains(_currentTab))
+              OutlinedButton.icon(
+                onPressed: () => _handleButtonTap(context, _currentTab, project),
+                icon: const Icon(Iconsax.add_circle, size: 18),
+                label: Text(_getButtonTitle(_currentTab)),
+              ),
           ],
         ),
-        kSizedBoxSM,
-        Row(
-          children: [
-            const MyText('Projects', style: AppText.black_400_14),
-            const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward_ios_outlined, size: 12),
-            const SizedBox(width: 8),
-            MyText(project.shortCode, style: AppText.black_400_14),
-          ],
-        ),
-        const SizedBox(height: 21),
-        SizedBox(
-          height: 50,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
+      ),
+      children: [
+        // Tab Navigation
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
             children: [
               _buildTabButton("Overview", 0),
               _buildTabButton("Members", 1),
@@ -113,8 +89,13 @@ class _EachProjectsState extends State<EachProjects> {
             ],
           ),
         ),
-        const SizedBox(height: 23),
-        _buildPageContent(project),
+        const SizedBox(height: 24),
+
+        // Page Content
+        AppCard(
+          padding: const EdgeInsets.all(24),
+          child: _buildPageContent(project),
+        ),
       ],
     );
   }

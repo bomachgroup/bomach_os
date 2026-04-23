@@ -1,14 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/work_report_controller.dart';
@@ -87,9 +89,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Failed to upload file: $e"),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to upload file: $e');
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -110,9 +110,7 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
 
   void _handleSubmit() async {
     if (_hoursWorkedController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Hours worked is required"),
-          backgroundColor: Colors.red));
+      AppToast.error(context, 'Hours worked is required');
       return;
     }
 
@@ -149,11 +147,9 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
 
     if (success && mounted) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Report submitted"), backgroundColor: Colors.green));
+      AppToast.success(context, 'Report submitted');
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Failed to submit"), backgroundColor: Colors.red));
+      AppToast.error(context, 'Failed to submit');
     }
   }
 
@@ -161,195 +157,239 @@ class _DailyWorkReportDialogState extends State<DailyWorkReportDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.existingReport != null;
 
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 900),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(isEdit ? 'Edit Work Report' : 'New Work Report',
-                      style: AppText.black_500_20),
-                  IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop()),
-                ],
-              ),
-            ),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
+    return DialogScaffold(
+      title: isEdit ? 'Edit Work Report' : 'New Work Report',
+      subtitle: isEdit
+          ? 'Update your daily work activities, hours, and attachments.'
+          : 'Log your daily work activities, hours, and any supporting files.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSection(
+            title: 'Report Summary',
+            child: Column(
+              children: [
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const MyText('Report Date *',
-                                  style: AppText.black_600_14),
-                              const SizedBox(height: 8),
-                              InkWell(
-                                onTap: _selectDate,
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: const Color(0XFFD5D5D5)),
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.grey.shade50,
-                                  ),
-                                  child: MyText(
-                                      DateFormat('MMM dd, yyyy')
-                                          .format(_reportDate),
-                                      style: AppText.black_400_14),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                            child: MyTextFormField(
-                          title: 'Hours Worked *',
-                          controller: _hoursWorkedController,
-                          keyboardType: TextInputType.number,
-                          hintText: 'e.g. 8.0',
-                        )),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    MyTextFormField(
-                      title: 'Operational Base',
-                      controller: _operationalBaseController,
-                      hintText: 'e.g. Head Office, Site A',
-                    ),
-                    kSizedBox,
-                    MyTextFormField(
-                        title: 'Work Activities',
-                        controller: _workActivitiesController,
-                        maxLines: 3,
-                        hintText: 'Describe what you worked on today...'),
-                    kSizedBox,
-                    MyTextFormField(
-                        title: 'Task Details',
-                        controller: _taskDetailsController,
-                        maxLines: 3,
-                        hintText: 'Specific tasks completed...'),
-                    kSizedBox,
-                    MyTextFormField(
-                        title: 'Plan for Next Day',
-                        controller: _nextDayPlanController,
-                        maxLines: 3,
-                        hintText: 'What do you plan to work on tomorrow...'),
-                    kSizedBox,
-                    // ─── Attachments Section ───
-                    const MyText('Attachments', style: AppText.black_600_14),
-                    const SizedBox(height: 4),
-                    Text('Upload supporting documents',
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey.shade600)),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: _isUploading ? null : _pickAndUploadFile,
-                      icon: _isUploading
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.upload_file, size: 18),
-                      label:
-                          Text(_isUploading ? 'Uploading...' : 'Choose File'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.blue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                    Expanded(
+                      child: _buildDateField(
+                        label: 'Report Date',
+                        value: _reportDate,
+                        onTap: _selectDate,
                       ),
                     ),
-                    if (_attachments.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      ..._attachments.asMap().entries.map((entry) {
-                        final idx = entry.key;
-                        final url = entry.value.fileUrl;
-                        final fileName =
-                            Uri.tryParse(url)?.pathSegments.lastOrNull ?? url;
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 6),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.attach_file,
-                                  size: 16, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(fileName,
-                                    style: const TextStyle(fontSize: 13),
-                                    overflow: TextOverflow.ellipsis),
-                              ),
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _attachments.removeAt(idx)),
-                                child: const Icon(Icons.close,
-                                    size: 16, color: Colors.red),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Hours Worked',
+                        controller: _hoursWorkedController,
+                        keyboardType: TextInputType.number,
+                        hintText: 'e.g. 8.0',
+                      ),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Operational Base',
+                  controller: _operationalBaseController,
+                  hintText: 'e.g. Head Office, Site A',
+                ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        child: controller.isSaving.value
-                            ? 'Submitting...'
-                            : 'Submit',
-                        onTap:
-                            controller.isSaving.value ? () {} : _handleSubmit,
-                      )),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Activities & Plans',
+            child: Column(
+              children: [
+                MyTextFormField(
+                  title: 'Work Activities',
+                  controller: _workActivitiesController,
+                  maxLines: 3,
+                  hintText: 'Describe what you worked on today...',
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Task Details',
+                  controller: _taskDetailsController,
+                  maxLines: 3,
+                  hintText: 'Specific tasks completed...',
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Plan for Next Day',
+                  controller: _nextDayPlanController,
+                  maxLines: 3,
+                  hintText: 'What do you plan to work on tomorrow...',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Attachments',
+            subtitle: 'Upload supporting documents',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyElevatedButton(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  isLoading: _isUploading,
+                  icon: const Icon(Iconsax.document_upload,
+                      size: 18, color: AppColors.white),
+                  child: _isUploading ? 'Uploading...' : 'Choose File',
+                  onTap: _isUploading ? () {} : _pickAndUploadFile,
+                ),
+                if (_attachments.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  ..._attachments.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final url = entry.value.fileUrl;
+                    final fileName =
+                        Uri.tryParse(url)?.pathSegments.lastOrNull ?? url;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: AppRadii.brSm,
+                        border: Border.all(color: AppColors.borderSubtle),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Iconsax.attach_circle,
+                              size: 16, color: AppColors.textSecondary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              fileName,
+                              style: AppTextStyles.bodySm.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: AppRadii.brSm,
+                              onTap: () => setState(
+                                  () => _attachments.removeAt(idx)),
+                              child: const Padding(
+                                padding: EdgeInsets.all(4),
+                                child: Icon(Iconsax.close_circle,
+                                    size: 16, color: AppColors.danger),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ],
-              ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              isLoading: controller.isSaving.value,
+              child: 'Submit',
+              onTap: controller.isSaving.value ? () {} : _handleSubmit,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required DateTime value,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.bodyMd.copyWith(
+            color: AppColors.textPrimary,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          borderRadius: AppRadii.brMd,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadii.brMd,
+              border: Border.all(color: AppColors.borderSubtle),
+            ),
+            child: Row(
+              children: [
+                const Icon(Iconsax.calendar_1,
+                    size: 16, color: AppColors.textSecondary),
+                const SizedBox(width: 10),
+                Text(
+                  DateFormat('MMM d, yyyy').format(value),
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,9 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/section/responsive_widget.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/board_model.dart';
 import 'package:bms_front_end/src/model/company_model.dart';
@@ -11,15 +19,23 @@ import 'package:bms_front_end/src/model/employees_model.dart';
 import 'package:bms_front_end/src/model/partner_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controllers/board_controller.dart';
 import 'controllers/company_controller.dart';
-import 'company.dart';
 import 'widget/add_partner_dialog.dart';
 import 'widget/add_shareholder_dialog.dart';
 import 'widget/board_meeting_dialogs.dart';
 import 'widget/board_resolution_dialogs.dart';
+
+const List<String> _boardTabs = [
+  'Meetings',
+  'Resolutions',
+  'Investors',
+  'Associates',
+  'Partners',
+];
 
 class BoardPage extends StatelessWidget {
   const BoardPage({super.key});
@@ -27,133 +43,296 @@ class BoardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BoardController controller = Get.put(BoardController());
-    // Ensure CompanyController is available for stats
-    final CompanyController companyController = Get.put(CompanyController());
+    // Ensure CompanyController is registered for downstream lookups (Get.find).
+    Get.put(CompanyController());
 
-    Widget body = SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          const MyText('Board', style: AppText.black_600_32),
-          const SizedBox(height: 8),
-          const Text(
-              'Manage Board meetings, Resolutions, Reports, Investors, Associates, and partners',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
-          const SizedBox(height: 24),
-
-          // Stats Row
-          _buildStatsSection(companyController),
-
-          const SizedBox(height: 32),
-
-          // Tabs
-          Obx(() => _buildTabBar(controller)),
-
-          const SizedBox(height: 24),
-
-          // Tab Content
-          Obx(() {
-            switch (controller.currentTab.value) {
-              case 'Meetings':
-                return _MeetingsTab(controller: controller);
-              case 'Resolutions':
-                return _ResolutionsTab(controller: controller);
-              case 'Investors':
-                return _InvestorsTab(controller: controller);
-              case 'Associates':
-                return _AssociatesTab(controller: controller);
-              case 'Partners':
-                return _PartnersTab(controller: controller);
-              default:
-                return const SizedBox.shrink();
-            }
-          }),
-        ],
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Board',
+        subtitle:
+            'Manage Board meetings, resolutions, investors, associates, and partners.',
+        trailing: Obx(() => _buildHeaderAction(context, controller)),
       ),
-    );
-
-    return ResponsiveWidget(
-      largeScreen: body,
-      mediumScreen: body,
-      smallScreen: body,
+      children: [
+        Obx(() => _buildTabBar(controller)),
+        Obx(() {
+          switch (controller.currentTab.value) {
+            case 'Meetings':
+              return _MeetingsTab(controller: controller);
+            case 'Resolutions':
+              return _ResolutionsTab(controller: controller);
+            case 'Investors':
+              return _InvestorsTab(controller: controller);
+            case 'Associates':
+              return _AssociatesTab(controller: controller);
+            case 'Partners':
+              return _PartnersTab(controller: controller);
+            default:
+              return const SizedBox.shrink();
+          }
+        }),
+      ],
     );
   }
 
-  Widget _buildStatsSection(CompanyController companyController) {
-    return Obx(() {
-      final stats = companyController.dashboardStats.value;
-      return ResponsiveStatRow(
-        cards: [
-          DashboardStatCard(
-            title: 'Total Employees',
-            count: stats != null ? '${stats.totalEmployees}' : '–',
-            borderColor: Colors.green,
-            countColor: Colors.green,
+  Widget _buildHeaderAction(BuildContext context, BoardController controller) {
+    switch (controller.currentTab.value) {
+      case 'Meetings':
+        return MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Meeting',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const ScheduleMeetingDialog(),
           ),
-          DashboardStatCard(
-            title: 'Total Branches',
-            count: stats != null ? '${stats.totalBranches}' : '–',
-            borderColor: const Color(0xFF1976D2),
-            countColor: const Color(0xFF1976D2),
+        );
+      case 'Resolutions':
+        return MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Resolution',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const NewResolutionDialog(),
           ),
-          DashboardStatCard(
-            title: 'Pending Approvals',
-            count: stats != null ? '${stats.pendingApprovals}' : '–',
-            borderColor: const Color(0xFFC27803),
-            countColor: const Color(0xFFC27803),
+        );
+      case 'Investors':
+        return MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Shareholder',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const AddShareholderDialog(),
           ),
-          DashboardStatCard(
-            title: 'Asset Inventory',
-            count: stats != null ? '${stats.assetInventory}' : '–',
-            borderColor: Colors.green,
-            countColor: Colors.green,
+        );
+      case 'Partners':
+        return MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Partner',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const AddPartnerDialog(),
           ),
-        ],
-      );
-    });
+        );
+      case 'Associates':
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
   Widget _buildTabBar(BoardController controller) {
-    final tabs = [
-      'Meetings',
-      'Resolutions',
-      'Investors',
-      'Associates',
-      'Partners',
-    ];
     return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: Wrap(
-        spacing: 8,
-        children: tabs.map((tab) {
-          final isSelected = controller.currentTab.value == tab;
-          return InkWell(
-            onTap: () => controller.currentTab.value = tab,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.blue : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                tab,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: _boardTabs
+              .map((label) => Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: _buildTabButton(controller, label),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
+
+  Widget _buildTabButton(BoardController controller, String label) {
+    final isActive = controller.currentTab.value == label;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => controller.currentTab.value = label,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.surface : Colors.transparent,
+            borderRadius: AppRadii.brMd,
+            boxShadow: isActive ? AppShadows.sm : const <BoxShadow>[],
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMd.copyWith(
+              color:
+                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  SHARED HELPERS
+// ═══════════════════════════════════════════════════════════════════
+
+Widget _buildToolbar({
+  required String searchHint,
+  required ValueChanged<String> onSearchChanged,
+  List<Widget> trailingFilters = const [],
+}) {
+  return AppCard(
+    padding: const EdgeInsets.all(16),
+    elevation: AppCardElevation.sm,
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 1080;
+
+        final search = MyTextFormField(
+          hintText: searchHint,
+          height: 48,
+          onChanged: onSearchChanged,
+          leading: const Icon(Iconsax.search_normal,
+              size: 18, color: AppColors.textMuted),
+        );
+
+        if (trailingFilters.isEmpty) {
+          return search;
+        }
+
+        if (compact) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              search,
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: trailingFilters,
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: 3, child: search),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 4,
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: trailingFilters,
+              ),
+            ),
+          ],
+        );
+      },
+    ),
+  );
+}
+
+Widget _buildTableCard({
+  required String title,
+  required String subtitle,
+  Widget? headerTrailing,
+  required Widget body,
+  Widget? footer,
+}) {
+  return AppCard(
+    padding: EdgeInsets.zero,
+    elevation: AppCardElevation.md,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTextStyles.h3),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (headerTrailing != null) headerTrailing,
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        body,
+        if (footer != null) ...[
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          footer,
+        ],
+      ],
+    ),
+  );
+}
+
+Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+  final content = Text(
+    label,
+    style: AppTextStyles.bodySm.copyWith(
+      color: AppColors.textSecondary,
+      fontWeight: FontWeight.w600,
+    ),
+  );
+  if (width != null) return SizedBox(width: width, child: content);
+  return Expanded(flex: flex ?? 1, child: content);
+}
+
+Widget _tablePaginator(Widget child) {
+  return Container(
+    padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+    child: child,
+  );
+}
+
+PopupMenuItem<String> _menuItem({
+  required String value,
+  required IconData icon,
+  required String label,
+  bool destructive = false,
+}) {
+  final color =
+      destructive ? AppColors.danger : AppColors.textSecondary;
+  return PopupMenuItem<String>(
+    value: value,
+    child: Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: AppTextStyles.bodyMd.copyWith(
+            color: destructive ? AppColors.danger : AppColors.textPrimary,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -167,147 +346,62 @@ class _MeetingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Meetings', style: AppText.black_600_16),
-              SizedBox(height: 2),
-              Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
-            onChanged: controller.onMeetingSearchChanged,
-          ),
-          action: MyElevatedButton(
-            height: 40,
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
-            child: 'New Meeting',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => const ScheduleMeetingDialog(),
-            ),
-          ),
+        _buildToolbar(
+          searchHint: 'Search meetings by title or agenda',
+          onSearchChanged: controller.onMeetingSearchChanged,
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (controller.isLoadingMeetings.value &&
-              controller.meetingList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+          final loading = controller.isLoadingMeetings.value &&
+              controller.meetingList.isEmpty;
+          final isEmpty =
+              !controller.isLoadingMeetings.value && controller.meetingList.isEmpty;
 
-          if (controller.meetingList.isEmpty) {
-            return _buildEmptyState(
-              context,
-              icon: Icons.event_outlined,
-              title: 'No meetings scheduled',
-              subtitle: 'Schedule a new meeting to get started.',
-              buttonLabel: 'New Meeting',
-              onAdd: () => showDialog(
-                context: context,
-                builder: (_) => const ScheduleMeetingDialog(),
-              ),
-            );
-          }
-
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                children: [
-                  // Table Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 40),
-                        Expanded(
-                          flex: 3,
-                          child: Text('Title',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
+          return _buildTableCard(
+            title: 'Meetings register',
+            subtitle: loading
+                ? 'Loading meetings...'
+                : '${controller.meetingTotalItems.value} meetings scheduled',
+            headerTrailing: const StatusChip(
+              label: 'Governance calendar',
+              tone: StatusTone.primary,
+              icon: Iconsax.calendar_1,
+            ),
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.calendar_1,
+                          title: 'No meetings scheduled',
+                          subtitle:
+                              'Schedule a new meeting to get started.',
+                          action: MyElevatedButton(
+                            child: 'New Meeting',
+                            icon: const Icon(Iconsax.add_circle,
+                                size: 18, color: AppColors.textOnPrimary),
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (_) => const ScheduleMeetingDialog(),
+                            ),
+                          ),
                         ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Date & Time',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text('Agenda',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Status',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        SizedBox(
-                          width: 48,
-                          child: Text('Action',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  // Rows
-                  ...controller.meetingList
-                      .map((m) => _buildMeetingRow(context, m)),
-
-                  // Paginator
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Obx(() => PaginatorFooter(
-                          totalItems: controller.meetingTotalItems.value,
-                          limit: controller.meetingLimit.value,
-                          currentPage: controller.meetingCurrentPage.value,
-                          onPageChanged: controller.meetingGoToPage,
-                          onLimitChanged: controller.meetingSetLimit,
-                        )),
-                  ),
-                ],
-              ),
+                      )
+                    : _buildMeetingTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    totalItems: controller.meetingTotalItems.value,
+                    limit: controller.meetingLimit.value,
+                    currentPage: controller.meetingCurrentPage.value,
+                    onPageChanged: controller.meetingGoToPage,
+                    onLimitChanged: controller.meetingSetLimit,
+                  )),
             ),
           );
         }),
@@ -315,15 +409,35 @@ class _MeetingsTab extends StatelessWidget {
     );
   }
 
+  Widget _buildMeetingTable(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Title', flex: 3),
+              _buildHeaderCell('Date & Time', flex: 2),
+              _buildHeaderCell('Agenda', flex: 3),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...controller.meetingList.map((m) => _buildMeetingRow(context, m)),
+      ],
+    );
+  }
+
   Widget _buildMeetingRow(BuildContext context, BoardMeeting meeting) {
-    // Format date
     String displayDate = meeting.meetingDate;
     try {
       final parsed = DateTime.parse(meeting.meetingDate);
       displayDate = DateFormat('MMM d, yyyy').format(parsed);
     } catch (_) {}
 
-    // Format time
     String displayTime = meeting.meetingTime;
     try {
       final parts = meeting.meetingTime.split(':');
@@ -336,27 +450,22 @@ class _MeetingsTab extends StatelessWidget {
     } catch (_) {}
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
+          bottom: BorderSide(color: AppColors.borderSubtle),
         ),
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.blue,
-            ),
-          ),
           Expanded(
             flex: 3,
             child: Text(
               meeting.title,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -365,11 +474,20 @@ class _MeetingsTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(displayDate, style: const TextStyle(fontSize: 13)),
-                if (meeting.meetingTime.isNotEmpty)
-                  Text(displayTime,
-                      style: const TextStyle(
-                          fontSize: 12, color: Color(0xFF64748B))),
+                Text(
+                  displayDate,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                if (meeting.meetingTime.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    displayTime,
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
               ],
             ),
           ),
@@ -377,71 +495,52 @@ class _MeetingsTab extends StatelessWidget {
             flex: 3,
             child: Text(
               meeting.agenda,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
             flex: 2,
-            child: _buildStatusBadge(meeting.statusDisplay),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: meeting.statusDisplay.isEmpty
+                    ? 'Unknown'
+                    : meeting.statusDisplay,
+                tone: _meetingStatusTone(meeting.statusDisplay),
+              ),
+            ),
           ),
-          SizedBox(
-            width: 48,
-            child: _buildActionMenu(context, meeting),
-          ),
+          SizedBox(width: 48, child: _buildActionMenu(context, meeting)),
         ],
       ),
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    Color color;
+  StatusTone _meetingStatusTone(String status) {
     switch (status.toLowerCase()) {
       case 'upcoming':
-        color = Colors.blue;
-        break;
-      case 'completed':
-        color = Colors.green;
-        break;
-      case 'cancelled':
-        color = Colors.red;
-        break;
+      case 'pending':
       case 'postponed':
-        color = Colors.orange;
-        break;
+      case 'scheduled':
+        return StatusTone.warning;
+      case 'completed':
+        return StatusTone.success;
+      case 'cancelled':
+        return StatusTone.danger;
+      case 'in progress':
+        return StatusTone.info;
       default:
-        color = Colors.grey;
+        return StatusTone.neutral;
     }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.circle, size: 7, color: color),
-            const SizedBox(width: 5),
-            Text(
-              status,
-              style: TextStyle(
-                  color: color, fontSize: 12, fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildActionMenu(BuildContext context, BoardMeeting meeting) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      icon: const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       onSelected: (value) async {
         switch (value) {
           case 'view':
@@ -457,24 +556,27 @@ class _MeetingsTab extends StatelessWidget {
             );
             break;
           case 'delete':
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (c) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                title: const Text('Cancel Meeting'),
-                content:
-                    Text('Are you sure you want to cancel "${meeting.title}"?'),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('No')),
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Yes, Cancel',
-                          style: TextStyle(color: Colors.red))),
-                ],
-              ),
+            final confirmed = await DialogScaffold.show<bool>(
+              context,
+              title: 'Cancel Meeting',
+              size: DialogSize.sm,
+              body: Text('Are you sure you want to cancel "${meeting.title}"?',
+                  style: AppTextStyles.bodyMd),
+              actions: [
+                MyOutlinedButton(
+                  child: 'No',
+                  height: 44,
+                  onTap: () => Navigator.pop(context, false),
+                  textColor: AppColors.textSecondary,
+                  borderColor: AppColors.borderStrong,
+                ),
+                MyElevatedButton(
+                  width: 150,
+                  height: 44,
+                  child: 'Yes, Cancel',
+                  onTap: () => Navigator.pop(context, true),
+                ),
+              ],
             );
             if (confirmed == true && context.mounted) {
               controller.cancelMeeting(context, meeting.id);
@@ -483,72 +585,15 @@ class _MeetingsTab extends StatelessWidget {
         }
       },
       itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'edit',
-          child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(children: [
-            Icon(Icons.close_outlined, size: 18, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Cancel', style: TextStyle(color: Colors.red)),
-          ]),
-        ),
+        _menuItem(
+            value: 'view', icon: Iconsax.eye, label: 'View Details'),
+        _menuItem(value: 'edit', icon: Iconsax.edit, label: 'Edit'),
+        _menuItem(
+            value: 'delete',
+            icon: Iconsax.close_circle,
+            label: 'Cancel',
+            destructive: true),
       ],
-    );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String buttonLabel,
-    required VoidCallback onAdd,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -564,147 +609,61 @@ class _ResolutionsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Resolutions', style: AppText.black_600_16),
-              SizedBox(height: 2),
-              Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
-            onChanged: controller.onResolutionSearchChanged,
-          ),
-          action: MyElevatedButton(
-            height: 40,
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
-            child: 'New Resolution',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => const NewResolutionDialog(),
-            ),
-          ),
+        _buildToolbar(
+          searchHint: 'Search resolutions by title or type',
+          onSearchChanged: controller.onResolutionSearchChanged,
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (controller.isLoadingResolutions.value &&
-              controller.resolutionList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+          final loading = controller.isLoadingResolutions.value &&
+              controller.resolutionList.isEmpty;
+          final isEmpty = !controller.isLoadingResolutions.value &&
+              controller.resolutionList.isEmpty;
 
-          if (controller.resolutionList.isEmpty) {
-            return _buildEmptyState(
-              context,
-              icon: Icons.gavel_outlined,
-              title: 'No resolutions yet',
-              subtitle: 'Create a new resolution to get started.',
-              buttonLabel: 'New Resolution',
-              onAdd: () => showDialog(
-                context: context,
-                builder: (_) => const NewResolutionDialog(),
-              ),
-            );
-          }
-
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                children: [
-                  // Table Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 40),
-                        Expanded(
-                          flex: 3,
-                          child: Text('Title',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
+          return _buildTableCard(
+            title: 'Resolutions register',
+            subtitle: loading
+                ? 'Loading resolutions...'
+                : '${controller.resolutionTotalItems.value} resolutions on record',
+            headerTrailing: const StatusChip(
+              label: 'Governance decisions',
+              tone: StatusTone.primary,
+              icon: Iconsax.judge,
+            ),
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.judge,
+                          title: 'No resolutions yet',
+                          subtitle: 'Create a new resolution to get started.',
+                          action: MyElevatedButton(
+                            child: 'New Resolution',
+                            icon: const Icon(Iconsax.add_circle,
+                                size: 18, color: AppColors.textOnPrimary),
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (_) => const NewResolutionDialog(),
+                            ),
+                          ),
                         ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Type',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Date',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Status',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        SizedBox(
-                          width: 48,
-                          child: Text('Action',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  // Rows
-                  ...controller.resolutionList
-                      .map((r) => _buildResolutionRow(context, r)),
-
-                  // Paginator
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Obx(() => PaginatorFooter(
-                          totalItems: controller.resolutionTotalItems.value,
-                          limit: controller.resolutionLimit.value,
-                          currentPage: controller.resolutionCurrentPage.value,
-                          onPageChanged: controller.resolutionGoToPage,
-                          onLimitChanged: controller.resolutionSetLimit,
-                        )),
-                  ),
-                ],
-              ),
+                      )
+                    : _buildResolutionTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    totalItems: controller.resolutionTotalItems.value,
+                    limit: controller.resolutionLimit.value,
+                    currentPage: controller.resolutionCurrentPage.value,
+                    onPageChanged: controller.resolutionGoToPage,
+                    onLimitChanged: controller.resolutionSetLimit,
+                  )),
             ),
           );
         }),
@@ -712,8 +671,30 @@ class _ResolutionsTab extends StatelessWidget {
     );
   }
 
+  Widget _buildResolutionTable(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Title', flex: 3),
+              _buildHeaderCell('Type', flex: 2),
+              _buildHeaderCell('Date', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...controller.resolutionList
+            .map((r) => _buildResolutionRow(context, r)),
+      ],
+    );
+  }
+
   Widget _buildResolutionRow(BuildContext context, BoardResolution resolution) {
-    // Format date
     String displayDate = resolution.resolutionDate;
     try {
       final parsed = DateTime.parse(resolution.resolutionDate);
@@ -721,27 +702,22 @@ class _ResolutionsTab extends StatelessWidget {
     } catch (_) {}
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
+          bottom: BorderSide(color: AppColors.borderSubtle),
         ),
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.blue,
-            ),
-          ),
           Expanded(
             flex: 3,
             child: Text(
               resolution.title,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -749,76 +725,56 @@ class _ResolutionsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               resolution.resolutionTypeDisplay,
-              style: const TextStyle(fontSize: 13),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               displayDate,
-              style: const TextStyle(fontSize: 13),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
             flex: 2,
-            child: _buildStatusBadge(resolution.statusDisplay),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: resolution.statusDisplay.isEmpty
+                    ? 'Unknown'
+                    : resolution.statusDisplay,
+                tone: _resolutionStatusTone(resolution.statusDisplay),
+              ),
+            ),
           ),
           SizedBox(
-            width: 48,
-            child: _buildActionMenu(context, resolution),
-          ),
+              width: 48, child: _buildActionMenu(context, resolution)),
         ],
       ),
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    Color color;
+  StatusTone _resolutionStatusTone(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        color = Colors.green;
-        break;
+      case 'signed':
+        return StatusTone.success;
       case 'pending':
-        color = Colors.orange;
-        break;
+        return StatusTone.warning;
       case 'rejected':
-        color = Colors.red;
-        break;
+        return StatusTone.danger;
       case 'archived':
-        color = Colors.blueGrey;
-        break;
+      case 'draft':
+        return StatusTone.neutral;
       default:
-        color = Colors.grey;
+        return StatusTone.neutral;
     }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.circle, size: 7, color: color),
-            const SizedBox(width: 5),
-            Text(
-              status,
-              style: TextStyle(
-                  color: color, fontSize: 12, fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildActionMenu(BuildContext context, BoardResolution resolution) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      icon: const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       onSelected: (value) async {
         switch (value) {
           case 'view':
@@ -834,24 +790,29 @@ class _ResolutionsTab extends StatelessWidget {
             );
             break;
           case 'delete':
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (c) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                title: const Text('Archive Resolution'),
-                content: Text(
-                    'Are you sure you want to archive "${resolution.title}"?'),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('Cancel')),
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Archive',
-                          style: TextStyle(color: Colors.red))),
-                ],
+            final confirmed = await DialogScaffold.show<bool>(
+              context,
+              title: 'Archive Resolution',
+              size: DialogSize.sm,
+              body: Text(
+                'Are you sure you want to archive "${resolution.title}"?',
+                style: AppTextStyles.bodyMd,
               ),
+              actions: [
+                MyOutlinedButton(
+                  child: 'Cancel',
+                  height: 44,
+                  onTap: () => Navigator.pop(context, false),
+                  textColor: AppColors.textSecondary,
+                  borderColor: AppColors.borderStrong,
+                ),
+                MyElevatedButton(
+                  width: 120,
+                  height: 44,
+                  child: 'Archive',
+                  onTap: () => Navigator.pop(context, true),
+                ),
+              ],
             );
             if (confirmed == true && context.mounted) {
               controller.archiveResolution(context, resolution.id);
@@ -860,78 +821,20 @@ class _ResolutionsTab extends StatelessWidget {
         }
       },
       itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'edit',
-          child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(children: [
-            Icon(Icons.archive_outlined, size: 18, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Archive', style: TextStyle(color: Colors.red)),
-          ]),
-        ),
+        _menuItem(value: 'view', icon: Iconsax.eye, label: 'View Details'),
+        _menuItem(value: 'edit', icon: Iconsax.edit, label: 'Edit'),
+        _menuItem(
+            value: 'delete',
+            icon: Iconsax.archive_1,
+            label: 'Archive',
+            destructive: true),
       ],
-    );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String buttonLabel,
-    required VoidCallback onAdd,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  INVESTORS TAB
+//  INVESTORS TAB (Shareholders)
 // ═══════════════════════════════════════════════════════════════════
 
 class _InvestorsTab extends StatelessWidget {
@@ -943,138 +846,81 @@ class _InvestorsTab extends StatelessWidget {
     final companyCtrl = Get.find<CompanyController>();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Header with Create button
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MyText('Shareholders', style: AppText.black_600_16),
-                SizedBox(height: 2),
-                Text('Manage company shareholders and investors',
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-              ],
-            ),
-            MyElevatedButton(
-              child: '+ Create Shareholder',
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => const AddShareholderDialog(),
-              ),
-            ),
-          ],
+        _buildToolbar(
+          searchHint: 'Search shareholders by name or email',
+          onSearchChanged: (_) {}, // CompanyController owns shareholders
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (companyCtrl.isShareholdersLoading.value &&
-              companyCtrl.shareholders.isEmpty) {
-            return const Center(
-                child: Padding(
-                    padding: EdgeInsets.all(60),
-                    child: CircularProgressIndicator()));
-          }
+          final loading = companyCtrl.isShareholdersLoading.value &&
+              companyCtrl.shareholders.isEmpty;
+          final isEmpty = !companyCtrl.isShareholdersLoading.value &&
+              companyCtrl.shareholders.isEmpty;
 
-          if (companyCtrl.shareholders.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 60),
-                child: Column(children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9), shape: BoxShape.circle),
-                    child: const Icon(Icons.account_balance_outlined,
-                        size: 48, color: Color(0xFF94A3B8)),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('No shareholders found',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  const Text('Add shareholders using the button above.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
-                ]),
-              ),
-            );
-          }
-
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-              ),
-              child: Column(children: [
-                // Table Header
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12)),
-                  ),
-                  child: const Row(children: [
-                    Expanded(
-                        flex: 3,
-                        child: Text('Name',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 3,
-                        child: Text('Email',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 2,
-                        child: Text('Title',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 1,
-                        child: Text('Share %',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 1,
-                        child: Text('Board',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    SizedBox(
-                        width: 80,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                  ]),
-                ),
-                const Divider(height: 1),
-                // Rows
-                ...companyCtrl.shareholders
-                    .map((s) => _buildShareholderRow(context, s, companyCtrl)),
-              ]),
+          return _buildTableCard(
+            title: 'Shareholders register',
+            subtitle: loading
+                ? 'Loading shareholders...'
+                : '${companyCtrl.shareholders.length} active ownership records',
+            headerTrailing: const StatusChip(
+              label: 'Ownership directory',
+              tone: StatusTone.primary,
+              icon: Iconsax.profile_2user,
             ),
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.profile_2user,
+                          title: 'No shareholders yet',
+                          subtitle:
+                              'Add shareholders to track ownership and share distribution.',
+                          action: MyElevatedButton(
+                            child: 'New Shareholder',
+                            icon: const Icon(Iconsax.add_circle,
+                                size: 18, color: AppColors.textOnPrimary),
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (_) => const AddShareholderDialog(),
+                            ),
+                          ),
+                        ),
+                      )
+                    : _buildShareholderTable(context, companyCtrl),
           );
         }),
+      ],
+    );
+  }
+
+  Widget _buildShareholderTable(
+      BuildContext context, CompanyController companyCtrl) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Name', flex: 3),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Title', flex: 2),
+              _buildHeaderCell('Share %', flex: 1),
+              _buildHeaderCell('Board', flex: 1),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...companyCtrl.shareholders
+            .map((s) => _buildShareholderRow(context, s, companyCtrl)),
       ],
     );
   }
@@ -1082,89 +928,130 @@ class _InvestorsTab extends StatelessWidget {
   Widget _buildShareholderRow(
       BuildContext context, Shareholder s, CompanyController ctrl) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey.shade100))),
-      child: Row(children: [
-        Expanded(
-          flex: 3,
-          child: Row(children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: const Color(0xFFE8EAF6),
-              child: Text(s.firstName.isNotEmpty ? s.firstName[0] : '?',
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600)),
-            ),
-            const SizedBox(width: 10),
-            Flexible(
-                child: Text(s.fullName,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis)),
-          ]),
-        ),
-        Expanded(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
             flex: 3,
-            child: Text(s.email,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                overflow: TextOverflow.ellipsis)),
-        Expanded(
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primarySubtle,
+                  child: Text(
+                    s.firstName.isNotEmpty ? s.firstName[0].toUpperCase() : '?',
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Text(
+                    s.fullName,
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              s.email,
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
             flex: 2,
-            child: Text(s.titleDisplay,
-                style:
-                    const TextStyle(fontSize: 13, color: Color(0xFF64748B)))),
-        Expanded(
+            child: Text(
+              s.titleDisplay,
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
+          Expanded(
             flex: 1,
-            child: Text('${s.sharePercentage}%',
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500))),
-        Expanded(
-          flex: 1,
-          child: Icon(
-              s.isBoardMember ? Icons.check_circle : Icons.cancel_outlined,
-              size: 18,
-              color: s.isBoardMember ? Colors.green : Colors.grey.shade400),
-        ),
-        SizedBox(
-          width: 80,
-          child: Row(children: [
-            InkWell(
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => AddShareholderDialog(shareholder: s),
+            child: Text(
+              '${s.sharePercentage}%',
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
               ),
-              child: const Icon(Icons.edit_outlined,
-                  size: 18, color: Color(0xFF64748B)),
             ),
-            const SizedBox(width: 12),
-            InkWell(
-              onTap: () => _confirmDelete(context, ctrl, s),
-              child:
-                  const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+          ),
+          Expanded(
+            flex: 1,
+            child: Icon(
+              s.isBoardMember ? Iconsax.tick_circle : Iconsax.close_circle,
+              size: 18,
+              color:
+                  s.isBoardMember ? AppColors.success : AppColors.textMuted,
             ),
-          ]),
-        ),
-      ]),
-    );
-  }
-
-  void _confirmDelete(
-      BuildContext context, CompanyController ctrl, Shareholder s) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Shareholder'),
-        content: Text('Are you sure you want to remove ${s.fullName}?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              ctrl.deleteShareholder(context, s.id);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+          SizedBox(
+            width: 48,
+            child: PopupMenuButton<String>(
+              icon: const Icon(Iconsax.more,
+                  size: 18, color: AppColors.textSecondary),
+              shape:
+                  const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              onSelected: (value) async {
+                switch (value) {
+                  case 'edit':
+                    showDialog(
+                      context: context,
+                      builder: (_) => AddShareholderDialog(shareholder: s),
+                    );
+                    break;
+                  case 'delete':
+                    final confirmed = await DialogScaffold.show<bool>(
+                      context,
+                      title: 'Delete Shareholder',
+                      size: DialogSize.sm,
+                      body: Text(
+                          'Are you sure you want to remove ${s.fullName}?',
+                          style: AppTextStyles.bodyMd),
+                      actions: [
+                        MyOutlinedButton(
+                          child: 'Cancel',
+                          height: 44,
+                          onTap: () => Navigator.pop(context, false),
+                          textColor: AppColors.textSecondary,
+                          borderColor: AppColors.borderStrong,
+                        ),
+                        MyElevatedButton(
+                          width: 120,
+                          height: 44,
+                          child: 'Delete',
+                          onTap: () => Navigator.pop(context, true),
+                        ),
+                      ],
+                    );
+                    if (confirmed == true && context.mounted) {
+                      ctrl.deleteShareholder(context, s.id);
+                    }
+                    break;
+                }
+              },
+              itemBuilder: (_) => [
+                _menuItem(value: 'edit', icon: Iconsax.edit, label: 'Edit'),
+                _menuItem(
+                    value: 'delete',
+                    icon: Iconsax.trash,
+                    label: 'Delete',
+                    destructive: true),
+              ],
+            ),
           ),
         ],
       ),
@@ -1185,10 +1072,12 @@ class _AssociatesTab extends StatelessWidget {
     return _EmployeeListTab(
       controller: controller,
       tabLabel: 'Associates',
-      subtitle: 'Manage company associates',
-      emptyIcon: Icons.people_outline,
+      emptyIcon: Iconsax.people,
       emptyTitle: 'No associates found',
       emptySubtitle: 'Associates will appear here once added.',
+      headerTitle: 'Associates directory',
+      headerChipLabel: 'Company associates',
+      searchHint: 'Search associates by name or email',
       isLoading: controller.isLoadingAssociates,
       employeeList: controller.associateList,
       totalItems: controller.associateTotalItems,
@@ -1202,7 +1091,7 @@ class _AssociatesTab extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  PARTNERS TAB — uses dedicated /api/v1/partners/ endpoints
+//  PARTNERS TAB
 // ═══════════════════════════════════════════════════════════════════
 
 class _PartnersTab extends StatelessWidget {
@@ -1212,279 +1101,254 @@ class _PartnersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MyText('Partners', style: AppText.black_600_16),
-                SizedBox(height: 2),
-                Text('Manage company partners and agreements',
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-              ],
-            ),
-            Row(children: [
-              SizedBox(
-                width: 220,
-                child: MyTextFormField(
-                  hintText: 'Search partners...',
-                  leading:
-                      const Icon(Icons.search, color: Colors.grey, size: 20),
-                  onChanged: controller.onPartnerSearchChanged,
-                ),
-              ),
-              const SizedBox(width: 12),
-              MyElevatedButton(
-                child: '+ Add Partner',
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (_) => const AddPartnerDialog(),
-                ),
-              ),
-            ]),
-          ],
+        _buildToolbar(
+          searchHint: 'Search partners by name, email, or category',
+          onSearchChanged: controller.onPartnerSearchChanged,
         ),
         const SizedBox(height: 16),
         Obx(() {
-          if (controller.isLoadingPartners.value &&
-              controller.partnerList.isEmpty) {
-            return const Center(
-                child: Padding(
-                    padding: EdgeInsets.all(60),
-                    child: CircularProgressIndicator()));
-          }
+          final loading = controller.isLoadingPartners.value &&
+              controller.partnerList.isEmpty;
+          final isEmpty = !controller.isLoadingPartners.value &&
+              controller.partnerList.isEmpty;
 
-          if (controller.partnerList.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 60),
-                child: Column(children: [
-                  Container(
+          return _buildTableCard(
+            title: 'Partners register',
+            subtitle: loading
+                ? 'Loading partners...'
+                : '${controller.partnerTotalItems.value} partners onboarded',
+            headerTrailing: const StatusChip(
+              label: 'Partner network',
+              tone: StatusTone.primary,
+              icon: Iconsax.briefcase,
+            ),
+            body: loading
+                ? Padding(
                     padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9), shape: BoxShape.circle),
-                    child: const Icon(Icons.handshake_outlined,
-                        size: 48, color: Color(0xFF94A3B8)),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('No partners found',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  const Text('Add partners using the button above.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
-                ]),
-              ),
-            );
-          }
-
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-              ),
-              child: Column(children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12)),
-                  ),
-                  child: const Row(children: [
-                    Expanded(
-                        flex: 3,
-                        child: Text('Name',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 3,
-                        child: Text('Email',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 2,
-                        child: Text('Category',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 2,
-                        child: Text('Status',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    Expanded(
-                        flex: 1,
-                        child: Text('Agreements',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                    SizedBox(
-                        width: 80,
-                        child: Text('Action',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF64748B)))),
-                  ]),
-                ),
-                const Divider(height: 1),
-                ...controller.partnerList
-                    .map((p) => _buildPartnerRow(context, p)),
-              ]),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.briefcase,
+                          title: 'No partners found',
+                          subtitle:
+                              'Add partners to manage agreements and relationships.',
+                          action: MyElevatedButton(
+                            child: 'New Partner',
+                            icon: const Icon(Iconsax.add_circle,
+                                size: 18, color: AppColors.textOnPrimary),
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (_) => const AddPartnerDialog(),
+                            ),
+                          ),
+                        ),
+                      )
+                    : _buildPartnerTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    currentPage: controller.partnerCurrentPage.value,
+                    totalItems: controller.partnerTotalItems.value,
+                    limit: controller.partnerLimit.value,
+                    onPageChanged: controller.partnerGoToPage,
+                    onLimitChanged: controller.partnerSetLimit,
+                  )),
             ),
           );
         }),
-        const SizedBox(height: 16),
-        Obx(() => PaginatorFooter(
-              currentPage: controller.partnerCurrentPage.value,
-              totalItems: controller.partnerTotalItems.value,
-              limit: controller.partnerLimit.value,
-              onPageChanged: controller.partnerGoToPage,
-              onLimitChanged: controller.partnerSetLimit,
-            )),
+      ],
+    );
+  }
+
+  Widget _buildPartnerTable(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Name', flex: 3),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Category', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('Agreements', flex: 1),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...controller.partnerList.map((p) => _buildPartnerRow(context, p)),
       ],
     );
   }
 
   Widget _buildPartnerRow(BuildContext context, Partner p) {
-    final isActive = p.status == 'active';
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey.shade100))),
-      child: Row(children: [
-        Expanded(
-          flex: 3,
-          child: Row(children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: const Color(0xFFE8EAF6),
-              child: Text(p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600)),
-            ),
-            const SizedBox(width: 10),
-            Flexible(
-                child: Text(p.name,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis)),
-          ]),
-        ),
-        Expanded(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
             flex: 3,
-            child: Text(p.email,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                overflow: TextOverflow.ellipsis)),
-        Expanded(
-            flex: 2,
-            child: Text(p.categoryDisplay,
-                style:
-                    const TextStyle(fontSize: 13, color: Color(0xFF64748B)))),
-        Expanded(
-          flex: 2,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? Colors.green.withValues(alpha: 0.1)
-                  : Colors.grey.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primarySubtle,
+                  child: Text(
+                    p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Text(
+                    p.name,
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isActive ? Colors.green : Colors.grey)),
-              const SizedBox(width: 6),
-              Text(p.statusDisplay,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: isActive ? Colors.green : Colors.grey,
-                      fontWeight: FontWeight.w500)),
-            ]),
           ),
-        ),
-        Expanded(
-            flex: 1,
-            child: Text('${p.agreementCount}',
-                style: const TextStyle(fontSize: 13))),
-        SizedBox(
-          width: 80,
-          child: Row(children: [
-            InkWell(
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => AddPartnerDialog(partner: p),
+          Expanded(
+            flex: 3,
+            child: Text(
+              p.email,
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              p.categoryDisplay,
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label:
+                    p.statusDisplay.isEmpty ? 'Unknown' : p.statusDisplay,
+                tone: _partnerStatusTone(p.status),
               ),
-              child: const Icon(Icons.edit_outlined,
-                  size: 18, color: Color(0xFF64748B)),
             ),
-            const SizedBox(width: 12),
-            InkWell(
-              onTap: () => _confirmDelete(context, p),
-              child:
-                  const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              '${p.agreementCount}',
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ]),
-        ),
-      ]),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, Partner p) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Partner'),
-        content: Text(
-            'Are you sure you want to delete "${p.name}"? This will also delete all associated agreements.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              controller.deletePartner(context, p.id);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+          SizedBox(
+            width: 48,
+            child: PopupMenuButton<String>(
+              icon: const Icon(Iconsax.more,
+                  size: 18, color: AppColors.textSecondary),
+              shape:
+                  const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              onSelected: (value) async {
+                switch (value) {
+                  case 'edit':
+                    showDialog(
+                      context: context,
+                      builder: (_) => AddPartnerDialog(partner: p),
+                    );
+                    break;
+                  case 'delete':
+                    final confirmed = await DialogScaffold.show<bool>(
+                      context,
+                      title: 'Delete Partner',
+                      size: DialogSize.sm,
+                      body: Text(
+                        'Are you sure you want to delete "${p.name}"? This will also delete all associated agreements.',
+                        style: AppTextStyles.bodyMd,
+                      ),
+                      actions: [
+                        MyOutlinedButton(
+                          child: 'Cancel',
+                          height: 44,
+                          onTap: () => Navigator.pop(context, false),
+                          textColor: AppColors.textSecondary,
+                          borderColor: AppColors.borderStrong,
+                        ),
+                        MyElevatedButton(
+                          width: 120,
+                          height: 44,
+                          child: 'Delete',
+                          onTap: () => Navigator.pop(context, true),
+                        ),
+                      ],
+                    );
+                    if (confirmed == true && context.mounted) {
+                      controller.deletePartner(context, p.id);
+                    }
+                    break;
+                }
+              },
+              itemBuilder: (_) => [
+                _menuItem(value: 'edit', icon: Iconsax.edit, label: 'Edit'),
+                _menuItem(
+                    value: 'delete',
+                    icon: Iconsax.trash,
+                    label: 'Delete',
+                    destructive: true),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+
+  StatusTone _partnerStatusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return StatusTone.success;
+      case 'inactive':
+        return StatusTone.neutral;
+      case 'suspended':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  SHARED EMPLOYEE LIST TAB (reused by Investors, Associates, Partners)
+//  SHARED EMPLOYEE LIST TAB (Associates)
 // ═══════════════════════════════════════════════════════════════════
 
 class _EmployeeListTab extends StatelessWidget {
   final BoardController controller;
   final String tabLabel;
-  final String subtitle;
   final IconData emptyIcon;
   final String emptyTitle;
   final String emptySubtitle;
+  final String headerTitle;
+  final String headerChipLabel;
+  final String searchHint;
   final RxBool isLoading;
   final RxList<Employee> employeeList;
   final RxInt totalItems;
@@ -1497,10 +1361,12 @@ class _EmployeeListTab extends StatelessWidget {
   const _EmployeeListTab({
     required this.controller,
     required this.tabLabel,
-    required this.subtitle,
     required this.emptyIcon,
     required this.emptyTitle,
     required this.emptySubtitle,
+    required this.headerTitle,
+    required this.headerChipLabel,
+    required this.searchHint,
     required this.isLoading,
     required this.employeeList,
     required this.totalItems,
@@ -1514,161 +1380,50 @@ class _EmployeeListTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText(tabLabel, style: AppText.black_600_16),
-              const SizedBox(height: 2),
-              Text(subtitle,
-                  style:
-                      const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
-            onChanged: onSearchChanged,
-          ),
+        _buildToolbar(
+          searchHint: searchHint,
+          onSearchChanged: onSearchChanged,
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (isLoading.value && employeeList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+          final loading = isLoading.value && employeeList.isEmpty;
+          final isEmpty = !isLoading.value && employeeList.isEmpty;
 
-          if (employeeList.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 60),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(emptyIcon,
-                          size: 48, color: const Color(0xFF94A3B8)),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(emptyTitle,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    Text(emptySubtitle,
-                        style: const TextStyle(
-                            color: Color(0xFF64748B), fontSize: 14),
-                        textAlign: TextAlign.center),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                children: [
-                  // Table Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 48),
-                        Expanded(
-                          flex: 3,
-                          child: Text('Name',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
+          return _buildTableCard(
+            title: headerTitle,
+            subtitle: loading
+                ? 'Loading $tabLabel...'
+                : '${totalItems.value} records available',
+            headerTrailing: StatusChip(
+              label: headerChipLabel,
+              tone: StatusTone.primary,
+              icon: emptyIcon,
+            ),
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: emptyIcon,
+                          title: emptyTitle,
+                          subtitle: emptySubtitle,
                         ),
-                        Expanded(
-                          flex: 3,
-                          child: Text('Email',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Phone',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Department',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Status',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        SizedBox(
-                          width: 48,
-                          child: Text('Action',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  // Rows
-                  ...employeeList.map((e) => _buildEmployeeRow(context, e)),
-
-                  // Paginator
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Obx(() => PaginatorFooter(
-                          totalItems: totalItems.value,
-                          limit: limit.value,
-                          currentPage: currentPage.value,
-                          onPageChanged: onPageChanged,
-                          onLimitChanged: onLimitChanged,
-                        )),
-                  ),
-                ],
-              ),
+                      )
+                    : _buildEmployeeTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    totalItems: totalItems.value,
+                    limit: limit.value,
+                    currentPage: currentPage.value,
+                    onPageChanged: onPageChanged,
+                    onLimitChanged: onLimitChanged,
+                  )),
             ),
           );
         }),
@@ -1676,60 +1431,87 @@ class _EmployeeListTab extends StatelessWidget {
     );
   }
 
-  Widget _buildEmployeeRow(BuildContext context, Employee employee) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
+  Widget _buildEmployeeTable(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Name', flex: 3),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Phone', flex: 2),
+              _buildHeaderCell('Department', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('', width: 48),
+            ],
+          ),
         ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...employeeList.map((e) => _buildEmployeeRow(context, e)),
+      ],
+    );
+  }
+
+  Widget _buildEmployeeRow(BuildContext context, Employee employee) {
+    final hasPicture = employee.profilePicture != null &&
+        employee.profilePicture!.isNotEmpty &&
+        employee.profilePicture != 'string';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 40,
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-              backgroundImage: employee.profilePicture != null &&
-                      employee.profilePicture!.isNotEmpty &&
-                      employee.profilePicture != 'string'
-                  ? NetworkImage(employee.profilePicture!)
-                  : null,
-              child: employee.profilePicture == null ||
-                      employee.profilePicture!.isEmpty ||
-                      employee.profilePicture == 'string'
-                  ? Text(
-                      employee.firstName.isNotEmpty
-                          ? employee.firstName[0].toUpperCase()
-                          : '?',
-                      style: const TextStyle(
-                          color: AppColors.blue,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14),
-                    )
-                  : null,
-            ),
-          ),
-          const SizedBox(width: 8),
           Expanded(
             flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  employee.fullName,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 14),
-                  overflow: TextOverflow.ellipsis,
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primarySubtle,
+                  backgroundImage:
+                      hasPicture ? NetworkImage(employee.profilePicture!) : null,
+                  child: !hasPicture
+                      ? Text(
+                          employee.firstName.isNotEmpty
+                              ? employee.firstName[0].toUpperCase()
+                              : '?',
+                          style: AppTextStyles.label.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      : null,
                 ),
-                if (employee.role.isNotEmpty)
-                  Text(
-                    employee.role,
-                    style:
-                        const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                    overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        employee.fullName,
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (employee.role.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          employee.role,
+                          style: AppTextStyles.bodySm
+                              .copyWith(color: AppColors.textSecondary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
                   ),
+                ),
               ],
             ),
           ),
@@ -1737,186 +1519,152 @@ class _EmployeeListTab extends StatelessWidget {
             flex: 3,
             child: Text(
               employee.email,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              employee.phoneNumber ?? '–',
-              style: const TextStyle(fontSize: 13),
+              employee.phoneNumber ?? '—',
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              employee.departmentName ?? '–',
-              style: const TextStyle(fontSize: 13),
+              employee.departmentName ?? '—',
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
             flex: 2,
-            child: _buildStatusBadge(employee.isActive),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip.fromStatus(
+                employee.isActive ? 'Active' : 'Inactive',
+              ),
+            ),
           ),
           SizedBox(
             width: 48,
-            child: _buildActionMenu(context, employee),
+            child: PopupMenuButton<String>(
+              icon: const Icon(Iconsax.more,
+                  size: 18, color: AppColors.textSecondary),
+              shape:
+                  const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              onSelected: (value) {
+                if (value == 'view') {
+                  _showViewDialog(context, employee);
+                }
+              },
+              itemBuilder: (_) => [
+                _menuItem(
+                    value: 'view',
+                    icon: Iconsax.eye,
+                    label: 'View Details'),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatusBadge(bool isActive) {
-    final color = isActive ? Colors.green : Colors.red;
-    final label = isActive ? 'Active' : 'Inactive';
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.circle, size: 7, color: color),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: TextStyle(
-                  color: color, fontSize: 12, fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionMenu(BuildContext context, Employee employee) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      onSelected: (value) {
-        switch (value) {
-          case 'view':
-            _showViewDialog(context, employee);
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details'),
-          ]),
-        ),
-      ],
-    );
-  }
-
   void _showViewDialog(BuildContext context, Employee employee) {
-    // Format dates
-    String joinDate = '–';
+    String joinDate = '—';
     if (employee.startDate != null) {
       joinDate = DateFormat('MMMM d, yyyy').format(employee.startDate!);
     }
 
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 520),
-          padding: const EdgeInsets.all(24),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('$tabLabel Details',
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+    final hasPicture = employee.profilePicture != null &&
+        employee.profilePicture!.isNotEmpty &&
+        employee.profilePicture != 'string';
 
-                // Profile avatar + name
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: AppColors.blue.withValues(alpha: 0.1),
-                      backgroundImage: employee.profilePicture != null &&
-                              employee.profilePicture!.isNotEmpty &&
-                              employee.profilePicture != 'string'
-                          ? NetworkImage(employee.profilePicture!)
-                          : null,
-                      child: employee.profilePicture == null ||
-                              employee.profilePicture!.isEmpty ||
-                              employee.profilePicture == 'string'
-                          ? Text(
-                              employee.firstName.isNotEmpty
-                                  ? employee.firstName[0].toUpperCase()
-                                  : '?',
-                              style: const TextStyle(
-                                  color: AppColors.blue,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 22),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+    DialogScaffold.show(
+      context,
+      title: '$tabLabel Details',
+      subtitle: employee.role.isNotEmpty ? employee.role : null,
+      size: DialogSize.md,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceMuted,
+              borderRadius: AppRadii.brLg,
+              border: Border.all(color: AppColors.borderSubtle),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 26,
+                  backgroundColor: AppColors.primarySubtle,
+                  backgroundImage: hasPicture
+                      ? NetworkImage(employee.profilePicture!)
+                      : null,
+                  child: !hasPicture
+                      ? Text(
+                          employee.firstName.isNotEmpty
+                              ? employee.firstName[0].toUpperCase()
+                              : '?',
+                          style: AppTextStyles.h3.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(employee.fullName, style: AppTextStyles.h3),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
-                          Text(employee.fullName,
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 2),
-                          Text(employee.role,
-                              style: const TextStyle(
-                                  color: Color(0xFF64748B), fontSize: 14)),
+                          StatusChip.fromStatus(
+                              employee.isActive ? 'Active' : 'Inactive'),
+                          if (employee.role.isNotEmpty)
+                            StatusChip(
+                              label: employee.role,
+                              tone: StatusTone.neutral,
+                              icon: Iconsax.briefcase,
+                            ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                const Divider(),
-                const SizedBox(height: 12),
-
-                _detailRow('Email', employee.email),
-                _detailRow('Phone', employee.phoneNumber ?? '–'),
-                _detailRow('Department', employee.departmentName ?? '–'),
-                _detailRow('Branch', employee.branchName ?? '–'),
-                _detailRow('Join Date', joinDate),
-                _detailRow('Status', employee.isActive ? 'Active' : 'Inactive'),
-                if (employee.employmentType != null)
-                  _detailRow('Employment Type', employee.employmentType!),
-
-                const SizedBox(height: 16),
               ],
             ),
           ),
-        ),
+          const SizedBox(height: 20),
+          _detailRow('Email', employee.email),
+          _detailRow('Phone', employee.phoneNumber ?? '—'),
+          _detailRow('Department', employee.departmentName ?? '—'),
+          _detailRow('Branch', employee.branchName ?? '—'),
+          _detailRow('Join Date', joinDate),
+          if (employee.employmentType != null)
+            _detailRow('Employment Type', employee.employmentType!),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+      ],
     );
   }
 
@@ -1928,13 +1676,19 @@ class _EmployeeListTab extends StatelessWidget {
         children: [
           SizedBox(
             width: 130,
-            child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+            child: Text(
+              label,
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+            child: Text(
+              value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),

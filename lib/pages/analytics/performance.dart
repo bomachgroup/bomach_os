@@ -1,7 +1,8 @@
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart' show AppText;
-import 'package:flutter/material.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 import '../../src/constants/spaces.dart';
 import 'overview.dart';
@@ -10,7 +11,7 @@ const Color kDarkBackground = Color(0xFF1E1E1E);
 const Color kCardBackground = Color(0xFFFFFFFF);
 const Color kGreenLine = Color(0xFF4CAF50);
 const Color kBlueLine = Color(0xFF2196F3);
-const Color kOrangeLine = Color(0xFFFF9800);
+const Color kOrangeLine = AppColors.warning;
 
 const List<FlSpot> efficiencyData = [
   FlSpot(0, 80),
@@ -64,48 +65,39 @@ class DashboardPage extends StatelessWidget {
 
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         !isMobile
-            ? const Row(
+            ? Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        MyText(
+                        AppText.displayLg(
                           'Analytics',
-                          style: AppText.black_500_32,
                         ),
-                        SizedBox(height: 4),
-                        MyText(
+                        const SizedBox(height: 4),
+                        AppText.bodyMd(
                           'Business intelligence and performance metrics',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
+                          fontWeight: FontWeight.w500,
                         ),
                       ],
                     ),
                   ),
-                  AnalyticsActions(),
+                  const AnalyticsActions(),
                 ],
               )
-            : const Column(
+            : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MyText(
+                  AppText.displayLg(
                     'Analytics',
-                    style: AppText.black_500_32,
                   ),
-                  SizedBox(height: 4),
-                  MyText(
+                  const SizedBox(height: 4),
+                  AppText.bodyMd(
                     'Business intelligence and performance metrics',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15,
-                    ),
+                    fontWeight: FontWeight.w500,
                   ),
-                  SizedBox(height: 16),
-                  AnalyticsActions(),
+                  const AnalyticsActions(),
                 ],
               ),
         kSizedBox,
@@ -202,30 +194,19 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      color: kCardBackground,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            if (subtitle != null) ...[
-              Text(subtitle!,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey)),
-              const SizedBox(height: 12),
-            ] else
-              const SizedBox(height: 12),
-            child,
-          ],
-        ),
+    return AppCard(
+      backgroundColor: kCardBackground,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText.h4(title),
+          if (subtitle != null) ...[
+            AppText.bodySm(subtitle!, color: AppColors.textMuted),
+            const SizedBox(height: 12),
+          ] else
+            const SizedBox(height: 12),
+          child,
+        ],
       ),
     );
   }

@@ -1,12 +1,21 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 class MyTasksController extends GetxController {
   final Dio _dio = Dio(BaseOptions(
@@ -90,20 +99,12 @@ class MyTasksController extends GetxController {
       await fetchMyTasks();
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Task status updated to $newStatus'),
-              backgroundColor: const Color(0xFF10B981)),
-        );
+        AppToast.success(context, 'Task status updated to $newStatus');
       }
       return true;
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Failed to update: $e'),
-              backgroundColor: const Color(0xFFEF4444)),
-        );
+        AppToast.error(context, 'Failed to update: $e');
       }
       return false;
     } finally {
@@ -120,6 +121,12 @@ class MyTasksPage extends StatefulWidget {
 }
 
 class _MyTasksPageState extends State<MyTasksPage> {
+  static const _accentIndigo = Color(0xFF6366F1);
+  static const _accentCyan = AppColors.info;
+  static const _accentAmber = AppColors.warning;
+  static const _accentGreen = AppColors.success;
+  static const _accentRed = AppColors.danger;
+
   final ScrollController _scrollController = ScrollController();
   final MyTasksController controller = Get.put(MyTasksController());
 
@@ -160,40 +167,37 @@ class _MyTasksPageState extends State<MyTasksPage> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: _accentIndigo.withValues(alpha: 0.1),
+                  borderRadius: AppRadii.brMd,
                 ),
-                child: const Icon(Icons.task_alt_rounded,
-                    color: Color(0xFF6366F1), size: 24),
+                child: const Icon(Iconsax.task_square,
+                    color: _accentIndigo, size: 24),
               ),
               const SizedBox(width: 14),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MyText('My Tasks',
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1E293B))),
-                  SizedBox(height: 2),
-                  MyText('Manage and track your assigned tasks',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF94A3B8))),
+                  const MyText('My Tasks', style: AppTextStyles.h1),
+                  const SizedBox(height: 2),
+                  MyText(
+                    'Manage and track your assigned tasks',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textMuted,
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
         ),
         Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12),
+          decoration: const BoxDecoration(
+            color: AppColors.surfaceMuted,
+            borderRadius: AppRadii.brMd,
           ),
           child: IconButton(
-            icon: const Icon(Icons.refresh_rounded,
-                color: Color(0xFF64748B), size: 22),
+            icon: const Icon(Iconsax.refresh,
+                color: AppColors.textSecondary, size: 20),
             onPressed: () => controller.fetchMyTasks(),
             tooltip: 'Refresh',
           ),
@@ -219,19 +223,19 @@ class _MyTasksPageState extends State<MyTasksPage> {
         children: [
           Expanded(
               child: _buildSummaryCard('Total Tasks', '$all',
-                  Icons.list_alt_rounded, const Color(0xFF6366F1))),
+                  Iconsax.task_square, _accentIndigo)),
           const SizedBox(width: 12),
           Expanded(
               child: _buildSummaryCard('Pending', '$pending',
-                  Icons.hourglass_empty_rounded, const Color(0xFFF59E0B))),
+                  Iconsax.hashtag_1, _accentAmber)),
           const SizedBox(width: 12),
           Expanded(
               child: _buildSummaryCard('In Progress', '$inProgress',
-                  Icons.autorenew_rounded, const Color(0xFF0EA5E9))),
+                  Iconsax.refresh_2, _accentCyan)),
           const SizedBox(width: 12),
           Expanded(
               child: _buildSummaryCard('Completed', '$completed',
-                  Icons.check_circle_rounded, const Color(0xFF10B981))),
+                  Iconsax.tick_circle, _accentGreen)),
         ],
       );
     });
@@ -239,27 +243,16 @@ class _MyTasksPageState extends State<MyTasksPage> {
 
   Widget _buildSummaryCard(
       String label, String count, IconData icon, Color color) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      elevation: AppCardElevation.sm,
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadii.brMd,
             ),
             child: Icon(icon, color: color, size: 20),
           ),
@@ -268,16 +261,18 @@ class _MyTasksPageState extends State<MyTasksPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(count,
-                    style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B))),
-                MyText(label,
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade500)),
+                MyText(
+                  count,
+                  style: AppTextStyles.h2.copyWith(
+                    fontSize: 22,
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                MyText(
+                  label,
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                ),
               ],
             ),
           ),
@@ -288,28 +283,16 @@ class _MyTasksPageState extends State<MyTasksPage> {
 
   Widget _buildFilterBar() {
     final filters = [
-      {'key': 'all', 'label': 'All Tasks', 'icon': Icons.list_alt_rounded},
-      {
-        'key': 'pending',
-        'label': 'Pending',
-        'icon': Icons.hourglass_empty_rounded
-      },
-      {
-        'key': 'in_progress',
-        'label': 'In Progress',
-        'icon': Icons.autorenew_rounded
-      },
-      {
-        'key': 'completed',
-        'label': 'Completed',
-        'icon': Icons.check_circle_rounded
-      },
+      {'key': 'all', 'label': 'All Tasks', 'icon': Iconsax.task_square},
+      {'key': 'pending', 'label': 'Pending', 'icon': Iconsax.hashtag_1},
+      {'key': 'in_progress', 'label': 'In Progress', 'icon': Iconsax.refresh_2},
+      {'key': 'completed', 'label': 'Completed', 'icon': Iconsax.tick_circle},
     ];
     return Obx(() => Container(
           padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(14),
+          decoration: const BoxDecoration(
+            color: AppColors.surfaceMuted,
+            borderRadius: AppRadii.brMd,
           ),
           child: Row(
             children: filters.map((f) {
@@ -320,17 +303,18 @@ class _MyTasksPageState extends State<MyTasksPage> {
                     controller.selectedFilter.value = f['key'] as String;
                     controller.fetchMyTasks();
                   },
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadii.brSm,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: isActive ? AppColors.white : Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
+                      color: isActive ? AppColors.surface : Colors.transparent,
+                      borderRadius: AppRadii.brSm,
                       boxShadow: isActive
                           ? [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.06),
+                                color: AppColors.neutral900
+                                    .withValues(alpha: 0.06),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -343,21 +327,18 @@ class _MyTasksPageState extends State<MyTasksPage> {
                         Icon(
                           f['icon'] as IconData,
                           size: 16,
-                          color: isActive
-                              ? const Color(0xFF6366F1)
-                              : const Color(0xFF94A3B8),
+                          color: isActive ? _accentIndigo : AppColors.textMuted,
                         ),
                         const SizedBox(width: 6),
                         MyText(
                           f['label'] as String,
                           isSelectable: false,
-                          style: TextStyle(
-                            fontSize: 13,
+                          style: AppTextStyles.label.copyWith(
                             fontWeight:
                                 isActive ? FontWeight.w600 : FontWeight.w500,
                             color: isActive
-                                ? const Color(0xFF1E293B)
-                                : const Color(0xFF94A3B8),
+                                ? AppColors.textPrimary
+                                : AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -371,125 +352,68 @@ class _MyTasksPageState extends State<MyTasksPage> {
   }
 
   Widget _buildTasksTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.sm,
+      clipBehavior: Clip.antiAlias,
       child: Obx(() {
         if (controller.isLoading.value) {
-          return const Padding(
-            padding: EdgeInsets.all(40),
-            child: Center(child: CircularProgressIndicator()),
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: LoadingSkeleton.listRows(count: 6),
           );
         }
 
         if (controller.errorMessage.isNotEmpty) {
-          return Padding(
-            padding: const EdgeInsets.all(60),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(Icons.error_outline_rounded,
-                        size: 48, color: Color(0xFFEF4444)),
-                  ),
-                  const SizedBox(height: 16),
-                  MyText(controller.errorMessage.value,
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFFEF4444))),
-                  const SizedBox(height: 12),
-                  TextButton.icon(
-                    onPressed: () => controller.fetchMyTasks(),
-                    icon: const Icon(Icons.refresh_rounded, size: 18),
-                    label: const Text('Retry'),
-                  ),
-                ],
-              ),
+          return EmptyState(
+            title: 'Could not load tasks',
+            subtitle: controller.errorMessage.value,
+            icon: Iconsax.warning_2,
+            action: OutlinedButton.icon(
+              onPressed: () => controller.fetchMyTasks(),
+              icon: const Icon(Iconsax.refresh, size: 18),
+              label: const Text('Retry'),
             ),
           );
         }
 
         if (controller.tasks.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.all(60),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(Icons.task_alt_rounded,
-                        size: 48, color: Color(0xFF94A3B8)),
-                  ),
-                  const SizedBox(height: 16),
-                  const MyText('No tasks found',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B))),
-                  const SizedBox(height: 6),
-                  const MyText('Tasks assigned to you will appear here',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
-                ],
-              ),
-            ),
+          return const EmptyState(
+            title: 'No tasks found',
+            subtitle: 'Tasks assigned to you will appear here',
+            icon: Iconsax.task_square,
           );
         }
 
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Scrollbar(
+        return Scrollbar(
+          controller: _scrollController,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
             controller: _scrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: bodySpace(context)),
-                child: DataTable(
-                  headingRowColor:
-                      WidgetStateProperty.all(const Color(0xFFF8FAFC)),
-                  headingTextStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF475569),
-                  ),
-                  dataRowMinHeight: 72,
-                  dataRowMaxHeight: 72,
-                  columnSpacing: 28,
-                  horizontalMargin: 20,
-                  dividerThickness: 0.5,
-                  columns: const [
-                    DataColumn(label: Text("Task")),
-                    DataColumn(label: Text("Priority")),
-                    DataColumn(label: Text("Due Date")),
-                    DataColumn(label: Text("Est. Hours")),
-                    DataColumn(label: Text("Status")),
-                    DataColumn(label: Text("Action")),
-                  ],
-                  rows: _buildRows(controller.tasks),
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: bodySpace(context)),
+              child: DataTable(
+                headingRowColor:
+                    WidgetStateProperty.all(AppColors.surfaceMuted),
+                headingTextStyle: AppTextStyles.label.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
                 ),
+                dataRowMinHeight: 72,
+                dataRowMaxHeight: 72,
+                columnSpacing: 28,
+                horizontalMargin: 20,
+                dividerThickness: 0.5,
+                columns: const [
+                  DataColumn(label: Text("Task")),
+                  DataColumn(label: Text("Priority")),
+                  DataColumn(label: Text("Due Date")),
+                  DataColumn(label: Text("Est. Hours")),
+                  DataColumn(label: Text("Status")),
+                  DataColumn(label: Text("Action")),
+                ],
+                rows: _buildRows(controller.tasks),
               ),
             ),
           ),
@@ -510,12 +434,12 @@ class _MyTasksPageState extends State<MyTasksPage> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color:
-                        _getPriorityColor(task.priority).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    color: _getPriorityColor(task.priority)
+                        .withValues(alpha: 0.1),
+                    borderRadius: AppRadii.brSm,
                   ),
                   child: Center(
-                    child: Icon(Icons.assignment_rounded,
+                    child: Icon(Iconsax.task_square,
                         size: 18, color: _getPriorityColor(task.priority)),
                   ),
                 ),
@@ -526,104 +450,74 @@ class _MyTasksPageState extends State<MyTasksPage> {
                   children: [
                     SizedBox(
                       width: 180,
-                      child: MyText(task.name,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E293B)),
-                          maxLines: 1),
+                      child: MyText(
+                        task.name,
+                        style: AppTextStyles.bodyMd.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                      ),
                     ),
                     const SizedBox(height: 2),
-                    MyText('#${task.id}',
-                        style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF94A3B8))),
+                    MyText(
+                      '#${task.id}',
+                      style: AppTextStyles.caption.copyWith(
+                        fontSize: 11,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-          DataCell(_buildPriorityBadge(task.priority)),
-          DataCell(MyText(task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
+          DataCell(_buildPriorityChip(task.priority)),
+          DataCell(MyText(
+              task.dueDate.isNotEmpty ? task.dueDate : '\u2014',
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary))),
           DataCell(MyText(
               task.estimatedHours > 0 ? '${task.estimatedHours}h' : '\u2014',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF475569)))),
-          DataCell(_buildStatusBadge(task.status)),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary))),
+          DataCell(StatusChip.fromStatus(task.status)),
           DataCell(_buildActionMenu(task)),
         ],
       );
     }).toList();
   }
 
-  Widget _buildPriorityBadge(String priority) {
-    final color = _getPriorityColor(priority);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 6),
-          MyText(
-              priority.isNotEmpty
-                  ? priority[0].toUpperCase() + priority.substring(1)
-                  : 'Low',
-              style: TextStyle(
-                  color: color, fontWeight: FontWeight.w600, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    final color = _getStatusColor(status);
-    final icon = _getStatusIcon(status);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          MyText(
-              status.isNotEmpty
-                  ? status[0].toUpperCase() + status.substring(1)
-                  : 'Unknown',
-              style: TextStyle(
-                  color: color, fontWeight: FontWeight.w600, fontSize: 12)),
-        ],
-      ),
-    );
+  Widget _buildPriorityChip(String priority) {
+    StatusTone tone;
+    switch (priority.toLowerCase()) {
+      case 'high':
+        tone = StatusTone.danger;
+        break;
+      case 'medium':
+        tone = StatusTone.warning;
+        break;
+      default:
+        tone = StatusTone.success;
+    }
+    final label = priority.isNotEmpty
+        ? priority[0].toUpperCase() + priority.substring(1)
+        : 'Low';
+    return StatusChip(label: label, tone: tone);
   }
 
   Widget _buildActionMenu(Task task) {
     return PopupMenuButton<String>(
       icon: Container(
         padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(8),
+        decoration: const BoxDecoration(
+          color: AppColors.surfaceMuted,
+          borderRadius: AppRadii.brSm,
         ),
-        child: const Icon(Icons.more_horiz_rounded,
-            size: 18, color: Color(0xFF64748B)),
+        child: const Icon(Iconsax.more,
+            size: 18, color: AppColors.textSecondary),
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       elevation: 8,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shadowColor: AppColors.neutral900.withValues(alpha: 0.1),
       onSelected: (value) {
         if (value == 'start') {
           controller.updateTaskStatus(context, task, 'in_progress');
@@ -634,14 +528,13 @@ class _MyTasksPageState extends State<MyTasksPage> {
         }
       },
       itemBuilder: (context) => [
-        _buildMenuItem(Icons.visibility_rounded, 'View Details', 'details',
-            const Color(0xFF6366F1)),
+        _buildMenuItem(Iconsax.eye, 'View Details', 'details', _accentIndigo),
         if (task.status.toLowerCase() == 'pending')
-          _buildMenuItem(Icons.play_circle_rounded, 'Start Task', 'start',
-              const Color(0xFF0EA5E9)),
+          _buildMenuItem(
+              Iconsax.play_circle, 'Start Task', 'start', _accentCyan),
         if (task.status.toLowerCase() == 'in_progress')
-          _buildMenuItem(Icons.check_circle_rounded, 'Mark Complete',
-              'complete', const Color(0xFF10B981)),
+          _buildMenuItem(Iconsax.tick_circle, 'Mark Complete', 'complete',
+              _accentGreen),
       ],
     );
   }
@@ -656,127 +549,69 @@ class _MyTasksPageState extends State<MyTasksPage> {
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadii.brSm,
             ),
             child: Icon(icon, size: 16, color: color),
           ),
           const SizedBox(width: 10),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF334155))),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              fontWeight: FontWeight.w500,
+              color: AppColors.textPrimary,
+            ),
+          ),
         ],
       ),
     );
   }
 
   void _showTaskDetails(Task task) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 550),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    DialogScaffold.show(
+      context,
+      title: 'Task Details',
+      size: DialogSize.md,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _detailItem(Iconsax.document_text, 'Task Name', task.name),
+          _detailItem(Iconsax.note_1, 'Description',
+              task.description.isNotEmpty ? task.description : 'N/A'),
+          Row(
             children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.assignment_rounded,
-                          color: Color(0xFF6366F1), size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: MyText('Task Details',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1E293B))),
-                    ),
-                    InkWell(
-                      onTap: () => Navigator.pop(context),
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE2E8F0),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.close_rounded,
-                            size: 18, color: Color(0xFF64748B)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _detailItem(Icons.badge_rounded, 'Task Name', task.name),
-                    _detailItem(Icons.notes_rounded, 'Description',
-                        task.description.isNotEmpty ? task.description : 'N/A'),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: _detailItem(
-                                Icons.flag_rounded, 'Priority', task.priority,
-                                badge: _buildPriorityBadge(task.priority))),
-                        const SizedBox(width: 16),
-                        Expanded(
-                            child: _detailItem(
-                                Icons.circle_rounded, 'Status', task.status,
-                                badge: _buildStatusBadge(task.status))),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: _detailItem(
-                                Icons.calendar_month_rounded,
-                                'Due Date',
-                                task.dueDate.isNotEmpty
-                                    ? task.dueDate
-                                    : 'Not set')),
-                        const SizedBox(width: 16),
-                        Expanded(
-                            child: _detailItem(
-                                Icons.timer_rounded,
-                                'Est. Hours',
-                                task.estimatedHours > 0
-                                    ? '${task.estimatedHours}h'
-                                    : 'Not set')),
-                      ],
-                    ),
-                    if (task.assignedTo.isNotEmpty)
-                      _detailItem(Icons.people_rounded, 'Assigned To',
-                          task.assignedTo.join(', ')),
-                  ],
-                ),
-              ),
+              Expanded(
+                  child: _detailItem(
+                      Iconsax.flag, 'Priority', task.priority,
+                      badge: _buildPriorityChip(task.priority))),
+              const SizedBox(width: 16),
+              Expanded(
+                  child: _detailItem(
+                      Iconsax.record_circle, 'Status', task.status,
+                      badge: StatusChip.fromStatus(task.status))),
             ],
           ),
-        ),
+          Row(
+            children: [
+              Expanded(
+                  child: _detailItem(
+                      Iconsax.calendar_1,
+                      'Due Date',
+                      task.dueDate.isNotEmpty ? task.dueDate : 'Not set')),
+              const SizedBox(width: 16),
+              Expanded(
+                  child: _detailItem(
+                      Iconsax.clock,
+                      'Est. Hours',
+                      task.estimatedHours > 0
+                          ? '${task.estimatedHours}h'
+                          : 'Not set')),
+            ],
+          ),
+          if (task.assignedTo.isNotEmpty)
+            _detailItem(Iconsax.people, 'Assigned To',
+                task.assignedTo.join(', ')),
+        ],
       ),
     );
   }
@@ -790,22 +625,23 @@ class _MyTasksPageState extends State<MyTasksPage> {
         children: [
           Row(
             children: [
-              Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
+              Icon(icon, size: 14, color: AppColors.textMuted),
               const SizedBox(width: 6),
-              MyText(label,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF94A3B8))),
+              MyText(
+                label,
+                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+              ),
             ],
           ),
           const SizedBox(height: 6),
           badge ??
-              MyText(value,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF1E293B))),
+              MyText(
+                value,
+                style: AppTextStyles.bodyMd.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textPrimary,
+                ),
+              ),
         ],
       ),
     );
@@ -814,37 +650,11 @@ class _MyTasksPageState extends State<MyTasksPage> {
   Color _getPriorityColor(String priority) {
     switch (priority.toLowerCase()) {
       case 'high':
-        return const Color(0xFFEF4444);
+        return _accentRed;
       case 'medium':
-        return const Color(0xFFF59E0B);
+        return _accentAmber;
       default:
-        return const Color(0xFF10B981);
-    }
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return const Color(0xFF10B981);
-      case 'in_progress':
-        return const Color(0xFF0EA5E9);
-      case 'pending':
-        return const Color(0xFFF59E0B);
-      default:
-        return const Color(0xFF94A3B8);
-    }
-  }
-
-  IconData _getStatusIcon(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return Icons.check_circle_rounded;
-      case 'in_progress':
-        return Icons.autorenew_rounded;
-      case 'pending':
-        return Icons.hourglass_empty_rounded;
-      default:
-        return Icons.circle_outlined;
+        return _accentGreen;
     }
   }
 }

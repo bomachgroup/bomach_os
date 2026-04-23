@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _ProgressStatusState extends State<ProgressStatus> {
                 child: Container(
                   height: 14,
                   decoration: const BoxDecoration(
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     borderRadius: BorderRadius.horizontal(
                       left: Radius.circular(8),
                     ),
@@ -62,7 +63,7 @@ class _ProgressStatusState extends State<ProgressStatus> {
           Container(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.grey5,
+                color: AppColors.neutral100,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -71,14 +72,14 @@ class _ProgressStatusState extends State<ProgressStatus> {
                     height: 8,
                     width: 8,
                     decoration: BoxDecoration(
-                      color: AppColors.green2,
+                      color: AppColors.success,
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   kSizedBoxWidthTiny,
                   MyText(status),
                   kSizedBoxWidthSM,
-                  const Icon(Icons.keyboard_arrow_down, size: 16)
+                  const Icon(Iconsax.arrow_down_1, size: 16)
                 ],
               )),
         ],

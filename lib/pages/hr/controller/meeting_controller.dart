@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
@@ -30,11 +31,7 @@ class MeetingController extends GetxController {
   }
 
   void _snack(BuildContext context, String msg, {bool error = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: error ? Colors.red : Colors.green,
-      behavior: SnackBarBehavior.floating,
-    ));
+    AppToast.info(context, msg);
   }
 
   Future<void> fetchEmployees({String? search}) async {

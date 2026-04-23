@@ -14,6 +14,7 @@ class RouteConstants {
   static const String broadcast = '/company/broadcast';
   static const String roles = '/company/roles';
   static const String approvalWorkflow = '/company/approval-workflow';
+  static const String workspaceApprovals = '/company/workspace-approvals';
   // static const String compliance = '/company/compliance';
 
   // marketing
@@ -137,6 +138,9 @@ class RouteConstants {
   static const String crmClients = '/crm/clients';
   static const String crmLeads = '/crm/leads';
   static const String crmInteractions = '/crm/interactions';
+
+  // Marketing & CRM combined dashboard
+  static const String marketingCrm = '/marketing-crm';
 
   // Events
   static const String events = '/events';

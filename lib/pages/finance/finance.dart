@@ -1,11 +1,25 @@
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
+// Per-card accent palette — keeps the stat tiles visually differentiated.
+const Color _accentBlue = AppColors.primary;
+const Color _accentRed = AppColors.danger;
+const Color _accentAmber = AppColors.warning;
+const Color _accentGreen = AppColors.success;
 
 class FinancePage extends StatefulWidget {
   const FinancePage({super.key});
@@ -17,15 +31,71 @@ class FinancePage extends StatefulWidget {
 class _FinancePageState extends State<FinancePage> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const MyText(
-          'Finance Dashboard',
-          style: AppText.black_600_32,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const PageHeader(
+            title: 'Finance & Accounting',
+            subtitle: 'Invoices, payments, budgets, and financial reporting',
+          ),
+          kSizedBox,
+          _buildQuickNav(),
+          kSizedBoxBG,
+          _buildSummaryGrid(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Iconsax.receipt_2_1,
+          title: 'Invoices',
+          subtitle: 'Issue and track billings',
+          route: RouteConstants.invoice,
+          resources: const [PermissionConstants.resEstateInvoices],
         ),
-        kSizedBox,
-        _buildSummaryGrid(),
+        card(
+          icon: Iconsax.money_send,
+          title: 'Payments',
+          subtitle: 'Record incoming funds',
+          route: RouteConstants.payment,
+          resources: const [PermissionConstants.resPayments],
+        ),
+        card(
+          icon: Iconsax.money_remove,
+          title: 'Expenses',
+          subtitle: 'Review and approve spend',
+          route: RouteConstants.expense,
+          resources: const [PermissionConstants.resExpenses],
+        ),
+        card(
+          icon: Iconsax.wallet_3,
+          title: 'Budgets',
+          subtitle: 'Plan and allocate funds',
+          route: RouteConstants.budget,
+          resources: const [PermissionConstants.resBudgets],
+        ),
       ],
     );
   }
@@ -34,78 +104,34 @@ class _FinancePageState extends State<FinancePage> {
     return LayoutGrid(
       columnSizes: isSmallScreen(context) ? [1.fr] : [1.fr, 1.fr],
       rowSizes: isSmallScreen(context)
-          ? [
-              auto,
-              auto,
-              auto,
-              auto,
-            ]
-          : const [
-              auto,
-              auto,
-            ],
+          ? [auto, auto, auto, auto]
+          : const [auto, auto],
       columnGap: kDefaultSpaceBG,
       rowGap: kDefaultSpaceBG,
       children: [
         _buildSummaryCard(
           value: '452',
           label: 'Total Employees',
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
+          icon: Iconsax.people,
+          accent: _accentBlue,
         ),
         _buildSummaryCard(
-          value: '452',
+          value: '\$45,200',
           label: 'Total Expenses',
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
+          icon: Iconsax.money_remove,
+          accent: _accentRed,
         ),
         _buildSummaryCard(
           value: '20',
           label: 'Outstanding Invoices',
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
+          icon: Iconsax.receipt_2_1,
+          accent: _accentAmber,
         ),
         _buildSummaryCard(
-          value: '20,000,000',
+          value: '\$20,000,000',
           label: 'Total Budget',
-          bigIcon: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
-            child: const Icon(
-              CupertinoIcons.person_2,
-              size: 20,
-            ),
-          ),
+          icon: Iconsax.wallet_3,
+          accent: _accentGreen,
         ),
       ],
     );
@@ -114,51 +140,50 @@ class _FinancePageState extends State<FinancePage> {
   Widget _buildSummaryCard({
     required String value,
     required String label,
-    required Widget bigIcon,
+    required IconData icon,
+    required Color accent,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.2),
-            spreadRadius: 1,
-            blurRadius: 5,
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.displayMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                height: 44,
+                width: 44,
+                decoration: BoxDecoration(
+                  borderRadius: AppRadii.brMd,
+                  color: accent.withValues(alpha: 0.12),
+                ),
+                child: Icon(icon, size: 22, color: accent),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 38,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  bigIcon,
-                ],
-              ),
-            ),
-            MyText(
-              label,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

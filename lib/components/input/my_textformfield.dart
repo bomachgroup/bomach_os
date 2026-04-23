@@ -1,5 +1,6 @@
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -61,14 +62,8 @@ class MyTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Default fill color
-    final Color defaultFillColor = fillColor ?? AppColors.white;
-
-    // Create a lighter version of the fill color for focus state
-    final Color lighterFillColor = HSLColor.fromColor(defaultFillColor)
-        .withLightness((HSLColor.fromColor(defaultFillColor).lightness + 0.1)
-            .clamp(0.0, 1.0))
-        .toColor();
+    final Color defaultFillColor = fillColor ?? AppColors.surface;
+    final BorderRadius effectiveRadius = borderRadius ?? AppRadii.brMd;
 
     return Container(
       constraints: BoxConstraints(
@@ -84,13 +79,13 @@ class MyTextFormField extends StatelessWidget {
             MyText(
               title ?? '',
               style: TextStyle(
-                color: textColor ?? AppColors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
+                color: textColor ?? AppColors.textPrimary,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           SizedBox(
-            height: spaceBetweenText ?? (title != null ? 10 : 0),
+            height: spaceBetweenText ?? (title != null ? 8 : 0),
           ),
           SizedBox(
             height: height,
@@ -109,49 +104,56 @@ class MyTextFormField extends StatelessWidget {
               onChanged: onChanged,
               textInputAction: textInputAction,
               textAlign: textAlign,
-              cursorColor: Colors.black,
+              cursorColor: AppColors.primary,
               autocorrect: true,
               enableSuggestions: true,
               style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
+                color: AppColors.textPrimary,
+                fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                     vertical: (height != null && height! > 50)
                         ? (height! - 40) / 2
-                        : 10,
-                    horizontal: 12),
+                        : 12,
+                    horizontal: 14),
                 hintText: hintText,
+                hintStyle: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
                 filled: true,
                 fillColor: defaultFillColor,
                 hoverColor: defaultFillColor,
-                focusColor: lighterFillColor,
                 border: OutlineInputBorder(
-                  borderRadius: borderRadius ?? BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: AppColors.card,
-                  ),
+                  borderRadius: effectiveRadius,
+                  borderSide: const BorderSide(color: AppColors.borderSubtle),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: borderRadius ?? BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: AppColors.card,
-                  ),
+                  borderRadius: effectiveRadius,
+                  borderSide: const BorderSide(color: AppColors.borderSubtle),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: borderRadius ?? BorderRadius.circular(15),
+                  borderRadius: effectiveRadius,
                   borderSide: const BorderSide(
-                    color: AppColors.card,
-                    width: 2,
+                    color: AppColors.primary,
+                    width: 1.5,
                   ),
                 ),
                 errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: effectiveRadius,
                   borderSide: const BorderSide(
-                    color: AppColors.red,
-                    width: 2.0,
+                    color: AppColors.danger,
+                    width: 1.5,
+                  ),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: effectiveRadius,
+                  borderSide: const BorderSide(
+                    color: AppColors.danger,
+                    width: 1.5,
                   ),
                 ),
                 prefixIcon: leading,

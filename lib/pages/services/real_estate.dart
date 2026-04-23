@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/cards/real_estate_card.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
@@ -30,8 +31,8 @@ class RealEstateScreen extends StatelessWidget {
           child: MyTextFormField(
             hintText: "Search...",
             leading: Icon(
-              Icons.search,
-              color: AppColors.grey1.withValues(alpha: 0.5),
+              Iconsax.search_normal,
+              color: AppColors.neutral500.withValues(alpha: 0.5),
             ),
             onChanged: (value) => ctrl.onSearchChanged(value),
           ),
@@ -61,7 +62,7 @@ class RealEstateScreen extends StatelessWidget {
                 padding: EdgeInsets.all(40),
                 child: MyText(
                   'No estates found',
-                  style: TextStyle(fontSize: 16, color: AppColors.grey1),
+                  style: TextStyle(fontSize: 16, color: AppColors.neutral500),
                 ),
               ),
             );

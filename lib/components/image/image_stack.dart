@@ -24,7 +24,7 @@ class ProfileIconsStack extends StatelessWidget {
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.grey4),
+                      border: Border.all(color: AppColors.neutral300),
                       color: Colors.grey.shade300,
                       shape: BoxShape.circle,
                     ),
@@ -43,7 +43,7 @@ class ProfileIconsStack extends StatelessWidget {
   Container profileIconWidget(String imagePath) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         borderRadius: BorderRadius.circular(28),
       ),
       child: ClipRRect(

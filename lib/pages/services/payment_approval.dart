@@ -1,14 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/payment_approval_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 class PaymentApprovalPage extends StatefulWidget {
@@ -67,29 +69,22 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
   Widget _buildHeader() {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(
-                'Payment Approval',
-                style: AppText.black_500_32,
-              ),
-              SizedBox(height: 4),
-              MyText(
+              AppText.displayLg('Payment Approval'),
+              const SizedBox(height: 4),
+              AppText.bodyLg(
                 'Review and approve pending payment submissions',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                  color: Colors.black54,
-                ),
+                color: AppColors.textSecondary,
               ),
             ],
           ),
         ),
         IconButton(
           onPressed: () => controller.fetchPendingApprovals(),
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Iconsax.refresh),
           tooltip: 'Refresh',
         ),
       ],
@@ -118,20 +113,20 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         _buildStatCard(
           'Pending Approvals',
           pendingCount.toString(),
-          Icons.pending_actions,
-          AppColors.blue,
+          Iconsax.timer_1,
+          AppColors.primary,
         ),
         _buildStatCard(
           'Total Amount',
           '\u20A6${NumberFormat('#,###').format(pendingAmount)}',
-          Icons.attach_money,
-          Colors.green,
+          Iconsax.money_recive,
+          AppColors.success,
         ),
         _buildStatCard(
           'Today\'s Submissions',
           todayCount.toString(),
-          Icons.today,
-          Colors.orange,
+          Iconsax.calendar_1,
+          AppColors.warning,
         ),
       ],
     );
@@ -145,7 +140,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -163,20 +158,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             child: Icon(icon, color: color, size: 20),
           ),
           kSizedBoxSM,
-          MyText(
-            value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          AppText.h2(value),
           const SizedBox(height: 4),
-          MyText(
+          AppText.bodySm(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.grey1,
-            ),
+            color: AppColors.textSecondary,
           ),
         ],
       ),
@@ -197,8 +183,8 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 child: MyTextFormField(
                   hintText: 'Search by invoice or client...',
                   leading: Icon(
-                    Icons.search,
-                    color: AppColors.grey1.withValues(alpha: 0.5),
+                    Iconsax.search_normal,
+                    color: AppColors.neutral500.withValues(alpha: 0.5),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -251,14 +237,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
+            Icon(Iconsax.danger, size: 64, color: Colors.red.shade400),
             const SizedBox(height: 16),
-            Text(
+            AppText.bodyMd(
               controller.errorMessage.value,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.red.shade600,
-              ),
+              color: AppColors.danger,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -280,26 +263,19 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.check_circle_outline,
+              Iconsax.tick_circle,
               size: 64,
               color: Colors.grey.shade400,
             ),
             const SizedBox(height: 16),
-            Text(
+            AppText.h3(
               'No pending payments',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
-              ),
+              color: AppColors.textSecondary,
             ),
             const SizedBox(height: 8),
-            Text(
+            AppText.bodyMd(
               'All payments have been processed',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade500,
-              ),
+              color: AppColors.textMuted,
             ),
           ],
         ),
@@ -354,33 +330,21 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          invoiceNumber,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        AppText.h4(invoiceNumber),
                         const SizedBox(width: 12),
                         _buildStatusBadge(status),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    AppText.bodyMd(
                       clientName,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      fontWeight: FontWeight.w500,
                     ),
                     if (invoiceType.isNotEmpty) ...[
                       const SizedBox(height: 4),
-                      Text(
+                      AppText.bodySm(
                         invoiceType,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                        ),
+                        color: AppColors.textSecondary,
                       ),
                     ],
                   ],
@@ -389,21 +353,15 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
+                  AppText.bodyMd(
                     'Total: \u20A6${NumberFormat('#,###').format(totalAmount)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    fontWeight: FontWeight.w600,
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  AppText.bodySm(
                     'Balance: \u20A6${NumberFormat('#,###').format(balance)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.red.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    color: AppColors.danger,
+                    fontWeight: FontWeight.w500,
                   ),
                 ],
               ),
@@ -415,13 +373,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 12),
-            const Text(
-              'Invoice Items',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            AppText.h4('Invoice Items'),
             const SizedBox(height: 8),
             ...items.map((item) {
               final description =
@@ -433,20 +385,14 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
+                      child: AppText.bodySm(
                         description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade700,
-                        ),
+                        color: AppColors.textSecondary,
                       ),
                     ),
-                    Text(
+                    AppText.bodySm(
                       '$quantity x \u20A6${NumberFormat('#,###').format(unitPrice)}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
-                      ),
+                      color: AppColors.textMuted,
                     ),
                   ],
                 ),
@@ -459,13 +405,7 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 12),
-            const Text(
-              'Approval Steps',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            AppText.h4('Approval Steps'),
             const SizedBox(height: 12),
             ...approvals.map((approval) => _buildApprovalStep(
                   approval,
@@ -503,10 +443,10 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             children: [
               Icon(
                 isPending
-                    ? Icons.pending_actions
+                    ? Iconsax.timer_1
                     : decision == 'approved'
-                        ? Icons.check_circle
-                        : Icons.cancel,
+                        ? Iconsax.tick_circle
+                        : Iconsax.close_circle,
                 size: 18,
                 color: isPending
                     ? Colors.orange
@@ -516,12 +456,9 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
+                child: AppText.bodyMd(
                   stepName,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               if (!isPending) _buildDecisionBadge(decision),
@@ -529,16 +466,16 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
           ),
           if (decidedBy.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text(
+            AppText.bodySm(
               'Decided by: $decidedBy',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              color: AppColors.textSecondary,
             ),
           ],
           if (comment.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text(
+            AppText.bodySm(
               'Comment: $comment',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              color: AppColors.textSecondary,
             ),
           ],
           if (isPending) ...[
@@ -554,7 +491,8 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 ),
                 const SizedBox(width: 12),
                 MyElevatedButton(
-                  icon: const Icon(Icons.check, color: Colors.white, size: 18),
+                  icon: const Icon(Iconsax.tick_circle,
+                      color: Colors.white, size: 18),
                   child: 'Approve',
                   onTap: () => _handleApprovePayment(invoiceId, step, invoice),
                 ),
@@ -574,13 +512,9 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         color: isApproved ? Colors.green.shade100 : Colors.red.shade100,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
+      child: AppText.label(
         isApproved ? 'Approved' : 'Rejected',
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: isApproved ? Colors.green.shade800 : Colors.red.shade800,
-        ),
+        color: isApproved ? AppColors.success : AppColors.danger,
       ),
     );
   }
@@ -592,23 +526,23 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
 
     switch (status.toLowerCase()) {
       case 'paid':
-        backgroundColor = Colors.green.shade100;
-        textColor = Colors.green.shade800;
+        backgroundColor = AppColors.success.withValues(alpha: 0.1);
+        textColor = AppColors.success;
         label = 'Paid';
         break;
       case 'partially_paid':
-        backgroundColor = Colors.orange.shade100;
-        textColor = Colors.orange.shade800;
+        backgroundColor = AppColors.warning.withValues(alpha: 0.1);
+        textColor = AppColors.warning;
         label = 'Partially Paid';
         break;
       case 'overdue':
-        backgroundColor = Colors.red.shade100;
-        textColor = Colors.red.shade800;
+        backgroundColor = AppColors.dangerSubtle;
+        textColor = AppColors.danger;
         label = 'Overdue';
         break;
       case 'sent':
-        backgroundColor = Colors.blue.shade100;
-        textColor = Colors.blue.shade800;
+        backgroundColor = AppColors.info.withValues(alpha: 0.1);
+        textColor = AppColors.info;
         label = 'Sent';
         break;
       case 'draft':
@@ -635,13 +569,9 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
+      child: AppText.label(
         label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: textColor,
-        ),
+        color: textColor,
       ),
     );
   }
@@ -652,43 +582,42 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     final clientName = invoice['client_name'] ?? '';
     final balance = ((invoice['balance'] ?? 0) as num).toDouble();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Approve Payment'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Are you sure you want to approve this payment?'),
-            const SizedBox(height: 16),
-            Text(
-              'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Text('Invoice: $invoiceNumber'),
-            Text('Client: $clientName'),
-          ],
-        ),
-        actions: [
-          MyOutlinedButton(
-            textColor: AppColors.darkGrey1,
-            borderColor: null,
-            child: 'Cancel',
-            onTap: () => Navigator.pop(context),
+    DialogScaffold.show(
+      context,
+      title: 'Approve Payment',
+      size: DialogSize.sm,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText.bodyMd('Are you sure you want to approve this payment?'),
+          const SizedBox(height: 16),
+          AppText.bodyMd(
+            'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
+            fontWeight: FontWeight.w600,
           ),
-          MyElevatedButton(
-            child: 'Approve',
-            onTap: () {
-              Navigator.pop(context);
-              controller.approveInvoice(
-                invoiceId is int ? invoiceId : int.parse(invoiceId.toString()),
-                step is int ? step : int.parse(step.toString()),
-              );
-            },
-          ),
+          AppText.bodySm('Invoice: $invoiceNumber'),
+          AppText.bodySm('Client: $clientName'),
         ],
       ),
+      actions: [
+        MyOutlinedButton(
+          textColor: AppColors.neutral500,
+          borderColor: null,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        MyElevatedButton(
+          child: 'Approve',
+          onTap: () {
+            Navigator.pop(context);
+            controller.approveInvoice(
+              invoiceId is int ? invoiceId : int.parse(invoiceId.toString()),
+              step is int ? step : int.parse(step.toString()),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -698,60 +627,54 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     final invoiceNumber = invoice['invoice_number'] ?? '';
     final balance = ((invoice['balance'] ?? 0) as num).toDouble();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reject Payment'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Please provide a reason for rejection:'),
-            const SizedBox(height: 16),
-            MyTextFormField(
-              controller: reasonController,
-              hintText: 'Enter rejection reason',
-              title: 'Reason',
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Text('Invoice: $invoiceNumber'),
-          ],
-        ),
-        actions: [
-          MyOutlinedButton(
-            textColor: AppColors.darkGrey1,
-            borderColor: null,
-            child: 'Cancel',
-            onTap: () => Navigator.pop(context),
+    DialogScaffold.show(
+      context,
+      title: 'Reject Payment',
+      size: DialogSize.sm,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText.bodyMd('Please provide a reason for rejection:'),
+          const SizedBox(height: 16),
+          MyTextFormField(
+            controller: reasonController,
+            hintText: 'Enter rejection reason',
+            title: 'Reason',
+            maxLines: 3,
           ),
-          MyElevatedButton(
-            bgColor: Colors.red,
-            child: 'Reject',
-            onTap: () {
-              if (reasonController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please provide a reason for rejection'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-              Navigator.pop(context);
-              controller.rejectInvoice(
-                invoiceId is int ? invoiceId : int.parse(invoiceId.toString()),
-                step is int ? step : int.parse(step.toString()),
-                reason: reasonController.text,
-              );
-            },
+          const SizedBox(height: 16),
+          AppText.bodyMd(
+            'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
+            fontWeight: FontWeight.w600,
           ),
+          AppText.bodySm('Invoice: $invoiceNumber'),
         ],
       ),
+      actions: [
+        MyOutlinedButton(
+          textColor: AppColors.neutral500,
+          borderColor: null,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        MyElevatedButton(
+          bgColor: Colors.red,
+          child: 'Reject',
+          onTap: () {
+            if (reasonController.text.isEmpty) {
+              AppToast.error(context, 'Please provide a reason for rejection');
+              return;
+            }
+            Navigator.pop(context);
+            controller.rejectInvoice(
+              invoiceId is int ? invoiceId : int.parse(invoiceId.toString()),
+              step is int ? step : int.parse(step.toString()),
+              reason: reasonController.text,
+            );
+          },
+        ),
+      ],
     );
   }
 }

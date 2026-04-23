@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../components/text/my_text.dart';
 import '../model.dart';
 
@@ -60,7 +61,7 @@ class SecurityActivityCard extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                const Icon(Icons.show_chart, color: Colors.black, size: 20),
+                const Icon(Iconsax.chart_2, color: Colors.black, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -99,7 +100,7 @@ class SecurityActivityCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.check_circle_outline,
+                    const Icon(Iconsax.tick_circle,
                         color: Colors.green, size: 18),
                     const SizedBox(width: 10),
                     Expanded(
@@ -160,7 +161,7 @@ class SecurityAlertsCard extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                const Icon(Icons.security, color: Colors.black, size: 20),
+                const Icon(Iconsax.shield, color: Colors.black, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -205,7 +206,7 @@ class SecurityAlertsCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.warning_amber_outlined,
+                        Icon(Iconsax.warning_2,
                             color: priorityColor, size: 18),
                         const SizedBox(width: 10),
                         Expanded(

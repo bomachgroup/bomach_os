@@ -58,7 +58,7 @@ class LeadDetailPageState extends State<LeadDetailPage> {
                             kSizedBoxWidthSM,
                             const MyText(
                               'Back',
-                              style: AppText.black_500_20,
+                              style: AppTextStyles.h2,
                               isSelectable: false,
                             ),
                           ],
@@ -70,14 +70,14 @@ class LeadDetailPageState extends State<LeadDetailPage> {
                         children: [
                           MyText(
                             'Adebayo Johnson',
-                            style: AppText.black_500_20,
+                            style: AppTextStyles.h2,
                           ),
                           SizedBox(
                             height: 8,
                           ),
                           MyText(
                             'Created 8/15/2023',
-                            style: AppText.black_400_16,
+                            style: AppTextStyles.bodyLg,
                           ),
                         ],
                       ),
@@ -92,7 +92,7 @@ class LeadDetailPageState extends State<LeadDetailPage> {
                         onTap: () {},
                       ),
                       MyElevatedButton(
-                        bgColor: AppColors.red,
+                        bgColor: AppColors.danger,
                         child: 'Delete',
                         onTap: () {},
                       ),

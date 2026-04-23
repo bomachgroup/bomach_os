@@ -1,8 +1,10 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -92,28 +94,18 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
             // Header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const MyText(
-                    'Create Invoice',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  AppText.h3('Create Invoice'),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
             ),
+            const Divider(height: 1),
 
             // Form fields
             Expanded(
@@ -209,10 +201,10 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                       ..._buildInvoiceItems(),
                       const SizedBox(height: 12),
                       MyOutlinedButton(
-                        textColor: AppColors.blue,
-                        borderColor: AppColors.blue,
-                        icon: const Icon(Icons.add,
-                            size: 18, color: AppColors.blue),
+                        textColor: AppColors.primary,
+                        borderColor: AppColors.primary,
+                        icon: const Icon(Iconsax.add,
+                            size: 18, color: AppColors.primary),
                         child: 'Add Item',
                         onTap: () {
                           setState(() {
@@ -294,26 +286,22 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
             // Action Buttons
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
+                  top: BorderSide(color: AppColors.neutral300),
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  AppText.h4(
                     'Total: ₦${NumberFormat('#,###.##').format(_total)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.blue,
-                    ),
+                    color: AppColors.primary,
                   ),
                   Row(
                     children: [
                       MyOutlinedButton(
-                        textColor: AppColors.darkGrey1,
+                        textColor: AppColors.neutral500,
                         borderColor: null,
                         child: 'Cancel',
                         onTap: () {
@@ -342,13 +330,10 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
+    return AppText.bodyLg(
       title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
-      ),
+      fontWeight: FontWeight.w600,
+      color: AppColors.neutral700,
     );
   }
 
@@ -361,9 +346,9 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade200),
+          color: AppColors.neutral50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.neutral200),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,17 +356,14 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
             Row(
               children: [
                 Expanded(
-                  child: Text(
+                  child: AppText.bodyMd(
                     'Item ${index + 1}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 if (_items.length > 1)
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 20),
+                    icon: const Icon(Iconsax.trash, size: 20),
                     color: Colors.red,
                     onPressed: () {
                       setState(() {
@@ -450,27 +432,22 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      AppText.bodySm(
                         'Total',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        fontWeight: FontWeight.w500,
                       ),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.all(12),
+                        width: double.infinity,
                         decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
+                          color: AppColors.primary.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
+                        child: AppText.bodyMd(
                           '₦${NumberFormat('#,###.##').format(item.total)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.blue,
-                          ),
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -489,12 +466,9 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AppText.bodySm(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+          fontWeight: FontWeight.w500,
         ),
         const SizedBox(height: 8),
         InkWell(
@@ -512,17 +486,16 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: AppColors.neutral300),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                AppText.bodySm(
                   DateFormat('dd MMM yyyy').format(date),
-                  style: const TextStyle(fontSize: 14),
                 ),
-                const Icon(Icons.calendar_today, size: 18),
+                const Icon(Iconsax.calendar_1, size: 18, color: AppColors.neutral500),
               ],
             ),
           ),
@@ -535,10 +508,10 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: AppColors.blue.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12.0),
+        color: AppColors.primary.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: AppColors.blue.withValues(alpha: 0.2),
+          color: AppColors.primary.withValues(alpha: 0.1),
           width: 1.0,
         ),
       ),
@@ -546,13 +519,10 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          AppText.bodyMd(
             'Invoice Summary',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+            fontWeight: FontWeight.w600,
+            color: AppColors.neutral700,
           ),
           const SizedBox(height: 16),
           _buildSummaryRow(
@@ -564,10 +534,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
           _buildSummaryRow('Tax ($_taxRate%):',
               '₦${NumberFormat('#,###.##').format(_taxAmount)}'),
           const SizedBox(height: 16),
-          Container(
-            height: 1,
-            color: Colors.grey.shade300,
-          ),
+          const Divider(color: AppColors.neutral300),
           const SizedBox(height: 16),
           _buildSummaryRow(
             'Total:',
@@ -583,22 +550,12 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: isTotal ? 18 : 15,
-            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w400,
-            color: Colors.black87,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: isTotal ? 18 : 15,
-            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
-            color: isTotal ? AppColors.blue : Colors.black87,
-          ),
-        ),
+        isTotal
+            ? AppText.h4(label, color: AppColors.neutral700)
+            : AppText.bodyMd(label, color: AppColors.neutral500),
+        isTotal
+            ? AppText.h4(value, color: AppColors.primary)
+            : AppText.bodyMd(value, fontWeight: FontWeight.w600, color: AppColors.neutral700),
       ],
     );
   }
@@ -606,32 +563,17 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
   void _handleCreateInvoice() {
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedServiceType == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a service type'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppToast.error(context, 'Please select a service type');
         return;
       }
 
       if (_items.isEmpty || _items.every((item) => item.description.isEmpty)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please add at least one invoice item'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppToast.error(context, 'Please add at least one invoice item');
         return;
       }
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invoice created successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      AppToast.success(context, 'Invoice created successfully');
     }
   }
 }

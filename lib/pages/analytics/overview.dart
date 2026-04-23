@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
-import '../../components/text/my_text.dart';
+import '../../components/text/app_text.dart';
 import '../../src/constants/spaces.dart';
-import '../../src/constants/textstyle.dart';
 import 'controllers/analytics_controller.dart';
 import 'widgets/metrics_card.dart';
 import 'widgets/section_card.dart';
@@ -35,48 +35,40 @@ class AnalyticsOverviewPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           screenWidth > 800
-              ? const Row(
+              ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          MyText(
+                          AppText.displayLg(
                             'Analytics',
-                            style: AppText.black_500_32,
                           ),
-                          SizedBox(height: 4),
-                          MyText(
+                          const SizedBox(height: 4),
+                          AppText.bodyMd(
                             'Business intelligence and performance metrics',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
-                            ),
+                            fontWeight: FontWeight.w500,
                           ),
                         ],
                       ),
                     ),
-                    AnalyticsActions(),
+                    const AnalyticsActions(),
                   ],
                 )
-              : const Column(
+              : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyText(
+                    AppText.displayLg(
                       'Analytics',
-                      style: AppText.black_500_32,
                     ),
-                    SizedBox(height: 4),
-                    MyText(
+                    const SizedBox(height: 4),
+                    AppText.bodyMd(
                       'Business intelligence and performance metrics',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
+                      fontWeight: FontWeight.w500,
                     ),
-                    SizedBox(height: 16),
-                    AnalyticsActions(),
+                    const SizedBox(height: 16),
+                    const AnalyticsActions(),
                   ],
                 ),
           kSizedBox,
@@ -153,18 +145,18 @@ class AnalyticsOverviewPage extends StatelessWidget {
           kSizedBox,
           MetricsSection(
             title: "Revenue Summary",
-            icon: Icons.attach_money,
+            icon: Iconsax.money_recive,
             items: revenueData,
           ),
           MetricsSection(
             title: "Project Metrics",
-            icon: Icons.work_outline,
+            icon: Iconsax.briefcase,
             items: projectData,
             progress: 0.0,
           ),
           MetricsSection(
             title: "Team Overview",
-            icon: Icons.people_alt,
+            icon: Iconsax.people,
             items: teamData,
             progress: 0.78,
           ),
@@ -209,17 +201,17 @@ class AnalyticsActions extends StatelessWidget {
 
         final buttons = [
           _buildActionButton(
-            icon: Icons.refresh,
+            icon: Iconsax.refresh,
             label: "Refresh",
             isWide: isWide,
           ),
           _buildActionButton(
-            icon: Icons.picture_as_pdf,
+            icon: Iconsax.document_text,
             label: "Export PDF",
             isWide: isWide,
           ),
           _buildActionButton(
-            icon: Icons.table_chart,
+            icon: Iconsax.chart,
             label: "Export Excel",
             isWide: isWide,
           ),

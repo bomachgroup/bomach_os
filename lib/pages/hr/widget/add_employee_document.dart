@@ -1,12 +1,17 @@
 import 'dart:typed_data';
-
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/employees_controller.dart';
 
@@ -22,7 +27,18 @@ class UploadDocumentDialog extends StatefulWidget {
 class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
   final EmployeeController controller = Get.find<EmployeeController>();
   final TextEditingController _docNameCtrl = TextEditingController();
-  String _selectedType = "Select a Type";
+
+  static const String _defaultType = 'Select a Type';
+  static const List<String> _typeOptions = [
+    'Contract',
+    'ID Card',
+    'License',
+    'Training',
+    'Certificate',
+    'Other',
+  ];
+
+  String _selectedType = _defaultType;
 
   String? _fileName;
   Uint8List? _fileBytes;
@@ -50,22 +66,12 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
 
   void _onUpload() {
     if (_docNameCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a document name"),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      AppToast.error(context, 'Please enter a document name');
       return;
     }
 
-    if (_selectedType == "Select a Type") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please select a document type"),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+    if (_selectedType == _defaultType) {
+      AppToast.error(context, 'Please select a document type');
       return;
     }
 
@@ -86,167 +92,146 @@ class _UploadDocumentDialogState extends State<UploadDocumentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        width: 500,
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const MyText('Upload Document', size: 18, weight: 700),
-                    const SizedBox(height: 4),
-                    MyText('Upload a document for this employee',
-                        size: 12, color: Colors.grey.shade600),
-                  ],
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, size: 20, color: Colors.grey),
-                )
-              ],
-            ),
-            const Divider(height: 30),
-
-            // Form
-            const MyText('Document Name', size: 13, weight: 600),
-            const SizedBox(height: 8),
-            MyTextFormField(
-              controller: _docNameCtrl,
-              hintText: 'Type',
-            ),
-            const SizedBox(height: 16),
-
-            const MyText('Document Type', size: 13, weight: 600),
-            const SizedBox(height: 8),
-            _buildDropdown(),
-            const SizedBox(height: 16),
-
-            const MyText('Upload File', size: 13, weight: 600),
-            const SizedBox(height: 8),
-            _buildUploadZone(),
-
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Obx(() => MyElevatedButton(
-                      child:
-                          controller.isSaving.value ? 'Uploading...' : 'Upload',
-                      bgColor: const Color(0xFF0055FF),
-                      onTap: controller.isSaving.value ? null : _onUpload,
-                    )),
-              ],
-            )
-          ],
+    return DialogScaffold(
+      title: 'Upload Document',
+      subtitle: 'Upload a document for this employee.',
+      size: DialogSize.sm,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MyTextFormField(
+            controller: _docNameCtrl,
+            title: 'Document Name',
+            hintText: 'e.g. Signed offer letter',
+          ),
+          const SizedBox(height: 16),
+          MyDropdown(
+            title: 'Document Type',
+            hintText: _selectedType,
+            items: _typeOptions,
+            initialSelection:
+                _selectedType == _defaultType ? null : _selectedType,
+            onChanged: (val) {
+              if (val != null) setState(() => _selectedType = val);
+            },
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Upload File',
+            style: AppTextStyles.label.copyWith(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 8),
+          _buildUploadZone(),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedType,
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-          items: [
-            "Select a Type",
-            "Contract",
-            "ID Card",
-            "License",
-            "Training",
-            "Certificate",
-            "Other"
-          ]
-              .map((e) => DropdownMenuItem(
-                  value: e,
-                  child: Text(e, style: const TextStyle(fontSize: 14))))
-              .toList(),
-          onChanged: (val) => setState(() => _selectedType = val!),
+        Obx(
+          () => MyElevatedButton(
+            child: controller.isSaving.value ? 'Uploading...' : 'Upload',
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+            height: 44,
+            onTap: controller.isSaving.value ? null : _onUpload,
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildUploadZone() {
+    final hasFile = _fileName != null;
+
     return InkWell(
       onTap: _pickFile,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: AppRadii.brMd,
       child: Container(
-        height: 120,
         width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FB),
-          borderRadius: BorderRadius.circular(8),
+          color: AppColors.surfaceMuted,
+          borderRadius: AppRadii.brMd,
           border: Border.all(
-            color: const Color(0xFF0055FF).withValues(alpha: 0.3),
+            color: hasFile
+                ? AppColors.success
+                : AppColors.primary.withValues(alpha: 0.35),
+            width: 1.2,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (_fileName != null) ...[
-              const Icon(Icons.insert_drive_file,
-                  color: Color(0xFF0055FF), size: 28),
-              const SizedBox(height: 8),
+            if (hasFile) ...[
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: AppColors.successSubtle,
+                  borderRadius: AppRadii.brPill,
+                ),
+                child: const Icon(Iconsax.document,
+                    color: AppColors.success, size: 22),
+              ),
+              const SizedBox(height: 10),
               Text(
                 _fileName!,
-                style:
-                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                style: AppTextStyles.bodyMd.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
-              Text("Tap to change file",
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+              Text(
+                'Tap to change file',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ] else ...[
               Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0055FF),
-                  borderRadius: BorderRadius.circular(8),
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: AppRadii.brPill,
                 ),
-                child: const Icon(Icons.cloud_upload_outlined,
-                    color: Colors.white, size: 20),
+                child: const Icon(
+                  Iconsax.document_upload,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               RichText(
-                text: const TextSpan(
-                  style: TextStyle(fontSize: 12, color: Colors.black87),
-                  children: [
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  children: const [
+                    TextSpan(text: 'Click to '),
                     TextSpan(
-                        text: "Click to ",
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    TextSpan(
-                        text: "choose file",
-                        style: TextStyle(
-                            color: Color(0xFF0055FF),
-                            fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text: " to upload",
-                        style: TextStyle(fontWeight: FontWeight.w600)),
+                      text: 'choose file',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    TextSpan(text: ' to upload'),
                   ],
                 ),
               ),
               const SizedBox(height: 4),
-              Text("Supported formats: doc, pdf, png, jpg",
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+              Text(
+                'Supported formats: PDF, DOC, PNG, JPG',
+                style:
+                    AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              ),
             ],
           ],
         ),

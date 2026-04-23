@@ -134,11 +134,11 @@ class ImageCarouselState extends State<ImageCarousel> {
             IconButton(
               style: IconButton.styleFrom(
                 backgroundColor:
-                    _currentPage != 0 ? AppColors.blue : AppColors.transparent,
+                    _currentPage != 0 ? AppColors.primary : AppColors.transparent,
                 side: BorderSide(
                   color: _currentPage != 0
                       ? AppColors.transparent
-                      : AppColors.blue,
+                      : AppColors.primary,
                 ),
                 shape: const CircleBorder(),
                 padding: const EdgeInsets.all(10),
@@ -146,7 +146,7 @@ class ImageCarouselState extends State<ImageCarousel> {
               icon: SvgPicture.asset(
                 "assets/svg/arrow-left.svg",
                 colorFilter: ColorFilter.mode(
-                  _currentPage != 0 ? AppColors.white : AppColors.blue,
+                  _currentPage != 0 ? AppColors.white : AppColors.primary,
                   BlendMode.srcIn,
                 ),
               ),
@@ -162,8 +162,8 @@ class ImageCarouselState extends State<ImageCarousel> {
                 dotWidth: 7,
                 dotHeight: 7,
                 radius: 7,
-                activeDotColor: AppColors.blue,
-                dotColor: AppColors.grey4,
+                activeDotColor: AppColors.primary,
+                dotColor: AppColors.neutral300,
               ),
               onDotClicked: (index) {
                 _controller.animateToPage(index,
@@ -175,12 +175,12 @@ class ImageCarouselState extends State<ImageCarousel> {
             IconButton(
               style: IconButton.styleFrom(
                 backgroundColor: _currentPage < imagePairs.length - 1
-                    ? AppColors.blue
+                    ? AppColors.primary
                     : AppColors.transparent,
                 side: BorderSide(
                   color: _currentPage < imagePairs.length - 1
                       ? AppColors.transparent
-                      : AppColors.blue,
+                      : AppColors.primary,
                 ),
                 shape: const CircleBorder(),
                 padding: const EdgeInsets.all(10),
@@ -190,12 +190,12 @@ class ImageCarouselState extends State<ImageCarousel> {
                 colorFilter: ColorFilter.mode(
                   _currentPage < imagePairs.length - 1
                       ? AppColors.white
-                      : AppColors.blue,
+                      : AppColors.primary,
                   BlendMode.srcIn,
                 ),
               ),
               onPressed: () => _goToPage(_currentPage + 1),
-              color: AppColors.blue,
+              color: AppColors.primary,
               iconSize: 30,
             ),
           ],

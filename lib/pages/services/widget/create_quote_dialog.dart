@@ -1,15 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/service_controller.dart';
@@ -192,15 +194,11 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
   }
 
   void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    AppToast.error(context, message);
   }
 
   void _showSuccessSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
-    );
+    AppToast.success(context, message);
   }
 
   @override
@@ -227,15 +225,13 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const MyText(
+                    AppText.h3(
                       'Create New Quote',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: _isSubmitting
                           ? null
                           : () => Navigator.of(context).pop(),
@@ -260,18 +256,16 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                         // Service Selection
                         Obx(() {
                           if (serviceController.isLoading.value) {
-                            return const Column(
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                MyText(
+                                AppText.bodySm(
                                   'Service*',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                SizedBox(height: 10),
-                                Center(child: CircularProgressIndicator()),
+                                const SizedBox(height: 10),
+                                const Center(
+                                    child: CircularProgressIndicator()),
                               ],
                             );
                           }
@@ -341,12 +335,9 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const MyText(
+                                  AppText.bodySm(
                                     'Valid Until*',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    fontWeight: FontWeight.w500,
                                   ),
                                   const SizedBox(height: 10),
                                   InkWell(
@@ -355,8 +346,8 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 14),
                                       decoration: BoxDecoration(
-                                        border:
-                                            Border.all(color: AppColors.grey4),
+                                        border: Border.all(
+                                            color: AppColors.neutral300),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
@@ -371,14 +362,14 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                                                 fontSize: 14,
                                                 color: _validUntil != null
                                                     ? Colors.black87
-                                                    : AppColors.grey1,
+                                                    : AppColors.neutral500,
                                               ),
                                             ),
                                           ),
                                           const Icon(
-                                            Icons.calendar_today,
+                                            Iconsax.calendar_1,
                                             size: 18,
-                                            color: AppColors.grey1,
+                                            color: AppColors.neutral500,
                                           ),
                                         ],
                                       ),
@@ -420,16 +411,16 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
+                    top: BorderSide(color: AppColors.neutral300),
                   ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: _isSubmitting
@@ -469,32 +460,29 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText(
+        AppText.bodySm(
           'Client*',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          fontWeight: FontWeight.w500,
         ),
         const SizedBox(height: 10),
         if (_isLoadingClients)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.grey4),
+              border: Border.all(color: AppColors.neutral300),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                SizedBox(width: 12),
-                Text(
+                const SizedBox(width: 12),
+                AppText.bodySm(
                   'Loading clients...',
-                  style: TextStyle(fontSize: 14, color: AppColors.grey1),
+                  color: AppColors.neutral500,
                 ),
               ],
             ),
@@ -506,12 +494,13 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                 controller: _clientSearchController,
                 decoration: InputDecoration(
                   hintText: 'Search client by name or email...',
-                  hintStyle:
-                      const TextStyle(fontSize: 14, color: AppColors.grey1),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.grey1),
+                  hintStyle: const TextStyle(
+                      fontSize: 14, color: AppColors.neutral500),
+                  prefixIcon: const Icon(Iconsax.search_normal,
+                      color: AppColors.neutral500),
                   suffixIcon: _selectedClient != null
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
+                          icon: const Icon(Iconsax.close_circle, size: 18),
                           onPressed: () {
                             setState(() {
                               _selectedClient = null;
@@ -524,15 +513,15 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                       : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.grey4),
+                    borderSide: const BorderSide(color: AppColors.neutral300),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.blue),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -551,7 +540,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.grey4),
+                    border: Border.all(color: AppColors.neutral300),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.08),
@@ -561,12 +550,11 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                     ],
                   ),
                   child: _filteredClients.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text(
+                      ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: AppText.bodySm(
                             'No clients found',
-                            style:
-                                TextStyle(fontSize: 14, color: AppColors.grey1),
+                            color: AppColors.neutral500,
                           ),
                         )
                       : ListView.builder(
@@ -583,7 +571,7 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                                   border: index < _filteredClients.length - 1
                                       ? const Border(
                                           bottom: BorderSide(
-                                              color: AppColors.grey4,
+                                              color: AppColors.neutral300,
                                               width: 0.5),
                                         )
                                       : null,
@@ -591,20 +579,14 @@ class _CreateQuoteDialogState extends State<CreateQuoteDialog> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    AppText.bodyMd(
                                       client.fullName,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
+                                    AppText.bodySm(
                                       client.email,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.grey1,
-                                      ),
+                                      color: AppColors.neutral500,
                                     ),
                                   ],
                                 ),

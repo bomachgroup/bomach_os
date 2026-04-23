@@ -21,9 +21,9 @@ class PageButton extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8),
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          backgroundColor: isSelected ? AppColors.blue : Colors.white,
+          backgroundColor: isSelected ? AppColors.primary : Colors.white,
           side: BorderSide(
-              color: isSelected ? AppColors.blue : Colors.grey.shade400),
+              color: isSelected ? AppColors.primary : Colors.grey.shade400),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         ),
         onPressed: onTap,

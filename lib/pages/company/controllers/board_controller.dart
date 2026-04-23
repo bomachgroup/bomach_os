@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -447,14 +449,12 @@ class BoardController extends GetxController {
       if (context.mounted) {
         Navigator.pop(context);
         fetchPartners(refresh: true);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Partner created"), backgroundColor: Colors.green));
+        AppToast.success(context, 'Partner created');
       }
     } catch (e) {
       log("Create partner error: $e");
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed: $e"), backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed: $e');
       }
     } finally {
       isSavingPartner.value = false;
@@ -474,14 +474,12 @@ class BoardController extends GetxController {
       if (context.mounted) {
         Navigator.pop(context);
         fetchPartners(refresh: true);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Partner updated"), backgroundColor: Colors.green));
+        AppToast.success(context, 'Partner updated');
       }
     } catch (e) {
       log("Update partner error: $e");
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed: $e"), backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed: $e');
       }
     } finally {
       isSavingPartner.value = false;
@@ -499,14 +497,12 @@ class BoardController extends GetxController {
       partnerTotalItems.value = partnerTotalItems.value - 1;
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Partner deleted"), backgroundColor: Colors.green));
+        AppToast.success(context, 'Partner deleted');
       }
     } catch (e) {
       log("Delete partner error: $e");
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed: $e"), backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed: $e');
       }
     }
   }
@@ -610,22 +606,17 @@ class BoardController extends GetxController {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
-    );
+    AppToast.success(context, message);
   }
 
   void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text("Error"),
-        content: Text(message),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c), child: const Text("OK")),
-        ],
-      ),
+    DialogScaffold.show(
+      context,
+      title: "Error",
+      size: DialogSize.sm,
+      body: Text(message),
+      actions: [TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text("OK")),],
     );
   }
 }

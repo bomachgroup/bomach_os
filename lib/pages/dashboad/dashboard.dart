@@ -1,10 +1,17 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/dashboad/controller/dashboard_controller.dart';
 import 'package:bms_front_end/pages/dashboad/models/dashboard_models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../../src/app_routes/app_route_constants.dart';
 
@@ -18,29 +25,32 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final DashboardController controller = Get.put(DashboardController());
 
+  // Per-tile accent palette — kept as explicit local choices to preserve the
+  // differentiated feel of the dashboard stat cards.
+  static const _accentIndigo = Color(0xFF6366F1);
+  static const _accentCyan = AppColors.info;
+  static const _accentAmber = AppColors.warning;
+  static const _accentGreen = AppColors.success;
+  static const _accentRed = AppColors.danger;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return _buildLoadingState();
       }
 
       if (controller.errorMessage.isNotEmpty) {
         return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.grey.shade400),
-              const SizedBox(height: 12),
-              MyText(controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey)),
-              const SizedBox(height: 16),
-              TextButton.icon(
-                onPressed: () => controller.fetchAll(),
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Retry'),
-              ),
-            ],
+          child: EmptyState(
+            title: 'Could not load dashboard',
+            subtitle: controller.errorMessage.value,
+            icon: Iconsax.warning_2,
+            action: OutlinedButton.icon(
+              onPressed: controller.fetchAll,
+              icon: const Icon(Iconsax.refresh, size: 18),
+              label: const Text('Retry'),
+            ),
           ),
         );
       }
@@ -49,6 +59,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const PageHeader(
+              title: 'Dashboard',
+              subtitle:
+                  "Welcome back — here's what's happening across your workspace",
+            ),
+            const SizedBox(height: 16),
             _buildWelcomeHeader(),
             const SizedBox(height: 24),
             _buildQuickActions(),
@@ -65,6 +81,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  Widget _buildLoadingState() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: 160,
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceMuted,
+              borderRadius: AppRadii.brLg,
+            ),
+          ),
+          const SizedBox(height: 24),
+          LoadingSkeleton.statRow(count: 5),
+          const SizedBox(height: 24),
+          LoadingSkeleton.card(lines: 5),
+          const SizedBox(height: 24),
+          LoadingSkeleton.card(lines: 4),
+        ],
+      ),
+    );
+  }
+
   // ── Welcome Header ────────────────────────────────────────────────────
   Widget _buildWelcomeHeader() {
     final s = controller.summary.value;
@@ -73,14 +112,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0055FF), Color(0xFF1A3FCC), Color(0xFF0D2B99)],
+          colors: [AppColors.primary, AppColors.primaryPressed],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadii.brLg,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0055FF).withValues(alpha: 0.25),
+            color: AppColors.primary.withValues(alpha: 0.25),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -95,16 +134,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(14),
+                  color: AppColors.textOnPrimary.withValues(alpha: 0.2),
+                  borderRadius: AppRadii.brMd,
                 ),
                 child: Center(
                   child: Text(
                     _getInitials(s?.fullName ?? 'U'),
-                    style: const TextStyle(
-                      fontSize: 20,
+                    style: AppTextStyles.h3.copyWith(
+                      color: AppColors.textOnPrimary,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -116,20 +154,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     MyText(
                       'Welcome back, ${s?.fullName ?? 'User'}!',
-                      style: const TextStyle(
-                        fontSize: 22,
+                      style: AppTextStyles.h2.copyWith(
+                        color: AppColors.textOnPrimary,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.white,
                         letterSpacing: -0.3,
                       ),
                     ),
                     const SizedBox(height: 4),
                     MyText(
                       '${s?.jobTitle ?? ''}${s?.departmentName != null && s!.departmentName.isNotEmpty ? ' \u2022 ${s.departmentName}' : ''}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.white.withValues(alpha: 0.75),
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textOnPrimary.withValues(alpha: 0.75),
                       ),
                     ),
                   ],
@@ -142,9 +177,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                color: AppColors.textOnPrimary.withValues(alpha: 0.1),
+                borderRadius: AppRadii.brMd,
+                border: Border.all(
+                  color: AppColors.textOnPrimary.withValues(alpha: 0.12),
+                ),
               ),
               child: Row(
                 children: [
@@ -152,7 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: _buildHeaderStat(
                       'Overall Score',
                       '${s!.scorecard.overallScore.toInt()}%',
-                      Icons.speed_rounded,
+                      Iconsax.speedometer,
                     ),
                   ),
                   _verticalDivider(),
@@ -160,7 +197,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: _buildHeaderStat(
                       'Ranking',
                       '#${s.ranking.rank}/${s.ranking.totalMembers}',
-                      Icons.leaderboard_rounded,
+                      Iconsax.ranking,
                     ),
                   ),
                   _verticalDivider(),
@@ -168,7 +205,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: _buildHeaderStat(
                       'Performance',
                       s.scorecard.rankText,
-                      Icons.trending_up_rounded,
+                      Iconsax.chart_2,
                     ),
                   ),
                 ],
@@ -185,7 +222,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       width: 1,
       height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: Colors.white.withValues(alpha: 0.15),
+      color: AppColors.textOnPrimary.withValues(alpha: 0.15),
     );
   }
 
@@ -193,22 +230,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 20),
+        Icon(
+          icon,
+          color: AppColors.textOnPrimary.withValues(alpha: 0.7),
+          size: 20,
+        ),
         const SizedBox(width: 10),
         Flexible(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(value,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w700)),
-              MyText(label,
-                  style: TextStyle(
-                      fontSize: 11,
-                      color: AppColors.white.withValues(alpha: 0.65),
-                      fontWeight: FontWeight.w400)),
+              MyText(
+                value,
+                style: AppTextStyles.bodyLg.copyWith(
+                  color: AppColors.textOnPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              MyText(
+                label,
+                style: AppTextStyles.overline.copyWith(
+                  color: AppColors.textOnPrimary.withValues(alpha: 0.65),
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0,
+                ),
+              ),
             ],
           ),
         ),
@@ -221,23 +267,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       children: [
         _buildActionCard(
-          icon: Icons.task_alt_rounded,
+          icon: Iconsax.task_square,
           label: 'My Tasks',
-          color: const Color(0xFF6366F1),
+          color: _accentIndigo,
           onTap: () => context.go(RouteConstants.employeeMyTasks),
         ),
         const SizedBox(width: 12),
         _buildActionCard(
-          icon: Icons.description_rounded,
+          icon: Iconsax.document_text,
           label: 'Work Reports',
-          color: const Color(0xFF0EA5E9),
+          color: _accentCyan,
           onTap: () => context.go(RouteConstants.employeeMyReports),
         ),
         const SizedBox(width: 12),
         _buildActionCard(
-          icon: Icons.refresh_rounded,
+          icon: Iconsax.refresh,
           label: 'Refresh',
-          color: const Color(0xFF10B981),
+          color: _accentGreen,
           onTap: () => controller.fetchAll(),
         ),
       ],
@@ -253,12 +299,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.brMd,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.brMd,
             border: Border.all(color: color.withValues(alpha: 0.15)),
           ),
           child: Row(
@@ -268,17 +314,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppRadii.brSm,
                 ),
                 child: Icon(icon, color: color, size: 20),
               ),
               const SizedBox(width: 10),
               Flexible(
-                child: MyText(label,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: color)),
+                child: MyText(
+                  label,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
               ),
             ],
           ),
@@ -294,15 +342,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final stats = [
       _StatItem('Projects', st.totalProjects.toString(),
-          Icons.folder_copy_rounded, const Color(0xFF6366F1)),
+          Iconsax.folder_cloud, _accentIndigo),
       _StatItem('Contracts', st.totalContracts.toString(),
-          Icons.handshake_rounded, const Color(0xFF0EA5E9)),
-      _StatItem('Worksites', st.totalWorksites.toString(),
-          Icons.location_on_rounded, const Color(0xFFF59E0B)),
+          Iconsax.document_text, _accentCyan),
+      _StatItem('Worksites', st.totalWorksites.toString(), Iconsax.location,
+          _accentAmber),
       _StatItem('Budget Used', '${st.budgetUtilization.toStringAsFixed(1)}%',
-          Icons.account_balance_wallet_rounded, const Color(0xFF10B981)),
+          Iconsax.wallet_3, _accentGreen),
       _StatItem('Timelines', st.totalTimelines.toString(),
-          Icons.timeline_rounded, const Color(0xFFEF4444)),
+          Iconsax.timer_1, _accentRed),
     ];
 
     return LayoutBuilder(
@@ -331,48 +379,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStatCard(_StatItem item) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: item.color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(item.icon, color: item.color, size: 22),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: item.color.withValues(alpha: 0.1),
+              borderRadius: AppRadii.brMd,
+            ),
+            child: Icon(item.icon, color: item.color, size: 22),
           ),
           const SizedBox(height: 16),
-          MyText(item.value,
-              style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B))),
+          MyText(
+            item.value,
+            style: AppTextStyles.displayMd.copyWith(
+              fontSize: 26,
+              color: AppColors.textPrimary,
+            ),
+          ),
           const SizedBox(height: 4),
-          MyText(item.label,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade500)),
+          MyText(
+            item.label,
+            style: AppTextStyles.label.copyWith(color: AppColors.textMuted),
+          ),
         ],
       ),
     );
@@ -383,20 +416,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final pc = controller.performanceCard.value;
     if (pc == null) return const SizedBox.shrink();
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -405,18 +427,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Icons.insights_rounded,
-                    color: AppColors.blue, size: 20),
+                child: const Icon(Iconsax.chart_square,
+                    color: AppColors.primary, size: 20),
               ),
               const SizedBox(width: 12),
-              const MyText('Performance Overview',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B))),
+              const MyText('Performance Overview', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 24),
@@ -464,7 +482,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.brLg,
         border: Border.all(color: scoreColor.withValues(alpha: 0.12)),
       ),
       child: Column(
@@ -482,7 +500,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     value: pc.overallScore / 100,
                     strokeWidth: 12,
                     strokeCap: StrokeCap.round,
-                    backgroundColor: Colors.grey.shade100,
+                    backgroundColor: AppColors.neutral100,
                     valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
                   ),
                 ),
@@ -491,16 +509,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     MyText(
                       '${pc.overallScore.toInt()}%',
-                      style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1E293B)),
+                      style: AppTextStyles.displayLg.copyWith(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                    MyText('Score',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w500)),
+                    MyText(
+                      'Score',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -511,13 +531,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
               color: scoreColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadii.brPill,
             ),
-            child: MyText(pc.rankText,
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: scoreColor)),
+            child: MyText(
+              pc.rankText,
+              style: AppTextStyles.label.copyWith(
+                fontWeight: FontWeight.w600,
+                color: scoreColor,
+              ),
+            ),
           ),
         ],
       ),
@@ -529,9 +551,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,32 +563,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0EA5E9).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: _accentCyan.withValues(alpha: 0.1),
+                  borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Icons.description_rounded,
-                    color: Color(0xFF0EA5E9), size: 18),
+                child: const Icon(Iconsax.document_text,
+                    color: _accentCyan, size: 18),
               ),
               const SizedBox(width: 10),
-              const MyText('Work Reports',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF334155))),
+              MyText(
+                'Work Reports',
+                style: AppTextStyles.h4.copyWith(
+                  fontSize: 15,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
           _buildProgressStat('Score', wr.score / 100, '${wr.score.toInt()}%',
-              const Color(0xFF0EA5E9)),
+              _accentCyan),
           const SizedBox(height: 14),
-          _buildInfoRow(Icons.send_rounded, 'Submitted',
-              '${wr.reportsSubmitted}', const Color(0xFF6366F1)),
+          _buildInfoRow(Iconsax.send_1, 'Submitted', '${wr.reportsSubmitted}',
+              _accentIndigo),
           const SizedBox(height: 10),
-          _buildInfoRow(Icons.check_circle_rounded, 'Approved',
-              '${wr.approved}', const Color(0xFF10B981)),
+          _buildInfoRow(Iconsax.tick_circle, 'Approved', '${wr.approved}',
+              _accentGreen),
           const SizedBox(height: 10),
-          _buildInfoRow(Icons.star_rounded, 'Avg Rating',
-              wr.averageRating.toStringAsFixed(1), const Color(0xFFF59E0B)),
+          _buildInfoRow(Iconsax.star_1, 'Avg Rating',
+              wr.averageRating.toStringAsFixed(1), _accentAmber),
         ],
       ),
     );
@@ -577,9 +601,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,35 +613,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: _accentGreen.withValues(alpha: 0.1),
+                  borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Icons.schedule_rounded,
-                    color: Color(0xFF10B981), size: 18),
+                child: const Icon(Iconsax.clock,
+                    color: _accentGreen, size: 18),
               ),
               const SizedBox(width: 10),
-              const MyText('Punctuality',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF334155))),
+              MyText(
+                'Punctuality',
+                style: AppTextStyles.h4.copyWith(
+                  fontSize: 15,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
           _buildProgressStat('Score', pr.score / 100, '${pr.score.toInt()}%',
-              const Color(0xFF10B981)),
+              _accentGreen),
           const SizedBox(height: 14),
-          _buildInfoRow(Icons.calendar_today_rounded, 'Total Days',
-              '${pr.totalDays}', const Color(0xFF6366F1)),
+          _buildInfoRow(Iconsax.calendar_1, 'Total Days', '${pr.totalDays}',
+              _accentIndigo),
           const SizedBox(height: 10),
-          _buildInfoRow(Icons.check_rounded, 'On Time', '${pr.onTimeDays}',
-              const Color(0xFF10B981)),
+          _buildInfoRow(Iconsax.tick_square, 'On Time', '${pr.onTimeDays}',
+              _accentGreen),
           const SizedBox(height: 10),
-          _buildInfoRow(Icons.access_time_rounded, 'Late', '${pr.lateDays}',
-              const Color(0xFFF59E0B)),
+          _buildInfoRow(Iconsax.timer_1, 'Late', '${pr.lateDays}',
+              _accentAmber),
           const SizedBox(height: 10),
-          _buildInfoRow(Icons.cancel_rounded, 'Absent', '${pr.absentDays}',
-              const Color(0xFFEF4444)),
+          _buildInfoRow(Iconsax.close_circle, 'Absent', '${pr.absentDays}',
+              _accentRed),
         ],
       ),
     );
@@ -632,18 +658,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             MyText(label,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w500)),
-            MyText(value,
-                style: TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w700, color: color)),
+                style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
+            MyText(
+              value,
+              style: AppTextStyles.label.copyWith(
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
         ClipRRect(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: AppRadii.brXs,
           child: LinearProgressIndicator(
             value: progress.clamp(0, 1),
             minHeight: 8,
@@ -661,17 +688,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Icon(icon, size: 16, color: color.withValues(alpha: 0.7)),
         const SizedBox(width: 10),
         Expanded(
-          child: MyText(label,
-              style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w400)),
+          child: MyText(
+            label,
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+          ),
         ),
-        MyText(value,
-            style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B))),
+        MyText(
+          value,
+          style: AppTextStyles.bodyMd.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
       ],
     );
   }
@@ -681,20 +709,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final ov = controller.overview.value;
     if (ov == null) return const SizedBox.shrink();
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -703,18 +720,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  color: _accentIndigo.withValues(alpha: 0.1),
+                  borderRadius: AppRadii.brSm,
                 ),
-                child: const Icon(Icons.business_rounded,
-                    color: Color(0xFF6366F1), size: 20),
+                child: const Icon(Iconsax.building_3,
+                    color: _accentIndigo, size: 20),
               ),
               const SizedBox(width: 12),
-              const MyText('Organization Overview',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B))),
+              const MyText('Organization Overview', style: AppTextStyles.h3),
             ],
           ),
           const SizedBox(height: 24),
@@ -732,37 +745,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: _buildOverviewCard(
                           'Total Employees',
                           '${ov.totalEmployees}',
-                          Icons.people_rounded,
-                          const Color(0xFF6366F1))),
+                          Iconsax.people,
+                          _accentIndigo)),
                   SizedBox(
                       width: cardWidth,
                       child: _buildOverviewCard(
                           'New (30 days)',
                           '${ov.newHires30Days}',
-                          Icons.person_add_rounded,
-                          const Color(0xFF0EA5E9))),
+                          Iconsax.user_add,
+                          _accentCyan)),
                   SizedBox(
                       width: cardWidth,
                       child: _buildOverviewCard(
                           'Hired Today',
                           '${ov.newHiresToday}',
-                          Icons.today_rounded,
-                          const Color(0xFF10B981))),
+                          Iconsax.calendar_tick,
+                          _accentGreen)),
                   SizedBox(
                       width: cardWidth,
-                      child: _buildOverviewCard('Open Roles', '${ov.openRoles}',
-                          Icons.work_outline_rounded, const Color(0xFFF59E0B))),
+                      child: _buildOverviewCard(
+                          'Open Roles',
+                          '${ov.openRoles}',
+                          Iconsax.briefcase,
+                          _accentAmber)),
                 ],
               );
             },
           ),
           if (ov.headcountByDepartment.isNotEmpty) ...[
             const SizedBox(height: 24),
-            const MyText('Headcount by Department',
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF334155))),
+            MyText(
+              'Headcount by Department',
+              style: AppTextStyles.h4.copyWith(
+                fontSize: 15,
+                color: AppColors.textSecondary,
+              ),
+            ),
             const SizedBox(height: 14),
             Wrap(
               spacing: 10,
@@ -772,31 +790,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    color: AppColors.surfaceMuted,
+                    borderRadius: AppRadii.brSm,
+                    border: Border.all(color: AppColors.borderSubtle),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      MyText(dept.department,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF475569))),
+                      MyText(
+                        dept.department,
+                        style: AppTextStyles.label.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: AppRadii.brXs,
                         ),
-                        child: MyText('${dept.count}',
-                            style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.blue)),
+                        child: MyText(
+                          '${dept.count}',
+                          style: AppTextStyles.caption.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -815,7 +836,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.brMd,
         border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Row(
@@ -824,7 +845,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadii.brMd,
             ),
             child: Icon(icon, color: color, size: 20),
           ),
@@ -833,16 +854,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(count,
-                    style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B))),
-                MyText(label,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                        fontWeight: FontWeight.w500)),
+                MyText(
+                  count,
+                  style: AppTextStyles.h2.copyWith(
+                    fontSize: 22,
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                MyText(
+                  label,
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+                ),
               ],
             ),
           ),
@@ -853,10 +876,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ── Helpers ───────────────────────────────────────────────────────────
   Color _getScoreColor(double score) {
-    if (score >= 80) return const Color(0xFF10B981);
-    if (score >= 60) return const Color(0xFF0EA5E9);
-    if (score >= 40) return const Color(0xFFF59E0B);
-    return const Color(0xFFEF4444);
+    if (score >= 80) return _accentGreen;
+    if (score >= 60) return _accentCyan;
+    if (score >= 40) return _accentAmber;
+    return _accentRed;
   }
 
   String _getInitials(String name) {

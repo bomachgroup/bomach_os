@@ -1,12 +1,18 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/avatar_picker.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../controllers/company_controller.dart';
 
@@ -20,6 +26,7 @@ class AddShareholderDialog extends StatefulWidget {
 
 class _AddShareholderDialogState extends State<AddShareholderDialog> {
   final CompanyController _controller = Get.find<CompanyController>();
+  final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _firstNameCtrl;
   late final TextEditingController _lastNameCtrl;
@@ -32,8 +39,15 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
   String _selectedTitle = 'board_member';
   bool _isBoardMember = false;
   bool _isActive = true;
+  XFile? _pickedAvatar;
 
   bool get isEdit => widget.shareholder != null;
+
+  String _initials() {
+    final f = _firstNameCtrl.text.trim();
+    final l = _lastNameCtrl.text.trim();
+    return '${f.isNotEmpty ? f[0] : ''}${l.isNotEmpty ? l[0] : ''}';
+  }
 
   static const _titleOptions = [
     {'value': 'founder', 'label': 'Founder'},
@@ -73,13 +87,18 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
     super.dispose();
   }
 
+  String _titleLabel(String value) {
+    final match = _titleOptions
+        .firstWhere((e) => e['value'] == value, orElse: () => const {});
+    return match['label'] ?? value;
+  }
+
   void _submit() {
+    if (!_formKey.currentState!.validate()) return;
     if (_firstNameCtrl.text.trim().isEmpty ||
         _lastNameCtrl.text.trim().isEmpty ||
         _emailCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('First name, last name, and email are required'),
-          backgroundColor: Colors.red));
+      AppToast.error(context, 'First name, last name, and email are required');
       return;
     }
 
@@ -95,6 +114,7 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
       'is_board_member': _isBoardMember,
       'is_active': _isActive,
       if (_notesCtrl.text.trim().isNotEmpty) 'notes': _notesCtrl.text.trim(),
+      if (_pickedAvatar != null) 'profile_picture_file': _pickedAvatar!.path,
     };
 
     if (!isEdit && _passwordCtrl.text.isNotEmpty) {
@@ -110,167 +130,247 @@ class _AddShareholderDialogState extends State<AddShareholderDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(isEdit ? 'Edit Shareholder' : 'Add Shareholder',
-                      style: AppText.black_500_20),
-                  IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context)),
-                ],
-              ),
-            ),
-            // Body
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'First Name *',
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Shareholder' : 'Add Shareholder',
+          subtitle: isEdit
+              ? 'Update shareholder profile, title, and ownership details.'
+              : 'Register a new shareholder with profile and ownership details.',
+          size: DialogSize.lg,
+          body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSection(
+                  title: 'Profile',
+                  subtitle: 'Upload a photo and provide identifying information.',
+                  child: Column(
+                    children: [
+                      Center(
+                        child: AvatarPicker(
+                          currentImageUrl: widget.shareholder?.profilePicture,
+                          initials: _initials(),
+                          pickedFile: _pickedAvatar,
+                          onPicked: (f) =>
+                              setState(() => _pickedAvatar = f),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
                               controller: _firstNameCtrl,
-                              hintText: 'e.g. John')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Last Name *',
+                              title: 'First Name',
+                              hintText: 'e.g. John',
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
                               controller: _lastNameCtrl,
-                              hintText: 'e.g. Doe')),
-                    ]),
-                    const SizedBox(height: 16),
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Email *',
-                              controller: _emailCtrl,
-                              hintText: 'e.g. john@company.com')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Phone',
-                              controller: _phoneCtrl,
-                              hintText: '+234...')),
-                    ]),
-                    const SizedBox(height: 16),
-                    if (!isEdit) ...[
-                      MyTextFormField(
-                          title: 'Password (optional)',
-                          controller: _passwordCtrl,
-                          hintText:
-                              'Creates a linked user account if provided'),
+                              title: 'Last Name',
+                              hintText: 'e.g. Doe',
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _emailCtrl,
+                              title: 'Email',
+                              hintText: 'e.g. john@company.com',
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'Required'
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _phoneCtrl,
+                              title: 'Phone',
+                              hintText: '+234...',
+                              keyboardType: TextInputType.phone,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (!isEdit) ...[
+                        const SizedBox(height: 16),
+                        MyTextFormField(
+                          controller: _passwordCtrl,
+                          title: 'Password (optional)',
+                          hintText:
+                              'Creates a linked user account if provided',
+                        ),
+                      ],
                     ],
-                    Row(children: [
-                      Expanded(
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Role & ownership',
+                  subtitle:
+                      'Set the shareholder title and their share percentage.',
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyDropdown(
+                              title: 'Title',
+                              hintText: _titleLabel(_selectedTitle),
+                              items: _titleOptions
+                                  .map((t) => t['label']!)
+                                  .toList(),
+                              initialSelection: _titleLabel(_selectedTitle),
+                              onChanged: (val) {
+                                for (final t in _titleOptions) {
+                                  if (t['label'] == val) {
+                                    setState(() => _selectedTitle =
+                                        t['value'] ?? 'board_member');
+                                    break;
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: _sharePercentageCtrl,
+                              title: 'Share Percentage',
+                              hintText: 'e.g. 25.5',
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: AppRadii.brMd,
+                          border: Border.all(color: AppColors.borderSubtle),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const MyText('Title', style: AppText.black_600_14),
-                            const SizedBox(height: 8),
-                            DropdownButtonFormField<String>(
-                              initialValue: _selectedTitle,
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 12),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFFD5D5D5))),
-                              ),
-                              items: _titleOptions
-                                  .map((t) => DropdownMenuItem<String>(
-                                      value: t['value'],
-                                      child: Text(t['label']!)))
-                                  .toList(),
-                              onChanged: (v) => setState(
-                                  () => _selectedTitle = v ?? 'board_member'),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _isBoardMember,
+                                  activeColor: AppColors.primary,
+                                  onChanged: (v) => setState(
+                                      () => _isBoardMember = v ?? false),
+                                ),
+                                Text(
+                                  'Board Member',
+                                  style: AppTextStyles.bodyMd.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 24),
+                                Checkbox(
+                                  value: _isActive,
+                                  activeColor: AppColors.primary,
+                                  onChanged: (v) =>
+                                      setState(() => _isActive = v ?? true),
+                                ),
+                                Text(
+                                  'Active',
+                                  style: AppTextStyles.bodyMd.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Share Percentage',
-                              controller: _sharePercentageCtrl,
-                              keyboardType: TextInputType.number,
-                              hintText: 'e.g. 25.5')),
-                    ]),
-                    const SizedBox(height: 16),
-                    MyTextFormField(
-                        title: 'Notes',
-                        controller: _notesCtrl,
-                        maxLines: 3,
-                        hintText: 'Additional notes...'),
-                    const SizedBox(height: 16),
-                    Row(children: [
-                      Checkbox(
-                          value: _isBoardMember,
-                          activeColor: AppColors.blue,
-                          onChanged: (v) =>
-                              setState(() => _isBoardMember = v ?? false)),
-                      const MyText('Board Member', style: AppText.black_400_14),
-                      const SizedBox(width: 24),
-                      Checkbox(
-                          value: _isActive,
-                          activeColor: AppColors.blue,
-                          onChanged: (v) =>
-                              setState(() => _isActive = v ?? true)),
-                      const MyText('Active', style: AppText.black_400_14),
-                    ]),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Notes',
+                  child: MyTextFormField(
+                    controller: _notesCtrl,
+                    title: 'Additional Information',
+                    hintText: 'Additional notes...',
+                    maxLines: 3,
+                  ),
+                ),
+              ],
             ),
-            // Footer
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                      child: 'Cancel',
-                      textColor: Colors.black54,
-                      onTap: () => Navigator.pop(context)),
-                  const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        child: _controller.isShareholdersLoading.value
-                            ? 'Saving...'
-                            : (isEdit ? 'Update' : 'Create'),
-                        onTap: _controller.isShareholdersLoading.value
-                            ? () {}
-                            : _submit,
-                      )),
-                ],
-              ),
+          ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 120,
+              height: 44,
+              child: _controller.isShareholdersLoading.value
+                  ? 'Saving...'
+                  : 'Save',
+              onTap: _controller.isShareholdersLoading.value ? null : _submit,
+              icon: _controller.isShareholdersLoading.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
             ),
           ],
-        ),
+        ));
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

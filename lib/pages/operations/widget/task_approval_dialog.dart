@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -114,8 +115,8 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
               style: const TextStyle(color: Colors.white),
             ),
             backgroundColor: action == TaskApprovalAction.approve
-                ? AppColors.green
-                : AppColors.orange,
+                ? AppColors.success
+                : AppColors.warning,
           ),
         );
 
@@ -138,7 +139,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
           message,
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: AppColors.red,
+        backgroundColor: AppColors.danger,
       ),
     );
   }
@@ -173,20 +174,20 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                     children: [
                       MyText(
                         'Task Review',
-                        style: AppText.black_500_20,
+                        style: AppTextStyles.h2,
                       ),
                       SizedBox(height: 4),
                       MyText(
                         'Review and approve task completion',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -223,14 +224,14 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                                   children: [
                                     MyText(
                                       widget.task.code,
-                                      style: AppText.black_600_16,
+                                      style: AppTextStyles.h4,
                                     ),
                                     const SizedBox(height: 4),
                                     MyText(
                                       widget.task.title,
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: Color(0xFF64748B),
+                                        color: AppColors.neutral500,
                                       ),
                                     ),
                                   ],
@@ -242,7 +243,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                                   ),
                                   decoration: BoxDecoration(
                                     color:
-                                        AppColors.blue.withValues(alpha: 0.1),
+                                        AppColors.primary.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: MyText(
@@ -250,7 +251,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.blue,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ),
@@ -286,7 +287,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       // Task Description
                       const MyText(
                         'Description',
-                        style: AppText.black_600_14,
+                        style: AppTextStyles.h4,
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -299,7 +300,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                           widget.task.description,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF475569),
+                            color: AppColors.neutral600,
                             height: 1.5,
                           ),
                         ),
@@ -312,7 +313,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       // Review Actions Section
                       const MyText(
                         'Your Review',
-                        style: AppText.black_600_16,
+                        style: AppTextStyles.h4,
                       ),
                       const SizedBox(height: 16),
 
@@ -324,24 +325,24 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                             child: _buildApprovalButton(
                               'Approve',
                               TaskApprovalAction.approve,
-                              AppColors.green,
-                              Icons.check_circle_outlined,
+                              AppColors.success,
+                              Iconsax.tick_circle,
                             ),
                           ),
                           Expanded(
                             child: _buildApprovalButton(
                               'Rework',
                               TaskApprovalAction.requestRework,
-                              AppColors.orange,
-                              Icons.refresh,
+                              AppColors.warning,
+                              Iconsax.refresh,
                             ),
                           ),
                           Expanded(
                             child: _buildApprovalButton(
                               'Reject',
                               TaskApprovalAction.reject,
-                              AppColors.red,
-                              Icons.cancel_outlined,
+                              AppColors.danger,
+                              Iconsax.close_circle,
                             ),
                           ),
                         ],
@@ -351,7 +352,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                       // Feedback Field
                       const MyText(
                         'Feedback *',
-                        style: AppText.black_600_14,
+                        style: AppTextStyles.h4,
                       ),
                       const SizedBox(height: 8),
                       MyTextFormField(
@@ -369,7 +370,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                           children: [
                             const MyText(
                               'Rework Instructions *',
-                              style: AppText.black_600_14,
+                              style: AppTextStyles.h4,
                             ),
                             const SizedBox(height: 8),
                             MyTextFormField(
@@ -388,7 +389,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                         decoration: BoxDecoration(
                           color: const Color(0xFFF0F9FF),
                           border: Border.all(
-                            color: const Color(0xFF0EA5E9),
+                            color: AppColors.info,
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -448,7 +449,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF64748B),
+            color: AppColors.neutral500,
           ),
         ),
         const SizedBox(height: 4),
@@ -457,7 +458,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
+            color: AppColors.neutral800,
           ),
         ),
       ],
@@ -482,7 +483,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? color : const Color(0xFFE2E8F0),
+            color: isSelected ? color : AppColors.neutral200,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -494,7 +495,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
           children: [
             Icon(
               icon,
-              color: isSelected ? color : const Color(0xFF64748B),
+              color: isSelected ? color : AppColors.neutral500,
               size: 20,
             ),
             MyText(
@@ -502,7 +503,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? color : const Color(0xFF64748B),
+                color: isSelected ? color : AppColors.neutral500,
               ),
             ),
           ],

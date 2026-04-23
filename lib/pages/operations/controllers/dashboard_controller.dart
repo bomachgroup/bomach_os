@@ -1,4 +1,5 @@
 import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -29,13 +30,7 @@ class OperationsDashboardController extends GetxController {
   }
 
   void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    AppToast.error(context, message);
   }
 
   Future<void> fetchDashboardData(BuildContext context) async {
@@ -88,11 +83,7 @@ class OperationsDashboardController extends GetxController {
 
       await _service.deleteProject(accessToken: token, projectId: projectId);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Project deleted successfully"),
-            backgroundColor: Colors.green),
-      );
+      AppToast.success(context, 'Project deleted successfully');
 
       fetchProjects(context);
       fetchStats(context);

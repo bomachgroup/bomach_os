@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
@@ -24,12 +25,12 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
             children: [
               MyText(
                 'Employee Directory',
-                style: AppText.black_600_32,
+                style: AppTextStyles.displayLg,
               ),
               SizedBox(height: 8),
               MyText(
                 'Complete list of all employees',
-                style: AppText.black_600_14,
+                style: AppTextStyles.h4,
               ),
             ],
           ),
@@ -46,7 +47,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Search employees...',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(Iconsax.search_normal),
                       isDense: true,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -67,7 +68,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
             padding: const EdgeInsets.all(16.0),
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey7),
+                border: Border.all(color: AppColors.neutral200),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -77,7 +78,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
                       border: Border(
-                        bottom: BorderSide(color: AppColors.grey7),
+                        bottom: BorderSide(color: AppColors.neutral200),
                       ),
                     ),
                     child: const SingleChildScrollView(
@@ -88,7 +89,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 150,
                             child: MyText(
                               'Name',
-                              style: AppText.black_600_14,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                           SizedBox(width: 16),
@@ -96,7 +97,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 150,
                             child: MyText(
                               'Department',
-                              style: AppText.black_600_14,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                           SizedBox(width: 16),
@@ -104,7 +105,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 150,
                             child: MyText(
                               'Position',
-                              style: AppText.black_600_14,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                           SizedBox(width: 16),
@@ -112,7 +113,7 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                             width: 100,
                             child: MyText(
                               'Status',
-                              style: AppText.black_600_14,
+                              style: AppTextStyles.h4,
                             ),
                           ),
                         ],
@@ -126,14 +127,14 @@ class _EmployeeDirectoryPageState extends State<EmployeeDirectoryPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.people_outline,
+                            Iconsax.people,
                             size: 48,
-                            color: AppColors.grey4,
+                            color: AppColors.neutral300,
                           ),
                           SizedBox(height: 16),
                           MyText(
                             'No employees found',
-                            style: AppText.black_400_14,
+                            style: AppTextStyles.bodyMd,
                           ),
                         ],
                       ),

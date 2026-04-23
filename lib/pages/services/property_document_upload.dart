@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 
 class LandDocumentUploadPage extends StatefulWidget {
@@ -78,13 +80,13 @@ class _LandDocumentUploadPageState extends State<LandDocumentUploadPage> {
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xffe5e7eb)),
+                    border: Border.all(color: AppColors.neutral200),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: ListTile(
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    leading: const Icon(Icons.description_outlined,
+                    leading: const Icon(Iconsax.document_text,
                         color: Colors.green),
                     title: Text(
                       entry.key,
@@ -97,7 +99,7 @@ class _LandDocumentUploadPageState extends State<LandDocumentUploadPage> {
                     trailing: TextButton(
                       onPressed: () => _pickFile(entry.key),
                       style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xffe8f5e9),
+                        backgroundColor: AppColors.successSubtle,
                         foregroundColor: Colors.green[700],
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
@@ -127,7 +129,7 @@ class _LandDocumentUploadPageState extends State<LandDocumentUploadPage> {
                 ),
                 disabledBackgroundColor: Colors.grey[400],
               ),
-              icon: const Icon(Icons.cloud_upload),
+              icon: const Icon(Iconsax.document_upload),
               label: const Text(
                 "Submit Documents",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),

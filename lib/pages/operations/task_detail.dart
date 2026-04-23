@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/image/image_stack.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -7,6 +7,10 @@ import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,151 +30,123 @@ class _TaskDetailState extends State<TaskDetail> {
         widget.task ?? ModalRoute.of(context)?.settings.arguments as Task?;
 
     if (task == null) {
-      return const Center(
-        child: MyText('Task not found', style: AppText.black_500_16),
+      return const PageScaffold(
+        children: [
+          Center(
+            child: MyText('Task not found', style: AppTextStyles.bodyLg),
+          ),
+        ],
       );
     }
 
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 900;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return PageScaffold(
+      header: PageHeader(
+        title: task.name,
+        subtitle: 'Comprehensive task overview and analytics',
+        trailing: Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  MyText(
-                    task.name,
-                    style: AppText.black_500_32,
-                  ),
-                  Wrap(
-                    spacing: 15,
-                    runSpacing: 15,
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        child: MyTextFormField(
-                          hintText: 'Search...',
-                          leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      const SortBar(text: "Sort"),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(20)),
-                        child: SvgPicture.asset(
-                          "assets/svg/notification.svg",
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.black,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                      MyElevatedButton(
-                        icon: const Icon(
-                          Icons.add_circle_outline_rounded,
-                          color: AppColors.white,
-                        ),
-                        child: "Add Task",
-                        onTap: () {},
-                      )
-                    ],
-                  )
-                ],
+            const SizedBox(
+              width: 250,
+              child: MyTextFormField(
+                hintText: 'Search within task...',
+                leading: Icon(Iconsax.search_normal,
+                    size: 18, color: AppColors.textMuted),
               ),
+            ),
+            const SortBar(text: "Sort"),
+            OutlinedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Iconsax.add_circle, size: 18),
+              label: const Text('Add Action'),
             ),
           ],
         ),
-        kSizedBox,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey..withValues(alpha: 0.02),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 20,
-            runSpacing: 8,
-            children: [
-              MyText('#${task.id}', weight: 600),
-              MyText(task.priority,
-                  style: const TextStyle(color: Colors.black54)),
-              MyText(task.dueDate,
-                  style: const TextStyle(color: Colors.black54)),
-              MyText('${task.estimatedHours} hrs',
-                  style: const TextStyle(color: Colors.black54)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(task.status).withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(6),
+      ),
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: AppCard(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 24,
+              runSpacing: 12,
+              children: [
+                _buildTaskInfoItem('Task ID', '#${task.id}', Iconsax.info_circle),
+                _buildTaskInfoItem('Priority', task.priority, Iconsax.flag),
+                _buildTaskInfoItem('Due Date', task.dueDate, Iconsax.calendar),
+                _buildTaskInfoItem(
+                    'Estimate', '${task.estimatedHours} hrs', Iconsax.timer_1),
+                StatusChip(
+                  label: task.status,
+                  tone: _getStatusTone(task.status),
                 ),
-                child: MyText(task.status,
-                    color: _getStatusColor(task.status), weight: 600),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-        isWideScreen
-            ? Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: TaskDetailBody(task: task),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: _buildTodayTasksSection(),
-                  )
-                ],
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TaskDetailBody(task: task),
-                  const SizedBox(height: 20),
-                  _buildTodayTasksSection(),
-                ],
+        if (isWideScreen)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: TaskDetailBody(task: task),
               ),
+              const SizedBox(width: 24),
+              Expanded(
+                child: _buildTodayTasksSection(),
+              )
+            ],
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TaskDetailBody(task: task),
+              const SizedBox(height: 24),
+              _buildTodayTasksSection(),
+            ],
+          ),
       ],
     );
   }
 
-  Color _getStatusColor(String status) {
+  Widget _buildTaskInfoItem(String label, String value, IconData icon) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: AppColors.textMuted),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: AppTextStyles.label.copyWith(fontSize: 10, color: AppColors.textMuted)),
+            Text(value, style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  StatusTone _getStatusTone(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
-        return AppColors.green;
+        return StatusTone.success;
       case 'in progress':
-        return AppColors.blue;
+        return StatusTone.primary;
       case 'pending':
-        return Colors.orange;
+        return StatusTone.warning;
       default:
-        return AppColors.grey1;
+        return StatusTone.neutral;
     }
+  }
+
   }
 
   Widget _buildTodayTasksSection() {
@@ -179,7 +155,7 @@ class _TaskDetailState extends State<TaskDetail> {
         Container(
           padding: const EdgeInsets.only(top: 3.3),
           decoration: const BoxDecoration(
-            color: AppColors.orange,
+            color: AppColors.warning,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(15),
             ),
@@ -187,7 +163,7 @@ class _TaskDetailState extends State<TaskDetail> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: const BoxDecoration(
-              color: AppColors.grey6,
+              color: AppColors.neutral100,
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(15),
               ),
@@ -196,14 +172,14 @@ class _TaskDetailState extends State<TaskDetail> {
               children: [
                 const MyText("Today's Tasks"),
                 const Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                  Iconsax.arrow_down_1,
                 ),
                 Container(
                   alignment: Alignment.center,
                   width: 28,
                   height: 28,
                   decoration: const BoxDecoration(
-                    color: AppColors.lightBlue,
+                    color: AppColors.primarySubtle,
                     shape: BoxShape.circle,
                   ),
                   child: const MyText("3"),
@@ -217,7 +193,7 @@ class _TaskDetailState extends State<TaskDetail> {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.add,
+                    Iconsax.add,
                     color: Colors.white,
                     size: 18,
                   ),
@@ -235,7 +211,6 @@ class _TaskDetailState extends State<TaskDetail> {
       ],
     );
   }
-}
 
 class TaskDetailBody extends StatefulWidget {
   final Task task;
@@ -352,7 +327,7 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
             children: [
               const MyText(
                 'Task Done',
-                color: AppColors.darkBlue,
+                color: AppColors.neutral800,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -480,7 +455,7 @@ class StatCard extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.2),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: SvgPicture.asset("assets/svg/star-chart.svg")),
@@ -620,7 +595,7 @@ class TimeframeTab extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? AppColors.darkBlue : Colors.grey[600],
+              color: isSelected ? AppColors.neutral800 : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 4),
@@ -629,7 +604,7 @@ class TimeframeTab extends StatelessWidget {
               height: 3,
               width: 60,
               decoration: BoxDecoration(
-                color: AppColors.darkBlue,
+                color: AppColors.neutral800,
                 borderRadius: BorderRadius.circular(1.5),
               ),
             ),
@@ -875,7 +850,7 @@ class ProjectCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -884,12 +859,12 @@ class ProjectCard extends StatelessWidget {
                       MyText(
                         'Ongoing',
                         style: TextStyle(
-                            color: AppColors.blue.withValues(alpha: 0.8),
+                            color: AppColors.primary.withValues(alpha: 0.8),
                             fontWeight: FontWeight.bold),
                       ),
                       Icon(
-                        Icons.arrow_drop_down_sharp,
-                        color: AppColors.blue.withValues(alpha: 0.8),
+                        Iconsax.arrow_down_1,
+                        color: AppColors.primary.withValues(alpha: 0.8),
                       ),
                     ],
                   ),
@@ -908,7 +883,7 @@ class ProjectCard extends StatelessWidget {
               runSpacing: 4,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Icon(Icons.access_time, color: Colors.orange, size: 20),
+                Icon(Iconsax.clock, color: Colors.orange, size: 20),
                 MyText(
                   'Deadline: ',
                   style: TextStyle(
@@ -940,7 +915,7 @@ class ProjectCard extends StatelessWidget {
                             child: SvgPicture.asset(
                               "assets/svg/add-circle.svg",
                               colorFilter: const ColorFilter.mode(
-                                  AppColors.grey3, BlendMode.srcIn),
+                                  AppColors.neutral400, BlendMode.srcIn),
                             ),
                           ),
                         ],
@@ -948,11 +923,11 @@ class ProjectCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       const Row(
                         children: [
-                          Icon(Icons.attach_file, size: 18),
+                          Icon(Iconsax.attach_circle, size: 18),
                           SizedBox(width: 4),
                           MyText('2'),
                           SizedBox(width: 12),
-                          Icon(Icons.chat_bubble_outline, size: 18),
+                          Icon(Iconsax.message_text, size: 18),
                           SizedBox(width: 4),
                           MyText('3'),
                         ],
@@ -982,7 +957,7 @@ class ProjectCard extends StatelessWidget {
                                   child: SvgPicture.asset(
                                     "assets/svg/add-circle.svg",
                                     colorFilter: const ColorFilter.mode(
-                                        AppColors.grey3, BlendMode.srcIn),
+                                        AppColors.neutral400, BlendMode.srcIn),
                                   ),
                                 ),
                               ],
@@ -994,11 +969,11 @@ class ProjectCard extends StatelessWidget {
                                 SizedBox(
                                   height: 28,
                                 ),
-                                Icon(Icons.attach_file, size: 18),
+                                Icon(Iconsax.attach_circle, size: 18),
                                 SizedBox(width: 4),
                                 MyText('2'),
                                 SizedBox(width: 12),
-                                Icon(Icons.chat_bubble_outline, size: 18),
+                                Icon(Iconsax.message_text, size: 18),
                                 SizedBox(width: 4),
                                 MyText('3'),
                               ],

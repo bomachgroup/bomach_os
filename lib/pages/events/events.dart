@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/events/controller/event_controller.dart';
 import 'package:bms_front_end/pages/events/widget/add_event_dialog.dart';
@@ -55,20 +56,20 @@ class _EventsPageState extends State<EventsPage> {
                         children: [
                           MyText(
                             'Events & Calendar',
-                            style: AppText.black_500_32,
+                            style: AppTextStyles.displayLg,
                           ),
                           SizedBox(height: 8),
                           MyText(
                             'Manage and track all company events',
                             size: 14,
                             weight: 400,
-                            color: Color(0xFF64748B),
+                            color: AppColors.neutral500,
                           ),
                         ],
                       ),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "New Event",
@@ -135,14 +136,14 @@ class _EventsPageState extends State<EventsPage> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: MyText(
                     '$totalEvents Events',
                     size: 12,
                     weight: 500,
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
@@ -172,8 +173,8 @@ class _EventsPageState extends State<EventsPage> {
               headerStyle: const HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
-                leftChevronIcon: Icon(Icons.chevron_left),
-                rightChevronIcon: Icon(Icons.chevron_right),
+                leftChevronIcon: Icon(Iconsax.arrow_left_2),
+                rightChevronIcon: Icon(Iconsax.arrow_right_3),
                 titleTextStyle: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -181,15 +182,15 @@ class _EventsPageState extends State<EventsPage> {
               ),
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
                 selectedDecoration: const BoxDecoration(
-                  color: AppColors.blue,
+                  color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
                 markerDecoration: const BoxDecoration(
-                  color: AppColors.blue,
+                  color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
                 markersMaxCount: 1,
@@ -236,7 +237,7 @@ class _EventsPageState extends State<EventsPage> {
           label,
           size: 12,
           weight: 400,
-          color: const Color(0xFF64748B),
+          color: AppColors.neutral500,
         ),
       ],
     );
@@ -271,10 +272,10 @@ class _EventsPageState extends State<EventsPage> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: AppColors.neutral50,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: const Color(0xFFE2E8F0),
+                          color: AppColors.neutral200,
                         ),
                       ),
                       child: MyText(
@@ -283,7 +284,7 @@ class _EventsPageState extends State<EventsPage> {
                             : _formatDate(_focusedDay),
                         size: 12,
                         weight: 500,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.neutral500,
                       ),
                     ),
                   ],
@@ -299,7 +300,7 @@ class _EventsPageState extends State<EventsPage> {
                     child: Column(
                       children: [
                         Icon(
-                          Icons.event_busy_outlined,
+                          Iconsax.calendar_remove,
                           size: 64,
                           color: Colors.grey.shade300,
                         ),
@@ -405,7 +406,7 @@ class _EventsPageState extends State<EventsPage> {
                   Row(
                     children: [
                       Icon(
-                        Icons.access_time,
+                        Iconsax.clock,
                         size: 14,
                         color: Colors.grey.shade600,
                       ),
@@ -414,7 +415,7 @@ class _EventsPageState extends State<EventsPage> {
                         '$fromTime - $toTime',
                         size: 13,
                         weight: 400,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.neutral500,
                       ),
                     ],
                   ),
@@ -424,7 +425,7 @@ class _EventsPageState extends State<EventsPage> {
                     Row(
                       children: [
                         Icon(
-                          Icons.location_on_outlined,
+                          Iconsax.location,
                           size: 14,
                           color: Colors.grey.shade600,
                         ),
@@ -434,7 +435,7 @@ class _EventsPageState extends State<EventsPage> {
                             event.meetingLocation!,
                             size: 13,
                             weight: 400,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.neutral500,
                           ),
                         ),
                       ],

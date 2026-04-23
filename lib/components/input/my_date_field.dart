@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 /// A date-picker-backed text field.
@@ -39,7 +40,7 @@ class MyDateField extends StatelessWidget {
       title: title,
       hintText: hintText,
       readOnly: true,
-      trailing: const Icon(Icons.calendar_today_outlined, size: 18),
+      trailing: const Icon(Iconsax.calendar_1, size: 18),
       onTap: () => _pick(context),
     );
   }

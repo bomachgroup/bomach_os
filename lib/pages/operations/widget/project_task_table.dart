@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/operations/controllers/tasks_controler.dart';
 import 'package:bms_front_end/pages/operations/widget/add_task_dialog.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -148,7 +149,7 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
                   controller.deleteTask(context, task.id, widget.projectId),
             ),
           ],
-          child: const Icon(Icons.more_vert),
+          child: const Icon(Iconsax.more),
         )),
       ]);
     }).toList();

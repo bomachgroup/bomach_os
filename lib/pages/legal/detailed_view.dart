@@ -1,4 +1,6 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
 
 class DetailsViewPage extends StatelessWidget {
@@ -13,7 +15,7 @@ class DetailsViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLargeScreen = MediaQuery.of(context).size.width > 600;
+    final isLargeScreen = !context.breakpoint.isMobile;
 
     return SafeArea(
         child: Column(
@@ -37,14 +39,14 @@ class DetailsViewPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: const Icon(Iconsax.arrow_left_2, color: Colors.black87),
           onPressed: () => Navigator.of(context).pop(),
         ),
         Flexible(child: _buildTitleBlock(title)),
         const Spacer(),
         _buildActionButton(
           label: 'Edit',
-          color: AppColors.blue,
+          color: AppColors.primary,
           onPressed: () {},
         ),
         const SizedBox(width: 8),

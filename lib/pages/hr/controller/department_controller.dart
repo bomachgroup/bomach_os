@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 
 import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
@@ -172,12 +173,6 @@ class DepartmentController extends GetxController {
   void _showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    AppToast.info(context, message);
   }
 }

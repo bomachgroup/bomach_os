@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/cards/invoice.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -42,11 +43,11 @@ class _BranchPageState extends State<BranchPage> {
                     children: [
                       MyText(
                         'Enugu Branch',
-                        style: AppText.black_600_32,
+                        style: AppTextStyles.displayLg,
                       ),
                       kSizedBoxWidthSM,
                       Icon(
-                        Icons.keyboard_arrow_down_outlined,
+                        Iconsax.arrow_down_1,
                         size: 24,
                       ),
                     ],
@@ -61,7 +62,7 @@ class _BranchPageState extends State<BranchPage> {
                       kSizedBoxWidth,
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: 'New Branch',
@@ -138,7 +139,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withValues(alpha: 0.2),
+              color: AppColors.success.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -150,7 +151,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
+                color: AppColors.primary.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -166,7 +167,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withValues(alpha: 0.2),
+              color: AppColors.success.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -178,7 +179,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
+                color: AppColors.primary.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -194,7 +195,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withValues(alpha: 0.2),
+              color: AppColors.success.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -206,7 +207,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
+                color: AppColors.primary.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -222,7 +223,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 15,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppColors.green.withValues(alpha: 0.2),
+              color: AppColors.success.withValues(alpha: 0.2),
             ),
             child: const Icon(
               CupertinoIcons.add,
@@ -234,7 +235,7 @@ class _BranchPageState extends State<BranchPage> {
             width: 42,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: AppColors.blue.withValues(alpha: 0.15)),
+                color: AppColors.primary.withValues(alpha: 0.15)),
             child: const Icon(
               CupertinoIcons.person_2,
               size: 20,
@@ -302,7 +303,7 @@ class _BranchPageState extends State<BranchPage> {
                     subtext,
                     // overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      color: AppColors.darkBlue,
+                      color: AppColors.neutral800,
                       fontSize: 12,
                       fontWeight: FontWeight.w300,
                     ),
@@ -335,7 +336,7 @@ class _BranchPageState extends State<BranchPage> {
               child: const MyText(
                 'View all',
                 isSelectable: false,
-                style: TextStyle(color: AppColors.blue),
+                style: TextStyle(color: AppColors.primary),
               ),
             ),
           ],
@@ -361,7 +362,7 @@ class _BranchPageState extends State<BranchPage> {
                   border: index + 1 == 3
                       ? null
                       : const Border(
-                          bottom: BorderSide(color: AppColors.grey1),
+                          bottom: BorderSide(color: AppColors.neutral500),
                         ),
                 ),
                 child: const InvoiceCard(),
@@ -404,7 +405,7 @@ class _BranchPageState extends State<BranchPage> {
                   ),
                 ),
                 kSizedBoxWidthSM,
-                Icon(Icons.calendar_today, color: AppColors.blue),
+                Icon(Iconsax.calendar_1, color: AppColors.primary),
               ],
             ),
           ),
@@ -424,11 +425,11 @@ class _BranchPageState extends State<BranchPage> {
               onPageChanged: (focusedDay) {},
               headerStyle: const HeaderStyle(
                 titleCentered: true,
-                leftChevronIcon: Icon(Icons.arrow_back),
-                rightChevronIcon: Icon(Icons.arrow_forward),
+                leftChevronIcon: Icon(Iconsax.arrow_left_2),
+                rightChevronIcon: Icon(Iconsax.arrow_right_3),
               ),
               calendarStyle: const CalendarStyle(
-                rangeHighlightColor: AppColors.blue,
+                rangeHighlightColor: AppColors.primary,
               ),
             ),
           ),
@@ -443,7 +444,7 @@ class _BranchPageState extends State<BranchPage> {
                     Expanded(
                         child: MyText('Wednesday, 06 July 2023',
                             size: 16, weight: 300)),
-                    Icon(Icons.more_vert)
+                    Icon(Iconsax.more)
                   ],
                 ),
                 kSizedBox,
@@ -567,7 +568,7 @@ class _BranchPageState extends State<BranchPage> {
                             ),
                             kSizedBoxWidthSM,
                             Icon(
-                              Icons.arrow_drop_down_circle_outlined,
+                              Iconsax.arrow_circle_down,
                               color: Colors.grey,
                               size: 20,
                             ),
@@ -580,8 +581,8 @@ class _BranchPageState extends State<BranchPage> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.wb_sunny_outlined,
-                            color: AppColors.grey1, size: 49),
+                        Icon(Iconsax.sun,
+                            color: AppColors.neutral500, size: 49),
                         kSizedBoxWidthSM,
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,7 +621,7 @@ class _BranchPageState extends State<BranchPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.darkBlue,
+                  color: AppColors.neutral800,
                 ),
               ),
               MyText(
@@ -628,7 +629,7 @@ class _BranchPageState extends State<BranchPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.darkBlue,
+                  color: AppColors.neutral800,
                 ),
               ),
             ],
@@ -654,7 +655,7 @@ class _BranchPageState extends State<BranchPage> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: AppColors.greyBg,
+              color: AppColors.background,
             ),
             padding: const EdgeInsets.all(kDefaultSpace),
             constraints: const BoxConstraints(maxWidth: 800),
@@ -798,7 +799,7 @@ class _BranchPageState extends State<BranchPage> {
                           alignment: WrapAlignment.end,
                           children: [
                             MyOutlinedButton(
-                              textColor: AppColors.darkGrey1,
+                              textColor: AppColors.neutral500,
                               borderColor: null,
                               child: 'Cancel',
                               onTap: () {
@@ -807,7 +808,7 @@ class _BranchPageState extends State<BranchPage> {
                             ),
                             MyElevatedButton(
                               icon: const Icon(
-                                Icons.check,
+                                Iconsax.tick_circle,
                                 color: AppColors.white,
                               ),
                               child: 'Save',

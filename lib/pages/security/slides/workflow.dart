@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class Workflows extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.people_alt_outlined,
+                          const Icon(Iconsax.people,
                               color: Colors.black, size: 24),
                           const SizedBox(width: 8),
                           Expanded(
@@ -69,11 +70,11 @@ class Workflows extends StatelessWidget {
                         },
                       );
                     },
-                    icon: const Icon(Icons.add, size: 20),
+                    icon: const Icon(Iconsax.add, size: 20),
                     label: const Text('Create Workflow',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.blue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0)),
@@ -91,9 +92,9 @@ class Workflows extends StatelessWidget {
                         },
                       );
                     },
-                    icon: const Icon(Icons.add, size: 20),
+                    icon: const Icon(Iconsax.add, size: 20),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.blue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0)),
@@ -224,7 +225,7 @@ class WorkflowTile extends StatelessWidget {
                             color: Colors.grey.withValues(alpha: 0.4),
                             width: 1),
                         borderRadius: BorderRadius.circular(7))),
-                icon: const Icon(Icons.settings_outlined, size: 20),
+                icon: const Icon(Iconsax.setting_2, size: 20),
                 onPressed: () {},
                 tooltip: 'Settings',
               ),
@@ -236,7 +237,7 @@ class WorkflowTile extends StatelessWidget {
                             color: Colors.grey.withValues(alpha: 0.4),
                             width: 1),
                         borderRadius: BorderRadius.circular(7))),
-                icon: const Icon(Icons.edit_outlined, size: 20),
+                icon: const Icon(Iconsax.edit, size: 20),
                 onPressed: () {},
                 tooltip: 'Edit Workflow',
               ),

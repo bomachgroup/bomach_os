@@ -1,7 +1,8 @@
 import 'package:bms_front_end/pages/clients_portal/model/coms_model.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
-import '../dialog/send_mesage.dart';
+import '../dialog/send_message.dart';
 
 class ClientCommunicationsScreen extends StatelessWidget {
   final bool isMobile;
@@ -29,7 +30,7 @@ class ClientCommunicationsScreen extends StatelessWidget {
                 child: _buildHeaderAndActions(context, mobile, headerFontSize,
                     subHeaderFontSize, searchWidth, buttonPadding),
               ),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+              const Divider(height: 1, thickness: 1, color: AppColors.neutral200),
               Expanded(
                 child: ListView.builder(
                   padding: EdgeInsets.symmetric(vertical: mobile ? 4.0 : 8.0),
@@ -83,13 +84,13 @@ class ClientCommunicationsScreen extends StatelessWidget {
             width: searchWidth,
             child: TextField(
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                prefixIcon: const Icon(Iconsax.search_normal, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF0F0F0),
+                fillColor: AppColors.neutral100,
                 contentPadding: EdgeInsets.symmetric(
                     vertical: 0, horizontal: mobile ? 6 : 10),
               ),
@@ -102,7 +103,7 @@ class ClientCommunicationsScreen extends StatelessWidget {
             onPressed: () {
               SendMessageDialog.show(context);
             },
-            icon: Icon(Icons.send, size: mobile ? 16 : 20),
+            icon: Icon(Iconsax.send_2, size: mobile ? 16 : 20),
             label: Text('Send Message',
                 style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: mobile ? 12 : 14)),
@@ -147,7 +148,7 @@ class CommunicationTile extends StatelessWidget {
   Color _getIconColor(String type) {
     switch (type) {
       case 'Notification':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'Message':
         return Colors.green;
       case 'Announcement':
@@ -164,17 +165,17 @@ class CommunicationTile extends StatelessWidget {
   IconData _getIcon(String type) {
     switch (type) {
       case 'Notification':
-        return Icons.notifications_none;
+        return Iconsax.notification;
       case 'Message':
-        return Icons.mail_outline;
+        return Iconsax.sms;
       case 'Announcement':
-        return Icons.fiber_new;
+        return Iconsax.flash;
       case 'Reminder':
-        return Icons.access_time;
+        return Iconsax.clock;
       case 'Welcome':
-        return Icons.tag_faces;
+        return Iconsax.emoji_happy;
       default:
-        return Icons.info_outline;
+        return Iconsax.info_circle;
     }
   }
 
@@ -186,7 +187,7 @@ class CommunicationTile extends StatelessWidget {
         return Colors.grey.shade600;
       case 'Normal':
       default:
-        return AppColors.blue.withValues(alpha: 0.3);
+        return AppColors.primary.withValues(alpha: 0.3);
     }
   }
 
@@ -206,7 +207,7 @@ class CommunicationTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(
           horizontal: horizontalPadding, vertical: verticalPadding),
       decoration: BoxDecoration(
-        color: isUnread ? AppColors.blue.withValues(alpha: 0.03) : Colors.white,
+        color: isUnread ? AppColors.primary.withValues(alpha: 0.03) : Colors.white,
         border: Border(
           bottom: BorderSide(color: Colors.grey.shade200, width: 1),
         ),

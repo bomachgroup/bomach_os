@@ -1,4 +1,7 @@
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../../../src/constants/colors.dart';
@@ -7,100 +10,17 @@ class UploadDocumentDialog extends StatelessWidget {
   const UploadDocumentDialog({super.key});
 
   static void show(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => const UploadDocumentDialog(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
-    final double dialogWidth = isMobile ? screenWidth * 0.9 : 450;
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      title: const Text(
-        'Upload Document',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 16.0, 16.0),
-      actionsPadding: const EdgeInsets.all(16.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      contentPadding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 0.0),
-      content: SingleChildScrollView(
-        child: SizedBox(
-          width: dialogWidth,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _buildFormLabel('Document Name'),
-              _buildDocumentNameInput(),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('Type'),
-                        _buildDropdown(
-                          value: 'Other',
-                          items: const [
-                            'Other',
-                            'Contract',
-                            'Invoice',
-                            'Report',
-                            'Image'
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildFormLabel('File Size(MB)'),
-                        _buildTextInput(
-                            initialValue: '0',
-                            keyboardType: TextInputType.number),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildFormLabel('Client'),
-              _buildDropdown(
-                value: 'Select Client',
-                items: const [
-                  'Select Client',
-                  'Lagos State Government',
-                  'Dangote Group',
-                  'FCDA'
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildFormLabel('Description'),
-              _buildMultiLineTextInput(hint: ''),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-      actions: <Widget>[
+    DialogScaffold.show(
+      context,
+      title: 'Upload Document',
+      size: DialogSize.sm,
+      body: const UploadDocumentDialog(),
+      actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text(
             'Cancel',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
         ElevatedButton(
@@ -108,101 +28,106 @@ class UploadDocumentDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.blue,
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
+            elevation: 0,
           ),
-          child: const Text(
-            'Upload Document',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: const Text('Upload Document'),
         ),
       ],
     );
   }
 
-  Widget _buildFormLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        label,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        MyTextFormField(
+          title: 'Document Name',
+          hintText: 'Enter document name',
+          trailing: Icon(Iconsax.document_upload, size: 20),
+        ),
+        SizedBox(height: 16),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: _DropdownWithLabel(
+                label: 'Type',
+                value: 'Other',
+                items: ['Other', 'Contract', 'Invoice', 'Report', 'Image'],
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: MyTextFormField(
+                title: 'File Size (MB)',
+                initialValue: '0',
+                keyboardType: TextInputType.number,
+                hintText: '0',
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        _DropdownWithLabel(
+          label: 'Client',
+          value: 'Select Client',
+          items: [
+            'Select Client',
+            'Lagos State Government',
+            'Dangote Group',
+            'FCDA'
+          ],
+        ),
+        SizedBox(height: 16),
+        MyTextFormField(
+          title: 'Description',
+          hintText: 'Add a description...',
+          maxLines: 4,
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildTextInput(
-      {String? hint,
-      String? initialValue,
-      TextInputType keyboardType = TextInputType.text}) {
-    return TextFormField(
-      initialValue: initialValue,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
+class _DropdownWithLabel extends StatelessWidget {
+  final String label;
+  final String value;
+  final List<String> items;
 
-  Widget _buildDocumentNameInput() {
-    return TextFormField(
-      decoration: InputDecoration(
-        hintText: '',
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.file_upload_outlined, color: Colors.black87),
-          onPressed: () {},
-        ),
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
+  const _DropdownWithLabel({
+    required this.label,
+    required this.value,
+    required this.items,
+  });
 
-  Widget _buildMultiLineTextInput({String? hint}) {
-    return TextFormField(
-      maxLines: 4,
-      minLines: 3,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0),
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+            color: AppColors.textPrimary,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
+        const SizedBox(height: 8),
+        MyDropdown(
+          hintText: value,
+          items: items,
+          onChanged: (String? newValue) {},
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
-
-  Widget _buildDropdown({required String value, required List<String> items}) {
-    return MyDropdown(
-      hintText: value,
-      items: items,
-      onChanged: (String? newValue) {},
+      ],
     );
   }
 }

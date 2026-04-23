@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class LeadSourceData {
   final String name;
@@ -313,25 +314,25 @@ final List<MetricData> crmMetrics = [
   MetricData(
       title: 'Total Clients',
       value: '84',
-      icon: Icons.people_alt,
+      icon: Iconsax.people,
       color: Colors.blue.shade600,
       subtitle: 'Active client base'),
   MetricData(
       title: 'Conversion Rate',
       value: '68.5%',
-      icon: Icons.trending_up,
+      icon: Iconsax.trend_up,
       color: Colors.green.shade600,
       subtitle: 'Lead to client conversion'),
   MetricData(
       title: 'Total Revenue',
       value: '₦525,000,000',
-      icon: Icons.attach_money,
+      icon: Iconsax.money_recive,
       color: Colors.purple.shade600,
       subtitle: 'Lifetime client value'),
   MetricData(
       title: 'Retention Rate',
       value: '89.2%',
-      icon: Icons.star,
+      icon: Iconsax.star1,
       color: Colors.orange.shade600,
       subtitle: 'Client retention rate'),
 ];
@@ -393,25 +394,25 @@ final List<MetricData> portalMetrics = [
   MetricData(
       title: 'Total Interactions',
       value: '6',
-      icon: Icons.chat_bubble_outline,
+      icon: Iconsax.message_text,
       color: Colors.blue.shade600,
       subtitle: 'Total Interactions'),
   MetricData(
       title: 'This Week',
       value: '0',
-      icon: Icons.calendar_today_outlined,
+      icon: Iconsax.calendar_1,
       color: Colors.green.shade600,
       subtitle: 'This Week'),
   MetricData(
       title: 'Pending Actions',
       value: '2',
-      icon: Icons.access_time_outlined,
+      icon: Iconsax.clock,
       color: Colors.orange.shade600,
       subtitle: 'Pending Actions'),
   MetricData(
       title: 'High Priority',
       value: '3',
-      icon: Icons.error_outline,
+      icon: Iconsax.danger,
       color: Colors.red.shade600,
       subtitle: 'High Priority'),
 ];

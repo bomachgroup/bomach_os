@@ -1,16 +1,20 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_checkbox.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/pages/hr/widget/add_lead_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:iconsax/iconsax.dart';
 
 class LeadsPage extends StatefulWidget {
   const LeadsPage({super.key});
@@ -20,366 +24,354 @@ class LeadsPage extends StatefulWidget {
 }
 
 class _LeadsPageState extends State<LeadsPage> {
-  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  int _pageSize = 10;
+  int _currentPage = 1;
+
+  // Demo data preserved from original implementation (UI-only page).
+  static final List<_LeadRow> _demoLeads = List.generate(
+    10,
+    (i) => _LeadRow(
+      id: (i + 1).toString().padLeft(3, '0'),
+      name: 'Darlene Robertson',
+      company: 'MTN Nigeria',
+      email: 'Jennygroup45@gmail.com',
+      phone: '+234 808 986 2487',
+      owner: '--',
+      createdAt: '27/09/2024',
+      status: 'new',
+    ),
+  );
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
+  List<_LeadRow> _filterLeads(List<_LeadRow> leads) {
+    if (_searchQuery.isEmpty) return leads;
+    final q = _searchQuery.toLowerCase();
+    return leads.where((l) {
+      return l.name.toLowerCase().contains(q) ||
+          l.company.toLowerCase().contains(q) ||
+          l.email.toLowerCase().contains(q) ||
+          l.phone.contains(q) ||
+          l.id.contains(q);
+    }).toList();
+  }
+
+  StatusTone _statusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'new':
+        return StatusTone.info;
+      case 'contacted':
+        return StatusTone.primary;
+      case 'qualified':
+      case 'converted':
+        return StatusTone.success;
+      case 'disqualified':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final filtered = _filterLeads(_demoLeads);
+    final startIndex = (_currentPage - 1) * _pageSize;
+    final endIndex = (startIndex + _pageSize).clamp(0, filtered.length);
+    final pageItems = filtered.isEmpty
+        ? const <_LeadRow>[]
+        : filtered.sublist(startIndex, endIndex);
+
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Leads',
+        subtitle: 'Track and convert recruitment leads through the pipeline.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Lead',
+          onTap: () => showDialog(
+            context: context,
+            builder: (context) => const AddLeadDialog(),
+          ),
+        ),
+      ),
       children: [
-        const Row(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MyText(
-                  'Leads',
-                  style: AppText.black_600_32,
-                ),
-                MyText(
-                  'Leads',
-                  style: AppText.black_600_14,
-                ),
-              ],
-            ),
-          ],
-        ),
-        kSizedBoxBG,
-        Wrap(
-          spacing: 8, // Horizontal space between items
-          runSpacing: 8, // Vertical space when wrapping
-          children: [
-            MyElevatedButton(
-              icon: const Icon(
-                Icons.add_circle_outline_rounded,
-                color: AppColors.white,
-              ),
-              child: 'New Leads',
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return const AddLeadDialog();
-                  },
-                );
-              },
-            ),
-            kSizedBoxWidth,
-            SizedBox(
-              width: 220,
-              height: 48,
-              child: MyTextFormField(
-                hintText: 'Search...',
-                leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
-            const SortBar(
-              text: 'Sort',
-            ),
-          ],
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: bodySpace(context),
-                    ),
-                    child: DataTable(
-                      dataRowMinHeight: 68,
-                      dataRowMaxHeight: 68,
-                      columnSpacing: 24,
-                      horizontalMargin: 12,
-                      columns: _createColumns(),
-                      rows: _createRows(context),
-                      showBottomBorder: true,
-                    ),
+        _buildToolbar(),
+        _buildTableCard(
+          isEmpty: filtered.isEmpty,
+          totalCount: filtered.length,
+          body: _buildTable(pageItems),
+          footer: filtered.isNotEmpty
+              ? _tablePaginator(
+                  PaginatorFooter(
+                    totalItems: filtered.length,
+                    limit: _pageSize,
+                    currentPage: _currentPage,
+                    onPageChanged: (page) =>
+                        setState(() => _currentPage = page),
+                    onLimitChanged: (newLimit) => setState(() {
+                      _pageSize = newLimit;
+                      _currentPage = 1;
+                    }),
                   ),
-                ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
-        )
+                )
+              : null,
+        ),
       ],
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyCheckbox(
-          isChecked: false,
-          onChanged: (val) {},
-          backgroundNotCheckedColor: AppColors.transparent,
-          borderNotCheckedColor: AppColors.grey4,
-        ),
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        controller: _searchController,
+        hintText: 'Search leads by name, email, phone or company',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (v) => setState(() {
+          _searchQuery = v;
+          _currentPage = 1;
+        }),
       ),
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Leads ID",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Contact Name",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Email",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Phone no.",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Lead Owner",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Date of creation",
-        ),
-      ),
-    ];
-  }
-
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(
-      10,
-      (index) {
-        return DataRow(
-          cells: <DataCell>[
-            DataCell(
-              onTap: () {},
-              MyCheckbox(
-                isChecked: false,
-                onChanged: (val) {},
-                backgroundNotCheckedColor: AppColors.transparent,
-                borderNotCheckedColor: AppColors.grey4,
-              ),
-            ),
-            const DataCell(
-              MyText("001"),
-            ),
-            DataCell(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return const ViewLeadsDialog();
-                  },
-                );
-              },
-              Row(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                    width: 36,
-                    height: 36,
-                    child: Image.asset('assets/icons/profile-icon.png'),
-                  ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        "Darlene Robertson",
-                        size: 16,
-                        weight: 400,
-                        isSelectable: false,
-                      ),
-                      MyText(
-                        "MTN Nigeria",
-                        size: 14,
-                        weight: 300,
-                        isSelectable: false,
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const DataCell(
-              MyText("Jennygroup45@gmail.com"),
-            ),
-            const DataCell(
-              MyText("+234 808 986 2487"),
-            ),
-            const DataCell(
-              MyText("--"),
-            ),
-            const DataCell(
-              MyText("27/09/2024"),
-            ),
-          ],
-        );
-      },
     );
   }
-}
 
-class ViewLeadsDialog extends StatefulWidget {
-  const ViewLeadsDialog({super.key});
-
-  @override
-  ViewLeadsDialogState createState() => ViewLeadsDialogState();
-}
-
-class ViewLeadsDialogState extends State<ViewLeadsDialog> {
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1050),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          color: AppColors.greyBg,
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.grey,
-              spreadRadius: 1,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                color: AppColors.white,
-              ),
-              padding: const EdgeInsets.all(kDefaultSpaceBG),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText("Lead", size: 24, weight: 600),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/add-circle.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: "Add Note",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AddNoteDialog();
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 600,
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: kDefaultSpaceBG, vertical: kDefaultSpaceBG),
+  Widget _buildTableCard({
+    required bool isEmpty,
+    required int totalCount,
+    required Widget body,
+    Widget? footer,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      kSizedBox,
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Wrap(
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              runSpacing: 15,
-                              spacing: 15,
-                              children: [
-                                const ClientInfoCard(),
-                                StatsCard(
-                                  title: 'Service',
-                                  value: 'Real Estate',
-                                  icon: SvgPicture.asset(
-                                    "assets/svg/star-chart.svg",
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                ),
-                                StatsCard(
-                                  title: 'Prospective value',
-                                  value: '1000',
-                                  icon: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      const SizedBox(),
-                                      Positioned(
-                                        left: -10,
-                                        child: SvgPicture.asset(
-                                            "assets/svg/naira-coin.svg"),
-                                      ),
-                                      Positioned(
-                                        child: SvgPicture.asset(
-                                            "assets/svg/naira-coin.svg"),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      kSizedBox,
-                      const Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: ProfileInfoCard(),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            flex: 3,
-                            child: DetailAndNotes(),
-                          ),
-                        ],
+                      const Text('Lead pipeline', style: AppTextStyles.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$totalCount lead${totalCount == 1 ? '' : 's'} in the pipeline',
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
                 ),
+                const StatusChip(
+                  label: 'Recruitment leads',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.profile_2user,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.profile_2user,
+                title: 'No leads found',
+                subtitle: _searchQuery.isEmpty
+                    ? 'Add new leads to start building your recruitment pipeline.'
+                    : 'Try adjusting your search terms.',
+                action: _searchQuery.isEmpty
+                    ? MyElevatedButton(
+                        height: 44,
+                        icon: const Icon(Iconsax.add_circle,
+                            color: AppColors.textOnPrimary, size: 18),
+                        child: 'New Lead',
+                        onTap: () => showDialog(
+                          context: context,
+                          builder: (context) => const AddLeadDialog(),
+                        ),
+                      )
+                    : null,
+              ),
+            )
+          else
+            body,
+          if (footer != null) ...[
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            footer,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTable(List<_LeadRow> items) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Lead ID', flex: 2),
+              _buildHeaderCell('Contact', flex: 4),
+              _buildHeaderCell('Email', flex: 3),
+              _buildHeaderCell('Phone', flex: 2),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('Owner', flex: 2),
+              _buildHeaderCell('Created', flex: 2),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...items.map(_buildLeadRow),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _tablePaginator(Widget child) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: child,
+    );
+  }
+
+  Widget _buildLeadRow(_LeadRow lead) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => _ViewLeadsDialog(lead: lead),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Text(
+                lead.id,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 4,
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: AppColors.primarySubtle,
+                    child: Text(
+                      lead.name.isNotEmpty ? lead.name[0].toUpperCase() : '?',
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lead.name,
+                          style: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          lead.company,
+                          style: AppTextStyles.bodySm.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(
+                lead.email,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                lead.phone,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: StatusChip(
+                  label: _statusLabel(lead.status),
+                  tone: _statusTone(lead.status),
+                  dense: true,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                lead.owner,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                lead.createdAt,
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -387,341 +379,400 @@ class ViewLeadsDialogState extends State<ViewLeadsDialog> {
       ),
     );
   }
-}
 
-class ClientInfoCard extends StatelessWidget {
-  const ClientInfoCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: !isLargeScreen(context) ? double.infinity : 400,
-      decoration: BoxDecoration(
-        color: const Color.fromRGBO(255, 255, 255, 1),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AppColors.grey4,
-          width: 0.6,
-        ),
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const MyText(
-            'Client',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          kSizedBoxSM,
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: Image.asset(
-                  "assets/image/man-demo.png",
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const MyText(
-                      'Jane Okoro',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const MyText(
-                      'Business woman',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    MyText(
-                      'Date of creation: 27/09/2024',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+  String _statusLabel(String s) {
+    if (s.isEmpty) return 'New';
+    return s[0].toUpperCase() + s.substring(1);
   }
 }
 
-class StatsCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final Widget icon;
+/// Demo lead row — preserves the original UI-only data shape for the leads page.
+class _LeadRow {
+  final String id;
+  final String name;
+  final String company;
+  final String email;
+  final String phone;
+  final String owner;
+  final String createdAt;
+  final String status;
 
-  const StatsCard({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
+  const _LeadRow({
+    required this.id,
+    required this.name,
+    required this.company,
+    required this.email,
+    required this.phone,
+    required this.owner,
+    required this.createdAt,
+    required this.status,
   });
+}
+
+// ─── View Lead Dialog ────────────────────────────────────────────────────────
+
+class _ViewLeadsDialog extends StatelessWidget {
+  final _LeadRow? lead;
+  const _ViewLeadsDialog({this.lead});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: !isLargeScreen(context) ? double.infinity : 280,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: AppColors.white,
-        border: Border.all(
-          color: AppColors.grey4,
-          width: 0.6,
-        ),
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
+    final l = lead;
+    final name = l?.name ?? 'Jane Okoro';
+    final company = l?.company ?? 'Business';
+    final email = l?.email ?? 'Janeokoro45@gmail.com';
+    final phone = l?.phone ?? '+2349077745777';
+    final id = l?.id ?? '001';
+    final createdAt = l?.createdAt ?? '27/09/2024';
+    final status = l?.status ?? 'new';
+
+    return DialogScaffold(
+      title: 'Lead Details',
+      subtitle: '$name • $company',
+      size: DialogSize.lg,
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MyText(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+          _buildSummaryBanner(
+            name: name,
+            company: company,
+            status: status,
+            id: id,
+            createdAt: createdAt,
+          ),
+          const SizedBox(height: 20),
+          LayoutBuilder(builder: (context, constraints) {
+            return const ResponsiveStatRow(
+              cards: [
+                _StatCard(
+                  title: 'Total Leads',
+                  count: '1,284',
+                  icon: Iconsax.user_search,
+                  accent: AppColors.primary,
+                ),
+                _StatCard(
+                  title: 'Active Interviews',
+                  count: '42',
+                  icon: Iconsax.personalcard,
+                  accent: AppColors.info,
+                ),
+                _StatCard(
+                  title: 'Hired (Month)',
+                  count: '12',
+                  icon: Iconsax.user_tick,
+                  accent: AppColors.success,
+                ),
+                _StatCard(
+                  title: 'Drop-off Rate',
+                  count: '18%',
+                  icon: Iconsax.user_minus,
+                  accent: AppColors.danger,
+                ),
+              ],
+            );
+          }),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Personal information',
+            children: [
+              _detailRow('Lead ID', id),
+              _detailRow('Contact Name', name),
+              _detailRow('Company', company),
+              _detailRow('Phone', phone),
+              _detailRow('Email', email),
+              _detailRow('Date of creation', createdAt),
+            ],
           ),
           const SizedBox(height: 16),
-          Row(
-            // mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          _buildSection(
+            title: 'Detail',
             children: [
-              Expanded(
-                child: MyText(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.blue2,
-                  ),
+              Text(
+                'Detail about this lead — enquiry notes, follow-ups, and other '
+                'relevant context captured during outreach.',
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  height: 1.5,
                 ),
               ),
-              icon,
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Notes',
+            children: [
+              for (int i = 0; i < 5; i++) ...[
+                _buildNote(i + 1,
+                    'Follow-up note ${i + 1} — captured during recruitment outreach.'),
+                if (i < 4) const SizedBox(height: 10),
+              ],
             ],
           ),
         ],
       ),
-    );
-  }
-}
-
-class ProfileInfoCard extends StatelessWidget {
-  const ProfileInfoCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final infoItems = [
-      {'label': 'Leads ID', 'value': '001'},
-      {'label': 'Contact Name', 'value': 'Jane Okoro'},
-      {'label': 'Phone', 'value': '+2349077745777'},
-      {'label': 'Email', 'value': 'Janeokoro45@gmail.com'},
-    ];
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: AppColors.white,
-        border: Border.all(
-          color: AppColors.grey4,
-          width: 0.6,
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const MyText(
-            'Personal Info',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const BouncingScrollPhysics(),
-            itemCount: infoItems.length,
-            separatorBuilder: (context, index) => kSizedBoxSM,
-            itemBuilder: (context, index) {
-              return Row(
-                children: [
-                  Expanded(
-                    child: MyText(
-                      infoItems[index]['label']!,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: MyText(
-                      infoItems[index]['value']!,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class DetailAndNotes extends StatelessWidget {
-  const DetailAndNotes({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            color: AppColors.white,
-            border: Border.all(
-              color: AppColors.grey4,
-              width: 0.6,
-            ),
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText(
-                'Detail',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              kSizedBoxSM,
-              MyText(
-                'Detail bfndsn sdbnm,adn sdvbjnm,sdv bjsvdv,mnsa sbdndms,',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-                maxLines: 10,
-              ),
-            ],
-          ),
+        MyElevatedButton(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          icon: const Icon(Iconsax.add_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          child: 'Add Note',
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (_) => const AddNoteDialog(),
+            );
+          },
         ),
-        kSizedBox,
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            color: AppColors.white,
-            border: Border.all(
-              color: AppColors.grey4,
-              width: 0.6,
-            ),
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const MyText(
-                'Notes',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              kSizedBoxSM,
-              ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                separatorBuilder: (_, __) => kSizedBox,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        child: MyText("${index + 1}"),
-                      ),
-                      const Expanded(
-                        child: MyText(
-                          'Detail bfndsn sdbnm,adn sdvbjnm,sdv bjsvdv,mnsa sbdndms,',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          maxLines: 10,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              )
-            ],
-          ),
-        )
       ],
     );
   }
+
+  Widget _buildSummaryBanner({
+    required String name,
+    required String company,
+    required String status,
+    required String id,
+    required String createdAt,
+  }) {
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initial,
+              style: AppTextStyles.h2.copyWith(color: AppColors.primary),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: AppTextStyles.h3),
+                const SizedBox(height: 2),
+                Text(
+                  company,
+                  style:
+                      AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      label: status.isEmpty
+                          ? 'New'
+                          : status[0].toUpperCase() + status.substring(1),
+                      tone: _toneFromStatus(status),
+                    ),
+                    _buildMetaChip(icon: Iconsax.hashtag, label: 'ID $id'),
+                    _buildMetaChip(
+                        icon: Iconsax.calendar_1, label: 'Created $createdAt'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetaChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNote(int index, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: const BoxDecoration(
+            color: AppColors.primarySubtle,
+            borderRadius: AppRadii.brSm,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '$index',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+          ),
+        ),
+      ],
+    );
+  }
+
+  StatusTone _toneFromStatus(String s) {
+    switch (s.toLowerCase()) {
+      case 'new':
+        return StatusTone.info;
+      case 'contacted':
+        return StatusTone.primary;
+      case 'qualified':
+      case 'converted':
+        return StatusTone.success;
+      case 'disqualified':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
+  }
 }
 
-class InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String count;
+  final IconData icon;
+  final Color accent;
 
-  const InfoRow({
-    super.key,
-    required this.label,
-    required this.value,
+  const _StatCard({
+    required this.title,
+    required this.count,
+    required this.icon,
+    required this.accent,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+    return AppCard(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MyText(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: AppColors.darkGrey2,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: Icon(icon, size: 18, color: accent),
+              ),
+              const Spacer(),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          MyText(
-            value,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w300,
-              color: AppColors.darkGrey2,
+          const SizedBox(height: 4),
+          Text(
+            count,
+            style: AppTextStyles.h1.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -729,6 +780,8 @@ class InfoRow extends StatelessWidget {
     );
   }
 }
+
+// ─── Add Note Dialog ─────────────────────────────────────────────────────────
 
 class AddNoteDialog extends StatefulWidget {
   const AddNoteDialog({super.key});
@@ -738,103 +791,49 @@ class AddNoteDialog extends StatefulWidget {
 }
 
 class _AddNoteDialogState extends State<AddNoteDialog> {
+  final TextEditingController _noteCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _noteCtrl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    return DialogScaffold(
+      title: 'Add Note',
+      subtitle: 'Capture a follow-up note for this lead.',
+      size: DialogSize.md,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MyTextFormField(
+            controller: _noteCtrl,
+            hintText: 'Enter note',
+            title: 'Note',
+            maxLines: 7,
+          ),
+        ],
       ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846, maxHeight: 600),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.grey4),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText(
-                    'Add Note',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form fields
-            const Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              hintText: "Enter Note",
-                              spaceBetweenText: 10,
-                              maxLines: 7,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: SvgPicture.asset(
-                      "assets/svg/kite.svg",
-                      colorFilter: const ColorFilter.mode(
-                          AppColors.white, BlendMode.srcIn),
-                    ),
-                    child: 'Submit',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-          ],
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
-      ),
+        MyElevatedButton(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          icon: const Icon(Iconsax.send_1,
+              size: 18, color: AppColors.textOnPrimary),
+          child: 'Submit',
+          onTap: () => Navigator.pop(context),
+        ),
+      ],
     );
   }
 }

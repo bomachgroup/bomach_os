@@ -1,6 +1,13 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/pages/legal/audits.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../components/text/my_text.dart';
 import 'cases.dart';
 import 'compliance.dart';
@@ -13,43 +20,43 @@ enum DashboardTab { contracts, compliance, cases, audits }
 
 final Map<DashboardTab, List<SummaryItem>> dashboardSummaryData = {
   DashboardTab.contracts: [
-    SummaryItem('Contracts', '2', Icons.description_outlined),
-    SummaryItem('Compliance', '2', Icons.check_circle_outline),
-    SummaryItem('Active', '2', Icons.local_activity_outlined),
+    SummaryItem('Contracts', '2', Iconsax.document_text),
+    SummaryItem('Compliance', '2', Iconsax.tick_circle),
+    SummaryItem('Active', '2', Iconsax.ticket),
     SummaryItem(
       'Contract Value',
       '₦505,000.00',
-      Icons.money_outlined,
+      Iconsax.money_recive,
     ),
   ],
   DashboardTab.compliance: [
-    SummaryItem('Total Policies', '2', Icons.gavel_outlined),
-    SummaryItem('Compliant', '2', Icons.verified_user_outlined),
-    SummaryItem('Review Due', '2', Icons.warning_amber),
+    SummaryItem('Total Policies', '2', Iconsax.judge),
+    SummaryItem('Compliant', '2', Iconsax.shield_tick),
+    SummaryItem('Review Due', '2', Iconsax.warning_2),
     SummaryItem(
       'Overdue',
       '2',
-      Icons.calendar_month_outlined,
+      Iconsax.calendar_1,
     ),
   ],
   DashboardTab.cases: [
-    SummaryItem('Total Cases', '2', Icons.people_outline),
-    SummaryItem('Active Cases', '2', Icons.people_outline),
-    SummaryItem('Settled Cases', '2', Icons.people_outline),
+    SummaryItem('Total Cases', '2', Iconsax.people),
+    SummaryItem('Active Cases', '2', Iconsax.people),
+    SummaryItem('Settled Cases', '2', Iconsax.people),
     SummaryItem(
       'Total Exposure',
       '₦505,000.00',
-      Icons.money_off_csred_outlined,
+      Iconsax.empty_wallet,
     ),
   ],
   DashboardTab.audits: [
-    SummaryItem('Total Audits', '2', Icons.people_outline),
-    SummaryItem('Completed', '2', Icons.people_outline),
-    SummaryItem('In Progress', '2', Icons.people_outline),
+    SummaryItem('Total Audits', '2', Iconsax.people),
+    SummaryItem('Completed', '2', Iconsax.people),
+    SummaryItem('In Progress', '2', Iconsax.people),
     SummaryItem(
       'Scheduled',
       '₦505,000.00',
-      Icons.money_off_csred_outlined,
+      Iconsax.empty_wallet,
     ),
   ],
 };
@@ -107,6 +114,57 @@ class _LegalsPageState extends State<LegalsPage> {
     });
   }
 
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Iconsax.document_text,
+          title: 'Contracts',
+          subtitle: 'Agreements and documents',
+          route: RouteConstants.legalContracts,
+          resources: const [PermissionConstants.resContracts],
+        ),
+        card(
+          icon: Iconsax.shield_tick,
+          title: 'Compliance',
+          subtitle: 'Policies and records',
+          route: RouteConstants.legalCompliance,
+          resources: const [PermissionConstants.resComplianceRecords],
+        ),
+        card(
+          icon: Iconsax.judge,
+          title: 'Cases',
+          subtitle: 'Active legal matters',
+          route: RouteConstants.legalCases,
+          resources: const [PermissionConstants.resLegalCases],
+        ),
+        card(
+          icon: Iconsax.task_square,
+          title: 'Audits',
+          subtitle: 'Compliance audits',
+          route: RouteConstants.legalAudits,
+          resources: const [PermissionConstants.resComplianceAudits],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -150,7 +208,7 @@ class _LegalsPageState extends State<LegalsPage> {
                           builder: (context) => const CreateNewContractDialog(),
                         );
                       },
-                      icon: const Icon(Icons.add, color: Colors.white),
+                      icon: const Icon(Iconsax.add, color: Colors.white),
                       child: "New Contract",
                     ),
                 ],
@@ -165,10 +223,12 @@ class _LegalsPageState extends State<LegalsPage> {
                         builder: (context) => const CreateNewContractDialog(),
                       );
                     },
-                    icon: const Icon(Icons.add, color: Colors.white),
+                    icon: const Icon(Iconsax.add, color: Colors.white),
                     child: "New Contract",
                   ),
                 ),
+              const SizedBox(height: 24),
+              _buildQuickNav(),
               const SizedBox(height: 24),
               DynamicSummaryRow(dashboardData: _dashboardData),
               const SizedBox(height: 24),

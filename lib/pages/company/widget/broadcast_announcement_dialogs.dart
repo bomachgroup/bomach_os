@@ -1,10 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/broadcast_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controllers/broadcast_controller.dart';
@@ -30,8 +37,8 @@ class _CreateEditAnnouncementDialogState
   late final TextEditingController publishAtCtrl;
   late final TextEditingController expiresAtCtrl;
 
-  String? selectedAnnouncementType;
-  String? selectedPriority;
+  String? selectedAnnouncementTypeValue;
+  String? selectedPriorityValue;
   bool isActive = true;
 
   Set<int> selectedBranchIds = {};
@@ -46,23 +53,22 @@ class _CreateEditAnnouncementDialogState
     titleCtrl = TextEditingController(text: a?.title ?? '');
     contentCtrl = TextEditingController(text: a?.content ?? '');
 
-    // Format dates
     publishAtCtrl =
         TextEditingController(text: _formatDateForDisplay(a?.publishAt ?? ''));
     expiresAtCtrl =
         TextEditingController(text: _formatDateForDisplay(a?.expiresAt ?? ''));
 
     if (a != null) {
-      selectedAnnouncementType =
+      selectedAnnouncementTypeValue =
           a.announcementType.isNotEmpty ? a.announcementType : null;
-      selectedPriority = a.priority.isNotEmpty ? a.priority : null;
+      selectedPriorityValue = a.priority.isNotEmpty ? a.priority : null;
       isActive = a.isActive;
       selectedBranchIds = a.branchIds.toSet();
       selectedDepartmentIds =
           a.departmentIds.map((id) => id.toString()).toSet();
     } else {
-      selectedAnnouncementType = 'general';
-      selectedPriority = 'normal';
+      selectedAnnouncementTypeValue = 'general';
+      selectedPriorityValue = 'normal';
       isActive = true;
     }
   }
@@ -86,314 +92,371 @@ class _CreateEditAnnouncementDialogState
     super.dispose();
   }
 
+  List<_OptionLabelValue> _announcementTypeOptions() {
+    final choices =
+        controller.announcementChoices.value?.announcementTypes ?? [];
+    if (choices.isNotEmpty) {
+      return choices
+          .map((e) => _OptionLabelValue(value: e.value, label: e.label))
+          .toList();
+    }
+    return const [
+      _OptionLabelValue(value: 'general', label: 'General'),
+      _OptionLabelValue(value: 'urgent', label: 'Urgent'),
+      _OptionLabelValue(value: 'policy', label: 'Policy'),
+      _OptionLabelValue(value: 'event', label: 'Event'),
+    ];
+  }
+
+  List<_OptionLabelValue> _priorityOptions() {
+    final choices = controller.announcementChoices.value?.priorities ?? [];
+    if (choices.isNotEmpty) {
+      return choices
+          .map((e) => _OptionLabelValue(value: e.value, label: e.label))
+          .toList();
+    }
+    return const [
+      _OptionLabelValue(value: 'low', label: 'Low'),
+      _OptionLabelValue(value: 'normal', label: 'Normal'),
+      _OptionLabelValue(value: 'high', label: 'High'),
+      _OptionLabelValue(value: 'urgent', label: 'Urgent'),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Announcement' : 'Create Announcement',
+          subtitle: isEdit
+              ? 'Update the announcement content, audience, and schedule.'
+              : 'Share a new message with your team, branches, or departments.',
+          size: DialogSize.lg,
+          body: Form(
+            key: _formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isEdit ? 'Edit Announcement' : 'Create Announcement',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
+                _buildSection(
+                  title: 'Announcement details',
+                  subtitle:
+                      'Give the announcement a clear title and message body.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
+                        controller: titleCtrl,
+                        title: 'Title',
+                        hintText: 'e.g. Office closure on public holiday',
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'Required'
+                            : null,
+                      ),
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        controller: contentCtrl,
+                        title: 'Content',
+                        hintText: 'Type the full message here',
+                        maxLines: 4,
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'Required'
+                            : null,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 20),
-
-                // Title
-                _fieldLabel('Title'),
-                MyTextFormField(
-                  controller: titleCtrl,
-                  hintText: 'Type here',
-                  validator: (val) =>
-                      (val == null || val.isEmpty) ? 'Required' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // Content
-                _fieldLabel('Content'),
-                MyTextFormField(
-                  controller: contentCtrl,
-                  hintText: 'Type here',
-                  maxLines: 4,
-                  validator: (val) =>
-                      (val == null || val.isEmpty) ? 'Required' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // Announcement Type & Priority Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
+                _buildSection(
+                  title: 'Classification',
+                  subtitle:
+                      'Pick the announcement type and priority for routing.',
+                  child: Column(
+                    children: [
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _fieldLabel('Announcement Type'),
-                          _buildAnnouncementTypeDropdown(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _fieldLabel('Priority'),
-                          _buildPriorityDropdown(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Is Active toggle
-                Row(
-                  children: [
-                    _fieldLabel('Active'),
-                    const SizedBox(width: 8),
-                    Switch(
-                      value: isActive,
-                      activeThumbColor: AppColors.blue,
-                      onChanged: (val) => setState(() => isActive = val),
-                    ),
-                    Text(isActive ? 'Yes' : 'No',
-                        style: const TextStyle(fontSize: 13)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Publish At & Expires At Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _fieldLabel('Publish At'),
-                          MyTextFormField(
-                            controller: publishAtCtrl,
-                            hintText: 'Select date',
-                            readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
-                                size: 18, color: Colors.grey),
-                            onTap: () => _pickDate(publishAtCtrl),
-                            validator: (val) => (val == null || val.isEmpty)
-                                ? 'Required'
-                                : null,
+                          Expanded(
+                            child: _buildTypeDropdown(),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildPriorityDropdown(),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _fieldLabel('Expires At'),
-                          MyTextFormField(
-                            controller: expiresAtCtrl,
-                            hintText: 'Select date',
-                            readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
-                                size: 18, color: Colors.grey),
-                            onTap: () => _pickDate(expiresAtCtrl),
-                            validator: (val) => (val == null || val.isEmpty)
-                                ? 'Required'
-                                : null,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      _buildActiveToggle(),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-
-                // Target Branches
-                _fieldLabel('Target Branches (optional)'),
-                Obx(() {
-                  final branches = controller.branches;
-                  if (branches.isEmpty) return const SizedBox.shrink();
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: branches.map((branch) {
-                      final selected = selectedBranchIds.contains(branch.id);
-                      return FilterChip(
-                        label: Text(branch.branchName,
-                            style: const TextStyle(fontSize: 13)),
-                        selected: selected,
-                        onSelected: (val) => setState(() {
-                          if (val) {
-                            selectedBranchIds.add(branch.id);
-                          } else {
-                            selectedBranchIds.remove(branch.id);
-                          }
-                        }),
-                        selectedColor:
-                            const Color(0xFF1976D2).withValues(alpha: 0.15),
-                        checkmarkColor: const Color(0xFF1976D2),
-                      );
-                    }).toList(),
-                  );
-                }),
-                const SizedBox(height: 16),
-
-                // Target Departments
-                _fieldLabel('Target Departments (optional)'),
-                Obx(() {
-                  final depts = controller.departments;
-                  if (depts.isEmpty) return const SizedBox.shrink();
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: depts.map((dept) {
-                      final selected = selectedDepartmentIds.contains(dept.id);
-                      return FilterChip(
-                        label: Text(dept.name,
-                            style: const TextStyle(fontSize: 13)),
-                        selected: selected,
-                        onSelected: (val) => setState(() {
-                          if (val) {
-                            selectedDepartmentIds.add(dept.id);
-                          } else {
-                            selectedDepartmentIds.remove(dept.id);
-                          }
-                        }),
-                        selectedColor:
-                            const Color(0xFF1976D2).withValues(alpha: 0.15),
-                        checkmarkColor: const Color(0xFF1976D2),
-                      );
-                    }).toList(),
-                  );
-                }),
-                const SizedBox(height: 24),
-
-                // Action buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyOutlinedButton(
-                      child: 'Cancel',
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    const SizedBox(width: 12),
-                    Obx(() => MyElevatedButton(
-                          child: isEdit
-                              ? 'Update Announcement'
-                              : 'Create Announcement',
-                          isLoading: controller.isSavingAnnouncement.value,
-                          onTap: _onSave,
-                          icon: const Icon(Icons.check,
-                              color: Colors.white, size: 18),
-                        )),
-                  ],
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Schedule',
+                  subtitle:
+                      'Control when the announcement goes live and expires.',
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: publishAtCtrl,
+                          title: 'Publish At',
+                          hintText: 'Select date',
+                          readOnly: true,
+                          trailing: const Icon(Iconsax.calendar_1,
+                              size: 18, color: AppColors.textSecondary),
+                          onTap: () => _pickDate(publishAtCtrl),
+                          validator: (val) => (val == null || val.isEmpty)
+                              ? 'Required'
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: MyTextFormField(
+                          controller: expiresAtCtrl,
+                          title: 'Expires At',
+                          hintText: 'Select date',
+                          readOnly: true,
+                          trailing: const Icon(Iconsax.calendar_1,
+                              size: 18, color: AppColors.textSecondary),
+                          onTap: () => _pickDate(expiresAtCtrl),
+                          validator: (val) => (val == null || val.isEmpty)
+                              ? 'Required'
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Audience',
+                  subtitle:
+                      'Limit the announcement to specific branches or departments. Leave empty to target everyone.',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildAudienceLabel('Target Branches (optional)'),
+                      const SizedBox(height: 8),
+                      Obx(() {
+                        final branches = controller.branches;
+                        if (branches.isEmpty) {
+                          return Text(
+                            'No branches available.',
+                            style: AppTextStyles.bodySm
+                                .copyWith(color: AppColors.textMuted),
+                          );
+                        }
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: branches.map((branch) {
+                            final selected =
+                                selectedBranchIds.contains(branch.id);
+                            return FilterChip(
+                              label: Text(branch.branchName,
+                                  style: AppTextStyles.bodySm),
+                              selected: selected,
+                              onSelected: (val) => setState(() {
+                                if (val) {
+                                  selectedBranchIds.add(branch.id);
+                                } else {
+                                  selectedBranchIds.remove(branch.id);
+                                }
+                              }),
+                              backgroundColor: AppColors.surface,
+                              selectedColor: AppColors.primarySubtle,
+                              checkmarkColor: AppColors.primary,
+                              side: BorderSide(
+                                color: selected
+                                    ? AppColors.primary
+                                    : AppColors.borderSubtle,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: AppRadii.brPill,
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
+                      const SizedBox(height: 16),
+                      _buildAudienceLabel('Target Departments (optional)'),
+                      const SizedBox(height: 8),
+                      Obx(() {
+                        final depts = controller.departments;
+                        if (depts.isEmpty) {
+                          return Text(
+                            'No departments available.',
+                            style: AppTextStyles.bodySm
+                                .copyWith(color: AppColors.textMuted),
+                          );
+                        }
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: depts.map((dept) {
+                            final selected =
+                                selectedDepartmentIds.contains(dept.id);
+                            return FilterChip(
+                              label:
+                                  Text(dept.name, style: AppTextStyles.bodySm),
+                              selected: selected,
+                              onSelected: (val) => setState(() {
+                                if (val) {
+                                  selectedDepartmentIds.add(dept.id);
+                                } else {
+                                  selectedDepartmentIds.remove(dept.id);
+                                }
+                              }),
+                              backgroundColor: AppColors.surface,
+                              selectedColor: AppColors.primarySubtle,
+                              checkmarkColor: AppColors.primary,
+                              side: BorderSide(
+                                color: selected
+                                    ? AppColors.primary
+                                    : AppColors.borderSubtle,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: AppRadii.brPill,
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 160,
+              height: 44,
+              child: controller.isSavingAnnouncement.value
+                  ? 'Saving...'
+                  : (isEdit ? 'Update' : 'Create'),
+              onTap: controller.isSavingAnnouncement.value ? null : _onSave,
+              icon: controller.isSavingAnnouncement.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+            ),
+          ],
+        ));
   }
 
-  Widget _fieldLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-    );
-  }
+  Widget _buildTypeDropdown() {
+    final options = _announcementTypeOptions();
+    final labels = options.map((o) => o.label).toList();
+    final currentLabel = options
+        .firstWhereOrNull((o) => o.value == selectedAnnouncementTypeValue)
+        ?.label;
 
-  Widget _buildAnnouncementTypeDropdown() {
-    final choices =
-        controller.announcementChoices.value?.announcementTypes ?? [];
-    final typeItems = choices.isNotEmpty
-        ? choices.map((e) => e.value).toList()
-        : ['general', 'urgent', 'policy', 'event'];
-
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: typeItems.contains(selectedAnnouncementType)
-              ? selectedAnnouncementType
-              : null,
-          hint: const Text('Select type',
-              style: TextStyle(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-          items: typeItems
-              .map((t) => DropdownMenuItem(
-                  value: t,
-                  child: Text(_capitalize(t),
-                      style: const TextStyle(fontSize: 14))))
-              .toList(),
-          onChanged: (val) => setState(() => selectedAnnouncementType = val),
-        ),
-      ),
+    return MyDropdown(
+      title: 'Announcement Type',
+      hintText: currentLabel ?? 'Select type',
+      items: labels,
+      initialSelection: currentLabel,
+      onChanged: (val) {
+        setState(() {
+          selectedAnnouncementTypeValue =
+              options.firstWhereOrNull((o) => o.label == val)?.value;
+        });
+      },
     );
   }
 
   Widget _buildPriorityDropdown() {
-    final choices = controller.announcementChoices.value?.priorities ?? [];
-    final priorityItems = choices.isNotEmpty
-        ? choices.map((e) => e.value).toList()
-        : ['low', 'normal', 'high', 'urgent'];
+    final options = _priorityOptions();
+    final labels = options.map((o) => o.label).toList();
+    final currentLabel = options
+        .firstWhereOrNull((o) => o.value == selectedPriorityValue)
+        ?.label;
 
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: priorityItems.contains(selectedPriority)
-              ? selectedPriority
-              : null,
-          hint: const Text('Select priority',
-              style: TextStyle(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-          items: priorityItems
-              .map((p) => DropdownMenuItem(
-                  value: p,
-                  child: Text(_capitalize(p),
-                      style: const TextStyle(fontSize: 14))))
-              .toList(),
-          onChanged: (val) => setState(() => selectedPriority = val),
+    return MyDropdown(
+      title: 'Priority',
+      hintText: currentLabel ?? 'Select priority',
+      items: labels,
+      initialSelection: currentLabel,
+      onChanged: (val) {
+        setState(() {
+          selectedPriorityValue =
+              options.firstWhereOrNull((o) => o.label == val)?.value;
+        });
+      },
+    );
+  }
+
+  Widget _buildActiveToggle() {
+    return Row(
+      children: [
+        Text(
+          'Active',
+          style: AppTextStyles.bodyMd.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        const SizedBox(width: 12),
+        Switch(
+          value: isActive,
+          activeThumbColor: AppColors.primary,
+          onChanged: (val) => setState(() => isActive = val),
+        ),
+        const SizedBox(width: 8),
+        StatusChip(
+          label: isActive ? 'Active' : 'Inactive',
+          tone: isActive ? StatusTone.success : StatusTone.neutral,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAudienceLabel(String text) {
+    return Text(
+      text,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textPrimary,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
 
-  String _capitalize(String s) {
-    if (s.isEmpty) return s;
-    return s[0].toUpperCase() + s.substring(1);
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
   }
 
   Future<void> _pickDate(TextEditingController ctrl) async {
@@ -413,13 +476,8 @@ class _CreateEditAnnouncementDialogState
   void _onSave() {
     if (!_formKey.currentState!.validate()) return;
 
-    if (selectedAnnouncementType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an announcement type'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    if (selectedAnnouncementTypeValue == null) {
+      AppToast.error(context, 'Please select an announcement type');
       return;
     }
 
@@ -442,8 +500,8 @@ class _CreateEditAnnouncementDialogState
     final data = <String, dynamic>{
       'title': titleCtrl.text.trim(),
       'content': contentCtrl.text.trim(),
-      'announcement_type': selectedAnnouncementType ?? 'general',
-      'priority': selectedPriority ?? 'normal',
+      'announcement_type': selectedAnnouncementTypeValue ?? 'general',
+      'priority': selectedPriorityValue ?? 'normal',
       'branch_ids': selectedBranchIds.toList(),
       'department_ids': selectedDepartmentIds
           .map((id) => int.tryParse(id) ?? 0)
@@ -472,146 +530,131 @@ class ViewAnnouncementDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final BroadcastController controller = Get.find<BroadcastController>();
 
-    // Format dates
-    String displayPublishAt = _formatDate(announcement.publishAt);
-    String displayExpiresAt = _formatDate(announcement.expiresAt);
+    final displayPublishAt = _formatDate(announcement.publishAt);
+    final displayExpiresAt = _formatDate(announcement.expiresAt);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return DialogScaffold(
+      title: 'Announcement details',
+      subtitle: announcement.title,
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(announcement),
+          const SizedBox(height: 20),
+          _buildDetailSection(
+            title: 'Message',
             children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Announcement info',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              _buildDetailRow('Title', announcement.title),
-              _buildDetailRow('Content', announcement.content),
-              _buildDetailRow('Type', announcement.announcementTypeDisplay),
-              _buildDetailRow('Priority', announcement.priorityDisplay),
-
-              // Active Status
-              _buildActiveRow(announcement.isActive),
-
-              _buildDetailRow('Publish At', displayPublishAt),
-              _buildDetailRow('Expires At', displayExpiresAt),
-
-              const SizedBox(height: 24),
-
-              // Action buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _buildActionButton(
-                    label: 'Delete',
-                    color: Colors.red,
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final confirmed = await _showDeleteConfirmation(
-                          context, announcement.title);
-                      if (confirmed == true && context.mounted) {
-                        controller.deleteAnnouncement(context, announcement.id);
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _buildActionButton(
-                    label: 'Edit',
-                    color: AppColors.blue,
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (_) => CreateEditAnnouncementDialog(
-                            announcement: announcement),
-                      );
-                    },
-                  ),
-                ],
+              Text(
+                announcement.content.isEmpty ? '-' : announcement.content,
+                style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(String dateStr) {
-    if (dateStr.isEmpty) return '–';
-    try {
-      final parsed = DateTime.parse(dateStr);
-      return DateFormat('MMMM d, yyyy').format(parsed);
-    } catch (_) {
-      return dateStr;
-    }
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 130,
-            child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-          ),
-          Expanded(
-            child: Text(value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+          const SizedBox(height: 16),
+          _buildDetailSection(
+            title: 'Announcement information',
+            children: [
+              _detailRow('Title', announcement.title),
+              _detailRow('Type', announcement.announcementTypeDisplay),
+              _detailRow('Priority', announcement.priorityDisplay),
+              _detailRow('Publish At', displayPublishAt),
+              _detailRow('Expires At', displayExpiresAt),
+            ],
           ),
         ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyOutlinedButton(
+          child: 'Delete',
+          height: 44,
+          onTap: () async {
+            Navigator.pop(context);
+            final confirmed = await _showDeleteConfirmation(
+                context, announcement.title);
+            if (confirmed == true && context.mounted) {
+              controller.deleteAnnouncement(context, announcement.id);
+            }
+          },
+          textColor: AppColors.danger,
+          borderColor: AppColors.danger,
+        ),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: 'Edit',
+          icon: const Icon(Iconsax.edit,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (_) => CreateEditAnnouncementDialog(
+                  announcement: announcement),
+            );
+          },
+        ),
+      ],
     );
   }
 
-  Widget _buildActiveRow(bool active) {
-    final color = active ? Colors.green : Colors.grey;
-    final label = active ? 'Active' : 'Inactive';
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+  Widget _buildSummaryBanner(Announcement announcement) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
       child: Row(
         children: [
-          const SizedBox(
-            width: 130,
-            child: Text('Status',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-          ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: const Icon(Iconsax.notification_bing,
+                color: AppColors.primary, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.circle, size: 8, color: color),
-                const SizedBox(width: 6),
-                Text(label,
-                    style: TextStyle(
-                        color: color,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500)),
+                Text(announcement.title, style: AppTextStyles.h3),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      label: announcement.isActive ? 'Active' : 'Inactive',
+                      tone: announcement.isActive
+                          ? StatusTone.success
+                          : StatusTone.neutral,
+                    ),
+                    if (announcement.announcementTypeDisplay.isNotEmpty)
+                      _buildMetaChip(
+                        icon: Iconsax.tag,
+                        label: announcement.announcementTypeDisplay,
+                      ),
+                    if (announcement.priorityDisplay.isNotEmpty)
+                      _buildMetaChip(
+                        icon: Iconsax.flash_1,
+                        label: announcement.priorityDisplay,
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -620,45 +663,127 @@ class ViewAnnouncementDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton({
+  Widget _buildMetaChip({
+    required IconData icon,
     required String label,
-    required Color color,
-    required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(label,
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14)),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
-    );
-  }
-
-  Future<bool?> _showDeleteConfirmation(
-      BuildContext context, String name) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Delete Announcement'),
-        content: Text('Are you sure you want to delete "$name"?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c, false),
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => Navigator.pop(c, true),
-              child: const Text('Delete', style: TextStyle(color: Colors.red))),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
   }
+
+  Widget _buildDetailSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(
+              label,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '-' : value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(String dateStr) {
+    if (dateStr.isEmpty) return '-';
+    try {
+      final parsed = DateTime.parse(dateStr);
+      return DateFormat('MMMM d, yyyy').format(parsed);
+    } catch (_) {
+      return dateStr;
+    }
+  }
+
+  Future<bool?> _showDeleteConfirmation(
+      BuildContext context, String name) async {
+    return DialogScaffold.show<bool>(
+      context,
+      title: 'Delete Announcement',
+      size: DialogSize.sm,
+      body: Text(
+        'Are you sure you want to delete "$name"?',
+        style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context, false),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: 'Delete',
+          icon: const Icon(Iconsax.trash,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () => Navigator.pop(context, true),
+        ),
+      ],
+    );
+  }
+}
+
+class _OptionLabelValue {
+  final String value;
+  final String label;
+  const _OptionLabelValue({required this.value, required this.label});
 }

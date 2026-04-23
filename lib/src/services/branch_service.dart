@@ -37,8 +37,9 @@ class BranchService {
   // GET ALL BRANCHES (With Filters)
   Future<({List<Branch> items, int total})> getBranches({
     required String accessToken,
-    int? countryId,
-    int? stateId,
+    String? country,
+    String? state,
+    String? city,
     String? search,
     String? operationalStatus,
     String? branchRole,
@@ -52,8 +53,11 @@ class BranchService {
         'offset': offset,
       };
 
-      if (countryId != null) queryParams['country_id'] = countryId;
-      if (stateId != null) queryParams['state_id'] = stateId;
+      if (country != null && country.isNotEmpty) {
+        queryParams['country'] = country;
+      }
+      if (state != null && state.isNotEmpty) queryParams['state'] = state;
+      if (city != null && city.isNotEmpty) queryParams['city'] = city;
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
       if (operationalStatus != null && operationalStatus.isNotEmpty) {
         queryParams['operational_status'] = operationalStatus;
@@ -136,62 +140,6 @@ class BranchService {
     }
   }
 
-  // GET COUNTRIES
-  Future<List<Country>> getCountries({
-    required String accessToken,
-    bool? isActive,
-  }) async {
-    try {
-      final Map<String, dynamic> queryParams = {};
-      if (isActive != null) queryParams['is_active'] = isActive;
-
-      final response = await _dio.get(
-        '/api/v1/branch/countries',
-        queryParameters: queryParams,
-        options: _authOptions(accessToken),
-      );
-
-      final data = response.data;
-      if (data != null && data['items'] is List) {
-        return (data['items'] as List)
-            .map((item) => Country.fromJson(item))
-            .toList();
-      }
-      return [];
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  // GET STATES
-  Future<List<StateModel>> getStates({
-    required String accessToken,
-    int? countryId,
-    String? search,
-  }) async {
-    try {
-      final Map<String, dynamic> queryParams = {};
-      if (countryId != null) queryParams['country_id'] = countryId;
-      if (search != null) queryParams['search'] = search;
-
-      final response = await _dio.get(
-        '/api/v1/branch/states',
-        queryParameters: queryParams,
-        options: _authOptions(accessToken),
-      );
-
-      final data = response.data;
-      if (data != null && data['items'] is List) {
-        return (data['items'] as List)
-            .map((item) => StateModel.fromJson(item))
-            .toList();
-      }
-      return [];
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
   //  GET FIELD CHOICES
   Future<BranchFieldChoices> getBranchFieldChoices({
     required String accessToken,
@@ -218,38 +166,6 @@ class BranchService {
         options: _authOptions(accessToken),
       );
       return BranchPerformance.fromJson(response.data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  // GET SINGLE COUNTRY
-  Future<Country> getCountry({
-    required String accessToken,
-    required int countryId,
-  }) async {
-    try {
-      final response = await _dio.get(
-        '/api/v1/branch/countries/$countryId',
-        options: _authOptions(accessToken),
-      );
-      return Country.fromJson(response.data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  // GET SINGLE STATE
-  Future<StateModel> getState({
-    required String accessToken,
-    required int stateId,
-  }) async {
-    try {
-      final response = await _dio.get(
-        '/api/v1/branch/states/$stateId',
-        options: _authOptions(accessToken),
-      );
-      return StateModel.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
     }

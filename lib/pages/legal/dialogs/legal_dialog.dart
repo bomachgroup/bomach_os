@@ -123,7 +123,7 @@ class CreateNewLegalCaseDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.blue,
+            backgroundColor: AppColors.primary,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0)),

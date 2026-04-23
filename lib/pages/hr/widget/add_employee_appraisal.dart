@@ -1,8 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/employees_controller.dart';
 
@@ -31,6 +37,14 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
   final _improvementsCtrl = TextEditingController();
   final _developmentCtrl = TextEditingController();
   String _selectedPeriod = 'Q4 2025';
+
+  static const _periodOptions = [
+    'Q1 2025',
+    'Q2 2025',
+    'Q3 2025',
+    'Q4 2025',
+    'Q1 2026',
+  ];
 
   @override
   void dispose() {
@@ -70,139 +84,121 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        width: 600,
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText('Employee Appraisal Form',
-                      size: 18, weight: 700),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, size: 20, color: Colors.grey),
-                  )
-                ],
-              ),
+    return DialogScaffold(
+      title: 'Employee Appraisal Form',
+      subtitle: 'Rate performance, capture achievements, and outline next steps.',
+      size: DialogSize.md,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSection(
+            title: 'Review Period',
+            child: MyDropdown(
+              hintText: 'Select review period',
+              items: _periodOptions,
+              initialSelection: _selectedPeriod,
+              onChanged: (v) {
+                if (v != null) setState(() => _selectedPeriod = v);
+              },
             ),
-            const Divider(height: 1),
-
-            // Scrollable Content
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Review Period
-                    _buildDropdownField(
-                        "Review Period",
-                        _selectedPeriod,
-                        ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025', 'Q1 2026'],
-                        (v) => setState(() => _selectedPeriod = v!)),
-                    const SizedBox(height: 24),
-
-                    const MyText('Performance Ratings', size: 14, weight: 600),
-                    const SizedBox(height: 16),
-                    _buildRatingRow("Job Knowledge", jobKnowledge,
-                        (v) => setState(() => jobKnowledge = v)),
-                    _buildRatingRow("Communication", communication,
-                        (v) => setState(() => communication = v)),
-                    _buildRatingRow("Problem Solving", problemSolving,
-                        (v) => setState(() => problemSolving = v)),
-                    _buildRatingRow("Teamwork", teamwork,
-                        (v) => setState(() => teamwork = v)),
-                    _buildRatingRow("Initiative", initiative,
-                        (v) => setState(() => initiative = v)),
-                    _buildRatingRow("Quality of Work", qualityOfWork,
-                        (v) => setState(() => qualityOfWork = v)),
-
-                    const SizedBox(height: 24),
-                    _buildTextArea("Key Achievements", "Write the details here",
-                        _achievementsCtrl),
-                    const SizedBox(height: 16),
-                    _buildTextArea("Areas for Improvement",
-                        "Write the details here", _improvementsCtrl),
-                    const SizedBox(height: 16),
-                    _buildTextArea("Development Plan", "Write the details here",
-                        _developmentCtrl),
-                  ],
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Performance Ratings',
+            subtitle: 'Tap a star to rate each competency from 1 to 5.',
+            child: Column(
+              children: [
+                _buildRatingRow('Job Knowledge', jobKnowledge,
+                    (v) => setState(() => jobKnowledge = v)),
+                _buildRatingRow('Communication', communication,
+                    (v) => setState(() => communication = v)),
+                _buildRatingRow('Problem Solving', problemSolving,
+                    (v) => setState(() => problemSolving = v)),
+                _buildRatingRow('Teamwork', teamwork,
+                    (v) => setState(() => teamwork = v)),
+                _buildRatingRow('Initiative', initiative,
+                    (v) => setState(() => initiative = v)),
+                _buildRatingRow('Quality of Work', qualityOfWork,
+                    (v) => setState(() => qualityOfWork = v)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Notes & Plan',
+            child: Column(
+              children: [
+                MyTextFormField(
+                  title: 'Key Achievements',
+                  controller: _achievementsCtrl,
+                  hintText: 'Write the details here',
+                  maxLines: 3,
                 ),
-              ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Areas for Improvement',
+                  controller: _improvementsCtrl,
+                  hintText: 'Write the details here',
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Development Plan',
+                  controller: _developmentCtrl,
+                  hintText: 'Write the details here',
+                  maxLines: 3,
+                ),
+              ],
             ),
-
-            const Divider(height: 1),
-            // Footer Buttons
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: MyOutlinedButton(
-                      child: 'Cancel',
-                      textColor: const Color(0xFF0055FF),
-                      onTap: () => Navigator.pop(context),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Obx(() => MyElevatedButton(
-                          child: controller.isSaving.value
-                              ? 'Submitting...'
-                              : 'Add Review',
-                          bgColor: const Color(0xFF0055FF),
-                          onTap: controller.isSaving.value ? null : _onSubmit,
-                        )),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
+          ),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              isLoading: controller.isSaving.value,
+              child: 'Add Review',
+              onTap: controller.isSaving.value ? null : _onSubmit,
+            )),
+      ],
     );
   }
 
-  Widget _buildDropdownField(String label, String value, List<String> items,
-      Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MyText(label, size: 12, weight: 600, color: Colors.black87),
-        const SizedBox(height: 6),
-        DropdownButtonFormField<String>(
-          initialValue: value,
-          decoration: InputDecoration(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: Colors.grey.shade300)),
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: Colors.grey.shade300)),
-          ),
-          items: items
-              .map((e) => DropdownMenuItem(
-                  value: e,
-                  child: Text(e, style: const TextStyle(fontSize: 13))))
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ],
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
     );
   }
 
@@ -212,50 +208,32 @@ class _EmployeeAppraisalDialogState extends State<EmployeeAppraisalDialog> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         children: [
-          SizedBox(width: 140, child: MyText(label, size: 13, weight: 500)),
-          Row(
-            children: List.generate(5, (index) {
-              return InkWell(
-                onTap: () => onRate(index + 1),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Icon(
-                    index < currentRating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 20,
-                  ),
-                ),
-              );
-            }),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextArea(String label, String hint, TextEditingController ctrl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MyText(label, size: 13, weight: 600),
-        const SizedBox(height: 8),
-        Container(
-          height: 80,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
+          Expanded(
+            child: Text(label, style: AppTextStyles.label),
           ),
-          child: TextField(
-            controller: ctrl,
-            maxLines: null,
-            decoration: InputDecoration.collapsed(
-              hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+          Material(
+            color: Colors.transparent,
+            child: Row(
+              children: List.generate(5, (index) {
+                return InkWell(
+                  borderRadius: AppRadii.brSm,
+                  onTap: () => onRate(index + 1),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Icon(
+                      index < currentRating ? Iconsax.star1 : Iconsax.star,
+                      color: index < currentRating
+                          ? AppColors.warning
+                          : AppColors.neutral300,
+                      size: 22,
+                    ),
+                  ),
+                );
+              }),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

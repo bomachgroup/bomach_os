@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class SecurityCodes extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.key, color: Colors.black, size: 24),
+              const Icon(Iconsax.key, color: Colors.black, size: 24),
               const SizedBox(width: 8),
               Expanded(
                 child: MyText(
@@ -160,7 +161,7 @@ class SecurityCodeTile extends StatelessWidget {
                             width: 1),
                         borderRadius: BorderRadius.circular(7))),
                 icon: const Icon(
-                  Icons.remove_red_eye_outlined,
+                  Iconsax.eye,
                   size: 20,
                 ),
                 onPressed: () {},
@@ -168,7 +169,7 @@ class SecurityCodeTile extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(
-                  Icons.edit_outlined,
+                  Iconsax.edit,
                   size: 20,
                 ),
                 style: IconButton.styleFrom(

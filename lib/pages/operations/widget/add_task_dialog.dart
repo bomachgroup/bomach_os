@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -155,7 +156,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                         fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -543,11 +544,11 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                 final label = emp?.fullName ?? projEmp?.fullName ?? id;
                 return Chip(
                   label: Text(label, style: const TextStyle(fontSize: 12)),
-                  deleteIcon: const Icon(Icons.close, size: 14),
+                  deleteIcon: const Icon(Iconsax.close_circle, size: 14),
                   onDeleted: () => widget.onToggle(id),
-                  backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   side:
-                      BorderSide(color: AppColors.blue.withValues(alpha: 0.3)),
+                      BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 );
@@ -563,7 +564,7 @@ class _AssignedToFieldState extends State<_AssignedToField> {
             decoration: InputDecoration(
               hintText: 'Search employees by name or ID...',
               prefixIcon:
-                  const Icon(Icons.search, size: 18, color: Colors.grey),
+                  const Icon(Iconsax.search_normal, size: 18, color: Colors.grey),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(
@@ -576,7 +577,7 @@ class _AssignedToFieldState extends State<_AssignedToField> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppColors.blue),
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),
           ),
@@ -633,7 +634,7 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                                         value: isSelected,
                                         onChanged: (_) =>
                                             widget.onToggle(empId),
-                                        activeColor: AppColors.blue,
+                                        activeColor: AppColors.primary,
                                         materialTapTargetSize:
                                             MaterialTapTargetSize.shrinkWrap,
                                         visualDensity: VisualDensity.compact,

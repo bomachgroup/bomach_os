@@ -1,11 +1,15 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/pages/operations/each_project.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
 import 'controllers/dashboard_controller.dart';
 import 'models/models.dart';
 import 'widget/add_project_dialog.dart';
@@ -31,220 +35,298 @@ class _OperationsPageState extends State<OperationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // --- Header ---
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MyText('Operations Dashboard',
-                            style: AppText.black_500_32),
-                        SizedBox(height: 8),
-                        MyText('Overview & Projects',
-                            style: AppText.black_400_14),
-                      ],
-                    ),
-                    MyElevatedButton(
-                      icon: const Icon(Icons.add_circle_outline_rounded,
-                          color: AppColors.white),
-                      child: "Add Project",
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const AddProjectDialog(),
-                        ).then((_) => controller.fetchDashboardData(context));
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-          kSizedBox,
-
-          // --- Stats Section ---
-          Obx(() {
-            if (controller.isLoadingStats.value) {
-              return const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: CircularProgressIndicator()));
-            }
-            final stats = controller.stats.value;
-            if (stats == null) return const SizedBox();
-
-            return Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                        child: _buildStatCard("Active Projects",
-                            stats.activeProjects.toString(), Colors.blue)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                        child: _buildStatCard("Total Budget",
-                            "₦${stats.totalBudget}", Colors.green)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                        child: _buildStatCard("Budget Util.",
-                            "${stats.budgetUtilization}%", Colors.orange)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                        child: _buildStatCard("Worksites",
-                            stats.totalWorksites.toString(), Colors.purple)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                        child: _buildStatCard("Contracts",
-                            stats.totalContracts.toString(), Colors.teal)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                        child: _buildStatCard("Timelines",
-                            stats.totalTimelines.toString(), Colors.red)),
-                  ],
-                ),
-              ],
-            );
-          }),
-
-          kSizedBoxBG,
-          const Divider(),
-          kSizedBox,
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const MyText('Recent Projects', style: AppText.black_500_20),
-              SizedBox(
-                width: 200,
-                child: MyTextFormField(
-                  hintText: 'Search Projects...',
-                  leading: Icon(Icons.search,
-                      color: AppColors.grey1.withValues(alpha: 0.5)),
-                  onChanged: (val) =>
-                      controller.fetchProjects(context, search: val),
-                ),
-              ),
-            ],
-          ),
-          kSizedBox,
-
-          Obx(() {
-            if (controller.isLoadingProjects.value) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (controller.projects.isEmpty) {
-              return const Center(
-                  child: Padding(
-                padding: EdgeInsets.all(40),
-                child: Text("No projects found"),
-              ));
-            }
-
-            return ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: controller.projects.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final project = controller.projects[index];
-                return _buildProjectItem(context, project);
-              },
-            );
-          }),
-        ],
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Operations Dashboard',
+        subtitle: 'Overview & Project Management',
+        trailing: OutlinedButton.icon(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => const AddProjectDialog(),
+            ).then((_) => controller.fetchDashboardData(context));
+          },
+          icon: const Icon(Iconsax.add_circle, size: 18),
+          label: const Text('Add Project'),
+        ),
       ),
+      children: [
+        // --- Stats Section ---
+        Obx(() {
+          if (controller.isLoadingStats.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final stats = controller.stats.value;
+          if (stats == null) return const SizedBox();
+
+          return _buildStatsGrid(stats);
+        }),
+
+        const SizedBox(height: 32),
+
+        // --- Recent Projects Section ---
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const MyText('Recent Projects', style: AppTextStyles.h3),
+            SizedBox(
+              width: 250,
+              child: MyTextFormField(
+                hintText: 'Search Projects...',
+                leading: Icon(Iconsax.search_normal,
+                    color: AppColors.textMuted.withValues(alpha: 0.5)),
+                onChanged: (val) =>
+                    controller.fetchProjects(context, search: val),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        Obx(() {
+          if (controller.isLoadingProjects.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (controller.projects.isEmpty) {
+            return const AppCard(
+              padding: EdgeInsets.all(48),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Iconsax.folder_open,
+                        size: 48, color: AppColors.textMuted),
+                    SizedBox(height: 16),
+                    Text("No projects found", style: AppTextStyles.bodyLg),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: controller.projects.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final project = controller.projects[index];
+              return _buildProjectItem(context, project);
+            },
+          );
+        }),
+      ],
     );
   }
 
-  Widget _buildStatCard(String title, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildStatsGrid(DashboardStats stats) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final bool isMobile = constraints.maxWidth < 650;
+      final int crossAxisCount = isMobile ? 1 : 3;
+
+      return GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+        childAspectRatio: isMobile ? 2.5 : 2.2,
         children: [
-          MyText(title,
-              style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-          const SizedBox(height: 8),
-          MyText(value,
-              style: TextStyle(
-                  color: color, fontSize: 24, fontWeight: FontWeight.bold)),
+          _buildStatCard("Active Projects", stats.activeProjects.toString(),
+              AppColors.primary, Iconsax.folder_2),
+          _buildStatCard("Total Budget", "₦${stats.totalBudget}",
+              AppColors.success, Iconsax.money_2),
+          _buildStatCard("Budget Util.", "${stats.budgetUtilization}%",
+              AppColors.warning, Iconsax.chart_2),
+          _buildStatCard("Worksites", stats.totalWorksites.toString(),
+              const Color(0xFF8B5CF6), Iconsax.building_4),
+          _buildStatCard("Contracts", stats.totalContracts.toString(),
+              const Color(0xFF14B8A6), Iconsax.document_text),
+          _buildStatCard("Timelines", stats.totalTimelines.toString(),
+              AppColors.danger, Iconsax.timer_1),
+        ],
+      );
+    });
+  }
+
+  Widget _buildStatCard(
+      String title, String value, Color color, IconData icon) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withValues(alpha: 0.15),
+                  color.withValues(alpha: 0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: color.withValues(alpha: 0.1),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(icon, color: color, size: 26),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  value,
+                  style: AppTextStyles.h2.copyWith(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildProjectItem(BuildContext context, Project project) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(18),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => EachProjects(project: project)),
+        );
+      },
       child: Row(
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              color: AppColors.blue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.02),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child:
-                const Center(child: Icon(Icons.folder, color: AppColors.blue)),
+            child: const Center(
+              child: Icon(
+                Iconsax.folder_2,
+                color: AppColors.primary,
+                size: 26,
+              ),
+            ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyText(project.name, style: AppText.black_500_16),
-                const SizedBox(height: 4),
-                MyText("${project.shortCode} • ${project.status}",
-                    style: AppText.black_400_14),
+                Text(
+                  project.name,
+                  style: AppTextStyles.h4.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        project.shortCode,
+                        style: AppTextStyles.overline.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "•",
+                      style:
+                          AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      project.status,
+                      style: AppTextStyles.bodySm.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
+          const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              MyText("Budget: ₦${project.budget}", style: AppText.black_500_20),
-              const SizedBox(height: 4),
-              MyText(project.deadline, style: AppText.black_400_14),
+              Text(
+                "₦${project.budget}",
+                style: AppTextStyles.h4.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(
+                    Iconsax.calendar_1,
+                    size: 14,
+                    color: AppColors.textMuted.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    project.deadline,
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () => controller.deleteProject(context, project.id),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () => controller.deleteProject(context, project.id),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(
+                  Iconsax.trash,
+                  color: AppColors.danger.withValues(alpha: 0.7),
+                  size: 20,
+                ),
+              ),
+            ),
           ),
         ],
       ),

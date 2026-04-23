@@ -1,11 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../../../pages/hr/models/training_program_model.dart';
@@ -23,6 +27,7 @@ class AddProgramDialog extends StatefulWidget {
 
 class _AddProgramDialogState extends State<AddProgramDialog> {
   final TrainingProgramController controller = Get.find();
+  final _formKey = GlobalKey<FormState>();
 
   // Controllers
   late TextEditingController nameCtrl;
@@ -35,17 +40,18 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
 
   // State Variables
   String selectedStatus = 'scheduled';
-  String selectedAudience = 'all_employees'; // Default value
+  String selectedAudience = 'all_employees';
   bool isMandatory = false;
 
-  final List<String> statusOptions = [
-    'scheduled',
-    'active',
-    'completed',
-    'cancelled'
-  ];
+  // Status options with display labels
+  final Map<String, String> statusMap = {
+    'scheduled': 'Scheduled',
+    'active': 'Active',
+    'completed': 'Completed',
+    'cancelled': 'Cancelled',
+  };
 
-  // Target Audience Options (Key: API Value, Value: Display Label)
+  // Target audience options
   final Map<String, String> audienceMap = {
     'all_employees': 'All Employees',
     'management': 'Management',
@@ -56,6 +62,8 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
     'sales_team': 'Sales Team',
     'customer_service': 'Customer Service',
   };
+
+  bool get isEdit => widget.programToEdit != null;
 
   @override
   void initState() {
@@ -81,7 +89,6 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
 
     selectedStatus = p?.status ?? 'scheduled';
 
-    // Ensure the loaded audience is valid, otherwise default to all_employees
     if (p != null && audienceMap.containsKey(p.targetAudience)) {
       selectedAudience = p.targetAudience;
     } else {
@@ -103,8 +110,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
     super.dispose();
   }
 
-  Future<void> _selectDate(TextEditingController ctrl,
-      {bool isStart = true}) async {
+  Future<void> _selectDate(TextEditingController ctrl) async {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -114,6 +120,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
     if (picked != null) {
       ctrl.text = DateFormat('yyyy-MM-dd').format(picked);
       _calculateDuration();
+      setState(() {});
     }
   }
 
@@ -122,25 +129,21 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
       try {
         DateTime start = DateTime.parse(startDateCtrl.text);
         DateTime end = DateTime.parse(endDateCtrl.text);
-        int days = end.difference(start).inDays + 1; // +1 to include start date
+        int days = end.difference(start).inDays + 1;
         if (days > 0) {
           durationCtrl.text = days.toString();
         }
-      } catch (e) {
+      } catch (_) {
         // Ignore parse errors
       }
     }
   }
 
   void _save() async {
-    // Basic Validation
     if (nameCtrl.text.isEmpty ||
         startDateCtrl.text.isEmpty ||
         endDateCtrl.text.isEmpty) {
-      Get.snackbar("Error", "Please fill in all required fields",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.1),
-          colorText: Colors.red);
+      AppToast.error(context, 'Please fill in all required fields');
       return;
     }
 
@@ -152,7 +155,7 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
       startDate: DateTime.tryParse(startDateCtrl.text),
       endDate: DateTime.tryParse(endDateCtrl.text),
       cost: int.tryParse(costCtrl.text.replaceAll(',', '')) ?? 0,
-      targetAudience: selectedAudience, // Using the strict dropdown value
+      targetAudience: selectedAudience,
       durationDays: int.tryParse(durationCtrl.text) ?? 0,
       status: selectedStatus,
       isMandatory: isMandatory,
@@ -169,289 +172,245 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
     if (!mounted) return;
     if (success) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(widget.programToEdit != null
-                ? "Program Updated"
-                : "Program Created"),
-            backgroundColor: Colors.green),
-      );
+      AppToast.success(context,
+          widget.programToEdit != null ? 'Program Updated' : 'Program Created');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Operation Failed"), backgroundColor: Colors.red),
-      );
+      AppToast.error(context, 'Operation Failed');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 800),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // --- Header ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    widget.programToEdit == null
-                        ? 'Create Training Program'
-                        : 'Edit Training Program',
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
-
-            // --- Scrollable Form ---
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Program Title
-                    MyTextFormField(
-                      title: 'Program Title',
-                      controller: nameCtrl,
-                      hintText: 'e.g. Leadership Fundamentals',
-                      spaceBetweenText: 8,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Row: Cost & Status
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyTextFormField(
-                            title: 'Cost',
-                            controller: costCtrl,
-                            hintText: '0',
-                            keyboardType: TextInputType.number,
-                            spaceBetweenText: 8,
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const MyText('Status', weight: 600, size: 14),
-                              const SizedBox(height: 8),
-                              MyDropdown(
-                                items: statusOptions,
-                                hintText: selectedStatus,
-                                onChanged: (val) {
-                                  if (val != null) {
-                                    setState(() => selectedStatus = val);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Target Audience Dropdown
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const MyText('Target Audience', weight: 600, size: 14),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: selectedAudience,
-                              isExpanded: true,
-                              icon: const Icon(Icons.keyboard_arrow_down,
-                                  color: Colors.grey),
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    selectedAudience = newValue;
-                                  });
-                                }
-                              },
-                              items: audienceMap.entries
-                                  .map<DropdownMenuItem<String>>((entry) {
-                                return DropdownMenuItem<String>(
-                                  value: entry.key,
-                                  child: Text(entry.value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Description
-                    MyTextFormField(
-                      title: 'Description/Syllabus',
-                      controller: descCtrl,
-                      maxLines: 4,
-                      hintText: 'Provide a brief explanation',
-                      spaceBetweenText: 8,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Row: Provider & Mandatory
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: MyTextFormField(
-                            title: 'Trainer / Provider',
-                            controller: providerCtrl,
-                            hintText: 'e.g. Coursera, Internal',
-                            spaceBetweenText: 8,
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            height: 48,
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: isMandatory,
-                                  activeColor: AppColors.darkBlue2,
-                                  onChanged: (val) => setState(
-                                      () => isMandatory = val ?? false),
-                                ),
-                                const MyText("Is Mandatory?", size: 13),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // --- Schedule Section ---
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                          color: const Color(0xFFF8FBFF),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE3F2FD))),
-                      child: Column(
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Training Program' : 'Create Training Program',
+          subtitle: isEdit
+              ? 'Update program details, schedule and audience.'
+              : 'Set up a new program with audience, schedule and cost.',
+          size: DialogSize.lg,
+          body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSection(
+                  title: 'Program details',
+                  subtitle:
+                      'Define the title, cost, status and target audience.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
+                        controller: nameCtrl,
+                        title: 'Program Title',
+                        hintText: 'e.g. Leadership Fundamentals',
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const MyText("Schedule",
-                              style: TextStyle(
-                                  color: Color(0xFF1976D2),
-                                  fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () =>
-                                      _selectDate(startDateCtrl, isStart: true),
-                                  child: IgnorePointer(
-                                    child: MyTextFormField(
-                                      title: 'Start Date',
-                                      controller: startDateCtrl,
-                                      hintText: 'Select',
-                                      spaceBetweenText: 8,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () =>
-                                      _selectDate(endDateCtrl, isStart: false),
-                                  child: IgnorePointer(
-                                    child: MyTextFormField(
-                                      title: 'End Date',
-                                      controller: endDateCtrl,
-                                      hintText: 'Select',
-                                      spaceBetweenText: 8,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: costCtrl,
+                              title: 'Cost',
+                              hintText: '0',
+                              keyboardType: TextInputType.number,
+                            ),
                           ),
-                          const SizedBox(height: 16),
-                          MyTextFormField(
-                            title: 'Duration (Days)',
-                            controller: durationCtrl,
-                            hintText: 'Auto-calculated',
-                            spaceBetweenText: 8,
-                            readOnly: true,
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyDropdown(
+                              title: 'Status',
+                              hintText:
+                                  statusMap[selectedStatus] ?? 'Scheduled',
+                              items: statusMap.values.toList(),
+                              initialSelection: statusMap[selectedStatus],
+                              onChanged: (val) {
+                                if (val != null) {
+                                  final key = statusMap.entries
+                                      .firstWhere((e) => e.value == val,
+                                          orElse: () =>
+                                              const MapEntry('scheduled', ''))
+                                      .key;
+                                  setState(() => selectedStatus = key);
+                                }
+                              },
+                            ),
                           ),
                         ],
                       ),
-                    )
-                  ],
+                      const SizedBox(height: 16),
+                      MyDropdown(
+                        title: 'Target Audience',
+                        hintText: audienceMap[selectedAudience] ?? 'Select',
+                        items: audienceMap.values.toList(),
+                        initialSelection: audienceMap[selectedAudience],
+                        onChanged: (val) {
+                          if (val != null) {
+                            final key = audienceMap.entries
+                                .firstWhere((e) => e.value == val,
+                                    orElse: () =>
+                                        const MapEntry('all_employees', ''))
+                                .key;
+                            setState(() => selectedAudience = key);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        controller: descCtrl,
+                        title: 'Description / Syllabus',
+                        maxLines: 4,
+                        hintText: 'Provide a brief explanation',
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: MyTextFormField(
+                              controller: providerCtrl,
+                              title: 'Trainer / Provider',
+                              hintText: 'e.g. Coursera, Internal',
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                borderRadius: AppRadii.brMd,
+                                border: Border.all(
+                                    color: AppColors.borderSubtle),
+                              ),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: isMandatory,
+                                    activeColor: AppColors.primary,
+                                    onChanged: (val) => setState(
+                                        () => isMandatory = val ?? false),
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                      'Is Mandatory?',
+                                      style: AppTextStyles.bodySm.copyWith(
+                                        color: AppColors.textPrimary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Schedule',
+                  subtitle: 'Pick start and end dates — duration is calculated automatically.',
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: startDateCtrl,
+                              title: 'Start Date',
+                              hintText: 'Select',
+                              readOnly: true,
+                              trailing: const Icon(Iconsax.calendar_1,
+                                  size: 18,
+                                  color: AppColors.textSecondary),
+                              onTap: () => _selectDate(startDateCtrl),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: MyTextFormField(
+                              controller: endDateCtrl,
+                              title: 'End Date',
+                              hintText: 'Select',
+                              readOnly: true,
+                              trailing: const Icon(Iconsax.calendar_1,
+                                  size: 18,
+                                  color: AppColors.textSecondary),
+                              onTap: () => _selectDate(endDateCtrl),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        controller: durationCtrl,
+                        title: 'Duration (Days)',
+                        hintText: 'Auto-calculated',
+                        readOnly: true,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-
-            // --- Footer ---
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    width: 120,
-                    child: MyOutlinedButton(
-                      textColor: Colors.black87,
-                      child: 'Cancel',
-                      onTap: () => Navigator.pop(context),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  SizedBox(
-                    width: 160,
-                    child: Obx(() => MyElevatedButton(
-                          bgColor: const Color(0xFF1976D2),
-                          child: controller.isSaving.value
-                              ? 'Publishing...'
-                              : 'Publish Program',
-                          onTap: controller.isSaving.value ? () {} : _save,
-                        )),
-                  ),
-                ],
-              ),
+          ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 160,
+              height: 44,
+              child: controller.isSaving.value
+                  ? 'Publishing...'
+                  : (isEdit ? 'Update Program' : 'Publish Program'),
+              icon: controller.isSaving.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+              onTap: controller.isSaving.value ? null : _save,
             ),
           ],
-        ),
+        ));
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

@@ -32,20 +32,6 @@ class BiometricApiService {
     });
   }
 
-  Future<Map<String, dynamic>> setupFingerprint(
-      String token, String biometricData) async {
-    try {
-      final response = await _dio.post(
-        '/biometric/setup-fingerprint',
-        data: {'biometric_data': biometricData},
-        options: _authOptions(token),
-      );
-      return Map<String, dynamic>.from(response.data);
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
   Future<Map<String, dynamic>> setupFace(
       String token, String biometricData) async {
     try {
@@ -95,28 +81,6 @@ class BiometricApiService {
     }
   }
 
-  Future<Map<String, dynamic>> biometricLogin(
-    String token, {
-    required String email,
-    required String biometricData,
-    required String biometricType,
-  }) async {
-    try {
-      final response = await _dio.post(
-        '/biometric/login',
-        data: {
-          'email': email,
-          'biometric_data': biometricData,
-          'biometric_type': biometricType,
-        },
-        options: _authOptions(token),
-      );
-      return Map<String, dynamic>.from(response.data);
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
   /// POST /biometric/clockin
   ///
   /// Backend requires all 5 fields. If [latitude]/[longitude] are not yet
@@ -152,18 +116,20 @@ class BiometricApiService {
 
   /// POST /biometric/location/whitelisted
   ///
-  /// Maps to backend's `CreateWorkLocationRequest`. Required fields:
-  /// `name`, `location_type`, `latitude`, `longitude`. Optional:
-  /// `allowed_radius_meters` (default 100), `branch_id`, `expires_at`, `notes`.
-  Future<Map<String, dynamic>> setupWorkspace(
+  /// Employee submission. Lands in backend as `status = PENDING` until an
+  /// admin approves. `allowed_radius_meters` is admin-only on this endpoint
+  /// (ignored server-side if sent), so we do NOT include it here — the
+  /// radius is set by the admin at approval time.
+  ///
+  /// `location_type` is required by `SubmitWorkLocationRequest`. The
+  /// backend accepts one of `branch` | `remote` | `site`; the UI picker
+  /// mirrors that. Defaults to `branch` when not supplied.
+  Future<Map<String, dynamic>> submitWorkspace(
     String token, {
     required String workspaceName,
-    required String locationType,
     required double latitude,
     required double longitude,
-    int allowedRadiusMeters = 100,
-    int? branchId,
-    String? expiresAt,
+    String locationType = 'branch',
     String? notes,
   }) async {
     try {
@@ -172,10 +138,7 @@ class BiometricApiService {
         'location_type': locationType,
         'latitude': latitude,
         'longitude': longitude,
-        'allowed_radius_meters': allowedRadiusMeters,
       };
-      if (branchId != null) data['branch_id'] = branchId;
-      if (expiresAt != null) data['expires_at'] = expiresAt;
       if (notes != null && notes.isNotEmpty) data['notes'] = notes;
 
       final response = await _dio.post(
@@ -192,8 +155,9 @@ class BiometricApiService {
   /// GET /biometric/location/whitelisted
   ///
   /// Returns `WorkLocationListResponse` ({ "locations": [...], "total": N }).
-  /// This helper flattens it and returns the first usable location, or null.
-  Future<Map<String, dynamic>?> getWorkspace(String token) async {
+  /// Returns the FULL list of the caller's submissions (any status) so the
+  /// page can render them all with their status chips.
+  Future<List<Map<String, dynamic>>> getWorkspaces(String token) async {
     try {
       final response = await _dio.get(
         '/biometric/location/whitelisted',
@@ -201,54 +165,149 @@ class BiometricApiService {
       );
       final data = response.data;
       if (data is Map && data['locations'] is List) {
-        final locations = data['locations'] as List;
-        if (locations.isNotEmpty) {
-          // Prefer a verified + active location if one exists.
-          final preferred = locations.firstWhere(
-            (l) =>
-                (l is Map) &&
-                (l['is_verified'] == true) &&
-                (l['is_active'] == true),
-            orElse: () => locations.first,
-          );
-          return Map<String, dynamic>.from(preferred);
-        }
+        return (data['locations'] as List)
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
       }
-      return null;
+      if (data is List) {
+        return data
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+      }
+      return [];
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404) return null;
+      if (e.response?.statusCode == 404) return [];
       throw _handleError(e);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// PATCH /biometric/location/whitelisted/{location_id}
+  /// DELETE /biometric/location/whitelisted/{location_id}
+  /// Deletes the caller's own work location (any status).
+  Future<void> deleteWorkspace(String token, int locationId) async {
+    try {
+      await _dio.delete(
+        '/biometric/location/whitelisted/$locationId',
+        options: _authOptions(token),
+      );
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ── Admin-only workspace approval ─────────────────────────────────────
+
+  /// GET /biometric/location/pending
   ///
-  /// Maps to backend's `UpdateWorkLocationRequest`. All fields optional —
-  /// only non-null values are sent so we only mutate what the caller changes.
-  Future<Map<String, dynamic>> updateWorkspace(
-    String token, {
-    required int locationId,
-    String? workspaceName,
+  /// Admin: returns every pending proposal awaiting review across the org.
+  /// Returns `WorkLocationListResponse` (`{ locations: [...], total: N }`).
+  Future<List<Map<String, dynamic>>> getPendingWorkspaces(String token) async {
+    try {
+      final response = await _dio.get(
+        '/biometric/location/pending',
+        options: _authOptions(token),
+      );
+      final data = response.data;
+      if (data is Map && data['locations'] is List) {
+        return (data['locations'] as List)
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+      }
+      if (data is List) {
+        return data
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) return [];
+      throw _handleError(e);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// POST /biometric/location/{id}/approve
+  ///
+  /// Admin approves a pending proposal. Body accepts an optional
+  /// `allowed_radius_meters` — when omitted, the backend uses whatever
+  /// radius is already on the record (or its own default).
+  Future<Map<String, dynamic>> approveWorkspace(
+    String token,
+    int locationId, {
+    int? allowedRadiusMeters,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (allowedRadiusMeters != null) {
+        data['allowed_radius_meters'] = allowedRadiusMeters;
+      }
+      final response = await _dio.post(
+        '/biometric/location/$locationId/approve',
+        data: data,
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// POST /biometric/location/{id}/reject
+  ///
+  /// Admin rejects a pending proposal. `reason` is **required** by
+  /// `RejectWorkLocationRequest` — callers must supply a non-empty string.
+  Future<Map<String, dynamic>> rejectWorkspace(
+    String token,
+    int locationId, {
+    required String reason,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/biometric/location/$locationId/reject',
+        data: {'reason': reason},
+        options: _authOptions(token),
+      );
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// PATCH /biometric/location/whitelisted/{id}
+  ///
+  /// Admin-only edit. Every field is optional — only the ones passed will
+  /// be included in the payload. Useful for tweaking the radius, extending
+  /// an expiry, or deactivating a location without deleting it. Status is
+  /// NOT changed here — use approve/reject for that.
+  ///
+  /// `expiresAt` should be an ISO-8601 string; we pass it through as-is to
+  /// match the backend's `date-time` format.
+  Future<Map<String, dynamic>> adminUpdateWorkspace(
+    String token,
+    int locationId, {
+    String? name,
     double? latitude,
     double? longitude,
     int? allowedRadiusMeters,
     bool? isActive,
-    bool? isVerified,
     String? expiresAt,
     String? notes,
   }) async {
     try {
       final data = <String, dynamic>{};
-      if (workspaceName != null) data['name'] = workspaceName;
+      if (name != null) data['name'] = name;
       if (latitude != null) data['latitude'] = latitude;
       if (longitude != null) data['longitude'] = longitude;
       if (allowedRadiusMeters != null) {
         data['allowed_radius_meters'] = allowedRadiusMeters;
       }
       if (isActive != null) data['is_active'] = isActive;
-      if (isVerified != null) data['is_verified'] = isVerified;
       if (expiresAt != null) data['expires_at'] = expiresAt;
       if (notes != null) data['notes'] = notes;
 
@@ -263,37 +322,16 @@ class BiometricApiService {
     }
   }
 
-  /// DELETE /biometric/location/whitelisted/{location_id}
-  /// Deletes the caller's own unverified work location.
-  Future<void> deleteWorkspace(String token, int locationId) async {
+  /// DELETE /biometric/location/whitelisted/{id}/force
+  ///
+  /// Admin-only. Unlike the employee `deleteWorkspace`, this works for
+  /// records in any status and owned by any user.
+  Future<void> adminForceDeleteWorkspace(String token, int locationId) async {
     try {
       await _dio.delete(
-        '/biometric/location/whitelisted/$locationId',
+        '/biometric/location/whitelisted/$locationId/force',
         options: _authOptions(token),
       );
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  /// GET /biometric/location/verify?latitude=..&longitude=..
-  /// Returns a `LocationStatusResponse` telling whether the given position
-  /// is within range of any approved work location.
-  Future<Map<String, dynamic>> verifyLocation(
-    String token, {
-    required double latitude,
-    required double longitude,
-  }) async {
-    try {
-      final response = await _dio.get(
-        '/biometric/location/verify',
-        queryParameters: {
-          'latitude': latitude,
-          'longitude': longitude,
-        },
-        options: _authOptions(token),
-      );
-      return Map<String, dynamic>.from(response.data);
     } catch (e) {
       throw _handleError(e);
     }

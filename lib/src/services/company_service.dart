@@ -37,18 +37,26 @@ class CompanyService {
   Future<CompanySettings> getCompanySettings(
       {required String accessToken}) async {
     try {
-      log("CompanyService: Fetching settings...");
+      log("CompanyService: Fetching settings (profile + branding + preferences)...");
 
-      final response = await _dio.get(
-        '/api/v1/company/company-settings',
-        options: _authOptions(accessToken),
+      final results = await Future.wait([
+        _dio.get('/api/v1/company/company/profile',
+            options: _authOptions(accessToken)),
+        _dio.get('/api/v1/company/company/branding',
+            options: _authOptions(accessToken)),
+        _dio.get('/api/v1/company/company/preferences',
+            options: _authOptions(accessToken)),
+      ]);
+
+      final profile = _asMap(results[0].data);
+      final branding = _asMap(results[1].data);
+      final preferences = _asMap(results[2].data);
+
+      return CompanySettings.merge(
+        profile: profile,
+        branding: branding,
+        preferences: preferences,
       );
-
-      if (response.data == null || response.data is! Map<String, dynamic>) {
-        throw Exception("Server returned invalid data format");
-      }
-
-      return CompanySettings.fromJson(response.data);
     } on DioException catch (e) {
       log("CompanyService: Fetch Error - ${e.message}");
       throw _handleError(e);
@@ -63,19 +71,31 @@ class CompanyService {
     required CompanySettings settings,
   }) async {
     try {
-      log("CompanyService: Updating settings...");
+      log("CompanyService: Updating settings (profile + branding + preferences)...");
 
-      final response = await _dio.put(
-        '/api/v1/company/company-settings',
-        data: settings.toUpdateJson(),
-        options: _authOptions(accessToken),
+      final results = await Future.wait([
+        _dio.put(
+          '/api/v1/company/company/profile',
+          data: settings.toProfileUpdateJson(),
+          options: _authOptions(accessToken),
+        ),
+        _dio.put(
+          '/api/v1/company/company/branding',
+          data: settings.toBrandingUpdateJson(),
+          options: _authOptions(accessToken),
+        ),
+        _dio.put(
+          '/api/v1/company/company/preferences',
+          data: settings.toPreferencesUpdateJson(),
+          options: _authOptions(accessToken),
+        ),
+      ]);
+
+      return CompanySettings.merge(
+        profile: _asMap(results[0].data),
+        branding: _asMap(results[1].data),
+        preferences: _asMap(results[2].data),
       );
-
-      if (response.data == null || response.data is! Map<String, dynamic>) {
-        throw Exception("Server returned invalid data format after update");
-      }
-
-      return CompanySettings.fromJson(response.data);
     } on DioException catch (e) {
       log("CompanyService: Update Error - ${e.message}");
       throw _handleError(e);
@@ -83,6 +103,12 @@ class CompanyService {
       log("CompanyService: Unexpected Error - $e");
       rethrow;
     }
+  }
+
+  Map<String, dynamic> _asMap(dynamic data) {
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    return <String, dynamic>{};
   }
 
   Future<List<Compliance>> getComplianceRecords(String token) async {

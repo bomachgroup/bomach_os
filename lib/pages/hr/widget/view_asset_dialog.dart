@@ -1,4 +1,11 @@
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../models/assets_model.dart';
@@ -27,202 +34,250 @@ class ViewAssetDialog extends StatelessWidget {
       warrantyDate = '–';
     }
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+    return DialogScaffold(
+      title: asset.name,
+      subtitle: asset.assetType.isEmpty ? 'Asset details' : asset.assetType,
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(asset),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Asset information',
+            children: [
+              _detailRow('Type',
+                  asset.assetType.isNotEmpty ? asset.assetType : '—'),
+              _detailRow(
+                  'Serial Number',
+                  asset.serialNumber.isNotEmpty
+                      ? asset.serialNumber
+                      : '—'),
+              _detailRow(
+                  'Manufacturer',
+                  asset.manufacturer.isNotEmpty
+                      ? asset.manufacturer
+                      : '—'),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Location & assignment',
+            children: [
+              _detailRow('Branch', asset.branch.isEmpty ? '—' : asset.branch),
+              _detailRow(
+                  'Assigned To',
+                  asset.assignedToId.isNotEmpty
+                      ? asset.assignedToId
+                      : 'Unassigned'),
+              _detailRow(
+                  'Department',
+                  asset.departmentId.isNotEmpty
+                      ? asset.departmentId
+                      : '—'),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Financial',
+            children: [
+              _detailRow('Purchase Date', displayDate),
+              _detailRow('Value', asset.value.toStringAsFixed(2)),
+              _detailRow(
+                  'Vendor', asset.vendor.isNotEmpty ? asset.vendor : '—'),
+              _detailRow(
+                  'Invoice Number',
+                  asset.invoiceNumber.isNotEmpty
+                      ? asset.invoiceNumber
+                      : '—'),
+              _detailRow('Warranty Expiry', warrantyDate),
+            ],
+          ),
+          if (asset.notes.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Notes',
+              children: [
+                Text(
+                  asset.notes,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    height: 1.5,
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      asset.name,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  _buildStatusBadge(asset.status),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-
-            // Body
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Asset Information
-                    const Text('Asset Information',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 12),
-                    _buildDetailRow('Type', asset.assetType),
-                    _buildDetailRow(
-                        'Serial Number',
-                        asset.serialNumber.isNotEmpty
-                            ? asset.serialNumber
-                            : '–'),
-                    _buildDetailRow(
-                        'Manufacturer',
-                        asset.manufacturer.isNotEmpty
-                            ? asset.manufacturer
-                            : '–'),
-
-                    const Divider(height: 32),
-
-                    // Location & Assignment
-                    const Text('Location & Assignment',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 12),
-                    _buildDetailRow('Branch', asset.branch),
-                    _buildDetailRow(
-                        'Assigned To',
-                        asset.assignedToId.isNotEmpty
-                            ? asset.assignedToId
-                            : 'Unassigned'),
-                    _buildDetailRow(
-                        'Department',
-                        asset.departmentId.isNotEmpty
-                            ? asset.departmentId
-                            : '–'),
-
-                    const Divider(height: 32),
-
-                    // Financial
-                    const Text('Financial',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 12),
-                    _buildDetailRow('Purchase Date', displayDate),
-                    _buildDetailRow('Value', asset.value.toStringAsFixed(2)),
-                    _buildDetailRow(
-                        'Vendor', asset.vendor.isNotEmpty ? asset.vendor : '–'),
-                    _buildDetailRow(
-                        'Invoice Number',
-                        asset.invoiceNumber.isNotEmpty
-                            ? asset.invoiceNumber
-                            : '–'),
-                    _buildDetailRow('Warranty Expiry', warrantyDate),
-
-                    if (asset.notes.isNotEmpty) ...[
-                      const Divider(height: 32),
-                      const Text('Notes',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 14)),
-                      const SizedBox(height: 8),
-                      Text(asset.notes,
-                          style: const TextStyle(
-                              fontSize: 13, color: Color(0xFF475569))),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Close'),
-                  ),
-                ],
-              ),
+              ],
             ),
           ],
-        ),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.pop(context),
+        ),
+      ],
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+  Widget _buildSummaryBanner(Asset asset) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 140,
-            child: Text(label,
-                style: const TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500)),
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            child: const Icon(Iconsax.box_1,
+                color: AppColors.primary, size: 24),
           ),
+          const SizedBox(width: 14),
           Expanded(
-            child: Text(value,
-                style:
-                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(asset.name, style: AppTextStyles.h3),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      label: _statusLabel(asset.status),
+                      tone: _statusTone(asset.status),
+                      icon: Iconsax.record_circle,
+                    ),
+                    if (asset.assetType.isNotEmpty)
+                      _metaChip(
+                        icon: Iconsax.tag,
+                        label: asset.assetType,
+                      ),
+                    if (asset.branch.isNotEmpty)
+                      _metaChip(
+                        icon: Iconsax.location,
+                        label: asset.branch,
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    final Color color = _getStatusColor(status);
-    final String display = status.isNotEmpty
-        ? status[0].toUpperCase() + status.substring(1)
-        : status;
-
+  Widget _metaChip({required IconData icon, required String label}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.circle, size: 7, color: color),
-          const SizedBox(width: 5),
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
           Text(
-            display,
-            style: TextStyle(
-                color: color, fontSize: 12, fontWeight: FontWeight.w500),
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Color _getStatusColor(String status) {
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 160,
+            child: Text(
+              label,
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '—' : value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _statusLabel(String status) {
+    if (status.isEmpty) return 'Unknown';
+    return status[0].toUpperCase() + status.substring(1);
+  }
+
+  StatusTone _statusTone(String status) {
     switch (status.toLowerCase()) {
-      case 'active':
-      case 'available':
-        return Colors.green;
+      case 'in_use':
       case 'in-use':
-        return Colors.blue;
+        return StatusTone.primary;
+      case 'available':
+      case 'active':
+        return StatusTone.success;
+      case 'damaged':
+      case 'lost':
+        return StatusTone.danger;
       case 'maintenance':
-        return Colors.orange;
+        return StatusTone.warning;
       case 'retired':
-        return Colors.red;
+        return StatusTone.neutral;
       default:
-        return Colors.grey;
+        return StatusTone.neutral;
     }
   }
 }

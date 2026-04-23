@@ -98,6 +98,7 @@ class PermissionConstants {
   static const String resMonthlyScorecards = 'monthly_scorecards';
   static const String resEmployeeEvaluations = 'employee_evaluations';
   static const String resKpis = 'kpis';
+  static const String resWorkLocations = 'work_locations';
 
   // Actions
   static const String actCreate = 'create';
@@ -467,6 +468,14 @@ class Perms {
   static const ordersList = Permission('orders', 'list');
   static const quotesList = Permission('quotes', 'list');
 
+  // Work Locations (employee-submitted workspaces, admin-approved)
+  static const workLocationsList = Permission('work_locations', 'list');
+  static const workLocationsListOwn = Permission('work_locations', 'list_own');
+  static const workLocationsApprove = Permission('work_locations', 'approve');
+  static const workLocationsReject = Permission('work_locations', 'reject');
+  static const workLocationsUpdate = Permission('work_locations', 'update');
+  static const workLocationsDelete = Permission('work_locations', 'delete');
+
   // Misc useful actions
   static const clientInventoryList = Permission('client_inventory', 'list');
   static const walletView = Permission('wallet', 'view');
@@ -501,6 +510,11 @@ const Map<String, List<Permission>> routeRequirements = {
   RouteConstants.broadcast: [Perms.announcementsList],
   RouteConstants.roles: [Perms.rolesList, Perms.rolesViewOwn],
   RouteConstants.approvalWorkflow: [Perms.approvalFlowsList],
+  RouteConstants.workspaceApprovals: [
+    Perms.workLocationsApprove,
+    Perms.workLocationsReject,
+    Perms.workLocationsList,
+  ],
   RouteConstants.auditLog: [Perms.auditLogsList],
   RouteConstants.department: [Perms.departmentsList],
   RouteConstants.assets: [Perms.assetsList, Perms.assetsListOwn],

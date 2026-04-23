@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -177,11 +179,7 @@ class LeaveRequestController extends GetxController {
 
       if (context.mounted) {
         Navigator.pop(context); // Close the View Dialog
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              "Request ${status == 'approved' ? 'Approved' : 'Rejected'} Successfully"),
-          backgroundColor: status == 'approved' ? Colors.green : Colors.red,
-        ));
+        AppToast.info(context, "Request ${status == 'approved' ? 'Approved' : 'Rejected'} Successfully");
       }
     } catch (e) {
       log("Status Update Error: $e");
@@ -220,8 +218,7 @@ class LeaveRequestController extends GetxController {
       }
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Success")));
+        AppToast.info(context, "Success");
         Navigator.pop(context);
       }
       await fetchLeaveRequests(context, refresh: true);
@@ -269,17 +266,15 @@ class LeaveRequestController extends GetxController {
   }
 
   void _showDialog(BuildContext context, String title, String content) {
-    showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-              title: Text(title),
-              content: Text(content),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text("OK"))
-              ],
-            ));
+    DialogScaffold.show(
+      context,
+      title: title,
+      size: DialogSize.sm,
+      body: Text(content),
+      actions: [TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("OK"))],
+    );
   }
 
   void changePage(int page, BuildContext context) {

@@ -1,10 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/broadcast_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controllers/broadcast_controller.dart';
@@ -119,51 +124,38 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return DialogScaffold(
+      title: isEdit ? 'Edit Event' : 'Create Event',
+      subtitle: isEdit
+          ? 'Update the details for this organizational event.'
+          : 'Schedule a new event for branches or departments.',
+      size: DialogSize.md,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSection(
+              title: 'Basic Information',
+              icon: Iconsax.info_circle,
               children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isEdit ? 'Edit Event' : 'Create Event',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Event Title
                 _fieldLabel('Event Title'),
                 MyTextFormField(
                   controller: titleCtrl,
-                  hintText: 'Type here',
+                  hintText: 'e.g. Annual General Meeting',
                   validator: (val) =>
                       (val == null || val.isEmpty) ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
-
-                // Event Type
                 _fieldLabel('Event Type'),
                 _buildEventTypeDropdown(),
-                const SizedBox(height: 16),
-
-                // Date/Time Row
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              title: 'Schedule & Location',
+              icon: Iconsax.calendar_1,
+              children: [
                 Row(
                   children: [
                     Expanded(
@@ -173,10 +165,9 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                           _fieldLabel('Date/Time (From)'),
                           MyTextFormField(
                             controller: dateFromCtrl,
-                            hintText: 'Select date & time',
+                            hintText: 'Select start',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
-                                size: 18, color: Colors.grey),
+                            leading: const Icon(Iconsax.calendar_1, size: 18),
                             onTap: () => _pickDateTime(dateFromCtrl),
                             validator: (val) => (val == null || val.isEmpty)
                                 ? 'Required'
@@ -193,10 +184,9 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                           _fieldLabel('Date/Time (To)'),
                           MyTextFormField(
                             controller: dateToCtrl,
-                            hintText: 'Select date & time',
+                            hintText: 'Select end',
                             readOnly: true,
-                            trailing: const Icon(Icons.calendar_today,
-                                size: 18, color: Colors.grey),
+                            leading: const Icon(Iconsax.calendar_1, size: 18),
                             onTap: () => _pickDateTime(dateToCtrl),
                             validator: (val) => (val == null || val.isEmpty)
                                 ? 'Required'
@@ -208,74 +198,44 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Location / Meeting Link
-                _fieldLabel('Meeting Location'),
+                _fieldLabel('Meeting Location / Link'),
                 MyTextFormField(
                   controller: locationCtrl,
-                  hintText: 'Type here',
+                  hintText: 'Physical address or virtual link',
+                  leading: const Icon(Iconsax.location, size: 18),
                 ),
-                const SizedBox(height: 16),
-
-                // Target Audience (individual boolean toggles)
-                _fieldLabel('Target Audience'),
-                CheckboxListTile(
-                  title: const Text('All Branches',
-                      style: TextStyle(fontSize: 14)),
-                  value: targetAllBranches,
-                  activeColor: AppColors.blue,
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  onChanged: (val) =>
-                      setState(() => targetAllBranches = val ?? false),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              title: 'Target Audience',
+              icon: Iconsax.user_tag,
+              children: [
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [
+                    _buildAudienceToggle('All Branches', targetAllBranches,
+                        (v) => setState(() => targetAllBranches = v)),
+                    _buildAudienceToggle(
+                        'All Departments',
+                        targetAllDepartments,
+                        (v) => setState(() => targetAllDepartments = v)),
+                    _buildAudienceToggle('Associates', targetAssociates,
+                        (v) => setState(() => targetAssociates = v)),
+                    _buildAudienceToggle('Investors', targetInvestors,
+                        (v) => setState(() => targetInvestors = v)),
+                    _buildAudienceToggle('Partners', targetPartners,
+                        (v) => setState(() => targetPartners = v)),
+                  ],
                 ),
-                CheckboxListTile(
-                  title: const Text('All Departments',
-                      style: TextStyle(fontSize: 14)),
-                  value: targetAllDepartments,
-                  activeColor: AppColors.blue,
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  onChanged: (val) =>
-                      setState(() => targetAllDepartments = val ?? false),
-                ),
-                CheckboxListTile(
-                  title:
-                      const Text('Associates', style: TextStyle(fontSize: 14)),
-                  value: targetAssociates,
-                  activeColor: AppColors.blue,
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  onChanged: (val) =>
-                      setState(() => targetAssociates = val ?? false),
-                ),
-                CheckboxListTile(
-                  title:
-                      const Text('Investors', style: TextStyle(fontSize: 14)),
-                  value: targetInvestors,
-                  activeColor: AppColors.blue,
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  onChanged: (val) =>
-                      setState(() => targetInvestors = val ?? false),
-                ),
-                CheckboxListTile(
-                  title: const Text('Partners', style: TextStyle(fontSize: 14)),
-                  value: targetPartners,
-                  activeColor: AppColors.blue,
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  onChanged: (val) =>
-                      setState(() => targetPartners = val ?? false),
-                ),
-                const SizedBox(height: 16),
-
-                // Reminder & Recurrence Row
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              title: 'Settings',
+              icon: Iconsax.setting_2,
+              children: [
                 Row(
                   children: [
                     Expanded(
@@ -299,125 +259,160 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-
-                // Action buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyOutlinedButton(
-                      child: 'Cancel',
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    const SizedBox(width: 12),
-                    Obx(() => MyElevatedButton(
-                          child: isEdit ? 'Update Event' : 'Create Event',
-                          isLoading: controller.isSavingEvent.value,
-                          onTap: _onSave,
-                          icon: const Icon(Icons.check,
-                              color: Colors.white, size: 18),
-                        )),
-                  ],
-                ),
               ],
             ),
-          ),
+          ],
         ),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              width: 160,
+              height: 44,
+              child: isEdit ? 'Update Event' : 'Create Event',
+              isLoading: controller.isSavingEvent.value,
+              onTap: _onSave,
+              icon: const Icon(Iconsax.tick_circle,
+                  color: AppColors.textOnPrimary, size: 18),
+            )),
+      ],
     );
   }
 
   Widget _fieldLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+      child: Text(
+        text,
+        style: AppTextStyles.bodySm.copyWith(
+          fontWeight: FontWeight.w500,
+          color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 18, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: AppTextStyles.bodyMd.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildAudienceToggle(
+      String label, bool value, ValueChanged<bool> onChanged) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: value
+              ? AppColors.primary.withValues(alpha: 0.08)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: value ? AppColors.primary : AppColors.borderSubtle,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              value ? Iconsax.tick_circle5 : Iconsax.add_circle,
+              size: 16,
+              color: value ? AppColors.primary : AppColors.textMuted,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: AppTextStyles.bodySm.copyWith(
+                fontWeight: value ? FontWeight.w600 : FontWeight.w400,
+                color: value ? AppColors.primary : AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildEventTypeDropdown() {
-    final typeValues = eventTypes.map((e) => e['value']!).toList();
+    final labels = eventTypes.map((e) => e['label']!).toList();
+    final currentLabel = eventTypes
+        .firstWhereOrNull((e) => e['value'] == selectedEventType)?['label'];
 
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value:
-              typeValues.contains(selectedEventType) ? selectedEventType : null,
-          hint: const Text('Select event type',
-              style: TextStyle(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-          items: eventTypes
-              .map((t) => DropdownMenuItem(
-                  value: t['value'],
-                  child:
-                      Text(t['label']!, style: const TextStyle(fontSize: 14))))
-              .toList(),
-          onChanged: (val) => setState(() => selectedEventType = val),
-        ),
-      ),
+    return MyDropdown(
+      hintText: 'Select event type',
+      items: labels,
+      initialSelection: currentLabel,
+      height: 48,
+      onChanged: (label) {
+        final val =
+            eventTypes.firstWhereOrNull((e) => e['label'] == label)?['value'];
+        setState(() => selectedEventType = val);
+      },
     );
   }
 
   Widget _buildReminderDropdown() {
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: reminderOffset,
-          hint: const Text('Select reminder',
-              style: TextStyle(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-          items: reminderOptions
-              .map((r) => DropdownMenuItem<int>(
-                  value: r['value'] as int,
-                  child: Text(r['label'] as String,
-                      style: const TextStyle(fontSize: 14))))
-              .toList(),
-          onChanged: (val) => setState(() => reminderOffset = val ?? 0),
-        ),
-      ),
+    final labels = reminderOptions.map((r) => r['label'] as String).toList();
+    final currentLabel = reminderOptions
+        .firstWhereOrNull((r) => r['value'] == reminderOffset)?['label'];
+
+    return MyDropdown(
+      hintText: 'Select reminder',
+      items: labels,
+      initialSelection: currentLabel,
+      height: 48,
+      onChanged: (label) {
+        final val = reminderOptions
+            .firstWhereOrNull((r) => r['label'] == label)?['value'];
+        setState(() => reminderOffset = val ?? 0);
+      },
     );
   }
 
   Widget _buildRecurrenceDropdown() {
-    return Container(
-      height: 45,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: recurrenceOptions.contains(selectedRecurrence)
-              ? selectedRecurrence
-              : null,
-          hint: const Text('Does not repeat',
-              style: TextStyle(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-          items: recurrenceOptions
-              .map((r) => DropdownMenuItem(
-                  value: r,
-                  child: Text(_recurrenceLabel(r),
-                      style: const TextStyle(fontSize: 14))))
-              .toList(),
-          onChanged: (val) => setState(() => selectedRecurrence = val),
-        ),
-      ),
+    final labels = recurrenceOptions.map((r) => _recurrenceLabel(r)).toList();
+    final currentLabel =
+        _recurrenceLabel(selectedRecurrence ?? 'DOES_NOT_REPEAT');
+
+    return MyDropdown(
+      hintText: 'Recurrence',
+      items: labels,
+      initialSelection: currentLabel,
+      height: 48,
+      onChanged: (label) {
+        final val = recurrenceOptions
+            .firstWhereOrNull((r) => _recurrenceLabel(r) == label);
+        setState(() => selectedRecurrence = val);
+      },
     );
   }
 
@@ -465,23 +460,15 @@ class _CreateEditEventDialogState extends State<CreateEditEventDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     if (selectedEventType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an event type'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppToast.error(context, 'Please select an event type');
       return;
     }
 
-    // Convert display datetimes to ISO 8601 UTC format with Z suffix
-    // API expects: "2026-03-12T04:41:47.732Z"
     String apiFromDt = '';
     String apiToDt = '';
     try {
       final parsedFrom =
           DateFormat('MM-dd-yyyy, hh:mma').parse(dateFromCtrl.text);
-      // Format as ISO 8601 with milliseconds and Z suffix
       apiFromDt =
           DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(parsedFrom.toUtc());
     } catch (_) {
@@ -532,101 +519,93 @@ class ViewEventDialog extends StatelessWidget {
     String displayFrom = _formatDateTime(event.eventTimeFrom);
     String displayTo = _formatDateTime(event.eventTimeTo);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Event info',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+    return DialogScaffold(
+      title: 'Event Info',
+      subtitle: 'Viewing details for scheduled organizational event.',
+      size: DialogSize.md,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDetailRow('Event Title', event.title),
+          _buildDetailRow('Event Type', event.eventTypeDisplay),
+          _buildDetailRow('From', displayFrom),
+          _buildDetailRow('To', displayTo),
 
-              _buildDetailRow('Event Title', event.title),
-              _buildDetailRow('Event Type', event.eventTypeDisplay),
-              _buildDetailRow('From', displayFrom),
-              _buildDetailRow('To', displayTo),
+          if (event.meetingLocation.isNotEmpty)
+            _buildDetailRow('Meeting Location', event.meetingLocation),
 
-              if (event.meetingLocation.isNotEmpty)
-                _buildDetailRow('Meeting Location', event.meetingLocation),
+          // Target Audience
+          if (event.targetAudienceLabels.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text('Target Audience',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: event.targetAudienceLabels
+                  .map((a) => _buildAudienceChip(a))
+                  .toList(),
+            ),
+            const SizedBox(height: 14),
+          ],
 
-              // Target Audience
-              if (event.targetAudienceLabels.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Text('Target Audience',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-                ),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: event.targetAudienceLabels
-                      .map((a) => _buildAudienceChip(a))
-                      .toList(),
-                ),
-                const SizedBox(height: 14),
-              ],
+          if (event.recurrence.isNotEmpty &&
+              event.recurrence != 'DOES_NOT_REPEAT')
+            _buildDetailRow('Recurrence', _recurrenceLabel(event.recurrence)),
 
-              if (event.recurrence.isNotEmpty &&
-                  event.recurrence != 'DOES_NOT_REPEAT')
-                _buildDetailRow(
-                    'Recurrence', _recurrenceLabel(event.recurrence)),
-
-              if (event.reminderOffset > 0)
-                _buildDetailRow(
-                    'Reminder', _reminderLabel(event.reminderOffset)),
-
-              const SizedBox(height: 24),
-
-              // Action buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _buildActionButton(
-                    label: 'Delete',
-                    color: Colors.red,
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final confirmed =
-                          await _showDeleteConfirmation(context, event.title);
-                      if (confirmed == true && context.mounted) {
-                        controller.deleteEvent(context, event.id);
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _buildActionButton(
-                    label: 'Edit',
-                    color: AppColors.blue,
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (_) => CreateEditEventDialog(event: event),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+          if (event.reminderOffset > 0)
+            _buildDetailRow('Reminder', _reminderLabel(event.reminderOffset)),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Delete',
+          height: 44,
+          onTap: () async {
+            final confirmed = await DialogScaffold.show<bool>(
+              context,
+              title: 'Delete Event',
+              size: DialogSize.sm,
+              body: Text('Are you sure you want to delete "${event.title}"?'),
+              actions: [
+                MyOutlinedButton(
+                  child: 'Cancel',
+                  height: 44,
+                  onTap: () => Navigator.pop(context, false),
+                ),
+                MyElevatedButton(
+                  width: 120,
+                  height: 44,
+                  child: 'Delete',
+                  bgColor: AppColors.danger,
+                  onTap: () => Navigator.pop(context, true),
+                ),
+              ],
+            );
+            if (confirmed == true && context.mounted) {
+              Navigator.pop(context); // Close View Dialog
+              controller.deleteEvent(context, event.id);
+            }
+          },
+        ),
+        const SizedBox(width: 8),
+        MyElevatedButton(
+          width: 120,
+          height: 44,
+          child: 'Edit',
+          icon: const Icon(Iconsax.edit,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (_) => CreateEditEventDialog(event: event),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -676,12 +655,12 @@ class ViewEventDialog extends StatelessWidget {
           SizedBox(
             width: 150,
             child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted)),
           ),
           Expanded(
             child: Text(value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
           ),
         ],
       ),
@@ -689,63 +668,26 @@ class ViewEventDialog extends StatelessWidget {
   }
 
   Widget _buildAudienceChip(String label) {
-    Color chipColor;
-    if (label.contains('Branch')) {
-      chipColor = Colors.green;
-    } else {
-      chipColor = AppColors.blue;
-    }
+    final bool isBranch = label.contains('Branch');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: chipColor,
+        color: isBranch
+            ? AppColors.success.withValues(alpha: 0.1)
+            : AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(label,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
-    );
-  }
-
-  Widget _buildActionButton({
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isBranch ? AppColors.success : AppColors.primary,
+          width: 1,
         ),
-        child: Text(label,
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14)),
       ),
-    );
-  }
-
-  Future<bool?> _showDeleteConfirmation(
-      BuildContext context, String name) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Delete Event'),
-        content: Text('Are you sure you want to delete "$name"?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c, false),
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => Navigator.pop(c, true),
-              child: const Text('Delete', style: TextStyle(color: Colors.red))),
-        ],
+      child: Text(
+        label,
+        style: AppTextStyles.bodySm.copyWith(
+          color: isBranch ? AppColors.success : AppColors.primary,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

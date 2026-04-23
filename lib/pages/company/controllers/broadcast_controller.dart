@@ -1,12 +1,16 @@
 import 'dart:developer';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'package:bms_front_end/src/model/approval_model.dart';
 import 'package:bms_front_end/src/model/board_model.dart';
 import 'package:bms_front_end/src/model/branch_model.dart';
 import 'package:bms_front_end/src/model/broadcast_model.dart';
 import 'package:bms_front_end/src/model/departments_units_model.dart';
+import 'package:bms_front_end/src/services/approval_service.dart';
 import 'package:bms_front_end/src/services/branch_service.dart';
 import 'package:bms_front_end/src/services/broadcast_service.dart';
 import 'package:bms_front_end/src/services/employees_services.dart';
@@ -15,6 +19,7 @@ class BroadcastController extends GetxController {
   final BroadcastService _broadcastService = BroadcastService();
   final BranchService _branchService = BranchService();
   final EmployeeService _employeeService = EmployeeService();
+  final ApprovalService _approvalService = ApprovalService();
   final _storage = const FlutterSecureStorage();
 
   // ─── Current tab ───────────────────────────────────────────────
@@ -38,11 +43,12 @@ class BroadcastController extends GetxController {
   var eventLimit = 10.obs;
   var eventTotalItems = 0.obs;
 
-  // ─── Notifications state (UI-only) ────────────────────────────
+  // ─── Notifications state (Integrated) ─────────────────────────
   var notifications = <NotificationItem>[].obs;
   var filteredNotifications = <NotificationItem>[].obs;
   var notificationFilter = ''.obs; // empty = all
   var unreadCount = 0.obs;
+  var isLoadingNotifications = false.obs;
 
   // ─── Field choices ────────────────────────────────────────────
   var announcementChoices = Rxn<AnnouncementFieldChoices>();
@@ -58,7 +64,7 @@ class BroadcastController extends GetxController {
     fetchEvents();
     loadAnnouncementChoices();
     _fetchBranchesAndDepartments();
-    loadDummyNotifications();
+    fetchNotifications();
   }
 
   Future<void> _fetchBranchesAndDepartments() async {
@@ -304,56 +310,71 @@ class BroadcastController extends GetxController {
     }
   }
 
-  // ─── NOTIFICATIONS (UI-only, no API endpoint yet) ────────────
+  // ─── NOTIFICATIONS (Integrated with ApprovalService) ────────
 
-  void loadDummyNotifications() {
-    final dummyData = <NotificationItem>[
-      NotificationItem(
-        title: 'Announcement',
-        subtitle: 'Company-wide policy update',
-        description: 'A new update to company policy has been published',
-        time: '2h ago',
-        category: 'Admin',
-      ),
-      NotificationItem(
-        title: 'Approvals',
-        subtitle: 'Company-wide policy update',
-        description: 'A new update to company policy has been published',
-        time: '2h ago',
-        category: 'Admin',
-      ),
-      NotificationItem(
-        title: 'Tasks',
-        subtitle: 'Company-wide policy update',
-        description: 'A new update to company policy has been published',
-        time: '2h ago',
-        category: 'Staff',
-      ),
-      NotificationItem(
-        title: 'Security Alert',
-        subtitle: 'Company-wide policy update',
-        description: 'A new update to company policy has been published',
-        time: '2h ago',
-        category: 'Admin',
-      ),
-      NotificationItem(
-        title: 'Announcement',
-        subtitle: 'Company-wide policy update',
-        description: 'A new update to company policy has been published',
-        time: '2h ago',
-        category: 'Associate',
-      ),
-      NotificationItem(
-        title: 'Announcement',
-        subtitle: 'Company-wide policy update',
-        description: 'A new update to company policy has been published',
-        time: '2h ago',
-        category: 'Investor',
-      ),
-    ];
-    notifications.assignAll(dummyData);
-    filteredNotifications.assignAll(dummyData);
-    unreadCount.value = dummyData.where((n) => !n.isRead).length;
+  Future<void> fetchNotifications({bool refresh = false}) async {
+    try {
+      if (!refresh) isLoadingNotifications.value = true;
+
+      final token = await _getToken();
+      if (token == null) return;
+
+      final result = await _approvalService.getRequests(
+        accessToken: token,
+        limit: 50,
+      );
+
+      final List<NotificationItem> mapped = result.items.map((req) {
+        return NotificationItem(
+          title: req.flowName.isNotEmpty ? req.flowName : 'Approval Request',
+          subtitle: 'Status: ${req.statusDisplay}',
+          description: req.reason.isNotEmpty
+              ? req.reason
+              : '${req.requestedByName} requested approval for ${req.requestTypeDisplay.toLowerCase()}.',
+          time: _getTimeAgo(req.createdAt),
+          category: _mapRequestToCategory(req),
+          isRead: false,
+        );
+      }).toList();
+
+      notifications.assignAll(mapped);
+      filterNotifications(notificationFilter.value);
+      unreadCount.value = mapped.length;
+    } catch (e) {
+      log("Error fetching notifications (approvals): $e");
+    } finally {
+      isLoadingNotifications.value = false;
+    }
+  }
+
+  String _mapRequestToCategory(ApprovalRequest req) {
+    final type = req.requestType.toLowerCase();
+    if (type.contains('leave') || type.contains('loan')) return 'Staff';
+    if (type.contains('asset') || type.contains('procure')) return 'Admin';
+    return 'Admin';
+  }
+
+  String _getTimeAgo(String dateTimeStr) {
+    if (dateTimeStr.isEmpty) return 'Just now';
+    try {
+      final DateTime dateTime = DateTime.parse(dateTimeStr).toLocal();
+      final DateTime now = DateTime.now();
+      final Duration diff = now.difference(dateTime);
+
+      if (diff.inDays >= 7) {
+        return '${(diff.inDays / 7).floor()}w ago';
+      } else if (diff.inDays >= 1) {
+        return '${diff.inDays}d ago';
+      } else if (diff.inHours >= 1) {
+        return '${diff.inHours}h ago';
+      } else if (diff.inMinutes >= 1) {
+        return '${diff.inMinutes}m ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return dateTimeStr;
+    }
   }
 
   void filterNotifications(String category) {
@@ -420,22 +441,19 @@ class BroadcastController extends GetxController {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
-    );
+    AppToast.success(context, message);
   }
 
   void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text("Error"),
-        content: Text(message),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c), child: const Text("OK")),
-        ],
-      ),
+    DialogScaffold.show(
+      context,
+      title: "Error",
+      size: DialogSize.sm,
+      body: Text(message),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context), child: const Text("OK")),
+      ],
     );
   }
 }

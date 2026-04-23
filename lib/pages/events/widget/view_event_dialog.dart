@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/events/controller/event_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -80,7 +81,7 @@ class ViewEventDialog extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -97,7 +98,7 @@ class ViewEventDialog extends StatelessWidget {
                     children: [
                       // Event ID
                       _buildDetailItem(
-                        icon: Icons.tag,
+                        icon: Iconsax.tag,
                         label: 'Event ID',
                         value: event.eventId,
                       ),
@@ -106,7 +107,7 @@ class ViewEventDialog extends StatelessWidget {
 
                       // Status
                       _buildDetailItem(
-                        icon: Icons.info_outline,
+                        icon: Iconsax.info_circle,
                         label: 'Status',
                         value: event.status,
                       ),
@@ -119,13 +120,13 @@ class ViewEventDialog extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A202C),
+                          color: AppColors.neutral900,
                         ),
                       ),
                       const SizedBox(height: 12),
 
                       _buildDetailItem(
-                        icon: Icons.access_time,
+                        icon: Iconsax.clock,
                         label: 'From',
                         value: _formatDateTime(event.eventTimeFrom),
                       ),
@@ -133,7 +134,7 @@ class ViewEventDialog extends StatelessWidget {
                       const SizedBox(height: 12),
 
                       _buildDetailItem(
-                        icon: Icons.access_time_filled,
+                        icon: Iconsax.clock,
                         label: 'To',
                         value: _formatDateTime(event.eventTimeTo),
                       ),
@@ -148,12 +149,12 @@ class ViewEventDialog extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1A202C),
+                            color: AppColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: 12),
                         _buildDetailItem(
-                          icon: Icons.location_on_outlined,
+                          icon: Iconsax.location,
                           label: 'Venue',
                           value: event.meetingLocation!,
                         ),
@@ -164,7 +165,7 @@ class ViewEventDialog extends StatelessWidget {
                       if (event.organizerName != null &&
                           event.organizerName!.isNotEmpty) ...[
                         _buildDetailItem(
-                          icon: Icons.person_outline,
+                          icon: Iconsax.profile_circle,
                           label: 'Organizer',
                           value: event.organizerName!,
                         ),
@@ -178,12 +179,12 @@ class ViewEventDialog extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1A202C),
+                            color: AppColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: 12),
                         _buildDetailItem(
-                          icon: Icons.repeat,
+                          icon: Iconsax.refresh_2,
                           label: 'Recurring',
                           value: event.recurrence ?? 'Yes',
                         ),
@@ -197,7 +198,7 @@ class ViewEventDialog extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1A202C),
+                            color: AppColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -211,17 +212,17 @@ class ViewEventDialog extends StatelessWidget {
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.blue.withValues(alpha: 0.1),
+                                color: AppColors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: AppColors.blue.withValues(alpha: 0.3),
+                                  color: AppColors.primary.withValues(alpha: 0.3),
                                 ),
                               ),
                               child: MyText(
                                 audience,
                                 size: 13,
                                 weight: 500,
-                                color: AppColors.blue,
+                                color: AppColors.primary,
                               ),
                             );
                           }).toList(),
@@ -274,7 +275,7 @@ class ViewEventDialog extends StatelessWidget {
                         }
                       }
                     },
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    icon: const Icon(Iconsax.trash, color: Colors.red),
                     label: const MyText(
                       'Delete Event',
                       size: 14,
@@ -306,7 +307,7 @@ class ViewEventDialog extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: const Color(0xFF64748B),
+          color: AppColors.neutral500,
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -317,7 +318,7 @@ class ViewEventDialog extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF64748B),
+                  color: AppColors.neutral500,
                 ),
               ),
               const SizedBox(height: 2),
@@ -326,7 +327,7 @@ class ViewEventDialog extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF1A202C),
+                  color: AppColors.neutral900,
                 ),
               ),
             ],

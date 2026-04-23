@@ -1,9 +1,10 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/input/upload_file.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/models/performance_invoice_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -150,7 +151,7 @@ class _AddPerformanceInvoiceDialogState
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+        constraints: const BoxConstraints(maxWidth: 846, maxHeight: 800),
         child: Form(
           key: _formKey,
           child: Column(
@@ -164,20 +165,15 @@ class _AddPerformanceInvoiceDialogState
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const MyText(
-                      'Add Performance Invoice',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    AppText.h3('Add Performance Invoice'),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
               ),
+              const Divider(height: 1),
 
               // Form fields
               Expanded(
@@ -194,23 +190,17 @@ class _AddPerformanceInvoiceDialogState
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _invoiceNumberController,
-                                        hintText: 'Enter invoice number',
-                                        spaceBetweenText: 10,
-                                        title: 'Invoice Number*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter invoice number';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _invoiceNumberController,
+                                    hintText: 'Enter invoice number',
+                                    spaceBetweenText: 10,
+                                    title: 'Invoice Number*',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter invoice number';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -219,21 +209,18 @@ class _AddPerformanceInvoiceDialogState
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const MyText(
+                                      AppText.bodySm(
                                         'Transaction Date*',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                        fontWeight: FontWeight.w500,
                                       ),
                                       const SizedBox(height: 10),
                                       InkWell(
                                         onTap: _selectDate,
                                         child: Container(
-                                          padding: const EdgeInsets.all(12),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                                color: AppColors.grey4),
+                                                color: AppColors.neutral300),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -241,16 +228,13 @@ class _AddPerformanceInvoiceDialogState
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              MyText(
+                                              AppText.bodySm(
                                                 '${_transactionDate.day}/${_transactionDate.month}/${_transactionDate.year}',
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                ),
                                               ),
                                               const Icon(
-                                                Icons.calendar_today,
+                                                Iconsax.calendar_1,
                                                 size: 18,
-                                                color: AppColors.grey1,
+                                                color: AppColors.neutral500,
                                               ),
                                             ],
                                           ),
@@ -264,34 +248,22 @@ class _AddPerformanceInvoiceDialogState
                             const SizedBox(height: 24),
 
                             // Service Type
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyDropdown(
-                                        items: const [
-                                          'Real Estate',
-                                          'Land Survey',
-                                          'Property Management',
-                                          'Estate Management'
-                                        ],
-                                        hintText: 'Select service type',
-                                        spaceBetweenText: 10,
-                                        title: 'Service Type*',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedServiceType =
-                                                value ?? 'Real Estate';
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                            MyDropdown(
+                              items: const [
+                                'Real Estate',
+                                'Land Survey',
+                                'Property Management',
+                                'Estate Management'
                               ],
+                              hintText: 'Select service type',
+                              spaceBetweenText: 10,
+                              title: 'Service Type*',
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedServiceType =
+                                      value ?? 'Real Estate';
+                                });
+                              },
                             ),
                             const SizedBox(height: 24),
 
@@ -299,12 +271,8 @@ class _AddPerformanceInvoiceDialogState
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (widget.estate == null)
-                                        MyDropdown(
+                                  child: widget.estate == null
+                                      ? MyDropdown(
                                           items: const [
                                             'Aso Villa Estate',
                                             'Fortress City Estate',
@@ -320,55 +288,40 @@ class _AddPerformanceInvoiceDialogState
                                             });
                                           },
                                         )
-                                      else
-                                        Column(
+                                      : Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            const MyText(
+                                            AppText.bodySm(
                                               'Estate',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                              fontWeight: FontWeight.w500,
                                             ),
                                             const SizedBox(height: 10),
-                                            MyText(
+                                            AppText.bodyMd(
                                               widget.estate!.name,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ],
                                         ),
-                                    ],
-                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyDropdown(
-                                        items: const [
-                                          'Sale',
-                                          'Reservation',
-                                          'Payment',
-                                          'Commission'
-                                        ],
-                                        hintText: 'Select type',
-                                        spaceBetweenText: 10,
-                                        title: 'Transaction Type*',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedTransactionType =
-                                                value ?? 'Sale';
-                                          });
-                                        },
-                                      ),
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Sale',
+                                      'Reservation',
+                                      'Payment',
+                                      'Commission'
                                     ],
+                                    hintText: 'Select type',
+                                    spaceBetweenText: 10,
+                                    title: 'Transaction Type*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedTransactionType =
+                                            value ?? 'Sale';
+                                      });
+                                    },
                                   ),
                                 ),
                               ],
@@ -379,41 +332,29 @@ class _AddPerformanceInvoiceDialogState
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _amountController,
-                                        hintText: 'Enter amount',
-                                        spaceBetweenText: 10,
-                                        title: 'Amount (₦)*',
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter amount';
-                                          }
-                                          if (double.tryParse(value) == null) {
-                                            return 'Enter a valid number';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _amountController,
+                                    hintText: 'Enter amount',
+                                    spaceBetweenText: 10,
+                                    title: 'Amount (₦)*',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter amount';
+                                      }
+                                      if (double.tryParse(value) == null) {
+                                        return 'Enter a valid number';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _amountPaidController,
-                                        spaceBetweenText: 10,
-                                        hintText: 'Enter amount paid',
-                                        title: 'Amount Paid (₦)',
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _amountPaidController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'Enter amount paid',
+                                    title: 'Amount Paid (₦)',
                                   ),
                                 ),
                               ],
@@ -424,55 +365,43 @@ class _AddPerformanceInvoiceDialogState
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyDropdown(
-                                        items: const [
-                                          'Cash',
-                                          'Bank Transfer',
-                                          'Card',
-                                          'Cheque',
-                                          'Installment'
-                                        ],
-                                        hintText: 'Select method',
-                                        spaceBetweenText: 10,
-                                        title: 'Payment Method*',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedPaymentMethod =
-                                                value ?? 'Bank Transfer';
-                                          });
-                                        },
-                                      ),
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Cash',
+                                      'Bank Transfer',
+                                      'Card',
+                                      'Cheque',
+                                      'Installment'
                                     ],
+                                    hintText: 'Select method',
+                                    spaceBetweenText: 10,
+                                    title: 'Payment Method*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedPaymentMethod =
+                                            value ?? 'Bank Transfer';
+                                      });
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyDropdown(
-                                        items: const [
-                                          'Paid',
-                                          'Pending',
-                                          'Partial',
-                                          'Failed'
-                                        ],
-                                        hintText: 'Select status',
-                                        spaceBetweenText: 10,
-                                        title: 'Payment Status*',
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedPaymentStatus =
-                                                value ?? 'Paid';
-                                          });
-                                        },
-                                      ),
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Paid',
+                                      'Pending',
+                                      'Partial',
+                                      'Failed'
                                     ],
+                                    hintText: 'Select status',
+                                    spaceBetweenText: 10,
+                                    title: 'Payment Status*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedPaymentStatus =
+                                            value ?? 'Paid';
+                                      });
+                                    },
                                   ),
                                 ),
                               ],
@@ -483,32 +412,20 @@ class _AddPerformanceInvoiceDialogState
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _clientNameController,
-                                        hintText: 'Enter client name',
-                                        spaceBetweenText: 10,
-                                        title: 'Client Name',
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _clientNameController,
+                                    hintText: 'Enter client name',
+                                    spaceBetweenText: 10,
+                                    title: 'Client Name',
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _clientPhoneController,
-                                        spaceBetweenText: 10,
-                                        hintText: 'Enter phone number',
-                                        title: 'Client Phone',
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _clientPhoneController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'Enter phone number',
+                                    title: 'Client Phone',
                                   ),
                                 ),
                               ],
@@ -519,32 +436,20 @@ class _AddPerformanceInvoiceDialogState
                             Row(
                               children: [
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _plotNumberController,
-                                        hintText: 'e.g., Plot 001',
-                                        spaceBetweenText: 10,
-                                        title: 'Plot Number',
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _plotNumberController,
+                                    hintText: 'e.g., Plot 001',
+                                    spaceBetweenText: 10,
+                                    title: 'Plot Number',
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      MyTextFormField(
-                                        controller: _clientEmailController,
-                                        spaceBetweenText: 10,
-                                        hintText: 'Enter email',
-                                        title: 'Client Email',
-                                      ),
-                                    ],
+                                  child: MyTextFormField(
+                                    controller: _clientEmailController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'Enter email',
+                                    title: 'Client Email',
                                   ),
                                 ),
                               ],
@@ -552,17 +457,12 @@ class _AddPerformanceInvoiceDialogState
                             const SizedBox(height: 24),
 
                             // Description
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyTextFormField(
-                                  controller: _descriptionController,
-                                  maxLines: 3,
-                                  hintText: 'Enter transaction description',
-                                  spaceBetweenText: 10,
-                                  title: 'Description',
-                                ),
-                              ],
+                            MyTextFormField(
+                              controller: _descriptionController,
+                              maxLines: 3,
+                              hintText: 'Enter transaction description',
+                              spaceBetweenText: 10,
+                              title: 'Description',
                             ),
                           ],
                         ),
@@ -570,7 +470,7 @@ class _AddPerformanceInvoiceDialogState
 
                       // Optional Section
                       const Divider(
-                        color: AppColors.card,
+                        color: AppColors.neutral200,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -586,66 +486,49 @@ class _AddPerformanceInvoiceDialogState
                               },
                               child: Row(
                                 children: [
-                                  const Flexible(
-                                    child: MyText(
-                                      'Agent & Commission Details (Optional)',
-                                      size: 18,
-                                      weight: 600,
-                                    ),
+                                  AppText.bodyLg(
+                                    'Agent & Commission Details (Optional)',
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  kSizedBoxWidthSM,
+                                  const SizedBox(width: 8),
                                   Icon(
                                     _showOptionalFields
-                                        ? Icons.keyboard_arrow_up_rounded
-                                        : Icons.keyboard_arrow_down_rounded,
-                                    size: 28,
+                                        ? Iconsax.arrow_up_3
+                                        : Iconsax.arrow_down_1,
+                                    size: 20,
+                                    color: AppColors.neutral700,
                                   )
                                 ],
                               ),
                             ),
                             if (_showOptionalFields) ...[
-                              kSizedBox,
+                              const SizedBox(height: 16),
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller: _agentNameController,
-                                          hintText: 'Agent name',
-                                          spaceBetweenText: 10,
-                                          title: 'Agent Name',
-                                        ),
-                                      ],
+                                    child: MyTextFormField(
+                                      controller: _agentNameController,
+                                      hintText: 'Agent name',
+                                      spaceBetweenText: 10,
+                                      title: 'Agent Name',
                                     ),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        MyTextFormField(
-                                          controller:
-                                              _commissionPercentageController,
-                                          spaceBetweenText: 10,
-                                          hintText: 'Commission %',
-                                          title: 'Commission Percentage',
-                                        ),
-                                      ],
+                                    child: MyTextFormField(
+                                      controller:
+                                          _commissionPercentageController,
+                                      spaceBetweenText: 10,
+                                      hintText: 'Commission %',
+                                      title: 'Commission Percentage',
                                     ),
                                   ),
                                 ],
                               ),
-                              kSizedBox,
-                              const MyText(
+                              const SizedBox(height: 16),
+                              AppText.bodySm(
                                 'Upload Attachments (Receipt, Agreement, etc.)',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                fontWeight: FontWeight.w500,
                               ),
                               const SizedBox(height: 8),
                               const UploadFile(),
@@ -662,16 +545,16 @@ class _AddPerformanceInvoiceDialogState
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
+                    top: BorderSide(color: AppColors.neutral300),
                   ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: () {

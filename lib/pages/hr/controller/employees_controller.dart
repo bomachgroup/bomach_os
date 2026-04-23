@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'dart:developer';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
@@ -45,7 +47,6 @@ class EmployeeController extends GetxController {
   var departments = <Department>[].obs;
   var departmentUnits = <DepartmentUnit>[].obs;
   var branches = <Branch>[].obs;
-  var levels = <dynamic>[].obs;
   var allEmployees = <Employee>[].obs; // For "Reporting To" dropdown
   var roles = <Role>[].obs; // For "Role" dropdown
 
@@ -74,7 +75,6 @@ class EmployeeController extends GetxController {
     await Future.wait([
       _fetchDepartments(token),
       _fetchBranches(token),
-      _fetchLevels(token),
       _fetchAllEmployees(token),
       _fetchRoles(token),
       fetchEmployees(),
@@ -97,15 +97,6 @@ class EmployeeController extends GetxController {
       branches.assignAll(result.items);
     } catch (e) {
       log("Error fetching branches: $e");
-    }
-  }
-
-  Future<void> _fetchLevels(String token) async {
-    try {
-      final result = await _service.getEmployeeLevels(token, limit: 200);
-      levels.assignAll(result);
-    } catch (e) {
-      log("Error fetching levels: $e");
     }
   }
 
@@ -430,22 +421,17 @@ class EmployeeController extends GetxController {
   }
 
   void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
-    );
+    AppToast.success(context, message);
   }
 
   void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text("Error"),
-        content: Text(message),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(c), child: const Text("OK")),
-        ],
-      ),
+    DialogScaffold.show(
+      context,
+      title: "Error",
+      size: DialogSize.sm,
+      body: Text(message),
+      actions: [TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text("OK")),],
     );
   }
 

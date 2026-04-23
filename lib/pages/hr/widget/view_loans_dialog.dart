@@ -1,5 +1,13 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/loans_controller.dart';
 import '../models/loans_model.dart';
@@ -11,357 +19,329 @@ class ViewLoanDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Colors from design
-    const greenColor = Color(0xFF00C853);
-    const redColor = Color(0xFFD32F2F);
     final LoanController controller = Get.find();
 
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        width: 900,
-        constraints: const BoxConstraints(maxWidth: 950, maxHeight: 600),
-        child: Column(
-          children: [
-            // --- Header ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Loan Application',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, color: Colors.grey),
-                  ),
-                ],
+    return DialogScaffold(
+      title: 'Loan Application',
+      subtitle:
+          loan.employeeName.isNotEmpty ? loan.employeeName : 'Loan request',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(loan),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Loan Information',
+            children: [
+              _detailRow('Loan Amount', 'NGN ${loan.loanAmount}'),
+              _detailRow(
+                  'Repayment Date',
+                  loan.repaymentDate.isNotEmpty ? loan.repaymentDate : '—'),
+              _detailRow(
+                'Status',
+                loan.status.isNotEmpty
+                    ? loan.status[0].toUpperCase() + loan.status.substring(1)
+                    : '—',
               ),
-            ),
-            const Divider(height: 1, color: Color(0xFFEEEEEE)),
-
-            // --- Body (Two Columns) ---
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // --- Left Column: Info ---
-                  Expanded(
-                    flex: 2,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Profile
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundColor: const Color(0xFFE3F2FD),
-                                child: Text(loan.employeeName[0],
-                                    style: const TextStyle(
-                                        color: Color(0xFF1976D2),
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                              const SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(loan.employeeName,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16)),
-                                  Text(loan.jobTitle,
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 13)),
-                                ],
-                              )
-                            ],
-                          ),
-                          const SizedBox(height: 32),
-
-                          // Loan Info Box
-                          const Text("Loan info",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15)),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                                color: const Color(0xFFFAFAFA),
-                                borderRadius: BorderRadius.circular(12),
-                                border:
-                                    Border.all(color: const Color(0xFFEEEEEE))),
-                            child: Column(
-                              children: [
-                                _buildGridRow(
-                                    "Loan Amount",
-                                    '₦${loan.loanAmount}',
-                                    "Repayment Date",
-                                    loan.repaymentDate),
-                                const SizedBox(height: 20),
-                                _buildGridRow(
-                                    "Emergency Contact Name",
-                                    loan.emergencyContactName,
-                                    "Emergency Contact Phone",
-                                    loan.emergencyContactPhone),
-                                const SizedBox(height: 20),
-                                // Handover Section (Inside box per design)
-                                Row(
-                                  children: [
-                                    const Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text("Handover to",
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey,
-                                                  fontWeight: FontWeight.w500)),
-                                          SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              CircleAvatar(
-                                                  radius: 12,
-                                                  backgroundImage: NetworkImage(
-                                                      'https://i.pravatar.cc/150?img=5')),
-                                              SizedBox(width: 8),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text("Evelyn George",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 13)),
-                                                  Text("Software Engineer",
-                                                      style: TextStyle(
-                                                          fontSize: 10,
-                                                          color: Colors.grey)),
-                                                ],
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                        child:
-                                            Container()), // Spacer for grid alignment
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // Reason Section
-                          const Text("Reason For Loan",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15)),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                                color: const Color(0xFFFAFAFA),
-                                borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: const Color(0xFFEEEEEE))),
-                            child: Text(
-                              loan.reason,
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  height: 1.5,
-                                  color: Colors.black87),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Vertical Divider
-                  Container(width: 1, color: const Color(0xFFEEEEEE)),
-
-                  // --- Right Column: Actions ---
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      color: const Color(0xFFFAFBFC),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Actions",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15)),
-                          const SizedBox(height: 16),
-
-                          // Approve Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: loan.id != null
-                                  ? () =>
-                                      controller.approveLoan(context, loan.id!)
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: greenColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
-                                  elevation: 0),
-                              child: const Text("Approve",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-
-                          // Reject Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: loan.id != null
-                                  ? () =>
-                                      controller.rejectLoan(context, loan.id!)
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: redColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
-                                  elevation: 0),
-                              child: const Text("Reject",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-
-                          const SizedBox(height: 32),
-                          const Divider(),
-                          const SizedBox(height: 24),
-
-                          // Documents Section
-                          const Text("Documents",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15)),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: const Color(0xFFE0E0E0))),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                      color: const Color(0xFFE3F2FD),
-                                      borderRadius: BorderRadius.circular(4)),
-                                  child: const Center(
-                                      child: Text("JPEG",
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xFF1976D2)))),
-                                ),
-                                const SizedBox(width: 12),
-                                const Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text("Resume upload",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 13)),
-                                      Text("image file  0.23KB",
-                                          style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.grey)),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(Icons.remove_red_eye_outlined,
-                                    size: 18, color: Colors.grey),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.download_outlined,
-                                    size: 18, color: Colors.grey),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Emergency Contact',
+            children: [
+              _detailRow(
+                'Contact Name',
+                loan.emergencyContactName.isNotEmpty
+                    ? loan.emergencyContactName
+                    : '—',
               ),
+              _detailRow(
+                'Contact Phone',
+                loan.emergencyContactPhone.isNotEmpty
+                    ? loan.emergencyContactPhone
+                    : '—',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Reason For Loan',
+            children: [
+              Text(
+                loan.reason.isNotEmpty ? loan.reason : 'No reason provided',
+                style: AppTextStyles.bodyMd,
+              ),
+            ],
+          ),
+          if (loan.attachment.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Attachment',
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brSm,
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primarySubtle,
+                          borderRadius: AppRadii.brSm,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Iconsax.document,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          loan.attachment,
+                          style: AppTextStyles.bodySm.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: AppRadii.brSm,
+                          onTap: () {},
+                          child: const Padding(
+                            padding: EdgeInsets.all(6),
+                            child: Icon(
+                              Iconsax.eye,
+                              size: 18,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: AppRadii.brSm,
+                          onTap: () {},
+                          child: const Padding(
+                            padding: EdgeInsets.all(6),
+                            child: Icon(
+                              Iconsax.document_download,
+                              size: 18,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.danger,
+          borderColor: AppColors.danger,
+          child: 'Reject',
+          onTap: loan.id != null
+              ? () => controller.rejectLoan(context, loan.id!)
+              : () {},
         ),
+        MyElevatedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          bgColor: AppColors.success,
+          child: 'Approve',
+          onTap: loan.id != null
+              ? () => controller.approveLoan(context, loan.id!)
+              : () {},
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBanner(LoanRequest loan) {
+    final initial = loan.employeeName.isNotEmpty
+        ? loan.employeeName[0].toUpperCase()
+        : '?';
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            child: Center(
+              child: Text(
+                initial,
+                style: AppTextStyles.h3.copyWith(color: AppColors.primary),
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loan.employeeName.isNotEmpty
+                      ? loan.employeeName
+                      : 'Unknown employee',
+                  style: AppTextStyles.h3,
+                ),
+                if (loan.jobTitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    loan.jobTitle,
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      label: _statusLabel(loan.status),
+                      tone: _loanTone(loan.status),
+                      icon: Iconsax.record_circle,
+                    ),
+                    _metaChip(
+                      icon: Iconsax.money,
+                      label: 'NGN ${loan.loanAmount}',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildGridRow(String l1, String v1, String l2, String v2) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l1,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              Text(v1,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87)),
-            ],
+  Widget _metaChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l2,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              Text(v2,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87)),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 160,
+            child: Text(
+              label,
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '—' : value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _statusLabel(String status) {
+    if (status.isEmpty) return 'Unknown';
+    return status[0].toUpperCase() + status.substring(1);
+  }
+
+  StatusTone _loanTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return StatusTone.success;
+      case 'pending':
+        return StatusTone.warning;
+      case 'rejected':
+        return StatusTone.danger;
+      case 'repaid':
+        return StatusTone.primary;
+      case 'defaulted':
+        return StatusTone.danger;
+      case 'active':
+        return StatusTone.info;
+      default:
+        return StatusTone.neutral;
+    }
   }
 }

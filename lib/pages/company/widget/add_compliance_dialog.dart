@@ -1,14 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
-import '../controllers/company_controller.dart';
 import '../../../src/model/company_model.dart';
+import '../controllers/company_controller.dart';
 
 class AddComplianceDialog extends StatefulWidget {
   final Compliance? compliance;
@@ -122,267 +124,217 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 650),
+    return DialogScaffold(
+      title: isEditing
+          ? 'Edit Compliance/Registration'
+          : 'New Compliance/Registration',
+      subtitle: 'Complete the form below to track regulatory documents.',
+      size: DialogSize.lg,
+      body: Form(
+        key: _formKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 16, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    isEditing
-                        ? 'Edit Compliance/Registration'
-                        : 'New Compliance/Registration',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.cancel, color: AppColors.red),
-                  ),
-                ],
-              ),
+            // Type
+            MyDropdown(
+              title: 'Type',
+              hintText: 'Select document type',
+              controller: typeCtrl,
+              items: _complianceTypeMap.keys.toList(),
+              onChanged: (val) => typeCtrl.text = val ?? '',
+              validator: (val) =>
+                  (val == null || val.isEmpty) ? 'Required' : null,
             ),
-            const Divider(),
+            const SizedBox(height: 16),
 
-            // Scrollable Form
-            Flexible(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Type
-                      MyDropdown(
-                        title: 'Type',
-                        hintText: 'Select',
-                        controller: typeCtrl,
-                        items: _complianceTypeMap.keys.toList(),
-                        onChanged: (val) => typeCtrl.text = val ?? '',
-                        validator: (val) =>
-                            (val == null || val.isEmpty) ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Full Name + Email
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: fullNameCtrl,
-                              title: 'Full Name',
-                              hintText: 'Enter full name',
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: emailCtrl,
-                              title: 'Email Address',
-                              hintText: 'email@example.com',
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Phone + Department
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: phoneCtrl,
-                              title: 'Phone Number',
-                              hintText: '+234...',
-                              keyboardType: TextInputType.phone,
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: departmentCtrl,
-                              title: 'Department ID',
-                              hintText: 'Enter department',
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Reference Number + Issuing Authority
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: refNumberCtrl,
-                              title: 'Reference Number',
-                              hintText: 'e.g. RC 123456',
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: issuingAuthCtrl,
-                              title: 'Issuing Authority',
-                              hintText: 'e.g. CAC Nigeria',
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Dates
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildDatePicker(
-                              issueDateDisplayCtrl,
-                              'Date of Issue',
-                              (apiDate) => _issueDateApi = apiDate,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildDatePicker(
-                              expiryDateDisplayCtrl,
-                              'Expiry Date',
-                              (apiDate) => _expiryDateApi = apiDate,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Contact Person + Contact Email
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: contactPersonCtrl,
-                              title: 'Contact Person',
-                              hintText: 'Enter name',
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: contactEmailCtrl,
-                              title: 'Contact Email',
-                              hintText: 'contact@example.com',
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Cost + Priority
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: costCtrl,
-                              title: 'Cost',
-                              hintText: '0',
-                              keyboardType: TextInputType.number,
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyDropdown(
-                              title: 'Priority Level',
-                              hintText: 'Select',
-                              controller: priorityCtrl,
-                              items: const ['low', 'medium', 'high'],
-                              onChanged: (val) => priorityCtrl.text = val ?? '',
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Description
-                      MyTextFormField(
-                        controller: descriptionCtrl,
-                        title: 'Description',
-                        hintText: 'Enter description',
-                        maxLines: 3,
-                        validator: (val) =>
-                            (val == null || val.isEmpty) ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Actions
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          MyOutlinedButton(
-                            child: 'Cancel',
-                            onTap: () => Navigator.pop(context),
-                            textColor: Colors.grey,
-                          ),
-                          const SizedBox(width: 12),
-                          Obx(() => MyElevatedButton(
-                                child: controller.isSaving.value
-                                    ? 'Saving...'
-                                    : 'Save',
-                                onTap:
-                                    controller.isSaving.value ? () {} : _onSave,
-                              )),
-                        ],
-                      ),
-                    ],
+            // Full Name + Email
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: fullNameCtrl,
+                    title: 'Full Name',
+                    hintText: 'Enter full name',
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
                   ),
                 ),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: emailCtrl,
+                    title: 'Email Address',
+                    hintText: 'email@example.com',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Phone + Department
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: phoneCtrl,
+                    title: 'Phone Number',
+                    hintText: '+234...',
+                    keyboardType: TextInputType.phone,
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: departmentCtrl,
+                    title: 'Department ID',
+                    hintText: 'Enter department',
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Reference Number + Issuing Authority
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: refNumberCtrl,
+                    title: 'Reference Number',
+                    hintText: 'e.g. RC 123456',
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: issuingAuthCtrl,
+                    title: 'Issuing Authority',
+                    hintText: 'e.g. CAC Nigeria',
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Dates
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _buildDatePicker(
+                    issueDateDisplayCtrl,
+                    'Date of Issue',
+                    (apiDate) => _issueDateApi = apiDate,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildDatePicker(
+                    expiryDateDisplayCtrl,
+                    'Expiry Date',
+                    (apiDate) => _expiryDateApi = apiDate,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Contact Person + Contact Email
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: contactPersonCtrl,
+                    title: 'Contact Person',
+                    hintText: 'Enter name',
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: contactEmailCtrl,
+                    title: 'Contact Email',
+                    hintText: 'contact@example.com',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Cost + Priority
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: costCtrl,
+                    title: 'Cost',
+                    hintText: '0',
+                    keyboardType: TextInputType.number,
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyDropdown(
+                    title: 'Priority Level',
+                    hintText: 'Select priority',
+                    controller: priorityCtrl,
+                    items: const ['low', 'medium', 'high'],
+                    onChanged: (val) => priorityCtrl.text = val ?? '',
+                    validator: (val) =>
+                        (val == null || val.isEmpty) ? 'Required' : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Description
+            MyTextFormField(
+              controller: descriptionCtrl,
+              title: 'Description',
+              hintText: 'Enter additional details...',
+              maxLines: 3,
+              validator: (val) =>
+                  (val == null || val.isEmpty) ? 'Required' : null,
             ),
           ],
         ),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              width: 120,
+              height: 44,
+              child: controller.isSaving.value ? 'Saving...' : 'Save Record',
+              onTap: controller.isSaving.value ? null : _onSave,
+            )),
+      ],
     );
   }
 
@@ -450,9 +402,9 @@ class _AddComplianceDialogState extends State<AddComplianceDialog> {
         child: MyTextFormField(
           controller: displayCtrl,
           title: label,
-          hintText: 'Select',
-          trailing: Icon(Icons.keyboard_arrow_down,
-              color: Colors.grey[600], size: 20),
+          hintText: 'Select date',
+          trailing: const Icon(Iconsax.calendar_1,
+              color: AppColors.textMuted, size: 20),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/pages/analytics/models/branch_performance_models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
@@ -193,7 +194,7 @@ class _BranchPerformanceAnalysisPageState
             children: [
               const MyText(
                 'Branch Performance Analysis',
-                style: AppText.black_500_32,
+                style: AppTextStyles.displayLg,
               ),
               const SizedBox(height: 8),
               MyText(
@@ -201,7 +202,7 @@ class _BranchPerformanceAnalysisPageState
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Color(0xFF64748B),
+                  color: AppColors.neutral500,
                 ),
               ),
               const SizedBox(height: 16),
@@ -209,7 +210,7 @@ class _BranchPerformanceAnalysisPageState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.grey5),
+                  border: Border.all(color: AppColors.neutral100),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: DropdownButton<int>(
@@ -245,8 +246,8 @@ class _BranchPerformanceAnalysisPageState
                 child: _buildStatCard(
                   'Revenue Generated',
                   '₦${(selectedBranch.revenueGenerated / 1000000).toStringAsFixed(1)}M',
-                  Icons.trending_up_rounded,
-                  AppColors.green,
+                  Iconsax.trend_up,
+                  AppColors.success,
                 ),
               ),
               SizedBox(
@@ -254,8 +255,8 @@ class _BranchPerformanceAnalysisPageState
                 child: _buildStatCard(
                   'Operational Efficiency',
                   '${selectedBranch.operationalEfficiency.toStringAsFixed(0)}%',
-                  Icons.speed,
-                  AppColors.blue,
+                  Iconsax.speedometer,
+                  AppColors.primary,
                 ),
               ),
               SizedBox(
@@ -263,8 +264,8 @@ class _BranchPerformanceAnalysisPageState
                 child: _buildStatCard(
                   'Customer Satisfaction',
                   '${selectedBranch.customerSatisfaction.toStringAsFixed(0)}%',
-                  Icons.sentiment_satisfied_rounded,
-                  AppColors.orange,
+                  Iconsax.emoji_happy,
+                  AppColors.warning,
                 ),
               ),
               SizedBox(
@@ -272,8 +273,8 @@ class _BranchPerformanceAnalysisPageState
                 child: _buildStatCard(
                   'Total Employees',
                   selectedBranch.employeeCount.toString(),
-                  Icons.people_rounded,
-                  AppColors.darkBlue2,
+                  Iconsax.people,
+                  AppColors.primaryPressed,
                 ),
               ),
             ],
@@ -283,7 +284,7 @@ class _BranchPerformanceAnalysisPageState
           // Key Insights Section
           _SectionCard(
             title: 'Key Insights',
-            titleIcon: Icons.lightbulb_rounded,
+            titleIcon: Iconsax.lamp,
             child: Column(
               children: keyInsights
                   .map((insight) => _buildInsightItem(insight))
@@ -295,7 +296,7 @@ class _BranchPerformanceAnalysisPageState
           // Revenue Trend Chart
           _SectionCard(
             title: 'Revenue Trend (6 Months)',
-            titleIcon: Icons.show_chart_rounded,
+            titleIcon: Iconsax.chart,
             child: SizedBox(
               height: 280,
               child: LineChart(
@@ -339,12 +340,12 @@ class _BranchPerformanceAnalysisPageState
                               ))
                           .toList(),
                       isCurved: true,
-                      color: AppColors.blue,
+                      color: AppColors.primary,
                       barWidth: 3,
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: AppColors.blue.withValues(alpha: 0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                       ),
                     ),
                     LineChartBarData(
@@ -357,7 +358,7 @@ class _BranchPerformanceAnalysisPageState
                               ))
                           .toList(),
                       isCurved: true,
-                      color: AppColors.orange,
+                      color: AppColors.warning,
                       barWidth: 2,
                       dotData: const FlDotData(show: false),
                       dashArray: [5, 5],
@@ -397,7 +398,7 @@ class _BranchPerformanceAnalysisPageState
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF64748B),
+                      color: AppColors.neutral500,
                     ),
                   ),
                 ),
@@ -407,7 +408,7 @@ class _BranchPerformanceAnalysisPageState
             const SizedBox(height: 12),
             MyText(
               value,
-              style: AppText.black_500_24,
+              style: AppTextStyles.h1,
             ),
           ],
         ),
@@ -417,17 +418,17 @@ class _BranchPerformanceAnalysisPageState
 
   Widget _buildInsightItem(BranchInsight insight) {
     final priorityColor = insight.priority == 'High'
-        ? AppColors.red
+        ? AppColors.danger
         : insight.priority == 'Medium'
-            ? AppColors.orange
-            : AppColors.green;
+            ? AppColors.warning
+            : AppColors.success;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.grey5),
+          border: Border.all(color: AppColors.neutral100),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -470,7 +471,7 @@ class _BranchPerformanceAnalysisPageState
             const SizedBox(height: 8),
             MyText(
               insight.description,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 11, color: AppColors.neutral500),
             ),
             const SizedBox(height: 6),
             MyText(
@@ -478,7 +479,7 @@ class _BranchPerformanceAnalysisPageState
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1F2937),
+                color: AppColors.neutral800,
               ),
             ),
           ],
@@ -491,12 +492,12 @@ class _BranchPerformanceAnalysisPageState
     final achievement = branch.getRevenueAchievementPercentage();
     final rating = branch.getPerformanceRating();
     final ratingColor = rating == 'Excellent'
-        ? AppColors.green
+        ? AppColors.success
         : rating == 'Good'
-            ? AppColors.blue
+            ? AppColors.primary
             : rating == 'Satisfactory'
-                ? AppColors.orange
-                : AppColors.red;
+                ? AppColors.warning
+                : AppColors.danger;
 
     return Card(
       color: AppColors.white,
@@ -517,14 +518,14 @@ class _BranchPerformanceAnalysisPageState
                     children: [
                       MyText(
                         branch.branchName,
-                        style: AppText.black_500_16,
+                        style: AppTextStyles.bodyLg,
                       ),
                       const SizedBox(height: 4),
                       MyText(
                         branch.location,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.neutral500,
                         ),
                       ),
                     ],
@@ -555,28 +556,28 @@ class _BranchPerformanceAnalysisPageState
               achievement >= 100
                   ? '✓ ${achievement.toStringAsFixed(0)}%'
                   : '✗ ${achievement.toStringAsFixed(0)}%',
-              achievement >= 100 ? AppColors.green : AppColors.red,
+              achievement >= 100 ? AppColors.success : AppColors.danger,
             ),
             const SizedBox(height: 10),
             _buildMetricRow(
               'Employees',
               branch.employeeCount.toString(),
               '${branch.employeeProductivity.toStringAsFixed(0)}% productivity',
-              AppColors.blue,
+              AppColors.primary,
             ),
             const SizedBox(height: 10),
             _buildMetricRow(
               'Projects',
               branch.projectsCompleted.toString(),
               '${branch.activeProjects} active',
-              AppColors.orange,
+              AppColors.warning,
             ),
             const SizedBox(height: 10),
             _buildMetricRow(
               'Customer Satisfaction',
               '${branch.customerSatisfaction.toStringAsFixed(0)}%',
               'from ${branch.customerCount} customers',
-              AppColors.secondary,
+              AppColors.success,
             ),
           ],
         ),
@@ -609,7 +610,7 @@ class _BranchPerformanceAnalysisPageState
                 label,
                 style: const TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF64748B),
+                  color: AppColors.neutral500,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -628,7 +629,7 @@ class _BranchPerformanceAnalysisPageState
                     subValue,
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF64748B),
+                      color: AppColors.neutral500,
                     ),
                   ),
                 ],
@@ -671,7 +672,7 @@ class _SectionCard extends StatelessWidget {
                 if (titleIcon != null) Icon(titleIcon, size: 20),
                 MyText(
                   title,
-                  style: AppText.black_500_16,
+                  style: AppTextStyles.bodyLg,
                 ),
               ],
             ),

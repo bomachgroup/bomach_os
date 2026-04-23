@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/invoice_item_form.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -45,7 +46,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -139,7 +140,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                             ],
                           ),
                           SizedBox(height: 24),
-                          MyText("Items", style: AppText.black_500_16),
+                          MyText("Items", style: AppTextStyles.bodyLg),
                           kSizedBoxSM,
                           InvoiceTable(),
                           SizedBox(height: 24),
@@ -269,7 +270,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     borderColor: null,
                     child: 'Cancel',
                     onTap: () {

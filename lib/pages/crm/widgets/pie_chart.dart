@@ -1,11 +1,12 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../models.dart';
 
 final List<LeadSourceData> mockLeadSourceData = [
-  LeadSourceData('Referrals', 35, const Color(0xFF1E88E5)),
+  LeadSourceData('Referrals', 35, AppColors.primary),
   LeadSourceData('Website', 25, const Color(0xFF43A047)),
   LeadSourceData('Cold Calls', 20, const Color(0xFFFFB300)),
   LeadSourceData('Events', 12, const Color(0xFFF4511E)),

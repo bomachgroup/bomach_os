@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 class SortBar extends StatelessWidget {
@@ -13,7 +14,7 @@ class SortBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.grey1.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.neutral500.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -29,14 +30,14 @@ class SortBar extends StatelessWidget {
           Text(
             text,
             style: const TextStyle(
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
               fontSize: 16,
             ),
           ),
           const SizedBox(width: 6),
           Icon(
-            Icons.arrow_drop_down_rounded,
-            color: AppColors.grey1.withValues(alpha: 0.5),
+            Iconsax.arrow_down_1,
+            color: AppColors.neutral500.withValues(alpha: 0.5),
             size: 30,
           ),
         ],

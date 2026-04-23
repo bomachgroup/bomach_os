@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ class CreateNewContractDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.blue,
+            backgroundColor: AppColors.primary,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -166,7 +167,7 @@ class CreateNewContractDialog extends StatelessWidget {
       initialValue: date,
       decoration: InputDecoration(
         suffixIcon: IconButton(
-          icon: const Icon(Icons.calendar_today, size: 20),
+          icon: const Icon(Iconsax.calendar_1, size: 20),
           onPressed: () async {
             await showDatePicker(
               context: context,

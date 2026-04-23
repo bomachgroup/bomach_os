@@ -1,650 +1,1256 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/company/board_members.dart';
 import 'package:bms_front_end/pages/company/compliance.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
+
 import 'controllers/company_controller.dart';
 import 'widget/edit_company_dialog.dart';
 import 'widget/shareholders_dialogs.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
-import 'package:bms_front_end/components/section/responsive_widget.dart';
-import 'package:intl/intl.dart';
 
-class CompanyProfilePage extends StatelessWidget {
+const List<String> _companyTabs = [
+  'Profile',
+  'Global Business',
+  'Ownership & Shareholders',
+  'Board Members',
+  'Compliance & Registration',
+];
+
+const Color _accentBlue = AppColors.primary;
+const Color _accentGreen = AppColors.success;
+const Color _accentAmber = AppColors.warning;
+const Color _accentIndigo = Color(0xFF4F46E5);
+
+class CompanyProfilePage extends StatefulWidget {
   const CompanyProfilePage({super.key});
 
   @override
+  State<CompanyProfilePage> createState() => _CompanyProfilePageState();
+}
+
+class _CompanyProfilePageState extends State<CompanyProfilePage> {
+  final CompanyController controller = Get.put(CompanyController());
+  String currentTab = _companyTabs.first;
+
+  @override
   Widget build(BuildContext context) {
-    final CompanyController controller = Get.put(CompanyController());
-    final RxString currentTab = 'Profile'.obs;
+    return Obx(() {
+      final data = controller.companySettings.value;
 
-    // use ResponsiveWidget so the page can adapt at route level if needed
-    Widget body = SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      return PageScaffold(
+        maxContentWidth: 1440,
+        header: PageHeader(
+          title: 'Company Profile',
+          subtitle:
+              'Organization identity, governance, and operating defaults.',
+          trailing: data == null ? null : _buildHeaderAction(context),
+        ),
         children: [
-          // Header
-          const MyText('Company Profile', style: AppText.black_600_32),
-          const SizedBox(height: 8),
-          const Text('Manage Profile, Business, ownerships and Compliance',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 14)),
-          const SizedBox(height: 24),
-
-          // Stats Row (wrap so cards flow on smaller widths)
-          _buildStatsSection(controller),
-
-          const SizedBox(height: 32),
-
-          // Tabs
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0)))),
-            child: Obx(() => Wrap(
-                  spacing: 8,
-                  children: [
-                    _buildTabButton('Profile', currentTab),
-                    _buildTabButton('Global Business', currentTab),
-                    _buildTabButton('Ownership & Shareholders', currentTab),
-                    _buildTabButton('Board Members', currentTab),
-                    _buildTabButton('Compliance & Registration', currentTab),
-                  ],
-                )),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Body Content
-          Obx(() {
-            if (controller.isLoading.value) {
-              return const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: CircularProgressIndicator()));
-            }
-            if (controller.companySettings.value == null) {
-              return Center(
-                  child: Column(children: [
-                const Text("No data"),
-                TextButton(
-                    onPressed: controller.fetchCompanyProfile,
-                    child: const Text("Retry"))
-              ]));
-            }
-
-            final data = controller.companySettings.value!;
-
-            switch (currentTab.value) {
-              case 'Global Business':
-                return _buildGlobalBusinessTab(context, controller, data);
-              case 'Ownership & Shareholders':
-                return _buildOwnershipTab(context, controller);
-              case 'Board Members':
-                return const BoardMembersPage();
-              case 'Compliance & Registration':
-                return const CompliancePage();
-              case 'Profile':
-              default:
-                return _buildProfileTab(context, controller, data);
-            }
-          }),
+          if (controller.isLoading.value && data == null)
+            _buildLoadingState()
+          else if (data == null)
+            _buildErrorState()
+          else
+            _buildLoadedState(context, data),
         ],
-      ),
-    );
+      );
+    });
+  }
 
-    // wrap body in responsive widget so wide/kind sizes can customize if needed
-    return ResponsiveWidget(
-      largeScreen: body,
-      mediumScreen: body,
-      smallScreen: body,
+  Widget _buildLoadingState() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        LoadingSkeleton.card(lines: 5),
+        const SizedBox(height: 20),
+        LoadingSkeleton.statRow(),
+        const SizedBox(height: 20),
+        LoadingSkeleton.card(lines: 8),
+      ],
     );
   }
 
-  // --- TAB BUILDERS ---
+  Widget _buildErrorState() {
+    return EmptyState(
+      icon: Iconsax.warning_2,
+      title: 'Could not load company profile',
+      subtitle: controller.errorMessage.value.isNotEmpty
+          ? controller.errorMessage.value
+          : 'Please try again.',
+      action: ElevatedButton(
+        onPressed: controller.fetchCompanyProfile,
+        child: const Text('Retry'),
+      ),
+    );
+  }
 
-  Widget _buildProfileTab(
-      BuildContext context, CompanyController controller, dynamic data) {
-    return Card(
-      color: AppColors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFFE2E8F0))),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+  Widget _buildLoadedState(BuildContext context, CompanySettings data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildStatsSection(),
+        const SizedBox(height: 24),
+        _buildTabBar(),
+        const SizedBox(height: 24),
+        _buildCurrentTab(context, data),
+      ],
+    );
+  }
+
+  Widget? _buildHeaderAction(BuildContext context) {
+    switch (currentTab) {
+      case 'Profile':
+        return MyElevatedButton(
+          child: 'Edit Profile',
+          icon: const Icon(Iconsax.edit,
+              size: 16, color: AppColors.textOnPrimary),
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const EditProfileDialog(),
+          ),
+        );
+      case 'Global Business':
+        return MyElevatedButton(
+          child: 'Edit Settings',
+          icon: const Icon(Iconsax.setting_2,
+              size: 16, color: AppColors.textOnPrimary),
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const EditGlobalBusinessDialog(),
+          ),
+        );
+      case 'Ownership & Shareholders':
+        return MyElevatedButton(
+          child: 'Edit Shareholders',
+          icon: const Icon(Iconsax.people,
+              size: 16, color: AppColors.textOnPrimary),
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const EditShareHoldersDialog(),
+          ),
+        );
+      default:
+        return null;
+    }
+  }
+
+  Widget _buildOverviewHero(CompanySettings data) {
+    final primary = controller.getColorFromHex(data.primaryColorCode);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 980;
+        final address = _normalizedValue(data.companyAddresses);
+
+        final identityBlock = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text("Company Information",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              MyElevatedButton(
-                icon: const Icon(Icons.edit, size: 16, color: Colors.white),
-                child: 'Edit Profile',
-                onTap: () => showDialog(
-                    context: context,
-                    builder: (_) => const EditProfileDialog()),
-              ),
-            ]),
-            const SizedBox(height: 24),
-            Builder(builder: (layoutContext) {
-              bool small = isSmallScreen(layoutContext);
-
-              // logo widget definition for reuse
-              Widget logoWidget = Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    borderRadius: BorderRadius.circular(12)),
-                child: Center(
-                    child: data.companyLogo != null
-                        ? Image.network(data.companyLogo!,
-                            errorBuilder: (c, e, s) =>
-                                const Icon(Icons.business))
-                        : const Icon(Icons.business)),
-              );
-
-              Widget infoWidget = Expanded(
-                  child: Wrap(runSpacing: 24, spacing: 40, children: [
-                _buildInfoField("Company Name", data.companyName),
-                _buildInfoField("Company Email", data.companyEmail),
-                _buildInfoField("Company Phone", data.companyPhone),
-                _buildInfoField("RC Number", data.rcNumber),
-                _buildInfoField("Industry", controller.industry.value),
-                _buildInfoField("Slogan", data.companySlogan),
-                SizedBox(
-                    width: double.infinity,
-                    child: _buildInfoField(
-                        "Company Addresses", data.companyAddresses)),
-              ]));
-
-              return small
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        logoWidget,
-                        const SizedBox(height: 24),
-                        infoWidget,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildLogoPanel(data, primary),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _displayValue(data.companyName),
+                        style: AppTextStyles.displayMd.copyWith(
+                          color: AppColors.textPrimary,
+                          height: 1.15,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _displayValue(
+                          data.companySlogan,
+                          fallback:
+                              'A central record for identity, governance, and brand operations.',
+                        ),
+                        style: AppTextStyles.bodyLg.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          _buildMetaChip(
+                            icon: Iconsax.briefcase,
+                            label: controller.industry.value,
+                          ),
+                          _buildMetaChip(
+                            icon: Iconsax.money_2,
+                            label: data.defaultCurrency,
+                          ),
+                          _buildMetaChip(
+                            icon: Iconsax.global,
+                            label: controller.timeZone.value,
+                          ),
+                          _buildMetaChip(
+                            icon: Iconsax.shield_tick,
+                            label: controller.approvalType.value,
+                            foregroundColor: AppColors.primary,
+                            backgroundColor: AppColors.primarySubtle,
+                            borderColor: AppColors.primarySoft,
+                          ),
+                        ],
+                      ),
+                      if (address != null) ...[
+                        const SizedBox(height: 18),
+                        Text(
+                          address,
+                          style: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        logoWidget,
-                        const SizedBox(width: 24),
-                        infoWidget,
-                      ],
-                    );
-            })
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
+        );
+
+        final summaryPanel = Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceMuted,
+            borderRadius: AppRadii.brMd,
+            border: Border.all(color: AppColors.borderSubtle),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  const StatusChip(
+                    label: 'Profile live',
+                    tone: StatusTone.success,
+                    icon: Iconsax.tick_circle,
+                  ),
+                  StatusChip(
+                    label: data.languagePreference,
+                    tone: StatusTone.neutral,
+                    icon: Iconsax.translate,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildSummaryRow('RC Number', data.rcNumber),
+              _buildSummaryRow('Industry', controller.industry.value),
+              _buildSummaryRow('Updated', _formatDate(data.updatedAt)),
+              _buildSummaryRow('Created', _formatDate(data.createdAt)),
+            ],
+          ),
+        );
+
+        return AppCard(
+          padding: EdgeInsets.all(compact ? 20 : 24),
+          elevation: AppCardElevation.md,
+          borderColor: AppColors.borderSubtle,
+          child: compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    identityBlock,
+                    const SizedBox(height: 18),
+                    summaryPanel,
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: identityBlock),
+                    const SizedBox(width: 24),
+                    SizedBox(width: 290, child: summaryPanel),
+                  ],
+                ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLogoPanel(CompanySettings data, Color accent) {
+    return Container(
+      width: 96,
+      height: 96,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: accent.withValues(alpha: 0.18)),
+        boxShadow: AppShadows.sm,
+      ),
+      child: ClipRRect(
+        borderRadius: AppRadii.brLg,
+        child: data.companyLogo != null && data.companyLogo!.isNotEmpty
+            ? Image.network(
+                data.companyLogo!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildLogoFallback(accent),
+              )
+            : _buildLogoFallback(accent),
+      ),
+    );
+  }
+
+  Widget _buildLogoFallback(Color accent) {
+    return Center(
+      child: Icon(
+        Iconsax.building_3,
+        size: 34,
+        color: accent,
+      ),
+    );
+  }
+
+  Widget _buildMetaChip({
+    required IconData icon,
+    required String label,
+    Color? foregroundColor,
+    Color? backgroundColor,
+    Color? borderColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? AppColors.surfaceMuted,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: borderColor ?? AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon,
+              size: 14, color: foregroundColor ?? AppColors.textSecondary),
+          const SizedBox(width: 8),
+          Text(
+            _displayValue(label),
+            style: AppTextStyles.bodySm.copyWith(
+              color: foregroundColor ?? AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 88,
+            child: Text(
+              label,
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              _displayValue(value),
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsSection() {
+    return Obx(() {
+      if (controller.isDashboardLoading.value &&
+          controller.dashboardStats.value == null) {
+        return LoadingSkeleton.statRow();
+      }
+
+      final stats = controller.dashboardStats.value;
+      final cards = <Widget>[
+        DashboardStatCard(
+          title: 'Total Employees',
+          count: stats != null ? '${stats.totalEmployees}' : '--',
+          accentColor: _accentGreen,
+          subtext: stats != null && stats.newEmployeesCount > 0
+              ? '+${stats.newEmployeesCount} recently added'
+              : 'Directory coverage',
+          icon: Iconsax.profile_2user,
+        ),
+        DashboardStatCard(
+          title: 'Total Branches',
+          count: stats != null ? '${stats.totalBranches}' : '--',
+          accentColor: _accentBlue,
+          subtext: stats != null && stats.removedBranchesCount > 0
+              ? '${stats.removedBranchesCount} recently removed'
+              : 'Operational footprint',
+          icon: Iconsax.buildings,
+        ),
+        DashboardStatCard(
+          title: 'Pending Approvals',
+          count: stats != null ? '${stats.pendingApprovals}' : '--',
+          accentColor: _accentAmber,
+          subtext: stats != null && stats.overdueTasksCount > 0
+              ? '${stats.overdueTasksCount} overdue tasks'
+              : 'Workflow queue',
+          icon: Iconsax.timer_1,
+        ),
+        DashboardStatCard(
+          title: 'Asset Inventory',
+          count: stats != null ? '${stats.assetInventory}' : '--',
+          accentColor: _accentIndigo,
+          subtext: stats != null && stats.newInventoryCount > 0
+              ? '+${stats.newInventoryCount} new records'
+              : 'Tracked resources',
+          icon: Iconsax.box,
+        ),
+      ];
+      return ResponsiveStatRow(cards: cards);
+    });
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: _companyTabs
+              .map((label) => Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: _buildTabButton(label),
+                  ))
+              .toList(),
         ),
       ),
     );
   }
 
-  Widget _buildGlobalBusinessTab(
-      BuildContext context, CompanyController controller, dynamic data) {
-    return Column(children: [
-      Builder(builder: (layoutContext) {
-        bool small = isSmallScreen(layoutContext);
-        Widget title = const Text("Global Business Settings",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
-        Widget button = MyElevatedButton(
-          child: 'Edit Settings',
-          onTap: () => showDialog(
-              context: context,
-              builder: (_) => const EditGlobalBusinessDialog()),
-        );
-        return small
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [title, const SizedBox(height: 8), button])
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [title, button],
-              );
-      }),
-      const SizedBox(height: 20),
-      Card(
-        color: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFFE2E8F0))),
-        child: Padding(
-            padding: const EdgeInsets.all(24),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Wrap(children: [
-                SizedBox(
-                    width: 260,
-                    child: _buildColorField(
-                        "Primary Color",
-                        data.primaryColorCode,
-                        controller.getColorFromHex(data.primaryColorCode))),
-                SizedBox(
-                    width: 260,
-                    child: _buildColorField(
-                        "Secondary Color",
-                        data.secondaryColorCode,
-                        controller.getColorFromHex(data.secondaryColorCode))),
-              ]),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 24),
-              Wrap(children: [
-                SizedBox(
-                    width: 260,
-                    child: _buildInfoField(
-                        "Default Currency", data.defaultCurrency)),
-                SizedBox(
-                    width: 260,
-                    child: _buildInfoField(
-                        "Language Preference", data.languagePreference)),
-              ]),
-              const SizedBox(height: 24),
-              _buildInfoField("Time Zone", controller.timeZone.value),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 24),
-              // Settings toggles visualization
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      const Text("Approvals",
-                          style: TextStyle(color: Colors.grey, fontSize: 12)),
-                      const SizedBox(height: 8),
-                      _buildStaticPill(controller.approvalType.value, true),
-                    ])),
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      const Text("Notifications",
-                          style: TextStyle(color: Colors.grey, fontSize: 12)),
-                      const SizedBox(height: 8),
-                      Row(children: [
-                        if (controller.notifyEmail.value)
-                          _buildStaticPill("Email", true),
-                        if (controller.notifySMS.value)
-                          _buildStaticPill("SMS", true),
-                        if (controller.notifyPush.value)
-                          _buildStaticPill("Push", true),
-                      ])
-                    ])),
-              ])
-            ])),
-      )
-    ]);
+  Widget _buildTabButton(String label) {
+    final isActive = currentTab == label;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => setState(() => currentTab = label),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.surface : Colors.transparent,
+            borderRadius: AppRadii.brMd,
+            boxShadow: isActive ? AppShadows.sm : const <BoxShadow>[],
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget _buildOwnershipTab(
-      BuildContext context, CompanyController controller) {
+  Widget _buildCurrentTab(BuildContext context, CompanySettings data) {
+    switch (currentTab) {
+      case 'Global Business':
+        return _buildGlobalBusinessTab(context, data);
+      case 'Ownership & Shareholders':
+        return _buildOwnershipTab(context);
+      case 'Board Members':
+        return const BoardMembersPage();
+      case 'Compliance & Registration':
+        return const CompliancePage();
+      case 'Profile':
+      default:
+        return _buildProfileTab(context, data);
+    }
+  }
+
+  Widget _buildProfileTab(BuildContext context, CompanySettings data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildOverviewHero(data),
+        const SizedBox(height: 20),
+        AppCard(
+          padding: const EdgeInsets.all(24),
+          backgroundColor: AppColors.surfaceMuted,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 760;
+              final title = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Company information', style: AppTextStyles.h2),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Core records for communications and registration details.',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    title,
+                    const SizedBox(height: 16),
+                    _buildInlineProfileActions(context),
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: title),
+                  const SizedBox(width: 16),
+                  _buildInlineProfileActions(context),
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildProfileSupportCards(data),
+      ],
+    );
+  }
+
+  Widget _buildInlineProfileActions(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        MyElevatedButton(
+          height: 48,
+          child: 'Edit Profile',
+          icon: const Icon(Iconsax.edit,
+              size: 16, color: AppColors.textOnPrimary),
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const EditProfileDialog(),
+          ),
+        ),
+        OutlinedButton.icon(
+          onPressed: controller.fetchCompanyProfile,
+          icon: const Icon(Iconsax.refresh, size: 16),
+          label: const Text('Refresh'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.textPrimary,
+            side: const BorderSide(color: AppColors.borderStrong),
+            minimumSize: const Size(0, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+            alignment: Alignment.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileSupportCards(CompanySettings data) {
+    final cards = <Widget>[
+      _buildSupportCard(
+        title: 'Identity',
+        icon: Iconsax.building_3,
+        children: [
+          _buildDetailEntry('Company Name', data.companyName),
+          _buildDetailEntry('Industry', controller.industry.value),
+          _buildDetailEntry('Slogan', data.companySlogan),
+          if (_normalizedValue(data.companyAddresses) != null)
+            _buildDetailEntry('Address', data.companyAddresses),
+        ],
+      ),
+      _buildSupportCard(
+        title: 'Contact & registration',
+        icon: Iconsax.message_text,
+        children: [
+          _buildDetailEntry('Email', data.companyEmail),
+          _buildDetailEntry('Phone', data.companyPhone),
+          _buildDetailEntry('RC Number', data.rcNumber),
+          _buildDetailEntry('Updated', _formatDate(data.updatedAt)),
+          _buildDetailEntry('Created', _formatDate(data.createdAt)),
+        ],
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        if (width >= 900) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: cards[0]),
+              const SizedBox(width: 16),
+              Expanded(child: cards[1]),
+            ],
+          );
+        }
+
+        return Column(
+          children: [
+            cards[0],
+            const SizedBox(height: 16),
+            cards[1],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSupportCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brMd,
+                ),
+                child: Icon(icon, size: 18, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Text(title, style: AppTextStyles.h4)),
+            ],
+          ),
+          const SizedBox(height: 18),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailEntry(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
+          const SizedBox(height: 4),
+          Text(
+            _displayValue(value),
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColorEntry(String label, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: AppTextStyles.caption.copyWith(color: AppColors.textMuted)),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: AppRadii.brSm,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _displayValue(value),
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlobalBusinessTab(BuildContext context, CompanySettings data) {
+    final cards = <Widget>[
+      _buildSupportCard(
+        title: 'Brand palette',
+        icon: Iconsax.colorfilter,
+        children: [
+          _buildColorEntry(
+            'Primary Color',
+            data.primaryColorCode,
+            controller.getColorFromHex(data.primaryColorCode),
+          ),
+          _buildColorEntry(
+            'Secondary Color',
+            data.secondaryColorCode,
+            controller.getColorFromHex(data.secondaryColorCode),
+          ),
+          _buildDetailEntry('Slogan', data.companySlogan),
+        ],
+      ),
+      _buildSupportCard(
+        title: 'Regional defaults',
+        icon: Iconsax.global,
+        children: [
+          _buildDetailEntry('Default Currency', data.defaultCurrency),
+          _buildDetailEntry('Language Preference', data.languagePreference),
+          _buildDetailEntry('Time Zone', controller.timeZone.value),
+        ],
+      ),
+      _buildSupportCard(
+        title: 'Governance rules',
+        icon: Iconsax.setting_2,
+        children: [
+          _buildDetailEntry('Business Rules', data.businessRules),
+          _buildDetailEntry('Approval Flow', controller.approvalType.value),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (controller.notifyEmail.value)
+                  _buildStaticPill('Email', true),
+                if (controller.notifySMS.value) _buildStaticPill('SMS', true),
+                if (controller.notifyPush.value) _buildStaticPill('Push', true),
+                if (!controller.notifyEmail.value &&
+                    !controller.notifySMS.value &&
+                    !controller.notifyPush.value)
+                  _buildStaticPill('No notification channels', false),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppCard(
+          padding: const EdgeInsets.all(20),
+          backgroundColor: AppColors.surfaceMuted,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 760;
+
+              final intro = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Global business settings', style: AppTextStyles.h2),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Brand presentation, operating defaults, and approval behavior live here.',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              );
+
+              final action = MyElevatedButton(
+                child: 'Edit Settings',
+                icon: const Icon(Iconsax.setting_2,
+                    size: 16, color: AppColors.textOnPrimary),
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (_) => const EditGlobalBusinessDialog(),
+                ),
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    intro,
+                    const SizedBox(height: 16),
+                    action,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: intro),
+                  const SizedBox(width: 16),
+                  action,
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildResponsiveCardGrid(cards),
+      ],
+    );
+  }
+
+  Widget _buildOwnershipTab(BuildContext context) {
     final numberFormat = NumberFormat('#,###');
 
     return Obx(() {
       if (controller.isShareholdersLoading.value &&
           controller.shareholders.isEmpty) {
-        return const Center(
-            child: Padding(
-                padding: EdgeInsets.all(40),
-                child: CircularProgressIndicator()));
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: LoadingSkeleton.listRows(count: 5),
+        );
       }
 
       final list = controller.shareholders;
 
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Header row with title and search + edit button
-        Builder(builder: (layoutContext) {
-          bool small = isSmallScreen(layoutContext);
-          Widget title = const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Ownership & Shareholders",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text("Bomach Group of Companies",
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-            ],
-          );
-          Widget actions = Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MyElevatedButton(
-                child: 'Edit Share Holders',
-                icon: const Icon(Icons.edit, size: 16, color: Colors.white),
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (_) => const EditShareHoldersDialog(),
-                ),
-              ),
-            ],
-          );
-          return small
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [title, const SizedBox(height: 12), actions])
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [Expanded(child: title), actions],
-                );
-        }),
-
-        const SizedBox(height: 24),
-
-        // Equity section
-        Card(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFFE2E8F0)),
-          ),
-          child: Padding(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppCard(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            backgroundColor: AppColors.surfaceMuted,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 780;
+
+                final intro = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Equity",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    TextButton.icon(
+                    const Text('Ownership & shareholders', style: AppTextStyles.h2),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Track equity distribution, active shareholders, and board-linked ownership records.',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                );
+
+                final actions = Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    MyElevatedButton(
+                      child: 'Edit Shareholders',
+                      icon: const Icon(Iconsax.edit,
+                          size: 16, color: AppColors.textOnPrimary),
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (_) => const EditShareHoldersDialog(),
+                      ),
+                    ),
+                    OutlinedButton.icon(
                       onPressed: () => showDialog(
                         context: context,
                         builder: (_) => const EditEquityDialog(),
                       ),
-                      icon: const Icon(Icons.edit, size: 14),
-                      label: const Text("Update Shares",
-                          style: TextStyle(fontSize: 13)),
+                      icon: const Icon(Iconsax.chart_2, size: 16),
+                      label: const Text('Update Shares'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.textPrimary,
+                        side: const BorderSide(color: AppColors.borderStrong),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadii.brMd,
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 4),
-                const Text("Authorized Shares",
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-                const SizedBox(height: 8),
-                controller.isEquityLoading.value
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(
-                        controller.authorizedShares.value > 0
-                            ? numberFormat
-                                .format(controller.authorizedShares.value)
-                            : '—',
-                        style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
-              ],
+                );
+
+                if (compact) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      intro,
+                      const SizedBox(height: 16),
+                      actions,
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(child: intro),
+                    const SizedBox(width: 16),
+                    actions,
+                  ],
+                );
+              },
             ),
           ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Shareholders table
-        if (list.isEmpty)
-          _buildEmptyState(
-            context,
-            icon: Icons.people_outline,
-            title: "No shareholders yet",
-            subtitle:
-                "Add shareholders to track ownership and share distribution.",
-            buttonLabel: "Add Shareholder",
-            onAdd: () => showDialog(
-              context: context,
-              builder: (_) => const AddEditShareholderDialog(),
+          const SizedBox(height: 20),
+          _buildResponsiveCardGrid([
+            DashboardStatCard(
+              title: 'Authorized Shares',
+              count: controller.isEquityLoading.value
+                  ? '--'
+                  : numberFormat.format(controller.authorizedShares.value),
+              accentColor: _accentBlue,
+              subtext: 'Total equity available',
+              icon: Iconsax.medal_star,
             ),
-          )
-        else
-          Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
+            DashboardStatCard(
+              title: 'Issued Shares',
+              count: numberFormat.format(controller.issuedShares),
+              accentColor: _accentGreen,
+              subtext: 'Allocated to shareholders',
+              icon: Iconsax.receipt_2_1,
             ),
-            child: Column(
-              children: [
-                // Table header
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+            DashboardStatCard(
+              title: 'Unissued Shares',
+              count: numberFormat.format(controller.unissuedShares),
+              accentColor: _accentAmber,
+              subtext: 'Available for future allocation',
+              icon: Iconsax.chart_success,
+            ),
+          ]),
+          const SizedBox(height: 20),
+          if (list.isEmpty)
+            _buildEmptyState(
+              context,
+              icon: Iconsax.people,
+              title: 'No shareholders yet',
+              subtitle:
+                  'Add shareholders to track ownership and share distribution.',
+              buttonLabel: 'Add Shareholder',
+              onAdd: () => showDialog(
+                context: context,
+                builder: (_) => const AddEditShareholderDialog(),
+              ),
+            )
+          else
+            AppCard(
+              padding: EdgeInsets.zero,
+              elevation: AppCardElevation.md,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                      color: AppColors.surfaceMuted,
+                      border: Border(
+                        bottom: BorderSide(color: AppColors.borderSubtle),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Shareholder register',
+                                  style: AppTextStyles.h3),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${list.length} active ownership records',
+                                style: AppTextStyles.bodyMd.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        StatusChip(
+                          label:
+                              '${controller.boardMembers.length} board-linked',
+                          tone: StatusTone.info,
+                          icon: Iconsax.user_octagon,
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 40),
-                      Expanded(
-                          flex: 3,
-                          child: Text("Name",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
-                      Expanded(
-                          flex: 2,
-                          child: Text("Role",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
-                      Expanded(
-                          flex: 2,
-                          child: Text("Shares",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
-                      Expanded(
-                          flex: 2,
-                          child: Text("Percentage",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
-                      SizedBox(
-                          width: 48,
-                          child: Text("Action",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B)))),
-                    ],
+                  ResponsiveTableWrapper(
+                    minWidth: 920,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 14),
+                          color: AppColors.surface,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: Text('Shareholder',
+                                    style: AppTextStyles.label.copyWith(
+                                      color: AppColors.textSecondary,
+                                    )),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('Role',
+                                    style: AppTextStyles.label.copyWith(
+                                      color: AppColors.textSecondary,
+                                    )),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('Shares',
+                                    style: AppTextStyles.label.copyWith(
+                                      color: AppColors.textSecondary,
+                                    )),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('Ownership',
+                                    style: AppTextStyles.label.copyWith(
+                                      color: AppColors.textSecondary,
+                                    )),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text('Status',
+                                    style: AppTextStyles.label.copyWith(
+                                      color: AppColors.textSecondary,
+                                    )),
+                              ),
+                              const SizedBox(width: 48),
+                            ],
+                          ),
+                        ),
+                        const Divider(height: 1, color: AppColors.borderSubtle),
+                        ...list.asMap().entries.map((entry) {
+                          return _buildShareholderRow(
+                            context,
+                            entry.value,
+                            entry.key,
+                          );
+                        }),
+                      ],
+                    ),
                   ),
-                ),
-                const Divider(height: 1),
-                // Table rows
-                ...list.asMap().entries.map((entry) {
-                  final i = entry.key;
-                  final s = entry.value;
-                  return _buildShareholderRow(context, controller, s, i);
-                }),
-              ],
+                ],
+              ),
             ),
-          ),
-      ]);
+        ],
+      );
     });
   }
 
-  Widget _buildShareholderRow(BuildContext context,
-      CompanyController controller, Shareholder s, int index) {
+  Widget _buildShareholderRow(
+      BuildContext context, Shareholder shareholder, int index) {
     final numberFormat = NumberFormat('#,###');
-    final color = _avatarColor(index);
-
-    Color roleColor;
-    switch (s.titleDisplay.toLowerCase()) {
-      case 'founder':
-        roleColor = Colors.green;
-        break;
-      case 'co-founder':
-        roleColor = Colors.blue;
-        break;
-      case 'investor':
-        roleColor = Colors.orange;
-        break;
-      default:
-        roleColor = Colors.grey;
-    }
+    final avatarColor = _avatarColor(index);
+    final roleTone = _roleTone(shareholder.titleDisplay);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade100),
+          bottom: BorderSide(color: AppColors.borderSubtle),
         ),
       ),
       child: Row(
         children: [
-          // Checkbox placeholder
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.blue,
-            ),
-          ),
-          // Name + avatar
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 16,
-                  backgroundColor: color.withValues(alpha: 0.15),
-                  child: s.profilePicture != null
+                  radius: 20,
+                  backgroundColor: avatarColor.withValues(alpha: 0.14),
+                  child: shareholder.profilePicture != null &&
+                          shareholder.profilePicture!.isNotEmpty
                       ? ClipOval(
-                          child: Image.network(s.profilePicture!,
-                              width: 32,
-                              height: 32,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Text(
-                                  s.firstName.isNotEmpty
-                                      ? s.firstName[0].toUpperCase()
-                                      : '?',
-                                  style: TextStyle(
-                                      color: color,
-                                      fontWeight: FontWeight.bold))))
-                      : Text(
-                          s.firstName.isNotEmpty
-                              ? s.firstName[0].toUpperCase()
-                              : '?',
-                          style: TextStyle(
-                              color: color, fontWeight: FontWeight.bold)),
+                          child: Image.network(
+                            shareholder.profilePicture!,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                _buildAvatarInitial(shareholder, avatarColor),
+                          ),
+                        )
+                      : _buildAvatarInitial(shareholder, avatarColor),
                 ),
-                const SizedBox(width: 10),
-                Flexible(
-                  child: Text(s.fullName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 14),
-                      overflow: TextOverflow.ellipsis),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        shareholder.fullName,
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        shareholder.email,
+                        style: AppTextStyles.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          // Role badge
           Expanded(
             flex: 2,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: roleColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StatusChip(
+                  label: shareholder.titleDisplay.isNotEmpty
+                      ? shareholder.titleDisplay
+                      : shareholder.title,
+                  tone: roleTone,
                 ),
-                child: Text(
-                  s.titleDisplay.isNotEmpty ? s.titleDisplay : s.title,
-                  style: TextStyle(
-                      color: roleColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                ),
+                if (shareholder.isBoardMember) ...[
+                  const SizedBox(height: 6),
+                  const StatusChip(
+                    label: 'Board member',
+                    tone: StatusTone.info,
+                    dense: true,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              numberFormat.format(shareholder.shareCount),
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          // Shares
           Expanded(
             flex: 2,
-            child: Text(numberFormat.format(s.shareCount),
-                style: const TextStyle(fontSize: 14)),
+            child: Text(
+              '${shareholder.sharePercentage}%',
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          // Percentage
           Expanded(
             flex: 2,
-            child: Text('${s.sharePercentage}%',
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            child: StatusChip.fromStatus(
+              shareholder.isActive ? 'Active' : 'Inactive',
+            ),
           ),
-          // Action menu
           SizedBox(
             width: 48,
             child: PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, size: 20),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+              icon: const Icon(Iconsax.more, size: 18),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
               onSelected: (value) async {
                 switch (value) {
                   case 'view':
-                    _showShareholderDetails(context, s);
+                    _showShareholderDetails(context, shareholder);
                     break;
                   case 'edit':
                     showDialog(
                       context: context,
-                      builder: (_) => AddEditShareholderDialog(shareholder: s),
+                      builder: (_) =>
+                          AddEditShareholderDialog(shareholder: shareholder),
                     );
                     break;
                   case 'delete':
-                    final confirmed =
-                        await showDeleteShareholderDialog(context, s.fullName);
+                    final confirmed = await showDeleteShareholderDialog(
+                        context, shareholder.fullName);
                     if (confirmed == true && context.mounted) {
-                      controller.deleteShareholder(context, s.id);
+                      controller.deleteShareholder(context, shareholder.id);
                     }
                     break;
                 }
               },
-              itemBuilder: (_) => [
-                const PopupMenuItem(
+              itemBuilder: (_) => const [
+                PopupMenuItem(
                   value: 'view',
-                  child: Row(children: [
-                    Icon(Icons.visibility_outlined,
-                        size: 18, color: Colors.grey),
-                    SizedBox(width: 8),
-                    Text('View Details'),
-                  ]),
+                  child: Row(
+                    children: [
+                      Icon(Iconsax.eye,
+                          size: 18, color: AppColors.textSecondary),
+                      SizedBox(width: 8),
+                      Text('View Details'),
+                    ],
+                  ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'edit',
-                  child: Row(children: [
-                    Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
-                    SizedBox(width: 8),
-                    Text('Edit'),
-                  ]),
+                  child: Row(
+                    children: [
+                      Icon(Iconsax.edit,
+                          size: 18, color: AppColors.textSecondary),
+                      SizedBox(width: 8),
+                      Text('Edit'),
+                    ],
+                  ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete',
-                  child: Row(children: [
-                    Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ]),
+                  child: Row(
+                    children: [
+                      Icon(Iconsax.trash, size: 18, color: AppColors.danger),
+                      SizedBox(width: 8),
+                      Text('Delete', style: TextStyle(color: AppColors.danger)),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -654,41 +1260,70 @@ class CompanyProfilePage extends StatelessWidget {
     );
   }
 
-  void _showShareholderDetails(BuildContext context, Shareholder s) {
+  Widget _buildAvatarInitial(Shareholder shareholder, Color color) {
+    final initial = shareholder.firstName.isNotEmpty
+        ? shareholder.firstName[0].toUpperCase()
+        : '?';
+    return Text(
+      initial,
+      style: AppTextStyles.label.copyWith(
+        color: color,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+
+  void _showShareholderDetails(BuildContext context, Shareholder shareholder) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brLg),
+        backgroundColor: AppColors.surface,
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 500),
+          constraints: const BoxConstraints(maxWidth: 520),
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Shareholder Details",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Shareholder details', style: AppTextStyles.h2),
+                        const SizedBox(height: 6),
+                        Text(
+                          'A closer look at role, contact information, and ownership position.',
+                          style: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
+                    color: AppColors.textMuted,
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              _buildDetailRow("Name", s.fullName),
-              _buildDetailRow("Email", s.email),
-              _buildDetailRow("Phone", s.phoneNumber),
-              _buildDetailRow("Role", s.titleDisplay),
-              _buildDetailRow("Shares", '${s.shareCount}'),
-              _buildDetailRow("Percentage", '${s.sharePercentage}%'),
-              _buildDetailRow("Board Member", s.isBoardMember ? 'Yes' : 'No'),
-              _buildDetailRow("Status", s.isActive ? 'Active' : 'Inactive'),
-              if (s.notes != null && s.notes!.isNotEmpty)
-                _buildDetailRow("Notes", s.notes!),
+              _buildDetailRow('Name', shareholder.fullName),
+              _buildDetailRow('Email', shareholder.email),
+              _buildDetailRow('Phone', shareholder.phoneNumber),
+              _buildDetailRow('Role', shareholder.titleDisplay),
+              _buildDetailRow('Shares',
+                  NumberFormat('#,###').format(shareholder.shareCount)),
+              _buildDetailRow('Percentage', '${shareholder.sharePercentage}%'),
+              _buildDetailRow(
+                  'Board Member', shareholder.isBoardMember ? 'Yes' : 'No'),
+              _buildDetailRow(
+                  'Status', shareholder.isActive ? 'Active' : 'Inactive'),
+              if (shareholder.notes != null && shareholder.notes!.isNotEmpty)
+                _buildDetailRow('Notes', shareholder.notes!),
             ],
           ),
         ),
@@ -704,13 +1339,19 @@ class CompanyProfilePage extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+            child: Text(
+              label,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+            child: Text(
+              _displayValue(value),
+              style: AppTextStyles.bodyMd.copyWith(
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimary,
+              ),
+            ),
           ),
         ],
       ),
@@ -725,276 +1366,225 @@ class CompanyProfilePage extends StatelessWidget {
     required String buttonLabel,
     required VoidCallback onAdd,
   }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
+    return EmptyState(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      action: MyElevatedButton(
+        child: buttonLabel,
+        icon: const Icon(Iconsax.add, size: 18, color: AppColors.textOnPrimary),
+        onTap: onAdd,
       ),
     );
   }
 
+  Widget _buildResponsiveCardGrid(List<Widget> cards) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        if (width >= 1100) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (int i = 0; i < cards.length; i++) ...[
+                if (i > 0) const SizedBox(width: 16),
+                Expanded(child: cards[i]),
+              ],
+            ],
+          );
+        }
+
+        if (width >= 720 && cards.length > 1) {
+          return Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: cards
+                .map((card) => SizedBox(
+                      width: (width - 16) / 2,
+                      child: card,
+                    ))
+                .toList(),
+          );
+        }
+
+        return Column(
+          children: [
+            for (int i = 0; i < cards.length; i++) ...[
+              if (i > 0) const SizedBox(height: 16),
+              cards[i],
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildStaticPill(String text, bool active) {
+    return StatusChip(
+      label: text,
+      tone: active ? StatusTone.primary : StatusTone.neutral,
+    );
+  }
+
+  String _displayValue(String? value, {String fallback = 'Not set'}) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? fallback : trimmed;
+  }
+
+  String? _normalizedValue(String? value) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  String _formatDate(String? rawDate) {
+    final parsed = rawDate == null || rawDate.trim().isEmpty
+        ? null
+        : DateTime.tryParse(rawDate);
+    if (parsed == null) return 'Not set';
+    return DateFormat('d MMM yyyy').format(parsed.toLocal());
+  }
+
   static const _avatarColors = [
-    Color(0xFFEA580C),
+    AppColors.warning,
     Color(0xFFC026D3),
-    Color(0xFF0284C7),
-    Color(0xFF16A34A),
-    Color(0xFFD97706),
+    AppColors.info,
+    AppColors.success,
+    AppColors.warning,
     Color(0xFF7C3AED),
   ];
 
   Color _avatarColor(int index) => _avatarColors[index % _avatarColors.length];
 
-  // --- HELPERS ---
-  Widget _buildTabButton(String label, RxString currentTab) {
-    return InkWell(
-      onTap: () => currentTab.value = label,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-            border: Border(
-                bottom: BorderSide(
-                    color: currentTab.value == label
-                        ? const Color(0xFF005CE8)
-                        : Colors.transparent,
-                    width: 2))),
-        child: Text(label,
-            style: TextStyle(
-                color: currentTab.value == label
-                    ? const Color(0xFF005CE8)
-                    : Colors.grey,
-                fontWeight: FontWeight.w600)),
-      ),
-    );
-  }
-
-  Widget _buildInfoField(String label, String value) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      const SizedBox(height: 4),
-      Text(value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-    ]);
-  }
-
-  Widget _buildColorField(String label, String hex, Color color) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      const SizedBox(height: 4),
-      Row(children: [
-        Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-                color: color, borderRadius: BorderRadius.circular(4))),
-        const SizedBox(width: 8),
-        Text(hex, style: const TextStyle(fontWeight: FontWeight.w500)),
-      ])
-    ]);
-  }
-
-  Widget _buildStaticPill(String text, bool active) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-          color: active ? const Color(0xFF005CE8) : Colors.white,
-          borderRadius: BorderRadius.circular(4)),
-      child: Text(text,
-          style: TextStyle(
-              color: active ? Colors.white : Colors.grey, fontSize: 12)),
-    );
-  }
-
-  /// statistics row that behaves responsively across screen sizes
-  Widget _buildStatsSection(CompanyController controller) {
-    return Obx(() {
-      final stats = controller.dashboardStats.value;
-      final cards = <Widget>[
-        DashboardStatCard(
-          title: 'Total Employees',
-          count: stats != null ? '${stats.totalEmployees}' : '–',
-          borderColor: Colors.green,
-          countColor: Colors.green,
-        ),
-        DashboardStatCard(
-          title: 'Total Branches',
-          count: stats != null ? '${stats.totalBranches}' : '–',
-          borderColor: const Color(0xFF1976D2),
-          countColor: const Color(0xFF1976D2),
-        ),
-        DashboardStatCard(
-          title: 'Pending Approvals',
-          count: stats != null ? '${stats.pendingApprovals}' : '–',
-          borderColor: const Color(0xFFC27803),
-          countColor: const Color(0xFFC27803),
-        ),
-        DashboardStatCard(
-          title: 'Asset Inventory',
-          count: stats != null ? '${stats.assetInventory}' : '–',
-          borderColor: Colors.green,
-          countColor: Colors.green,
-        ),
-      ];
-      return ResponsiveStatRow(cards: cards);
-    });
+  StatusTone _roleTone(String role) {
+    switch (role.toLowerCase()) {
+      case 'founder':
+        return StatusTone.success;
+      case 'co-founder':
+        return StatusTone.info;
+      case 'investor':
+        return StatusTone.warning;
+      default:
+        return StatusTone.neutral;
+    }
   }
 }
 
 class DashboardStatCard extends StatelessWidget {
-  final String title;
-  final String count;
-  final Color borderColor;
-  final Color countColor;
-
-  // Legacy named params kept for backward compatibility during migration
-  final String? label, value, subtext;
-  final IconData? icon;
-  final bool isPositive, isWarning;
-
   const DashboardStatCard({
     super.key,
     this.title = '',
     this.count = '',
-    this.borderColor = Colors.blue,
-    this.countColor = Colors.blue,
-    // Legacy params
-    this.label,
-    this.value,
+    this.accentColor,
     this.subtext,
     this.icon,
+    this.label,
+    this.value,
+    this.borderColor,
+    this.countColor,
     this.isPositive = true,
     this.isWarning = false,
   });
 
+  final String title;
+  final String count;
+  final Color? accentColor;
+  final String? subtext;
+  final IconData? icon;
+  final String? label;
+  final String? value;
+  final Color? borderColor;
+  final Color? countColor;
+  final bool isPositive;
+  final bool isWarning;
+
   @override
   Widget build(BuildContext context) {
-    // Resolve display values (prefer new params, fallback to legacy)
-    final displayTitle = title.isNotEmpty ? title : (label ?? '');
-    final displayCount = count.isNotEmpty ? count : (value ?? '–');
-    final displayBorderColor =
-        title.isNotEmpty ? borderColor : _legacyBorderColor();
-    final displayCountColor =
-        count.isNotEmpty ? countColor : _legacyCountColor();
+    final resolvedTitle = title.isNotEmpty ? title : (label ?? '');
+    final resolvedCount = count.isNotEmpty ? count : (value ?? '--');
+    final resolvedAccent = accentColor ?? borderColor ?? _legacyAccentColor();
+    final resolvedSubtext = subtext ?? '';
+    final resolvedIcon = icon ?? _legacyIcon();
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: displayBorderColor, width: 1),
-      ),
+      elevation: AppCardElevation.md,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(displayTitle,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
-          const SizedBox(height: 12),
-          Text(displayCount,
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: displayCountColor)),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  resolvedTitle,
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: resolvedAccent.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brMd,
+                ),
+                child: Icon(resolvedIcon, size: 18, color: resolvedAccent),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            resolvedCount,
+            style: AppTextStyles.displayMd.copyWith(
+              color: countColor ?? AppColors.textPrimary,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: resolvedAccent,
+                  borderRadius: AppRadii.brPill,
+                ),
+              ),
+              const SizedBox(width: 10),
+              if (resolvedSubtext.isNotEmpty)
+                Expanded(
+                  child: Text(
+                    resolvedSubtext,
+                    style: AppTextStyles.bodySm.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                )
+              else
+                const Spacer(),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Color _legacyBorderColor() {
-    if (isWarning) return Colors.orange;
-    return isPositive ? Colors.green : Colors.red;
+  Color _legacyAccentColor() {
+    if (borderColor != null) return borderColor!;
+    if (isWarning) return AppColors.warning;
+    return isPositive ? AppColors.success : AppColors.danger;
   }
 
-  Color _legacyCountColor() {
-    if (isWarning) return Colors.orange;
-    return isPositive ? Colors.green : Colors.red;
-  }
-}
-
-/// Responsive stat card row — 4 columns on desktop, 2 on tablet, 1 on mobile.
-class ResponsiveStatRow extends StatelessWidget {
-  final List<Widget> cards;
-  const ResponsiveStatRow({super.key, required this.cards});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final width = constraints.maxWidth;
-
-      // Desktop: single row
-      if (width >= 900) {
-        return Row(
-          children: [
-            for (int i = 0; i < cards.length; i++) ...[
-              if (i > 0) const SizedBox(width: 16),
-              Expanded(child: cards[i]),
-            ],
-          ],
-        );
-      }
-
-      // Tablet: 2 per row
-      if (width >= 500) {
-        final rows = <Widget>[];
-        for (int i = 0; i < cards.length; i += 2) {
-          final hasSecond = i + 1 < cards.length;
-          rows.add(Row(
-            children: [
-              Expanded(child: cards[i]),
-              const SizedBox(width: 16),
-              Expanded(child: hasSecond ? cards[i + 1] : const SizedBox()),
-            ],
-          ));
-          if (i + 2 < cards.length) rows.add(const SizedBox(height: 16));
-        }
-        return Column(children: rows);
-      }
-
-      // Mobile: stacked
-      return Column(
-        children: [
-          for (int i = 0; i < cards.length; i++) ...[
-            if (i > 0) const SizedBox(height: 12),
-            cards[i],
-          ],
-        ],
-      );
-    });
+  IconData _legacyIcon() {
+    if (isWarning) return Iconsax.timer_1;
+    return isPositive ? Iconsax.chart_success : Iconsax.chart_fail;
   }
 }
 
-/// Responsive subheader row — wraps search and button below title on small screens.
+
 class ResponsiveSubheader extends StatelessWidget {
-  final Widget title;
-  final Widget? search;
-  final Widget? action;
   const ResponsiveSubheader({
     super.key,
     required this.title,
@@ -1002,12 +1592,16 @@ class ResponsiveSubheader extends StatelessWidget {
     this.action,
   });
 
+  final Widget title;
+  final Widget? search;
+  final Widget? action;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isSmall = constraints.maxWidth < 700;
+      final isCompact = constraints.maxWidth < 700;
 
-      if (isSmall) {
+      if (isCompact) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1027,6 +1621,7 @@ class ResponsiveSubheader extends StatelessWidget {
       }
 
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: title),
           if (search != null) SizedBox(width: 220, child: search!),
@@ -1040,18 +1635,17 @@ class ResponsiveSubheader extends StatelessWidget {
   }
 }
 
-/// Wraps a table widget with horizontal scrolling on small screens.
-/// Use [minWidth] to set the minimum width for the table content.
 class ResponsiveTableWrapper extends StatelessWidget {
-  final Widget child;
-  final double breakpoint;
-  final double minWidth;
   const ResponsiveTableWrapper({
     super.key,
     required this.child,
-    this.breakpoint = 700,
-    this.minWidth = 800,
+    this.breakpoint = 720,
+    this.minWidth = 840,
   });
+
+  final Widget child;
+  final double breakpoint;
+  final double minWidth;
 
   @override
   Widget build(BuildContext context) {

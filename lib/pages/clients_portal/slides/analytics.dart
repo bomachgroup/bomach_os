@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../model/anl_model.dart';
@@ -11,7 +12,7 @@ class PortalUsageDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: AppColors.neutral100,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +105,7 @@ class PortalUsageDashboard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(isGraph ? Icons.show_chart : Icons.dashboard,
+              Icon(isGraph ? Iconsax.chart_2 : Iconsax.element_4,
                   color: Colors.grey.shade600, size: 20),
               const SizedBox(width: 8),
               Text(
@@ -209,7 +210,7 @@ class ActivityTile extends StatelessWidget {
   Color _getIconColor(String type) {
     switch (type) {
       case 'Update':
-        return AppColors.blue;
+        return AppColors.primary;
       case 'Review':
         return Colors.green;
       case 'Feature':
@@ -226,17 +227,17 @@ class ActivityTile extends StatelessWidget {
   IconData _getIcon(String type) {
     switch (type) {
       case 'Update':
-        return Icons.notifications_none;
+        return Iconsax.notification;
       case 'Review':
-        return Icons.insert_drive_file_outlined;
+        return Iconsax.document;
       case 'Feature':
-        return Icons.fiber_new;
+        return Iconsax.flash;
       case 'Reminder':
-        return Icons.access_time;
+        return Iconsax.clock;
       case 'Welcome':
-        return Icons.tag_faces;
+        return Iconsax.emoji_happy;
       default:
-        return Icons.info_outline;
+        return Iconsax.info_circle;
     }
   }
 

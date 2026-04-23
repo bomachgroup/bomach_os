@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/sort_filter_bar2.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/client/clients_database.dart';
@@ -48,7 +49,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
               children: [
                 MyIconButton(
                   icon: SvgPicture.asset("assets/svg/plus.svg"),
-                  colorBackground: const Color(0xFF0055FF),
+                  colorBackground: AppColors.primary,
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -61,7 +62,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                 kSizedBoxWidthSM,
                 MyIconButton(
                   icon: SvgPicture.asset("assets/svg/note2.svg"),
-                  colorBackground: const Color(0xFF0055FF),
+                  colorBackground: AppColors.primary,
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -74,7 +75,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                 kSizedBoxWidthSM,
                 MyIconButton(
                   icon: SvgPicture.asset("assets/svg/notification.svg"),
-                  colorBackground: const Color(0xFF0055FF),
+                  colorBackground: AppColors.primary,
                   onPressed: () {},
                 ),
               ],
@@ -98,8 +99,8 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                     child: MyTextFormField(
                       hintText: "Search...",
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -134,7 +135,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -161,7 +162,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                         "Price",
                         size: 18,
                         weight: 400,
-                        color: AppColors.grey2,
+                        color: AppColors.neutral400,
                       ),
                       MyText(
                         "N58,000,000",
@@ -232,7 +233,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.black2,
+            color: AppColors.textPrimary,
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Row(
@@ -271,7 +272,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
               "Listing Price",
               size: 18,
               weight: 400,
-              color: AppColors.grey2,
+              color: AppColors.neutral400,
             ),
             MyText(
               "N58,000,000",
@@ -287,7 +288,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             border: Border.all(
-              color: AppColors.grey4,
+              color: AppColors.neutral300,
             ),
             borderRadius: BorderRadius.circular(24.0),
           ),
@@ -306,7 +307,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
 
               const Divider(
                 height: 1,
-                color: AppColors.grey4,
+                color: AppColors.neutral300,
               ),
               Container(
                 padding: const EdgeInsets.only(top: 10),
@@ -338,7 +339,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       ),
                     ),
                     const VerticalDivider(
-                      color: AppColors.grey4,
+                      color: AppColors.neutral300,
                       thickness: 1,
                       width: 20,
                     ),
@@ -370,7 +371,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
               kSizedBox,
               const Divider(
                 height: 1,
-                color: AppColors.grey4,
+                color: AppColors.neutral300,
               ),
               Container(
                 padding: const EdgeInsets.only(top: 10),
@@ -402,7 +403,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       ),
                     ),
                     const VerticalDivider(
-                      color: AppColors.grey4,
+                      color: AppColors.neutral300,
                       thickness: 1,
                       width: 20,
                     ),
@@ -477,7 +478,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.grey4,
+            color: AppColors.neutral300,
           ),
           borderRadius: BorderRadius.circular(24.0),
         ),
@@ -504,7 +505,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
             const SizedBox(height: 24),
             const Divider(
               height: 1,
-              color: AppColors.grey4,
+              color: AppColors.neutral300,
             ),
             Container(
               padding: const EdgeInsets.only(top: 10),
@@ -527,7 +528,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                               SvgPicture.asset(
                                 "assets/svg/bed.svg",
                                 colorFilter: const ColorFilter.mode(
-                                  AppColors.grey1,
+                                  AppColors.neutral500,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -555,7 +556,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       ),
                     ),
                     const VerticalDivider(
-                      color: AppColors.grey4,
+                      color: AppColors.neutral300,
                       thickness: 1,
                       width: 20,
                     ),
@@ -571,7 +572,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                               SvgPicture.asset(
                                 "assets/svg/bath-tub.svg",
                                 colorFilter: const ColorFilter.mode(
-                                  AppColors.grey1,
+                                  AppColors.neutral500,
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -599,7 +600,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                       ),
                     ),
                     const VerticalDivider(
-                      color: AppColors.grey4,
+                      color: AppColors.neutral300,
                       thickness: 1,
                       width: 20,
                     ),
@@ -615,7 +616,7 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
                               SvgPicture.asset(
                                 "assets/svg/area.svg",
                                 colorFilter: const ColorFilter.mode(
-                                  AppColors.grey1,
+                                  AppColors.neutral500,
                                   BlendMode.srcIn,
                                 ),
                               ),

@@ -1,5 +1,8 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/input/country_state_city_picker.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -22,8 +25,6 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
   final _codeCtrl = TextEditingController();
   final _developerCtrl = TextEditingController();
   final _descriptionCtrl = TextEditingController();
-  final _stateCtrl = TextEditingController();
-  final _cityCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _pricePerSqmCtrl = TextEditingController();
   final _totalAreaCtrl = TextEditingController();
@@ -31,14 +32,17 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
   String? _selectedEstateType;
   String? _selectedEstateStatus;
 
+  String? _countryName = 'Nigeria';
+  String? _countryCode = 'NG';
+  String _stateValue = '';
+  String _cityValue = '';
+
   @override
   void dispose() {
     _nameCtrl.dispose();
     _codeCtrl.dispose();
     _developerCtrl.dispose();
     _descriptionCtrl.dispose();
-    _stateCtrl.dispose();
-    _cityCtrl.dispose();
     _addressCtrl.dispose();
     _pricePerSqmCtrl.dispose();
     _totalAreaCtrl.dispose();
@@ -54,9 +58,11 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
       'estate_type': _selectedEstateType,
       'developer_company_name': _developerCtrl.text.trim(),
       'estate_description': _descriptionCtrl.text.trim(),
-      'country_id': 1, // Default Nigeria
-      'state': _stateCtrl.text.trim(),
-      'city_town': _cityCtrl.text.trim(),
+      'country_id': 1, // Default Nigeria (backend-managed mapping)
+      'country': _countryName ?? '',
+      'country_code': _countryCode ?? '',
+      'state': _stateValue.trim(),
+      'city_town': _cityValue.trim(),
       'precise_address': _addressCtrl.text.trim(),
       'price_per_sqm': double.tryParse(_pricePerSqmCtrl.text) ?? 0,
       'estate_status': _selectedEstateStatus,
@@ -84,22 +90,12 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
-                      child: Text('Add New Estate',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600)),
-                    ),
+                    AppText.h3('Add New Estate'),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -173,27 +169,19 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
                       ),
                       kSizedBox,
 
-                      // Row 3: State + City
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: _stateCtrl,
-                              title: 'State *',
-                              hintText: 'e.g. Enugu',
-                              validator: _requiredValidator,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: _cityCtrl,
-                              title: 'City / Town *',
-                              hintText: 'e.g. Enugu',
-                              validator: _requiredValidator,
-                            ),
-                          ),
-                        ],
+                      // Row 3: Country + State + City
+                      CountryStateCityPicker(
+                        initialCountry: _countryName,
+                        initialCountryCode: _countryCode,
+                        cityLabel: 'City / Town',
+                        onCountryChanged: (name, iso) {
+                          setState(() {
+                            _countryName = name;
+                            _countryCode = iso;
+                          });
+                        },
+                        onStateChanged: (v) => _stateValue = v,
+                        onCityChanged: (v) => _cityValue = v,
                       ),
                       kSizedBox,
 
@@ -259,7 +247,7 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         MyOutlinedButton(
-                          textColor: AppColors.darkGrey1,
+                          textColor: AppColors.neutral500,
                           borderColor: null,
                           child: 'Cancel',
                           onTap: () => Navigator.pop(context),
@@ -298,26 +286,30 @@ class _AddEstateDialogState extends State<AddEstateDialog> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
-          child: Text(label,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+          child: AppText.bodySm(
+            label,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.neutral300),
             borderRadius: BorderRadius.circular(8),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
               value: value,
-              hint: Text('Select ${label.replaceAll(' *', '')}'),
+              hint: AppText.bodySm(
+                'Select ${label.replaceAll(' *', '')}',
+                color: AppColors.neutral500,
+              ),
               items: choices.map((c) {
                 return DropdownMenuItem<String>(
                   value: c['value']?.toString() ?? '',
-                  child: Text(c['display_name']?.toString() ?? ''),
+                  child: AppText.bodySm(c['display_name']?.toString() ?? ''),
                 );
               }).toList(),
               onChanged: onChanged,

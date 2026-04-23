@@ -1,15 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_dropdown2.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/pages/finance/widget/add_invoice_dialog.dart';
 import 'package:bms_front_end/pages/finance/widget/view_invoice_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});
@@ -32,46 +34,33 @@ class InvoicePageState extends State<InvoicePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Invoice',
-                        style: AppText.black_500_32,
-                      ),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
-                    child: "New Invoice",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AddInvoiceDialog();
-                        },
-                      );
+        PageHeader(
+          title: 'Invoices',
+          subtitle: 'Manage all invoices and billing',
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MyElevatedButton(
+                icon: const Icon(
+                  Iconsax.add_circle,
+                  color: AppColors.textOnPrimary,
+                  size: 18,
+                ),
+                child: 'New Invoice',
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const AddInvoiceDialog();
                     },
-                  )
-                ],
+                  );
+                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         kSizedBox,
-        Row(
+        const Row(
           children: [
             Expanded(
               child: Wrap(
@@ -84,17 +73,18 @@ class InvoicePageState extends State<InvoicePage> {
                     child: MyTextFormField(
                       hintText: 'Search for invoice...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal_1,
+                        size: 18,
+                        color: AppColors.textMuted,
                       ),
                     ),
                   ),
-                  const Row(
+                  Row(
                     spacing: 15,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SortBar(text: "All States"),
-                      SortBar(text: "Status"),
+                      SortBar(text: 'All States'),
+                      SortBar(text: 'Status'),
                     ],
                   )
                 ],
@@ -104,12 +94,8 @@ class InvoicePageState extends State<InvoicePage> {
         ),
         kSizedBox,
         kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
+        AppCard(
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               Scrollbar(
@@ -124,10 +110,19 @@ class InvoicePageState extends State<InvoicePage> {
                       minWidth: bodySpace(context),
                     ),
                     child: DataTable(
+                      headingRowColor: WidgetStateProperty.resolveWith(
+                          (states) => AppColors.surfaceMuted),
+                      headingTextStyle: AppTextStyles.label.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      dataTextStyle: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
                       dataRowMinHeight: 68,
                       dataRowMaxHeight: 68,
                       columnSpacing: 24,
                       horizontalMargin: 12,
+                      dividerThickness: 1.0,
                       columns: _createColumns(),
                       rows: _createRows(context),
                       showBottomBorder: true,
@@ -135,7 +130,6 @@ class InvoicePageState extends State<InvoicePage> {
                   ),
                 ),
               ),
-              // const PaginatorFooter(),
             ],
           ),
         ),
@@ -144,54 +138,30 @@ class InvoicePageState extends State<InvoicePage> {
   }
 
   List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
+    return const [
+      DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "Invoice ID",
-        ),
+        label: Text('Invoice ID'),
       ),
-      const DataColumn(
-        label: MyText(
-          "Client Name",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Issue Date",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Due Date",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Total",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Status",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
+      DataColumn(label: Text('Client Name')),
+      DataColumn(label: Text('Issue Date')),
+      DataColumn(label: Text('Due Date')),
+      DataColumn(label: Text('Total')),
+      DataColumn(label: Text('Status')),
+      DataColumn(label: Text('Action')),
     ];
   }
 
   List<DataRow> _createRows(BuildContext context) {
     return List.generate(10, (index) {
       return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText(
-            "FJ9387HDS",
-            size: 16,
-            weight: 400,
-            isSelectable: false,
+        DataCell(
+          Text(
+            'FJ9387HDS',
+            style: AppTextStyles.bodyMd.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
         DataCell(
@@ -203,22 +173,37 @@ class InvoicePageState extends State<InvoicePage> {
               },
             );
           },
-          const MyText(
-            "MTN Group",
-            isSelectable: false,
+          Text(
+            'MTN Group',
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        DataCell(
+          Text(
+            '24-05-2025',
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
+          ),
+        ),
+        DataCell(
+          Text(
+            '24-05-2025',
+            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textSecondary),
+          ),
+        ),
+        DataCell(
+          Text(
+            '₦121,500',
+            style: AppTextStyles.bodyMd.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
         const DataCell(
-          MyText("24-05-2025"),
-        ),
-        const DataCell(
-          MyText("24-05-2025", size: 14, weight: 300),
-        ),
-        const DataCell(
-          MyText("121500", size: 14, weight: 300),
-        ),
-        const DataCell(
-          MyDropdown2(),
+          StatusChip(label: 'Pending', tone: StatusTone.warning),
         ),
         const DataCell(
           ThreeDotPop(),

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
@@ -58,7 +59,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: () => Navigator.of(context).pop()),
                 ],
               ),

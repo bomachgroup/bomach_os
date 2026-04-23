@@ -1,6 +1,26 @@
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 
+/// Spacing scale on a 4 px grid. Use `AppSpacing.*` in new code.
+class AppSpacing {
+  AppSpacing._();
+
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
+  static const double xl = 24;
+  static const double xxl = 32;
+  static const double xxxl = 48;
+
+  /// Vertical gap — `SizedBox(height: n)`.
+  static SizedBox gap(double n) => SizedBox(height: n);
+
+  /// Horizontal gap — `SizedBox(width: n)`.
+  static SizedBox hGap(double n) => SizedBox(width: n);
+}
+
+// ─── Legacy constants (kept for backward compatibility) ───────────────────
 const double kDefaultSpaceTiny = 5;
 const double kDefaultSpaceSM = 10;
 const double kDefaultSpace = 20;

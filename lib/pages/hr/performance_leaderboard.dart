@@ -1,10 +1,18 @@
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/hr/controller/performance_leaderboard_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'models/performance_leaderboard_models.dart';
 
@@ -38,369 +46,271 @@ class _PerformanceLeaderboardPageState
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with filters
-          Row(
-            children: [
-              const Expanded(
-                child: MyText(
-                  'Performance Leaderboard',
-                  style: AppText.black_500_32,
+    return PageScaffold(
+      maxContentWidth: 1200,
+      header: PageHeader(
+        title: 'Performance Leaderboard',
+        subtitle:
+            'Compare monthly performance rankings across employees and branches.',
+        trailing: Obx(() => _buildFilters()),
+      ),
+      children: [
+        Obx(() {
+          if (_controller.isLoading.value) {
+            return Column(
+              children: [
+                LoadingSkeleton.statRow(count: 3),
+                const SizedBox(height: 16),
+                LoadingSkeleton.listRows(count: 6),
+              ],
+            );
+          }
+
+          if (_controller.errorMessage.isNotEmpty) {
+            return AppCard(
+              padding: const EdgeInsets.all(32),
+              child: EmptyState(
+                icon: Iconsax.warning_2,
+                title: 'Unable to load leaderboard',
+                subtitle: _controller.errorMessage.value,
+                action: MyElevatedButton(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 12),
+                  icon: const Icon(Iconsax.refresh,
+                      size: 16, color: AppColors.textOnPrimary),
+                  child: 'Retry',
+                  onTap: () => _controller.fetchLeaderboard(),
                 ),
               ),
-              Obx(() {
-                return Row(
-                  spacing: 12,
-                  children: [
-                    _buildFilterDropdown(
-                      label: 'Month',
-                      value: _monthNames[_controller.selectedMonth.value - 1],
-                      items: _monthNames,
-                      onChanged: (value) {
-                        final monthIndex = _monthNames.indexOf(value) + 1;
-                        _controller.changeMonth(monthIndex);
-                      },
-                    ),
-                    _buildFilterDropdown(
-                      label: 'Year',
-                      value: _controller.selectedYear.value.toString(),
-                      items: List.generate(
-                        5,
-                        (i) => (DateTime.now().year - 2 + i).toString(),
-                      ),
-                      onChanged: (value) {
-                        _controller.changeYear(int.parse(value));
-                      },
-                    ),
-                  ],
-                );
-              }),
-            ],
+            );
+          }
+
+          final data = _controller.leaderboard.value;
+          if (data == null || data.entries.isEmpty) {
+            return AppCard(
+              padding: const EdgeInsets.all(32),
+              child: EmptyState.empty(
+                title: 'No leaderboard data',
+                subtitle:
+                    'There is no leaderboard activity for this month and year yet.',
+              ),
+            );
+          }
+
+          return _buildLeaderboardContent(data);
+        }),
+      ],
+    );
+  }
+
+  Widget _buildFilters() {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        SizedBox(
+          width: 160,
+          child: MyDropdown(
+            hintText: 'Month',
+            items: _monthNames,
+            initialSelection:
+                _monthNames[_controller.selectedMonth.value - 1],
+            onChanged: (value) {
+              if (value == null) return;
+              final monthIndex = _monthNames.indexOf(value) + 1;
+              _controller.changeMonth(monthIndex);
+            },
           ),
-          kSizedBox,
-
-          // Content
-          Obx(() {
-            if (_controller.isLoading.value) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(40.0),
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-
-            if (_controller.errorMessage.isNotEmpty) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(40.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _controller.errorMessage.value,
-                        style: const TextStyle(fontSize: 16, color: Colors.red),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => _controller.fetchLeaderboard(),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            final data = _controller.leaderboard.value;
-            if (data == null || data.entries.isEmpty) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(40.0),
-                  child: Text(
-                    'No leaderboard data found for this period',
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
-                ),
-              );
-            }
-
-            return _buildLeaderboardContent(data);
-          }),
-        ],
-      ),
+        ),
+        SizedBox(
+          width: 130,
+          child: MyDropdown(
+            hintText: 'Year',
+            items: List.generate(
+              5,
+              (i) => (DateTime.now().year - 2 + i).toString(),
+            ),
+            initialSelection: _controller.selectedYear.value.toString(),
+            onChanged: (value) {
+              if (value == null) return;
+              _controller.changeYear(int.parse(value));
+            },
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildLeaderboardContent(LeaderboardResponse data) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Top 3 Performers
         if (data.topThree.isNotEmpty) ...[
           _buildTopPerformersSection(data.topThree),
-          kSizedBox,
+          const SizedBox(height: 24),
         ],
-
-        // Full Leaderboard Table
         _buildLeaderboardTable(data.entries),
-        kSizedBox,
-
-        // Performance Summary Section
+        const SizedBox(height: 24),
         _buildPerformanceSummarySection(data),
-        kSizedBox,
       ],
     );
   }
 
-  Widget _buildFilterDropdown({
-    required String label,
-    required String value,
-    required List<String> items,
-    required Function(String) onChanged,
-  }) {
-    return SizedBox(
-      width: 130,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MyText(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(6),
-              color: Colors.white,
-            ),
-            child: DropdownButton<String>(
-              value: value,
-              isExpanded: true,
-              underline: Container(),
-              icon: const Icon(Icons.arrow_drop_down, size: 18),
-              onChanged: (newValue) {
-                if (newValue != null) onChanged(newValue);
-              },
-              items: items
-                  .map((item) => DropdownMenuItem(
-                        value: item,
-                        child: MyText(
-                          item,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ))
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
-    );
+  StatusTone _toneForRank(int rank) {
+    switch (rank) {
+      case 1:
+        return StatusTone.success;
+      case 2:
+        return StatusTone.primary;
+      case 3:
+        return StatusTone.warning;
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
+  Color _medalColorForRank(int rank) {
+    switch (rank) {
+      case 1:
+        return AppColors.success;
+      case 2:
+        return AppColors.primary;
+      case 3:
+        return AppColors.warning;
+      default:
+        return AppColors.neutral400;
+    }
   }
 
   Widget _buildTopPerformersSection(List<LeaderboardEntry> topThree) {
-    return Row(
-      spacing: 16,
-      children: topThree.map((entry) => _buildTopPerformerCard(entry)).toList(),
-    );
-  }
-
-  Widget _buildTopPerformerCard(LeaderboardEntry entry) {
-    final color = Color(
-      int.parse(entry.getMedalColor().replaceFirst('#', '0xff')),
-    );
-
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+    return LayoutBuilder(builder: (context, constraints) {
+      final isNarrow = constraints.maxWidth < 720;
+      if (isNarrow) {
+        return Column(
           children: [
-            // Medal
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: MyText(
-                  entry.getMedalEmoji(),
-                  style: const TextStyle(fontSize: 32),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Employee name
-            MyText(
-              entry.employeeName,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-
-            // Score
-            MyText(
-              entry.score.toStringAsFixed(1),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.blue,
-              ),
-            ),
-            const SizedBox(height: 4),
-
-            // Branch
-            MyText(
-              entry.branch,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
-            ),
-
-            // Award
-            if (entry.award != null && entry.award!.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Color(
-                    int.parse(entry.getStatusColor().replaceFirst('#', '0xff')),
-                  ).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: MyText(
-                  entry.award!,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Color(
-                      int.parse(
-                          entry.getStatusColor().replaceFirst('#', '0xff')),
-                    ),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+            for (int i = 0; i < topThree.length; i++) ...[
+              _buildTopPerformerCard(topThree[i]),
+              if (i != topThree.length - 1) const SizedBox(height: 12),
+            ],
+          ],
+        );
+      }
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (int i = 0; i < topThree.length; i++) ...[
+              Expanded(child: _buildTopPerformerCard(topThree[i])),
+              if (i != topThree.length - 1) const SizedBox(width: 16),
             ],
           ],
         ),
+      );
+    });
+  }
+
+  Widget _buildTopPerformerCard(LeaderboardEntry entry) {
+    final medalColor = _medalColorForRank(entry.rank);
+    final tone = _toneForRank(entry.rank);
+
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: medalColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+              border: Border.all(color: medalColor, width: 2),
+            ),
+            child: Center(
+              child: entry.rank == 1
+                  ? Icon(Iconsax.crown, color: medalColor, size: 32)
+                  : Text(
+                      entry.initials,
+                      style: AppTextStyles.h2.copyWith(color: medalColor),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          StatusChip(label: 'Rank #${entry.rank}', tone: tone, dense: true),
+          const SizedBox(height: 12),
+          Text(
+            entry.employeeName,
+            style: AppTextStyles.h4,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            entry.branch,
+            style: AppTextStyles.bodySm,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            entry.score.toStringAsFixed(1),
+            style: AppTextStyles.displayMd.copyWith(color: AppColors.primary),
+          ),
+          const Text('Score', style: AppTextStyles.caption),
+          if (entry.award != null && entry.award!.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            StatusChip(
+              label: entry.award!,
+              tone: StatusTone.success,
+            ),
+          ],
+        ],
       ),
     );
   }
 
   Widget _buildLeaderboardTable(List<LeaderboardEntry> entries) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 8,
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Table Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceMuted,
+              border: Border(
+                bottom: BorderSide(color: AppColors.borderSubtle),
               ),
             ),
             child: Row(
               children: [
                 SizedBox(
-                  width: 50,
-                  child: MyText(
-                    'Rank',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
+                  width: 60,
+                  child: Text('Rank', style: _headerStyle()),
                 ),
                 Expanded(
                   flex: 2,
-                  child: MyText(
-                    'Name',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
+                  child: Text('Name', style: _headerStyle()),
                 ),
                 Expanded(
-                  child: MyText(
-                    'Branch',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
+                  child: Text('Branch', style: _headerStyle()),
                 ),
                 SizedBox(
-                  width: 70,
-                  child: MyText(
-                    'Score',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
+                  width: 80,
+                  child: Text('Score', style: _headerStyle()),
                 ),
                 SizedBox(
-                  width: 120,
-                  child: MyText(
-                    'Award',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
+                  width: 140,
+                  child: Text('Award', style: _headerStyle()),
                 ),
               ],
             ),
           ),
-
-          // Table Rows
           ...entries.asMap().entries.map((mapEntry) {
             final isLastRow = mapEntry.key == entries.length - 1;
             return _buildTableRow(mapEntry.value, isLastRow);
@@ -410,106 +320,87 @@ class _PerformanceLeaderboardPageState
     );
   }
 
+  TextStyle _headerStyle() {
+    return AppTextStyles.overline.copyWith(
+      color: AppColors.textSecondary,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
   Widget _buildTableRow(LeaderboardEntry entry, bool isLastRow) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         border: isLastRow
             ? null
-            : Border(
-                bottom: BorderSide(color: Colors.grey.shade100),
+            : const Border(
+                bottom: BorderSide(color: AppColors.borderSubtle),
               ),
       ),
       child: Row(
         children: [
           SizedBox(
-            width: 50,
+            width: 60,
             child: entry.rank <= 3
                 ? Row(
-                    spacing: 4,
                     children: [
-                      MyText(
+                      Text(
                         entry.getMedalEmoji(),
-                        style: const TextStyle(fontSize: 14),
+                        style: const TextStyle(fontSize: 16),
                       ),
-                      MyText(
+                      const SizedBox(width: 4),
+                      Text(
                         entry.rank.toString(),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: AppTextStyles.label,
                       ),
                     ],
                   )
-                : MyText(
+                : Text(
                     entry.rank.toString(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.label,
                   ),
           ),
           Expanded(
             flex: 2,
-            child: MyText(
+            child: Text(
               entry.employeeName,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
-            child: MyText(
+            child: Text(
               entry.branch,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade700,
-              ),
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           SizedBox(
-            width: 70,
-            child: MyText(
+            width: 80,
+            child: Text(
               entry.score.toStringAsFixed(1),
-              style: const TextStyle(
-                fontSize: 12,
+              style: AppTextStyles.label.copyWith(
+                color: AppColors.primary,
                 fontWeight: FontWeight.w600,
-                color: AppColors.blue,
               ),
             ),
           ),
           SizedBox(
-            width: 120,
+            width: 140,
             child: entry.award != null && entry.award!.isNotEmpty
-                ? Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Color(
-                        int.parse(
-                            entry.getStatusColor().replaceFirst('#', '0xff')),
-                      ).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: MyText(
-                      entry.award!,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Color(
-                          int.parse(
-                              entry.getStatusColor().replaceFirst('#', '0xff')),
-                        ),
-                        fontWeight: FontWeight.w600,
-                      ),
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: StatusChip(
+                      label: entry.award!,
+                      tone: StatusTone.success,
+                      dense: true,
                     ),
                   )
-                : MyText(
-                    '-',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade400,
-                    ),
+                : Text(
+                    '—',
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
                   ),
           ),
         ],
@@ -518,93 +409,116 @@ class _PerformanceLeaderboardPageState
   }
 
   Widget _buildPerformanceSummarySection(LeaderboardResponse data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const MyText(
-          'Performance Summary',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Performance Summary', style: AppTextStyles.h3),
+          const SizedBox(height: 4),
+          Text(
+            'Aggregate metrics for the selected period.',
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
           ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.1),
-                blurRadius: 8,
+          const SizedBox(height: 16),
+          LayoutBuilder(builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 600;
+            final children = [
+              _buildSummaryCard(
+                label: 'Avg. Score',
+                value: data.avgScore.toStringAsFixed(1),
+                icon: Iconsax.chart_21,
               ),
-            ],
-          ),
-          child: Row(
-            spacing: 16,
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  label: 'Avg. Score',
-                  value: data.avgScore.toStringAsFixed(1),
-                ),
+              _buildSummaryCard(
+                label: 'Participants',
+                value: data.totalParticipants.toString(),
+                icon: Iconsax.people,
               ),
-              Expanded(
-                child: _buildSummaryCard(
-                  label: 'Participants',
-                  value: data.totalParticipants.toString(),
-                ),
+              _buildSummaryCard(
+                label: 'Period',
+                value: '${_monthNames[data.month - 1]} ${data.year}',
+                icon: Iconsax.calendar_1,
               ),
-              Expanded(
-                child: _buildSummaryCard(
-                  label: 'Period',
-                  value: '${_monthNames[data.month - 1]} ${data.year}',
-                ),
+            ];
+            if (isNarrow) {
+              return Column(
+                children: [
+                  for (int i = 0; i < children.length; i++) ...[
+                    children[i],
+                    if (i != children.length - 1) const SizedBox(height: 12),
+                  ],
+                ],
+              );
+            }
+            return IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (int i = 0; i < children.length; i++) ...[
+                    Expanded(child: children[i]),
+                    if (i != children.length - 1) const SizedBox(width: 16),
+                  ],
+                ],
               ),
-              // Expanded(
-              //   child: _buildActionLink(
-              //     label: 'Download PDF',
-              //     onTap: () {},
-              //   ),
-              // ),
-            ],
-          ),
-        ),
-      ],
+            );
+          }),
+        ],
+      ),
     );
   }
 
   Widget _buildSummaryCard({
     required String label,
     required String value,
+    required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          MyText(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade600,
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Iconsax.chart_1,
+              size: 18,
+              color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 4),
-          MyText(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.blue,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: AppTextStyles.h4.copyWith(color: AppColors.primary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
+          // intentionally use the supplied icon for visual variety on wide
+          Icon(icon, size: 18, color: AppColors.textMuted),
         ],
       ),
     );

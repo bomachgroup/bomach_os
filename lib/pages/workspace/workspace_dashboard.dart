@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -38,7 +39,7 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
                     children: [
                       MyText(
                         'Virtual Workspace',
-                        style: AppText.black_500_32,
+                        style: AppTextStyles.displayLg,
                       ),
                       MyText(
                         'Collaborate with your team on projects and communicate effectively',
@@ -108,8 +109,8 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
                         child: MyTextFormField(
                           hintText: 'Search ...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -257,10 +258,10 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
 
   Widget _buildTopStats(BuildContext context) {
     final List<Map<String, dynamic>> items = [
-      {'label': 'Projects', 'count': '20', 'icon': Icons.person},
-      {'label': 'Channels', 'count': '3', 'icon': Icons.person},
-      {'label': 'Documents', 'count': '5', 'icon': Icons.person},
-      {'label': 'Team Members', 'count': '4', 'icon': Icons.person},
+      {'label': 'Projects', 'count': '20', 'icon': Iconsax.profile_circle},
+      {'label': 'Channels', 'count': '3', 'icon': Iconsax.profile_circle},
+      {'label': 'Documents', 'count': '5', 'icon': Iconsax.profile_circle},
+      {'label': 'Team Members', 'count': '4', 'icon': Iconsax.profile_circle},
     ];
 
     return LayoutBuilder(
@@ -319,10 +320,10 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.blue : Colors.transparent,
+                  color: isActive ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
-                    color: isActive ? AppColors.blue : Colors.grey.shade300,
+                    color: isActive ? AppColors.primary : Colors.grey.shade300,
                   ),
                 ),
                 child: Text(
@@ -449,7 +450,7 @@ class ProjectCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () {},
                 icon: Icon(
-                  Icons.laptop_mac,
+                  Iconsax.monitor,
                   size: 18,
                   color: Colors.grey[700],
                 ),
@@ -549,7 +550,7 @@ class SharedDocumentsSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey7),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,7 +573,7 @@ class SharedDocumentsSection extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.grey7),
+                  border: Border.all(color: AppColors.neutral200),
                 ),
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -580,7 +581,7 @@ class SharedDocumentsSection extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       child: const Icon(
-                        Icons.file_open_outlined,
+                        Iconsax.document,
                         color: Colors.blue,
                         size: 24,
                       ),
@@ -618,7 +619,7 @@ class SharedDocumentsSection extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.grey5,
+                          color: AppColors.neutral100,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
@@ -633,9 +634,9 @@ class SharedDocumentsSection extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: AppColors.grey7),
+                        border: Border.all(color: AppColors.neutral200),
                       ),
-                      child: const Icon(Icons.file_download_outlined),
+                      child: const Icon(Iconsax.document_download),
                     ),
                     const SizedBox(width: 8),
                     Container(
@@ -643,9 +644,9 @@ class SharedDocumentsSection extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: AppColors.grey7),
+                        border: Border.all(color: AppColors.neutral200),
                       ),
-                      child: const Icon(Icons.share),
+                      child: const Icon(Iconsax.share),
                     ),
                   ],
                 ),
@@ -720,7 +721,7 @@ class MeetingCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isCompleted ? AppColors.blue : AppColors.grey7,
+                        color: isCompleted ? AppColors.primary : AppColors.neutral200,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -748,24 +749,24 @@ class MeetingCard extends StatelessWidget {
                 iconColor: AppColors.black,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                side: const BorderSide(color: AppColors.grey7),
+                side: const BorderSide(color: AppColors.neutral200),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              icon: const Icon(Icons.remove_red_eye, size: 18),
+              icon: const Icon(Iconsax.eye, size: 18),
               label: const Text("Recording", style: TextStyle(fontSize: 13)),
             )
           else
             ElevatedButton.icon(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.blue,
+                backgroundColor: AppColors.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              icon: const Icon(Icons.videocam_outlined,
+              icon: const Icon(Iconsax.video,
                   size: 18, color: Colors.white),
               label: const Text("Join",
                   style: TextStyle(color: Colors.white, fontSize: 13)),
@@ -794,7 +795,7 @@ class ChatSection extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.grey7),
+              border: Border.all(color: AppColors.neutral200),
             ),
             child: Column(
               children: [
@@ -817,10 +818,10 @@ class ChatSection extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.white,
                           borderRadius: BorderRadius.circular(5),
-                          border: Border.all(color: AppColors.grey7),
+                          border: Border.all(color: AppColors.neutral200),
                         ),
                         child: const Icon(
-                          Icons.add,
+                          Iconsax.add,
                           size: 16,
                           color: AppColors.black,
                         ),
@@ -843,7 +844,7 @@ class ChatSection extends StatelessWidget {
                         'project-updates',
                         hasNotification: true,
                         notificationCount: 1,
-                        icon: Icons.push_pin,
+                        icon: Iconsax.location,
                       ),
                     ],
                   ),
@@ -857,7 +858,7 @@ class ChatSection extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.grey7),
+                border: Border.all(color: AppColors.neutral200),
               ),
               child: Column(
                 children: [
@@ -879,7 +880,7 @@ class ChatSection extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.grey7),
+                            border: Border.all(color: AppColors.neutral200),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
@@ -948,10 +949,10 @@ class ChatSection extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: AppColors.grey7),
+                            border: Border.all(color: AppColors.neutral200),
                           ),
                           child: const Icon(
-                            Icons.file_upload_outlined,
+                            Iconsax.document_upload,
                             size: 20,
                             color: AppColors.black,
                           ),
@@ -961,7 +962,7 @@ class ChatSection extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: AppColors.blue,
+                            color: AppColors.primary,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
@@ -997,10 +998,10 @@ class ChatSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 1),
       decoration: BoxDecoration(
         color: isSelected
-            ? AppColors.blue2.withValues(alpha: 0.1)
+            ? AppColors.primaryHover.withValues(alpha: 0.1)
             : Colors.transparent,
         border: Border.all(
-          color: isSelected ? AppColors.blue2 : Colors.transparent,
+          color: isSelected ? AppColors.primaryHover : Colors.transparent,
         ),
         borderRadius: BorderRadius.circular(6),
       ),
@@ -1011,7 +1012,7 @@ class ChatSection extends StatelessWidget {
         leading: Text(
           prefix,
           style: const TextStyle(
-            color: AppColors.grey4,
+            color: AppColors.neutral300,
             fontSize: 12,
           ),
         ),
@@ -1045,7 +1046,7 @@ class ChatSection extends StatelessWidget {
                 width: 20,
                 height: 20,
                 decoration: const BoxDecoration(
-                  color: AppColors.red,
+                  color: AppColors.danger,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -1083,7 +1084,7 @@ class ChatSection extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppColors.grey5,
+            color: AppColors.neutral100,
             borderRadius: BorderRadius.circular(36),
           ),
           child: Center(
@@ -1138,14 +1139,14 @@ class ChatSection extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.grey5,
+                    color: AppColors.neutral100,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        Icons.insert_drive_file,
+                        Iconsax.document,
                         size: 16,
                         color: Colors.grey.shade600,
                       ),
@@ -1159,7 +1160,7 @@ class ChatSection extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Icon(
-                        Icons.download,
+                        Iconsax.document_download,
                         size: 14,
                         color: Colors.grey.shade600,
                       ),
@@ -1181,7 +1182,7 @@ class ChatSection extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
-                        Icons.favorite,
+                        Iconsax.heart,
                         size: 12,
                         color: Colors.grey,
                       ),

@@ -1,16 +1,25 @@
 import 'dart:developer';
 
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
+import '../../../src/services/hr/interview_service.dart';
+import '../../../src/services/hr/offer_letter_service.dart';
 import '../controller/applicant_controller.dart';
 import '../models/applicant_model.dart';
 import '../models/interview_model.dart';
 import '../models/offer_letter_model.dart';
-import '../../../src/services/hr/interview_service.dart';
-import '../../../src/services/hr/offer_letter_service.dart';
 import 'add_candidate_dialog.dart';
 
 class ViewJobApplicantDialog extends StatefulWidget {
@@ -108,94 +117,232 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
     );
   }
 
+  // ── Status helpers ─────────────────────────────────────────────────
+
+  StatusTone _applicantStatusTone(String stage) {
+    switch (stage.toLowerCase()) {
+      case 'applied':
+        return StatusTone.neutral;
+      case 'screening':
+      case 'shortlisted':
+        return StatusTone.info;
+      case 'interview':
+      case 'interviewed':
+        return StatusTone.warning;
+      case 'offer':
+        return StatusTone.primary;
+      case 'hired':
+        return StatusTone.success;
+      case 'rejected':
+        return StatusTone.danger;
+      case 'withdrawn':
+        return StatusTone.neutral;
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
+  StatusTone _interviewStatusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return StatusTone.success;
+      case 'cancelled':
+      case 'canceled':
+        return StatusTone.danger;
+      case 'scheduled':
+        return StatusTone.warning;
+      default:
+        return StatusTone.warning;
+    }
+  }
+
+  StatusTone _offerStatusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'accepted':
+        return StatusTone.success;
+      case 'rejected':
+        return StatusTone.danger;
+      case 'sent':
+        return StatusTone.info;
+      default:
+        return StatusTone.warning;
+    }
+  }
+
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1).toLowerCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final stage = widget.applicant.stage.toLowerCase();
+    final fullName =
+        '${widget.applicant.firstName} ${widget.applicant.lastName}'.trim();
 
-    return Dialog(
-      insetPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        width: 800,
-        height: 600,
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(16)),
+    return DialogScaffold(
+      title: 'Applicant Profile',
+      subtitle: fullName.isEmpty ? 'Applicant details' : fullName,
+      size: DialogSize.lg,
+      bodyPadding: EdgeInsets.zero,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: _buildSummaryBanner(stage, fullName),
+          ),
+          _buildTabBar(),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: _buildTabBody(stage),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBanner(String stage, String fullName) {
+    final initial = widget.applicant.firstName.isNotEmpty
+        ? widget.applicant.firstName[0].toUpperCase()
+        : '?';
+    final appliedDate =
+        widget.applicant.createdAt?.toString().split(' ')[0] ?? '-';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initial,
+              style: AppTextStyles.h2.copyWith(color: AppColors.primary),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  fullName.isEmpty ? 'Unknown applicant' : fullName,
+                  style: AppTextStyles.h3,
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      label: _capitalize(widget.applicant.stage),
+                      tone: _applicantStatusTone(stage),
+                    ),
+                    _buildMetaChip(
+                      icon: Iconsax.calendar_1,
+                      label: 'Applied $appliedDate',
+                    ),
+                    if (widget.applicant.email.isNotEmpty)
+                      _buildMetaChip(
+                        icon: Iconsax.sms,
+                        label: widget.applicant.email,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetaChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          _buildTab('Overview', 0),
+          _buildTab('Interview', 1),
+          _buildTab('Offer', 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(String title, int index) {
+    final isActive = _selectedTab == index;
+    return InkWell(
+      onTap: () => _selectTab(index),
+      borderRadius: AppRadii.brSm,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 24, top: 12, bottom: 12),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.blue.shade100,
-                        child: Text(widget.applicant.firstName[0],
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue)),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                              '${widget.applicant.firstName} ${widget.applicant.lastName}',
-                              size: 18,
-                              weight: 700),
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                    color: Colors.pink.shade50,
-                                    borderRadius: BorderRadius.circular(4)),
-                                child: MyText(
-                                    widget.applicant.stage.toUpperCase(),
-                                    size: 10,
-                                    color: Colors.pink,
-                                    weight: 600),
-                              ),
-                              const SizedBox(width: 8),
-                              MyText(
-                                  "Applied: ${widget.applicant.createdAt?.toString().split(' ')[0] ?? '-'}",
-                                  size: 12,
-                                  color: Colors.grey),
-                            ],
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close, color: Colors.grey)),
-                ],
+            Text(
+              title,
+              style: AppTextStyles.bodyMd.copyWith(
+                color:
+                    isActive ? AppColors.primary : AppColors.textSecondary,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
-
-            // Tabs
+            const SizedBox(height: 6),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
-              child: Row(
-                children: [
-                  _buildTab("Overview", 0),
-                  _buildTab("Interview", 1),
-                  _buildTab("Offer", 2),
-                ],
-              ),
+              height: 2,
+              width: 30,
+              color: isActive ? AppColors.primary : Colors.transparent,
             ),
-
-            // Body
-            Expanded(child: _buildTabBody(stage)),
           ],
         ),
       ),
@@ -213,403 +360,508 @@ class _ViewJobApplicantDialogState extends State<ViewJobApplicantDialog> {
     }
   }
 
+  // ── Overview tab ──────────────────────────────────────────────────
+
   Widget _buildOverviewTab(String stage) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // LEFT COLUMN
-          Expanded(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const MyText("Candidate Information", size: 14, weight: 700),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                        child: _buildInfoItem("Email", widget.applicant.email)),
-                    Expanded(
-                        child: _buildInfoItem("Phone", widget.applicant.phone)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                        child: _buildInfoItem(
-                            "LinkedIn",
-                            widget.applicant.linkedinUrl?.isNotEmpty == true
-                                ? widget.applicant.linkedinUrl!
-                                : '-')),
-                    Expanded(
-                        child: _buildInfoItem(
-                            "Portfolio",
-                            widget.applicant.portfolioUrl?.isNotEmpty == true
-                                ? widget.applicant.portfolioUrl!
-                                : '-')),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                const MyText("Notes", size: 14, weight: 700),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade200),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: MyText(widget.applicant.notes ?? "No notes available.",
-                      size: 13, color: Colors.grey.shade700),
-                )
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 24),
-
-          // RIGHT COLUMN
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const MyText("Actions", size: 14, weight: 700),
-                const SizedBox(height: 12),
-                if (stage == 'applied') ...[
-                  _buildActionButton(
-                      "Shortlist Candidate",
-                      const Color(0xFF0055FF),
-                      () => _controller.moveApplicantToStage(
-                          context, widget.applicant.id, 'shortlisted')),
-                  const SizedBox(height: 8),
-                  _buildActionButton(
-                      "Reject",
-                      AppColors.red,
-                      () => _controller.rejectApplicant(
-                          context, widget.applicant.id)),
-                ] else if (stage == 'shortlisted' || stage == 'screening') ...[
-                  _buildActionButton(
-                      "Schedule Interview",
-                      Colors.orange,
-                      () => _controller.moveApplicantToStage(
-                          context, widget.applicant.id, 'interview')),
-                  const SizedBox(height: 8),
-                  _buildActionButton(
-                      "Reject",
-                      AppColors.red,
-                      () => _controller.rejectApplicant(
-                          context, widget.applicant.id)),
-                ] else if (stage == 'interview' || stage == 'interviewed') ...[
-                  _buildActionButton(
-                      "Hire Candidate",
-                      Colors.green,
-                      () => _controller.moveApplicantToStage(
-                          context, widget.applicant.id, 'hired')),
-                  const SizedBox(height: 8),
-                  _buildActionButton(
-                      "Reject",
-                      AppColors.red,
-                      () => _controller.rejectApplicant(
-                          context, widget.applicant.id)),
-                ] else ...[
-                  _buildActionButton("Edit Candidate", Colors.grey, () {
-                    Navigator.pop(context);
-                    showDialog(
-                        context: context,
-                        builder: (_) =>
-                            AddCandidateDialog(applicant: widget.applicant));
-                  }),
-                ],
-                const SizedBox(height: 32),
-                const MyText("Documents", size: 14, weight: 700),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade200),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
-                      SizedBox(width: 8),
-                      Expanded(
-                          child: MyText("Resume.pdf", size: 13, weight: 500)),
-                      Icon(Icons.download, size: 18, color: Colors.grey),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInterviewTab() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const MyText("Interviews", size: 14, weight: 700),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0055FF),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                ),
-                onPressed: _showScheduleInterviewDialog,
-                icon: const Icon(Icons.add, color: Colors.white, size: 16),
-                label: const Text("Schedule Interview",
-                    style: TextStyle(color: Colors.white, fontSize: 13)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: _interviewsLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _interviews.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.event_note,
-                                size: 48, color: Colors.grey.shade300),
-                            const SizedBox(height: 8),
-                            const MyText("No interviews scheduled",
-                                size: 14, color: Colors.grey),
-                          ],
-                        ),
-                      )
-                    : ListView.separated(
-                        itemCount: _interviews.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, i) {
-                          final interview = _interviews[i];
-                          return _buildInterviewTile(interview);
-                        },
-                      ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInterviewTile(Interview interview) {
-    Color statusColor;
-    switch (interview.status) {
-      case 'completed':
-        statusColor = Colors.green;
-        break;
-      case 'cancelled':
-        statusColor = Colors.red;
-        break;
-      default:
-        statusColor = Colors.orange;
-    }
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-      leading: CircleAvatar(
-        backgroundColor: statusColor.withValues(alpha: 0.1),
-        child: Icon(Icons.event, color: statusColor, size: 20),
-      ),
-      title: MyText(
-          interview.scheduledAt.isNotEmpty
-              ? _formatDateTime(interview.scheduledAt)
-              : 'No date set',
-          size: 14,
-          weight: 600),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (interview.meetingLink?.isNotEmpty == true)
-            MyText(interview.meetingLink!, size: 12, color: Colors.blue),
-          if (interview.feedback?.isNotEmpty == true)
-            MyText('Feedback: ${interview.feedback!}',
-                size: 12, color: Colors.grey),
-        ],
-      ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: statusColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          interview.status.toUpperCase(),
-          style: TextStyle(
-              fontSize: 10, color: statusColor, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOfferTab() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const MyText("Offer Letters", size: 14, weight: 700),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                ),
-                onPressed: _showCreateOfferLetterDialog,
-                icon: const Icon(Icons.add, color: Colors.white, size: 16),
-                label: const Text("Create Offer Letter",
-                    style: TextStyle(color: Colors.white, fontSize: 13)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: _offersLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _offerLetters.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.description,
-                                size: 48, color: Colors.grey.shade300),
-                            const SizedBox(height: 8),
-                            const MyText("No offer letters yet",
-                                size: 14, color: Colors.grey),
-                          ],
-                        ),
-                      )
-                    : ListView.separated(
-                        itemCount: _offerLetters.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, i) {
-                          final offer = _offerLetters[i];
-                          return _buildOfferTile(offer);
-                        },
-                      ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOfferTile(OfferLetter offer) {
-    Color statusColor;
-    switch (offer.status) {
-      case 'accepted':
-        statusColor = Colors.green;
-        break;
-      case 'rejected':
-        statusColor = Colors.red;
-        break;
-      case 'sent':
-        statusColor = Colors.blue;
-        break;
-      default:
-        statusColor = Colors.orange;
-    }
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-      leading: CircleAvatar(
-        backgroundColor: statusColor.withValues(alpha: 0.1),
-        child: Icon(Icons.description, color: statusColor, size: 20),
-      ),
-      title: MyText(offer.template.isNotEmpty ? offer.template : 'Offer Letter',
-          size: 14, weight: 600),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MyText('Salary: ₦${offer.annualSalary}',
-              size: 12, color: Colors.grey),
-          if (offer.startDate.isNotEmpty)
-            MyText('Start: ${offer.startDate}', size: 12, color: Colors.grey),
-        ],
-      ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: statusColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          offer.status.toUpperCase(),
-          style: TextStyle(
-              fontSize: 10, color: statusColor, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTab(String title, int index) {
-    final isActive = _selectedTab == index;
-    return GestureDetector(
-      onTap: () => _selectTab(index),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 24, top: 12, bottom: 12),
-        child: Column(
-          children: [
-            MyText(title,
-                size: 13,
-                weight: isActive ? 600 : 400,
-                color: isActive ? const Color(0xFF0055FF) : Colors.grey),
-            if (isActive)
-              Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  height: 2,
-                  width: 20,
-                  color: const Color(0xFF0055FF))
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoItem(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MyText(label, size: 12, color: Colors.grey),
-        const SizedBox(height: 4),
-        MyText(value, size: 13, weight: 600),
+        _buildDetailSection(
+          title: 'Candidate information',
+          children: [
+            _detailRow('Email', widget.applicant.email),
+            _detailRow('Phone', widget.applicant.phone),
+            _detailRow(
+              'LinkedIn',
+              widget.applicant.linkedinUrl?.isNotEmpty == true
+                  ? widget.applicant.linkedinUrl!
+                  : '-',
+            ),
+            _detailRow(
+              'Portfolio',
+              widget.applicant.portfolioUrl?.isNotEmpty == true
+                  ? widget.applicant.portfolioUrl!
+                  : '-',
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildDetailSection(
+          title: 'Notes',
+          children: [
+            Text(
+              widget.applicant.notes == null ||
+                      widget.applicant.notes!.isEmpty
+                  ? 'No notes available.'
+                  : widget.applicant.notes!,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildDetailSection(
+          title: 'Documents',
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: AppRadii.brMd,
+                border: Border.all(color: AppColors.borderSubtle),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primarySubtle,
+                      borderRadius: AppRadii.brMd,
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Iconsax.document_text,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Resume.pdf',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Download',
+                    icon: const Icon(Iconsax.document_download, size: 18),
+                    color: AppColors.primary,
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildActionsSection(stage),
       ],
     );
   }
 
-  Widget _buildActionButton(String label, Color color, VoidCallback onTap) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+  Widget _buildActionsSection(String stage) {
+    final List<Widget> actions = [];
+
+    if (stage == 'applied') {
+      actions.addAll([
+        _actionButton(
+          label: 'Shortlist Candidate',
+          icon: Iconsax.tick_circle,
+          color: AppColors.primary,
+          onTap: () => _controller.moveApplicantToStage(
+              context, widget.applicant.id, 'shortlisted'),
         ),
-        onPressed: onTap,
-        child: Text(label,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.bold)),
+        _actionButton(
+          label: 'Reject',
+          icon: Iconsax.close_circle,
+          color: AppColors.danger,
+          outlined: true,
+          onTap: () =>
+              _controller.rejectApplicant(context, widget.applicant.id),
+        ),
+      ]);
+    } else if (stage == 'shortlisted' || stage == 'screening') {
+      actions.addAll([
+        _actionButton(
+          label: 'Schedule Interview',
+          icon: Iconsax.calendar_1,
+          color: AppColors.warning,
+          onTap: () => _controller.moveApplicantToStage(
+              context, widget.applicant.id, 'interview'),
+        ),
+        _actionButton(
+          label: 'Reject',
+          icon: Iconsax.close_circle,
+          color: AppColors.danger,
+          outlined: true,
+          onTap: () =>
+              _controller.rejectApplicant(context, widget.applicant.id),
+        ),
+      ]);
+    } else if (stage == 'interview' || stage == 'interviewed') {
+      actions.addAll([
+        _actionButton(
+          label: 'Hire Candidate',
+          icon: Iconsax.tick_circle,
+          color: AppColors.success,
+          onTap: () => _controller.moveApplicantToStage(
+              context, widget.applicant.id, 'hired'),
+        ),
+        _actionButton(
+          label: 'Reject',
+          icon: Iconsax.close_circle,
+          color: AppColors.danger,
+          outlined: true,
+          onTap: () =>
+              _controller.rejectApplicant(context, widget.applicant.id),
+        ),
+      ]);
+    } else {
+      actions.add(
+        _actionButton(
+          label: 'Edit Candidate',
+          icon: Iconsax.edit,
+          color: AppColors.primary,
+          outlined: true,
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (_) =>
+                  AddCandidateDialog(applicant: widget.applicant),
+            );
+          },
+        ),
+      );
+    }
+
+    return _buildDetailSection(
+      title: 'Actions',
+      children: [
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: actions,
+        ),
+      ],
+    );
+  }
+
+  Widget _actionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    bool outlined = false,
+  }) {
+    if (outlined) {
+      return MyOutlinedButton(
+        child: label,
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        icon: Icon(icon, size: 18, color: color),
+        textColor: color,
+        borderColor: color,
+        onTap: onTap,
+      );
+    }
+    return MyElevatedButton(
+      child: label,
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      bgColor: color,
+      icon: Icon(icon, size: 18, color: AppColors.textOnPrimary),
+      onTap: onTap,
+    );
+  }
+
+  // ── Interview tab ─────────────────────────────────────────────────
+
+  Widget _buildInterviewTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Interviews', style: AppTextStyles.h4),
+            MyElevatedButton(
+              child: 'Schedule Interview',
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              icon: const Icon(Iconsax.add,
+                  size: 18, color: AppColors.textOnPrimary),
+              onTap: _showScheduleInterviewDialog,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (_interviewsLoading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 60),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_interviews.isEmpty)
+          _buildEmptyState(
+            icon: Iconsax.calendar_1,
+            title: 'No interviews scheduled',
+            subtitle:
+                'Schedule an interview to keep this candidate moving forward.',
+          )
+        else
+          Column(
+            children: [
+              for (var i = 0; i < _interviews.length; i++) ...[
+                if (i != 0) const SizedBox(height: 12),
+                _buildInterviewTile(_interviews[i]),
+              ],
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildInterviewTile(Interview interview) {
+    final tone = _interviewStatusTone(interview.status);
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brMd,
+            ),
+            alignment: Alignment.center,
+            child: const Icon(Iconsax.calendar_1,
+                color: AppColors.primary, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  interview.scheduledAt.isNotEmpty
+                      ? _formatDateTime(interview.scheduledAt)
+                      : 'No date set',
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (interview.meetingLink?.isNotEmpty == true) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    interview.meetingLink!,
+                    style: AppTextStyles.bodySm.copyWith(color: AppColors.primary),
+                  ),
+                ],
+                if (interview.feedback?.isNotEmpty == true) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Feedback: ${interview.feedback!}',
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          StatusChip(label: _capitalize(interview.status), tone: tone),
+        ],
+      ),
+    );
+  }
+
+  // ── Offer tab ─────────────────────────────────────────────────────
+
+  Widget _buildOfferTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Offer Letters', style: AppTextStyles.h4),
+            MyElevatedButton(
+              child: 'Create Offer Letter',
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              bgColor: AppColors.success,
+              icon: const Icon(Iconsax.add,
+                  size: 18, color: AppColors.textOnPrimary),
+              onTap: _showCreateOfferLetterDialog,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (_offersLoading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 60),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_offerLetters.isEmpty)
+          _buildEmptyState(
+            icon: Iconsax.document_text,
+            title: 'No offer letters yet',
+            subtitle:
+                'Create an offer letter once the candidate is ready to move forward.',
+          )
+        else
+          Column(
+            children: [
+              for (var i = 0; i < _offerLetters.length; i++) ...[
+                if (i != 0) const SizedBox(height: 12),
+                _buildOfferTile(_offerLetters[i]),
+              ],
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildOfferTile(OfferLetter offer) {
+    final tone = _offerStatusTone(offer.status);
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brMd,
+            ),
+            alignment: Alignment.center,
+            child: const Icon(Iconsax.document_text,
+                color: AppColors.primary, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  offer.template.isNotEmpty ? offer.template : 'Offer Letter',
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Salary: ₦${offer.annualSalary}',
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+                if (offer.startDate.isNotEmpty)
+                  Text(
+                    'Start: ${offer.startDate}',
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          StatusChip(label: _capitalize(offer.status), tone: tone),
+        ],
+      ),
+    );
+  }
+
+  // ── Shared building blocks ────────────────────────────────────────
+
+  Widget _buildEmptyState({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 40, color: AppColors.textMuted),
+          const SizedBox(height: 12),
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '—' : value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -681,8 +933,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_scheduledDate == null || _scheduledTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select date and time')));
+      AppToast.info(context, 'Please select date and time');
       return;
     }
 
@@ -718,9 +969,7 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
     } catch (e) {
       log('Schedule interview error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Failed to schedule interview: $e'),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to schedule interview: $e');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -736,79 +985,113 @@ class _ScheduleInterviewDialogState extends State<_ScheduleInterviewDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Schedule Interview'),
-      content: SizedBox(
-        width: 400,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _interviewerIdCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Interviewer ID',
-                  border: OutlineInputBorder(),
+    return DialogScaffold(
+      title: 'Schedule Interview',
+      subtitle: 'Set a date, time, and link for the interview.',
+      size: DialogSize.md,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MyTextFormField(
+              controller: _interviewerIdCtrl,
+              title: 'Interviewer ID',
+              hintText: 'Enter interviewer ID',
+              keyboardType: TextInputType.number,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildPickerTile(
+                    icon: Iconsax.calendar_1,
+                    label: _scheduledDate == null
+                        ? 'Pick Date'
+                        : '${_scheduledDate!.day}/${_scheduledDate!.month}/${_scheduledDate!.year}',
+                    onTap: _pickDate,
+                  ),
                 ),
-                keyboardType: TextInputType.number,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.calendar_today, size: 16),
-                      label: Text(_scheduledDate == null
-                          ? 'Pick Date'
-                          : '${_scheduledDate!.day}/${_scheduledDate!.month}/${_scheduledDate!.year}'),
-                      onPressed: _pickDate,
-                    ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildPickerTile(
+                    icon: Iconsax.clock,
+                    label: _scheduledTime == null
+                        ? 'Pick Time'
+                        : _scheduledTime!.format(context),
+                    onTap: _pickTime,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.access_time, size: 16),
-                      label: Text(_scheduledTime == null
-                          ? 'Pick Time'
-                          : _scheduledTime!.format(context)),
-                      onPressed: _pickTime,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _meetingLinkCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Meeting Link (optional)',
-                  border: OutlineInputBorder(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _meetingLinkCtrl,
+              title: 'Meeting Link (optional)',
+              hintText: 'https://meet.example.com/…',
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          child: _saving ? 'Scheduling...' : 'Schedule',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          isLoading: _saving,
+          icon: const Icon(Iconsax.calendar_tick,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: _saving ? () {} : _save,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPickerTile({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadii.brMd,
+        child: Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppRadii.brMd,
+            border: Border.all(color: AppColors.borderSubtle),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.bodyMd
+                      .copyWith(color: AppColors.textPrimary),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _saving ? null : _save,
-          style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0055FF)),
-          child: _saving
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white))
-              : const Text('Schedule', style: TextStyle(color: Colors.white)),
-        ),
-      ],
     );
   }
 }
@@ -862,8 +1145,7 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_startDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a start date')));
+      AppToast.info(context, 'Please select a start date');
       return;
     }
 
@@ -893,9 +1175,7 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
     } catch (e) {
       log('Create offer letter error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Failed to create offer letter: $e'),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to create offer letter: $e');
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -912,78 +1192,109 @@ class _CreateOfferLetterDialogState extends State<_CreateOfferLetterDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Create Offer Letter'),
-      content: SizedBox(
-        width: 480,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+    return DialogScaffold(
+      title: 'Create Offer Letter',
+      subtitle: 'Compose an offer letter for this candidate.',
+      size: DialogSize.md,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MyTextFormField(
+              controller: _templateCtrl,
+              title: 'Template Name',
+              hintText: 'e.g. Standard Engineering Offer',
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _salaryCtrl,
+              title: 'Annual Salary (₦)',
+              hintText: 'e.g. 5000000',
+              keyboardType: TextInputType.number,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
+            ),
+            const SizedBox(height: 16),
+            _buildPickerTile(
+              icon: Iconsax.calendar_1,
+              label: _startDate == null
+                  ? 'Pick Start Date'
+                  : '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}',
+              onTap: _pickStartDate,
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _contentCtrl,
+              title: 'Letter Content',
+              hintText: 'Type the body of the offer letter…',
+              maxLines: 5,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          child: _saving ? 'Creating...' : 'Create',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          isLoading: _saving,
+          bgColor: AppColors.success,
+          icon: const Icon(Iconsax.tick_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: _saving ? () {} : _save,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPickerTile({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadii.brMd,
+        child: Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppRadii.brMd,
+            border: Border.all(color: AppColors.borderSubtle),
+          ),
+          child: Row(
             children: [
-              TextFormField(
-                controller: _templateCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Template Name',
-                  border: OutlineInputBorder(),
+              Icon(icon, size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.bodyMd
+                      .copyWith(color: AppColors.textPrimary),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _salaryCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Annual Salary (₦)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today, size: 16),
-                label: Text(_startDate == null
-                    ? 'Pick Start Date'
-                    : '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'),
-                onPressed: _pickStartDate,
-                style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48)),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _contentCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Letter Content',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-                maxLines: 5,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
             ],
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _saving ? null : _save,
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-          child: _saving
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white))
-              : const Text('Create', style: TextStyle(color: Colors.white)),
-        ),
-      ],
     );
   }
 }

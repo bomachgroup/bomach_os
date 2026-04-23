@@ -1,14 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ServicesPropertyPage extends StatefulWidget {
   const ServicesPropertyPage({super.key});
@@ -40,19 +40,17 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
+                      AppText.displayLg(
                         'Services',
-                        style: AppText.black_500_32,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 8,
                       ),
-                      MyText(
+                      AppText.bodyMd(
                         'Services',
-                        style: AppText.black_400_14,
                       ),
                     ],
                   ),
@@ -65,15 +63,15 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                         child: MyTextFormField(
                           hintText: 'Search...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
                       const SortBar(text: "Sort"),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "Add Service",
@@ -136,33 +134,33 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
 
   List<DataColumn> _createColumns() {
     return [
-      const DataColumn(
+      DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
+        label: AppText.bodyMd(
           "Service name",
         ),
       ),
-      const DataColumn(
-        label: MyText(
+      DataColumn(
+        label: AppText.bodyMd(
           "Sub service",
         ),
       ),
-      const DataColumn(
-          label: MyText(
+      DataColumn(
+          label: AppText.bodyMd(
         "Added inventory",
       )),
-      const DataColumn(
-        label: MyText(
+      DataColumn(
+        label: AppText.bodyMd(
           "Order sales count",
         ),
       ),
-      const DataColumn(
-        label: MyText(
+      DataColumn(
+        label: AppText.bodyMd(
           "Aurthor date",
         ),
       ),
-      const DataColumn(
-        label: MyText(
+      DataColumn(
+        label: AppText.bodyMd(
           "Notes/Comments",
         ),
       ),
@@ -176,59 +174,54 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
           onTap: () {
             context.go(RouteConstants.serviceDetail);
           },
-          const MyText(
+          AppText.bodyMd(
             "Real Estate",
-            isSelectable: false,
           ),
         ),
-        const DataCell(
+        DataCell(
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(
+              AppText.bodyMd(
                 "- Development and sales",
-                size: 16,
-                weight: 400,
-                isSelectable: false,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
               ),
-              MyText(
+              AppText.bodyMd(
                 "- Buy/Sales of property",
-                size: 16,
-                weight: 400,
-                isSelectable: false,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
               ),
             ],
           ),
         ),
-        const DataCell(
+        DataCell(
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MyText(
+              AppText.bodyMd(
                 "- Fortress city Estate",
-                size: 16,
-                weight: 400,
-                isSelectable: false,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
               ),
-              MyText(
+              AppText.bodyMd(
                 "- Bethel city Estate",
-                size: 16,
-                weight: 400,
-                isSelectable: false,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
               ),
             ],
           ),
         ),
-        const DataCell(
-          MyText("10 Order / sales - 35,00"),
+        DataCell(
+          AppText.bodyMd("10 Order / sales - 35,00"),
         ),
-        const DataCell(
-          MyText("11/02/2024"),
+        DataCell(
+          AppText.bodyMd("11/02/2024"),
         ),
-        const DataCell(
-          MyText(""),
+        DataCell(
+          AppText.bodyMd(""),
         ),
       ]);
     });

@@ -1,13 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controller/service_controller.dart';
 import '../models/service_model.dart';
@@ -151,21 +153,11 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   }
 
   void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    AppToast.error(context, message);
   }
 
   void _showSuccessSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
-    );
+    AppToast.success(context, message);
   }
 
   /// Format category name for display
@@ -215,7 +207,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Iconsax.close_circle),
                       onPressed: _isSubmitting
                           ? null
                           : () => Navigator.of(context).pop(),
@@ -295,73 +287,17 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                         }),
                         const SizedBox(height: 24),
 
-                        // Description
-                        MyTextFormField(
-                          controller: _descriptionController,
-                          maxLines: 4,
-                          hintText: 'Enter service description',
-                          spaceBetweenText: 10,
-                          title: 'Description*',
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Description is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Base Price and Delivery Time
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _basePriceController,
-                                hintText: 'e.g., 10000',
-                                spaceBetweenText: 10,
-                                title: 'Base Price (₦)*',
-                                keyboardType: TextInputType.number,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Base price is required';
-                                  }
-                                  if (double.tryParse(value) == null) {
-                                    return 'Enter a valid number';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _deliveryTimeController,
-                                spaceBetweenText: 10,
-                                hintText: 'e.g., 7 days',
-                                title: 'Delivery Time*',
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Delivery time is required';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Status
                         MyDropdown(
                           controller: _statusController,
+                          items: const ['Active', 'Inactive'],
+                          hintText: 'Select status',
                           spaceBetweenText: 10,
-                          hintText: "Select status",
-                          items: const ["Active", "Inactive", "Draft"],
                           title: 'Status*',
                           onChanged: (value) {
                             setState(() {
-                              _selectedStatus =
-                                  value?.toLowerCase() ?? 'active';
+                              _selectedStatus = value?.toLowerCase() == 'active'
+                                  ? 'active'
+                                  : 'inactive';
                             });
                           },
                         ),
@@ -375,16 +311,16 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
+                    top: BorderSide(color: AppColors.neutral300),
                   ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MyOutlinedButton(
-                      textColor: AppColors.darkGrey1,
+                      textColor: AppColors.neutral500,
                       borderColor: null,
                       child: 'Cancel',
                       onTap: _isSubmitting
@@ -407,7 +343,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
                               colorFilter: const ColorFilter.mode(
                                   AppColors.white, BlendMode.srcIn),
                             ),
-                            child: _isEditMode ? 'Update' : 'Save',
+                            child:
+                                _isEditMode ? 'Update Service' : 'Add Service',
                             onTap: _handleSubmit,
                           ),
                   ],

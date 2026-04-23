@@ -1,11 +1,15 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -42,117 +46,85 @@ class ContractPageState extends State<ContractPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // --- Header ---
-        Row(
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Contracts',
+        subtitle: 'Management of legal contracts and agreements',
+        trailing: Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText('Contracts', style: AppText.black_500_32),
-                      SizedBox(height: 8),
-                      MyText('Manage your contracts',
-                          style: AppText.black_400_14),
-                    ],
-                  ),
-                  Wrap(
-                    spacing: 15,
-                    runSpacing: 15,
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        child: MyTextFormField(
-                          hintText: 'Search...',
-                          leading: Icon(Icons.search,
-                              color: AppColors.grey1.withValues(alpha: 0.5)),
-                          onChanged: (val) => controller.fetchContracts(context,
-                              projectId: widget.projectId, search: val),
-                        ),
-                      ),
-                      const SortBar(text: "Sort"),
-                      MyElevatedButton(
-                        icon: const Icon(Icons.add_circle_outline_rounded,
-                            color: AppColors.white),
-                        child: "Create Contract",
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const AddContractDialog(),
-                          );
-                        },
-                      )
-                    ],
-                  )
-                ],
+            SizedBox(
+              width: 250,
+              child: MyTextFormField(
+                hintText: 'Search contracts...',
+                leading: const Icon(Iconsax.search_normal, size: 18, color: AppColors.textMuted),
+                onChanged: (val) => controller.fetchContracts(context,
+                    projectId: widget.projectId, search: val),
               ),
+            ),
+            const SortBar(text: "Sort"),
+            OutlinedButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const AddContractDialog(),
+                );
+              },
+              icon: const Icon(Iconsax.add_circle, size: 18),
+              label: const Text('Create Contract'),
             ),
           ],
         ),
-        kSizedBox,
-        kSizedBoxSM,
-
-        // --- Table ---
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
+      ),
+      children: [
+        AppCard(
+          padding: const EdgeInsets.all(0),
           child: Obx(() {
             if (controller.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: LoadingSkeleton.listRows(count: 8),
+              );
             }
 
             if (controller.contracts.isEmpty) {
-              return const Center(
-                  child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Text("No contracts found."),
-              ));
+              return Padding(
+                padding: const EdgeInsets.all(48),
+                child: EmptyState.empty(
+                  title: 'No contracts found',
+                  subtitle: 'Create a new contract to manage agreements.',
+                ),
+              );
             }
 
-            return Column(
-              children: [
-                Scrollbar(
-                  controller: _scrollController,
-                  thumbVisibility: true,
-                  trackVisibility: true,
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: bodySpace(context)),
-                      child: DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows: _createRows(context, controller.contracts),
-                        showBottomBorder: true,
-                      ),
+            return Scrollbar(
+              controller: _scrollController,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                child: SingleChildScrollView(
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.resolveWith(
+                        (states) => AppColors.surfaceMuted.withValues(alpha: 0.5)),
+                    headingTextStyle: AppTextStyles.label.copyWith(
+                      color: AppColors.textSecondary,
                     ),
+                    dataTextStyle: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    dataRowMinHeight: 64,
+                    dataRowMaxHeight: 64,
+                    columnSpacing: 24,
+                    horizontalMargin: 20,
+                    dividerThickness: 1.0,
+                    columns: _createColumns(),
+                    rows: _createRows(context, controller.contracts),
+                    showBottomBorder: false,
                   ),
                 ),
-                // MyPaginator(
-                //   totalRecords: controller.totalCount.value,
-                //   onPageChanged: (page, limit) {
-                //     controller.currentLimit.value = limit;
-                //     controller.currentOffset.value = (page - 1) * limit;
-                //     controller.fetchContracts(context,
-                //         projectId: widget.projectId);
-                //   },
-                // ),
-              ],
+              ),
             );
           }),
         ),
@@ -162,13 +134,13 @@ class ContractPageState extends State<ContractPage> {
 
   List<DataColumn> _createColumns() {
     return const [
-      DataColumn(label: MyText("Name")),
-      DataColumn(label: MyText("Contract No.")),
-      DataColumn(label: MyText("Type")),
-      DataColumn(label: MyText("Value")),
-      DataColumn(label: MyText("Start Date")),
-      DataColumn(label: MyText("End Date")),
-      DataColumn(label: MyText("Status")),
+      DataColumn(label: Text("Name")),
+      DataColumn(label: Text("Contract No.")),
+      DataColumn(label: Text("Type")),
+      DataColumn(label: Text("Value")),
+      DataColumn(label: Text("Start Date")),
+      DataColumn(label: Text("End Date")),
+      DataColumn(label: Text("Status")),
     ];
   }
 
@@ -180,43 +152,32 @@ class ContractPageState extends State<ContractPage> {
             context.push(RouteConstants.operationsContractDetail,
                 extra: contract);
           },
-          MyText(contract.name.isEmpty ? '-' : contract.name,
-              size: 16, weight: 500),
+          Text(contract.name.isEmpty ? '-' : contract.name,
+              style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary)),
         ),
-        DataCell(
-          MyText(contract.contractNumber),
-        ),
-        DataCell(MyText(contract.contractType)),
-        DataCell(MyText("₦${contract.value.toStringAsFixed(2)}")),
-        DataCell(MyText(contract.startDate)),
-        DataCell(MyText(contract.endDate)),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-                color: _getStatusColor(contract.status).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                    color: _getStatusColor(contract.status)
-                        .withValues(alpha: 0.5))),
-            child: MyText(contract.status,
-                color: _getStatusColor(contract.status)),
-          ),
-        ),
+        DataCell(Text(contract.contractNumber)),
+        DataCell(Text(contract.contractType)),
+        DataCell(Text("₦${contract.value.toStringAsFixed(2)}", style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600))),
+        DataCell(Text(contract.startDate)),
+        DataCell(Text(contract.endDate)),
+        DataCell(StatusChip(
+          label: contract.status,
+          tone: _getStatusTone(contract.status),
+        )),
       ]);
     }).toList();
   }
 
-  Color _getStatusColor(String status) {
+  StatusTone _getStatusTone(String status) {
     switch (status.toLowerCase()) {
       case 'active':
-        return AppColors.green;
+        return StatusTone.success;
       case 'pending':
-        return Colors.orange;
+        return StatusTone.warning;
       case 'terminated':
-        return AppColors.red;
+        return StatusTone.danger;
       default:
-        return AppColors.grey1;
+        return StatusTone.neutral;
     }
   }
 }

@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 
@@ -80,7 +82,7 @@ class PaginatorFooter extends StatelessWidget {
                   const SizedBox(width: 8),
                   MyText('$limit', weight: 600),
                   const SizedBox(width: 8),
-                  Icon(Icons.keyboard_arrow_down,
+                  Icon(Iconsax.arrow_down_1,
                       size: 18,
                       color: onLimitChanged == null
                           ? Colors.grey.shade300
@@ -108,7 +110,7 @@ class PaginatorFooter extends StatelessWidget {
               onPressed:
                   canGoPrev ? () => onPageChanged!(currentPage - 1) : null,
               icon: Icon(
-                Icons.chevron_left,
+                Iconsax.arrow_left_2,
                 size: 20,
                 color: canGoPrev ? Colors.black : Colors.grey.shade300,
               ),
@@ -128,7 +130,7 @@ class PaginatorFooter extends StatelessWidget {
               onPressed:
                   canGoNext ? () => onPageChanged!(currentPage + 1) : null,
               icon: Icon(
-                Icons.chevron_right,
+                Iconsax.arrow_right_3,
                 size: 20,
                 color: canGoNext ? Colors.black : Colors.grey.shade300,
               ),
@@ -149,7 +151,7 @@ class PaginatorFooter extends StatelessWidget {
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF0055FF) : Colors.transparent,
+          color: isActive ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Center(

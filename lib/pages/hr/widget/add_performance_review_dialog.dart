@@ -1,8 +1,11 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -64,42 +67,27 @@ class _AddPerformanceReviewDialogState
     super.dispose();
   }
 
-  void _showErrorDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+  void _showError(String message) {
+    AppToast.error(context, message);
   }
 
   void _save() async {
     // Validation
     if (employeeIdCtrl.text.isEmpty || reviewerIdCtrl.text.isEmpty) {
-      _showErrorDialog(
-          'Validation Error', 'Employee ID and Reviewer ID are required');
+      _showError('Employee ID and Reviewer ID are required');
       return;
     }
 
     final reviewDate = DateTime.tryParse(reviewDateCtrl.text);
     if (reviewDateCtrl.text.isNotEmpty && reviewDate == null) {
-      _showErrorDialog('Validation Error', 'Invalid review date format');
+      _showError('Invalid review date format');
       return;
     }
 
     final rating = int.tryParse(ratingCtrl.text);
     if (ratingCtrl.text.isNotEmpty &&
         (rating == null || rating < 1 || rating > 5)) {
-      _showErrorDialog('Validation Error', 'Rating must be between 1 and 5');
+      _showError('Rating must be between 1 and 5');
       return;
     }
 
@@ -131,117 +119,158 @@ class _AddPerformanceReviewDialogState
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    widget.reviewToEdit != null
-                        ? 'Edit Review'
-                        : 'New Performance Review',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
+    final isEdit = widget.reviewToEdit != null;
+    return DialogScaffold(
+      title: isEdit ? 'Edit Performance Review' : 'New Performance Review',
+      subtitle: isEdit
+          ? 'Update the review details, ratings, and feedback.'
+          : 'Capture an employee performance review with strengths and feedback.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSection(
+            title: 'Review Details',
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Employee ID',
-                              controller: employeeIdCtrl)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Reviewer ID',
-                              controller: reviewerIdCtrl)),
-                    ]),
-                    const SizedBox(height: 24),
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Review Date',
-                              controller: reviewDateCtrl)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              title: 'Review Period',
-                              controller: reviewPeriodCtrl)),
-                    ]),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                        title: 'Overall Rating (1-5)', controller: ratingCtrl),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                        title: 'Strengths',
-                        controller: strengthsCtrl,
-                        maxLines: 3),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                        title: 'Area For Improvement',
-                        controller: areasCtrl,
-                        maxLines: 3),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                        title: 'Feedback',
-                        controller: feedbackCtrl,
-                        maxLines: 3),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                        title: 'Employee Comment',
-                        controller: commentCtrl,
-                        maxLines: 3),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Employee ID',
+                        controller: employeeIdCtrl,
+                        hintText: 'Enter employee ID',
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Reviewer ID',
+                        controller: reviewerIdCtrl,
+                        hintText: 'Enter reviewer ID',
+                      ),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Review Date',
+                        controller: reviewDateCtrl,
+                        hintText: 'YYYY-MM-DD',
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Review Period',
+                        controller: reviewPeriodCtrl,
+                        hintText: 'e.g. Q4 2025',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Overall Rating (1-5)',
+                  controller: ratingCtrl,
+                  hintText: 'Enter a rating from 1 to 5',
+                  keyboardType: TextInputType.number,
+                ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey.shade300)),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Feedback',
+            child: Column(
+              children: [
+                MyTextFormField(
+                  title: 'Strengths',
+                  controller: strengthsCtrl,
+                  hintText: 'List the employee\'s key strengths',
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Areas For Improvement',
+                  controller: areasCtrl,
+                  hintText: 'Note focus areas for improvement',
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Feedback',
+                  controller: feedbackCtrl,
+                  hintText: 'Share overall feedback',
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Employee Comment',
+                  controller: commentCtrl,
+                  hintText: 'Optional employee response',
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        Obx(() => MyElevatedButton(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              isLoading: controller.isSaving.value,
+              icon: SvgPicture.asset(
+                "assets/svg/check.svg",
+                colorFilter: const ColorFilter.mode(
+                    AppColors.white, BlendMode.srcIn),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        isLoading: controller.isSaving.value,
-                        icon: SvgPicture.asset(
-                          "assets/svg/check.svg",
-                          colorFilter: const ColorFilter.mode(
-                              AppColors.white, BlendMode.srcIn),
-                        ),
-                        child: 'Save',
-                        onTap: _save,
-                      )),
-                ],
-              ),
+              child: 'Save',
+              onTap: _save,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

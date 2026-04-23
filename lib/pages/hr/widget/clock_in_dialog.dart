@@ -216,24 +216,24 @@
 //                       Container(
 //                         padding: const EdgeInsets.all(8),
 //                         decoration: BoxDecoration(
-//                           color: AppColors.blue.withValues(alpha: 0.1),
+//                           color: AppColors.primary.withValues(alpha: 0.1),
 //                           borderRadius: BorderRadius.circular(8),
 //                         ),
 //                         child: const Icon(
-//                           Icons.access_time,
-//                           color: AppColors.blue,
+//                           Iconsax.clock,
+//                           color: AppColors.primary,
 //                           size: 24,
 //                         ),
 //                       ),
 //                       const SizedBox(width: 12),
 //                       const MyText(
 //                         'Clock In/Out',
-//                         style: AppText.black_500_20,
+//                         style: AppTextStyles.h2,
 //                       ),
 //                     ],
 //                   ),
 //                   IconButton(
-//                     icon: const Icon(Icons.close),
+//                     icon: const Icon(Iconsax.close_circle),
 //                     onPressed: () => Navigator.of(context).pop(),
 //                   ),
 //                 ],
@@ -291,7 +291,7 @@
 //                                   children: [
 //                                     const MyText(
 //                                       'Date',
-//                                       style: AppText.black_600_14,
+//                                       style: AppTextStyles.h4,
 //                                     ),
 //                                     const SizedBox(height: 8),
 //                                     GestureDetector(
@@ -316,12 +316,12 @@
 //                                             MyText(
 //                                               DateFormat('MMM dd, yyyy')
 //                                                   .format(_selectedDate),
-//                                               style: AppText.black_400_14,
+//                                               style: AppTextStyles.bodyMd,
 //                                             ),
 //                                             const Icon(
-//                                               Icons.calendar_today,
+//                                               Iconsax.calendar_1,
 //                                               size: 18,
-//                                               color: AppColors.blue,
+//                                               color: AppColors.primary,
 //                                             ),
 //                                           ],
 //                                         ),
@@ -337,7 +337,7 @@
 //                                   children: [
 //                                     const MyText(
 //                                       'Check-in Time',
-//                                       style: AppText.black_600_14,
+//                                       style: AppTextStyles.h4,
 //                                     ),
 //                                     const SizedBox(height: 8),
 //                                     GestureDetector(
@@ -361,12 +361,12 @@
 //                                           children: [
 //                                             MyText(
 //                                               _formatTimeOfDay(_checkInTime),
-//                                               style: AppText.black_400_14,
+//                                               style: AppTextStyles.bodyMd,
 //                                             ),
 //                                             const Icon(
-//                                               Icons.access_time,
+//                                               Iconsax.clock,
 //                                               size: 18,
-//                                               color: AppColors.blue,
+//                                               color: AppColors.primary,
 //                                             ),
 //                                           ],
 //                                         ),
@@ -386,7 +386,7 @@
 //                                   children: [
 //                                     const MyText(
 //                                       'Check-out Time (Optional)',
-//                                       style: AppText.black_600_14,
+//                                       style: AppTextStyles.h4,
 //                                     ),
 //                                     const SizedBox(height: 8),
 //                                     GestureDetector(
@@ -413,12 +413,12 @@
 //                                                   ? _formatTimeOfDay(
 //                                                       _checkOutTime!)
 //                                                   : '---',
-//                                               style: AppText.black_400_14,
+//                                               style: AppTextStyles.bodyMd,
 //                                             ),
 //                                             const Icon(
-//                                               Icons.access_time,
+//                                               Iconsax.clock,
 //                                               size: 18,
-//                                               color: AppColors.blue,
+//                                               color: AppColors.primary,
 //                                             ),
 //                                           ],
 //                                         ),
@@ -487,7 +487,7 @@
 //                 mainAxisAlignment: MainAxisAlignment.end,
 //                 children: [
 //                   MyOutlinedButton(
-//                     textColor: AppColors.darkGrey1,
+//                     textColor: AppColors.neutral500,
 //                     borderColor: null,
 //                     child: 'Cancel',
 //                     onTap: _isLoading

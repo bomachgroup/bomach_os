@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/icon_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
@@ -40,11 +41,11 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
               children: [
                 MyText(
                   'Clients',
-                  style: AppText.black_600_32,
+                  style: AppTextStyles.displayLg,
                 ),
                 MyText(
                   'Clients',
-                  style: AppText.black_600_14,
+                  style: AppTextStyles.h4,
                 ),
               ],
             ),
@@ -57,7 +58,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
           children: [
             MyElevatedButton(
               icon: const Icon(
-                Icons.add_circle_outline_rounded,
+                Iconsax.add_circle,
                 color: AppColors.white,
               ),
               child: 'New Client',
@@ -70,8 +71,8 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
               child: MyTextFormField(
                 hintText: 'Search...',
                 leading: Icon(
-                  Icons.search,
-                  color: AppColors.grey1.withValues(alpha: 0.5),
+                  Iconsax.search_normal,
+                  color: AppColors.neutral500.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -229,7 +230,7 @@ class _ClientsDatabasePageState extends State<ClientsDatabasePage> {
                 height: 10,
                 width: 10,
                 decoration: const ShapeDecoration(
-                  color: AppColors.green2,
+                  color: AppColors.success,
                   shape: OvalBorder(),
                 ),
               ),
@@ -262,7 +263,7 @@ class NewClientDialogState extends State<NewClientDialog> {
         constraints: const BoxConstraints(maxWidth: 1050),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          color: AppColors.greyBg,
+          color: AppColors.background,
           boxShadow: const [
             BoxShadow(
               color: Colors.grey,
@@ -298,7 +299,7 @@ class NewClientDialogState extends State<NewClientDialog> {
                               children: [
                                 MyIconButton(
                                   icon: SvgPicture.asset("assets/svg/plus.svg"),
-                                  colorBackground: const Color(0xFF0055FF),
+                                  colorBackground: AppColors.primary,
                                   onPressed: () {
                                     showDialog(
                                       context: context,
@@ -312,7 +313,7 @@ class NewClientDialogState extends State<NewClientDialog> {
                                 MyIconButton(
                                   icon:
                                       SvgPicture.asset("assets/svg/note2.svg"),
-                                  colorBackground: const Color(0xFF0055FF),
+                                  colorBackground: AppColors.primary,
                                   onPressed: () {
                                     showDialog(
                                       context: context,
@@ -326,7 +327,7 @@ class NewClientDialogState extends State<NewClientDialog> {
                                 MyIconButton(
                                   icon: SvgPicture.asset(
                                       "assets/svg/notification.svg"),
-                                  colorBackground: const Color(0xFF0055FF),
+                                  colorBackground: AppColors.primary,
                                   onPressed: () {},
                                 ),
                               ],
@@ -432,7 +433,7 @@ class ClientInfoCard extends StatelessWidget {
         color: const Color.fromRGBO(255, 255, 255, 1),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -520,7 +521,7 @@ class StatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         color: AppColors.white,
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -545,7 +546,7 @@ class StatsCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.blue2,
+                  color: AppColors.primaryHover,
                 ),
               ),
               icon,
@@ -580,7 +581,7 @@ class ProfileInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         color: AppColors.white,
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -640,7 +641,7 @@ class ProjectsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         color: AppColors.white,
         border: Border.all(
-          color: AppColors.grey4,
+          color: AppColors.neutral300,
           width: 0.6,
         ),
       ),
@@ -770,7 +771,7 @@ class InvoiceContent extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Icon(
-                              Icons.arrow_forward_sharp,
+                              Iconsax.arrow_right_3,
                               color: Colors.black54,
                             ),
                             SizedBox(width: 4),
@@ -825,7 +826,7 @@ class InvoiceContent extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w300,
-                            color: AppColors.darkGrey2,
+                            color: AppColors.neutral400,
                             height: 1.4,
                           ),
                         ),
@@ -857,7 +858,7 @@ class InvoiceContent extends StatelessWidget {
                         MyText(
                           'plot 2,\n6 Kelly Rd, Uwani\nEnugu, Nigeria',
                           style: TextStyle(
-                            color: AppColors.darkGrey2,
+                            color: AppColors.neutral400,
                             fontSize: 12,
                             fontWeight: FontWeight.w300,
                             height: 1.4,
@@ -979,7 +980,7 @@ class InvoiceContent extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(8),
-                    color: AppColors.greyBg,
+                    color: AppColors.background,
                   ),
                   padding: const EdgeInsets.all(16),
                   child: const Row(
@@ -1088,7 +1089,7 @@ class InfoRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: AppColors.darkGrey2,
+              color: AppColors.neutral400,
             ),
           ),
           MyText(
@@ -1096,7 +1097,7 @@ class InfoRow extends StatelessWidget {
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w300,
-              color: AppColors.darkGrey2,
+              color: AppColors.neutral400,
             ),
           ),
         ],
@@ -1216,7 +1217,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -1271,7 +1272,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     borderColor: null,
                     child: 'Cancel',
                     onTap: () {

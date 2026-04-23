@@ -1,6 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/input/my_dropdown2.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/nav/three_dot_pop.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -46,13 +47,13 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
                     children: [
                       MyText(
                         'Vendor/Contract Payment',
-                        style: AppText.black_500_32,
+                        style: AppTextStyles.displayLg,
                       ),
                     ],
                   ),
                   MyElevatedButton(
                     icon: const Icon(
-                      Icons.add_circle_outline_rounded,
+                      Iconsax.add_circle,
                       color: AppColors.white,
                     ),
                     child: "New Payment",
@@ -84,8 +85,8 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
                     child: MyTextFormField(
                       hintText: 'Search for payment...',
                       leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -199,7 +200,7 @@ class ContractPaymentPageState extends State<ContractPaymentPage> {
           MyText("24-05-2025"),
         ),
         const DataCell(
-          MyDropdown2(),
+          StatusChip(label: 'Pending', tone: StatusTone.warning),
         ),
         const DataCell(
           ThreeDotPop(),

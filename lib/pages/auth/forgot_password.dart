@@ -1,4 +1,6 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/scaffold/scaffold.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
@@ -38,7 +40,7 @@ class ForgotPasswordScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.grey7, width: 0.5),
+              border: Border.all(color: AppColors.neutral200, width: 0.5),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -47,11 +49,11 @@ class ForgotPasswordScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: AppColors.blue.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.lock_reset,
-                      size: 40, color: AppColors.blue),
+                  child: const Icon(Iconsax.lock_1,
+                      size: 40, color: AppColors.primary),
                 ),
                 kSizedBox,
 
@@ -87,10 +89,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                             ? () {}
                             : () async {
                                 if (emailCtrl.text.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text("Please enter email")),
-                                  );
+                                  AppToast.info(context, 'Please enter email');
                                   return;
                                 }
                                 // Call controller logic
@@ -120,7 +119,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.arrow_back, size: 16, color: Colors.grey),
+                      Icon(Iconsax.arrow_left_2, size: 16, color: Colors.grey),
                       SizedBox(width: 8),
                       MyText(
                         "Back to Login",

@@ -1,7 +1,6 @@
 import 'package:bms_front_end/components/button/in_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/widget/invoice_list.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 class ServiceOrder extends StatefulWidget {
@@ -24,13 +23,11 @@ class _ServiceOrderState extends State<ServiceOrder> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const MyText(
+        AppText.displayLg(
           'Service Order',
-          style: AppText.black_500_32,
         ),
-        const MyText(
+        AppText.h4(
           'Service Order',
-          style: AppText.black_600_14,
         ),
         const SizedBox(
           height: 21,

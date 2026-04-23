@@ -1,19 +1,28 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/section/responsive_widget.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/approval_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controllers/approval_controller.dart';
-import 'controllers/company_controller.dart';
-import 'company.dart';
 import 'widget/approval_workflow_dialogs.dart';
+
+const List<String> _approvalTabs = ['Workflows', 'Approval Requests'];
 
 class ApprovalWorkflowPage extends StatelessWidget {
   const ApprovalWorkflowPage({super.key});
@@ -21,126 +30,248 @@ class ApprovalWorkflowPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ApprovalController controller = Get.put(ApprovalController());
-    final CompanyController companyController = Get.put(CompanyController());
 
-    Widget body = SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          const MyText('Approval Workflow', style: AppText.black_600_32),
-          const SizedBox(height: 8),
-          const Text(
-            'Configure multi-level approval workflows and specify approvers for different actions and requests',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
-          ),
-          const SizedBox(height: 24),
-
-          // Stats Row
-          _buildStatsSection(companyController),
-
-          const SizedBox(height: 32),
-
-          // Tabs
-          Obx(() => _buildTabBar(controller)),
-
-          const SizedBox(height: 24),
-
-          // Tab Content
-          Obx(() {
-            switch (controller.currentTab.value) {
-              case 'Workflows':
-                return _WorkflowsTab(controller: controller);
-              case 'Approval Requests':
-                return _RequestsTab(controller: controller);
-              default:
-                return const SizedBox.shrink();
-            }
-          }),
-        ],
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Approval Workflow',
+        subtitle:
+            'Configure multi-level approval workflows and specify approvers '
+            'for different actions and requests.',
+        trailing: Obx(() => _buildHeaderAction(context, controller)),
       ),
-    );
-
-    return ResponsiveWidget(
-      largeScreen: body,
-      mediumScreen: body,
-      smallScreen: body,
+      children: [
+        Obx(() => _buildTabBar(controller)),
+        Obx(() {
+          switch (controller.currentTab.value) {
+            case 'Workflows':
+              return _WorkflowsTab(controller: controller);
+            case 'Approval Requests':
+              return _RequestsTab(controller: controller);
+            default:
+              return const SizedBox.shrink();
+          }
+        }),
+      ],
     );
   }
 
-  Widget _buildStatsSection(CompanyController companyController) {
-    return Obx(() {
-      final stats = companyController.dashboardStats.value;
-      return ResponsiveStatRow(
-        cards: [
-          DashboardStatCard(
-            title: 'Total Employees',
-            count: stats != null ? '${stats.totalEmployees}' : '–',
-            borderColor: Colors.green,
-            countColor: Colors.green,
+  Widget _buildHeaderAction(
+      BuildContext context, ApprovalController controller) {
+    switch (controller.currentTab.value) {
+      case 'Workflows':
+        return MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Workflow',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const CreateEditWorkflowDialog(),
           ),
-          DashboardStatCard(
-            title: 'Total Branches',
-            count: stats != null ? '${stats.totalBranches}' : '–',
-            borderColor: const Color(0xFF1976D2),
-            countColor: const Color(0xFF1976D2),
-          ),
-          DashboardStatCard(
-            title: 'Pending Approvals',
-            count: stats != null ? '${stats.pendingApprovals}' : '–',
-            borderColor: const Color(0xFFC27803),
-            countColor: const Color(0xFFC27803),
-          ),
-          DashboardStatCard(
-            title: 'Asset Inventory',
-            count: stats != null ? '${stats.assetInventory}' : '–',
-            borderColor: Colors.green,
-            countColor: Colors.green,
-          ),
-        ],
-      );
-    });
+        );
+      case 'Approval Requests':
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
   Widget _buildTabBar(ApprovalController controller) {
-    final tabs = ['Workflows', 'Approval Requests'];
     return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: Wrap(
-        spacing: 8,
-        children: tabs.map((tab) {
-          final isSelected = controller.currentTab.value == tab;
-          return InkWell(
-            onTap: () => controller.currentTab.value = tab,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.blue : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                tab,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: _approvalTabs
+              .map((label) => Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: _buildTabButton(controller, label),
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabButton(ApprovalController controller, String label) {
+    final isActive = controller.currentTab.value == label;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => controller.currentTab.value = label,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.surface : Colors.transparent,
+            borderRadius: AppRadii.brMd,
+            boxShadow: isActive ? AppShadows.sm : const <BoxShadow>[],
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMd.copyWith(
+              color:
+                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
             ),
-          );
-        }).toList(),
+          ),
+        ),
       ),
     );
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  SHARED HELPERS
+// ═══════════════════════════════════════════════════════════════════
+
+Widget _buildToolbar({
+  required String searchHint,
+  required ValueChanged<String> onSearchChanged,
+}) {
+  return AppCard(
+    padding: const EdgeInsets.all(16),
+    elevation: AppCardElevation.sm,
+    child: MyTextFormField(
+      hintText: searchHint,
+      height: 48,
+      onChanged: onSearchChanged,
+      leading: const Icon(Iconsax.search_normal,
+          size: 18, color: AppColors.textMuted),
+    ),
+  );
+}
+
+Widget _buildTableCard({
+  required String title,
+  required String subtitle,
+  Widget? headerTrailing,
+  required Widget body,
+  Widget? footer,
+}) {
+  return AppCard(
+    padding: EdgeInsets.zero,
+    elevation: AppCardElevation.md,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTextStyles.h3),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (headerTrailing != null) headerTrailing,
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        body,
+        if (footer != null) ...[
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          footer,
+        ],
+      ],
+    ),
+  );
+}
+
+Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+  final content = Text(
+    label,
+    style: AppTextStyles.bodySm.copyWith(
+      color: AppColors.textSecondary,
+      fontWeight: FontWeight.w600,
+    ),
+  );
+  if (width != null) return SizedBox(width: width, child: content);
+  return Expanded(flex: flex ?? 1, child: content);
+}
+
+Widget _tablePaginator(Widget child) {
+  return Container(
+    padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+    child: child,
+  );
+}
+
+PopupMenuItem<String> _menuItem({
+  required String value,
+  required IconData icon,
+  required String label,
+  bool destructive = false,
+}) {
+  final color = destructive ? AppColors.danger : AppColors.textSecondary;
+  return PopupMenuItem<String>(
+    value: value,
+    child: Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: AppTextStyles.bodyMd.copyWith(
+            color: destructive ? AppColors.danger : AppColors.textPrimary,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+StatusTone _flowStatusTone(String status) {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return StatusTone.success;
+    case 'inactive':
+      return StatusTone.neutral;
+    default:
+      return StatusTone.neutral;
+  }
+}
+
+StatusTone _requestStatusTone(String status) {
+  switch (status.toLowerCase()) {
+    case 'approved':
+    case 'completed':
+      return StatusTone.success;
+    case 'pending':
+    case 'in review':
+      return StatusTone.warning;
+    case 'rejected':
+      return StatusTone.danger;
+    case 'cancelled':
+    case 'canceled':
+      return StatusTone.neutral;
+    case 'in progress':
+      return StatusTone.info;
+    default:
+      return StatusTone.neutral;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
 //  WORKFLOWS TAB
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 
 class _WorkflowsTab extends StatelessWidget {
   final ApprovalController controller;
@@ -149,152 +280,62 @@ class _WorkflowsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Workflows', style: AppText.black_600_16),
-              SizedBox(height: 2),
-              Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
-            onChanged: controller.onFlowSearchChanged,
-          ),
-          action: MyElevatedButton(
-            height: 40,
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
-            child: 'New workflow',
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => const CreateEditWorkflowDialog(),
-            ),
-          ),
+        _buildToolbar(
+          searchHint: 'Search workflows by name or action',
+          onSearchChanged: controller.onFlowSearchChanged,
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (controller.isLoadingFlows.value && controller.flowList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+          final loading = controller.isLoadingFlows.value &&
+              controller.flowList.isEmpty;
+          final isEmpty = !controller.isLoadingFlows.value &&
+              controller.flowList.isEmpty;
 
-          if (controller.flowList.isEmpty) {
-            return _buildEmptyState(
-              context,
-              icon: Icons.approval_outlined,
-              title: 'No workflows yet',
-              subtitle: 'Create a new approval workflow to get started.',
-              buttonLabel: 'New workflow',
-              onAdd: () => showDialog(
-                context: context,
-                builder: (_) => const CreateEditWorkflowDialog(),
-              ),
-            );
-          }
-
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                children: [
-                  // Table Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 40),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Workflow Name',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
+          return _buildTableCard(
+            title: 'Workflows register',
+            subtitle: loading
+                ? 'Loading workflows...'
+                : '${controller.flowTotalItems.value} workflows configured',
+            headerTrailing: const StatusChip(
+              label: 'Governance automation',
+              tone: StatusTone.primary,
+              icon: Iconsax.tick_square,
+            ),
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.tick_square,
+                          title: 'No workflows yet',
+                          subtitle:
+                              'Create a new approval workflow to get started.',
+                          action: MyOutlinedButton(
+                            child: 'New Workflow',
+                            icon: const Icon(Iconsax.add_circle,
+                                size: 18, color: AppColors.primary),
+                            onTap: () => showDialog(
+                              context: context,
+                              builder: (_) => const CreateEditWorkflowDialog(),
+                            ),
+                          ),
                         ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Action',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('Levels',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text('Approvers',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('Status',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        SizedBox(
-                          width: 48,
-                          child: Text('Action',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  ...controller.flowList
-                      .map((flow) => _buildFlowRow(context, flow)),
-
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Obx(() => PaginatorFooter(
-                          totalItems: controller.flowTotalItems.value,
-                          limit: controller.flowLimit.value,
-                          currentPage: controller.flowCurrentPage.value,
-                          onPageChanged: controller.flowGoToPage,
-                          onLimitChanged: controller.flowSetLimit,
-                        )),
-                  ),
-                ],
-              ),
+                      )
+                    : _buildFlowTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    totalItems: controller.flowTotalItems.value,
+                    limit: controller.flowLimit.value,
+                    currentPage: controller.flowCurrentPage.value,
+                    onPageChanged: controller.flowGoToPage,
+                    onLimitChanged: controller.flowSetLimit,
+                  )),
             ),
           );
         }),
@@ -302,159 +343,176 @@ class _WorkflowsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildFlowRow(BuildContext context, ApprovalFlow flow) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.blue,
-            ),
-          ),
-          // Workflow Name
-          Expanded(
-            flex: 2,
-            child: Text(
-              flow.name,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          // Action
-          Expanded(
-            flex: 2,
-            child: Text(
-              flow.actionDisplay.isNotEmpty ? flow.actionDisplay : flow.action,
-              style: const TextStyle(fontSize: 13),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          // Levels
-          Expanded(
-            flex: 1,
-            child: Text(
-              '${flow.levels} Level${flow.levels != 1 ? 's' : ''}',
-              style: const TextStyle(fontSize: 13),
-            ),
-          ),
-          // Approvers chips
-          Expanded(
-            flex: 3,
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: (flow.approverDisplays.isNotEmpty
-                      ? flow.approverDisplays
-                      : flow.approvers)
-                  .map((a) => _buildApproverChip(a))
-                  .toList(),
-            ),
-          ),
-          // Status
-          Expanded(
-            flex: 1,
-            child: _buildStatusBadge(
-              flow.statusDisplay.isNotEmpty ? flow.statusDisplay : flow.status,
-            ),
-          ),
-          // Action menu
-          SizedBox(
-            width: 48,
-            child: _buildActionMenu(context, flow),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildApproverChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColors.blue.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.blue,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    final isActive = status.toLowerCase() == 'active';
-    final Color color = isActive ? Colors.green : Colors.red;
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+  Widget _buildFlowTable(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1120,
+        child: Column(
           children: [
-            Icon(Icons.circle, size: 7, color: color),
-            const SizedBox(width: 5),
-            Text(status,
-                style: TextStyle(
-                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
+                children: [
+                  _buildHeaderCell('Workflow', flex: 3),
+                  _buildHeaderCell('Action', flex: 2),
+                  _buildHeaderCell('Levels', flex: 1),
+                  _buildHeaderCell('Approvers', flex: 3),
+                  _buildHeaderCell('Status', flex: 2),
+                  _buildHeaderCell('', width: 210),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...controller.flowList.map((flow) => _buildFlowRow(context, flow)),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildFlowRow(BuildContext context, ApprovalFlow flow) {
+    final approvers = flow.approverDisplays.isNotEmpty
+        ? flow.approverDisplays
+        : flow.approvers;
+    final statusLabel =
+        flow.statusDisplay.isNotEmpty ? flow.statusDisplay : flow.status;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.borderSubtle),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              flow.name,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              flow.actionDisplay.isNotEmpty ? flow.actionDisplay : flow.action,
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              '${flow.levels} Level${flow.levels != 1 ? 's' : ''}',
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: approvers
+                  .map((a) => StatusChip(
+                        label: a,
+                        tone: StatusTone.primary,
+                        dense: true,
+                      ))
+                  .toList(),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: statusLabel.isEmpty ? 'Unknown' : statusLabel,
+                tone: _flowStatusTone(statusLabel),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 210,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => ViewWorkflowDialog(flow: flow),
+                  ),
+                  icon: const Icon(Iconsax.eye, size: 16),
+                  label: const Text('View'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.borderStrong),
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadii.brMd),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                MyElevatedButton(
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  icon: const Icon(Iconsax.edit,
+                      size: 16, color: AppColors.textOnPrimary),
+                  child: 'Edit',
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => CreateEditWorkflowDialog(flow: flow),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                _buildActionMenu(context, flow),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionMenu(BuildContext context, ApprovalFlow flow) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      icon: const Icon(Iconsax.more,
+          size: 18, color: AppColors.textSecondary),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       onSelected: (value) async {
         switch (value) {
-          case 'view':
-            showDialog(
-              context: context,
-              builder: (_) => ViewWorkflowDialog(flow: flow),
-            );
-            break;
-          case 'edit':
-            showDialog(
-              context: context,
-              builder: (_) => CreateEditWorkflowDialog(flow: flow),
-            );
-            break;
           case 'delete':
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (c) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                title: const Text('Deactivate Workflow'),
-                content:
-                    Text('Are you sure you want to deactivate "${flow.name}"?'),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('Cancel')),
-                  TextButton(
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Deactivate',
-                          style: TextStyle(color: Colors.red))),
-                ],
+            final confirmed = await DialogScaffold.show<bool>(
+              context,
+              title: 'Deactivate Workflow',
+              size: DialogSize.sm,
+              body: Text(
+                'Are you sure you want to deactivate "${flow.name}"?',
+                style: AppTextStyles.bodyMd,
               ),
+              actions: [
+                MyOutlinedButton(
+                  child: 'Cancel',
+                  height: 44,
+                  onTap: () => Navigator.pop(context, false),
+                  textColor: AppColors.textSecondary,
+                  borderColor: AppColors.borderStrong,
+                ),
+                MyElevatedButton(
+                  width: 140,
+                  height: 44,
+                  child: 'Deactivate',
+                  onTap: () => Navigator.pop(context, true),
+                ),
+              ],
             );
             if (confirmed == true && context.mounted) {
               controller.deleteFlow(context, flow.id);
@@ -463,79 +521,19 @@ class _WorkflowsTab extends StatelessWidget {
         }
       },
       itemBuilder: (_) => [
-        const PopupMenuItem(
-          value: 'view',
-          child: Row(children: [
-            Icon(Icons.visibility_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('View Details'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'edit',
-          child: Row(children: [
-            Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
-            SizedBox(width: 8),
-            Text('Edit'),
-          ]),
-        ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Row(children: [
-            Icon(Icons.delete_outline, size: 18, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete', style: TextStyle(color: Colors.red)),
-          ]),
-        ),
+        _menuItem(
+            value: 'delete',
+            icon: Iconsax.trash,
+            label: 'Deactivate',
+            destructive: true),
       ],
-    );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String buttonLabel,
-    required VoidCallback onAdd,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 48, color: const Color(0xFF94A3B8)),
-            ),
-            const SizedBox(height: 20),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            MyElevatedButton(
-              child: buttonLabel,
-              icon: const Icon(Icons.add, size: 18, color: Colors.white),
-              onTap: onAdd,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  APPROVAL REQUESTS TAB
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 
 class _RequestsTab extends StatelessWidget {
   final ApprovalController controller;
@@ -544,160 +542,53 @@ class _RequestsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Subheader
-        ResponsiveSubheader(
-          title: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText('Approval Requests', style: AppText.black_600_16),
-              SizedBox(height: 2),
-              Text('Bomach Group of Companies',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-            ],
-          ),
-          search: MyTextFormField(
-            hintText: 'Search',
-            leading: const Icon(Icons.search, color: Colors.grey, size: 20),
-            onChanged: controller.onRequestSearchChanged,
-          ),
+        _buildToolbar(
+          searchHint: 'Search requests by workflow, type, or requester',
+          onSearchChanged: controller.onRequestSearchChanged,
         ),
         const SizedBox(height: 16),
-
-        // Table
         Obx(() {
-          if (controller.isLoadingRequests.value &&
-              controller.requestList.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+          final loading = controller.isLoadingRequests.value &&
+              controller.requestList.isEmpty;
+          final isEmpty = !controller.isLoadingRequests.value &&
+              controller.requestList.isEmpty;
 
-          if (controller.requestList.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 60),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF1F5F9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.task_alt,
-                          size: 48, color: Color(0xFF94A3B8)),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text('No approval requests',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Approval requests will appear here when submitted.',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return ResponsiveTableWrapper(
-            child: Card(
-              color: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                children: [
-                  // Table Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 40),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Workflow',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
+          return _buildTableCard(
+            title: 'Approval Requests',
+            subtitle: loading
+                ? 'Loading requests...'
+                : '${controller.requestTotalItems.value} approval requests on record',
+            headerTrailing: const StatusChip(
+              label: 'Request queue',
+              tone: StatusTone.primary,
+              icon: Iconsax.task_square,
+            ),
+            body: loading
+                ? Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: LoadingSkeleton.listRows(count: 5),
+                  )
+                : isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: EmptyState(
+                          icon: Iconsax.task_square,
+                          title: 'No approval requests',
+                          subtitle:
+                              'Approval requests will appear here when submitted.',
                         ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Request Type',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Requested By',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text('Status',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('Date',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: Text('Actions',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: Color(0xFF64748B))),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  ...controller.requestList
-                      .map((req) => _buildRequestRow(context, req)),
-
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Obx(() => PaginatorFooter(
-                          totalItems: controller.requestTotalItems.value,
-                          limit: controller.requestLimit.value,
-                          currentPage: controller.requestCurrentPage.value,
-                          onPageChanged: controller.requestGoToPage,
-                          onLimitChanged: controller.requestSetLimit,
-                        )),
-                  ),
-                ],
-              ),
+                      )
+                    : _buildRequestTable(context),
+            footer: _tablePaginator(
+              Obx(() => PaginatorFooter(
+                    totalItems: controller.requestTotalItems.value,
+                    limit: controller.requestLimit.value,
+                    currentPage: controller.requestCurrentPage.value,
+                    onPageChanged: controller.requestGoToPage,
+                    onLimitChanged: controller.requestSetLimit,
+                  )),
             ),
           );
         }),
@@ -705,162 +596,154 @@ class _RequestsTab extends StatelessWidget {
     );
   }
 
+  Widget _buildRequestTable(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 1120,
+        child: Column(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
+                children: [
+                  _buildHeaderCell('Workflow', flex: 3),
+                  _buildHeaderCell('Request Type', flex: 2),
+                  _buildHeaderCell('Requested By', flex: 2),
+                  _buildHeaderCell('Status', flex: 2),
+                  _buildHeaderCell('Date', flex: 2),
+                  _buildHeaderCell('', width: 210),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...controller.requestList
+                .map((req) => _buildRequestRow(context, req)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRequestRow(BuildContext context, ApprovalRequest req) {
-    String displayDate = '';
+    String displayDate = req.createdAt;
     try {
       final parsed = DateTime.parse(req.createdAt);
       displayDate = DateFormat('MMM d, yyyy').format(parsed);
-    } catch (_) {
-      displayDate = req.createdAt;
-    }
+    } catch (_) {}
 
     final isPending = req.status.toLowerCase() == 'pending';
+    final statusLabel =
+        req.statusDisplay.isNotEmpty ? req.statusDisplay : req.status;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppColors.borderSubtle),
+        ),
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 40,
-            child: Checkbox(
-              value: false,
-              onChanged: (_) {},
-              activeColor: AppColors.blue,
-            ),
-          ),
-          // Workflow name
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               req.flowName.isNotEmpty ? req.flowName : 'Flow #${req.flowId}',
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // Request Type
           Expanded(
             flex: 2,
             child: Text(
               req.requestTypeDisplay.isNotEmpty
                   ? req.requestTypeDisplay
                   : req.requestType,
-              style: const TextStyle(fontSize: 13),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // Requested By
           Expanded(
             flex: 2,
             child: Text(
               req.requestedByName.isNotEmpty
                   ? req.requestedByName
                   : req.requestedBy,
-              style: const TextStyle(fontSize: 13),
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // Status
-          Expanded(
-            flex: 1,
-            child: _buildRequestStatusBadge(
-              req.statusDisplay.isNotEmpty ? req.statusDisplay : req.status,
-            ),
-          ),
-          // Date
           Expanded(
             flex: 2,
-            child: Text(displayDate, style: const TextStyle(fontSize: 13)),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: statusLabel.isEmpty ? 'Unknown' : statusLabel,
+                tone: _requestStatusTone(statusLabel),
+              ),
+            ),
           ),
-          // Actions
+          Expanded(
+            flex: 2,
+            child: Text(
+              displayDate,
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
           SizedBox(
-            width: 100,
+            width: 210,
             child: isPending
                 ? Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      InkWell(
-                        onTap: () => controller.approveRequest(context, req.id),
-                        borderRadius: BorderRadius.circular(6),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text('Approve',
-                              style: TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500)),
+                      OutlinedButton.icon(
+                        onPressed: () =>
+                            controller.approveRequest(context, req.id),
+                        icon: const Icon(Iconsax.tick_circle,
+                            size: 16, color: AppColors.success),
+                        label: const Text('Approve'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.success,
+                          side: const BorderSide(color: AppColors.success),
+                          minimumSize: const Size(0, 42),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: AppRadii.brMd),
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      InkWell(
-                        onTap: () => controller.rejectRequest(context, req.id),
-                        borderRadius: BorderRadius.circular(6),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text('Reject',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500)),
+                      const SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        onPressed: () =>
+                            controller.rejectRequest(context, req.id),
+                        icon: const Icon(Iconsax.close_circle,
+                            size: 16, color: AppColors.danger),
+                        label: const Text('Reject'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.danger,
+                          side: const BorderSide(color: AppColors.danger),
+                          minimumSize: const Size(0, 42),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: AppRadii.brMd),
                         ),
                       ),
                     ],
                   )
-                : const Text('–', style: TextStyle(color: Color(0xFF94A3B8))),
+                : Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      '—',
+                      style: AppTextStyles.bodyMd
+                          .copyWith(color: AppColors.textMuted),
+                    ),
+                  ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildRequestStatusBadge(String status) {
-    Color color;
-    switch (status.toLowerCase()) {
-      case 'approved':
-        color = Colors.green;
-        break;
-      case 'rejected':
-        color = Colors.red;
-        break;
-      case 'pending':
-        color = Colors.orange;
-        break;
-      case 'cancelled':
-        color = Colors.grey;
-        break;
-      default:
-        color = Colors.grey;
-    }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.circle, size: 7, color: color),
-            const SizedBox(width: 5),
-            Text(status,
-                style: TextStyle(
-                    color: color, fontSize: 12, fontWeight: FontWeight.w500)),
-          ],
-        ),
       ),
     );
   }

@@ -20,14 +20,14 @@ class InvoiceList extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: AppColors.darkGrey2),
+                      border: Border.all(color: AppColors.neutral400),
                     ),
                     child: const InvoiceCard(),
                   ),
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: AppColors.darkGrey2),
+                      border: Border.all(color: AppColors.neutral400),
                     ),
                     child: const InvoiceCard(),
                   ),

@@ -1,16 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/widget/add_property_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'models/property_model.dart';
 
@@ -104,17 +105,15 @@ class _PropertyListPageState extends State<PropertyListPage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MyText(
+                      AppText.displayLg(
                         'Properties',
-                        style: AppText.black_500_32,
                       ),
-                      SizedBox(height: 8),
-                      MyText(
+                      const SizedBox(height: 8),
+                      AppText.bodyMd(
                         'Manage your property inventory and listings',
-                        style: AppText.black_400_14,
                       ),
                     ],
                   ),
@@ -128,8 +127,8 @@ class _PropertyListPageState extends State<PropertyListPage> {
                           controller: _searchController,
                           hintText: 'Search properties...',
                           leading: Icon(
-                            Icons.search,
-                            color: AppColors.grey1.withValues(alpha: 0.5),
+                            Iconsax.search_normal,
+                            color: AppColors.neutral500.withValues(alpha: 0.5),
                           ),
                         ),
                       ),
@@ -139,7 +138,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                       ),
                       MyElevatedButton(
                         icon: const Icon(
-                          Icons.add_circle_outline_rounded,
+                          Iconsax.add_circle,
                           color: AppColors.white,
                         ),
                         child: "Add Property",
@@ -172,7 +171,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.grey1,
+            color: AppColors.neutral500,
           ),
         ),
         const SizedBox(height: 8),
@@ -246,7 +245,8 @@ class _PropertyListPageState extends State<PropertyListPage> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.clear, size: 16, color: Colors.red),
+                            Icon(Iconsax.close_circle,
+                                size: 16, color: Colors.red),
                             SizedBox(width: 4),
                             Text(
                               'Clear Filters',
@@ -285,7 +285,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -295,7 +295,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
             ),
           ),
           DropdownButton<String>(
@@ -337,14 +337,13 @@ class _PropertyListPageState extends State<PropertyListPage> {
         spacing: 16,
         runSpacing: 16,
         children: [
-          _buildStatCard('Total Properties', '${props.length}', Icons.home_work,
-              AppColors.blue),
+          _buildStatCard('Total Properties', '${props.length}', Iconsax.home,
+              AppColors.primary),
           _buildStatCard(
-              'Available', '$available', Icons.check_circle, Colors.green),
-          _buildStatCard(
-              'Reserved', '$reserved', Icons.schedule, Colors.orange),
-          _buildStatCard(
-              'Sold/Rented', '$soldOrRented', Icons.done_all, Colors.purple),
+              'Available', '$available', Iconsax.tick_circle, Colors.green),
+          _buildStatCard('Reserved', '$reserved', Iconsax.clock, Colors.orange),
+          _buildStatCard('Sold/Rented', '$soldOrRented', Iconsax.tick_circle,
+              Colors.purple),
         ],
       );
     });
@@ -358,7 +357,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -388,7 +387,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
             label,
             style: const TextStyle(
               fontSize: 14,
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
             ),
           ),
         ],
@@ -403,20 +402,17 @@ class _PropertyListPageState extends State<PropertyListPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.blue : AppColors.white,
+          color: isSelected ? AppColors.primary : AppColors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.blue : AppColors.grey4,
+            color: isSelected ? AppColors.primary : AppColors.neutral300,
           ),
         ),
-        child: MyText(
+        child: AppText.bodyMd(
           label,
-          isSelectable: false,
-          style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.grey1,
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
+          color: isSelected ? AppColors.white : AppColors.neutral500,
+          fontSize: 14,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
     );
@@ -509,10 +505,10 @@ class _PropertyListPageState extends State<PropertyListPage> {
                 IconButton(
                   onPressed:
                       currentPage > 1 ? () => _controller.previousPage() : null,
-                  icon: const Icon(Icons.chevron_left),
+                  icon: const Icon(Iconsax.arrow_left_2),
                   style: IconButton.styleFrom(
                     backgroundColor:
-                        currentPage > 1 ? AppColors.blue : Colors.grey[300],
+                        currentPage > 1 ? AppColors.primary : Colors.grey[300],
                     foregroundColor:
                         currentPage > 1 ? Colors.white : Colors.grey[600],
                   ),
@@ -532,12 +528,13 @@ class _PropertyListPageState extends State<PropertyListPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color:
-                                isCurrentPage ? AppColors.blue : Colors.white,
+                            color: isCurrentPage
+                                ? AppColors.primary
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: isCurrentPage
-                                  ? AppColors.blue
+                                  ? AppColors.primary
                                   : Colors.grey[300]!,
                             ),
                           ),
@@ -560,10 +557,10 @@ class _PropertyListPageState extends State<PropertyListPage> {
                 const SizedBox(width: 16),
                 IconButton(
                   onPressed: hasNextPage ? () => _controller.nextPage() : null,
-                  icon: const Icon(Icons.chevron_right),
+                  icon: const Icon(Iconsax.arrow_right_3),
                   style: IconButton.styleFrom(
                     backgroundColor:
-                        hasNextPage ? AppColors.blue : Colors.grey[300],
+                        hasNextPage ? AppColors.primary : Colors.grey[300],
                     foregroundColor:
                         hasNextPage ? Colors.white : Colors.grey[600],
                   ),
@@ -586,7 +583,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -655,15 +652,15 @@ class _PropertyListPageState extends State<PropertyListPage> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on,
-                          size: 16, color: AppColors.grey1),
+                      const Icon(Iconsax.location,
+                          size: 16, color: AppColors.neutral500),
                       const SizedBox(width: 4),
                       Expanded(
                         child: MyText(
                           property.location,
                           style: const TextStyle(
                             fontSize: 14,
-                            color: AppColors.grey1,
+                            color: AppColors.neutral500,
                           ),
                         ),
                       ),
@@ -678,8 +675,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                       _buildPropertyInfo(
                           Icons.bathtub, '${property.bathrooms} baths'),
                       kSizedBoxWidthSM,
-                      _buildPropertyInfo(
-                          Icons.square_foot, '${property.size} sqm'),
+                      _buildPropertyInfo(Iconsax.ruler, '${property.size} sqm'),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -691,7 +687,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.blue,
+                          color: AppColors.primary,
                         ),
                       ),
                       Wrap(
@@ -701,14 +697,14 @@ class _PropertyListPageState extends State<PropertyListPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: AppColors.blue.withValues(alpha: 0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: MyText(
                               property.formattedCategory,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: AppColors.blue,
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -748,13 +744,13 @@ class _PropertyListPageState extends State<PropertyListPage> {
       width: 120,
       height: 120,
       decoration: BoxDecoration(
-        color: AppColors.blue.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Icon(
-        Icons.home_work,
+        Iconsax.home,
         size: 40,
-        color: AppColors.blue,
+        color: AppColors.primary,
       ),
     );
   }
@@ -762,13 +758,13 @@ class _PropertyListPageState extends State<PropertyListPage> {
   Widget _buildPropertyInfo(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.grey1),
+        Icon(icon, size: 16, color: AppColors.neutral500),
         const SizedBox(width: 4),
         MyText(
           text,
           style: const TextStyle(
             fontSize: 13,
-            color: AppColors.grey1,
+            color: AppColors.neutral500,
           ),
         ),
       ],
@@ -791,7 +787,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
       case 'off_market':
         return Colors.grey;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

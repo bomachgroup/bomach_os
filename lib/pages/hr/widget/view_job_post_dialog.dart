@@ -1,7 +1,13 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../controller/jobposting_control.dart';
@@ -11,38 +17,6 @@ import 'add_job_post_dialog.dart';
 class ViewJobPostDialog extends StatelessWidget {
   final JobPosting job;
   const ViewJobPostDialog({super.key, required this.job});
-
-  Widget _buildDetailRow(String label, String value, {bool isBlue = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 200,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value.isEmpty ? 'N/A' : value,
-              style: TextStyle(
-                fontSize: 14,
-                color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
@@ -57,119 +31,251 @@ class ViewJobPostDialog extends StatelessWidget {
         .join(' ');
   }
 
+  StatusTone _statusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'open':
+      case 'active':
+        return StatusTone.success;
+      case 'draft':
+        return StatusTone.neutral;
+      case 'closed':
+      case 'filled':
+        return StatusTone.primary;
+      case 'paused':
+        return StatusTone.warning;
+      case 'expired':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final JobPostController controller = Get.find<JobPostController>();
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    return DialogScaffold(
+      title: 'Job Details',
+      subtitle: job.title.isEmpty ? 'Job posting overview' : job.title,
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(),
+          const SizedBox(height: 20),
+          _buildDetailSection(
+            title: 'Posting information',
+            children: [
+              _detailRow('Job Title', job.title),
+              _detailRow('Department', job.departmentId),
+              _detailRow('Branch ID', job.branchId),
+              _detailRow('Job Type', _formatEnum(job.jobType)),
+              _detailRow('Salary Range', job.salaryRange),
+              _detailRow(
+                  'Application Deadline', _formatDate(job.deadline)),
+              _detailRow('Applicants Count', job.applicantsCount.toString()),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildDetailSection(
+            title: 'Description',
+            children: [
+              _longTextRow(job.description),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildDetailSection(
+            title: 'Responsibilities',
+            children: [
+              _longTextRow(job.responsibilities),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildDetailSection(
+            title: 'Requirements',
+            children: [
+              _longTextRow(job.requirements),
+            ],
+          ),
+        ],
       ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Job Details',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close,
-                        size: 24,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+        Obx(() => MyOutlinedButton(
+              child: controller.isLoading.value ? 'Deleting...' : 'Delete',
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              icon: const Icon(Iconsax.trash,
+                  size: 18, color: AppColors.danger),
+              onTap: controller.isLoading.value
+                  ? () {}
+                  : () => controller.deleteJob(context, job.id),
+              textColor: AppColors.danger,
+              borderColor: AppColors.danger,
+            )),
+        MyElevatedButton(
+          child: 'Edit',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          icon: const Icon(Iconsax.edit,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (_) => AddJobPostDialog(job: job),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBanner() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
             ),
-            const Divider(height: 1, color: Color(0xFFE5E5E5)),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: const Icon(Iconsax.briefcase,
+                color: AppColors.primary, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(job.title.isEmpty ? 'Untitled Job' : job.title,
+                    style: AppTextStyles.h3),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    _buildDetailRow('Job Title', job.title),
-                    _buildDetailRow('Department', job.departmentId),
-                    _buildDetailRow('Branch ID', job.branchId),
-                    _buildDetailRow('Job Type', _formatEnum(job.jobType)),
-                    _buildDetailRow('Salary Range', job.salaryRange),
-                    _buildDetailRow(
-                        'Application Deadline', _formatDate(job.deadline)),
-                    const SizedBox(height: 16),
-                    _buildDetailRow('Description', job.description),
-                    _buildDetailRow('Responsibilities', job.responsibilities),
-                    _buildDetailRow('Requirements', job.requirements),
-                    _buildDetailRow('Status', _formatEnum(job.status),
-                        isBlue: true),
-                    _buildDetailRow(
-                        'Applicants Count', job.applicantsCount.toString()),
-                    const SizedBox(height: 50),
+                    StatusChip(
+                      label: _formatEnum(job.status),
+                      tone: _statusTone(job.status),
+                    ),
+                    if (job.jobType.isNotEmpty)
+                      _buildMetaChip(
+                        icon: Iconsax.clock,
+                        label: _formatEnum(job.jobType),
+                      ),
+                    _buildMetaChip(
+                      icon: Iconsax.profile_2user,
+                      label: '${job.applicantsCount} applicants',
+                    ),
                   ],
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetaChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 180,
+            child: Text(
+              label,
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '—' : value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Obx(() => MyElevatedButton(
-                        bgColor: AppColors.red,
-                        child: controller.isLoading.value
-                            ? 'Deleting...'
-                            : 'Delete',
-                        onTap: controller.isLoading.value
-                            ? () {}
-                            : () => controller.deleteJob(context, job.id),
-                      )),
-                  const SizedBox(width: 15),
-                  MyElevatedButton(
-                    child: 'Edit',
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (_) => AddJobPostDialog(job: job),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _longTextRow(String value) {
+    return Text(
+      value.isEmpty ? '—' : value,
+      style: AppTextStyles.bodyMd.copyWith(
+        color: AppColors.textPrimary,
+        height: 1.5,
       ),
     );
   }

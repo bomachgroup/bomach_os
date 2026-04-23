@@ -1,15 +1,24 @@
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/company_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controllers/company_controller.dart';
 
+/// Audit log page — read-only list of every system activity logged for
+/// compliance tracking. Columns: actor (user), activity, audit type,
+/// status, IP, and timestamp.
 class AuditLogPage extends StatefulWidget {
   const AuditLogPage({super.key});
 
@@ -55,203 +64,287 @@ class _AuditLogPageState extends State<AuditLogPage> {
     }).toList();
   }
 
+  StatusTone _typeTone(String type) {
+    switch (type) {
+      case 'login':
+        return StatusTone.primary;
+      case 'create':
+        return StatusTone.success;
+      case 'update':
+        return StatusTone.warning;
+      case 'delete':
+        return StatusTone.danger;
+      case 'logout':
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
+  StatusTone _statusTone(String status) {
+    switch (status) {
+      case 'success':
+        return StatusTone.success;
+      case 'failure':
+      case 'failed':
+        return StatusTone.danger;
+      default:
+        return StatusTone.warning;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: const PageHeader(
+        title: 'Audit Log',
+        subtitle: 'Track all changes and activities in the system.',
+      ),
       children: [
-        const MyText('Audit Log', style: AppText.black_600_32),
-        const SizedBox(height: 8),
-        const Text('Track all changes and activities in the system',
-            style: TextStyle(color: Color(0xFF64748B))),
-        kSizedBox,
-
-        // Search bar
-        SizedBox(
-          width: 320,
-          child: MyTextFormField(
-            controller: _searchController,
-            hintText: 'Search by user, activity or IP...',
-            leading: const Icon(Icons.search, color: Colors.grey),
-            onChanged: (v) => setState(() => _searchQuery = v),
-          ),
-        ),
-        kSizedBox,
-
-        // Table
+        _buildToolbar(),
         Obx(() {
-          if (controller.isAuditLoading.value) {
-            return const Center(
-                child: Padding(
-                    padding: EdgeInsets.all(40),
-                    child: CircularProgressIndicator()));
-          }
-
+          final loading = controller.isAuditLoading.value &&
+              controller.auditLogs.isEmpty;
           final filtered = _filtered(controller.auditLogs);
+          final isEmpty = !controller.isAuditLoading.value && filtered.isEmpty;
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: filtered.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(40),
-                        child: Center(child: Text('No audit logs found.')))
-                    : LayoutBuilder(
-                        builder: (context, constraints) =>
-                            SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: ConstrainedBox(
-                            constraints:
-                                BoxConstraints(minWidth: constraints.maxWidth),
-                            child: DataTable(
-                              headingRowColor:
-                                  WidgetStateProperty.all(Colors.grey.shade50),
-                              columnSpacing: 24,
-                              dataRowMinHeight: 52,
-                              dataRowMaxHeight: 64,
-                              columns: const [
-                                DataColumn(label: Text('User')),
-                                DataColumn(label: Text('Activity')),
-                                DataColumn(label: Text('Type')),
-                                DataColumn(label: Text('Status')),
-                                DataColumn(label: Text('IP Address')),
-                                DataColumn(label: Text('Date & Time')),
-                              ],
-                              rows: filtered.map((log) {
-                                return DataRow(cells: [
-                                  // User
-                                  DataCell(Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(log.userFullName,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 13)),
-                                      Text(log.userEmail,
-                                          style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Color(0xFF64748B))),
-                                    ],
-                                  )),
-                                  // Activity
-                                  DataCell(SizedBox(
-                                      width: 240,
-                                      child: Text(log.activity,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                          style:
-                                              const TextStyle(fontSize: 13)))),
-                                  // Type badge
-                                  DataCell(_TypeBadge(
-                                      log.auditTypeDisplay, log.auditType)),
-                                  // Status badge
-                                  DataCell(_StatusBadge(
-                                      log.auditStatusDisplay, log.auditStatus)),
-                                  // IP
-                                  DataCell(Text(log.ipAddress,
-                                      style: const TextStyle(
-                                          fontFamily: 'monospace',
-                                          fontSize: 12))),
-                                  // Date
-                                  DataCell(Text(_formatDate(log.createdAt),
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF64748B)))),
-                                ]);
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ),
-              ),
-
-              // Pagination
-              if (_searchQuery.isEmpty) ...[
-                kSizedBoxSM,
-                Obx(() => PaginatorFooter(
-                      totalItems: controller.auditLogsTotal.value,
-                      limit: CompanyController.auditPageSize,
-                      currentPage: controller.auditPage.value + 1,
-                      onPageChanged: (page) =>
-                          controller.fetchAuditLogs(page: page - 1),
-                    )),
-              ],
-            ],
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            body: _buildAuditTable(filtered),
+            footer: _searchQuery.isEmpty
+                ? _tablePaginator(
+                    Obx(() => PaginatorFooter(
+                          totalItems: controller.auditLogsTotal.value,
+                          limit: CompanyController.auditPageSize,
+                          currentPage: controller.auditPage.value + 1,
+                          onPageChanged: (page) =>
+                              controller.fetchAuditLogs(page: page - 1),
+                        )),
+                  )
+                : null,
           );
         }),
       ],
     );
   }
-}
 
-// ── Type badge ────────────────────────────────────────────────────────────────
-
-class _TypeBadge extends StatelessWidget {
-  final String label;
-  final String type;
-  const _TypeBadge(this.label, this.type);
-
-  @override
-  Widget build(BuildContext context) {
-    final (bg, fg) = switch (type) {
-      'login' => (const Color(0xFFEFF6FF), const Color(0xFF2563EB)),
-      'logout' => (const Color(0xFFF8FAFC), const Color(0xFF64748B)),
-      'create' => (const Color(0xFFF0FDF4), const Color(0xFF16A34A)),
-      'update' => (const Color(0xFFFFFBEB), const Color(0xFFD97706)),
-      'delete' => (const Color(0xFFFFF1F2), const Color(0xFFE11D48)),
-      _ => (const Color(0xFFF1F5F9), const Color(0xFF475569)),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style:
-              TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w600)),
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        controller: _searchController,
+        hintText: 'Search by user, activity, type or IP address',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (v) => setState(() => _searchQuery = v),
+      ),
     );
   }
-}
 
-// ── Status badge ──────────────────────────────────────────────────────────────
-
-class _StatusBadge extends StatelessWidget {
-  final String label;
-  final String status;
-  const _StatusBadge(this.label, this.status);
-
-  @override
-  Widget build(BuildContext context) {
-    final (bg, fg) = switch (status) {
-      'success' => (const Color(0xFFF0FDF4), const Color(0xFF16A34A)),
-      'failure' || 'failed' => (
-          const Color(0xFFFFF1F2),
-          const Color(0xFFE11D48)
-        ),
-      _ => (const Color(0xFFFFFBEB), const Color(0xFFD97706)),
-    };
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-          width: 6,
-          height: 6,
-          decoration: BoxDecoration(color: fg, shape: BoxShape.circle)),
-      const SizedBox(width: 6),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-        child: Text(label,
-            style: TextStyle(
-                color: fg, fontSize: 11, fontWeight: FontWeight.w600)),
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required Widget body,
+    Widget? footer,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Activity register', style: AppTextStyles.h3),
+                      const SizedBox(height: 4),
+                      Obx(() => Text(
+                            loading
+                                ? 'Loading audit logs...'
+                                : '${controller.auditLogsTotal.value} events recorded',
+                            style: AppTextStyles.bodyMd.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+                const StatusChip(
+                  label: 'Compliance trail',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.shield_tick,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.document_text_1,
+                title: 'No audit logs found',
+                subtitle:
+                    'System activities will appear here as users interact with the platform.',
+              ),
+            )
+          else
+            body,
+          if (footer != null) ...[
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            footer,
+          ],
+        ],
       ),
-    ]);
+    );
+  }
+
+  Widget _buildAuditTable(List<AuditLog> filtered) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('User', flex: 3),
+              _buildHeaderCell('Activity', flex: 4),
+              _buildHeaderCell('Type', flex: 3),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('IP Address', flex: 2),
+              _buildHeaderCell('Date & Time', flex: 3),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...filtered.map(_buildDataRow),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _tablePaginator(Widget child) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: child,
+    );
+  }
+
+  Widget _buildDataRow(AuditLog log) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  log.userFullName,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  log.userEmail,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Text(
+              log.activity,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: log.auditTypeDisplay.isEmpty
+                    ? log.auditType
+                    : log.auditTypeDisplay,
+                tone: _typeTone(log.auditType),
+                dense: true,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: log.auditStatusDisplay.isEmpty
+                    ? log.auditStatus
+                    : log.auditStatusDisplay,
+                tone: _statusTone(log.auditStatus),
+                dense: true,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              log.ipAddress.isEmpty ? '—' : log.ipAddress,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              _formatDate(log.createdAt),
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

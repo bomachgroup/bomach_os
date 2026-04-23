@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
@@ -63,7 +64,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const Icon(Iconsax.arrow_left_2),
                   onPressed: () => context.pop(),
                 ),
                 const Expanded(
@@ -76,8 +77,8 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                   ),
                 ),
                 MyOutlinedButton(
-                  borderColor: AppColors.grey4,
-                  textColor: AppColors.grey1,
+                  borderColor: AppColors.neutral300,
+                  textColor: AppColors.neutral500,
                   child: 'Edit',
                   onTap: () {
                     showDialog(
@@ -174,13 +175,13 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
         // Location
         Row(
           children: [
-            const Icon(Icons.location_on, size: 20, color: AppColors.grey1),
+            const Icon(Iconsax.location, size: 20, color: AppColors.neutral500),
             const SizedBox(width: 8),
             MyText(
               property.location,
               style: const TextStyle(
                 fontSize: 16,
-                color: AppColors.grey1,
+                color: AppColors.neutral500,
               ),
             ),
           ],
@@ -194,7 +195,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
           style: const TextStyle(
             fontSize: 36,
             fontWeight: FontWeight.bold,
-            color: AppColors.blue,
+            color: AppColors.primary,
           ),
         ),
 
@@ -239,15 +240,15 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
         child: Container(
           width: double.infinity,
           height: 400,
-          color: AppColors.blue.withValues(alpha: 0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
           child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.home_work, size: 80, color: AppColors.blue),
+              Icon(Iconsax.home, size: 80, color: AppColors.primary),
               SizedBox(height: 16),
               MyText(
                 'No images available',
-                style: TextStyle(fontSize: 16, color: AppColors.grey1),
+                style: TextStyle(fontSize: 16, color: AppColors.neutral500),
               ),
             ],
           ),
@@ -275,9 +276,9 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                 errorPlaceholder: Container(
                   width: double.infinity,
                   height: 400,
-                  color: AppColors.blue.withValues(alpha: 0.1),
-                  child: const Icon(Icons.broken_image,
-                      size: 80, color: AppColors.grey1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  child: const Icon(Iconsax.gallery_slash,
+                      size: 80, color: AppColors.neutral500),
                 ),
               ),
               if (images.length > 1) ...[
@@ -288,7 +289,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                   bottom: 0,
                   child: Center(
                     child: IconButton(
-                      icon: const Icon(Icons.chevron_left,
+                      icon: const Icon(Iconsax.arrow_left_2,
                           color: AppColors.white, size: 32),
                       onPressed: () {
                         setState(() {
@@ -308,7 +309,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                   bottom: 0,
                   child: Center(
                     child: IconButton(
-                      icon: const Icon(Icons.chevron_right,
+                      icon: const Icon(Iconsax.arrow_right_3,
                           color: AppColors.white, size: 32),
                       onPressed: () {
                         setState(() {
@@ -367,7 +368,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: isSelected ? AppColors.blue : AppColors.grey4,
+                        color: isSelected ? AppColors.primary : AppColors.neutral300,
                         width: isSelected ? 3 : 1,
                       ),
                     ),
@@ -377,7 +378,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                         images[index],
                         fit: BoxFit.cover,
                         errorPlaceholder:
-                            const Icon(Icons.broken_image, size: 24),
+                            const Icon(Iconsax.gallery_slash, size: 24),
                       ),
                     ),
                   ),
@@ -396,7 +397,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
       ),
       child: Wrap(
         spacing: 40,
@@ -406,12 +407,12 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
             _buildFeatureItem(Icons.bed, '${property.bedrooms} Bedrooms'),
           if (property.bathrooms > 0)
             _buildFeatureItem(Icons.bathtub, '${property.bathrooms} Bathrooms'),
-          _buildFeatureItem(Icons.square_foot, '${property.size} sqm'),
+          _buildFeatureItem(Iconsax.ruler, '${property.size} sqm'),
           if (property.parkingSpaces > 0)
             _buildFeatureItem(
-                Icons.local_parking, '${property.parkingSpaces} Parking'),
-          _buildFeatureItem(Icons.home_work, property.formattedType),
-          _buildFeatureItem(Icons.category, property.formattedCategory),
+                Iconsax.car, '${property.parkingSpaces} Parking'),
+          _buildFeatureItem(Iconsax.home, property.formattedType),
+          _buildFeatureItem(Iconsax.category_2, property.formattedCategory),
         ],
       ),
     );
@@ -422,9 +423,9 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
-          backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           radius: 20,
-          child: Icon(icon, color: AppColors.blue, size: 20),
+          child: Icon(icon, color: AppColors.primary, size: 20),
         ),
         const SizedBox(width: 12),
         MyText(
@@ -443,9 +444,9 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       children: [
         TabBar(
           controller: _tabController,
-          labelColor: AppColors.blue,
-          unselectedLabelColor: AppColors.grey1,
-          indicatorColor: AppColors.blue,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.neutral500,
+          indicatorColor: AppColors.primary,
           tabs: const [
             Tab(text: 'Description'),
             Tab(text: 'Location'),
@@ -472,7 +473,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -493,7 +494,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
               style: const TextStyle(
                 fontSize: 15,
                 height: 1.6,
-                color: AppColors.grey1,
+                color: AppColors.neutral500,
               ),
             ),
           ],
@@ -508,7 +509,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,7 +524,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
           const SizedBox(height: 16),
           Row(
             children: [
-              const Icon(Icons.location_on, color: AppColors.blue),
+              const Icon(Iconsax.location, color: AppColors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: MyText(
@@ -546,7 +547,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey4),
+        border: Border.all(color: AppColors.neutral300),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -592,7 +593,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
             label,
             style: const TextStyle(
               fontSize: 14,
-              color: AppColors.grey1,
+              color: AppColors.neutral500,
             ),
           ),
           Flexible(
@@ -623,7 +624,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       case 'pending':
         return Colors.amber;
       default:
-        return AppColors.grey1;
+        return AppColors.neutral500;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 
 import '../../components/input/my_dropdown.dart';
@@ -85,23 +86,23 @@ class CrmLeadsPage extends StatelessWidget {
               children: [
                 buildActionButton(
                     onPressed: () {},
-                    icon: Icons.message,
+                    icon: Iconsax.message_text,
                     label: 'Log Interactions',
                     isWide: !isMobile),
                 buildActionButton(
                     onPressed: () {
                       AddNewLeadDialog.show(context);
                     },
-                    icon: Icons.control_point_duplicate_sharp,
+                    icon: Iconsax.copy,
                     label: 'Add Lead',
                     isWide: !isMobile),
                 buildActionButton(
                     onPressed: () {
                       AddNewClientDialog.show(context);
                     },
-                    icon: Icons.person_add_alt_1_rounded,
+                    icon: Iconsax.user_add,
                     label: 'Add Client',
-                    backgroundColor: AppColors.blue,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     isWide: !isMobile),
               ],
@@ -114,13 +115,13 @@ class CrmLeadsPage extends StatelessWidget {
             MetricData(
                 title: 'Total Clients',
                 value: controller.totalClients.value.toString(),
-                icon: Icons.people_alt,
+                icon: Iconsax.people,
                 color: Colors.blue.shade600,
                 subtitle: 'Active client base'),
             MetricData(
                 title: 'Total Leads',
                 value: controller.totalLeads.value.toString(),
-                icon: Icons.trending_up,
+                icon: Iconsax.trend_up,
                 color: Colors.green.shade600,
                 subtitle: 'Current leads'),
             MetricData(
@@ -128,13 +129,13 @@ class CrmLeadsPage extends StatelessWidget {
                 value: controller.totalLeads.value > 0
                     ? '${((controller.totalClients.value / (controller.totalClients.value + controller.totalLeads.value)) * 100).toStringAsFixed(1)}%'
                     : '0%',
-                icon: Icons.attach_money,
+                icon: Iconsax.money_recive,
                 color: Colors.purple.shade600,
                 subtitle: 'Lead to client'),
             MetricData(
                 title: 'Retention Rate',
                 value: '—',
-                icon: Icons.star,
+                icon: Iconsax.star1,
                 color: Colors.orange.shade600,
                 subtitle: 'Client retention'),
           ];
@@ -169,9 +170,9 @@ Map<String, Color> _getStatusColors(String status) {
     case 'qualified':
       return {'bg': const Color(0xFFF6F0FF), 'text': const Color(0xFF9B59B6)};
     case 'proposal':
-      return {'bg': const Color(0xFFFFFBE8), 'text': const Color(0xFFF1C40F)};
+      return {'bg': AppColors.warningSubtle, 'text': const Color(0xFFF1C40F)};
     case 'converted':
-      return {'bg': const Color(0xFFE6FFF2), 'text': const Color(0xFF00B062)};
+      return {'bg': AppColors.successSubtle, 'text': AppColors.success};
     case 'new':
     default:
       return {'bg': const Color(0xFFEEF7FF), 'text': const Color(0xFF3498DB)};
@@ -221,7 +222,7 @@ class _LeadsTableLive extends StatelessWidget {
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: Color(0xFFF7F7F7),
+                    fillColor: AppColors.neutral100,
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                   ),
@@ -244,7 +245,7 @@ class _LeadsTableLive extends StatelessWidget {
                     controller.onLeadStatusFilterChanged(
                         val == 'All Status' ? null : val);
                   },
-                  fillColor: const Color(0xFFF7F7F7),
+                  fillColor: AppColors.neutral100,
                 ),
               ),
             ],
@@ -338,7 +339,7 @@ class _LeadDataTableLive extends StatelessWidget {
                   style: const TextStyle(fontSize: 12))),
               DataCell(Text(lead.companyName ?? '—')),
               DataCell(_buildTag(lead.source,
-                  backgroundColor: const Color(0xFFF7F7F7),
+                  backgroundColor: AppColors.neutral100,
                   textColor: Colors.black87)),
               DataCell(_buildTag(lead.status.toUpperCase(),
                   backgroundColor: statusColors['bg']!,
@@ -346,13 +347,13 @@ class _LeadDataTableLive extends StatelessWidget {
               DataCell(Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    icon: const Icon(Iconsax.arrow_swap_horizontal, size: 18),
                     tooltip: 'Convert to Client',
                     onPressed: () =>
                         controller.convertLeadToClient(context, lead.id),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline,
+                    icon: const Icon(Iconsax.trash,
                         size: 18, color: Colors.red),
                     tooltip: 'Delete',
                     onPressed: () => controller.deleteLead(context, lead.id),

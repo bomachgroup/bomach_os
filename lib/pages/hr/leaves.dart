@@ -1,14 +1,23 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/permission/permission_gate.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/pages/hr/widget/add_leave_request_dialog.dart';
-import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:bms_front_end/pages/hr/controller/leave_request_controller.dart';
 import 'controller/my_leaves_controller.dart';
@@ -51,112 +60,26 @@ class _LeavesPageState extends State<LeavesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Hero Banner ──────────────────────────────────────────────
-          _buildHeroBanner(),
-          const SizedBox(height: 24),
-
-          // ── Stats Row ────────────────────────────────────────────────
-          Obx(() => _buildStatsRow()),
-          const SizedBox(height: 28),
-
-          // ── Table Section ────────────────────────────────────────────
-          _buildTableSection(),
-        ],
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Hero Banner
-  // ─────────────────────────────────────────────────────────────────────────
-
-  Widget _buildHeroBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0055FF), Color(0xFF1A3FCC), Color(0xFF0D2B99)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'My Leave Requests',
+        subtitle: 'Track, manage and request time off.',
+        trailing: PermissionGate(
+          require: Perms.leaveRequestsCreate,
+          child: MyElevatedButton(
+            height: 48,
+            icon: const Icon(Iconsax.add_circle,
+                color: AppColors.textOnPrimary, size: 18),
+            child: 'Request Leave',
+            onTap: _openRequestDialog,
+          ),
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0055FF).withValues(alpha: 0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Icon
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.event_note_rounded,
-                color: Colors.white, size: 26),
-          ),
-          const SizedBox(width: 16),
-          // Text
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MyText(
-                  'My Leave Requests',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-                SizedBox(height: 4),
-                MyText(
-                  'Track, manage and request time off',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // CTA button
-          PermissionGate(
-            require: Perms.leaveRequestsCreate,
-            child: ElevatedButton.icon(
-              onPressed: _openRequestDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF0055FF),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text(
-                'Request Leave',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
-            ),
-          ),
-        ],
-      ),
+      children: [
+        Obx(() => _buildStatsRow()),
+        _buildTableCard(),
+      ],
     );
   }
 
@@ -166,228 +89,166 @@ class _LeavesPageState extends State<LeavesPage> {
 
   Widget _buildStatsRow() {
     final stats = _ctrl.stats;
-    final cards = [
-      _StatDef(
-        label: 'Total Requests',
-        value: _ctrl.totalCount.value.toString(),
-        icon: Icons.list_alt_rounded,
-        color: const Color(0xFF6366F1),
-      ),
-      _StatDef(
-        label: 'Pending',
-        value: (stats['pending'] ?? 0).toString(),
-        icon: Icons.hourglass_top_rounded,
-        color: const Color(0xFFF59E0B),
-      ),
-      _StatDef(
-        label: 'Approved',
-        value: (stats['approved'] ?? 0).toString(),
-        icon: Icons.check_circle_rounded,
-        color: const Color(0xFF10B981),
-      ),
-      _StatDef(
-        label: 'Rejected',
-        value: (stats['rejected'] ?? 0).toString(),
-        icon: Icons.cancel_rounded,
-        color: const Color(0xFFEF4444),
-      ),
-    ];
-
-    return LayoutBuilder(builder: (context, constraints) {
-      final isNarrow = constraints.maxWidth < 700;
-      if (isNarrow) {
-        return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: cards
-              .map((c) => SizedBox(
-                    width: (constraints.maxWidth - 12) / 2,
-                    child: _buildStatCard(c),
-                  ))
-              .toList(),
-        );
-      }
-      return Row(
-        children: cards
-            .map((c) => Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(right: c == cards.last ? 0 : 12),
-                    child: _buildStatCard(c),
-                  ),
-                ))
-            .toList(),
-      );
-    });
+    return ResponsiveStatRow(
+      cards: [
+        _buildStatCard(
+          label: 'Total Requests',
+          value: _ctrl.totalCount.value.toString(),
+          icon: Iconsax.task_square,
+          tone: StatusTone.primary,
+        ),
+        _buildStatCard(
+          label: 'Pending',
+          value: (stats['pending'] ?? 0).toString(),
+          icon: Iconsax.timer,
+          tone: StatusTone.warning,
+        ),
+        _buildStatCard(
+          label: 'Approved',
+          value: (stats['approved'] ?? 0).toString(),
+          icon: Iconsax.tick_circle,
+          tone: StatusTone.success,
+        ),
+        _buildStatCard(
+          label: 'Rejected',
+          value: (stats['rejected'] ?? 0).toString(),
+          icon: Iconsax.close_circle,
+          tone: StatusTone.danger,
+        ),
+      ],
+    );
   }
 
-  Widget _buildStatCard(_StatDef s) {
-    return Container(
+  Widget _buildStatCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required StatusTone tone,
+  }) {
+    final color = _toneColor(tone);
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8ECF0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      elevation: AppCardElevation.sm,
       child: Row(
         children: [
           Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: s.color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: color.withValues(alpha: 0.1),
+              borderRadius: AppRadii.brMd,
             ),
-            child: Icon(s.icon, color: s.color, size: 22),
+            child: Icon(icon, color: color, size: 22),
           ),
           const SizedBox(width: 14),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                s.value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: s.color,
-                  height: 1.1,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: AppTextStyles.h1.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                s.label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF64748B),
-                  fontWeight: FontWeight.w500,
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
+  Color _toneColor(StatusTone tone) {
+    switch (tone) {
+      case StatusTone.success:
+        return AppColors.success;
+      case StatusTone.warning:
+        return AppColors.warning;
+      case StatusTone.danger:
+        return AppColors.danger;
+      case StatusTone.info:
+        return AppColors.info;
+      case StatusTone.primary:
+        return AppColors.primary;
+      case StatusTone.neutral:
+        return AppColors.textSecondary;
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Table Section
   // ─────────────────────────────────────────────────────────────────────────
 
-  Widget _buildTableSection() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8ECF0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildTableCard() {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Section header
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: ResponsiveSubheader(
-              title: Obx(() => Row(
-                    children: [
-                      const Text(
-                        'Leave History',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF0F172A),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${_ctrl.totalCount.value}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.blue,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              search: MyTextFormField(
-                controller: _ctrl.searchController,
-                hintText: 'Search leaves...',
-                leading: const Icon(Icons.search, color: Colors.grey, size: 20),
-              ),
-              action: Obx(() => Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _ctrl.selectedStatusFilter.value,
-                        isDense: true,
-                        items: _ctrl.statusOptions
-                            .map((s) =>
-                                DropdownMenuItem(value: s, child: Text(s)))
-                            .toList(),
-                        onChanged: (v) => _ctrl.updateStatusFilter(v, context),
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Leave History', style: AppTextStyles.h3),
+                          const SizedBox(height: 4),
+                          Obx(() => Text(
+                                '${_ctrl.totalCount.value} request${_ctrl.totalCount.value == 1 ? '' : 's'} on record',
+                                style: AppTextStyles.bodyMd.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              )),
+                        ],
                       ),
                     ),
-                  )),
+                    const StatusChip(
+                      label: 'Personal leave log',
+                      tone: StatusTone.primary,
+                      icon: Iconsax.calendar_1,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildFilterRow(),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          const Divider(height: 1, color: Color(0xFFE8ECF0)),
-
-          // Body
+          const Divider(height: 1, color: AppColors.borderSubtle),
           Obx(() {
             if (_ctrl.isLoading.value && _ctrl.leaveList.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 60),
-                child: Center(child: CircularProgressIndicator()),
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: LoadingSkeleton.listRows(count: 5),
               );
             }
             if (_ctrl.hasError.value) {
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 60),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.error_outline,
-                          size: 40, color: Colors.grey.shade300),
-                      const SizedBox(height: 12),
-                      Text(
-                        _ctrl.errorMessage.value,
-                        style: const TextStyle(
-                            color: Color(0xFF64748B), fontSize: 14),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      MyElevatedButton(
-                        child: 'Retry',
-                        onTap: () => _ctrl.fetchMyLeaves(context),
-                      ),
-                    ],
+                padding: const EdgeInsets.all(24),
+                child: EmptyState(
+                  icon: Iconsax.danger,
+                  title: 'Unable to load leaves',
+                  subtitle: _ctrl.errorMessage.value,
+                  action: MyElevatedButton(
+                    child: 'Retry',
+                    onTap: () => _ctrl.fetchMyLeaves(context),
                   ),
                 ),
               );
@@ -395,202 +256,198 @@ class _LeavesPageState extends State<LeavesPage> {
             if (_ctrl.leaveList.isEmpty) {
               return _buildEmptyState();
             }
-            return _buildTable();
+            return Column(
+              children: [
+                _buildTable(),
+                const Divider(height: 1, color: AppColors.borderSubtle),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                  child: PaginatorFooter(
+                    currentPage: _ctrl.currentPage.value,
+                    totalItems: _ctrl.totalCount.value,
+                    limit: _ctrl.itemsPerPage.value,
+                    onPageChanged: (p) => _ctrl.changePage(p, context),
+                    onLimitChanged: (l) => _ctrl.changeLimit(l, context),
+                  ),
+                ),
+              ],
+            );
           }),
         ],
       ),
     );
   }
 
+  Widget _buildFilterRow() {
+    return LayoutBuilder(builder: (context, constraints) {
+      final isNarrow = constraints.maxWidth < 640;
+      final search = MyTextFormField(
+        controller: _ctrl.searchController,
+        hintText: 'Search leaves by type or reason',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+      );
+      final filter = Obx(() => SizedBox(
+            width: isNarrow ? double.infinity : 220,
+            child: MyDropdown(
+              hintText: _ctrl.selectedStatusFilter.value,
+              initialSelection: _ctrl.selectedStatusFilter.value,
+              items: _ctrl.statusOptions,
+              onChanged: (v) => _ctrl.updateStatusFilter(v, context),
+            ),
+          ));
+
+      if (isNarrow) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            search,
+            const SizedBox(height: 12),
+            filter,
+          ],
+        );
+      }
+      return Row(
+        children: [
+          Expanded(child: search),
+          const SizedBox(width: 12),
+          filter,
+        ],
+      );
+    });
+  }
+
   Widget _buildEmptyState() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 60),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.event_busy_rounded,
-                  size: 30, color: Color(0xFF6366F1)),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No leave requests found',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Submit a request to take time off',
-              style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-            ),
-            const SizedBox(height: 20),
-            PermissionGate(
-              require: Perms.leaveRequestsCreate,
-              child: ElevatedButton.icon(
-                onPressed: _openRequestDialog,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.blue,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                icon: const Icon(Icons.add_rounded, size: 16),
-                label: const Text('Request Leave',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-              ),
-            ),
-          ],
+      padding: const EdgeInsets.all(24),
+      child: EmptyState(
+        icon: Iconsax.calendar_remove,
+        title: 'No leave requests found',
+        subtitle: 'Submit a request to take time off.',
+        action: PermissionGate(
+          require: Perms.leaveRequestsCreate,
+          child: MyElevatedButton(
+            icon: const Icon(Iconsax.add_circle,
+                color: AppColors.textOnPrimary, size: 18),
+            child: 'Request Leave',
+            onTap: _openRequestDialog,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildTable() {
-    return Column(
-      children: [
-        Scrollbar(
-          controller: _scrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              dataRowMinHeight: 60,
-              dataRowMaxHeight: 60,
-              columnSpacing: 28,
-              horizontalMargin: 20,
-              showBottomBorder: false,
-              headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
-              headingTextStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
-                letterSpacing: 0.5,
-              ),
-              columns: const [
-                DataColumn(label: Text('LEAVE TYPE')),
-                DataColumn(label: Text('PERIOD')),
-                DataColumn(label: Text('DURATION')),
-                DataColumn(label: Text('REASON')),
-                DataColumn(label: Text('STATUS')),
-              ],
-              rows: _ctrl.leaveList.map((leave) {
-                final startStr = leave.startDate != null
-                    ? DateFormat('dd MMM yyyy').format(leave.startDate!)
-                    : '-';
-                final endStr = leave.endDate != null
-                    ? DateFormat('dd MMM yyyy').format(leave.endDate!)
-                    : '-';
-
-                return DataRow(cells: [
-                  // Leave Type with icon
-                  DataCell(Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: _leaveTypeColor(leave.leaveType)
-                              .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          _leaveTypeIcon(leave.leaveType),
-                          size: 14,
-                          color: _leaveTypeColor(leave.leaveType),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        _formatLeaveType(leave.leaveType),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF0F172A),
-                        ),
-                      ),
-                    ],
-                  )),
-
-                  // Period
-                  DataCell(Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(startStr,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF0F172A))),
-                      Text(
-                        endStr == '-' ? '' : '→ $endStr',
-                        style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF94A3B8)),
-                      ),
-                    ],
-                  )),
-
-                  // Duration
-                  DataCell(Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.07),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${leave.durationDays ?? '-'} day${(leave.durationDays ?? 0) == 1 ? '' : 's'}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF6366F1),
-                      ),
-                    ),
-                  )),
-
-                  // Reason
-                  DataCell(SizedBox(
-                    width: 220,
-                    child: Text(
-                      leave.reason ?? '-',
-                      style: const TextStyle(
-                          fontSize: 13, color: Color(0xFF475569)),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  )),
-
-                  // Status
-                  DataCell(_buildStatusChip(leave.status ?? 'pending')),
-                ]);
-              }).toList(),
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width - 64,
+          ),
+          child: DataTable(
+            dataRowMinHeight: 64,
+            dataRowMaxHeight: 72,
+            columnSpacing: 28,
+            horizontalMargin: 20,
+            showBottomBorder: false,
+            headingRowColor:
+                WidgetStateProperty.all(AppColors.surfaceMuted),
+            headingTextStyle: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
             ),
+            dividerThickness: 1,
+            columns: const [
+              DataColumn(label: Text('Leave Type')),
+              DataColumn(label: Text('Period')),
+              DataColumn(label: Text('Duration')),
+              DataColumn(label: Text('Reason')),
+              DataColumn(label: Text('Status')),
+            ],
+            rows: _ctrl.leaveList.map((leave) {
+              final startStr = leave.startDate != null
+                  ? DateFormat('dd MMM yyyy').format(leave.startDate!)
+                  : '-';
+              final endStr = leave.endDate != null
+                  ? DateFormat('dd MMM yyyy').format(leave.endDate!)
+                  : '-';
+              final days = leave.durationDays ?? 0;
+              final status = (leave.status ?? 'pending');
+
+              return DataRow(cells: [
+                // Leave Type
+                DataCell(Align(
+                  alignment: Alignment.centerLeft,
+                  child: StatusChip(
+                    label: _formatLeaveType(leave.leaveType),
+                    tone: _leaveTypeTone(leave.leaveType),
+                    icon: _leaveTypeIcon(leave.leaveType),
+                    dense: true,
+                  ),
+                )),
+                // Period
+                DataCell(Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      startStr,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (endStr != '-') ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '→ $endStr',
+                        style: AppTextStyles.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ],
+                )),
+                // Duration
+                DataCell(Text(
+                  '$days day${days == 1 ? '' : 's'}',
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
+                // Reason
+                DataCell(SizedBox(
+                  width: 220,
+                  child: Text(
+                    leave.reason ?? '-',
+                    style: AppTextStyles.bodySm.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )),
+                // Status
+                DataCell(Align(
+                  alignment: Alignment.centerLeft,
+                  child: StatusChip(
+                    label: _titleCase(status),
+                    tone: _statusTone(status),
+                    icon: _statusIcon(status),
+                    dense: true,
+                  ),
+                )),
+              ]);
+            }).toList(),
           ),
         ),
-        const Divider(height: 1, color: Color(0xFFE8ECF0)),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: PaginatorFooter(
-            currentPage: _ctrl.currentPage.value,
-            totalItems: _ctrl.totalCount.value,
-            limit: _ctrl.itemsPerPage.value,
-            onPageChanged: (p) => _ctrl.changePage(p, context),
-            onLimitChanged: (l) => _ctrl.changeLimit(l, context),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -598,66 +455,52 @@ class _LeavesPageState extends State<LeavesPage> {
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
-  Widget _buildStatusChip(String status) {
-    Color color;
-    IconData icon;
+  StatusTone _statusTone(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        color = const Color(0xFF10B981);
-        icon = Icons.check_circle_rounded;
-        break;
+        return StatusTone.success;
       case 'rejected':
-        color = const Color(0xFFEF4444);
-        icon = Icons.cancel_rounded;
-        break;
+        return StatusTone.danger;
       case 'pending':
-        color = const Color(0xFFF59E0B);
-        icon = Icons.hourglass_top_rounded;
-        break;
+        return StatusTone.warning;
+      case 'cancelled':
+      case 'canceled':
+        return StatusTone.neutral;
       default:
-        color = Colors.grey;
-        icon = Icons.circle;
+        return StatusTone.neutral;
     }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 13),
-          const SizedBox(width: 5),
-          Text(
-            status[0].toUpperCase() + status.substring(1),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
-  Color _leaveTypeColor(String type) {
+  IconData _statusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return Iconsax.tick_circle;
+      case 'rejected':
+        return Iconsax.close_circle;
+      case 'pending':
+        return Iconsax.timer;
+      default:
+        return Iconsax.record_circle;
+    }
+  }
+
+  StatusTone _leaveTypeTone(String type) {
     switch (type.toLowerCase()) {
       case 'sick_leave':
       case 'sick leave':
-        return const Color(0xFFEF4444);
+        return StatusTone.info;
       case 'annual_leave':
       case 'annual leave':
-        return const Color(0xFF6366F1);
+        return StatusTone.primary;
+      case 'unpaid_leave':
+        return StatusTone.neutral;
       case 'maternity_leave':
       case 'paternity_leave':
-        return const Color(0xFFEC4899);
+        return StatusTone.warning;
       case 'emergency_leave':
-        return const Color(0xFFF97316);
+        return StatusTone.danger;
       default:
-        return const Color(0xFF0EA5E9);
+        return StatusTone.info;
     }
   }
 
@@ -665,17 +508,17 @@ class _LeavesPageState extends State<LeavesPage> {
     switch (type.toLowerCase()) {
       case 'sick_leave':
       case 'sick leave':
-        return Icons.local_hospital_rounded;
+        return Iconsax.hospital;
       case 'annual_leave':
       case 'annual leave':
-        return Icons.beach_access_rounded;
+        return Iconsax.sun;
       case 'maternity_leave':
       case 'paternity_leave':
-        return Icons.child_friendly_rounded;
+        return Iconsax.milk;
       case 'emergency_leave':
-        return Icons.warning_amber_rounded;
+        return Iconsax.warning_2;
       default:
-        return Icons.event_note_rounded;
+        return Iconsax.calendar_1;
     }
   }
 
@@ -687,20 +530,9 @@ class _LeavesPageState extends State<LeavesPage> {
             (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
         .join(' ');
   }
-}
 
-// ─── Internal helper model ────────────────────────────────────────────────────
-
-class _StatDef {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _StatDef({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
+  String _titleCase(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
+  }
 }

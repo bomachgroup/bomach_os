@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
               value,
               style: TextStyle(
                 fontSize: 14,
-                color: isBlue ? const Color(0xFF007AFF) : Colors.black87,
+                color: isBlue ? AppColors.primary : Colors.black87,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -156,7 +157,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF007AFF),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -331,7 +332,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF007AFF),
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(width: 10),
@@ -347,7 +348,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF007AFF),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -357,7 +358,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF007AFF),
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(width: 10),
@@ -373,7 +374,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF007AFF),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -512,7 +513,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       child: Icon(
-                        Icons.close,
+                        Iconsax.close_circle,
                         size: 24,
                         color: Colors.grey[600],
                       ),
@@ -522,7 +523,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
               ),
             ),
 
-            const Divider(height: 1, color: Color(0xFFE5E5E5)),
+            const Divider(height: 1, color: AppColors.neutral200),
 
             // Scrollable Content
             Expanded(
@@ -590,7 +591,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                       alignment: WrapAlignment.end,
                       children: [
                         MyElevatedButton(
-                          bgColor: AppColors.red,
+                          bgColor: AppColors.danger,
                           child: 'Delete',
                           onTap: () {
                             Navigator.pop(context);

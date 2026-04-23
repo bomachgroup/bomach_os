@@ -79,7 +79,7 @@ class _EmployeeInfoStepperState extends State<EmployeeInfoStepper> {
                 key: _textKey,
                 weight: widget.isActive ? 600 : 300,
                 size: 16,
-                color: widget.isActive ? AppColors.blue : AppColors.darkGrey3,
+                color: widget.isActive ? AppColors.primary : AppColors.textPrimary,
               ),
             ],
           ),
@@ -89,9 +89,9 @@ class _EmployeeInfoStepperState extends State<EmployeeInfoStepper> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: widget.isActive
-                  ? AppColors.blue
+                  ? AppColors.primary
                   : widget.allowInactiveBorder
-                      ? AppColors.darkGrey3
+                      ? AppColors.textPrimary
                       : AppColors.transparent,
             ),
             width: _textWidth,

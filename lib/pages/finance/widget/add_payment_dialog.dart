@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
@@ -42,7 +43,7 @@ class _AddPaymentDialogState extends State<AddPaymentDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Iconsax.close_circle),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -168,7 +169,7 @@ class _AddPaymentDialogState extends State<AddPaymentDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
+                    textColor: AppColors.neutral500,
                     borderColor: null,
                     child: 'Cancel',
                     onTap: () {

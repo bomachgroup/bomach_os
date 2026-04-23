@@ -12,10 +12,12 @@ import 'package:bms_front_end/pages/company/board.dart';
 import 'package:bms_front_end/pages/company/broadcast.dart';
 import 'package:bms_front_end/pages/company/roles.dart';
 import 'package:bms_front_end/pages/company/approval_workflow.dart';
+import 'package:bms_front_end/pages/company/workspace_approvals.dart';
 import 'package:bms_front_end/pages/company/branch.dart';
 import 'package:bms_front_end/pages/company/company.dart';
 import 'package:bms_front_end/pages/company/department_units.dart';
 import 'package:bms_front_end/pages/crm/crm.dart';
+import 'package:bms_front_end/pages/marketing_crm/marketing_crm.dart';
 import 'package:bms_front_end/pages/dashboad/dashboard.dart';
 import 'package:bms_front_end/pages/dashboad/my_tasks.dart';
 import 'package:bms_front_end/pages/dashboad/my_profile.dart';
@@ -155,6 +157,7 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.broadcast: const BroadcastPage(),
   RouteConstants.roles: const RolesPage(),
   RouteConstants.approvalWorkflow: const ApprovalWorkflowPage(),
+  RouteConstants.workspaceApprovals: const WorkspaceApprovalsPage(),
   // RouteConstants.compliance: const CompliancePage(),
   RouteConstants.enugu: const BranchPage(),
   RouteConstants.finance: const FinancePage(),
@@ -237,6 +240,8 @@ final Map<String, Widget> _dashboardRoutes = {
   RouteConstants.securityLogs: const SecurityPage(page: 4),
   RouteConstants.securityWorkflow: const SecurityPage(page: 2),
   RouteConstants.securityOverview: const SecurityPage(page: 0),
+  // Marketing & CRM (combined)
+  RouteConstants.marketingCrm: const MarketingCrmDashboard(),
   // CRM
   RouteConstants.crmClients: const CrmClientsPage(),
   RouteConstants.crmLeads: const CrmLeadsPage(),

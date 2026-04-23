@@ -1,7 +1,11 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../../../src/model/employees_model.dart';
 
@@ -12,109 +16,154 @@ class ViewAssociateDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText('Associate Details',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context)),
-                ],
-              ),
+    final fullName = '${associate.firstName} ${associate.lastName}'.trim();
+    final hasPicture =
+        associate.profilePicture != null && associate.profilePicture!.isNotEmpty;
+    final initial =
+        associate.firstName.isNotEmpty ? associate.firstName[0].toUpperCase() : '?';
+
+    return DialogScaffold(
+      title: 'Associate Details',
+      subtitle: fullName.isEmpty ? 'Associate profile' : fullName,
+      size: DialogSize.md,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary banner
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceMuted,
+              borderRadius: AppRadii.brLg,
+              border: Border.all(color: AppColors.borderSubtle),
             ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AppColors.primarySubtle,
+                  backgroundImage: hasPicture
+                      ? NetworkImage(associate.profilePicture!)
+                      : null,
+                  child: !hasPicture
+                      ? Text(
+                          initial,
+                          style: AppTextStyles.h2.copyWith(color: AppColors.primary),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: AppColors.greyBg,
-                        backgroundImage: associate.profilePicture != null
-                            ? NetworkImage(associate.profilePicture!)
-                            : null,
-                        child: associate.profilePicture == null
-                            ? Text(associate.firstName[0],
-                                style: const TextStyle(fontSize: 24))
-                            : null,
+                      Text(
+                        fullName.isEmpty ? 'Unknown' : fullName,
+                        style: AppTextStyles.h3,
                       ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText('${associate.firstName} ${associate.lastName}',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          MyText(associate.employmentType ?? 'Associate',
-                              color: Colors.grey),
-                        ],
-                      )
+                      const SizedBox(height: 4),
+                      Text(
+                        associate.employmentType ?? 'Associate',
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: 8),
+                      StatusChip(
+                        label: associate.isActive ? 'Active' : 'Inactive',
+                        tone: associate.isActive
+                            ? StatusTone.success
+                            : StatusTone.neutral,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  _buildDetailRow('Email', associate.email),
-                  _buildDetailRow('Phone', associate.phoneNumber ?? '-'),
-                  _buildDetailRow('Address', associate.address ?? '-'),
-                  _buildDetailRow(
-                      'Status', associate.isActive ? 'Active' : 'Inactive'),
-                  _buildDetailRow(
-                      'Contract Value',
-                      associate.grossSalary != null
-                          ? '₦${associate.grossSalary}'
-                          : '-'),
-                ],
-              ),
+                ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyElevatedButton(
-                    child: 'Close',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Contact information',
+            children: [
+              _detailRow('Email', associate.email),
+              _detailRow('Phone', associate.phoneNumber ?? '-'),
+              _detailRow('Address', associate.address ?? '-'),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Engagement',
+            children: [
+              _detailRow('Role', associate.employmentType ?? '-'),
+              _detailRow('Status', associate.isActive ? 'Active' : 'Inactive'),
+              _detailRow(
+                'Contract Value',
+                associate.grossSalary != null
+                    ? '₦${associate.grossSalary}'
+                    : '-',
               ),
-            ),
-          ],
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          icon: const Icon(Iconsax.close_circle,
+              size: 18, color: AppColors.textSecondary),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 12),
+          ...children,
+        ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 140,
-            child: MyText(label, color: const Color(0xFF64748B), size: 14),
+            child: Text(
+              label,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
           ),
           Expanded(
-            child: MyText(value, weight: 500, size: 14),
+            child: Text(
+              value.isEmpty ? '—' : value,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),

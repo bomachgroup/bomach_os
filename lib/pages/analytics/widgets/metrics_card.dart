@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class AnalyticsMetricCard extends StatelessWidget {
   final String title;
@@ -70,7 +71,7 @@ class AnalyticsMetricCard extends StatelessWidget {
                       color: color,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.broken_image,
+                        Iconsax.gallery_slash,
                         size: isWide ? 24 : 18,
                         color: color,
                       ),
@@ -97,7 +98,7 @@ class AnalyticsMetricCard extends StatelessWidget {
                 children: [
                   if (showtrend == true)
                     Icon(
-                      isBearish ? Icons.trending_down : Icons.trending_up,
+                      isBearish ? Iconsax.trend_down : Iconsax.trend_up,
                       size: isWide ? 20 : 16,
                       color: isBearish ? Colors.red : Colors.green,
                     ),

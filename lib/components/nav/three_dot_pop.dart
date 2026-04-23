@@ -54,11 +54,11 @@ class _ThreeDotPopState extends State<ThreeDotPop> {
           child: Material(
             elevation: 0,
             borderRadius: BorderRadius.circular(16),
-            color: AppColors.greyBg,
+            color: AppColors.background,
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: AppColors.card,
+                  color: AppColors.borderSubtle,
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -150,7 +150,7 @@ class _ThreeDotPopState extends State<ThreeDotPop> {
             height: 40,
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.card,
+                color: AppColors.borderSubtle,
               ),
               borderRadius: BorderRadius.circular(8),
             ),

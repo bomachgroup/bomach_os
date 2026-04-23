@@ -1,15 +1,20 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/module_dashboard.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/clients_portal/controller/client_portal_controller.dart';
 import 'package:bms_front_end/pages/clients_portal/slides/client_access.dart';
+import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
 // Using similar stat card from services
-import '../services/services.dart';
 import 'dialog/new_client.dart';
 import 'slides/analytics.dart';
 import 'slides/communications.dart';
@@ -72,25 +77,22 @@ class _ClientsPortalState extends State<ClientsPortal> {
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        MyText(
+                        AppText.displayLg(
                           'Client & Partner Portal',
-                          style: AppText.black_500_32,
                         ),
-                        MyText(
+                        AppText.bodyMd(
                           'Manage client access and self-service portal',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
                         ),
                       ],
                     ),
                     MyElevatedButton(
                       icon: const Icon(
-                        Icons.add_circle_outline_rounded,
+                        Iconsax.add_circle,
                         color: AppColors.white,
                       ),
                       child: "View Portal",
@@ -108,25 +110,22 @@ class _ClientsPortalState extends State<ClientsPortal> {
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            MyText(
+                            AppText.displayLg(
                               'Client & Partner Portal',
-                              style: AppText.black_500_32,
                             ),
-                            MyText(
+                            AppText.bodyMd(
                               'Manage client access and self-service portal',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 15,
-                              ),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
                             ),
                           ],
                         ),
                         MyElevatedButton(
                           icon: const Icon(
-                            Icons.add_circle_outline_rounded,
+                            Iconsax.add_circle,
                             color: AppColors.white,
                           ),
                           child: "View Portal",
@@ -138,6 +137,8 @@ class _ClientsPortalState extends State<ClientsPortal> {
                     ),
                   ],
                 ),
+          kSizedBox,
+          _buildQuickNav(),
           kSizedBox,
           _buildTopStats(context, isMobile: isMobile),
           const SizedBox(height: 18),
@@ -157,6 +158,57 @@ class _ClientsPortalState extends State<ClientsPortal> {
         ],
       );
     });
+  }
+
+  Widget _buildQuickNav() {
+    final perms = Get.find<PermissionService>();
+    ModuleShortcutCard card({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required String route,
+      required List<String> resources,
+    }) =>
+        ModuleShortcutCard(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          route: route,
+          enabled: perms.canAccessRoute(route, resources),
+        );
+
+    return ModuleQuickNav(
+      shortcuts: [
+        card(
+          icon: Iconsax.people,
+          title: 'Client Access',
+          subtitle: 'Portal users and invites',
+          route: RouteConstants.clientAccess,
+          resources: const [PermissionConstants.resClients],
+        ),
+        card(
+          icon: Iconsax.folder_2,
+          title: 'Document Sharing',
+          subtitle: 'Shared files and folders',
+          route: RouteConstants.documentSharing,
+          resources: const [PermissionConstants.resDocuments],
+        ),
+        card(
+          icon: Iconsax.messages,
+          title: 'Communications',
+          subtitle: 'Messages with clients',
+          route: RouteConstants.communications,
+          resources: const [PermissionConstants.resClients],
+        ),
+        card(
+          icon: Iconsax.chart_2,
+          title: 'Portal Analytics',
+          subtitle: 'Usage and engagement',
+          route: RouteConstants.portalAnalytics,
+          resources: const [PermissionConstants.resStats],
+        ),
+      ],
+    );
   }
 
   Widget _buildTopStats(BuildContext context, {required bool isMobile}) {
@@ -181,7 +233,7 @@ class _ClientsPortalState extends State<ClientsPortal> {
                     child: StatsHeaderCard(
                       label: it['label']!,
                       count: it['value']!,
-                      icon: Icons.person,
+                      icon: Iconsax.profile_circle,
                     ),
                   ))
               .toList(),
@@ -191,7 +243,11 @@ class _ClientsPortalState extends State<ClientsPortal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 12,
           children: items
-              .map((it) => StatsCard(label: it['label']!, count: it['value']!))
+              .map((it) => StatsHeaderCard(
+                    label: it['label']!,
+                    count: it['value']!,
+                    icon: Iconsax.profile_circle,
+                  ))
               .toList(),
         );
       }

@@ -1,18 +1,23 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/input/country_state_city_picker.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/branch_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controllers/branch_controller.dart';
 
 class AddBranchDialog extends StatefulWidget {
-  final Branch? branchToEdit;
   const AddBranchDialog({super.key, this.branchToEdit});
+
+  final Branch? branchToEdit;
 
   @override
   State<AddBranchDialog> createState() => _AddBranchDialogState();
@@ -23,21 +28,21 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   final _formKey = GlobalKey<FormState>();
 
   final nameCtrl = TextEditingController();
-  final lgaCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final notesCtrl = TextEditingController();
 
-  int? selectedCountryId;
-  int? selectedStateId;
+  String? countryName;
+  String? countryCode;
+  String _stateValue = '';
+  String _cityValue = '';
   String? selectedRole;
   String? selectedStatus;
   int? selectedManagerId;
+  String? selectedCurrency;
+  String? selectedLanguage;
   bool isActive = true;
-
-  String? displayCountry;
-  String? displayState;
   String? displayManager;
 
   bool get isEditing => widget.branchToEdit != null;
@@ -46,35 +51,34 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
   void initState() {
     super.initState();
     if (widget.branchToEdit != null) {
-      final b = widget.branchToEdit!;
-      nameCtrl.text = b.branchName;
-      lgaCtrl.text = b.lga;
-      addressCtrl.text = b.officeAddress;
-      emailCtrl.text = b.contactEmail;
-      phoneCtrl.text = b.contactPhone;
-      notesCtrl.text = b.notes;
-
-      selectedCountryId = b.countryId;
-      selectedStateId = b.stateId;
-      selectedRole = b.branchRole;
-      selectedStatus = b.operationalStatus;
-      selectedManagerId = b.managerId != 0 ? b.managerId : null;
-      isActive = b.isActive;
-
-      displayCountry = b.countryName;
-      displayState = b.stateName;
-      displayManager = b.managerName.isNotEmpty ? b.managerName : null;
-
-      if (b.countryId != 0) controller.fetchStatesForCountry(b.countryId);
+      final branch = widget.branchToEdit!;
+      nameCtrl.text = branch.branchName;
+      _stateValue = branch.state;
+      _cityValue = branch.city;
+      addressCtrl.text = branch.officeAddress;
+      emailCtrl.text = branch.contactEmail;
+      phoneCtrl.text = branch.contactPhone;
+      notesCtrl.text = branch.notes;
+      countryName = branch.country.isEmpty ? null : branch.country;
+      countryCode = branch.countryCode.isEmpty ? null : branch.countryCode;
+      selectedRole = branch.branchRole;
+      selectedStatus = branch.operationalStatus;
+      selectedManagerId = branch.managerId != 0 ? branch.managerId : null;
+      selectedCurrency =
+          branch.defaultCurrency.isEmpty ? null : branch.defaultCurrency;
+      selectedLanguage =
+          branch.languagePreference.isEmpty ? null : branch.languagePreference;
+      isActive = branch.isActive;
+      displayManager =
+          branch.managerName.isNotEmpty ? branch.managerName : null;
     } else {
-      selectedStatus = "active";
+      selectedStatus = 'active';
     }
   }
 
   @override
   void dispose() {
     nameCtrl.dispose();
-    lgaCtrl.dispose();
     addressCtrl.dispose();
     emailCtrl.dispose();
     phoneCtrl.dispose();
@@ -84,65 +88,30 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 800),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(isEditing ? 'Edit Branch' : 'Create New Branch',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      MyText(
-                        isEditing
-                            ? 'Update branch information'
-                            : 'Fill in the details to create a new branch',
-                        size: 13,
-                        color: Colors.grey,
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.cancel, color: AppColors.red),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-
-            // Body
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
+    return Obx(() => DialogScaffold(
+          title: isEditing ? 'Edit Branch' : 'Create Branch',
+          subtitle: isEditing
+              ? 'Update branch operations, management, and location details.'
+              : 'Set up a new branch with location, contact, and management details.',
+          size: DialogSize.lg,
+          body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSection(
+                  title: 'Basic information',
+                  subtitle: 'Define the branch identity and operational role.',
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Section: Basic Info
-                      _buildSectionLabel('Basic Information'),
-                      const SizedBox(height: 12),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: MyTextFormField(
                               controller: nameCtrl,
-                              title: "Branch Name",
-                              hintText: "Enter branch name",
+                              title: 'Branch Name',
+                              hintText: 'Enter branch name',
                               validator: (val) => (val == null || val.isEmpty)
                                   ? 'Required'
                                   : null,
@@ -151,12 +120,12 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: MyTextFormField(
-                              title: "Branch ID",
+                              title: 'Branch ID',
                               hintText: isEditing
-                                  ? "${widget.branchToEdit?.id}"
-                                  : "Auto-generated",
+                                  ? '${widget.branchToEdit?.id}'
+                                  : 'Auto-generated',
                               readOnly: true,
-                              fillColor: Colors.grey.shade100,
+                              fillColor: AppColors.surfaceMuted,
                             ),
                           ),
                         ],
@@ -166,149 +135,143 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Obx(() => MyDropdown(
-                                  title: "Branch Type",
-                                  hintText:
-                                      _getRoleDisplayLabel() ?? "Select type",
-                                  items: controller
-                                          .fieldChoices.value?.branchRole
-                                          .map((e) => e.label)
-                                          .toList() ??
-                                      [],
-                                  onChanged: (val) {
-                                    final choice = controller
-                                        .fieldChoices.value?.branchRole
-                                        .firstWhere((e) => e.label == val);
-                                    if (choice != null) {
+                            child: Obx(
+                              () => MyDropdown(
+                                title: 'Branch Type',
+                                hintText:
+                                    _getRoleDisplayLabel() ?? 'Select type',
+                                items: controller.fieldChoices.value?.branchRole
+                                        .map((e) => e.label)
+                                        .toList() ??
+                                    [],
+                                onChanged: (val) {
+                                  final options = controller
+                                          .fieldChoices.value?.branchRole ??
+                                      const <FieldOption>[];
+                                  for (final option in options) {
+                                    if (option.label == val) {
                                       setState(
-                                          () => selectedRole = choice.value);
+                                          () => selectedRole = option.value);
+                                      break;
                                     }
-                                  },
-                                  validator: (val) =>
-                                      selectedRole == null ? 'Required' : null,
-                                )),
+                                  }
+                                },
+                                validator: (_) =>
+                                    selectedRole == null ? 'Required' : null,
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Obx(() => MyDropdown(
-                                  title: "Operational Status",
-                                  hintText: _getStatusDisplayLabel() ??
-                                      "Select status",
-                                  items: controller
-                                          .fieldChoices.value?.operationalStatus
-                                          .map((e) => e.label)
-                                          .toList() ??
-                                      [],
-                                  onChanged: (val) {
-                                    final choice = controller
+                            child: Obx(
+                              () => MyDropdown(
+                                title: 'Operational Status',
+                                hintText:
+                                    _getStatusDisplayLabel() ?? 'Select status',
+                                items: controller
                                         .fieldChoices.value?.operationalStatus
-                                        .firstWhere((e) => e.label == val);
-                                    if (choice != null) {
+                                        .map((e) => e.label)
+                                        .toList() ??
+                                    [],
+                                onChanged: (val) {
+                                  final options = controller.fieldChoices.value
+                                          ?.operationalStatus ??
+                                      const <FieldOption>[];
+                                  for (final option in options) {
+                                    if (option.label == val) {
                                       setState(
-                                          () => selectedStatus = choice.value);
+                                          () => selectedStatus = option.value);
+                                      break;
                                     }
-                                  },
-                                  validator: (val) => selectedStatus == null
-                                      ? 'Required'
-                                      : null,
-                                )),
+                                  }
+                                },
+                                validator: (_) =>
+                                    selectedStatus == null ? 'Required' : null,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // Section: Location
-                      _buildSectionLabel('Location'),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Obx(() => MyDropdown(
-                                  title: "Country",
-                                  hintText: displayCountry ?? "Select country",
-                                  items: controller.countryList
-                                      .map((e) => e.name)
-                                      .toList(),
-                                  onChanged: (val) {
-                                    final country = controller.countryList
-                                        .firstWhere((e) => e.name == val);
-                                    setState(() {
-                                      selectedCountryId = country.id;
-                                      displayCountry = val;
-                                      selectedStateId = null;
-                                      displayState = null;
-                                    });
-                                    controller
-                                        .fetchStatesForCountry(country.id);
-                                  },
-                                  validator: (val) => selectedCountryId == null
-                                      ? 'Required'
-                                      : null,
-                                )),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Obx(() => MyDropdown(
-                                  title: "State",
-                                  hintText: displayState ?? "Select state",
-                                  items: controller.stateList
-                                      .map((e) => e.name)
-                                      .toList(),
-                                  onChanged: (val) {
-                                    final state = controller.stateList
-                                        .firstWhere((e) => e.name == val);
-                                    setState(() {
-                                      selectedStateId = state.id;
-                                      displayState = val;
-                                    });
-                                  },
-                                  validator: (val) => selectedStateId == null
-                                      ? 'Required'
-                                      : null,
-                                )),
-                          ),
-                        ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Location',
+                  subtitle:
+                      'Capture where the branch operates and what defaults it inherits.',
+                  child: Column(
+                    children: [
+                      CountryStateCityPicker(
+                        initialCountry: countryName,
+                        initialCountryCode: countryCode,
+                        initialState: _stateValue.isEmpty ? null : _stateValue,
+                        initialCity: _cityValue.isEmpty ? null : _cityValue,
+                        onCountryChanged: (name, iso) {
+                          setState(() {
+                            countryName = name;
+                            countryCode = iso;
+                          });
+                        },
+                        onStateChanged: (value) => _stateValue = value,
+                        onCityChanged: (value) => _cityValue = value,
+                      ),
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        controller: addressCtrl,
+                        title: 'Office Address',
+                        hintText: 'Enter full address',
+                        validator: (val) =>
+                            (val == null || val.isEmpty) ? 'Required' : null,
                       ),
                       const SizedBox(height: 16),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: MyTextFormField(
-                              controller: lgaCtrl,
-                              title: "L.G.A",
-                              hintText: "Enter LGA",
+                            child: MyDropdown(
+                              title: 'Default Currency',
+                              hintText: selectedCurrency ?? 'Inherit',
+                              items: const ['NGN', 'USD', 'EUR', 'GBP'],
+                              onChanged: (val) =>
+                                  setState(() => selectedCurrency = val),
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: MyTextFormField(
-                              controller: addressCtrl,
-                              title: "Office Address",
-                              hintText: "Enter full address",
-                              validator: (val) => (val == null || val.isEmpty)
-                                  ? 'Required'
-                                  : null,
+                            child: MyDropdown(
+                              title: 'Language',
+                              hintText: selectedLanguage ?? 'Inherit',
+                              items: const [
+                                'English (Nigeria)',
+                                'English (UK)',
+                                'English (US)',
+                                'French',
+                              ],
+                              onChanged: (val) =>
+                                  setState(() => selectedLanguage = val),
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // Section: Contact
-                      _buildSectionLabel('Contact Information'),
-                      const SizedBox(height: 12),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Contact & management',
+                  subtitle:
+                      'Assign a manager and define how the branch can be reached.',
+                  child: Column(
+                    children: [
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: MyTextFormField(
                               controller: emailCtrl,
-                              title: "Contact Email",
-                              hintText: "email@example.com",
+                              title: 'Contact Email',
+                              hintText: 'email@example.com',
                               keyboardType: TextInputType.emailAddress,
                               validator: (val) => (val == null || val.isEmpty)
                                   ? 'Required'
@@ -319,8 +282,8 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           Expanded(
                             child: MyTextFormField(
                               controller: phoneCtrl,
-                              title: "Contact Phone",
-                              hintText: "+234...",
+                              title: 'Contact Phone',
+                              hintText: '+234...',
                               keyboardType: TextInputType.phone,
                               validator: (val) => (val == null || val.isEmpty)
                                   ? 'Required'
@@ -329,154 +292,181 @@ class _AddBranchDialogState extends State<AddBranchDialog> {
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // Section: Management
-                      _buildSectionLabel('Management'),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Obx(() => MyDropdown(
-                                  title: "Branch Manager",
-                                  hintText: displayManager ?? "Select manager",
-                                  items: controller.allEmployees
-                                      .map((e) => e.fullName)
-                                      .toList(),
-                                  onChanged: (val) {
-                                    final emp = controller.allEmployees
-                                        .firstWhere((e) => e.fullName == val);
-                                    setState(() {
-                                      selectedManagerId =
-                                          int.tryParse(emp.id) ?? 0;
-                                      displayManager = val;
-                                    });
-                                  },
-                                )),
+                            child: Obx(
+                              () => MyDropdown(
+                                title: 'Branch Manager',
+                                hintText: displayManager ?? 'Select manager',
+                                items: controller.allEmployees
+                                    .map((e) => e.fullName)
+                                    .toList(),
+                                onChanged: (val) {
+                                  for (final employee
+                                      in controller.allEmployees) {
+                                    if (employee.fullName == val) {
+                                      setState(() {
+                                        selectedManagerId =
+                                            int.tryParse(employee.id) ?? 0;
+                                        displayManager = val;
+                                      });
+                                      break;
+                                    }
+                                  }
+                                },
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text("Active Status",
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF334155))),
-                                const SizedBox(height: 8),
-                                SwitchListTile(
-                                  value: isActive,
-                                  onChanged: (val) =>
-                                      setState(() => isActive = val),
-                                  title: Text(
-                                    isActive ? "Active" : "Inactive",
-                                    style: TextStyle(
-                                        fontSize: 14,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                borderRadius: AppRadii.brMd,
+                                border:
+                                    Border.all(color: AppColors.borderSubtle),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Active Status',
+                                      style: AppTextStyles.label),
+                                  const SizedBox(height: 12),
+                                  SwitchListTile(
+                                    value: isActive,
+                                    onChanged: (val) =>
+                                        setState(() => isActive = val),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    activeThumbColor: AppColors.success,
+                                    title: Text(
+                                      isActive ? 'Active' : 'Inactive',
+                                      style: AppTextStyles.bodyMd.copyWith(
                                         color: isActive
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.w600),
+                                            ? AppColors.success
+                                            : AppColors.danger,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
-                                  dense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                  activeThumbColor: Colors.green,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // Section: Notes
-                      _buildSectionLabel('Additional Information'),
-                      const SizedBox(height: 12),
-                      MyTextFormField(
-                        controller: notesCtrl,
-                        title: "Notes",
-                        hintText: "Enter any additional notes",
-                        maxLines: 3,
-                      ),
                     ],
                   ),
                 ),
-              ),
-            ),
-
-            // Footer
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    child: "Cancel",
-                    onTap: () => Navigator.pop(context),
-                    textColor: Colors.grey,
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Notes',
+                  child: MyTextFormField(
+                    controller: notesCtrl,
+                    title: 'Additional Information',
+                    hintText: 'Enter any additional notes',
+                    maxLines: 3,
                   ),
-                  const SizedBox(width: 12),
-                  Obx(() => MyElevatedButton(
-                        width: 120,
-                        child: controller.isSaving.value ? "Saving..." : "Save",
-                        onTap: controller.isSaving.value ? () {} : _onSave,
-                      )),
-                ],
-              ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 120,
+              height: 44,
+              child: controller.isSaving.value ? 'Saving...' : 'Save',
+              onTap: controller.isSaving.value ? null : _onSave,
+              icon: controller.isSaving.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
             ),
           ],
-        ),
+        ));
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }
 
   String? _getRoleDisplayLabel() {
     if (selectedRole == null) return null;
-    final choices = controller.fieldChoices.value?.branchRole;
-    if (choices == null) return selectedRole;
-    final match = choices.where((e) => e.value == selectedRole);
-    return match.isNotEmpty ? match.first.label : selectedRole;
+    final choices =
+        controller.fieldChoices.value?.branchRole ?? const <FieldOption>[];
+    for (final choice in choices) {
+      if (choice.value == selectedRole) return choice.label;
+    }
+    return selectedRole;
   }
 
   String? _getStatusDisplayLabel() {
     if (selectedStatus == null) return null;
-    final choices = controller.fieldChoices.value?.operationalStatus;
-    if (choices == null) return selectedStatus;
-    final match = choices.where((e) => e.value == selectedStatus);
-    return match.isNotEmpty ? match.first.label : selectedStatus;
-  }
-
-  Widget _buildSectionLabel(String label) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF334155),
-      ),
-    );
+    final choices = controller.fieldChoices.value?.operationalStatus ??
+        const <FieldOption>[];
+    for (final choice in choices) {
+      if (choice.value == selectedStatus) return choice.label;
+    }
+    return selectedStatus;
   }
 
   void _onSave() {
     if (!_formKey.currentState!.validate()) return;
 
-    final data = {
-      "branch_name": nameCtrl.text.trim(),
-      "country_id": selectedCountryId,
-      "state_id": selectedStateId,
-      "lga": lgaCtrl.text.trim(),
-      "office_address": addressCtrl.text.trim(),
-      "operational_status": selectedStatus,
-      "branch_role": selectedRole,
-      "contact_email": emailCtrl.text.trim(),
-      "contact_phone": phoneCtrl.text.trim(),
-      "manager_id": selectedManagerId ?? 0,
-      "notes": notesCtrl.text.trim(),
-      "is_active": isActive,
+    final data = <String, dynamic>{
+      'branch_name': nameCtrl.text.trim(),
+      'country': countryName ?? '',
+      'country_code': countryCode ?? '',
+      'state': _stateValue.trim(),
+      'state_code': '',
+      'city': _cityValue.trim(),
+      'office_address': addressCtrl.text.trim(),
+      'operational_status': selectedStatus,
+      'branch_role': selectedRole,
+      'contact_email': emailCtrl.text.trim(),
+      'contact_phone': phoneCtrl.text.trim(),
+      'manager_id': selectedManagerId ?? 0,
+      'notes': notesCtrl.text.trim(),
+      'is_active': isActive,
+      if (selectedCurrency != null) 'default_currency': selectedCurrency,
+      if (selectedLanguage != null) 'language_preference': selectedLanguage,
     };
 
     if (isEditing) {

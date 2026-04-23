@@ -11,7 +11,7 @@ class UploadFile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DottedBorder(
-      color: AppColors.blue,
+      color: AppColors.primary,
       dashPattern: const [5, 5],
       strokeWidth: 2,
       borderType: BorderType.RRect,
@@ -26,7 +26,7 @@ class UploadFile extends StatelessWidget {
               alignment: Alignment.center,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  color: AppColors.blue,
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(10)),
               width: 40,
               height: 40,
@@ -44,7 +44,7 @@ class UploadFile extends StatelessWidget {
               textAlign: TextAlign.center,
               size: 11,
               weight: 300,
-              color: AppColors.darkGrey2,
+              color: AppColors.neutral400,
               isSelectable: false,
             ),
           ],

@@ -1,6 +1,12 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/branch_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,47 +40,72 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 700),
-        child: Obx(() {
-          if (controller.isLoadingDetail.value) {
-            return const SizedBox(
-              height: 300,
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+    return Obx(() {
+      if (controller.isLoadingDetail.value) {
+        return const DialogScaffold(
+          title: 'Branch details',
+          size: DialogSize.lg,
+          body: SizedBox(
+            height: 280,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          actions: [],
+        );
+      }
 
-          final branch = controller.currentBranch.value;
-          if (branch == null) {
-            return const Padding(
-              padding: EdgeInsets.all(40),
-              child: Center(child: Text("No branch data available")),
-            );
-          }
+      final branch = controller.currentBranch.value;
+      if (branch == null) {
+        return DialogScaffold(
+          title: 'Branch details',
+          size: DialogSize.lg,
+          body: const SizedBox(
+            height: 220,
+            child: Center(child: Text('No branch data available')),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      }
 
-          return Column(
+      return DialogScaffold(
+        title: branch.branchName,
+        subtitle: '${branch.branchRoleDisplay} • ${_branchLocation(branch)}',
+        size: DialogSize.lg,
+        scrollable: false,
+        bodyPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        body: SizedBox(
+          height: 560,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header
-              _buildHeader(branch),
-              const Divider(height: 1),
-
-              // Tabs
+              _buildSummaryBanner(branch),
+              const SizedBox(height: 16),
               Container(
-                color: const Color(0xFFF8FAFC),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMuted,
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
                 child: TabBar(
                   controller: _tabController,
                   isScrollable: true,
-                  labelColor: AppColors.blue,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorColor: AppColors.blue,
-                  indicatorWeight: 2,
-                  labelStyle: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600),
-                  unselectedLabelStyle: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w400),
+                  labelColor: AppColors.textPrimary,
+                  unselectedLabelColor: AppColors.textSecondary,
+                  indicator: const BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brMd,
+                    boxShadow: AppShadows.sm,
+                  ),
+                  dividerColor: Colors.transparent,
+                  labelStyle:
+                      AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                  unselectedLabelStyle:
+                      AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
+                  padding: const EdgeInsets.all(6),
                   tabs: const [
                     Tab(text: 'Overview'),
                     Tab(text: 'Departments'),
@@ -84,95 +115,138 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                   ],
                 ),
               ),
-
-              // Tab Content
+              const SizedBox(height: 16),
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildOverviewTab(branch),
-                    _buildDepartmentsTab(),
-                    _buildProjectsTab(),
-                    _buildFinancialTab(),
-                    _buildPeopleTab(branch),
-                  ],
-                ),
-              ),
-
-              // Footer
-              const Divider(height: 1),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyElevatedButton(
-                      width: 120,
-                      child: "Edit Branch",
-                      onTap: () {
-                        Navigator.pop(context);
-                        controller.loadFilterResources();
-                        showDialog(
-                          context: context,
-                          builder: (_) => AddBranchDialog(branchToEdit: branch),
-                        );
-                      },
-                    ),
-                  ],
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brLg,
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildOverviewTab(branch),
+                      _buildDepartmentsTab(),
+                      _buildProjectsTab(),
+                      _buildFinancialTab(),
+                      _buildPeopleTab(branch),
+                    ],
+                  ),
                 ),
               ),
             ],
-          );
-        }),
-      ),
-    );
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          MyElevatedButton(
+            width: 120,
+            height: 44,
+            child: 'Edit Branch',
+            onTap: () {
+              Navigator.pop(context);
+              controller.loadFilterResources();
+              showDialog(
+                context: context,
+                builder: (_) => AddBranchDialog(branchToEdit: branch),
+              );
+            },
+          ),
+        ],
+      );
+    });
   }
 
-  Widget _buildHeader(Branch branch) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+  Widget _buildSummaryBanner(Branch branch) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
       child: Row(
         children: [
-          // Branch icon
           Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.blue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
             ),
-            child: const Icon(Icons.business, color: AppColors.blue, size: 24),
+            child: const Icon(Iconsax.building_4,
+                color: AppColors.primary, size: 24),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Text(branch.branchName, style: AppTextStyles.h2),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Flexible(
-                      child: MyText(
-                        branch.branchName,
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
+                    StatusChip.fromStatus(branch.operationalStatusDisplay),
+                    _buildMetaChip(
+                      icon: Iconsax.tag,
+                      label: branch.branchId.isNotEmpty
+                          ? branch.branchId
+                          : '#${branch.id}',
                     ),
-                    const SizedBox(width: 8),
-                    _buildStatusBadge(branch.operationalStatusDisplay),
+                    _buildMetaChip(
+                      icon: Iconsax.profile_circle,
+                      label: branch.managerName.isNotEmpty
+                          ? branch.managerName
+                          : 'No manager assigned',
+                    ),
                   ],
-                ),
-                const SizedBox(height: 4),
-                MyText(
-                  "${branch.branchRoleDisplay} | ID: #${branch.id}",
-                  size: 12,
-                  color: Colors.grey,
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
+        ],
+      ),
+    );
+  }
+
+  String _branchLocation(Branch branch) {
+    final parts = <String>[
+      if (branch.city.isNotEmpty) branch.city,
+      if (branch.state.isNotEmpty) branch.state,
+      if (branch.country.isNotEmpty) branch.country,
+    ];
+    return parts.isEmpty ? 'No location added' : parts.join(' • ');
+  }
+
+  Widget _buildMetaChip({
+    required IconData icon,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -209,30 +283,30 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
 
           const SizedBox(height: 24),
 
-          // Location & Contact (enriched with country/state detail endpoints)
+          // Location & Contact
           _buildSectionTitle("Location & Contact"),
           const SizedBox(height: 12),
-          Obx(() {
-            final countryDetail = controller.currentCountryDetail.value;
-            final stateDetail = controller.currentStateDetail.value;
-
-            final countryDisplay = countryDetail != null
-                ? "${countryDetail.name} (${countryDetail.code})"
-                : branch.countryName;
-
-            final stateDisplay = stateDetail != null
-                ? "${stateDetail.name} (${stateDetail.code})"
-                : branch.stateName;
-
-            return _buildDetailGrid([
-              _DetailItem("Address", branch.officeAddress),
-              _DetailItem("LGA / State", "${branch.lga}, $stateDisplay"),
-              _DetailItem("Country", countryDisplay),
-              _DetailItem("Email", branch.contactEmail),
-              _DetailItem("Phone", branch.contactPhone),
-              _DetailItem("Active", branch.isActive ? "Yes" : "No"),
-            ]);
-          }),
+          _buildDetailGrid([
+            _DetailItem("Address", branch.officeAddress),
+            _DetailItem("City", branch.city),
+            _DetailItem(
+                "State",
+                branch.stateCode.isNotEmpty
+                    ? "${branch.state} (${branch.stateCode})"
+                    : branch.state),
+            _DetailItem(
+                "Country",
+                branch.countryCode.isNotEmpty
+                    ? "${branch.country} (${branch.countryCode})"
+                    : branch.country),
+            if (branch.defaultCurrency.isNotEmpty)
+              _DetailItem("Currency", branch.defaultCurrency),
+            if (branch.languagePreference.isNotEmpty)
+              _DetailItem("Language", branch.languagePreference),
+            _DetailItem("Email", branch.contactEmail),
+            _DetailItem("Phone", branch.contactPhone),
+            _DetailItem("Active", branch.isActive ? "Yes" : "No"),
+          ]),
 
           const SizedBox(height: 24),
 
@@ -258,13 +332,14 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: AppColors.neutral50,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.neutral200),
               ),
               child: Text(
                 branch.notes,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                style:
+                    const TextStyle(fontSize: 13, color: AppColors.neutral600),
               ),
             ),
           ],
@@ -315,13 +390,13 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   "${mockDepartments.length} departments",
                   style: const TextStyle(
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -336,7 +411,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.neutral200),
                 ),
                 child: Row(
                   children: [
@@ -347,7 +422,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                         color: Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.groups_outlined,
+                      child: const Icon(Iconsax.people,
                           color: Colors.blue, size: 20),
                     ),
                     const SizedBox(width: 12),
@@ -422,7 +497,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.neutral200),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -488,13 +563,13 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
             runSpacing: 12,
             children: [
               _buildFinancialCard(
-                  "Revenue", "N12,500,000", Icons.trending_up, Colors.green),
+                  "Revenue", "N12,500,000", Iconsax.trend_up, Colors.green),
               _buildFinancialCard(
-                  "Expenses", "N8,200,000", Icons.trending_down, Colors.red),
+                  "Expenses", "N8,200,000", Iconsax.trend_down, Colors.red),
               _buildFinancialCard(
-                  "Profit", "N4,300,000", Icons.account_balance, Colors.blue),
+                  "Profit", "N4,300,000", Iconsax.bank, Colors.blue),
               _buildFinancialCard(
-                  "Budget", "N15,000,000", Icons.pie_chart, Colors.orange),
+                  "Budget", "N15,000,000", Iconsax.chart_21, Colors.orange),
             ],
           ),
           const SizedBox(height: 24),
@@ -544,7 +619,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.neutral200),
         ),
         child: Row(
           children: [
@@ -557,7 +632,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                isIncome ? Iconsax.arrow_down_1 : Iconsax.arrow_up_3,
                 color: isIncome ? Colors.green : Colors.red,
                 size: 18,
               ),
@@ -620,13 +695,13 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   "${mockPeople.length} staff",
                   style: const TextStyle(
-                    color: AppColors.blue,
+                    color: AppColors.primary,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -650,7 +725,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.neutral200),
               ),
               child: Row(
                 children: [
@@ -702,7 +777,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
       style: const TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.bold,
-        color: Color(0xFF1E293B),
+        color: AppColors.neutral800,
       ),
     );
   }
@@ -723,7 +798,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                   item.label,
                   style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF64748B),
+                      color: AppColors.neutral500,
                       fontWeight: FontWeight.w500),
                 ),
               ),
@@ -732,7 +807,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                   item.value.isNotEmpty ? item.value : "-",
                   style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF334155),
+                      color: AppColors.neutral700,
                       fontWeight: FontWeight.w500),
                 ),
               ),
@@ -747,9 +822,9 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.neutral50,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Row(
         children: [
@@ -760,7 +835,8 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               color: Colors.blue.shade50,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.person, color: Colors.blue, size: 22),
+            child: const Icon(Iconsax.profile_circle,
+                color: Colors.blue, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -793,7 +869,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.neutral200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -870,9 +946,9 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
           padding: const EdgeInsets.all(12),
           width: 150,
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: AppColors.neutral50,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.neutral200),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -881,7 +957,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                 e.key.replaceAll('_', ' ').toUpperCase(),
                 style: const TextStyle(
                     fontSize: 10,
-                    color: Color(0xFF64748B),
+                    color: AppColors.neutral500,
                     fontWeight: FontWeight.bold),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -892,7 +968,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                 style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A)),
+                    color: AppColors.neutral900),
               ),
             ],
           ),
@@ -911,7 +987,7 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
       ),
       child: const Row(
         children: [
-          Icon(Icons.info_outline, size: 16, color: Colors.amber),
+          Icon(Iconsax.info_circle, size: 16, color: Colors.amber),
           SizedBox(width: 8),
           Flexible(
             child: Text(

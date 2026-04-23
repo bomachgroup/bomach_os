@@ -1,12 +1,13 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../../../src/model/employees_model.dart';
 import '../controller/associate_controller.dart';
@@ -72,130 +73,117 @@ class _AddAssociateDialogState extends State<AddAssociateDialog> {
 
       if (success && mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Associate added successfully"),
-            backgroundColor: Colors.green));
+        AppToast.success(context, 'Associate added successfully');
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Failed to add associate"),
-            backgroundColor: Colors.red));
+        AppToast.error(context, 'Failed to add associate');
       }
     } else if (_selectedRole == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Please select a role"), backgroundColor: Colors.red));
+      AppToast.error(context, 'Please select a role');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700),
+    return DialogScaffold(
+      title: 'New Associate',
+      subtitle: 'Add an external partner to the directory.',
+      size: DialogSize.lg,
+      body: Form(
+        key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText('Add New Associate',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context)),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                              child: MyTextFormField(
-                                  title: 'First Name',
-                                  controller: _firstNameCtrl)),
-                          const SizedBox(width: 16),
-                          Expanded(
-                              child: MyTextFormField(
-                                  title: 'Last Name',
-                                  controller: _lastNameCtrl)),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      MyTextFormField(title: 'Email', controller: _emailCtrl),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                              child: MyTextFormField(
-                                  title: 'Phone', controller: _phoneCtrl)),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyDropdown(
-                              title: 'Role',
-                              items: _associateRoles,
-                              hintText: _selectedRole ?? 'Select Role',
-                              onChanged: (val) =>
-                                  setState(() => _selectedRole = val),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      MyTextFormField(
-                          title: 'Address', controller: _addressCtrl),
-                      const SizedBox(height: 16),
-                      MyTextFormField(
-                          title: 'Contract Value / Salary',
-                          controller: _grossSalaryCtrl,
-                          keyboardType: TextInputType.number),
-                    ],
+            Row(
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    title: 'First Name*',
+                    hintText: 'Enter first name',
+                    controller: _firstNameCtrl,
+                    validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Required' : null,
                   ),
                 ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.darkGrey1,
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    title: 'Last Name*',
+                    hintText: 'Enter last name',
+                    controller: _lastNameCtrl,
+                    validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Required' : null,
                   ),
-                  const SizedBox(width: 16),
-                  Obx(() => MyElevatedButton(
-                        icon: SvgPicture.asset("assets/svg/check.svg",
-                            colorFilter: const ColorFilter.mode(
-                                AppColors.white, BlendMode.srcIn)),
-                        child: controller.isSaving.value
-                            ? 'Saving...'
-                            : 'Add Associate',
-                        onTap: controller.isSaving.value ? () {} : _submit,
-                      )),
-                ],
-              ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            MyTextFormField(
+              title: 'Email*',
+              hintText: 'email@example.com',
+              controller: _emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Required' : null,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    title: 'Phone',
+                    hintText: '+234...',
+                    controller: _phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyDropdown(
+                    title: 'Role*',
+                    items: _associateRoles,
+                    hintText: _selectedRole ?? 'Select role',
+                    onChanged: (val) =>
+                        setState(() => _selectedRole = val),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            MyTextFormField(
+              title: 'Address',
+              hintText: 'Street, city, state',
+              controller: _addressCtrl,
+            ),
+            const SizedBox(height: 20),
+            MyTextFormField(
+              title: 'Contract Value / Salary',
+              hintText: 'e.g. 500000',
+              controller: _grossSalaryCtrl,
+              keyboardType: TextInputType.number,
             ),
           ],
         ),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        Obx(() => MyElevatedButton(
+              height: 44,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              icon: const Icon(Iconsax.tick_circle,
+                  size: 18, color: AppColors.textOnPrimary),
+              isLoading: controller.isSaving.value,
+              child: 'Add Associate',
+              onTap: controller.isSaving.value ? () {} : _submit,
+            )),
+      ],
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../model.dart';
@@ -33,7 +34,7 @@ class SecurityAlerts extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.security, color: Colors.black, size: 24),
+                      const Icon(Iconsax.shield, color: Colors.black, size: 24),
                       const SizedBox(width: 8),
                       Flexible(
                         child: MyText(
@@ -156,7 +157,7 @@ class AlertTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Icon(
-                  Icons.warning_amber_outlined,
+                  Iconsax.warning_2,
                   color: priorityColor,
                   size: 18,
                 ),

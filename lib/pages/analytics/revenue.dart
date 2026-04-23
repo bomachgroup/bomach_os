@@ -1,4 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/text/my_text.dart';
@@ -45,7 +46,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
                           children: [
                             MyText(
                               'Analytics',
-                              style: AppText.black_500_32,
+                              style: AppTextStyles.displayLg,
                             ),
                             SizedBox(height: 4),
                             MyText(
@@ -66,7 +67,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
                     children: [
                       MyText(
                         'Analytics',
-                        style: AppText.black_500_32,
+                        style: AppTextStyles.displayLg,
                       ),
                       SizedBox(height: 4),
                       MyText(
@@ -100,7 +101,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
           kSizedBox,
           SectionCard(
             title: "Revenue Trend Analysis",
-            titleIcon: Icons.bar_chart_rounded,
+            titleIcon: Iconsax.chart_2,
             child: SizedBox(
               height: 250,
               child: LineChart(
@@ -135,7 +136,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
                     Expanded(
                       child: SectionCard(
                         title: "Revenue by Service Type",
-                        titleIcon: Icons.pie_chart_outline_outlined,
+                        titleIcon: Iconsax.chart_21,
                         child: Column(
                           children: [
                             SizedBox(
@@ -206,7 +207,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
                     Expanded(
                       child: SectionCard(
                         title: "Revenue by Location",
-                        titleIcon: Icons.location_on,
+                        titleIcon: Iconsax.location,
                         child: Column(
                           children: locationData.map((e) {
                             return Padding(
@@ -234,7 +235,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
                     Expanded(
                       child: SectionCard(
                         title: "Revenue by Service Type",
-                        titleIcon: Icons.pie_chart_outline_outlined,
+                        titleIcon: Iconsax.chart_21,
                         child: Column(
                           children: [
                             SizedBox(
@@ -305,7 +306,7 @@ class RevenueAnalyticsPage extends StatelessWidget {
                     Expanded(
                       child: SectionCard(
                         title: "Revenue by Location",
-                        titleIcon: Icons.location_on,
+                        titleIcon: Iconsax.location,
                         child: Column(
                           children: locationData.map((e) {
                             return Padding(

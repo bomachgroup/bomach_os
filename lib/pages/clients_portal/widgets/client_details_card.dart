@@ -1,4 +1,5 @@
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 
 import 'client_tile.dart';
@@ -59,7 +60,7 @@ class ClientDetailsCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildStatusTag('Active', AppColors.blue),
+                    _buildStatusTag('Active', AppColors.primary),
                     const SizedBox(width: 4),
                     _buildAccessTag(client.accessType),
                   ],
@@ -86,7 +87,7 @@ class ClientDetailsCard extends StatelessWidget {
             children: client.permissions
                 .map((p) => Chip(
                       label: Text(p),
-                      backgroundColor: const Color(0xFFF0F0F0),
+                      backgroundColor: AppColors.neutral100,
                       labelStyle: const TextStyle(fontSize: 12),
                     ))
                 .toList(),
@@ -106,7 +107,7 @@ class ClientDetailsCard extends StatelessWidget {
                     children: [
                       Text('Message'),
                       Spacer(),
-                      Icon(Icons.message_outlined,
+                      Icon(Iconsax.message_text,
                           size: 20, color: Colors.grey),
                     ],
                   ),
@@ -119,7 +120,7 @@ class ClientDetailsCard extends StatelessWidget {
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
-                child: const Icon(Icons.edit_outlined,
+                child: const Icon(Iconsax.edit,
                     size: 20, color: Colors.grey),
               ),
             ],
@@ -170,11 +171,11 @@ class ClientDetailsCard extends StatelessWidget {
 
   Widget _buildAccessTag(String access) {
     Color bgColor =
-        access == 'full' ? const Color(0xFFE0F7FA) : const Color(0xFFF0F4C3);
+        access == 'full' ? AppColors.infoSubtle : const Color(0xFFF0F4C3);
     Color textColor =
         access == 'full' ? Colors.cyan.shade900 : Colors.lime.shade900;
     if (access == 'limited') {
-      bgColor = const Color(0xFFFBE9E7);
+      bgColor = AppColors.dangerSubtle;
       textColor = Colors.deepOrange.shade900;
     }
 

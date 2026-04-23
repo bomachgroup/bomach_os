@@ -1,12 +1,19 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/components/text/app_text.dart';
+// import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'controller/disciplinary_controller.dart';
@@ -23,9 +30,10 @@ class DisciplinaryProcessPage extends StatefulWidget {
 }
 
 class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
-  final ScrollController _scrollController = ScrollController();
   final DisciplinaryController controller = Get.put(DisciplinaryController());
   final _storage = const FlutterSecureStorage();
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -49,239 +57,303 @@ class _DisciplinaryProcessPageState extends State<DisciplinaryProcessPage> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  List<DisciplinaryCase> _filtered(List<DisciplinaryCase> cases) {
+    if (_searchQuery.isEmpty) return cases;
+    final q = _searchQuery.toLowerCase();
+    return cases.where((c) {
+      return c.employeeId.toLowerCase().contains(q) ||
+          c.violationTitle.toLowerCase().contains(q) ||
+          c.violationCategory.toLowerCase().contains(q) ||
+          c.actionType.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  StatusTone _actionTone(String actionType) {
+    final type = actionType.toLowerCase();
+    if (type.contains('termination') || type.contains('dismissal')) {
+      return StatusTone.danger;
+    }
+    if (type.contains('final')) return StatusTone.danger;
+    if (type.contains('suspension')) return StatusTone.warning;
+    if (type.contains('written')) return StatusTone.warning;
+    if (type.contains('warning')) return StatusTone.info;
+    return StatusTone.neutral;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Disciplinary Process',
+        subtitle: 'Track and manage disciplinary cases',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Case',
+          onTap: () async {
+            final token = await _getToken(context);
+            if (token != null && mounted) {
+              showDialog(
+                context: context,
+                builder: (c) => AddDisciplinaryCaseDialog(token: token),
+              );
+            }
+          },
+        ),
+      ),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Disciplinary Process',
-                        style: AppText.black_500_32,
-                      ),
-                      SizedBox(height: 8),
-                      MyText(
-                        'Track and manage disciplinary cases',
-                        size: 14,
-                        weight: 400,
-                        color: Color(0xFF64748B),
-                      ),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: AppColors.white,
-                    ),
-                    child: "New Case",
-                    onTap: () async {
-                      final token = await _getToken(context);
-                      if (token != null && context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AddDisciplinaryCaseDialog(token: token);
-                          },
-                        );
-                      }
-                    },
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 250,
-                    child: MyTextFormField(
-                      hintText: 'Search cases...',
-                      leading: Icon(
-                        Icons.search,
-                        color: AppColors.grey1.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: _loadData,
-                    icon: const Icon(Icons.refresh),
-                    tooltip: "Refresh",
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: MediaQuery.of(context).size.width - 100,
-                    ),
-                    child: Obx(() {
-                      if (controller.isLoading.value) {
-                        return const Center(
-                            child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(),
-                        ));
-                      }
+        _buildToolbar(),
+        Obx(() {
+          final loading =
+              controller.isLoading.value && controller.caseList.isEmpty;
+          final filtered = _filtered(controller.caseList);
+          final isEmpty = !loading && filtered.isEmpty;
 
-                      if (controller.caseList.isEmpty) {
-                        return const Center(
-                            child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Text("No disciplinary cases found."),
-                        ));
-                      }
-
-                      return DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: _createColumns(),
-                        rows: _createRows(context, controller.caseList),
-                        showBottomBorder: true,
-                      );
-                    }),
-                  ),
-                ),
-              ),
-              // const PaginatorFooter(),
-            ],
-          ),
-        ),
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            filtered: filtered,
+            body: _buildTable(filtered),
+          );
+        }),
       ],
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(label: MyText('Employee ID')),
-      const DataColumn(label: MyText('Action Type')),
-      const DataColumn(label: MyText('Category')),
-      const DataColumn(label: MyText('Violation Title')),
-      const DataColumn(label: MyText('Date')),
-      const DataColumn(label: MyText('Actions')),
-    ];
-  }
-
-  List<DataRow> _createRows(
-      BuildContext context, List<DisciplinaryCase> cases) {
-    return cases.map((kase) {
-      return DataRow(
-        cells: <DataCell>[
-          DataCell(
-            MyText(
-              kase.employeeId,
-              style: AppText.black_500_16,
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: Row(
+        children: [
+          Expanded(
+            child: MyTextFormField(
+              controller: _searchController,
+              hintText: 'Search cases by employee, title or type',
+              height: 48,
+              leading: const Icon(Iconsax.search_normal,
+                  size: 18, color: AppColors.textMuted),
+              onChanged: (v) => setState(() => _searchQuery = v),
             ),
           ),
-          DataCell(
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: _getActionColor(kase.actionType).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
+          const SizedBox(width: 12),
+          Material(
+            color: AppColors.surface,
+            borderRadius: AppRadii.brMd,
+            child: InkWell(
+              onTap: _loadData,
+              borderRadius: AppRadii.brMd,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
+                child: const Icon(Iconsax.refresh,
+                    size: 18, color: AppColors.textSecondary),
               ),
-              child: MyText(
-                kase.actionType,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: _getActionColor(kase.actionType),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required List<DisciplinaryCase> filtered,
+    required Widget body,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText.h3('Cases register'),
+                      const SizedBox(height: 4),
+                      AppText.bodyMd(
+                        loading
+                            ? 'Loading disciplinary cases...'
+                            : '${filtered.length} case${filtered.length == 1 ? '' : 's'} on record',
+                        color: AppColors.textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+                const StatusChip(
+                  label: 'HR review',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.shield_tick,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.shield_cross,
+                title: 'No disciplinary cases found',
+                subtitle:
+                    'Cases logged by HR and managers will appear here for review and tracking.',
+              ),
+            )
+          else
+            body,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTable(List<DisciplinaryCase> cases) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Employee ID', flex: 2),
+              _buildHeaderCell('Action Type', flex: 2),
+              _buildHeaderCell('Category', flex: 2),
+              _buildHeaderCell('Violation Title', flex: 3),
+              _buildHeaderCell('Date', flex: 2),
+              _buildHeaderCell('', width: 64),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...cases.map(_buildDataRow),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = AppText.bodySm(
+      label,
+      color: AppColors.textSecondary,
+      fontWeight: FontWeight.w600,
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildDataRow(DisciplinaryCase kase) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: AppText.bodyMd(
+              kase.employeeId,
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: kase.actionType,
+                tone: _actionTone(kase.actionType),
+                dense: true,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: AppText.bodySm(
+              kase.violationCategory,
+              color: AppColors.textSecondary,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: AppText.bodyMd(
+              kase.violationTitle,
+              color: AppColors.textPrimary,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: AppText.bodySm(
+              kase.actionDate != null
+                  ? DateFormat('dd MMM yyyy').format(kase.actionDate!)
+                  : '—',
+              color: AppColors.textSecondary,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: AppRadii.brMd,
+                child: InkWell(
+                  borderRadius: AppRadii.brMd,
+                  onTap: () async {
+                    final token = await _getToken(context);
+                    if (token != null && mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (c) => ViewDisciplinaryCaseDialog(
+                          kase: kase,
+                          token: token,
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.brMd,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: const Icon(Iconsax.eye,
+                        size: 16, color: AppColors.primary),
+                  ),
                 ),
               ),
             ),
           ),
-          DataCell(
-            MyText(kase.violationCategory),
-          ),
-          DataCell(
-            MyText(
-              kase.violationTitle,
-              style: AppText.sideMText_300_14,
-            ),
-          ),
-          DataCell(
-            MyText(
-              kase.actionDate != null
-                  ? DateFormat('dd MMM yyyy').format(kase.actionDate!)
-                  : '-',
-              style: AppText.sideMText_300_14,
-            ),
-          ),
-          DataCell(
-            GestureDetector(
-              onTap: () async {
-                final token = await _getToken(context);
-                if (token != null && context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return ViewDisciplinaryCaseDialog(
-                        kase: kase,
-                        token: token,
-                      );
-                    },
-                  );
-                }
-              },
-              child:
-                  const Icon(Icons.visibility, size: 20, color: AppColors.blue),
-            ),
-          ),
         ],
-      );
-    }).toList();
-  }
-
-  Color _getActionColor(String actionType) {
-    final type = actionType.toLowerCase();
-    if (type.contains('termination') || type.contains('dismissal')) {
-      return AppColors.red;
-    }
-    if (type.contains('suspension')) return Colors.orange;
-    if (type.contains('warning')) return Colors.blue;
-    return AppColors.grey1;
+      ),
+    );
   }
 }
