@@ -134,32 +134,32 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
 
   List<DataColumn> _createColumns() {
     return [
-       DataColumn(
+      DataColumn(
         headingRowAlignment: MainAxisAlignment.start,
         label: AppText.bodyMd(
           "Service name",
         ),
       ),
-       DataColumn(
+      DataColumn(
         label: AppText.bodyMd(
           "Sub service",
         ),
       ),
-       DataColumn(
+      DataColumn(
           label: AppText.bodyMd(
         "Added inventory",
       )),
-       DataColumn(
+      DataColumn(
         label: AppText.bodyMd(
           "Order sales count",
         ),
       ),
-       DataColumn(
+      DataColumn(
         label: AppText.bodyMd(
           "Aurthor date",
         ),
       ),
-       DataColumn(
+      DataColumn(
         label: AppText.bodyMd(
           "Notes/Comments",
         ),
@@ -176,10 +176,9 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
           },
           AppText.bodyMd(
             "Real Estate",
-            isSelectable: false,
           ),
         ),
-         DataCell(
+        DataCell(
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,18 +187,16 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                 "- Development and sales",
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                isSelectable: false,
               ),
               AppText.bodyMd(
                 "- Buy/Sales of property",
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                isSelectable: false,
               ),
             ],
           ),
         ),
-         DataCell(
+        DataCell(
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,24 +205,22 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
                 "- Fortress city Estate",
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                isSelectable: false,
               ),
               AppText.bodyMd(
                 "- Bethel city Estate",
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                isSelectable: false,
               ),
             ],
           ),
         ),
-         DataCell(
+        DataCell(
           AppText.bodyMd("10 Order / sales - 35,00"),
         ),
-         DataCell(
+        DataCell(
           AppText.bodyMd("11/02/2024"),
         ),
-         DataCell(
+        DataCell(
           AppText.bodyMd(""),
         ),
       ]);

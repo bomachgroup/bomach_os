@@ -286,8 +286,6 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Obx(() {
       if (_controller.errorMessage.isNotEmpty) {
         return Center(

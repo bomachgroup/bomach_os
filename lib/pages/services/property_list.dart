@@ -1,17 +1,17 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/widget/add_property_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'models/property_model.dart';
 
@@ -245,7 +245,8 @@ class _PropertyListPageState extends State<PropertyListPage> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Iconsax.close_circle, size: 16, color: Colors.red),
+                            Icon(Iconsax.close_circle,
+                                size: 16, color: Colors.red),
                             SizedBox(width: 4),
                             Text(
                               'Clear Filters',
@@ -340,10 +341,9 @@ class _PropertyListPageState extends State<PropertyListPage> {
               AppColors.primary),
           _buildStatCard(
               'Available', '$available', Iconsax.tick_circle, Colors.green),
-          _buildStatCard(
-              'Reserved', '$reserved', Iconsax.clock, Colors.orange),
-          _buildStatCard(
-              'Sold/Rented', '$soldOrRented', Iconsax.tick_circle, Colors.purple),
+          _buildStatCard('Reserved', '$reserved', Iconsax.clock, Colors.orange),
+          _buildStatCard('Sold/Rented', '$soldOrRented', Iconsax.tick_circle,
+              Colors.purple),
         ],
       );
     });
@@ -410,7 +410,6 @@ class _PropertyListPageState extends State<PropertyListPage> {
         ),
         child: AppText.bodyMd(
           label,
-          isSelectable: false,
           color: isSelected ? AppColors.white : AppColors.neutral500,
           fontSize: 14,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -529,8 +528,9 @@ class _PropertyListPageState extends State<PropertyListPage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color:
-                                isCurrentPage ? AppColors.primary : Colors.white,
+                            color: isCurrentPage
+                                ? AppColors.primary
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: isCurrentPage
@@ -675,8 +675,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                       _buildPropertyInfo(
                           Icons.bathtub, '${property.bathrooms} baths'),
                       kSizedBoxWidthSM,
-                      _buildPropertyInfo(
-                          Iconsax.ruler, '${property.size} sqm'),
+                      _buildPropertyInfo(Iconsax.ruler, '${property.size} sqm'),
                     ],
                   ),
                   const SizedBox(height: 8),

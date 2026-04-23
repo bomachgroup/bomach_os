@@ -1,8 +1,8 @@
 import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 import '../../src/constants/spaces.dart';
 import 'overview.dart';
@@ -97,7 +97,7 @@ class DashboardPage extends StatelessWidget {
                     'Business intelligence and performance metrics',
                     fontWeight: FontWeight.w500,
                   ),
-                  AnalyticsActions(),
+                  const AnalyticsActions(),
                 ],
               ),
         kSizedBox,

@@ -1,5 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/components/section/module_dashboard.dart';
@@ -15,8 +17,6 @@ import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -425,8 +425,8 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             )
           else if (_controller.quotes.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(40.0),
+            Padding(
+              padding: const EdgeInsets.all(40.0),
               child: Center(
                 child: AppText.bodyMd(
                   'No quotes available',
@@ -629,8 +629,8 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             )
           else if (_controller.orders.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(40.0),
+            Padding(
+              padding: const EdgeInsets.all(40.0),
               child: Center(
                 child: AppText.bodyMd(
                   'No orders available',
