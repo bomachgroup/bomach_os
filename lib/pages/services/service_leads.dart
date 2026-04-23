@@ -52,18 +52,18 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
   final LeadController _controller = Get.put(LeadController());
   final _storage = const FlutterSecureStorage();
 
-  String _mapStatusToTone(String status) {
+  StatusTone _mapStatusToTone(String status) {
     switch (status.toLowerCase()) {
       case 'new':
-        return 'info';
+        return StatusTone.info;
       case 'qualified':
-        return 'primary';
+        return StatusTone.primary;
       case 'contacted':
-        return 'warning';
+        return StatusTone.warning;
       case 'converted':
-        return 'success';
+        return StatusTone.success;
       default:
-        return 'neutral';
+        return StatusTone.neutral;
     }
   }
 
@@ -393,9 +393,10 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                   itemBuilder: (context, index) {
                     final lead = _controller.leads[index];
 
-                    return AppCard(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(20),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: AppCard(
+                        padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -423,7 +424,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                               StatusChip(
                                 label:
                                     lead.status.capitalizeFirst ?? lead.status,
-                                status: _mapStatusToTone(lead.status),
+                                tone: _mapStatusToTone(lead.status),
                               ),
                             ],
                           ),
@@ -573,7 +574,8 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                           ),
                         ],
                       ),
-                    );
+                    ),
+                  );
                   },
                 ),
                 const SizedBox(height: 24),

@@ -17,6 +17,7 @@ import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -320,7 +321,7 @@ class _ServicesPageState extends State<ServicesPage> {
                               ),
                             ),
                             alignment: Alignment.center,
-                            child: Text(
+                            child: AppText.bodyMd(
                               '$pageNumber',
                               color: isCurrentPage
                                   ? AppColors.white
@@ -524,7 +525,7 @@ class _ServicesPageState extends State<ServicesPage> {
                                       : null,
                                 ),
                                 alignment: Alignment.center,
-                                child: Text(
+                                child: AppText.bodyMd(
                                   '$pageNumber',
                                   color: isCurrentPage
                                       ? AppColors.white
@@ -733,7 +734,7 @@ class _ServicesPageState extends State<ServicesPage> {
                                       : null,
                                 ),
                                 alignment: Alignment.center,
-                                child: Text(
+                                child: AppText.bodyMd(
                                   '$pageNumber',
                                   color: isCurrentPage
                                       ? AppColors.white
@@ -904,7 +905,7 @@ class _ServicesPageState extends State<ServicesPage> {
                           ]
                         : null,
                   ),
-                  AppText.bodySm(
+                  child: AppText.bodySm(
                     tabs[index],
                     color: isActive ? AppColors.white : AppColors.textPrimary,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
@@ -938,7 +939,7 @@ class InvoiceCard extends StatelessWidget {
                     AppText.h4("INV-SVC-2024-002"),
                     const SizedBox(width: 12),
                     const StatusChip(
-                        label: "Partially Paid", status: "warning"),
+                        label: "Partially Paid", tone: StatusTone.warning),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -999,7 +1000,7 @@ class InvoiceCard extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         minimumSize: Size.zero,
-        textStyle: AppText.caption.copyWith(fontWeight: FontWeight.w600),
+        textStyle: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
@@ -1078,7 +1079,7 @@ class QuoteCard extends StatelessWidget {
                 children: statuses
                     .map((status) => StatusChip(
                           label: status,
-                          status: _mapStatusToTone(status),
+                          tone: _mapStatusToTone(status),
                         ))
                     .toList(),
               ),
@@ -1098,7 +1099,7 @@ class QuoteCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     textStyle:
-                        AppText.caption.copyWith(fontWeight: FontWeight.w600),
+                        AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
@@ -1111,13 +1112,14 @@ class QuoteCard extends StatelessWidget {
     );
   }
 
-  String _mapStatusToTone(String status) {
+  StatusTone _mapStatusToTone(String status) {
     final s = status.toLowerCase();
-    if (s.contains('completed') || s.contains('accepted') || s.contains('paid'))
-      return 'success';
-    if (s.contains('pending') || s.contains('partial')) return 'warning';
-    if (s.contains('cancelled') || s.contains('rejected')) return 'error';
-    return 'neutral';
+    if (s.contains('completed') || s.contains('accepted') || s.contains('paid')) {
+      return StatusTone.success;
+    }
+    if (s.contains('pending') || s.contains('partial')) return StatusTone.warning;
+    if (s.contains('cancelled') || s.contains('rejected')) return StatusTone.danger;
+    return StatusTone.neutral;
   }
 }
 
@@ -1153,8 +1155,8 @@ class ServiceCard extends StatelessWidget {
               Expanded(child: AppText.h4(title)),
               StatusChip(
                 label: status.capitalizeFirst ?? "",
-                status:
-                    status.toLowerCase() == 'active' ? 'success' : 'neutral',
+                tone:
+                    status.toLowerCase() == 'active' ? StatusTone.success : StatusTone.neutral,
               ),
             ],
           ),
@@ -1177,7 +1179,6 @@ class ServiceCard extends StatelessWidget {
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             color: AppColors.textSecondary,
-            height: 1.5,
           ),
           const SizedBox(height: 20),
           Row(
