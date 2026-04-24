@@ -1,10 +1,18 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+
 import 'models/service_invoice_model.dart';
 import 'service_leads.dart';
 
@@ -89,7 +97,6 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
     super.initState();
     invoiceItems = [];
 
-    // Initialize controllers
     clientNameController = TextEditingController();
     clientEmailController = TextEditingController();
     clientPhoneController = TextEditingController();
@@ -101,7 +108,6 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
     itemUnitPriceController = TextEditingController();
     notesController = TextEditingController();
 
-    // If initial lead provided, pre-fill the form
     if (widget.initialLead != null) {
       _populateFromLead(widget.initialLead!);
       selectedLeadId = widget.initialLead!.id;
@@ -115,7 +121,6 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
     propertyAddressController.text = lead.property;
     selectedServiceType = lead.serviceType;
 
-    // Clear existing items and add default
     invoiceItems.clear();
     invoiceItems.add(
       ServiceInvoiceItem(
@@ -216,12 +221,11 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
       SnackBar(
         content:
             Text('Invoice ${invoice.invoiceNumber} generated successfully!'),
-        backgroundColor: Colors.green,
+        backgroundColor: AppColors.success,
         duration: const Duration(seconds: 2),
       ),
     );
 
-    // Reset form
     _resetForm();
   }
 
@@ -244,582 +248,711 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
     });
   }
 
+  String _formatCurrency(double amount) => '₦${amount.toStringAsFixed(2)}';
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: const PageHeader(
+        title: 'Generate Invoice',
+        subtitle: 'Create a new invoice for your service.',
+      ),
       children: [
-        // Header
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Generate Invoice",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Create a new invoice for your service",
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 28),
-
-        // Main Form Container
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(32),
-          child: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        Form(
+          key: formKey,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 960;
+              if (isWide) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: _buildFormColumn()),
+                    const SizedBox(width: 24),
+                    Expanded(flex: 2, child: _buildPreviewColumn()),
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Section 1: Load from Lead
-                  _buildSection(
-                    title: 'Select Existing Lead (Optional)',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Choose a lead to auto-fill the invoice form',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: List.generate(
-                              availableLeads.length,
-                              (index) {
-                                final lead = availableLeads[index];
-                                final isSelected = selectedLeadId == lead.id;
-                                return GestureDetector(
-                                  onTap: () => _loadLeadData(lead),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? Colors.blue[50]
-                                          : Colors.white,
-                                      border: index < availableLeads.length - 1
-                                          ? Border(
-                                              bottom: BorderSide(
-                                                color: Colors.grey[200]!,
-                                              ),
-                                            )
-                                          : null,
-                                    ),
-                                    padding: const EdgeInsets.all(16),
-                                    child: Row(
-                                      children: [
-                                        RadioGroup<String>(
-                                          groupValue: selectedLeadId,
-                                          onChanged: (value) =>
-                                              _loadLeadData(lead),
-                                          child: Radio<String>(value: lead.id),
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                lead.name,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                '${lead.serviceType} • ${lead.property}',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue[100],
-                                            borderRadius:
-                                                BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            '₦${(lead.estimatedValue / 1000000).toStringAsFixed(1)}M',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.blue[700],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Section 2: Client Information
-                  _buildSection(
-                    title: 'Client Information',
-                    child: Column(
-                      children: [
-                        MyTextFormField(
-                          controller: clientNameController,
-                          hintText: 'Enter client name',
-                          title: 'Client Name',
-                          keyboardType: TextInputType.name,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Client name is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        MyTextFormField(
-                          controller: clientEmailController,
-                          hintText: 'Enter email address',
-                          title: 'Email Address',
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Email is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        MyTextFormField(
-                          controller: clientPhoneController,
-                          hintText: 'Enter phone number',
-                          title: 'Phone Number',
-                          keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Phone is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        MyTextFormField(
-                          controller: clientAddressController,
-                          hintText: 'Enter client address',
-                          title: 'Address (Optional)',
-                          maxLines: 2,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Section 3: Service Information
-                  _buildSection(
-                    title: 'Service Information',
-                    child: Column(
-                      children: [
-                        const MyText(
-                          'Service Type',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: DropdownButton<String>(
-                            value: selectedServiceType,
-                            isExpanded: true,
-                            underline: const SizedBox(),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            items: [
-                              'Real Estate',
-                              'Land Survey',
-                              'Property Management',
-                              'Estate Management',
-                              'Construction',
-                            ].map((type) {
-                              return DropdownMenuItem(
-                                value: type,
-                                child: Text(type),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  selectedServiceType = value;
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        MyTextFormField(
-                          controller: propertyAddressController,
-                          hintText: 'Enter property address',
-                          title: 'Property Address',
-                          maxLines: 2,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Property address is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        MyTextFormField(
-                          controller: propertyDetailsController,
-                          hintText:
-                              'Enter property details (size, location, etc.)',
-                          title: 'Property Details (Optional)',
-                          maxLines: 2,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Section 4: Invoice Items
-                  _buildSection(
-                    title: 'Invoice Items',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (invoiceItems.isNotEmpty) ...[
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: List.generate(
-                                invoiceItems.length,
-                                (index) {
-                                  final item = invoiceItems[index];
-                                  return Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: index < invoiceItems.length - 1
-                                          ? Border(
-                                              bottom: BorderSide(
-                                                color: Colors.grey[300]!,
-                                              ),
-                                            )
-                                          : null,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                item.description,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                '${item.quantity} × ₦${item.unitPrice.toStringAsFixed(2)} = ₦${item.amount.toStringAsFixed(2)}',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: Colors.grey[700],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        IconButton(
-                                          icon: const Icon(Iconsax.close_circle,
-                                              size: 20, color: Colors.red),
-                                          onPressed: () =>
-                                              _removeInvoiceItem(index),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        // Add Item Form
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.blue[200]!),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const MyText(
-                                'Add Item',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              MyTextFormField(
-                                controller: itemDescriptionController,
-                                hintText: 'Item description',
-                                title: 'Description',
-                                maxLines: 2,
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: MyTextFormField(
-                                      controller: itemQuantityController,
-                                      hintText: '1',
-                                      title: 'Quantity',
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    flex: 2,
-                                    child: MyTextFormField(
-                                      controller: itemUnitPriceController,
-                                      hintText: '0.00',
-                                      title: 'Unit Price (₦)',
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              MyElevatedButton(
-                                child: 'Add Item',
-                                bgColor: AppColors.primary,
-                                onTap: _addInvoiceItem,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Section 5: Financial Details
-                  _buildSection(
-                    title: 'Financial Details',
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: Column(
-                            children: [
-                              _buildFinancialRow(
-                                'Subtotal:',
-                                '₦${subtotal.toStringAsFixed(2)}',
-                              ),
-                              const SizedBox(height: 16),
-                              _buildFinancialRow(
-                                'Tax (${taxRate.toStringAsFixed(1)}%):',
-                                '₦${taxAmount.toStringAsFixed(2)}',
-                              ),
-                              const SizedBox(height: 16),
-                              _buildFinancialRow(
-                                'Discount:',
-                                '₦${discount.toStringAsFixed(2)}',
-                              ),
-                              const Divider(height: 24),
-                              _buildFinancialRow(
-                                'Total:',
-                                '₦${total.toStringAsFixed(2)}',
-                                isTotal: true,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyTextFormField(
-                                initialValue: taxRate.toString(),
-                                hintText: '7.5',
-                                title: 'Tax Rate (%)',
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  if (value.isNotEmpty) {
-                                    setState(() {
-                                      taxRate = double.tryParse(value) ?? 7.5;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: MyTextFormField(
-                                initialValue: discount.toString(),
-                                hintText: '0',
-                                title: 'Discount (₦)',
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  if (value.isNotEmpty) {
-                                    setState(() {
-                                      discount = double.tryParse(value) ?? 0;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: MyTextFormField(
-                                initialValue: daysUntilDue.toString(),
-                                hintText: '30',
-                                title: 'Days Until Due',
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  if (value.isNotEmpty) {
-                                    setState(() {
-                                      daysUntilDue = int.tryParse(value) ?? 30;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Section 6: Additional Notes
-                  _buildSection(
-                    title: 'Additional Information',
-                    child: MyTextFormField(
-                      controller: notesController,
-                      hintText: 'Add any notes for the invoice',
-                      title: 'Notes (Optional)',
-                      maxLines: 4,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyElevatedButton(
-                          child: 'Clear Form',
-                          bgColor: Colors.grey[200] ?? Colors.grey,
-                          textColor: Colors.black87,
-                          onTap: _resetForm,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: MyElevatedButton(
-                          child: 'Generate Invoice',
-                          bgColor: AppColors.primary,
-                          onTap: _generateInvoice,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildFormColumn(),
+                  const SizedBox(height: 24),
+                  _buildPreviewColumn(),
                 ],
-              ),
-            ),
+              );
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSection({
-    required String title,
-    required Widget child,
-  }) {
+  Widget _buildFormColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildLeadSelectorCard(),
+        const SizedBox(height: 20),
+        _buildSectionCard(
+          title: 'Client Information',
+          subtitle: 'Who the invoice is being issued to.',
+          icon: Iconsax.user,
+          child: Column(
+            children: [
+              MyTextFormField(
+                controller: clientNameController,
+                hintText: 'Enter client name',
+                title: 'Client Name',
+                keyboardType: TextInputType.name,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Client name is required';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              MyTextFormField(
+                controller: clientEmailController,
+                hintText: 'Enter email address',
+                title: 'Email Address',
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Email is required';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              MyTextFormField(
+                controller: clientPhoneController,
+                hintText: 'Enter phone number',
+                title: 'Phone Number',
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Phone is required';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              MyTextFormField(
+                controller: clientAddressController,
+                hintText: 'Enter client address',
+                title: 'Address (Optional)',
+                maxLines: 2,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildSectionCard(
+          title: 'Service Information',
+          subtitle: 'The service being billed.',
+          icon: Iconsax.briefcase,
+          child: Column(
+            children: [
+              MyDropdown(
+                title: 'Service Type',
+                hintText: selectedServiceType,
+                initialSelection: selectedServiceType,
+                items: const [
+                  'Real Estate',
+                  'Land Survey',
+                  'Property Management',
+                  'Estate Management',
+                  'Construction',
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedServiceType = value;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 14),
+              MyTextFormField(
+                controller: propertyAddressController,
+                hintText: 'Enter property address',
+                title: 'Property Address',
+                maxLines: 2,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Property address is required';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              MyTextFormField(
+                controller: propertyDetailsController,
+                hintText:
+                    'Enter property details (size, location, etc.)',
+                title: 'Property Details (Optional)',
+                maxLines: 2,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildSectionCard(
+          title: 'Invoice Items',
+          subtitle: 'Line items included on this invoice.',
+          icon: Iconsax.box,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (invoiceItems.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: EmptyState(
+                    icon: Iconsax.box,
+                    title: 'No items added yet',
+                    subtitle: 'Use the form below to add your first line item.',
+                    compact: true,
+                  ),
+                )
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.borderSubtle),
+                    borderRadius: AppRadii.brMd,
+                  ),
+                  child: Column(
+                    children: List.generate(invoiceItems.length, (index) {
+                      final item = invoiceItems[index];
+                      return Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          border: index < invoiceItems.length - 1
+                              ? const Border(
+                                  bottom:
+                                      BorderSide(color: AppColors.borderSubtle),
+                                )
+                              : null,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.description,
+                                    style: AppTextStyles.bodyMd.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${item.quantity} × ${_formatCurrency(item.unitPrice)} = ${_formatCurrency(item.amount)}',
+                                    style: AppTextStyles.bodySm,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: AppRadii.brSm,
+                                onTap: () => _removeInvoiceItem(index),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.dangerSubtle,
+                                    borderRadius: AppRadii.brSm,
+                                  ),
+                                  child: const Icon(
+                                    Iconsax.trash,
+                                    size: 16,
+                                    color: AppColors.danger,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.primarySoft),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Add Item',
+                      style: AppTextStyles.h4.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    MyTextFormField(
+                      controller: itemDescriptionController,
+                      hintText: 'Item description',
+                      title: 'Description',
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: MyTextFormField(
+                            controller: itemQuantityController,
+                            hintText: '1',
+                            title: 'Quantity',
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: MyTextFormField(
+                            controller: itemUnitPriceController,
+                            hintText: '0.00',
+                            title: 'Unit Price (₦)',
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    MyElevatedButton(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 12),
+                      icon: const Icon(Iconsax.add_circle,
+                          size: 18, color: AppColors.textOnPrimary),
+                      child: 'Add Item',
+                      onTap: _addInvoiceItem,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildSectionCard(
+          title: 'Financial Details',
+          subtitle: 'Tax, discount, and payment terms.',
+          icon: Iconsax.money_recive,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: MyTextFormField(
+                      initialValue: taxRate.toString(),
+                      hintText: '7.5',
+                      title: 'Tax Rate (%)',
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            taxRate = double.tryParse(value) ?? 7.5;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: MyTextFormField(
+                      initialValue: discount.toString(),
+                      hintText: '0',
+                      title: 'Discount (₦)',
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            discount = double.tryParse(value) ?? 0;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: MyTextFormField(
+                      initialValue: daysUntilDue.toString(),
+                      hintText: '30',
+                      title: 'Days Until Due',
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            daysUntilDue = int.tryParse(value) ?? 30;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildSectionCard(
+          title: 'Additional Information',
+          subtitle: 'Any extra notes to include on the invoice.',
+          icon: Iconsax.note_2,
+          child: MyTextFormField(
+            controller: notesController,
+            hintText: 'Add any notes for the invoice',
+            title: 'Notes (Optional)',
+            maxLines: 4,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: MyOutlinedButton(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                icon: const Icon(Iconsax.refresh,
+                    size: 18, color: AppColors.primary),
+                child: 'Clear Form',
+                onTap: _resetForm,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: MyElevatedButton(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                icon: const Icon(Iconsax.document_text,
+                    size: 18, color: AppColors.textOnPrimary),
+                child: 'Generate Invoice',
+                onTap: _generateInvoice,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLeadSelectorCard() {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brSm,
+                  ),
+                  child: const Icon(
+                    Iconsax.user_search,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Select Existing Lead',
+                        style: AppTextStyles.h4,
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Optional — auto-fills client + service details.',
+                        style: AppTextStyles.bodySm,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          ...List.generate(availableLeads.length, (index) {
+            final lead = availableLeads[index];
+            final isSelected = selectedLeadId == lead.id;
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _loadLeadData(lead),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primarySubtle
+                        : AppColors.surface,
+                    border: index < availableLeads.length - 1
+                        ? const Border(
+                            bottom:
+                                BorderSide(color: AppColors.borderSubtle),
+                          )
+                        : null,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isSelected
+                            ? Iconsax.tick_circle
+                            : Iconsax.record_circle,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.textMuted,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              lead.name,
+                              style: AppTextStyles.bodyMd.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${lead.serviceType} · ${lead.property}',
+                              style: AppTextStyles.bodySm,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primarySubtle,
+                          borderRadius: AppRadii.brPill,
+                        ),
+                        child: Text(
+                          '₦${(lead.estimatedValue / 1000000).toStringAsFixed(1)}M',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewColumn() {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brSm,
+                  ),
+                  child: const Icon(
+                    Iconsax.document_text,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Invoice Preview', style: AppTextStyles.h4),
+                      SizedBox(height: 2),
+                      Text(
+                        'Live calculation of totals.',
+                        style: AppTextStyles.bodySm,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildPreviewRow(
+                  label: 'Bill To',
+                  value: clientNameController.text.isEmpty
+                      ? '—'
+                      : clientNameController.text,
+                ),
+                const SizedBox(height: 10),
+                _buildPreviewRow(
+                  label: 'Service Type',
+                  value: selectedServiceType,
+                ),
+                const SizedBox(height: 10),
+                _buildPreviewRow(
+                  label: 'Property',
+                  value: propertyAddressController.text.isEmpty
+                      ? '—'
+                      : propertyAddressController.text,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceMuted,
+                    borderRadius: AppRadii.brMd,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildFinancialRow(
+                        'Subtotal',
+                        _formatCurrency(subtotal),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildFinancialRow(
+                        'Tax (${taxRate.toStringAsFixed(1)}%)',
+                        _formatCurrency(taxAmount),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildFinancialRow(
+                        'Discount',
+                        '- ${_formatCurrency(discount)}',
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        child: Divider(
+                            height: 1, color: AppColors.borderSubtle),
+                      ),
+                      _buildFinancialRow(
+                        'Total',
+                        _formatCurrency(total),
+                        isTotal: true,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Due in $daysUntilDue day${daysUntilDue == 1 ? '' : 's'} after issue.',
+                  style: AppTextStyles.bodySm,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewRow({required String label, required String value}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MyText(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+        Text(
+          label.toUpperCase(),
+          style: AppTextStyles.overline,
         ),
-        const SizedBox(height: 16),
-        child,
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: AppTextStyles.bodyMd.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
+    );
+  }
+
+  Widget _buildSectionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Widget child,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brSm,
+                  ),
+                  child: Icon(icon, color: AppColors.primary, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: AppTextStyles.h4),
+                      const SizedBox(height: 2),
+                      Text(subtitle, style: AppTextStyles.bodySm),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: child,
+          ),
+        ],
+      ),
     );
   }
 
@@ -830,18 +963,15 @@ class _GenerateInvoicePageState extends State<GenerateInvoicePage> {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: isTotal ? 16 : 14,
-            fontWeight: isTotal ? FontWeight.w600 : FontWeight.w500,
-            color: isTotal ? Colors.black87 : Colors.grey[700],
+          style: (isTotal ? AppTextStyles.h4 : AppTextStyles.bodyMd).copyWith(
+            color: isTotal ? AppColors.textPrimary : AppColors.textSecondary,
           ),
         ),
         Text(
           value,
-          style: TextStyle(
-            fontSize: isTotal ? 16 : 14,
-            fontWeight: isTotal ? FontWeight.w600 : FontWeight.w500,
-            color: isTotal ? Colors.green : Colors.black87,
+          style: (isTotal ? AppTextStyles.h4 : AppTextStyles.bodyMd).copyWith(
+            color: isTotal ? AppColors.success : AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],

@@ -1,24 +1,25 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/section/module_dashboard.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
 import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/section/page_scaffold.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/pages/services/controller/lead_controller.dart';
 import 'package:bms_front_end/pages/services/controller/service_controller.dart';
 import 'package:bms_front_end/pages/services/service_leads.dart';
 import 'package:bms_front_end/pages/services/widget/create_order_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/create_quote_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/service_form_dialog.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -56,12 +57,18 @@ class _ServicesPageState extends State<ServicesPage> {
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
+      maxContentWidth: 1440,
       header: PageHeader(
         title: 'Services Dashboard',
         subtitle: 'Manage your service catalog, quotes, and orders',
         trailing: MyElevatedButton(
-          icon: const Icon(Iconsax.add_circle, color: AppColors.white),
-          child: "Add Service",
+          height: 48,
+          icon: const Icon(
+            Iconsax.add_circle,
+            color: AppColors.textOnPrimary,
+            size: 18,
+          ),
+          child: 'Add Service',
           onTap: () {
             showDialog(
               context: context,
@@ -71,10 +78,8 @@ class _ServicesPageState extends State<ServicesPage> {
         ),
       ),
       children: [
-        _buildTopStats(context),
-        const SizedBox(height: 32),
-        _buildTabs(context, (index) => setState(() => _selectedTab = index)),
-        const SizedBox(height: 24),
+        _buildTopStats(),
+        _buildTabs((index) => setState(() => _selectedTab = index)),
         if (_selectedTab == 0) _catalog(),
         if (_selectedTab == 1) _quotes(),
         if (_selectedTab == 2) _orders(),
@@ -83,322 +88,337 @@ class _ServicesPageState extends State<ServicesPage> {
     );
   }
 
-  Widget _catalog() {
+  // ─── Stats ────────────────────────────────────────────────────────────────
+  Widget _buildTopStats() {
     return Obx(() {
-      if (_controller.errorMessage.isNotEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppText.bodyMd(
-                  _controller.errorMessage.value,
-                  color: AppColors.danger,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                MyElevatedButton(
-                  child: 'Retry',
-                  onTap: () => _controller.fetchServices(),
-                ),
-              ],
-            ),
+      final servicesCount = _controller.services.length.toString();
+      final ordersCount = _controller.orders.length.toString();
+      final quotesCount = _controller.quotes.length.toString();
+      final leadsCount = _leadController.leads.length.toString();
+
+      return ResponsiveStatRow(
+        cards: [
+          _StatCard(
+            title: 'Services',
+            count: servicesCount,
+            icon: Iconsax.box,
+            accent: AppColors.primary,
           ),
-        );
-      }
-
-      return Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText.h3('Service Catalog'),
-                    const SizedBox(height: 4),
-                    AppText.bodySm(
-                      'Manage your service offerings and pricing',
-                      color: AppColors.textSecondary,
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 300,
-                    child: MyTextFormField(
-                      controller: _searchController,
-                      hintText: 'Search services...',
-                      leading: Icon(
-                        Iconsax.search_normal,
-                        color: AppColors.textSecondary.withValues(alpha: 0.5),
-                        size: 18,
-                      ),
-                      onChanged: (v) => _onSearch(v.trim()),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  MyElevatedButton(
-                    child: 'Filter',
-                    onTap: () => _onSearch(_searchController.text.trim()),
-                  ),
-                ],
-              )
-            ],
+          _StatCard(
+            title: 'Orders',
+            count: ordersCount,
+            icon: Iconsax.shopping_bag,
+            accent: AppColors.success,
           ),
-          const SizedBox(height: 18),
-          if (_controller.isLoading.value)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: CircularProgressIndicator(),
-              ),
-            )
-          else if (_controller.services.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Center(
-                child: AppText.bodyMd(
-                  'No services available',
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            )
-          else
-            Align(
-              alignment: Alignment.centerLeft,
-              child: LayoutBuilder(builder: (context, constraints) {
-                // determine columns from available width
-                double maxWidth = constraints.maxWidth;
-                int columns = 1;
-                if (maxWidth > 1200) {
-                  columns = 3;
-                } else if (maxWidth > 900)
-                  columns = 3;
-                else if (maxWidth > 700)
-                  columns = 2;
-                else
-                  columns = 1;
-
-                double spacing = 18;
-                double cardWidth =
-                    (maxWidth - (columns - 1) * spacing) / columns;
-
-                return Wrap(
-                  alignment: WrapAlignment.start,
-                  runSpacing: spacing,
-                  spacing: spacing,
-                  children: _controller.services
-                      .map((service) => SizedBox(
-                            width: cardWidth,
-                            child: ServiceCard(
-                              title: service.name,
-                              category: service.category.name,
-                              description: service.description,
-                              price: '₦${service.basePrice}',
-                              duration: service.deliveryTime,
-                              status: service.status,
-                              service: service,
-                            ),
-                          ))
-                      .toList(),
-                );
-              }),
-            ),
-          const SizedBox(height: 24),
-          // Pagination Controls
-          if (_controller.services.isNotEmpty)
-            Obx(() {
-              final currentPage = _controller.currentPage.value;
-              final hasNextPage =
-                  _controller.services.length >= _controller.limit;
-
-              // Calculate page range to show
-              final totalPages = hasNextPage ? currentPage + 1 : currentPage;
-              int endPage = totalPages.clamp(1, totalPages);
-              int startPage = (endPage - 4).clamp(1, endPage);
-
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Previous Button
-                  IconButton(
-                    onPressed: currentPage > 1
-                        ? () => _controller.previousPage(
-                              search: _searchController.text.trim().isEmpty
-                                  ? null
-                                  : _searchController.text.trim(),
-                            )
-                        : null,
-                    icon: const Icon(Iconsax.arrow_left_2),
-                    style: IconButton.styleFrom(
-                      backgroundColor: currentPage > 1
-                          ? AppColors.primary
-                          : Colors.grey[300],
-                      foregroundColor:
-                          currentPage > 1 ? Colors.white : Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Page Numbers
-                  ...List.generate(
-                    endPage - startPage + 1,
-                    (index) {
-                      final pageNumber = startPage + index;
-                      final isCurrentPage = pageNumber == currentPage;
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: InkWell(
-                          onTap: () => _controller.goToPage(
-                            pageNumber,
-                            search: _searchController.text.trim().isEmpty
-                                ? null
-                                : _searchController.text.trim(),
-                          ),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: isCurrentPage
-                                  ? AppColors.primary
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: isCurrentPage
-                                    ? AppColors.primary
-                                    : Colors.grey[300]!,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: AppText.bodyMd(
-                              '$pageNumber',
-                              color: isCurrentPage
-                                  ? AppColors.white
-                                  : AppColors.textPrimary,
-                              fontWeight: isCurrentPage
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  // Next Button
-                  IconButton(
-                    onPressed: hasNextPage
-                        ? () => _controller.nextPage(
-                              search: _searchController.text.trim().isEmpty
-                                  ? null
-                                  : _searchController.text.trim(),
-                            )
-                        : null,
-                    icon: const Icon(Iconsax.arrow_right_3),
-                    style: IconButton.styleFrom(
-                      backgroundColor:
-                          hasNextPage ? AppColors.primary : Colors.grey[300],
-                      foregroundColor:
-                          hasNextPage ? Colors.white : Colors.grey[600],
-                    ),
-                  ),
-                ],
-              );
-            }),
-          const SizedBox(height: 40)
+          _StatCard(
+            title: 'Quotes',
+            count: quotesCount,
+            icon: Iconsax.document_text,
+            accent: AppColors.warning,
+          ),
+          _StatCard(
+            title: 'Leads',
+            count: leadsCount,
+            icon: Iconsax.user_tag,
+            accent: const Color(0xFF8B5CF6),
+          ),
         ],
       );
     });
   }
 
-  Widget _quotes() {
+  // ─── Tabs ─────────────────────────────────────────────────────────────────
+  Widget _buildTabs(void Function(int) onTap) {
+    return Obx(() {
+      final tabs = [
+        'Service Catalog (${_controller.services.length})',
+        'Quotes (${_controller.quotes.length})',
+        'Orders (${_controller.orders.length})',
+        'Service Leads (${_leadController.leads.length})',
+      ];
+
+      return Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceMuted,
+          borderRadius: AppRadii.brLg,
+          border: Border.all(color: AppColors.borderSubtle),
+        ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: List.generate(tabs.length, (index) {
+              final isActive = _selectedTab == index;
+              return Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: AppRadii.brMd,
+                    onTap: () => onTap(index),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isActive ? AppColors.surface : Colors.transparent,
+                        borderRadius: AppRadii.brMd,
+                        boxShadow: isActive ? AppShadows.sm : const <BoxShadow>[],
+                      ),
+                      child: Text(
+                        tabs[index],
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: isActive
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      );
+    });
+  }
+
+  // ─── Catalog tab ──────────────────────────────────────────────────────────
+  Widget _catalog() {
     return Obx(() {
       if (_controller.errorMessage.isNotEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppText.bodyMd(
-                  _controller.errorMessage.value,
-                  color: AppColors.danger,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => _controller.fetchQuotes(),
-                  child: const Text('Retry'),
-                ),
-              ],
+        return AppCard(
+          padding: const EdgeInsets.all(24),
+          child: EmptyState(
+            icon: Iconsax.warning_2,
+            title: 'Unable to load services',
+            subtitle: _controller.errorMessage.value,
+            action: MyElevatedButton(
+              child: 'Retry',
+              icon: const Icon(
+                Iconsax.refresh,
+                size: 18,
+                color: AppColors.textOnPrimary,
+              ),
+              onTap: () => _controller.fetchServices(),
             ),
           ),
         );
       }
 
+      final loading =
+          _controller.isLoading.value && _controller.services.isEmpty;
+      final isEmpty =
+          !_controller.isLoading.value && _controller.services.isEmpty;
+
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText.h3('Quotes Management'),
-                    const SizedBox(height: 4),
-                    AppText.bodySm(
-                      'Manage and track your service quotes',
-                      color: AppColors.textSecondary,
-                    ),
-                  ],
+          _buildSectionHeader(
+            title: 'Service Catalog',
+            subtitle: 'Manage your service offerings and pricing',
+            trailing: SizedBox(
+              width: 320,
+              child: MyTextFormField(
+                controller: _searchController,
+                hintText: 'Search services...',
+                height: 44,
+                leading: const Icon(
+                  Iconsax.search_normal,
+                  size: 18,
+                  color: AppColors.textMuted,
+                ),
+                onChanged: (v) => _onSearch(v.trim()),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (loading)
+            LoadingSkeleton.listRows(count: 6)
+          else if (isEmpty)
+            AppCard(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.box,
+                title: 'No services yet',
+                subtitle:
+                    'Create your first service offering to start tracking quotes and orders.',
+                action: MyElevatedButton(
+                  child: 'Add Service',
+                  icon: const Icon(
+                    Iconsax.add_circle,
+                    size: 18,
+                    color: AppColors.textOnPrimary,
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const ServiceFormDialog(),
+                    );
+                  },
                 ),
               ),
-              MyElevatedButton(
-                icon: const Icon(Iconsax.add_circle, color: AppColors.white),
-                child: "Create Quote",
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const CreateQuoteDialog(),
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          if (_controller.isLoadingQuotes.value)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: CircularProgressIndicator(),
-              ),
             )
-          else if (_controller.quotes.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Center(
-                child: AppText.bodyMd(
-                  'No quotes available',
-                  color: AppColors.textSecondary,
+          else
+            LayoutBuilder(builder: (context, constraints) {
+              double maxWidth = constraints.maxWidth;
+              int columns;
+              if (maxWidth > 1200) {
+                columns = 3;
+              } else if (maxWidth > 900) {
+                columns = 3;
+              } else if (maxWidth > 700) {
+                columns = 2;
+              } else {
+                columns = 1;
+              }
+
+              const double spacing = 16;
+              final double cardWidth =
+                  (maxWidth - (columns - 1) * spacing) / columns;
+
+              return Wrap(
+                alignment: WrapAlignment.start,
+                runSpacing: spacing,
+                spacing: spacing,
+                children: _controller.services
+                    .map((service) => SizedBox(
+                          width: cardWidth,
+                          child: ServiceCard(
+                            title: service.name,
+                            category: service.category.name,
+                            description: service.description,
+                            price: '₦${service.basePrice}',
+                            duration: service.deliveryTime,
+                            status: service.status,
+                            service: service,
+                          ),
+                        ))
+                    .toList(),
+              );
+            }),
+          if (_controller.services.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildCatalogPaginator(),
+          ],
+        ],
+      );
+    });
+  }
+
+  Widget _buildCatalogPaginator() {
+    return Obx(() {
+      final currentPage = _controller.currentPage.value;
+      final hasNextPage =
+          _controller.services.length >= _controller.limit;
+      final derivedTotal = hasNextPage
+          ? currentPage * _controller.limit + 1
+          : (currentPage - 1) * _controller.limit +
+              _controller.services.length;
+
+      return AppCard(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        elevation: AppCardElevation.sm,
+        child: PaginatorFooter(
+          totalItems: derivedTotal,
+          limit: _controller.limit,
+          currentPage: currentPage,
+          onPageChanged: (page) => _controller.goToPage(
+            page,
+            search: _searchController.text.trim().isEmpty
+                ? null
+                : _searchController.text.trim(),
+          ),
+        ),
+      );
+    });
+  }
+
+  // ─── Quotes tab ───────────────────────────────────────────────────────────
+  Widget _quotes() {
+    return Obx(() {
+      if (_controller.errorMessage.isNotEmpty) {
+        return AppCard(
+          padding: const EdgeInsets.all(24),
+          child: EmptyState(
+            icon: Iconsax.warning_2,
+            title: 'Unable to load quotes',
+            subtitle: _controller.errorMessage.value,
+            action: MyElevatedButton(
+              child: 'Retry',
+              icon: const Icon(
+                Iconsax.refresh,
+                size: 18,
+                color: AppColors.textOnPrimary,
+              ),
+              onTap: () => _controller.fetchQuotes(),
+            ),
+          ),
+        );
+      }
+
+      final loading =
+          _controller.isLoadingQuotes.value && _controller.quotes.isEmpty;
+      final isEmpty =
+          !_controller.isLoadingQuotes.value && _controller.quotes.isEmpty;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionHeader(
+            title: 'Quotes Management',
+            subtitle: 'Manage and track your service quotes',
+            trailing: MyElevatedButton(
+              height: 44,
+              icon: const Icon(
+                Iconsax.add_circle,
+                color: AppColors.textOnPrimary,
+                size: 18,
+              ),
+              child: 'Create Quote',
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const CreateQuoteDialog(),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (loading)
+            LoadingSkeleton.listRows(count: 5)
+          else if (isEmpty)
+            AppCard(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.document_text,
+                title: 'No quotes yet',
+                subtitle: 'Create a quote to share pricing with your clients.',
+                action: MyElevatedButton(
+                  child: 'Create Quote',
+                  icon: const Icon(
+                    Iconsax.add_circle,
+                    size: 18,
+                    color: AppColors.textOnPrimary,
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const CreateQuoteDialog(),
+                    );
+                  },
                 ),
               ),
             )
           else
             Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _controller.quotes.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final quote = _controller.quotes[index];
+                for (int i = 0; i < _controller.quotes.length; i++) ...[
+                  Builder(builder: (_) {
+                    final quote = _controller.quotes[i];
                     return QuoteCard(
                       company: 'Client ID: ${quote.clientId}',
                       service: quote.service.name,
@@ -406,203 +426,127 @@ class _ServicesPageState extends State<ServicesPage> {
                       validUntil: quote.validUntil,
                       description: quote.description,
                       price: '₦${quote.amount}',
-                      statuses: [quote.status.capitalizeFirst ?? quote.status],
+                      statuses: [
+                        quote.status.capitalizeFirst ?? quote.status,
+                      ],
                     );
-                  },
-                ),
-                const SizedBox(height: 24),
-                // Pagination Controls
-                Obx(() {
-                  final currentPage = _controller.currentQuotePage.value;
-                  final hasNextPage =
-                      _controller.quotes.length >= _controller.limit;
-
-                  final totalPages =
-                      hasNextPage ? currentPage + 1 : currentPage;
-                  int endPage = totalPages.clamp(1, totalPages);
-                  int startPage = (endPage - 4).clamp(1, endPage);
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: currentPage > 1
-                            ? () => _controller.previousQuotePage()
-                            : null,
-                        icon: const Icon(Iconsax.arrow_left_2, size: 20),
-                        style: IconButton.styleFrom(
-                          backgroundColor: currentPage > 1
-                              ? AppColors.primary
-                              : AppColors.neutral200,
-                          foregroundColor: currentPage > 1
-                              ? Colors.white
-                              : AppColors.textSecondary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ...List.generate(
-                        endPage - startPage + 1,
-                        (index) {
-                          final pageNumber = startPage + index;
-                          final isCurrentPage = pageNumber == currentPage;
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: InkWell(
-                              onTap: () =>
-                                  _controller.goToQuotePage(pageNumber),
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: isCurrentPage
-                                      ? AppColors.primary
-                                      : AppColors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: isCurrentPage
-                                        ? AppColors.primary
-                                        : AppColors.neutral200,
-                                  ),
-                                  boxShadow: isCurrentPage
-                                      ? [
-                                          BoxShadow(
-                                            color: AppColors.primary
-                                                .withValues(alpha: 0.2),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          )
-                                        ]
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: AppText.bodyMd(
-                                  '$pageNumber',
-                                  color: isCurrentPage
-                                      ? AppColors.white
-                                      : AppColors.textPrimary,
-                                  fontWeight: isCurrentPage
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        onPressed: hasNextPage
-                            ? () => _controller.nextQuotePage()
-                            : null,
-                        icon: const Icon(Iconsax.arrow_right_3, size: 20),
-                        style: IconButton.styleFrom(
-                          backgroundColor: hasNextPage
-                              ? AppColors.primary
-                              : AppColors.neutral200,
-                          foregroundColor: hasNextPage
-                              ? Colors.white
-                              : AppColors.textSecondary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
+                  }),
+                  if (i != _controller.quotes.length - 1)
+                    const SizedBox(height: 12),
+                ],
               ],
             ),
+          if (_controller.quotes.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Obx(() {
+              final currentPage = _controller.currentQuotePage.value;
+              final hasNextPage =
+                  _controller.quotes.length >= _controller.limit;
+              final derivedTotal = hasNextPage
+                  ? currentPage * _controller.limit + 1
+                  : (currentPage - 1) * _controller.limit +
+                      _controller.quotes.length;
+              return AppCard(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                elevation: AppCardElevation.sm,
+                child: PaginatorFooter(
+                  totalItems: derivedTotal,
+                  limit: _controller.limit,
+                  currentPage: currentPage,
+                  onPageChanged: _controller.goToQuotePage,
+                ),
+              );
+            }),
+          ],
         ],
       );
     });
   }
 
+  // ─── Orders tab ───────────────────────────────────────────────────────────
   Widget _orders() {
     return Obx(() {
       if (_controller.errorMessage.isNotEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppText.bodyMd(
-                  _controller.errorMessage.value,
-                  color: AppColors.danger,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => _controller.fetchOrders(),
-                  child: const Text('Retry'),
-                ),
-              ],
+        return AppCard(
+          padding: const EdgeInsets.all(24),
+          child: EmptyState(
+            icon: Iconsax.warning_2,
+            title: 'Unable to load orders',
+            subtitle: _controller.errorMessage.value,
+            action: MyElevatedButton(
+              child: 'Retry',
+              icon: const Icon(
+                Iconsax.refresh,
+                size: 18,
+                color: AppColors.textOnPrimary,
+              ),
+              onTap: () => _controller.fetchOrders(),
             ),
           ),
         );
       }
 
+      final loading =
+          _controller.isLoadingOrders.value && _controller.orders.isEmpty;
+      final isEmpty =
+          !_controller.isLoadingOrders.value && _controller.orders.isEmpty;
+
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText.h3('Service Orders'),
-                    const SizedBox(height: 4),
-                    AppText.bodySm(
-                      'Track active and completed service orders',
-                      color: AppColors.textSecondary,
-                    ),
-                  ],
-                ),
+          _buildSectionHeader(
+            title: 'Service Orders',
+            subtitle: 'Track active and completed service orders',
+            trailing: MyElevatedButton(
+              height: 44,
+              icon: const Icon(
+                Iconsax.add_circle,
+                color: AppColors.textOnPrimary,
+                size: 18,
               ),
-              MyElevatedButton(
-                icon: const Icon(Iconsax.add_circle, color: AppColors.white),
-                child: "Create Order",
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const CreateOrderDialog(),
-                  );
-                },
-              ),
-            ],
+              child: 'Create Order',
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const CreateOrderDialog(),
+                );
+              },
+            ),
           ),
-          const SizedBox(height: 24),
-          if (_controller.isLoadingOrders.value)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: CircularProgressIndicator(),
-              ),
-            )
-          else if (_controller.orders.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Center(
-                child: AppText.bodyMd(
-                  'No orders available',
-                  color: AppColors.textSecondary,
+          const SizedBox(height: 16),
+          if (loading)
+            LoadingSkeleton.listRows(count: 5)
+          else if (isEmpty)
+            AppCard(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.shopping_bag,
+                title: 'No orders yet',
+                subtitle:
+                    'Approved quotes or direct orders will appear here for fulfilment.',
+                action: MyElevatedButton(
+                  child: 'Create Order',
+                  icon: const Icon(
+                    Iconsax.add_circle,
+                    size: 18,
+                    color: AppColors.textOnPrimary,
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const CreateOrderDialog(),
+                    );
+                  },
                 ),
               ),
             )
           else
             Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _controller.orders.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final order = _controller.orders[index];
+                for (int i = 0; i < _controller.orders.length; i++) ...[
+                  Builder(builder: (_) {
+                    final order = _controller.orders[i];
                     return QuoteCard(
                       company: 'Client ID: ${order.clientId}',
                       service: order.service.name,
@@ -617,263 +561,143 @@ class _ServicesPageState extends State<ServicesPage> {
                       ],
                       paymentLink: order.paymentLink,
                     );
-                  },
-                ),
-                const SizedBox(height: 24),
-                // Pagination Controls
-                Obx(() {
-                  final currentPage = _controller.currentOrderPage.value;
-                  final hasNextPage =
-                      _controller.orders.length >= _controller.limit;
-
-                  final totalPages =
-                      hasNextPage ? currentPage + 1 : currentPage;
-                  int endPage = totalPages.clamp(1, totalPages);
-                  int startPage = (endPage - 4).clamp(1, endPage);
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: currentPage > 1
-                            ? () => _controller.previousOrderPage()
-                            : null,
-                        icon: const Icon(Iconsax.arrow_left_2, size: 20),
-                        style: IconButton.styleFrom(
-                          backgroundColor: currentPage > 1
-                              ? AppColors.primary
-                              : AppColors.neutral200,
-                          foregroundColor: currentPage > 1
-                              ? Colors.white
-                              : AppColors.textSecondary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ...List.generate(
-                        endPage - startPage + 1,
-                        (index) {
-                          final pageNumber = startPage + index;
-                          final isCurrentPage = pageNumber == currentPage;
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: InkWell(
-                              onTap: () =>
-                                  _controller.goToOrderPage(pageNumber),
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: isCurrentPage
-                                      ? AppColors.primary
-                                      : AppColors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: isCurrentPage
-                                        ? AppColors.primary
-                                        : AppColors.neutral200,
-                                  ),
-                                  boxShadow: isCurrentPage
-                                      ? [
-                                          BoxShadow(
-                                            color: AppColors.primary
-                                                .withValues(alpha: 0.2),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          )
-                                        ]
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: AppText.bodyMd(
-                                  '$pageNumber',
-                                  color: isCurrentPage
-                                      ? AppColors.white
-                                      : AppColors.textPrimary,
-                                  fontWeight: isCurrentPage
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        onPressed: hasNextPage
-                            ? () => _controller.nextOrderPage()
-                            : null,
-                        icon: const Icon(Iconsax.arrow_right_3, size: 20),
-                        style: IconButton.styleFrom(
-                          backgroundColor: hasNextPage
-                              ? AppColors.primary
-                              : AppColors.neutral200,
-                          foregroundColor: hasNextPage
-                              ? Colors.white
-                              : AppColors.textSecondary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
+                  }),
+                  if (i != _controller.orders.length - 1)
+                    const SizedBox(height: 12),
+                ],
               ],
             ),
+          if (_controller.orders.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Obx(() {
+              final currentPage = _controller.currentOrderPage.value;
+              final hasNextPage =
+                  _controller.orders.length >= _controller.limit;
+              final derivedTotal = hasNextPage
+                  ? currentPage * _controller.limit + 1
+                  : (currentPage - 1) * _controller.limit +
+                      _controller.orders.length;
+              return AppCard(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                elevation: AppCardElevation.sm,
+                child: PaginatorFooter(
+                  totalItems: derivedTotal,
+                  limit: _controller.limit,
+                  currentPage: currentPage,
+                  onPageChanged: _controller.goToOrderPage,
+                ),
+              );
+            }),
+          ],
         ],
       );
     });
   }
 
-  Widget _buildTopStats(BuildContext context) {
-    return Obx(() {
-      final servicesCount = _controller.services.length.toString();
-      final ordersCount = _controller.orders.length.toString();
-      final quotesCount = _controller.quotes.length.toString();
-      final leadsCount = _leadController.leads.length.toString();
+  // ─── Section header (title + trailing action) ────────────────────────────
+  Widget _buildSectionHeader({
+    required String title,
+    required String subtitle,
+    Widget? trailing,
+  }) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final compact = constraints.maxWidth < 720;
+      final titleBlock = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title, style: AppTextStyles.h3),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      );
 
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isMobile = constraints.maxWidth < 650;
-          final int crossAxisCount =
-              isMobile ? 1 : (constraints.maxWidth > 1100 ? 4 : 2);
-
-          return GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: isMobile ? 2.8 : 2.2,
-            children: [
-              _buildStatCard(
-                  "Services", servicesCount, AppColors.primary, Iconsax.box),
-              _buildStatCard("Orders", ordersCount, AppColors.success,
-                  Iconsax.shopping_bag),
-              _buildStatCard("Quotes", quotesCount, AppColors.warning,
-                  Iconsax.document_text),
-              _buildStatCard("Leads", leadsCount, const Color(0xFF8B5CF6),
-                  Iconsax.user_tag),
+      if (compact) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            titleBlock,
+            if (trailing != null) ...[
+              const SizedBox(height: 12),
+              trailing,
             ],
-          );
-        },
+          ],
+        );
+      }
+
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(child: titleBlock),
+          if (trailing != null) trailing,
+        ],
       );
     });
   }
+}
 
-  Widget _buildStatCard(
-      String title, String value, Color color, IconData icon) {
+// ─── Stat card ──────────────────────────────────────────────────────────────
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String count;
+  final IconData icon;
+  final Color accent;
+
+  const _StatCard({
+    required this.title,
+    required this.count,
+    required this.icon,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(24),
-      child: Row(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color.withValues(alpha: 0.15),
-                  color.withValues(alpha: 0.05),
-                ],
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: Icon(icon, size: 18, color: accent),
               ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: color.withValues(alpha: 0.1),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(icon, color: color, size: 26),
+              const Spacer(),
+            ],
           ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AppText.bodySm(
-                  title,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-                const SizedBox(height: 4),
-                AppText.h2(
-                  value,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
-              ],
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            count,
+            style: AppTextStyles.h1.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildTabs(BuildContext context, void Function(int) onTap) {
-    return Obx(() {
-      final tabs = [
-        'Service Catalog (${_controller.services.length})',
-        'Quotes (${_controller.quotes.length})',
-        'Orders (${_controller.orders.length})',
-        // 'Billing (5)',
-        // 'Generate Invoice',
-        'Service Leads (${_leadController.leads.length})',
-        // 'Service Invoices (3)',
-      ];
-
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(tabs.length, (index) {
-            final isActive = _selectedTab == index;
-            return Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: InkWell(
-                onTap: () => onTap(index),
-                borderRadius: BorderRadius.circular(12),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: isActive ? AppColors.primary : AppColors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color:
-                          isActive ? AppColors.primary : AppColors.neutral200,
-                      width: 1,
-                    ),
-                    boxShadow: isActive
-                        ? [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            )
-                          ]
-                        : null,
-                  ),
-                  child: AppText.bodySm(
-                    tabs[index],
-                    color: isActive ? AppColors.white : AppColors.textPrimary,
-                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-      );
-    });
-  }
 }
 
+// ─── Invoice card (kept for legacy reuse) ──────────────────────────────────
 class InvoiceCard extends StatelessWidget {
   const InvoiceCard({super.key});
 
@@ -881,6 +705,7 @@ class InvoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -888,18 +713,23 @@ class InvoiceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
-                    AppText.h4("INV-SVC-2024-002"),
-                    const SizedBox(width: 12),
-                    const StatusChip(
-                        label: "Partially Paid", tone: StatusTone.warning),
+                    Text('INV-SVC-2024-002', style: AppTextStyles.h4),
+                    SizedBox(width: 12),
+                    StatusChip(
+                      label: 'Partially Paid',
+                      tone: StatusTone.warning,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                AppText.bodyMd(
-                  "Abuja Infrastructure Company",
-                  fontWeight: FontWeight.w600,
+                Text(
+                  'Abuja Infrastructure Company',
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -907,12 +737,20 @@ class InvoiceCard extends StatelessWidget {
                     const Icon(Iconsax.calendar,
                         size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 6),
-                    AppText.caption("Issue: 25 Jul 2024"),
+                    Text(
+                      'Issue: 25 Jul 2024',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
                     const SizedBox(width: 16),
                     const Icon(Iconsax.timer_1,
                         size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 6),
-                    AppText.caption("Due: 25 Aug 2024"),
+                    Text(
+                      'Due: 25 Aug 2024',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
                   ],
                 ),
               ],
@@ -921,22 +759,42 @@ class InvoiceCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              AppText.h4(
-                "Total: ₦698,750.00",
-                color: AppColors.primary,
+              Text(
+                'Total: ₦698,750.00',
+                style: AppTextStyles.h4.copyWith(color: AppColors.primary),
               ),
               const SizedBox(height: 4),
-              AppText.bodySm(
-                "Paid: ₦300,000.00",
-                color: AppColors.success,
-                fontWeight: FontWeight.w600,
+              Text(
+                'Paid: ₦300,000.00',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.success,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _cardButton("View", Iconsax.eye, () {}),
+                  MyOutlinedButton(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 4),
+                    fontSize: 12,
+                    icon: const Icon(Iconsax.eye,
+                        size: 14, color: AppColors.primary),
+                    child: 'View',
+                    onTap: () {},
+                  ),
                   const SizedBox(width: 8),
-                  _cardButton("Edit", Iconsax.edit, () {}),
+                  MyOutlinedButton(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 4),
+                    fontSize: 12,
+                    icon: const Icon(Iconsax.edit,
+                        size: 14, color: AppColors.primary),
+                    child: 'Edit',
+                    onTap: () {},
+                  ),
                 ],
               ),
             ],
@@ -945,22 +803,9 @@ class InvoiceCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _cardButton(String label, IconData icon, VoidCallback onTap) {
-    return OutlinedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 14),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        minimumSize: Size.zero,
-        textStyle: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
 }
 
+// ─── Quote / Order list card ───────────────────────────────────────────────
 class QuoteCard extends StatelessWidget {
   final String company;
   final String service;
@@ -983,53 +828,82 @@ class QuoteCard extends StatelessWidget {
     this.paymentLink,
   });
 
+  StatusTone _mapStatusToTone(String status) {
+    final s = status.toLowerCase();
+    if (s.contains('completed') ||
+        s.contains('accepted') ||
+        s.contains('paid')) {
+      return StatusTone.success;
+    }
+    if (s.contains('pending') || s.contains('partial')) {
+      return StatusTone.warning;
+    }
+    if (s.contains('cancelled') || s.contains('rejected')) {
+      return StatusTone.danger;
+    }
+    return StatusTone.neutral;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppText.h4(company),
-                const SizedBox(height: 6),
-                AppText.bodyMd(
-                  service,
-                  color: AppColors.textPrimary,
-                ),
-                const SizedBox(height: 4),
-                AppText.caption(email),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Iconsax.calendar,
-                        size: 14, color: AppColors.textSecondary),
-                    const SizedBox(width: 6),
-                    AppText.caption('Valid until: $validUntil'),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                AppText.bodySm(
-                  description,
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 24),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+      elevation: AppCardElevation.sm,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 640;
+          final details = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppText.h4(
-                price,
-                color: AppColors.primary,
+              Text(company, style: AppTextStyles.h4),
+              const SizedBox(height: 6),
+              Text(
+                service,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 4),
+              Text(
+                email,
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Iconsax.calendar,
+                      size: 14, color: AppColors.textSecondary),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Valid until: $validUntil',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          );
+
+          final pricing = Column(
+            crossAxisAlignment:
+                compact ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+            children: [
+              Text(
+                price,
+                style: AppTextStyles.h3.copyWith(color: AppColors.primary),
+              ),
+              const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
+                runSpacing: 8,
                 children: statuses
                     .map((status) => StatusChip(
                           label: status,
@@ -1039,44 +913,52 @@ class QuoteCard extends StatelessWidget {
               ),
               if (paymentLink != null && paymentLink!.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () {
+                MyOutlinedButton(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 4),
+                  fontSize: 12,
+                  icon: const Icon(Iconsax.copy,
+                      size: 14, color: AppColors.primary),
+                  child: 'Payment Link',
+                  onTap: () {
                     Clipboard.setData(ClipboardData(text: paymentLink!));
                     AppToast.success(
-                        context, 'Payment link copied to clipboard');
+                      context,
+                      'Payment link copied to clipboard',
+                    );
                   },
-                  icon: const Icon(Iconsax.copy, size: 14),
-                  label: const Text('Payment Link'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle:
-                        AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
                 ),
               ],
             ],
-          ),
-        ],
+          );
+
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                details,
+                const SizedBox(height: 16),
+                pricing,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: details),
+              const SizedBox(width: 24),
+              pricing,
+            ],
+          );
+        },
       ),
     );
   }
-
-  StatusTone _mapStatusToTone(String status) {
-    final s = status.toLowerCase();
-    if (s.contains('completed') || s.contains('accepted') || s.contains('paid')) {
-      return StatusTone.success;
-    }
-    if (s.contains('pending') || s.contains('partial')) return StatusTone.warning;
-    if (s.contains('cancelled') || s.contains('rejected')) return StatusTone.danger;
-    return StatusTone.neutral;
-  }
 }
 
+// ─── Service tile card ────────────────────────────────────────────────────
 class ServiceCard extends StatelessWidget {
   final String title;
   final String category;
@@ -1097,88 +979,120 @@ class ServiceCard extends StatelessWidget {
     required this.service,
   });
 
+  StatusTone _statusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return StatusTone.success;
+      case 'paused':
+        return StatusTone.warning;
+      case 'closed':
+        return StatusTone.neutral;
+      case 'pending':
+        return StatusTone.warning;
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final categoryLabel =
+        category.replaceFirst('_', ' ').capitalizeFirst ?? category;
+
     return AppCard(
       padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(child: AppText.h4(title)),
+              Expanded(child: Text(title, style: AppTextStyles.h4)),
+              const SizedBox(width: 12),
               StatusChip(
-                label: status.capitalizeFirst ?? "",
-                tone:
-                    status.toLowerCase() == 'active' ? StatusTone.success : StatusTone.neutral,
+                label: status.capitalizeFirst ?? status,
+                tone: _statusTone(status),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.neutral100,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: AppText.caption(
-              category.replaceFirst("_", " ").capitalizeFirst ?? "",
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
+          StatusChip(
+            label: categoryLabel,
+            tone: StatusTone.info,
+            dense: true,
           ),
-          const SizedBox(height: 16),
-          AppText.bodySm(
+          const SizedBox(height: 14),
+          Text(
             description,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            color: AppColors.textSecondary,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           Row(
             children: [
               const Icon(Iconsax.money_send,
                   size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
-              AppText.bodySm(
+              Text(
                 price,
-                fontWeight: FontWeight.w700,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const Spacer(),
               const Icon(Iconsax.timer_1,
                   size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 8),
-              AppText.caption(duration),
+              Text(
+                duration,
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           Row(
             children: [
-              Expanded(child: _actionButton("View", Iconsax.eye, context)),
+              Expanded(
+                child: MyOutlinedButton(
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 4),
+                  icon: const Icon(Iconsax.eye,
+                      size: 16, color: AppColors.primary),
+                  child: 'View',
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => ServiceFormDialog(service: service),
+                    );
+                  },
+                ),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _actionButton("Edit", Iconsax.edit, context)),
+              Expanded(
+                child: MyOutlinedButton(
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 4),
+                  icon: const Icon(Iconsax.edit,
+                      size: 16, color: AppColors.primary),
+                  child: 'Edit',
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => ServiceFormDialog(service: service),
+                    );
+                  },
+                ),
+              ),
             ],
-          )
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _actionButton(String label, IconData icon, BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => ServiceFormDialog(service: service),
-        );
-      },
-      icon: Icon(icon, size: 16),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        side: const BorderSide(color: AppColors.neutral200),
-        foregroundColor: AppColors.textPrimary,
       ),
     );
   }

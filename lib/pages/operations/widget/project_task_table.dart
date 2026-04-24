@@ -1,11 +1,16 @@
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
 import 'package:bms_front_end/pages/operations/controllers/tasks_controler.dart';
+import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/pages/operations/widget/add_task_dialog.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/helper/color.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ProjectTaskTable extends StatefulWidget {
   final int projectId;
@@ -38,120 +43,270 @@ class _ProjectTaskTableState extends State<ProjectTaskTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-              child: Padding(
-                  padding: EdgeInsets.all(40),
-                  child: CircularProgressIndicator()));
-        }
+    return Obx(() {
+      final loading = controller.isLoading.value;
+      final tasks = controller.tasks;
 
-        if (controller.tasks.isEmpty) {
-          return const Center(
-              child: Padding(
-                  padding: EdgeInsets.all(40), child: Text("No tasks found.")));
-        }
-
-        return Column(
+      return AppCard(
+        padding: EdgeInsets.zero,
+        elevation: AppCardElevation.sm,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Scrollbar(
-              controller: _scrollController,
-              thumbVisibility: true,
-              trackVisibility: true,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: bodySpace(context)),
-                  child: DataTable(
-                    dataRowMinHeight: 68,
-                    dataRowMaxHeight: 68,
-                    columnSpacing: 24,
-                    horizontalMargin: 12,
-                    columns: _createColumns(),
-                    rows: _createRows(context),
-                    showBottomBorder: true,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Tasks', style: AppTextStyles.h3),
+                        const SizedBox(height: 4),
+                        Text(
+                          loading
+                              ? 'Loading tasks...'
+                              : '${tasks.length} task${tasks.length == 1 ? '' : 's'} in this project',
+                          style: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const StatusChip(
+                    label: 'Task Board',
+                    tone: StatusTone.primary,
+                    icon: Iconsax.task_square,
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            if (loading)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: LoadingSkeleton.listRows(count: 5),
+              )
+            else if (tasks.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: EmptyState(
+                  icon: Iconsax.task_square,
+                  title: 'No tasks yet',
+                  subtitle:
+                      'Tasks created for this project will appear here.',
+                ),
+              )
+            else
+              _buildTable(tasks),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildTable(List<Task> tasks) {
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 960),
+          child: Column(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                color: AppColors.surfaceMuted,
+                child: Row(
+                  children: [
+                    _headerCell('Task ID', width: 100),
+                    _headerCell('Task Name', flex: 4),
+                    _headerCell('Due Date', width: 140),
+                    _headerCell('Priority', width: 120),
+                    _headerCell('Status', width: 140),
+                    _headerCell('', width: 64),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              ...tasks.map((t) => _buildTaskRow(t)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _headerCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildTaskRow(Task task) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '#${task.id}',
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Text(
+              task.name,
+              style: AppTextStyles.bodyMd.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 140,
+            child: Text(
+              task.dueDate.isEmpty ? '—' : task.dueDate,
+              style: AppTextStyles.bodyMd,
+            ),
+          ),
+          SizedBox(
+            width: 120,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: task.priority.isEmpty ? '—' : task.priority,
+                tone: _priorityTone(task.priority),
+                dense: true,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 140,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: _statusLabel(task.status),
+                tone: _statusTone(task.status),
+                dense: true,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: AppRadii.brSm,
+                  onTapDown: (details) async {
+                    final selected = await showMenu<String>(
+                      context: context,
+                      position: RelativeRect.fromLTRB(
+                        details.globalPosition.dx,
+                        details.globalPosition.dy,
+                        details.globalPosition.dx,
+                        details.globalPosition.dy,
+                      ),
+                      items: const [
+                        PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        PopupMenuItem(value: 'delete', child: Text('Delete')),
+                      ],
+                    );
+                    if (!mounted) return;
+                    if (selected == 'edit') {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddTaskDialog(
+                            task: task, projectId: widget.projectId),
+                      );
+                    } else if (selected == 'delete') {
+                      controller.deleteTask(
+                          context, task.id, widget.projectId);
+                    }
+                  },
+                  onTap: () {},
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.brSm,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: const Icon(Iconsax.more,
+                        size: 16, color: AppColors.textSecondary),
                   ),
                 ),
               ),
             ),
-          ],
-        );
-      }),
+          ),
+        ],
+      ),
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return const [
-      DataColumn(
-          headingRowAlignment: MainAxisAlignment.start,
-          label: MyText("Task ID")),
-      DataColumn(label: MyText("Task Name")),
-      DataColumn(label: MyText("Due Date")),
-      DataColumn(label: MyText("Priority")),
-      DataColumn(label: MyText("Status")),
-      DataColumn(label: MyText("Action")),
-    ];
+  StatusTone _priorityTone(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return StatusTone.danger;
+      case 'medium':
+        return StatusTone.warning;
+      case 'low':
+        return StatusTone.neutral;
+      default:
+        return StatusTone.neutral;
+    }
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    final tasks = controller.tasks;
-    return tasks.map((task) {
-      return DataRow(cells: <DataCell>[
-        DataCell(MyText("#${task.id}")),
-        DataCell(
-          MyText(task.name, isSelectable: false, size: 16, weight: 400),
-        ),
-        DataCell(MyText(task.dueDate.isEmpty ? '-' : task.dueDate)),
-        DataCell(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-              color:
-                  getRandomColorFromList(task.priority).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6)),
-          child: MyText(task.priority.isEmpty ? '-' : task.priority),
-        )),
-        DataCell(
-          Row(
-            children: [
-              Container(
-                height: 10,
-                width: 10,
-                decoration: ShapeDecoration(
-                  color: getRandomColorFromList(task.status),
-                  shape: const OvalBorder(),
-                ),
-              ),
-              kSizedBoxWidthTiny,
-              MyText(task.status),
-            ],
-          ),
-        ),
-        DataCell(PopupMenuButton(
-          itemBuilder: (ctx) => [
-            PopupMenuItem(
-              child: const Text("Edit"),
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) =>
-                    AddTaskDialog(task: task, projectId: widget.projectId),
-              ),
-            ),
-            PopupMenuItem(
-              child: const Text("Delete"),
-              onTap: () =>
-                  controller.deleteTask(context, task.id, widget.projectId),
-            ),
-          ],
-          child: const Icon(Iconsax.more),
-        )),
-      ]);
-    }).toList();
+  StatusTone _statusTone(String status) {
+    final s = status.toLowerCase().replaceAll('_', ' ').trim();
+    switch (s) {
+      case 'todo':
+        return StatusTone.neutral;
+      case 'in progress':
+        return StatusTone.primary;
+      case 'in review':
+        return StatusTone.info;
+      case 'completed':
+        return StatusTone.success;
+      case 'blocked':
+        return StatusTone.danger;
+      case 'cancelled':
+      case 'canceled':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
+  String _statusLabel(String status) {
+    if (status.isEmpty) return '—';
+    return status
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w.isEmpty
+            ? w
+            : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+        .join(' ');
   }
 }

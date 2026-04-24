@@ -1,10 +1,13 @@
-import 'package:bms_front_end/components/button/icon_button.dart';
-import 'package:bms_front_end/components/nav/three_dot_pop.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:iconsax/iconsax.dart';
 
 class MeetingTable extends StatefulWidget {
   const MeetingTable({super.key});
@@ -16,6 +19,12 @@ class MeetingTable extends StatefulWidget {
 class _MeetingTableState extends State<MeetingTable> {
   final ScrollController _scrollController = ScrollController();
 
+  int _pageSize = 10;
+  int _currentPage = 1;
+
+  // Mock dataset — replace with controller when wired up.
+  static const _totalMeetings = 10;
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -24,125 +33,231 @@ class _MeetingTableState extends State<MeetingTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.sm,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            trackVisibility: true,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: bodySpace(context),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Meeting Log', style: AppTextStyles.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$_totalMeetings recorded meetings with agendas and attendees',
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: DataTable(
-                  dataRowMinHeight: 68,
-                  dataRowMaxHeight: 68,
-                  columnSpacing: 24,
-                  horizontalMargin: 12,
-                  columns: _createColumns(),
-                  rows: _createRows(context),
-                  showBottomBorder: true,
+                const StatusChip(
+                  label: 'Minutes',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.calendar_1,
                 ),
-              ),
+              ],
             ),
           ),
-          // const PaginatorFooter(),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          _buildTable(),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+            child: PaginatorFooter(
+              totalItems: _totalMeetings,
+              limit: _pageSize,
+              currentPage: _currentPage,
+              onPageChanged: (page) => setState(() => _currentPage = page),
+              onLimitChanged: (newLimit) => setState(() {
+                _pageSize = newLimit;
+                _currentPage = 1;
+              }),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return [
-      const DataColumn(
-        headingRowAlignment: MainAxisAlignment.start,
-        label: MyText(
-          "S/N",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Subject of the meeting",
-        ),
-      ),
-      const DataColumn(
-          label: MyText(
-        "Date",
-      )),
-      const DataColumn(
-        label: MyText(
-          "Location",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Atte. members",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Meeting files",
-        ),
-      ),
-      const DataColumn(
-        label: MyText(
-          "Action",
-        ),
-      ),
-    ];
-  }
-
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
-      return DataRow(cells: <DataCell>[
-        const DataCell(
-          MyText("#001"),
-        ),
-        DataCell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const MeetingViewDialog();
-              },
-            );
-          },
-          const MyText(
-            "O2 Arena Estate dev",
-            size: 16,
-            weight: 400,
-            isSelectable: false,
+  Widget _buildTable() {
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 1040),
+          child: Column(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                color: AppColors.surfaceMuted,
+                child: Row(
+                  children: [
+                    _headerCell('S/N', width: 60),
+                    _headerCell('Subject', flex: 4),
+                    _headerCell('Date', width: 140),
+                    _headerCell('Location', width: 120),
+                    _headerCell('Attendees', width: 110),
+                    _headerCell('Files', width: 90),
+                    _headerCell('Status', width: 130),
+                    _headerCell('', width: 64),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              ...List.generate(_totalMeetings, (index) => _buildRow(index)),
+            ],
           ),
         ),
-        const DataCell(
-          MyText("02/02/2025", size: 16, weight: 400),
+      ),
+    );
+  }
+
+  Widget _headerCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildRow(int index) {
+    return InkWell(
+      onTap: () => showDialog(
+        context: context,
+        builder: (_) => const MeetingViewDialog(),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
         ),
-        const DataCell(
-          MyText("Offline"),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 60,
+              child: Text(
+                '#${(index + 1).toString().padLeft(3, '0')}',
+                style: AppTextStyles.bodySm.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 4,
+              child: Text(
+                'O2 Arena Estate Dev',
+                style: AppTextStyles.bodyMd
+                    .copyWith(fontWeight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(
+              width: 140,
+              child: Text('02/02/2025', style: AppTextStyles.bodyMd),
+            ),
+            const SizedBox(
+              width: 120,
+              child: Text('Offline', style: AppTextStyles.bodyMd),
+            ),
+            const SizedBox(
+              width: 110,
+              child: Row(
+                children: [
+                  Icon(Iconsax.people,
+                      size: 14, color: AppColors.textMuted),
+                  SizedBox(width: 6),
+                  Text('23', style: AppTextStyles.bodyMd),
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: 90,
+              child: Row(
+                children: [
+                  Icon(Iconsax.document,
+                      size: 14, color: AppColors.textMuted),
+                  SizedBox(width: 6),
+                  Text('2', style: AppTextStyles.bodyMd),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 130,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: StatusChip(
+                  label: index.isEven ? 'Completed' : 'Scheduled',
+                  tone: index.isEven ? StatusTone.success : StatusTone.primary,
+                  dense: true,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 64,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: AppRadii.brSm,
+                    onTapDown: (details) async {
+                      await showMenu<String>(
+                        context: context,
+                        position: RelativeRect.fromLTRB(
+                          details.globalPosition.dx,
+                          details.globalPosition.dy,
+                          details.globalPosition.dx,
+                          details.globalPosition.dy,
+                        ),
+                        items: const [
+                          PopupMenuItem(value: 'view', child: Text('View')),
+                          PopupMenuItem(value: 'edit', child: Text('Edit')),
+                          PopupMenuItem(
+                              value: 'delete', child: Text('Delete')),
+                        ],
+                      );
+                    },
+                    onTap: () {},
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadii.brSm,
+                        border: Border.all(color: AppColors.borderSubtle),
+                      ),
+                      child: const Icon(Iconsax.more,
+                          size: 16, color: AppColors.textSecondary),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        const DataCell(
-          MyText("23"),
-        ),
-        const DataCell(
-          MyText("2"),
-        ),
-        const DataCell(
-          ThreeDotPop(),
-        ),
-      ]);
-    });
+      ),
+    );
   }
 }
 
+/// Dialog showing a meeting's info panel and the suggestions/comments thread.
 class MeetingViewDialog extends StatefulWidget {
   const MeetingViewDialog({super.key});
 
@@ -153,111 +268,77 @@ class MeetingViewDialog extends StatefulWidget {
 class MeetingViewDialogState extends State<MeetingViewDialog> {
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 734),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          color: AppColors.background,
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.grey,
-              spreadRadius: 1,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                color: AppColors.white,
+    return DialogScaffold(
+      title: 'O2 Arena Estate Dev',
+      subtitle: 'Meeting details, attendees, files and discussion',
+      size: DialogSize.lg,
+      bodyPadding: const EdgeInsets.all(20),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Quick actions row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _IconActionButton(
+                icon: Iconsax.add,
+                tooltip: 'Add entry',
+                onTap: () {},
               ),
-              padding: const EdgeInsets.all(kDefaultSpaceBG),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Wrap(
-                      runSpacing: 15,
-                      alignment: WrapAlignment.spaceBetween,
-                      children: [
-                        const Expanded(
-                          child: MyText(
-                            "O2 Arena Estate Dev",
-                            size: 24,
-                            weight: 600,
-                            maxLines: 1,
-                          ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                MyIconButton(
-                                  icon: SvgPicture.asset("assets/svg/plus.svg"),
-                                  colorBackground: AppColors.primary,
-                                  onPressed: () {
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (context) {
-                                    //   },
-                                    // );
-                                  },
-                                ),
-                                kSizedBoxWidthSM,
-                                MyIconButton(
-                                  icon:
-                                      SvgPicture.asset("assets/svg/note2.svg"),
-                                  colorBackground: AppColors.primary,
-                                  onPressed: () {
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (context) {
-                                    //   },
-                                    // );
-                                  },
-                                ),
-                                kSizedBoxWidthSM,
-                                MyIconButton(
-                                  icon: SvgPicture.asset(
-                                      "assets/svg/notification.svg"),
-                                  colorBackground: AppColors.primary,
-                                  onPressed: () {},
-                                ),
-                              ],
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              _IconActionButton(
+                icon: Iconsax.note_2,
+                tooltip: 'Notes',
+                onTap: () {},
               ),
-            ),
-            SizedBox(
-              height: 600,
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: kDefaultSpaceBG, vertical: kDefaultSpaceBG),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MeetingInfoCard(),
-                      kSizedBox,
-                      SuggestionsAndComments(),
-                    ],
-                  ),
-                ),
+              const SizedBox(width: 8),
+              _IconActionButton(
+                icon: Iconsax.notification,
+                tooltip: 'Notify attendees',
+                onTap: () {},
               ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const MeetingInfoCard(),
+          const SizedBox(height: 16),
+          const SuggestionsAndComments(),
+        ],
+      ),
+    );
+  }
+}
+
+class _IconActionButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _IconActionButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: AppRadii.brMd,
+          onTap: onTap,
+          child: Container(
+            width: 42,
+            height: 42,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: AppRadii.brMd,
             ),
-          ],
+            child: Icon(icon, size: 18, color: AppColors.white),
+          ),
         ),
       ),
     );
@@ -269,54 +350,37 @@ class SuggestionsAndComments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: AppColors.white,
-        border: Border.all(
-          color: AppColors.neutral300,
-          width: 0.6,
-        ),
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: const Column(
+    return const AppCard(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: MyText(
-                  'Suggestions and comments',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              Icon(Iconsax.messages_2, size: 18, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text('Suggestions and comments', style: AppTextStyles.h4),
             ],
           ),
-          kSizedBoxSM,
-          Column(
-            children: [
-              MessageBubble(
-                message:
-                    '@janeagbo she talk up the function of a program manager.',
-                time: '9:54 PM',
-                isMe: false,
-              ),
-              MessageBubble(
-                message: 'I solely think thats gonna be the best idea for now',
-                time: '9:54 PM',
-                isMe: false,
-              ),
-              MessageBubble(
-                message:
-                    'uhh... I guess we should give everyone time to think about and come up with a better suggestion..',
-                time: '9:54 PM',
-                isMe: true,
-              ),
-            ],
+          SizedBox(height: 12),
+          MessageBubble(
+            message:
+                '@janeagbo she talk up the function of a program manager.',
+            time: '9:54 PM',
+            isMe: false,
           ),
-          kSizedBoxSM,
+          MessageBubble(
+            message: 'I solely think thats gonna be the best idea for now',
+            time: '9:54 PM',
+            isMe: false,
+          ),
+          MessageBubble(
+            message:
+                'uhh... I guess we should give everyone time to think about and come up with a better suggestion..',
+            time: '9:54 PM',
+            isMe: true,
+          ),
+          SizedBox(height: 12),
           ChatInputField(),
         ],
       ),
@@ -338,8 +402,14 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bubbleColor = isMe ? AppColors.primary : AppColors.surfaceMuted;
+    final textColor = isMe ? AppColors.white : AppColors.textPrimary;
+    final timeColor = isMe
+        ? AppColors.white.withValues(alpha: 0.8)
+        : AppColors.textMuted;
+
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       child: Align(
         alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
         child: Row(
@@ -347,62 +417,59 @@ class MessageBubble extends StatelessWidget {
               isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Conditional order of widgets based on isMe
             if (!isMe) CurvedBackground(isMe: isMe),
-
-            Container(
-              // constraints: BoxConstraints(
-              //   maxWidth: MediaQuery.of(context).size.width * 0.7,
-              // ),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isMe ? AppColors.primary : AppColors.neutral100,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(12),
-                  topRight: const Radius.circular(12),
-                  bottomLeft: Radius.circular(isMe ? 12 : 0),
-                  bottomRight: Radius.circular(isMe ? 0 : 12),
-                ),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.55,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  MyText(
-                    message,
-                    style: TextStyle(
-                      color: isMe ? AppColors.neutral100 : AppColors.black,
-                    ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: bubbleColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(14),
+                    topRight: const Radius.circular(14),
+                    bottomLeft: Radius.circular(isMe ? 14 : 0),
+                    bottomRight: Radius.circular(isMe ? 0 : 14),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MyText(
-                        time,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isMe ? AppColors.neutral100 : Colors.black54,
-                        ),
-                      ),
-                      if (isMe) ...[
-                        const SizedBox(width: 4),
-                        SvgPicture.asset(
-                          "assets/svg/two-checks.svg",
-                          height: 12,
-                          width: 12,
-                          colorFilter: ColorFilter.mode(
-                            isMe ? AppColors.neutral100 : Colors.black54,
-                            BlendMode.srcIn,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      message,
+                      style: AppTextStyles.bodyMd.copyWith(color: textColor),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          time,
+                          style: AppTextStyles.caption.copyWith(
+                            fontSize: 10,
+                            color: timeColor,
                           ),
                         ),
+                        if (isMe) ...[
+                          const SizedBox(width: 4),
+                          SvgPicture.asset(
+                            'assets/svg/two-checks.svg',
+                            height: 12,
+                            width: 12,
+                            colorFilter: ColorFilter.mode(
+                              timeColor,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
-
-            // Add the curved background for my messages
             if (isMe) CurvedBackground(isMe: isMe),
           ],
         ),
@@ -436,7 +503,7 @@ class CurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isMe ? AppColors.primary : AppColors.neutral100
+      ..color = isMe ? AppColors.primary : AppColors.surfaceMuted
       ..style = PaintingStyle.fill
       ..strokeWidth = 0
       ..isAntiAlias = true;
@@ -444,14 +511,14 @@ class CurvePainter extends CustomPainter {
     final path = Path();
 
     if (isMe) {
-      // Right side bubble tail
+      // Right-side bubble tail
       path.moveTo(0, 0);
       path.lineTo(0, 20);
       path.lineTo(12, 20);
       path.quadraticBezierTo(4, 16, 0, 0);
       path.close();
     } else {
-      // Left side bubble tail
+      // Left-side bubble tail
       path.moveTo(12, 0);
       path.lineTo(12, 20);
       path.lineTo(0, 20);
@@ -471,89 +538,80 @@ class ChatInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const SizedBox(width: 8),
-        Expanded(
-          child: TextField(
-            cursorColor: Colors.black,
-            decoration: InputDecoration(
-              hintText: 'Write a message...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(24),
-                borderSide: const BorderSide(
-                  color: AppColors.borderSubtle,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(24),
-                borderSide: const BorderSide(
-                  color: AppColors.borderSubtle,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(24),
-                borderSide: const BorderSide(
-                  color: AppColors.borderSubtle,
-                  width: 2,
-                ),
-              ),
-              filled: true,
-              fillColor: AppColors.background,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              prefixIcon: PopupMenuButton<String>(
-                color: AppColors.white,
-                icon: SvgPicture.asset("assets/svg/clip.svg"),
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'photo',
-                    child: Row(
-                      children: [
-                        SvgPicture.asset("assets/svg/picture.svg"),
-                        kSizedBoxWidthSM,
-                        const Text('Photo or video'),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'camera',
-                    child: Row(
-                      children: [
-                        SvgPicture.asset("assets/svg/camera.svg"),
-                        kSizedBoxWidthSM,
-                        const Text('Camera'),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'file',
-                    child: Row(
-                      children: [
-                        SvgPicture.asset("assets/svg/file.svg"),
-                        kSizedBoxWidthSM,
-                        const Text('File'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              suffixIcon: Row(
-                mainAxisSize: MainAxisSize.min,
+    return TextField(
+      cursorColor: AppColors.primary,
+      style: AppTextStyles.bodyMd,
+      decoration: InputDecoration(
+        hintText: 'Write a message...',
+        hintStyle: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadii.brPill,
+          borderSide: BorderSide(color: AppColors.borderSubtle),
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: AppRadii.brPill,
+          borderSide: BorderSide(color: AppColors.borderSubtle),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: AppRadii.brPill,
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        filled: true,
+        fillColor: AppColors.surface,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        prefixIcon: PopupMenuButton<String>(
+          color: AppColors.surface,
+          icon: const Icon(Iconsax.attach_square,
+              size: 18, color: AppColors.textMuted),
+          itemBuilder: (context) => const [
+            PopupMenuItem(
+              value: 'photo',
+              child: Row(
                 children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: SvgPicture.asset("assets/svg/emoji.svg"),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: SvgPicture.asset("assets/svg/record.svg"),
-                  ),
+                  Icon(Iconsax.gallery, size: 16),
+                  SizedBox(width: 10),
+                  Text('Photo or video'),
                 ],
               ),
             ),
-          ),
+            PopupMenuItem(
+              value: 'camera',
+              child: Row(
+                children: [
+                  Icon(Iconsax.camera, size: 16),
+                  SizedBox(width: 10),
+                  Text('Camera'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'file',
+              child: Row(
+                children: [
+                  Icon(Iconsax.document, size: 16),
+                  SizedBox(width: 10),
+                  Text('File'),
+                ],
+              ),
+            ),
+          ],
         ),
-      ],
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Iconsax.emoji_happy,
+                  size: 18, color: AppColors.textMuted),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Iconsax.microphone,
+                  size: 18, color: AppColors.textMuted),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -565,56 +623,53 @@ class MeetingInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final infoItems = [
       {'label': 'Subject of the meeting', 'value': 'O2 Arena Dev'},
-      {'label': 'Date/Time', 'value': '9am, 23rd July, 2024'},
+      {'label': 'Date / Time', 'value': '9am, 23rd July, 2024'},
       {'label': 'Location', 'value': 'Offline'},
       {'label': 'Address', 'value': 'Amadeo event center Enugu, Nigeria'},
       {'label': 'Attendance', 'value': '23 members'},
       {'label': 'Meeting files', 'value': '23 files'},
-      {'label': 'Adjourned', 'value': 'Mrs. Jane okoro'},
-      {'label': 'End time', 'value': '3:30pm'},
+      {'label': 'Adjourned', 'value': 'Mrs. Jane Okoro'},
+      {'label': 'End time', 'value': '3:30 PM'},
     ];
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: AppColors.white,
-        border: Border.all(
-          color: AppColors.neutral300,
-          width: 0.6,
-        ),
-      ),
-      padding: const EdgeInsets.all(16.0),
+    return AppCard(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText(
-            'Meeting Info',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          const Row(
+            children: [
+              Icon(Iconsax.info_circle, size: 18, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text('Meeting Info', style: AppTextStyles.h4),
+              Spacer(),
+              StatusChip(
+                label: 'Completed',
+                tone: StatusTone.success,
+                dense: true,
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           ListView.separated(
             shrinkWrap: true,
-            physics: const BouncingScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: infoItems.length,
-            separatorBuilder: (context, index) => kSizedBoxSM,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: MyText(
+                    child: Text(
                       infoItems[index]['label']!,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                      ),
+                      style: AppTextStyles.bodySm,
                     ),
                   ),
                   Expanded(
-                    child: MyText(
+                    child: Text(
                       infoItems[index]['value']!,
-                      style: const TextStyle(
+                      style: AppTextStyles.bodyMd.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -623,52 +678,54 @@ class MeetingInfoCard extends StatelessWidget {
               );
             },
           ),
-          kSizedBox,
-          const MyText(
-            "Meeting files",
-            weight: 400,
-            size: 14,
-          ),
-          kSizedBoxSM,
-          Row(
+          const SizedBox(height: 20),
+          const Text('Meeting files', style: AppTextStyles.overline),
+          const SizedBox(height: 12),
+          const Row(
             children: [
-              Column(
-                children: [
-                  SvgPicture.asset(
-                    "assets/svg/note3.svg",
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  kSizedBoxTiny,
-                  const MyText(
-                    "3 files",
-                    weight: 300,
-                    size: 14,
-                  ),
-                ],
+              _FilePill(
+                icon: Iconsax.document_text,
+                label: '3 files',
               ),
-              kSizedBoxWidth,
-              Column(
-                children: [
-                  SvgPicture.asset(
-                    "assets/svg/todo3.svg",
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  kSizedBoxTiny,
-                  const MyText(
-                    "3 files",
-                    weight: 300,
-                    size: 14,
-                  ),
-                ],
-              )
+              SizedBox(width: 12),
+              _FilePill(
+                icon: Iconsax.task_square,
+                label: '3 files',
+              ),
             ],
-          )
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilePill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _FilePill({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: const BoxDecoration(
+        color: AppColors.primarySubtle,
+        borderRadius: AppRadii.brSm,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

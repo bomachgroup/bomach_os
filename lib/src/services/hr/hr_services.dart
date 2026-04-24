@@ -94,12 +94,16 @@ class HRServices {
 }
 
 class DashboardStatsModel {
+  final int totalEmployees;
+  final int newEmployeesCount;
   final int trainingPrograms;
   final int jobPostings;
   final int leaves;
   final int disciplinaryProcess;
 
   DashboardStatsModel({
+    required this.totalEmployees,
+    required this.newEmployeesCount,
     required this.trainingPrograms,
     required this.jobPostings,
     required this.leaves,
@@ -108,6 +112,8 @@ class DashboardStatsModel {
 
   factory DashboardStatsModel.fromJson(Map<String, dynamic> json) {
     return DashboardStatsModel(
+      totalEmployees: json['total_employees'] ?? 0,
+      newEmployeesCount: json['new_employees_count'] ?? 0,
       trainingPrograms: json['training_programs'] ?? 0,
       jobPostings: json['job_postings'] ?? 0,
       leaves: json['leaves'] ?? 0,

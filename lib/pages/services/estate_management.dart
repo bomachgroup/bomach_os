@@ -1,15 +1,18 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/services/controller/estate_controller.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/widget/add_estate_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-// import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -22,110 +25,44 @@ class EstateManagementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.put(EstateController());
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header Section
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppText.displayLg(
-                        'Estate Management',
-                      ),
-                      const SizedBox(height: 8),
-                      AppText.bodyMd(
-                        'Manage your real estate developments',
-                      ),
-                    ],
-                  ),
-                  Wrap(
-                    spacing: 15,
-                    runSpacing: 15,
-                    children: [
-                      SizedBox(
-                        width: 200,
-                        child: MyTextFormField(
-                          hintText: 'Search estates...',
-                          leading: Icon(
-                            Iconsax.search_normal,
-                            color: AppColors.neutral500.withValues(alpha: 0.5),
-                          ),
-                          onChanged: (value) {
-                            ctrl.onSearchChanged(value);
-                          },
-                        ),
-                      ),
-                      const SortBar(text: "Sort"),
-                      MyElevatedButton(
-                        icon: const Icon(
-                          Iconsax.add_circle,
-                          color: AppColors.white,
-                        ),
-                        child: "Add Estate",
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => const AddEstateDialog(),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Estate Management',
+        subtitle: 'Manage your real estate developments and plots.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'Add Estate',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const AddEstateDialog(),
+          ),
         ),
-        kSizedBox,
-
-        // Stats Cards
+      ),
+      children: [
         Obx(() => _buildStatsCards(ctrl)),
-
-        kSizedBox,
-
-        // Filter chips
+        _buildToolbar(ctrl),
         _buildFilterRow(ctrl),
-
-        kSizedBox,
-
-        // Estate list
         Obx(() {
           if (ctrl.isLoading.value && ctrl.estates.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(60),
-                child: CircularProgressIndicator(),
-              ),
-            );
+            return LoadingSkeleton.listRows(count: 5, rowHeight: 96);
           }
 
           if (ctrl.estates.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(40.0),
-                child: Column(
-                  children: [
-                    Icon(
-                      Iconsax.building_4,
-                      size: 64,
-                      color: AppColors.neutral500.withValues(alpha: 0.5),
-                    ),
-                    kSizedBox,
-                    const MyText(
-                      'No estates found',
-                      style:
-                          TextStyle(fontSize: 18, color: AppColors.neutral500),
-                    ),
-                  ],
+            return AppCard(
+              padding: const EdgeInsets.all(12),
+              child: EmptyState(
+                icon: Iconsax.building_4,
+                title: 'No estates found',
+                subtitle:
+                    'Adjust your filters or add a new estate to get started.',
+                action: MyOutlinedAddButton(
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => const AddEstateDialog(),
+                  ),
                 ),
               ),
             );
@@ -135,9 +72,9 @@ class EstateManagementPage extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: ctrl.estates.length,
-            separatorBuilder: (context, index) => kSizedBoxSM,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
-              return _buildEstateListItem(context, ctrl.estates[index]);
+              return _buildEstateCard(context, ctrl.estates[index]);
             },
           );
         }),
@@ -148,52 +85,139 @@ class EstateManagementPage extends StatelessWidget {
   Widget _buildStatsCards(EstateController ctrl) {
     final total = ctrl.estateCount.value;
     final active = ctrl.estates.where((e) => e.isActive).length;
+    final development = ctrl.estates
+        .where((e) => e.estateStatus == 'under_development')
+        .length;
+    final completed =
+        ctrl.estates.where((e) => e.estateStatus == 'completed').length;
 
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        _buildStatCard(
-            'Total Estates', '$total', Iconsax.building_4, AppColors.primary),
-        _buildStatCard('Active', '$active', Iconsax.tick_circle, Colors.green),
-      ],
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final isWide = constraints.maxWidth >= 760;
+      final perRow = isWide ? 4 : 2;
+      const spacing = 16.0;
+      final cardWidth =
+          (constraints.maxWidth - ((perRow - 1) * spacing)) / perRow;
+
+      return Wrap(
+        spacing: spacing,
+        runSpacing: spacing,
+        children: [
+          SizedBox(
+            width: cardWidth,
+            child: _statCard(
+              label: 'Total Estates',
+              value: '$total',
+              icon: Iconsax.building_4,
+              tone: StatusTone.primary,
+            ),
+          ),
+          SizedBox(
+            width: cardWidth,
+            child: _statCard(
+              label: 'Active',
+              value: '$active',
+              icon: Iconsax.tick_circle,
+              tone: StatusTone.success,
+            ),
+          ),
+          SizedBox(
+            width: cardWidth,
+            child: _statCard(
+              label: 'Under Development',
+              value: '$development',
+              icon: Iconsax.timer_1,
+              tone: StatusTone.warning,
+            ),
+          ),
+          SizedBox(
+            width: cardWidth,
+            child: _statCard(
+              label: 'Completed',
+              value: '$completed',
+              icon: Iconsax.verify,
+              tone: StatusTone.info,
+            ),
+          ),
+        ],
+      );
+    });
   }
 
-  Widget _buildStatCard(
-      String label, String value, IconData icon, Color color) {
-    return Container(
-      constraints: const BoxConstraints(minWidth: 180),
+  Widget _statCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required StatusTone tone,
+  }) {
+    final palette = _tonePalette(tone);
+
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: palette.$1,
+              borderRadius: AppRadii.brMd,
+            ),
+            child: Icon(icon, color: palette.$2, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: AppTextStyles.h2,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            backgroundColor: color.withValues(alpha: 0.1),
-            radius: 20,
-            child: Icon(icon, color: color, size: 20),
-          ),
-          kSizedBoxSM,
-          MyText(value,
-              style:
-                  const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          MyText(label,
-              style:
-                  const TextStyle(fontSize: 14, color: AppColors.neutral500)),
-        ],
+    );
+  }
+
+  (Color, Color) _tonePalette(StatusTone tone) {
+    switch (tone) {
+      case StatusTone.success:
+        return (AppColors.successSubtle, AppColors.success);
+      case StatusTone.warning:
+        return (AppColors.warningSubtle, AppColors.warning);
+      case StatusTone.danger:
+        return (AppColors.dangerSubtle, AppColors.danger);
+      case StatusTone.info:
+        return (AppColors.infoSubtle, AppColors.info);
+      case StatusTone.primary:
+        return (AppColors.primarySubtle, AppColors.primary);
+      case StatusTone.neutral:
+        return (AppColors.surfaceMuted, AppColors.textSecondary);
+    }
+  }
+
+  Widget _buildToolbar(EstateController ctrl) {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      child: MyTextFormField(
+        hintText: 'Search estates by name, code, location...',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (value) => ctrl.onSearchChanged(value),
       ),
     );
   }
@@ -209,197 +233,196 @@ class EstateManagementPage extends StatelessWidget {
 
     return Obx(() {
       final current = ctrl.statusFilter.value;
-      return Row(
-        children: [
-          Expanded(
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: filters.map((f) {
-                final isSelected =
-                    (f == 'All' && current.isEmpty) || f == current;
-                return GestureDetector(
-                  onTap: () => ctrl.onStatusFilterChanged(f == 'All' ? '' : f),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : AppColors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.neutral300,
-                      ),
-                    ),
-                    child: MyText(
-                      labels[f] ?? f,
-                      style: TextStyle(
-                        color:
-                            isSelected ? AppColors.white : AppColors.neutral500,
-                        fontSize: 14,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.normal,
-                      ),
-                    ),
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: filters.map((f) {
+          final isSelected =
+              (f == 'All' && current.isEmpty) || f == current;
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => ctrl.onStatusFilterChanged(f == 'All' ? '' : f),
+              borderRadius: AppRadii.brPill,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.surface,
+                  borderRadius: AppRadii.brPill,
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.borderSubtle,
                   ),
-                );
-              }).toList(),
+                ),
+                child: Text(
+                  labels[f] ?? f,
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: isSelected
+                        ? AppColors.textOnPrimary
+                        : AppColors.textSecondary,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          );
+        }).toList(),
       );
     });
   }
 
-  Widget _buildEstateListItem(BuildContext context, Estate estate) {
-    final statusColor = _getStatusColor(estate.estateStatus);
+  Widget _buildEstateCard(BuildContext context, Estate estate) {
+    final statusTone = _statusTone(estate.estateStatus);
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+      onTap: () => context.go(RouteConstants.estateDetail, extra: estate),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brMd,
+            ),
+            child: const Icon(Iconsax.building_4,
+                size: 36, color: AppColors.primary),
           ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        estate.estateName,
+                        style: AppTextStyles.h4,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    StatusChip(
+                      label: estate.estateStatusDisplay.isNotEmpty
+                          ? estate.estateStatusDisplay
+                          : estate.estateStatus,
+                      tone: statusTone,
+                      dense: true,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Iconsax.location,
+                        size: 14, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        estate.location,
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Iconsax.building,
+                        size: 14, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        estate.developerCompanyName,
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    if (estate.estateTypeDisplay.isNotEmpty)
+                      StatusChip(
+                        label: estate.estateTypeDisplay,
+                        tone: StatusTone.neutral,
+                        dense: true,
+                      ),
+                    if (estate.isOurEstate)
+                      const StatusChip(
+                        label: 'Our Estate',
+                        tone: StatusTone.success,
+                        dense: true,
+                        icon: Iconsax.verify,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Iconsax.arrow_right_3,
+              size: 18, color: AppColors.textMuted),
         ],
       ),
-      child: InkWell(
-        onTap: () {
-          context.go(RouteConstants.estateDetail, extra: estate);
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Estate icon placeholder
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Iconsax.building_4,
-                  size: 40, color: AppColors.primary),
-            ),
-            kSizedBoxWidthSM,
-            // Estate Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: MyText(
-                          estate.estateName,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: MyText(
-                          estate.estateStatusDisplay,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Iconsax.location,
-                          size: 16, color: AppColors.neutral500),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: MyText(
-                          estate.location,
-                          style: const TextStyle(
-                              fontSize: 14, color: AppColors.neutral500),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Iconsax.building_4,
-                          size: 16, color: AppColors.neutral500),
-                      const SizedBox(width: 4),
-                      MyText(
-                        estate.developerCompanyName,
-                        style: const TextStyle(
-                            fontSize: 14, color: AppColors.neutral500),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _infoChip(estate.estateTypeDisplay),
-                      const SizedBox(width: 8),
-                      if (estate.isOurEstate)
-                        _infoChip('Our Estate',
-                            color: Colors.green.shade700,
-                            bg: Colors.green.shade50),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _infoChip(String text, {Color? color, Color? bg}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg ?? AppColors.neutral100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-            fontSize: 11,
-            color: color ?? AppColors.neutral600,
-            fontWeight: FontWeight.w500),
-      ),
-    );
-  }
-
-  Color _getStatusColor(String status) {
+  StatusTone _statusTone(String status) {
     switch (status) {
       case 'active':
-        return Colors.green;
+        return StatusTone.success;
+      case 'development':
       case 'under_development':
-        return Colors.orange;
-      case 'planning':
-        return Colors.blue;
+        return StatusTone.warning;
+      case 'sold_out':
+        return StatusTone.primary;
       case 'completed':
-        return Colors.purple;
+        return StatusTone.info;
+      case 'suspended':
+        return StatusTone.danger;
+      case 'inactive':
       default:
-        return AppColors.neutral500;
+        return StatusTone.neutral;
     }
+  }
+}
+
+/// Small helper wrapper used by empty state action.
+class MyOutlinedAddButton extends StatelessWidget {
+  const MyOutlinedAddButton({super.key, required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: const Icon(Iconsax.add_circle, size: 18),
+      label: const Text('Add Estate'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.primary),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+      ),
+    );
   }
 }

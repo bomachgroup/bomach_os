@@ -1,9 +1,15 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
 import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
 import 'package:bms_front_end/components/section/empty_state.dart';
 import 'package:bms_front_end/components/section/loading_skeleton.dart';
 import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
@@ -23,8 +29,8 @@ class WorkSite extends StatefulWidget {
 }
 
 class _WorkSiteState extends State<WorkSite> {
-  final ScrollController _scrollController = ScrollController();
   final WorksiteController controller = Get.put(WorksiteController());
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -35,121 +41,386 @@ class _WorkSiteState extends State<WorkSite> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return PageScaffold(
+      maxContentWidth: 1440,
       header: PageHeader(
         title: 'Worksites',
-        subtitle: 'Management of field worksites and locations',
-        trailing: OutlinedButton.icon(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => const AddWorksiteDialog(),
-            );
-          },
-          icon: const Icon(Iconsax.add_circle, size: 18),
-          label: const Text('Add Worksite'),
+        subtitle: 'Manage field worksites, locations, and operational status.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'New Worksite',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => const AddWorksiteDialog(),
+          ),
         ),
       ),
       children: [
-        AppCard(
-          padding: const EdgeInsets.all(0),
-          child: Obx(() {
-            if (controller.isLoading.value) {
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: LoadingSkeleton.listRows(count: 8),
-              );
-            }
+        _buildToolbar(),
+        Obx(() {
+          final loading = controller.isLoading.value && controller.worksites.isEmpty;
+          final isEmpty = !loading && controller.worksites.isEmpty;
+          final total = controller.totalCount.value;
+          final currentPage =
+              (controller.currentOffset.value ~/ controller.currentLimit.value) + 1;
 
-            if (controller.worksites.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(48),
-                child: EmptyState.empty(
-                  title: 'No worksites found',
-                  subtitle: 'Add a new worksite to start tracking field operations.',
-                ),
-              );
-            }
-
-            return Scrollbar(
-              controller: _scrollController,
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                child: SingleChildScrollView(
-                  child: DataTable(
-                    headingRowColor: WidgetStateProperty.resolveWith(
-                        (states) => AppColors.surfaceMuted.withValues(alpha: 0.5)),
-                    headingTextStyle: AppTextStyles.label.copyWith(
-                      color: AppColors.textSecondary,
+          return _buildTableCard(
+            loading: loading,
+            isEmpty: isEmpty,
+            totalLabel:
+                '$total worksite${total == 1 ? '' : 's'} on record',
+            body: _buildTable(context, controller.worksites),
+            footer: (!loading && controller.worksites.isNotEmpty)
+                ? _tablePaginator(
+                    PaginatorFooter(
+                      totalItems: total,
+                      limit: controller.currentLimit.value,
+                      currentPage: currentPage,
+                      onPageChanged: (page) {
+                        controller.currentOffset.value =
+                            (page - 1) * controller.currentLimit.value;
+                        controller.fetchWorksites(context);
+                      },
+                      onLimitChanged: (newLimit) {
+                        controller.currentLimit.value = newLimit;
+                        controller.currentOffset.value = 0;
+                        controller.fetchWorksites(context);
+                      },
                     ),
-                    dataTextStyle: AppTextStyles.bodyMd.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                    dataRowMinHeight: 64,
-                    dataRowMaxHeight: 64,
-                    columnSpacing: 24,
-                    horizontalMargin: 20,
-                    dividerThickness: 1.0,
-                    columns: _createColumns(),
-                    rows: _createRows(context, controller.worksites),
-                    showBottomBorder: false,
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
+                  )
+                : null,
+          );
+        }),
       ],
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return const [
-      DataColumn(label: Text("Site Name")),
-      DataColumn(label: Text("Location")),
-      DataColumn(label: Text("Status")),
-      DataColumn(label: Text("Description")),
-      DataColumn(label: Text("Action")),
-    ];
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: MyTextFormField(
+        controller: _searchController,
+        hintText: 'Search worksites by name or location',
+        height: 48,
+        leading: const Icon(Iconsax.search_normal,
+            size: 18, color: AppColors.textMuted),
+        onChanged: (val) => controller.fetchWorksites(context, search: val),
+      ),
+    );
   }
 
-  List<DataRow> _createRows(BuildContext context, List<Worksite> worksites) {
-    return worksites.map((site) {
-      return DataRow(cells: [
-        DataCell(
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => WorksiteDetailPage(worksite: site)));
-          },
-          Text(site.name, style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary)),
-        ),
-        DataCell(Text(site.location)),
-        DataCell(StatusChip(
-          label: site.status,
-          tone: site.status.toLowerCase() == 'active'
-              ? StatusTone.success
-              : StatusTone.warning,
-        )),
-        DataCell(
-            SizedBox(width: 250, child: Text(site.description, maxLines: 1, overflow: TextOverflow.ellipsis))),
-        DataCell(
-          PopupMenuButton(
-            icon: const Icon(Iconsax.more, size: 18),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: const Text("Delete"),
-                onTap: () =>
-                    controller.deleteWorksite(context, site.id, site.id),
-              )
+  Widget _buildTableCard({
+    required bool loading,
+    required bool isEmpty,
+    required String totalLabel,
+    required Widget body,
+    Widget? footer,
+  }) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Worksite directory', style: AppTextStyles.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        loading ? 'Loading worksites...' : totalLabel,
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const StatusChip(
+                  label: 'Field operations',
+                  tone: StatusTone.primary,
+                  icon: Iconsax.buildings_2,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            )
+          else if (isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.buildings_2,
+                title: 'No worksites found',
+                subtitle:
+                    'Add a new worksite to start tracking field operations.',
+                action: MyElevatedButton(
+                  child: 'New Worksite',
+                  icon: const Icon(Iconsax.add_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => const AddWorksiteDialog(),
+                  ),
+                ),
+              ),
+            )
+          else
+            body,
+          if (footer != null) ...[
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            footer,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _tablePaginator(Widget child) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: child,
+    );
+  }
+
+  Widget _buildHeaderCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildTable(BuildContext context, List<Worksite> worksites) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: Row(
+            children: [
+              _buildHeaderCell('Site Name', flex: 3),
+              _buildHeaderCell('Location', flex: 3),
+              _buildHeaderCell('Status', flex: 2),
+              _buildHeaderCell('Description', flex: 4),
+              _buildHeaderCell('', width: 48),
             ],
           ),
         ),
-      ]);
-    }).toList();
+        const Divider(height: 1, color: AppColors.borderSubtle),
+        ...worksites.map((site) => _buildWorksiteRow(context, site)),
+      ],
+    );
+  }
+
+  Widget _buildWorksiteRow(BuildContext context, Worksite site) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WorksiteDetailPage(worksite: site),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primarySubtle,
+                      borderRadius: AppRadii.brSm,
+                    ),
+                    child: const Icon(
+                      Iconsax.buildings_2,
+                      size: 18,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      site.name.isEmpty ? '—' : site.name,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(
+                site.location.isEmpty ? '—' : site.location,
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: StatusChip(
+                  label: site.status.isEmpty ? 'Unknown' : site.status,
+                  tone: _worksiteStatusTone(site.status),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 4,
+              child: Text(
+                site.description.isEmpty ? '—' : site.description,
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(
+              width: 48,
+              child: PopupMenuButton<String>(
+                icon: const Icon(Iconsax.more,
+                    size: 18, color: AppColors.textSecondary),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.brMd,
+                ),
+                onSelected: (value) async {
+                  if (value == 'view') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => WorksiteDetailPage(worksite: site),
+                      ),
+                    );
+                  } else if (value == 'edit') {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AddWorksiteDialog(worksite: site),
+                    );
+                  } else if (value == 'delete') {
+                    final confirmed = await DialogScaffold.show<bool>(
+                      context,
+                      title: 'Delete Worksite',
+                      size: DialogSize.sm,
+                      body: Text(
+                        'Are you sure you want to delete "${site.name}"?',
+                        style: AppTextStyles.bodyMd,
+                      ),
+                      actions: [
+                        MyOutlinedButton(
+                          child: 'Cancel',
+                          height: 44,
+                          onTap: () => Navigator.pop(context, false),
+                          textColor: AppColors.textSecondary,
+                          borderColor: AppColors.borderStrong,
+                        ),
+                        MyElevatedButton(
+                          width: 120,
+                          height: 44,
+                          child: 'Delete',
+                          onTap: () => Navigator.pop(context, true),
+                        ),
+                      ],
+                    );
+                    if (confirmed == true && context.mounted) {
+                      controller.deleteWorksite(context, site.id, site.projectId);
+                    }
+                  }
+                },
+                itemBuilder: (_) => [
+                  _menuItem(
+                      value: 'view', icon: Iconsax.eye, label: 'View Details'),
+                  _menuItem(value: 'edit', icon: Iconsax.edit, label: 'Edit'),
+                  _menuItem(
+                      value: 'delete',
+                      icon: Iconsax.trash,
+                      label: 'Delete',
+                      destructive: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _menuItem({
+    required String value,
+    required IconData icon,
+    required String label,
+    bool destructive = false,
+  }) {
+    final color = destructive ? AppColors.danger : AppColors.textSecondary;
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: destructive ? AppColors.danger : AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  StatusTone _worksiteStatusTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return StatusTone.success;
+      case 'paused':
+      case 'on hold':
+        return StatusTone.warning;
+      case 'closed':
+      case 'inactive':
+      case 'completed':
+        return StatusTone.neutral;
+      case 'hazard':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
   }
 }

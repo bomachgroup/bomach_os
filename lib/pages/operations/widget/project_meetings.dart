@@ -1,35 +1,29 @@
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ProjectMeetings extends StatelessWidget {
   const ProjectMeetings({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
-      decoration: BoxDecoration(
-        border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Iconsax.calendar_1, size: 64, color: AppColors.neutral500),
-            SizedBox(height: 16),
-            MyText('No Meetings', size: 18, weight: 600),
-            SizedBox(height: 8),
-            MyText(
-              'Meetings scheduled for this project will appear here.',
-              size: 14,
-              color: AppColors.neutral500,
-            ),
-          ],
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Project Meetings', style: AppTextStyles.h3),
+        SizedBox(height: 4),
+        Text(
+          'Track meetings, minutes, and attendees for this project.',
+          style: AppTextStyles.bodySm,
         ),
-      ),
+        SizedBox(height: 20),
+        EmptyState(
+          icon: Iconsax.calendar_1,
+          title: 'No meetings scheduled',
+          subtitle: 'Meetings scheduled for this project will appear here.',
+        ),
+      ],
     );
   }
 }

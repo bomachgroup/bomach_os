@@ -1,18 +1,12 @@
 import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
-import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/section/page_header.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
-import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
-import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 // Per-card accent palette — keeps the stat tiles visually differentiated.

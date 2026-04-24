@@ -1,14 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
 import '../controllers/timeline_controller.dart';
 import '../models/models.dart';
 
@@ -26,6 +28,7 @@ class AddTimelineDialog extends StatefulWidget {
 
 class _AddTimelineDialogState extends State<AddTimelineDialog> {
   final TimelineController controller = Get.find<TimelineController>();
+  final _formKey = GlobalKey<FormState>();
 
   late TextEditingController nameCtrl;
   late TextEditingController descCtrl;
@@ -49,126 +52,16 @@ class _AddTimelineDialogState extends State<AddTimelineDialog> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final isEdit = widget.timeline != null;
-
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    isEdit ? 'Edit Timeline Phase' : 'Create Timeline Phase',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form Fields
-            Expanded(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    MyTextFormField(
-                      controller: nameCtrl,
-                      title: 'Phase Name*',
-                      hintText: 'e.g. Planning',
-                    ),
-                    const SizedBox(height: 24),
-                    MyDropdown(
-                      hintText: '',
-                      title: 'Status*',
-                      items: const [
-                        'Pending',
-                        'In Progress',
-                        'Completed',
-                        'On Hold'
-                      ],
-                      controller: TextEditingController(text: selectedStatus),
-                      onChanged: (val) => setState(() => selectedStatus = val!),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyDateField(
-                            controller: startCtrl,
-                            title: 'Start Date',
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyDateField(
-                            controller: endCtrl,
-                            title: 'End Date',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                      controller: descCtrl,
-                      title: 'Description',
-                      maxLines: 4,
-                      hintText: 'Phase details...',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Footer
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.neutral500,
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() => controller.isActionLoading.value
-                      ? const CircularProgressIndicator()
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset("assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn)),
-                          child: isEdit ? 'Update' : 'Save',
-                          onTap: _save,
-                        )),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    nameCtrl.dispose();
+    descCtrl.dispose();
+    startCtrl.dispose();
+    endCtrl.dispose();
+    super.dispose();
   }
 
   void _save() {
+    if (!_formKey.currentState!.validate()) return;
     if (nameCtrl.text.isEmpty) return;
 
     final timeline = TimelineModel(
@@ -188,5 +81,145 @@ class _AddTimelineDialogState extends State<AddTimelineDialog> {
     } else {
       controller.updateTimeline(context, timeline.id, timeline);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEdit = widget.timeline != null;
+
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Timeline Phase' : 'New Timeline Phase',
+          subtitle: isEdit
+              ? 'Update phase details, status, and schedule.'
+              : 'Define a new project phase with its status and schedule.',
+          size: DialogSize.md,
+          body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSection(
+                  title: 'Phase information',
+                  subtitle: 'Name and classify the project phase.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
+                        controller: nameCtrl,
+                        title: 'Phase Name',
+                        hintText: 'e.g. Planning',
+                        validator: (val) =>
+                            (val == null || val.trim().isEmpty)
+                                ? 'Required'
+                                : null,
+                      ),
+                      const SizedBox(height: 16),
+                      MyDropdown(
+                        title: 'Status',
+                        hintText: 'Select status',
+                        items: const [
+                          'Pending',
+                          'In Progress',
+                          'Completed',
+                          'On Hold',
+                        ],
+                        initialSelection: selectedStatus,
+                        onChanged: (val) => setState(
+                            () => selectedStatus = val ?? selectedStatus),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Schedule',
+                  subtitle: 'Define the phase duration.',
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: MyDateField(
+                          controller: startCtrl,
+                          title: 'Start Date',
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: MyDateField(
+                          controller: endCtrl,
+                          title: 'End Date',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Notes',
+                  child: MyTextFormField(
+                    controller: descCtrl,
+                    title: 'Description',
+                    hintText: 'Phase details...',
+                    maxLines: 4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 140,
+              height: 44,
+              child: controller.isActionLoading.value
+                  ? 'Saving...'
+                  : (isEdit ? 'Update' : 'Save'),
+              onTap: controller.isActionLoading.value ? null : _save,
+              icon: controller.isActionLoading.value
+                  ? null
+                  : const Icon(
+                      Iconsax.tick_circle,
+                      size: 18,
+                      color: AppColors.textOnPrimary,
+                    ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
   }
 }

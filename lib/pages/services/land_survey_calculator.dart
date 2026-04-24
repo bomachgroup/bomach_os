@@ -1,9 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -182,403 +187,445 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return PageScaffold(
+      maxContentWidth: 1200,
+      header: const PageHeader(
+        title: 'Land Survey Cost Calculator',
+        subtitle: 'Get an instant estimate for your land surveying project.',
+      ),
+      children: [
+        Form(
+          key: _formKey,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isWideScreen = constraints.maxWidth > 900;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildSurveyDetailsCard(isWideScreen),
+                  const SizedBox(height: 16),
+                  _buildAdditionalServicesCard(),
+                  const SizedBox(height: 16),
+                  _buildClientInfoCard(isWideScreen),
+                  const SizedBox(height: 20),
+                  _buildActionRow(),
+                  if (_showEstimate) ...[
+                    const SizedBox(height: 20),
+                    _buildEstimateResult(),
+                  ],
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _sectionHeader(String title, {IconData? icon, String? subtitle}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (icon != null) ...[
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 18, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: AppTextStyles.h3),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSurveyDetailsCard(bool isWideScreen) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          AppText.displayLg(
-            'Land Survey Cost Calculator',
-          ),
-          kSizedBox,
-          AppText.bodyMd(
-            'Get an instant estimate for your land surveying project',
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black54,
-          ),
-          const SizedBox(height: 30),
+          _sectionHeader('Survey Details',
+              icon: Iconsax.document_text,
+              subtitle: 'Select the survey type, land category and area.'),
+          const SizedBox(height: 20),
+          if (isWideScreen)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildSurveyTypeDropdown()),
+                const SizedBox(width: 16),
+                Expanded(child: _buildLandTypeDropdown()),
+              ],
+            )
+          else ...[
+            _buildSurveyTypeDropdown(),
+            const SizedBox(height: 16),
+            _buildLandTypeDropdown(),
+          ],
+          const SizedBox(height: 16),
+          if (isWideScreen)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _areaController,
+                    title: 'Land Area (sq. meters)',
+                    hintText: 'Enter area in square meters',
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter land area';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid number';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _locationController,
+                    title: 'Location',
+                    hintText: 'Enter location/address',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter location';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            )
+          else ...[
+            MyTextFormField(
+              controller: _areaController,
+              title: 'Land Area (sq. meters)',
+              hintText: 'Enter area in square meters',
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter land area';
+                }
+                if (double.tryParse(value) == null) {
+                  return 'Please enter a valid number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _locationController,
+              title: 'Location',
+              hintText: 'Enter location/address',
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter location';
+                }
+                return null;
+              },
+            ),
+          ],
+          const SizedBox(height: 16),
+          _buildUrgencyDropdown(),
+        ],
+      ),
+    );
+  }
 
-          // Form
-          Form(
-            key: _formKey,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                bool isWideScreen = constraints.maxWidth > 900;
+  Widget _buildAdditionalServicesCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionHeader('Additional Services',
+              icon: Iconsax.add_square,
+              subtitle: 'Add optional deliverables to your estimate.'),
+          const SizedBox(height: 12),
+          _buildServiceOption(
+            title: 'CAD Drawing',
+            subtitle: 'Detailed AutoCAD drawings of the surveyed area',
+            price: '+N50,000',
+            value: _includeCADDrawing,
+            onChanged: (value) {
+              setState(() {
+                _includeCADDrawing = value ?? false;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          _buildServiceOption(
+            title: 'GPS Coordinates',
+            subtitle: 'Precise GPS coordinates for all survey points',
+            price: '+N30,000',
+            value: _includeCoordinates,
+            onChanged: (value) {
+              setState(() {
+                _includeCoordinates = value ?? false;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          _buildServiceOption(
+            title: 'Detailed Report',
+            subtitle: 'Comprehensive survey report with analysis',
+            price: '+N40,000',
+            value: _includeReport,
+            onChanged: (value) {
+              setState(() {
+                _includeReport = value ?? false;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
-                return Column(
+  Widget _buildServiceOption({
+    required String title,
+    required String subtitle,
+    required String price,
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+  }) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: AppRadii.brMd,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: value ? AppColors.primarySubtle : AppColors.surfaceMuted,
+          borderRadius: AppRadii.brMd,
+          border: Border.all(
+            color: value ? AppColors.primarySoft : AppColors.borderSubtle,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Checkbox(
+                value: value,
+                onChanged: onChanged,
+                activeColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(title, style: AppTextStyles.label),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              price,
+              style: AppTextStyles.label.copyWith(color: AppColors.primary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClientInfoCard(bool isWideScreen) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionHeader('Client Information (Optional)',
+              icon: Iconsax.user,
+              subtitle: 'We will use this to follow up on your quote.'),
+          const SizedBox(height: 20),
+          MyTextFormField(
+            controller: _clientNameController,
+            title: 'Full Name',
+            hintText: 'Enter your full name',
+          ),
+          const SizedBox(height: 16),
+          if (isWideScreen)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _clientEmailController,
+                    title: 'Email Address',
+                    hintText: 'Enter your email',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _clientPhoneController,
+                    title: 'Phone Number',
+                    hintText: 'Enter your phone number',
+                    keyboardType: TextInputType.phone,
+                  ),
+                ),
+              ],
+            )
+          else ...[
+            MyTextFormField(
+              controller: _clientEmailController,
+              title: 'Email Address',
+              hintText: 'Enter your email',
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _clientPhoneController,
+              title: 'Phone Number',
+              hintText: 'Enter your phone number',
+              keyboardType: TextInputType.phone,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        MyOutlinedButton(
+          child: 'Reset',
+          onTap: _resetForm,
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        ),
+        const SizedBox(width: 12),
+        MyElevatedButton(
+          child: 'Calculate Estimate',
+          onTap: _calculateEstimate,
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          icon: const Icon(Iconsax.calculator,
+              color: AppColors.textOnPrimary, size: 16),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEstimateResult() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.md,
+      backgroundColor: AppColors.primarySubtle,
+      borderColor: AppColors.primarySoft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Iconsax.calculator,
+                    color: AppColors.primary, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Survey Details Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral300),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Survey Details',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          if (isWideScreen)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: _buildSurveyTypeDropdown(),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _buildLandTypeDropdown(),
-                                ),
-                              ],
-                            )
-                          else ...[
-                            _buildSurveyTypeDropdown(),
-                            const SizedBox(height: 16),
-                            _buildLandTypeDropdown(),
-                          ],
-                          const SizedBox(height: 16),
-                          if (isWideScreen)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _areaController,
-                                    title: 'Land Area (sq. meters)',
-                                    hintText: 'Enter area in square meters',
-                                    keyboardType: TextInputType.number,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter land area';
-                                      }
-                                      if (double.tryParse(value) == null) {
-                                        return 'Please enter a valid number';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _locationController,
-                                    title: 'Location',
-                                    hintText: 'Enter location/address',
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter location';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                              ],
-                            )
-                          else ...[
-                            MyTextFormField(
-                              controller: _areaController,
-                              title: 'Land Area (sq. meters)',
-                              hintText: 'Enter area in square meters',
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter land area';
-                                }
-                                if (double.tryParse(value) == null) {
-                                  return 'Please enter a valid number';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            MyTextFormField(
-                              controller: _locationController,
-                              title: 'Location',
-                              hintText: 'Enter location/address',
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter location';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          _buildUrgencyDropdown(),
-                        ],
-                      ),
+                    Text(
+                      'Estimated Cost',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Additional Services Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral300),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Additional Services',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          CheckboxListTile(
-                            title: const Text('CAD Drawing (+₦50,000)'),
-                            subtitle: const Text(
-                                'Detailed AutoCAD drawings of the surveyed area'),
-                            value: _includeCADDrawing,
-                            onChanged: (value) {
-                              setState(() {
-                                _includeCADDrawing = value ?? false;
-                              });
-                            },
-                            activeColor: AppColors.primary,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          CheckboxListTile(
-                            title: const Text('GPS Coordinates (+₦30,000)'),
-                            subtitle: const Text(
-                                'Precise GPS coordinates for all survey points'),
-                            value: _includeCoordinates,
-                            onChanged: (value) {
-                              setState(() {
-                                _includeCoordinates = value ?? false;
-                              });
-                            },
-                            activeColor: AppColors.primary,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          CheckboxListTile(
-                            title: const Text('Detailed Report (+₦40,000)'),
-                            subtitle: const Text(
-                                'Comprehensive survey report with analysis'),
-                            value: _includeReport,
-                            onChanged: (value) {
-                              setState(() {
-                                _includeReport = value ?? false;
-                              });
-                            },
-                            activeColor: AppColors.primary,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'N${_calculatedCost.toStringAsFixed(2)}',
+                      style: AppTextStyles.displayMd
+                          .copyWith(color: AppColors.primary),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Client Information Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral300),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Client Information (Optional)',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          MyTextFormField(
-                            controller: _clientNameController,
-                            title: 'Full Name',
-                            hintText: 'Enter your full name',
-                          ),
-                          const SizedBox(height: 16),
-                          if (isWideScreen)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _clientEmailController,
-                                    title: 'Email Address',
-                                    hintText: 'Enter your email',
-                                    keyboardType: TextInputType.emailAddress,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _clientPhoneController,
-                                    title: 'Phone Number',
-                                    hintText: 'Enter your phone number',
-                                    keyboardType: TextInputType.phone,
-                                  ),
-                                ),
-                              ],
-                            )
-                          else ...[
-                            MyTextFormField(
-                              controller: _clientEmailController,
-                              title: 'Email Address',
-                              hintText: 'Enter your email',
-                              keyboardType: TextInputType.emailAddress,
-                            ),
-                            const SizedBox(height: 16),
-                            MyTextFormField(
-                              controller: _clientPhoneController,
-                              title: 'Phone Number',
-                              hintText: 'Enter your phone number',
-                              keyboardType: TextInputType.phone,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // Action Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        MyElevatedButton(
-                          child: 'Reset',
-                          onTap: _resetForm,
-                          bgColor: AppColors.neutral400,
-                          textColor: AppColors.black,
-                        ),
-                        const SizedBox(width: 16),
-                        MyElevatedButton(
-                          child: 'Calculate Estimate',
-                          onTap: _calculateEstimate,
-                        ),
-                      ],
-                    ),
-
-                    // Estimate Result
-                    if (_showEstimate) ...[
-                      const SizedBox(height: 30),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primaryPressed
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 16,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Iconsax.calculator,
-                              color: Colors.white,
-                              size: 48,
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Estimated Cost',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '₦${_calculatedCost.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 42,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'This is an estimated cost. Final price may vary based on site inspection.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            MyElevatedButton(
-                              child: 'Request Quote',
-                              onTap: () {
-                                // Navigate to quote request or show dialog
-                                AppToast.success(context,
-                                    'Quote request sent successfully!');
-                              },
-                              bgColor: Colors.white,
-                              textColor: AppColors.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 40),
                   ],
-                );
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.primarySoft),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Iconsax.info_circle,
+                  size: 16, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'This is an estimated cost. Final price may vary based on site inspection.',
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: MyElevatedButton(
+              child: 'Request Quote',
+              height: 42,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              onTap: () {
+                AppToast.success(
+                    context, 'Quote request sent successfully!');
               },
             ),
           ),
@@ -588,131 +635,50 @@ class _LandSurveyCalculatorPageState extends State<LandSurveyCalculatorPage> {
   }
 
   Widget _buildSurveyTypeDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Survey Type',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedSurveyType,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              borderRadius: BorderRadius.circular(15),
-              items: _surveyTypes.map((String type) {
-                return DropdownMenuItem<String>(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedSurveyType = value!;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MyDropdown(
+      title: 'Survey Type',
+      hintText: 'Select survey type',
+      items: _surveyTypes,
+      initialSelection: _selectedSurveyType,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedSurveyType = value;
+          });
+        }
+      },
     );
   }
 
   Widget _buildLandTypeDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Land Type',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedLandType,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              borderRadius: BorderRadius.circular(15),
-              items: _landTypes.map((String type) {
-                return DropdownMenuItem<String>(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedLandType = value!;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MyDropdown(
+      title: 'Land Type',
+      hintText: 'Select land type',
+      items: _landTypes,
+      initialSelection: _selectedLandType,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedLandType = value;
+          });
+        }
+      },
     );
   }
 
   Widget _buildUrgencyDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Project Urgency',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedUrgency,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              borderRadius: BorderRadius.circular(15),
-              items: _urgencyLevels.map((String level) {
-                return DropdownMenuItem<String>(
-                  value: level,
-                  child: Text(level),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedUrgency = value!;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MyDropdown(
+      title: 'Project Urgency',
+      hintText: 'Select urgency',
+      items: _urgencyLevels,
+      initialSelection: _selectedUrgency,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedUrgency = value;
+          });
+        }
+      },
     );
   }
 }

@@ -1,5 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -36,114 +43,120 @@ class _LandDocumentUploadPageState extends State<LandDocumentUploadPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return PageScaffold(
+      maxContentWidth: 900,
+      header: const PageHeader(
+        title: 'Land Purchase Document Upload',
+        subtitle:
+            'Upload the required documents to verify and complete your land purchase process.',
+      ),
+      children: [
+        AppCard(
+          padding: const EdgeInsets.all(20),
+          elevation: AppCardElevation.sm,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('Required Documents', style: AppTextStyles.h4),
+              const SizedBox(height: 16),
+              ..._documents.entries
+                  .map((entry) => _buildDocumentRow(entry.key, entry.value)),
+            ],
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MyElevatedButton(
+              height: 48,
+              icon: const Icon(Iconsax.document_upload,
+                  size: 18, color: AppColors.textOnPrimary),
+              child: 'Submit Documents',
+              onTap: () {},
+              disable: !_allRequiredUploaded,
+            ),
+            if (!_allRequiredUploaded)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Iconsax.info_circle,
+                        size: 15, color: AppColors.danger),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Please upload all required documents',
+                      style: AppTextStyles.bodySm.copyWith(
+                        color: AppColors.danger,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildDocumentRow(String title, XFile? file) {
+    final hasFile = file != null;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        border: Border.all(color: AppColors.borderSubtle),
+        borderRadius: AppRadii.brMd,
+      ),
+      child: Row(
         children: [
-          // Header
-          Text(
-            "Land Purchase Document Upload",
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Upload the required documents to verify and complete your land purchase process.",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Card for document uploads
           Container(
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+              color: hasFile
+                  ? AppColors.successSubtle
+                  : AppColors.primarySubtle,
+              borderRadius: AppRadii.brSm,
+            ),
+            child: Icon(
+              Iconsax.document_text,
+              size: 18,
+              color: hasFile ? AppColors.success : AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  hasFile ? file.name : 'No file selected',
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            child: Column(
-              children: _documents.entries.map((entry) {
-                final file = entry.value;
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.neutral200),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    leading: const Icon(Iconsax.document_text,
-                        color: Colors.green),
-                    title: Text(
-                      entry.key,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Text(
-                      file == null ? "No file selected" : file.name,
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    trailing: TextButton(
-                      onPressed: () => _pickFile(entry.key),
-                      style: TextButton.styleFrom(
-                        backgroundColor: AppColors.successSubtle,
-                        foregroundColor: Colors.green[700],
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(file == null ? "Upload" : "Change"),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
           ),
-
-          const SizedBox(height: 24),
-          // Submit button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _allRequiredUploaded ? () {} : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[700],
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                disabledBackgroundColor: Colors.grey[400],
-              ),
-              icon: const Icon(Iconsax.document_upload),
-              label: const Text(
-                "Submit Documents",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
+          const SizedBox(width: 12),
+          MyOutlinedButton(
+            height: 38,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+            textColor: AppColors.primary,
+            borderColor: AppColors.primary,
+            child: hasFile ? 'Change' : 'Upload',
+            onTap: () => _pickFile(title),
           ),
-          if (!_allRequiredUploaded)
-            const Padding(
-              padding: EdgeInsets.only(top: 8.0),
-              child: Text(
-                "*Please upload all required documents",
-                style: TextStyle(color: Colors.red, fontSize: 13),
-              ),
-            ),
         ],
       ),
     );

@@ -1,14 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 class InvoiceItem {
@@ -81,259 +82,229 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 900, maxHeight: 800),
+    return DialogScaffold(
+      title: 'Create Invoice',
+      subtitle: 'Bill a client for services rendered.',
+      size: DialogSize.lg,
+      body: Form(
+        key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppText.h3('Create Invoice'),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-
-            // Form fields
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSectionTitle('Service Information'),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyDropdown(
-                              items: const [
-                                'Real Estate',
-                                'Land Survey',
-                                'Property Management',
-                                'Estate Management',
-                              ],
-                              hintText: 'Select service type',
-                              title: 'Service Type*',
-                              spaceBetweenText: 8,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedServiceType = value;
-                                });
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyDropdown(
-                              items: const [],
-                              hintText: 'Select order (optional)',
-                              title: 'Link to Order',
-                              spaceBetweenText: 8,
-                              onChanged: (value) {},
-                            ),
-                          ),
+            _buildSection(
+              title: 'Service information',
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyDropdown(
+                        items: const [
+                          'Real Estate',
+                          'Land Survey',
+                          'Property Management',
+                          'Estate Management',
                         ],
-                      ),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Client Information'),
-                      const SizedBox(height: 16),
-                      MyTextFormField(
-                        controller: _clientNameController,
-                        hintText: 'Enter client name',
-                        title: 'Client Name*',
-                        spaceBetweenText: 8,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter client name';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: _clientEmailController,
-                              hintText: 'client@example.com',
-                              title: 'Email',
-                              spaceBetweenText: 8,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: _clientPhoneController,
-                              hintText: '+234 XXX XXX XXXX',
-                              title: 'Phone',
-                              spaceBetweenText: 8,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      MyTextFormField(
-                        controller: _clientAddressController,
-                        hintText: 'Enter client address',
-                        title: 'Address',
-                        spaceBetweenText: 8,
-                        maxLines: 2,
-                      ),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Invoice Items'),
-                      const SizedBox(height: 16),
-                      ..._buildInvoiceItems(),
-                      const SizedBox(height: 12),
-                      MyOutlinedButton(
-                        textColor: AppColors.primary,
-                        borderColor: AppColors.primary,
-                        icon: const Icon(Iconsax.add,
-                            size: 18, color: AppColors.primary),
-                        child: 'Add Item',
-                        onTap: () {
+                        hintText: 'Select service type',
+                        title: 'Service Type*',
+                        onChanged: (value) {
                           setState(() {
-                            _items.add(InvoiceItem());
+                            _selectedServiceType = value;
                           });
                         },
                       ),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Invoice Details'),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildDateField(
-                              'Issue Date*',
-                              _issueDate,
-                              (date) => setState(() => _issueDate = date),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildDateField(
-                              'Due Date*',
-                              _dueDate,
-                              (date) => setState(() => _dueDate = date),
-                            ),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyDropdown(
+                        items: const [],
+                        hintText: 'Select order (optional)',
+                        title: 'Link to Order',
+                        onChanged: (value) {},
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MyTextFormField(
-                              controller: _discountController,
-                              hintText: '0',
-                              title: 'Discount (₦)',
-                              spaceBetweenText: 8,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              onChanged: (_) => setState(() {}),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MyTextFormField(
-                              initialValue: _taxRate.toString(),
-                              hintText: '7.5',
-                              title: 'Tax Rate (%)',
-                              spaceBetweenText: 8,
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) {
-                                setState(() {
-                                  _taxRate = double.tryParse(value) ?? 7.5;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      MyTextFormField(
-                        controller: _notesController,
-                        hintText: 'Add any additional notes or terms',
-                        title: 'Notes',
-                        spaceBetweenText: 8,
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 24),
-                      _buildSummary(),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
+              ],
             ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppColors.neutral300),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Client information',
+              children: [
+                MyTextFormField(
+                  controller: _clientNameController,
+                  hintText: 'Enter client name',
+                  title: 'Client Name*',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter client name';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppText.h4(
-                    'Total: ₦${NumberFormat('#,###.##').format(_total)}',
-                    color: AppColors.primary,
-                  ),
-                  Row(
-                    children: [
-                      MyOutlinedButton(
-                        textColor: AppColors.neutral500,
-                        borderColor: null,
-                        child: 'Cancel',
-                        onTap: () {
-                          Navigator.pop(context);
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _clientEmailController,
+                        hintText: 'client@example.com',
+                        title: 'Email',
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _clientPhoneController,
+                        hintText: '+234 XXX XXX XXXX',
+                        title: 'Phone',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  controller: _clientAddressController,
+                  hintText: 'Enter client address',
+                  title: 'Address',
+                  maxLines: 2,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Invoice items',
+              children: [
+                ..._buildInvoiceItems(),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    _buildAddLineItemButton(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Add another line item to this invoice.',
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Invoice details',
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildDateField(
+                        'Issue Date*',
+                        _issueDate,
+                        (date) => setState(() => _issueDate = date),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildDateField(
+                        'Due Date*',
+                        _dueDate,
+                        (date) => setState(() => _dueDate = date),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _discountController,
+                        hintText: '0',
+                        title: 'Discount (NGN)',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        initialValue: _taxRate.toString(),
+                        hintText: '7.5',
+                        title: 'Tax Rate (%)',
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          setState(() {
+                            _taxRate = double.tryParse(value) ?? 7.5;
+                          });
                         },
                       ),
-                      const SizedBox(width: 16),
-                      MyElevatedButton(
-                        icon: SvgPicture.asset(
-                          "assets/svg/check.svg",
-                          colorFilter: const ColorFilter.mode(
-                              AppColors.white, BlendMode.srcIn),
-                        ),
-                        child: 'Create Invoice',
-                        onTap: _handleCreateInvoice,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  controller: _notesController,
+                  hintText: 'Add any additional notes or terms',
+                  title: 'Notes',
+                  maxLines: 3,
+                ),
+              ],
             ),
+            const SizedBox(height: 16),
+            _buildSummary(),
           ],
         ),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+        MyElevatedButton(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          icon: const Icon(Iconsax.tick_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          child: 'Create Invoice',
+          onTap: _handleCreateInvoice,
+        ),
+      ],
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return AppText.bodyLg(
-      title,
-      fontWeight: FontWeight.w600,
-      color: AppColors.neutral700,
+  Widget _buildAddLineItemButton() {
+    return Material(
+      color: AppColors.primarySubtle,
+      borderRadius: AppRadii.brMd,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () {
+          setState(() {
+            _items.add(InvoiceItem());
+          });
+        },
+        child: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: AppRadii.brMd,
+            border: Border.all(color: AppColors.primarySoft),
+          ),
+          alignment: Alignment.center,
+          child: const Icon(Iconsax.add, size: 20, color: AppColors.primary),
+        ),
+      ),
     );
   }
 
@@ -346,9 +317,9 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.neutral50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.neutral200),
+          color: AppColors.surface,
+          borderRadius: AppRadii.brMd,
+          border: Border.all(color: AppColors.borderSubtle),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,15 +327,17 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
             Row(
               children: [
                 Expanded(
-                  child: AppText.bodyMd(
+                  child: Text(
                     'Item ${index + 1}',
-                    fontWeight: FontWeight.w600,
+                    style: AppTextStyles.bodyMd
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 if (_items.length > 1)
                   IconButton(
                     icon: const Icon(Iconsax.trash, size: 20),
-                    color: Colors.red,
+                    color: AppColors.danger,
+                    splashRadius: 20,
                     onPressed: () {
                       setState(() {
                         _items.removeAt(index);
@@ -373,12 +346,11 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             MyTextFormField(
               initialValue: item.description,
               hintText: 'Description of service/item',
               title: 'Description*',
-              spaceBetweenText: 8,
               onChanged: (value) {
                 setState(() {
                   item.description = value;
@@ -400,7 +372,6 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                     initialValue: item.quantity.toString(),
                     hintText: '1',
                     title: 'Quantity*',
-                    spaceBetweenText: 8,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: (value) {
@@ -416,8 +387,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                   child: MyTextFormField(
                     initialValue: item.unitPrice.toString(),
                     hintText: '0.00',
-                    title: 'Unit Price (₦)*',
-                    spaceBetweenText: 8,
+                    title: 'Unit Price (NGN)*',
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -432,22 +402,23 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AppText.bodySm(
-                        'Total',
-                        fontWeight: FontWeight.w500,
-                      ),
+                      const Text('Total', style: AppTextStyles.label),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 14),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppColors.primarySubtle,
+                          borderRadius: AppRadii.brMd,
+                          border: Border.all(color: AppColors.primarySoft),
                         ),
-                        child: AppText.bodyMd(
-                          '₦${NumberFormat('#,###.##').format(item.total)}',
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                        child: Text(
+                          'NGN ${NumberFormat('#,###.##').format(item.total)}',
+                          style: AppTextStyles.bodyMd.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
                     ],
@@ -466,10 +437,7 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText.bodySm(
-          label,
-          fontWeight: FontWeight.w500,
-        ),
+        Text(label, style: AppTextStyles.label),
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
@@ -483,19 +451,23 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
               onDateSelected(picked);
             }
           },
+          borderRadius: AppRadii.brMd,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.neutral300),
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.borderSubtle),
+              borderRadius: AppRadii.brMd,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AppText.bodySm(
+                Text(
                   DateFormat('dd MMM yyyy').format(date),
+                  style: AppTextStyles.bodyMd,
                 ),
-                const Icon(Iconsax.calendar_1, size: 18, color: AppColors.neutral500),
+                const Icon(Iconsax.calendar_1,
+                    size: 18, color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -506,39 +478,32 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
 
   Widget _buildSummary() {
     return Container(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.02),
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.1),
-          width: 1.0,
-        ),
+        color: AppColors.primarySubtle,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.primarySoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppText.bodyMd(
-            'Invoice Summary',
-            fontWeight: FontWeight.w600,
-            color: AppColors.neutral700,
-          ),
+          const Text('Invoice summary', style: AppTextStyles.h4),
           const SizedBox(height: 16),
           _buildSummaryRow(
-              'Subtotal:', '₦${NumberFormat('#,###.##').format(_subtotal)}'),
+              'Subtotal', 'NGN ${NumberFormat('#,###.##').format(_subtotal)}'),
           const SizedBox(height: 12),
-          _buildSummaryRow(
-              'Discount:', '-₦${NumberFormat('#,###.##').format(_discount)}'),
+          _buildSummaryRow('Discount',
+              '-NGN ${NumberFormat('#,###.##').format(_discount)}'),
           const SizedBox(height: 12),
-          _buildSummaryRow('Tax ($_taxRate%):',
-              '₦${NumberFormat('#,###.##').format(_taxAmount)}'),
+          _buildSummaryRow('Tax (${_taxRate.toStringAsFixed(1)}%)',
+              'NGN ${NumberFormat('#,###.##').format(_taxAmount)}'),
           const SizedBox(height: 16),
-          const Divider(color: AppColors.neutral300),
+          const Divider(color: AppColors.borderSubtle, height: 1),
           const SizedBox(height: 16),
           _buildSummaryRow(
-            'Total:',
-            '₦${NumberFormat('#,###.##').format(_total)}',
+            'Total',
+            'NGN ${NumberFormat('#,###.##').format(_total)}',
             isTotal: true,
           ),
         ],
@@ -550,13 +515,44 @@ class _AddInvoiceDialogState extends State<AddInvoiceDialog> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        isTotal
-            ? AppText.h4(label, color: AppColors.neutral700)
-            : AppText.bodyMd(label, color: AppColors.neutral500),
-        isTotal
-            ? AppText.h4(value, color: AppColors.primary)
-            : AppText.bodyMd(value, fontWeight: FontWeight.w600, color: AppColors.neutral700),
+        Text(
+          label,
+          style: isTotal
+              ? AppTextStyles.h4
+              : AppTextStyles.bodyMd
+                  .copyWith(color: AppColors.textSecondary),
+        ),
+        Text(
+          value,
+          style: isTotal
+              ? AppTextStyles.h4.copyWith(color: AppColors.primary)
+              : AppTextStyles.bodyMd
+                  .copyWith(fontWeight: FontWeight.w600),
+        ),
       ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
     );
   }
 

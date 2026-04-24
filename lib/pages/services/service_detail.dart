@@ -1,3 +1,12 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -6,161 +15,130 @@ class LandSurveyingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        leading: Material(
+          color: AppColors.surface,
+          borderRadius: AppRadii.brMd,
+          child: InkWell(
+            borderRadius: AppRadii.brMd,
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: AppRadii.brMd,
+                border: Border.all(color: AppColors.borderSubtle),
+              ),
+              child: const Icon(
+                Iconsax.arrow_left_2,
+                size: 18,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ),
+        title: 'Land Surveying',
+        subtitle: 'Created 1/15/2024',
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MyOutlinedButton(
+              height: 44,
+              icon: const Icon(
+                Iconsax.edit,
+                size: 16,
+                color: AppColors.primary,
+              ),
+              child: 'Edit',
+              onTap: () {},
+            ),
+            const SizedBox(width: 12),
+            MyElevatedButton(
+              height: 44,
+              bgColor: AppColors.danger,
+              icon: const Icon(
+                Iconsax.trash,
+                size: 16,
+                color: AppColors.white,
+              ),
+              child: 'Delete',
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
       children: [
-        // Header Section
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(16.0),
+        AppCard(
+          padding: const EdgeInsets.all(24),
+          elevation: AppCardElevation.md,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top bar with back button and action buttons
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Iconsax.arrow_left_2,
-                          color: Colors.black,
-                          size: 24,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Back',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  // Edit Button
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(8),
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.primarySubtle,
+                      borderRadius: AppRadii.brSm,
                     ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Iconsax.edit, color: Colors.white, size: 16),
-                        SizedBox(width: 4),
-                        Text(
-                          'Edit',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    child: const Icon(
+                      Iconsax.ruler,
+                      size: 20,
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Delete Button
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Iconsax.trash, color: Colors.white, size: 16),
-                        SizedBox(width: 4),
-                        Text(
-                          'Delete',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                  const Text('Service Details', style: AppTextStyles.h3),
+                  const Spacer(),
+                  const StatusChip(
+                    label: 'Active',
+                    tone: StatusTone.success,
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              // Title and Created Date
-              const Text(
-                'Land Surveying',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              _buildInfoRow('Service Name', 'Land Surveying'),
+              _buildInfoRow('Category', 'Surveying'),
+              _buildInfoRow(
+                'Description',
+                'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field.',
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Created 1/15/2024',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
+              _buildInfoRow('Base Price (NGN)', 'N 150,000.00'),
+              _buildInfoRow('Duration', '2-3 Weeks'),
+              _buildInfoRow('Status', 'Active'),
+              _buildInfoRow('Created Date', '22th July 2025', isLast: true),
             ],
-          ),
-        ),
-        // Content Section
-        Expanded(
-          child: Container(
-            color: Colors.white,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildInfoRow('Service Name', 'Land Surveying'),
-                  _buildInfoRow('Category', 'Surveying'),
-                  _buildInfoRow(
-                    'Description',
-                    'This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field. This is mock text to show that this is an input field.',
-                  ),
-                  _buildInfoRow('Base Price (NGN)', 'N 150,000.00'),
-                  _buildInfoRow('Duration', '2-3 Weeks'),
-                  _buildInfoRow('Status', 'Active'),
-                  _buildInfoRow('Created Date', '22th July 2025'),
-                ],
-              ),
-            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(String label, String value, {bool isLast = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[200]!,
-            width: 1,
-          ),
-        ),
+        border: isLast
+            ? null
+            : const Border(
+                bottom: BorderSide(color: AppColors.borderSubtle),
+              ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
+            width: 160,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w400,
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -168,10 +146,9 @@ class LandSurveyingWidget extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-                fontWeight: FontWeight.w400,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

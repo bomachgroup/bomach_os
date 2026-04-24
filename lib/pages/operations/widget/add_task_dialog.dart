@@ -1,22 +1,23 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/controllers/milestone_controller.dart';
 import 'package:bms_front_end/pages/operations/controllers/project_controller.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/api_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/model/employees_model.dart';
 import 'package:bms_front_end/src/services/employees_services.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../controllers/tasks_controler.dart';
 
@@ -135,187 +136,198 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.task != null;
 
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    isEdit ? 'Edit Task' : 'Create Task',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
+    return DialogScaffold(
+      title: isEdit ? 'Edit task' : 'Create task',
+      subtitle: isEdit
+          ? 'Update task details, assignment, and schedule.'
+          : 'Set up a new task with priority, due date, and assignees.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSection(
+            title: 'Basic information',
+            subtitle: 'Name the task and describe what needs to be done.',
+            child: Column(
+              children: [
+                MyTextFormField(
+                  controller: nameCtrl,
+                  title: 'Task Name*',
+                  hintText: 'e.g. Design Login Page',
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  controller: descCtrl,
+                  title: 'Description',
+                  maxLines: 4,
+                  hintText: 'Task details...',
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Priority & status',
+            subtitle: 'Set urgency and current progress for this task.',
+            child: Column(
+              children: [
+                if (widget.projectId != 0)
+                  Obx(() {
+                    final milestones = milestoneController.milestones;
+                    if (milestones.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    final items = milestones.map((m) => m.name).toList();
+                    final selectedName = milestones
+                        .where((m) => m.id == selectedMilestoneId)
+                        .map((m) => m.name)
+                        .firstOrNull;
 
-            // Form Fields
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: MyDropdown(
+                        title: 'Milestone*',
+                        hintText: 'Select milestone',
+                        items: items,
+                        controller:
+                            TextEditingController(text: selectedName ?? ''),
+                        onChanged: (val) {
+                          final m = milestones
+                              .where((m) => m.name == val)
+                              .firstOrNull;
+                          setState(() => selectedMilestoneId = m?.id);
+                        },
+                      ),
+                    );
+                  }),
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyTextFormField(
-                      controller: nameCtrl,
-                      title: 'Task Name*',
-                      hintText: 'e.g. Design Login Page',
+                    Expanded(
+                      child: MyDropdown(
+                        hintText: selectedPriorityLabel,
+                        title: 'Priority*',
+                        items: _priorityItems.keys.toList(),
+                        controller:
+                            TextEditingController(text: selectedPriorityLabel),
+                        onChanged: (val) =>
+                            setState(() => selectedPriorityLabel = val!),
+                      ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Milestone selector
-                    if (widget.projectId != 0) ...[
-                      Obx(() {
-                        final milestones = milestoneController.milestones;
-                        if (milestones.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
-                        final items = milestones.map((m) => m.name).toList();
-                        final selectedName = milestones
-                            .where((m) => m.id == selectedMilestoneId)
-                            .map((m) => m.name)
-                            .firstOrNull;
-
-                        return Column(
-                          children: [
-                            MyDropdown(
-                              title: 'Milestone*',
-                              hintText: 'Select milestone',
-                              items: items,
-                              controller: TextEditingController(
-                                  text: selectedName ?? ''),
-                              onChanged: (val) {
-                                final m = milestones
-                                    .where((m) => m.name == val)
-                                    .firstOrNull;
-                                setState(() => selectedMilestoneId = m?.id);
-                              },
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-                        );
-                      }),
-                    ],
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyDropdown(
-                            hintText: '',
-                            title: 'Priority*',
-                            items: _priorityItems.keys.toList(),
-                            controller: TextEditingController(
-                                text: selectedPriorityLabel),
-                            onChanged: (val) =>
-                                setState(() => selectedPriorityLabel = val!),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyDropdown(
-                            hintText: '',
-                            title: 'Status*',
-                            items: _statusItems.keys.toList(),
-                            controller: TextEditingController(
-                                text: selectedStatusLabel),
-                            onChanged: (val) =>
-                                setState(() => selectedStatusLabel = val!),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyDropdown(
+                        hintText: selectedStatusLabel,
+                        title: 'Status*',
+                        items: _statusItems.keys.toList(),
+                        controller:
+                            TextEditingController(text: selectedStatusLabel),
+                        onChanged: (val) =>
+                            setState(() => selectedStatusLabel = val!),
+                      ),
                     ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: MyDateField(
-                            controller: dateCtrl,
-                            title: 'Due Date',
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MyTextFormField(
-                            controller: hoursCtrl,
-                            title: 'Estimated Hours',
-                            hintText: '0',
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    MyTextFormField(
-                      controller: descCtrl,
-                      title: 'Description',
-                      maxLines: 4,
-                      hintText: 'Task details...',
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Assigned To
-                    _AssignedToField(
-                      projectController: projectController,
-                      selectedIds: selectedEmployeeIds,
-                      searchCtrl: _employeeSearchCtrl,
-                      query: _employeeQuery,
-                      onQueryChanged: (q) => setState(() => _employeeQuery = q),
-                      onToggle: (id) => setState(() {
-                        if (selectedEmployeeIds.contains(id)) {
-                          selectedEmployeeIds.remove(id);
-                        } else {
-                          selectedEmployeeIds.add(id);
-                        }
-                      }),
-                    ),
-                    const SizedBox(height: 24),
                   ],
                 ),
-              ),
+              ],
             ),
-
-            // Footer
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Schedule',
+            subtitle: 'Set due date and estimated effort.',
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyDateField(
+                    controller: dateCtrl,
+                    title: 'Due Date',
                   ),
-                  const SizedBox(width: 16),
-                  Obx(() => controller.isActionLoading.value
-                      ? const CircularProgressIndicator()
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset("assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn)),
-                          child: isEdit ? 'Update' : 'Save',
-                          onTap: _save,
-                        )),
-                ],
-              ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: hoursCtrl,
+                    title: 'Estimated Hours',
+                    hintText: '0',
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Assignees',
+            subtitle: 'Pick the people responsible for this task.',
+            child: _AssignedToField(
+              projectController: projectController,
+              selectedIds: selectedEmployeeIds,
+              searchCtrl: _employeeSearchCtrl,
+              query: _employeeQuery,
+              onQueryChanged: (q) => setState(() => _employeeQuery = q),
+              onToggle: (id) => setState(() {
+                if (selectedEmployeeIds.contains(id)) {
+                  selectedEmployeeIds.remove(id);
+                } else {
+                  selectedEmployeeIds.add(id);
+                }
+              }),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        Obx(() => MyElevatedButton(
+              width: 120,
+              height: 44,
+              isLoading: controller.isActionLoading.value,
+              icon: controller.isActionLoading.value
+                  ? null
+                  : const Icon(Iconsax.tick_circle,
+                      size: 18, color: AppColors.textOnPrimary),
+              child: isEdit ? 'Update' : 'Save',
+              onTap: controller.isActionLoading.value ? null : _save,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }
@@ -484,11 +496,9 @@ class _AssignedToFieldState extends State<_AssignedToField> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText('Assigned To*', weight: 500),
-          const SizedBox(height: 8),
-
           // Department & Branch filters
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: MyDropdown(
@@ -498,8 +508,9 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                       .map((d) => d['name']?.toString() ?? '')
                       .toList(),
                   onChanged: (val) {
-                    final dept =
-                        _departments.where((d) => d['name'] == val).firstOrNull;
+                    final dept = _departments
+                        .where((d) => d['name'] == val)
+                        .firstOrNull;
                     _filterDepartmentId = dept?['id']?.toString();
                     _fetchAllEmployees();
                   },
@@ -527,13 +538,13 @@ class _AssignedToFieldState extends State<_AssignedToField> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           // Selected chips
           if (widget.selectedIds.isNotEmpty) ...[
             Wrap(
               spacing: 8,
-              runSpacing: 4,
+              runSpacing: 8,
               children: widget.selectedIds.map((id) {
                 final emp = employees
                     .where((e) =>
@@ -543,52 +554,43 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                     projectEmployees.where((e) => e.id == id).firstOrNull;
                 final label = emp?.fullName ?? projEmp?.fullName ?? id;
                 return Chip(
-                  label: Text(label, style: const TextStyle(fontSize: 12)),
-                  deleteIcon: const Icon(Iconsax.close_circle, size: 14),
+                  label: Text(
+                    label,
+                    style: AppTextStyles.bodySm
+                        .copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  deleteIcon: const Icon(Iconsax.close_circle, size: 16),
                   onDeleted: () => widget.onToggle(id),
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  side:
-                      BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  backgroundColor: AppColors.primarySubtle,
+                  side: const BorderSide(color: AppColors.primarySubtle),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadii.brPill),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
           ],
 
           // Search input
-          TextField(
+          MyTextFormField(
             controller: widget.searchCtrl,
             onChanged: widget.onQueryChanged,
-            decoration: InputDecoration(
-              hintText: 'Search employees by name or ID...',
-              prefixIcon:
-                  const Icon(Iconsax.search_normal, size: 18, color: Colors.grey),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0XFFD5D5D5)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0XFFD5D5D5)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: AppColors.primary),
-              ),
+            hintText: 'Search employees by name or ID...',
+            leading: const Icon(
+              Iconsax.search_normal,
+              size: 18,
+              color: AppColors.textMuted,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
 
           // Employee list
           Container(
-            constraints: const BoxConstraints(maxHeight: 200),
+            constraints: const BoxConstraints(maxHeight: 220),
             decoration: BoxDecoration(
-              border: Border.all(color: const Color(0XFFD5D5D5)),
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.borderSubtle),
+              borderRadius: AppRadii.brMd,
             ),
             child: isLoading
                 ? const Center(
@@ -598,26 +600,28 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                     ),
                   )
                 : employees.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(16),
+                    ? Padding(
+                        padding: const EdgeInsets.all(16),
                         child: Text(
                           'No employees found. Try adjusting filters.',
-                          style: TextStyle(color: Colors.grey),
+                          style: AppTextStyles.bodySm
+                              .copyWith(color: AppColors.textSecondary),
                         ),
                       )
                     : filtered.isEmpty
-                        ? const Padding(
-                            padding: EdgeInsets.all(16),
+                        ? Padding(
+                            padding: const EdgeInsets.all(16),
                             child: Text(
                               'No employees match your search.',
-                              style: TextStyle(color: Colors.grey),
+                              style: AppTextStyles.bodySm.copyWith(
+                                  color: AppColors.textSecondary),
                             ),
                           )
                         : ListView.separated(
                             shrinkWrap: true,
                             itemCount: filtered.length,
                             separatorBuilder: (_, __) => const Divider(
-                                height: 1, color: Color(0XFFD5D5D5)),
+                                height: 1, color: AppColors.borderSubtle),
                             itemBuilder: (ctx, i) {
                               final emp = filtered[i];
                               final empId = emp.tableId.toString();
@@ -647,15 +651,20 @@ class _AssignedToFieldState extends State<_AssignedToField> {
                                           children: [
                                             Text(
                                               emp.fullName,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500),
+                                              style: AppTextStyles.bodyMd
+                                                  .copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.textPrimary,
+                                              ),
                                             ),
+                                            const SizedBox(height: 2),
                                             Text(
                                               '${emp.employeeId ?? ''} · ${emp.designation ?? ''} · ${emp.departmentName ?? ''} · ${emp.branchName ?? ''}',
-                                              style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey),
+                                              style: AppTextStyles.caption
+                                                  .copyWith(
+                                                color:
+                                                    AppColors.textSecondary,
+                                              ),
                                             ),
                                           ],
                                         ),

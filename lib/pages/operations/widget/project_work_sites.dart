@@ -1,13 +1,17 @@
-import 'package:bms_front_end/components/nav/employee_stepper.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
 import 'package:bms_front_end/pages/operations/controllers/work_site_controller.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
-import 'package:bms_front_end/pages/operations/widget/site_equipment_table.dart';
 import 'package:bms_front_end/pages/operations/widget/project_task_table.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/pages/operations/widget/site_equipment_table.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ProjectWorkSite extends StatefulWidget {
   final int projectId;
@@ -38,101 +42,208 @@ class _ProjectWorkSiteState extends State<ProjectWorkSite> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        kSizedBoxBG,
-        Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Padding(
+          padding: EdgeInsets.all(40),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
 
-          if (controller.worksites.isEmpty) {
-            return const Center(
-                child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text(
-                        "No worksites for this project yet. Add one above.")));
-          }
+      if (controller.worksites.isEmpty) {
+        return const EmptyState(
+          icon: Iconsax.location,
+          title: 'No worksites yet',
+          subtitle: 'Add a worksite to track equipment and site-level tasks.',
+        );
+      }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Worksite selector
-              Row(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Worksite selector card
+          AppCard(
+            padding: const EdgeInsets.all(20),
+            child: LayoutBuilder(builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 600;
+              return Flex(
+                direction: isWide ? Axis.horizontal : Axis.vertical,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const MyText("Worksite:", size: 16, weight: 500),
-                  const SizedBox(width: 12),
                   Expanded(
-                    child: DropdownButton<Worksite>(
-                      isExpanded: true,
-                      value: selectedWorksite,
-                      items: controller.worksites
-                          .map((ws) => DropdownMenuItem(
-                                value: ws,
-                                child: Text("${ws.name} — ${ws.location}",
-                                    overflow: TextOverflow.ellipsis),
-                              ))
-                          .toList(),
-                      onChanged: (ws) => setState(() => selectedWorksite = ws),
+                    flex: isWide ? 3 : 0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Active Worksite',
+                          style: AppTextStyles.overline,
+                        ),
+                        const SizedBox(height: 8),
+                        MyDropdown(
+                          hintText: 'Select a worksite',
+                          items: controller.worksites
+                              .map((ws) => '${ws.name} — ${ws.location}')
+                              .toList(),
+                          initialSelection: selectedWorksite == null
+                              ? null
+                              : '${selectedWorksite!.name} — ${selectedWorksite!.location}',
+                          onChanged: (val) {
+                            if (val == null) return;
+                            final match = controller.worksites.firstWhereOrNull(
+                              (w) => '${w.name} — ${w.location}' == val,
+                            );
+                            if (match != null) {
+                              setState(() => selectedWorksite = match);
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ),
+                  SizedBox(width: isWide ? 20 : 0, height: isWide ? 0 : 16),
+                  if (selectedWorksite != null)
+                    Expanded(
+                      flex: isWide ? 2 : 0,
+                      child: Align(
+                        alignment: isWide
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: StatusChip(
+                          label: selectedWorksite!.status.isEmpty
+                              ? 'Active'
+                              : selectedWorksite!.status,
+                          tone: _worksiteTone(selectedWorksite!.status),
+                          icon: Iconsax.location,
+                        ),
+                      ),
+                    ),
                 ],
-              ),
-              kSizedBox,
+              );
+            }),
+          ),
+          const SizedBox(height: 20),
 
-              // Sub-tabs
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      EmployeeInfoStepper(
-                        isActive: selectionStepperState == 0,
-                        icon: SvgPicture.asset("assets/svg/person.svg"),
-                        activeIcon:
-                            SvgPicture.asset("assets/svg/person-filled.svg"),
-                        title: 'Employees',
-                        onTap: () => setState(() => selectionStepperState = 0),
-                      ),
-                      kSizedBoxWidth,
-                      EmployeeInfoStepper(
-                        isActive: selectionStepperState == 1,
-                        icon: SvgPicture.asset("assets/svg/settings.svg"),
-                        activeIcon:
-                            SvgPicture.asset("assets/svg/settings-filled.svg"),
-                        title: 'Site Equipments',
-                        onTap: () => setState(() => selectionStepperState = 1),
-                      ),
-                      kSizedBoxWidth,
-                      EmployeeInfoStepper(
-                        isActive: selectionStepperState == 2,
-                        icon: SvgPicture.asset("assets/svg/document.svg"),
-                        activeIcon:
-                            SvgPicture.asset("assets/svg/document-filled.svg"),
-                        title: 'Site Task',
-                        onTap: () => setState(() => selectionStepperState = 2),
-                      ),
-                    ],
-                  ),
+          // Sub-tab selector
+          _buildSubTabs(),
+          const SizedBox(height: 20),
+
+          // Sub-tab content
+          _buildSubTabContent(),
+        ],
+      );
+    });
+  }
+
+  Widget _buildSubTabs() {
+    const tabs = [
+      (icon: Iconsax.people, label: 'Employees'),
+      (icon: Iconsax.setting_2, label: 'Site Equipment'),
+      (icon: Iconsax.task_square, label: 'Site Tasks'),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: List.generate(tabs.length, (index) {
+        final tab = tabs[index];
+        final selected = selectionStepperState == index;
+        return _SubTabChip(
+          icon: tab.icon,
+          label: tab.label,
+          isActive: selected,
+          onTap: () => setState(() => selectionStepperState = index),
+        );
+      }),
+    );
+  }
+
+  Widget _buildSubTabContent() {
+    if (selectionStepperState == 0) {
+      return const EmptyState(
+        icon: Iconsax.people,
+        title: 'No site employees yet',
+        subtitle: 'Employees assigned to this worksite will appear here.',
+      );
+    }
+    if (selectionStepperState == 1) {
+      if (selectedWorksite == null) {
+        return const EmptyState(
+          icon: Iconsax.setting_2,
+          title: 'Select a worksite first',
+          subtitle: 'Pick an active worksite above to view its equipment.',
+          compact: true,
+        );
+      }
+      return SiteEquipmentTable(worksiteId: selectedWorksite!.id);
+    }
+    return ProjectTaskTable(projectId: widget.projectId);
+  }
+
+  StatusTone _worksiteTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return StatusTone.success;
+      case 'paused':
+        return StatusTone.warning;
+      case 'hazard':
+        return StatusTone.danger;
+      case 'closed':
+        return StatusTone.neutral;
+      default:
+        return StatusTone.success;
+    }
+  }
+}
+
+class _SubTabChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _SubTabChip({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isActive ? AppColors.primarySubtle : AppColors.surface;
+    final fg = isActive ? AppColors.primary : AppColors.textSecondary;
+    final border = isActive ? AppColors.primary : AppColors.borderSubtle;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: AppRadii.brMd,
+            border: Border.all(color: border),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: fg),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: fg,
+                  fontWeight:
+                      isActive ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
-              kSizedBoxBG,
-
-              // Sub-tab content
-              if (selectionStepperState == 0) Container(),
-              if (selectionStepperState == 1 && selectedWorksite != null)
-                SiteEquipmentTable(worksiteId: selectedWorksite!.id),
-              if (selectionStepperState == 1 && selectedWorksite == null)
-                const Center(child: Text("Select a worksite first.")),
-              if (selectionStepperState == 2)
-                ProjectTaskTable(projectId: widget.projectId),
             ],
-          );
-        }),
-      ],
+          ),
+        ),
+      ),
     );
   }
 }

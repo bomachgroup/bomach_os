@@ -1,13 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+
 import '../controllers/work_site_controller.dart';
 import '../models/models.dart';
 
@@ -27,6 +29,7 @@ class AddWorksiteDialog extends StatefulWidget {
 
 class AddWorksiteDialogState extends State<AddWorksiteDialog> {
   final WorksiteController controller = Get.find<WorksiteController>();
+  final _formKey = GlobalKey<FormState>();
 
   late TextEditingController nameCtrl;
   late TextEditingController locationCtrl;
@@ -53,100 +56,8 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final isEdit = widget.worksite != null;
-
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(isEdit ? 'Edit Worksite' : 'Add Worksite',
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold)),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  MyTextFormField(
-                    controller: nameCtrl,
-                    title: 'Worksite Name*',
-                    hintText: "e.g. Site A",
-                  ),
-                  const SizedBox(height: 24),
-                  MyTextFormField(
-                    controller: locationCtrl,
-                    title: 'Location*',
-                    hintText: 'e.g. 123 Industrial Rd',
-                  ),
-                  const SizedBox(height: 24),
-                  MyDropdown(
-                    title: 'Status',
-                    items: const ['Active', 'Inactive', 'Completed'],
-                    hintText: 'Select Status',
-                    controller: TextEditingController(text: selectedStatus),
-                    onChanged: (val) => setState(() => selectedStatus = val!),
-                  ),
-                  const SizedBox(height: 24),
-                  MyTextFormField(
-                    controller: descCtrl,
-                    title: 'Details/Notes',
-                    maxLines: 4,
-                    hintText: 'Additional details...',
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey.shade300)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.neutral500,
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() => controller.isActionLoading.value
-                      ? const CircularProgressIndicator()
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset("assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn)),
-                          child: isEdit ? 'Update' : 'Save',
-                          onTap: _save,
-                        )),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _save() {
+    if (!_formKey.currentState!.validate()) return;
     if (nameCtrl.text.isEmpty || locationCtrl.text.isEmpty) return;
 
     final formWorksite = Worksite(
@@ -165,5 +76,131 @@ class AddWorksiteDialogState extends State<AddWorksiteDialog> {
     } else {
       controller.updateWorksite(context, formWorksite.id, formWorksite);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEdit = widget.worksite != null;
+
+    return Obx(() => DialogScaffold(
+          title: isEdit ? 'Edit Worksite' : 'New Worksite',
+          subtitle: isEdit
+              ? 'Update worksite location and operational status.'
+              : 'Register a new field worksite with location and status.',
+          size: DialogSize.md,
+          body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSection(
+                  title: 'Site information',
+                  subtitle: 'Identify the worksite and its location.',
+                  child: Column(
+                    children: [
+                      MyTextFormField(
+                        controller: nameCtrl,
+                        title: 'Worksite Name',
+                        hintText: 'e.g. Site A',
+                        validator: (val) =>
+                            (val == null || val.trim().isEmpty)
+                                ? 'Required'
+                                : null,
+                      ),
+                      const SizedBox(height: 16),
+                      MyTextFormField(
+                        controller: locationCtrl,
+                        title: 'Location',
+                        hintText: 'e.g. 123 Industrial Rd',
+                        validator: (val) =>
+                            (val == null || val.trim().isEmpty)
+                                ? 'Required'
+                                : null,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Operational status',
+                  subtitle: 'Track the current working state of this site.',
+                  child: MyDropdown(
+                    title: 'Status',
+                    hintText: 'Select Status',
+                    items: const ['Active', 'Paused', 'Closed', 'Hazard'],
+                    initialSelection: selectedStatus,
+                    onChanged: (val) =>
+                        setState(() => selectedStatus = val ?? selectedStatus),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildSection(
+                  title: 'Notes',
+                  child: MyTextFormField(
+                    controller: descCtrl,
+                    title: 'Details / Notes',
+                    hintText: 'Additional details...',
+                    maxLines: 4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            MyOutlinedButton(
+              child: 'Cancel',
+              height: 44,
+              onTap: () => Navigator.pop(context),
+              textColor: AppColors.textSecondary,
+              borderColor: AppColors.borderStrong,
+            ),
+            MyElevatedButton(
+              width: 140,
+              height: 44,
+              child: controller.isActionLoading.value
+                  ? 'Saving...'
+                  : (isEdit ? 'Update' : 'Save'),
+              onTap: controller.isActionLoading.value ? null : _save,
+              icon: controller.isActionLoading.value
+                  ? null
+                  : const Icon(
+                      Iconsax.tick_circle,
+                      size: 18,
+                      color: AppColors.textOnPrimary,
+                    ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
   }
 }

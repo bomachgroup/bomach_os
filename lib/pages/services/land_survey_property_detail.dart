@@ -1,14 +1,12 @@
-import 'package:bms_front_end/components/button/sort_filter_bar2.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/client/clients_database.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-
-import '../../components/button/icon_button.dart';
-import '../../src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   const ServiceDetailScreen({super.key});
@@ -20,136 +18,120 @@ class ServiceDetailScreen extends StatefulWidget {
 class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: const PageHeader(
+        title: 'Aso villa Estate',
+        subtitle: 'Property details, gallery and description.',
+      ),
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //header
-            const MyText(
-              "Services",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/plus.svg"),
-                  colorBackground: AppColors.primary,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AddInvoiceDialog();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/note2.svg"),
-                  colorBackground: AppColors.primary,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const InvoiceContent();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/notification.svg"),
-                  colorBackground: AppColors.primary,
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
-        ),
-        //search
-        const SizedBox(
-          height: 20,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 15,
-                runSpacing: 15,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: MyTextFormField(
-                      hintText: "Search...",
-                      leading: Icon(
-                        Iconsax.search_normal,
-                        color: AppColors.neutral500.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  const SortFilterBar2(),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: MyText(
-            "Aso villa Estate",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-          ),
-        ),
-        kSizedBox,
-        //body
-        Wrap(
-          alignment: WrapAlignment.start,
-          spacing: 20,
-          runSpacing: 20,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                "assets/image/image.png",
-                width: 413,
-                height: 341,
-                fit: BoxFit.cover,
-              ),
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                "assets/image/image.png",
-                width: 413,
-                height: 341,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ],
-        ),
-
-        kSizedBoxBG,
-        const MyText("Description", size: 24, weight: 500),
-        kSizedBox,
-
-        const MyText(
-            "A shvivdosv hivosfgp ovshogu vousvbov uovsbo vogvsibhxo ogousvou ovusbvoxd...",
-            size: 16,
-            weight: 400),
+        _buildHeaderCard(),
+        _buildGallery(),
+        _buildDescriptionCard(),
       ],
+    );
+  }
+
+  Widget _buildHeaderCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Iconsax.building_4,
+              color: AppColors.primary,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Property Overview',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 2),
+                const Text('Aso villa Estate', style: AppTextStyles.h3),
+              ],
+            ),
+          ),
+          const StatusChip(
+            label: 'Active',
+            tone: StatusTone.success,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGallery() {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Gallery', style: AppTextStyles.h3),
+          const SizedBox(height: 12),
+          Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              ClipRRect(
+                borderRadius: AppRadii.brMd,
+                child: Image.asset(
+                  "assets/image/image.png",
+                  width: 413,
+                  height: 341,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              ClipRRect(
+                borderRadius: AppRadii.brMd,
+                child: Image.asset(
+                  "assets/image/image.png",
+                  width: 413,
+                  height: 341,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Description', style: AppTextStyles.h3),
+          const SizedBox(height: 12),
+          Text(
+            'A shvivdosv hivosfgp ovshogu vousvbov uovsbo vogvsibhxo ogousvou ovusbvoxd...',
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

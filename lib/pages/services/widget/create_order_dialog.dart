@@ -1,15 +1,16 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
 import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -252,254 +253,174 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   Widget build(BuildContext context) {
     final serviceController = Get.find<ServiceController>();
 
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppText.h3('Create New Order'),
-                    IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: _isSubmitting
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Form fields
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 16),
-                    child: Column(
+    return DialogScaffold(
+      title: 'Create New Order',
+      subtitle: 'Convert an opportunity into a priced, scheduled order.',
+      size: DialogSize.lg,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSection(
+              title: 'Client & quote',
+              children: [
+                _buildClientSearch(),
+                const SizedBox(height: 16),
+                _buildQuoteSearch(serviceController),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Order details',
+              children: [
+                Obx(() {
+                  if (serviceController.isLoading.value) {
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Client Search
-                        _buildClientSearch(),
-                        const SizedBox(height: 24),
-
-                        // Quote Search
-                        _buildQuoteSearch(serviceController),
-                        const SizedBox(height: 24),
-
-                        // Service Selection
-                        Obx(() {
-                          if (serviceController.isLoading.value) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AppText.bodySm(
-                                  'Service*',
-                                  fontWeight: FontWeight.w500,
+                        const Text('Service*', style: AppTextStyles.label),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: AppRadii.brMd,
+                            border: Border.all(color: AppColors.borderSubtle),
+                          ),
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Loading services...',
+                                style: AppTextStyles.bodySm.copyWith(
+                                  color: AppColors.textSecondary,
                                 ),
-                                const SizedBox(height: 10),
-                                const Center(
-                                    child: CircularProgressIndicator()),
-                              ],
-                            );
-                          }
-
-                          final serviceItems = serviceController.services
-                              .map((s) => s.name)
-                              .toList();
-
-                          return MyDropdown(
-                            controller: _serviceController,
-                            items: serviceItems,
-                            hintText: 'Select a service',
-                            spaceBetweenText: 10,
-                            title: 'Service*',
-                            onChanged: (value) {
-                              if (value != null) {
-                                final selected = serviceController.services
-                                    .firstWhere((s) => s.name == value);
-                                setState(() {
-                                  _selectedService = selected;
-                                });
-                              }
-                            },
-                          );
-                        }),
-                        const SizedBox(height: 24),
-
-                        // Description
-                        MyTextFormField(
-                          controller: _descriptionController,
-                          maxLines: 3,
-                          hintText: 'Enter order description',
-                          spaceBetweenText: 10,
-                          title: 'Description*',
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Description is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Amount and Valid Until
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _amountController,
-                                hintText: 'e.g., 50000',
-                                spaceBetweenText: 10,
-                                title: 'Amount (₦)*',
-                                keyboardType: TextInputType.number,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Amount is required';
-                                  }
-                                  if (double.tryParse(value) == null) {
-                                    return 'Enter a valid number';
-                                  }
-                                  return null;
-                                },
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AppText.bodySm(
-                                    'Valid Until*',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  InkWell(
-                                    onTap: _pickDate,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 14),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: AppColors.neutral300),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              _validUntil != null
-                                                  ? DateFormat('MMM dd, yyyy')
-                                                      .format(_validUntil!)
-                                                  : 'Select date',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: _validUntil != null
-                                                    ? Colors.black87
-                                                    : AppColors.neutral500,
-                                              ),
-                                            ),
-                                          ),
-                                          const Icon(
-                                            Iconsax.calendar_1,
-                                            size: 18,
-                                            color: AppColors.neutral500,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Order Status
-                        MyDropdown(
-                          controller: _orderStatusController,
-                          spaceBetweenText: 10,
-                          hintText: 'Select order status',
-                          items: const [
-                            'Pending',
-                            'In Progress',
-                            'Completed',
-                            'Cancelled',
-                          ],
-                          title: 'Order Status*',
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedOrderStatus =
-                                  _orderStatusToApi(value ?? 'Pending');
-                            });
-                          },
+                            ],
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-                ),
-              ),
+                    );
+                  }
 
-              // Action Buttons
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: AppColors.neutral300),
-                  ),
+                  final serviceItems = serviceController.services
+                      .map((s) => s.name)
+                      .toList();
+
+                  return MyDropdown(
+                    controller: _serviceController,
+                    items: serviceItems,
+                    hintText: 'Select a service',
+                    title: 'Service*',
+                    onChanged: (value) {
+                      if (value != null) {
+                        final selected = serviceController.services
+                            .firstWhere((s) => s.name == value);
+                        setState(() {
+                          _selectedService = selected;
+                        });
+                      }
+                    },
+                  );
+                }),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  hintText: 'Enter order description',
+                  title: 'Description*',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Description is required';
+                    }
+                    return null;
+                  },
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                const SizedBox(height: 16),
+                Row(
                   children: [
-                    MyOutlinedButton(
-                      textColor: AppColors.neutral500,
-                      borderColor: null,
-                      child: 'Cancel',
-                      onTap: _isSubmitting
-                          ? null
-                          : () {
-                              Navigator.pop(context);
-                            },
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _amountController,
+                        hintText: 'e.g., 50000',
+                        title: 'Amount (NGN)*',
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Amount is required';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Enter a valid number';
+                          }
+                          return null;
+                        },
+                      ),
                     ),
                     const SizedBox(width: 16),
-                    _isSubmitting
-                        ? const SizedBox(
-                            width: 120,
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : MyElevatedButton(
-                            icon: SvgPicture.asset(
-                              "assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn),
-                            ),
-                            child: 'Create Order',
-                            onTap: _handleSubmit,
-                          ),
+                    Expanded(
+                      child: _buildDatePickerField(
+                        title: 'Valid Until*',
+                        date: _validUntil,
+                        onTap: _pickDate,
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 16),
+                MyDropdown(
+                  controller: _orderStatusController,
+                  hintText: 'Select order status',
+                  items: const [
+                    'Pending',
+                    'In Progress',
+                    'Completed',
+                    'Cancelled',
+                  ],
+                  title: 'Order Status*',
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedOrderStatus =
+                          _orderStatusToApi(value ?? 'Pending');
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: _isSubmitting
+              ? null
+              : () {
+                  Navigator.pop(context);
+                },
+        ),
+        MyElevatedButton(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          isLoading: _isSubmitting,
+          icon: const Icon(Iconsax.tick_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          child: 'Create Order',
+          onTap: _handleSubmit,
+        ),
+      ],
     );
   }
 
@@ -518,21 +439,66 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     }
   }
 
+  Widget _buildDatePickerField({
+    required String title,
+    required DateTime? date,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTextStyles.label),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          borderRadius: AppRadii.brMd,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.borderSubtle),
+              borderRadius: AppRadii.brMd,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    date != null
+                        ? DateFormat('MMM dd, yyyy').format(date)
+                        : 'Select date',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: date != null
+                          ? AppColors.textPrimary
+                          : AppColors.textMuted,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Iconsax.calendar_1,
+                  size: 18,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildClientSearch() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText.bodySm(
-          'Client*',
-          fontWeight: FontWeight.w500,
-        ),
-        const SizedBox(height: 10),
+        const Text('Client*', style: AppTextStyles.label),
+        const SizedBox(height: 8),
         if (_isLoadingClients)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.neutral300),
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.borderSubtle),
+              borderRadius: AppRadii.brMd,
             ),
             child: Row(
               children: [
@@ -542,9 +508,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 const SizedBox(width: 12),
-                AppText.bodySm(
+                Text(
                   'Loading clients...',
-                  color: AppColors.neutral500,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -554,15 +521,18 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             children: [
               TextFormField(
                 controller: _clientSearchController,
+                style: AppTextStyles.bodyMd,
                 decoration: InputDecoration(
                   hintText: 'Search client by name or email...',
-                  hintStyle: const TextStyle(
-                      fontSize: 14, color: AppColors.neutral500),
+                  hintStyle: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textMuted,
+                  ),
                   prefixIcon: const Icon(Iconsax.search_normal,
-                      color: AppColors.neutral500),
+                      size: 18, color: AppColors.textMuted),
                   suffixIcon: _selectedClient != null
                       ? IconButton(
                           icon: const Icon(Iconsax.close_circle, size: 18),
+                          color: AppColors.textSecondary,
                           onPressed: () {
                             setState(() {
                               _selectedClient = null;
@@ -573,20 +543,23 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                           },
                         )
                       : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral300),
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  border: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide: BorderSide(color: AppColors.borderSubtle),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral300),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide: BorderSide(color: AppColors.borderSubtle),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide:
+                        BorderSide(color: AppColors.primary, width: 1.5),
                   ),
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
                 onChanged: _filterClients,
                 onTap: () {
@@ -600,9 +573,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   constraints: const BoxConstraints(maxHeight: 200),
                   margin: const EdgeInsets.only(top: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.neutral300),
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.borderSubtle),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.08),
@@ -614,9 +587,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   child: _filteredClients.isEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(16),
-                          child: AppText.bodySm(
+                          child: Text(
                             'No clients found',
-                            color: AppColors.neutral500,
+                            style: AppTextStyles.bodySm
+                                .copyWith(color: AppColors.textSecondary),
                           ),
                         )
                       : ListView.builder(
@@ -633,22 +607,27 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                   border: index < _filteredClients.length - 1
                                       ? const Border(
                                           bottom: BorderSide(
-                                              color: AppColors.neutral300,
+                                              color: AppColors.borderSubtle,
                                               width: 0.5),
                                         )
                                       : null,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
-                                    AppText.bodyMd(
+                                    Text(
                                       client.fullName,
-                                      fontWeight: FontWeight.w500,
+                                      style: AppTextStyles.bodyMd.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     const SizedBox(height: 2),
-                                    AppText.bodySm(
+                                    Text(
                                       client.email,
-                                      color: AppColors.neutral500,
+                                      style: AppTextStyles.bodySm.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -667,18 +646,17 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText.bodySm(
-          'Quote',
-          fontWeight: FontWeight.w500,
-        ),
-        const SizedBox(height: 10),
+        const Text('Quote', style: AppTextStyles.label),
+        const SizedBox(height: 8),
         Obx(() {
           if (serviceController.isLoadingQuotes.value) {
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.neutral300),
-                borderRadius: BorderRadius.circular(8),
+                color: AppColors.surface,
+                border: Border.all(color: AppColors.borderSubtle),
+                borderRadius: AppRadii.brMd,
               ),
               child: Row(
                 children: [
@@ -688,9 +666,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                   const SizedBox(width: 12),
-                  AppText.bodySm(
+                  Text(
                     'Loading quotes...',
-                    color: AppColors.neutral500,
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -701,15 +680,18 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             children: [
               TextFormField(
                 controller: _quoteSearchController,
+                style: AppTextStyles.bodyMd,
                 decoration: InputDecoration(
                   hintText: 'Search by quote number or service name...',
-                  hintStyle: const TextStyle(
-                      fontSize: 14, color: AppColors.neutral500),
+                  hintStyle: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textMuted,
+                  ),
                   prefixIcon: const Icon(Iconsax.search_normal,
-                      color: AppColors.neutral500),
+                      size: 18, color: AppColors.textMuted),
                   suffixIcon: _selectedQuote != null
                       ? IconButton(
                           icon: const Icon(Iconsax.close_circle, size: 18),
+                          color: AppColors.textSecondary,
                           onPressed: () {
                             setState(() {
                               _selectedQuote = null;
@@ -721,20 +703,23 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                           },
                         )
                       : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral300),
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  border: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide: BorderSide(color: AppColors.borderSubtle),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral300),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide: BorderSide(color: AppColors.borderSubtle),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide:
+                        BorderSide(color: AppColors.primary, width: 1.5),
                   ),
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
                 onChanged: _filterQuotes,
                 onTap: () {
@@ -751,9 +736,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   constraints: const BoxConstraints(maxHeight: 200),
                   margin: const EdgeInsets.only(top: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.neutral300),
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.borderSubtle),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.08),
@@ -765,9 +750,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   child: _filteredQuotes.isEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(16),
-                          child: AppText.bodySm(
+                          child: Text(
                             'No quotes found',
-                            color: AppColors.neutral500,
+                            style: AppTextStyles.bodySm
+                                .copyWith(color: AppColors.textSecondary),
                           ),
                         )
                       : ListView.builder(
@@ -784,22 +770,27 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                   border: index < _filteredQuotes.length - 1
                                       ? const Border(
                                           bottom: BorderSide(
-                                              color: AppColors.neutral300,
+                                              color: AppColors.borderSubtle,
                                               width: 0.5),
                                         )
                                       : null,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
-                                    AppText.bodyMd(
+                                    Text(
                                       '${quote.quoteNumber} - ${quote.service.name}',
-                                      fontWeight: FontWeight.w500,
+                                      style: AppTextStyles.bodyMd.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     const SizedBox(height: 2),
-                                    AppText.bodySm(
+                                    Text(
                                       quote.description,
-                                      color: AppColors.neutral500,
+                                      style: AppTextStyles.bodySm.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -814,6 +805,29 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
           );
         }),
       ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
     );
   }
 }

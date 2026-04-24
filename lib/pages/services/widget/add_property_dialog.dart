@@ -1,20 +1,21 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/models/client_model.dart';
 import 'package:bms_front_end/pages/services/models/property_model.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddPropertyDialog extends StatefulWidget {
@@ -305,388 +306,373 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
+    return DialogScaffold(
+      title: isEditing ? 'Edit Property' : 'Add New Property',
+      subtitle: isEditing
+          ? 'Update details for this property listing.'
+          : 'Capture the essentials for a new property listing.',
+      size: DialogSize.lg,
+      body: Form(
+        key: _formKey,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppText.h3(isEditing ? 'Edit Property' : 'Add New Property'),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+            _buildSection(
+              title: 'Basic Information',
+              children: [
+                MyTextFormField(
+                  controller: _nameController,
+                  hintText: 'Enter property name',
+                  spaceBetweenText: 8,
+                  title: 'Property Name*',
+                  validator: (val) => val == null || val.trim().isEmpty
+                      ? 'Property name is required'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                _buildClientSearch(),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyDropdown(
+                        controller: _propertyTypeController,
+                        items: _propertyTypeMap.keys.toList(),
+                        hintText: 'Select type',
+                        spaceBetweenText: 8,
+                        title: 'Property Type*',
+                        validator: (val) =>
+                            val == null || val.trim().isEmpty
+                                ? 'Property type is required'
+                                : null,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyDropdown(
+                        controller: _categoryController,
+                        items: _categoryMap.keys.toList(),
+                        hintText: 'Select category',
+                        spaceBetweenText: 8,
+                        title: 'Category*',
+                        validator: (val) =>
+                            val == null || val.trim().isEmpty
+                                ? 'Category is required'
+                                : null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                MyDropdown(
+                  controller: _statusController,
+                  hintText: 'Select status',
+                  items: _statusMap.keys.toList(),
+                  spaceBetweenText: 8,
+                  title: 'Status*',
+                  validator: (val) => val == null || val.trim().isEmpty
+                      ? 'Status is required'
+                      : null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Location',
+              children: [
+                MyTextFormField(
+                  controller: _locationController,
+                  hintText: 'Enter full address',
+                  spaceBetweenText: 8,
+                  title: 'Location/Address*',
+                  validator: (val) => val == null || val.trim().isEmpty
+                      ? 'Location is required'
+                      : null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Pricing & Size',
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _priceController,
+                        hintText: 'Enter price',
+                        spaceBetweenText: 8,
+                        title: 'Price (\u20A6)*',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[\d.]')),
+                        ],
+                        validator: (val) =>
+                            val == null || val.trim().isEmpty
+                                ? 'Price is required'
+                                : null,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _sizeController,
+                        hintText: 'Enter size',
+                        spaceBetweenText: 8,
+                        title: 'Size (sqm)',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[\d.]')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Features',
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _bedroomsController,
+                        hintText: '0',
+                        spaceBetweenText: 8,
+                        title: 'Bedrooms',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _bathroomsController,
+                        hintText: '0',
+                        spaceBetweenText: 8,
+                        title: 'Bathrooms',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
+                        controller: _parkingController,
+                        hintText: '0',
+                        spaceBetweenText: 8,
+                        title: 'Parking Spaces',
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  controller: _descriptionController,
+                  maxLines: 4,
+                  hintText: 'Enter property description',
+                  spaceBetweenText: 8,
+                  title: 'Description',
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Media',
+              children: [
+                _buildUploadZone(),
+                if (_imageUrls.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  ..._imageUrls.asMap().entries.map(
+                        (entry) =>
+                            _buildImageRow(entry.key, entry.value),
+                      ),
                 ],
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        MyOutlinedButton(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+        ),
+        MyElevatedButton(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          isLoading: _isSaving,
+          icon: const Icon(Iconsax.tick_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          child: isEditing ? 'Update Property' : 'Save Property',
+          onTap: _saveProperty,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUploadZone() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brLg,
+        onTap: _isUploading ? null : _pickAndUploadImage,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+          decoration: BoxDecoration(
+            color: AppColors.primarySubtle.withValues(alpha: 0.5),
+            borderRadius: AppRadii.brLg,
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.35),
+            ),
+          ),
+          child: _isUploading
+              ? Column(
+                  children: [
+                    const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Uploading image...',
+                      style: AppTextStyles.bodySm.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    const Icon(
+                      Iconsax.document_upload,
+                      size: 32,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Click to upload images',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Supported: PNG, JPG, JPEG',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageRow(int index, String url) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadii.brMd,
+          border: Border.all(color: AppColors.borderSubtle),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: AppRadii.brSm,
+              child: MyNetworkImage(
+                url,
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+                errorPlaceholder: Container(
+                  width: 56,
+                  height: 56,
+                  color: AppColors.primarySubtle,
+                  child: const Icon(Iconsax.gallery_slash, size: 22),
+                ),
               ),
             ),
-
-            // Form fields
+            const SizedBox(width: 12),
             Expanded(
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Property Name
-                        MyTextFormField(
-                          controller: _nameController,
-                          hintText: 'Enter property name',
-                          spaceBetweenText: 10,
-                          title: 'Property Name*',
-                          validator: (val) => val == null || val.trim().isEmpty
-                              ? 'Property name is required'
-                              : null,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Client Search (Optional)
-                        _buildClientSearch(),
-                        const SizedBox(height: 24),
-
-                        // Property Type and Category
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyDropdown(
-                                controller: _propertyTypeController,
-                                items: _propertyTypeMap.keys.toList(),
-                                hintText: 'Select type',
-                                spaceBetweenText: 10,
-                                title: 'Property Type*',
-                                validator: (val) =>
-                                    val == null || val.trim().isEmpty
-                                        ? 'Property type is required'
-                                        : null,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: MyDropdown(
-                                controller: _categoryController,
-                                items: _categoryMap.keys.toList(),
-                                hintText: 'Select category',
-                                spaceBetweenText: 10,
-                                title: 'Category*',
-                                validator: (val) =>
-                                    val == null || val.trim().isEmpty
-                                        ? 'Category is required'
-                                        : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Location
-                        MyTextFormField(
-                          controller: _locationController,
-                          hintText: 'Enter full address',
-                          spaceBetweenText: 10,
-                          title: 'Location/Address*',
-                          validator: (val) => val == null || val.trim().isEmpty
-                              ? 'Location is required'
-                              : null,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Price and Size
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _priceController,
-                                hintText: 'Enter price',
-                                spaceBetweenText: 10,
-                                title: 'Price (₦)*',
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'[\d.]')),
-                                ],
-                                validator: (val) =>
-                                    val == null || val.trim().isEmpty
-                                        ? 'Price is required'
-                                        : null,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _sizeController,
-                                hintText: 'Enter size',
-                                spaceBetweenText: 10,
-                                title: 'Size (sqm)',
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'[\d.]')),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Bedrooms, Bathrooms, Parking
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _bedroomsController,
-                                hintText: '0',
-                                spaceBetweenText: 10,
-                                title: 'Bedrooms',
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _bathroomsController,
-                                hintText: '0',
-                                spaceBetweenText: 10,
-                                title: 'Bathrooms',
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: MyTextFormField(
-                                controller: _parkingController,
-                                hintText: '0',
-                                spaceBetweenText: 10,
-                                title: 'Parking Spaces',
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Description
-                        MyTextFormField(
-                          controller: _descriptionController,
-                          maxLines: 4,
-                          hintText: 'Enter property description',
-                          spaceBetweenText: 10,
-                          title: 'Description',
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Status
-                        MyDropdown(
-                          controller: _statusController,
-                          hintText: 'Select status',
-                          items: _statusMap.keys.toList(),
-                          spaceBetweenText: 10,
-                          title: 'Status*',
-                          validator: (val) => val == null || val.trim().isEmpty
-                              ? 'Status is required'
-                              : null,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Property Images
-                        AppText.bodyMd(
-                          'Property Images',
-                          fontWeight: FontWeight.w500,
-                        ),
-                        const SizedBox(height: 10),
-
-                        // Upload button
-                        GestureDetector(
-                          onTap: _isUploading ? null : _pickAndUploadImage,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 24),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColors.primary.withValues(alpha: 0.3),
-                                style: BorderStyle.solid,
-                              ),
-                            ),
-                            child: _isUploading
-                                ? Column(
-                                    children: [
-                                      const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      AppText.bodySm(
-                                        'Uploading image...',
-                                        color: AppColors.neutral500,
-                                      ),
-                                    ],
-                                  )
-                                : Column(
-                                    children: [
-                                      const Icon(
-                                        Iconsax.document_upload,
-                                        size: 32,
-                                        color: AppColors.primary,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      AppText.bodySm(
-                                        'Click to upload images',
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      AppText.bodySm(
-                                        'Supported: PNG, JPG, JPEG',
-                                        color: AppColors.neutral500,
-                                        fontSize: 12,
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                        ),
-
-                        // Uploaded images list
-                        if (_imageUrls.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          ..._imageUrls.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final url = entry.value;
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.grey.withValues(alpha: 0.2),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: MyNetworkImage(
-                                        url,
-                                        width: 56,
-                                        height: 56,
-                                        fit: BoxFit.cover,
-                                        errorPlaceholder: Container(
-                                          width: 56,
-                                          height: 56,
-                                          color: AppColors.primary
-                                              .withValues(alpha: 0.1),
-                                          child: const Icon(Iconsax.gallery_slash,
-                                              size: 24),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          AppText.bodySm(
-                                            'Image ${index + 1}',
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          const SizedBox(height: 2),
-                                          AppText.bodySm(
-                                            url,
-                                            color: AppColors.neutral500,
-                                            fontSize: 11,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Iconsax.close_circle,
-                                          size: 18, color: Colors.red),
-                                      onPressed: () {
-                                        setState(() {
-                                          _imageUrls.removeAt(index);
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
-                      ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Image ${index + 1}',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 2),
+                  Text(
+                    url,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppColors.neutral300),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: AppRadii.brSm,
+                onTap: () => setState(() => _imageUrls.removeAt(index)),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(Iconsax.trash,
+                      size: 18, color: AppColors.danger),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.neutral500,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  _isSaving
-                      ? const SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: CircularProgressIndicator(),
-                        )
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset(
-                            "assets/svg/check.svg",
-                            colorFilter: const ColorFilter.mode(
-                                AppColors.white, BlendMode.srcIn),
-                          ),
-                          child:
-                              isEditing ? 'Update Property' : 'Save Property',
-                          onTap: _saveProperty,
-                        ),
-                ],
               ),
             ),
           ],
@@ -701,33 +687,39 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
       children: [
         Row(
           children: [
-            AppText.bodySm(
+            Text(
               'Client',
-              fontWeight: FontWeight.w500,
+              style: AppTextStyles.bodyMd.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.neutral200,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: AppRadii.brXs,
               ),
-              child: AppText.bodySm(
+              child: Text(
                 'Optional',
-                fontSize: 10,
-                color: AppColors.neutral500,
-                fontWeight: FontWeight.w500,
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 10,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         if (_isLoadingClients)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.neutral300),
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.borderSubtle),
+              borderRadius: AppRadii.brMd,
             ),
             child: Row(
               children: [
@@ -737,9 +729,11 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 const SizedBox(width: 12),
-                AppText.bodySm(
+                Text(
                   'Loading clients...',
-                  color: AppColors.neutral500,
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -749,11 +743,14 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
             children: [
               TextFormField(
                 controller: _clientSearchController,
+                style: AppTextStyles.bodyMd,
                 decoration: InputDecoration(
                   hintText: 'Search client by name or email...',
-                  hintStyle:
-                      const TextStyle(fontSize: 14, color: AppColors.neutral500),
-                  prefixIcon: const Icon(Iconsax.search_normal, color: AppColors.neutral500),
+                  hintStyle: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                  prefixIcon: const Icon(Iconsax.search_normal,
+                      color: AppColors.textMuted, size: 18),
                   suffixIcon: _selectedClient != null
                       ? IconButton(
                           icon: const Icon(Iconsax.close_circle, size: 18),
@@ -767,39 +764,39 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                           },
                         )
                       : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral300),
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  border: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide: BorderSide(color: AppColors.borderSubtle),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral300),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide: BorderSide(color: AppColors.borderSubtle),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: AppRadii.brMd,
+                    borderSide:
+                        BorderSide(color: AppColors.primary, width: 1.5),
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 14),
                 ),
                 onChanged: _filterClients,
-                onTap: () {
-                  setState(() {
-                    _showClientDropdown = true;
-                  });
-                },
+                onTap: () => setState(() => _showClientDropdown = true),
               ),
               if (_showClientDropdown && _selectedClient == null)
                 Container(
                   constraints: const BoxConstraints(maxHeight: 200),
                   margin: const EdgeInsets.only(top: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.neutral300),
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.borderSubtle),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
+                        color:
+                            AppColors.neutral900.withValues(alpha: 0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -808,9 +805,11 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                   child: _filteredClients.isEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(16),
-                          child: AppText.bodySm(
+                          child: Text(
                             'No clients found',
-                            color: AppColors.neutral500,
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         )
                       : ListView.builder(
@@ -827,22 +826,27 @@ class _AddPropertyDialogState extends State<AddPropertyDialog> {
                                   border: index < _filteredClients.length - 1
                                       ? const Border(
                                           bottom: BorderSide(
-                                              color: AppColors.neutral300,
+                                              color: AppColors.borderSubtle,
                                               width: 0.5),
                                         )
                                       : null,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
-                                    AppText.bodyMd(
+                                    Text(
                                       client.fullName,
-                                      fontWeight: FontWeight.w500,
+                                      style: AppTextStyles.bodyMd.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     const SizedBox(height: 2),
-                                    AppText.bodySm(
+                                    Text(
                                       client.email,
-                                      color: AppColors.neutral500,
+                                      style: AppTextStyles.bodySm.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
                                     ),
                                   ],
                                 ),

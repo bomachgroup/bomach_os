@@ -1,11 +1,11 @@
 import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class ProjectOverview extends StatelessWidget {
   final Project project;
@@ -19,121 +19,107 @@ class ProjectOverview extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Snapshot header
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              child: Wrap(
-                runSpacing: 20,
-                spacing: 20,
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: isLargeScreen(context) ? 400 : double.infinity,
-                    child: AppCard(
-                      padding: const EdgeInsets.all(24),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CircularPercentIndicator(
-                            startAngle: 180.0,
-                            percent: percent,
-                            radius: 42.0,
-                            lineWidth: 10.0,
-                            circularStrokeCap: CircularStrokeCap.round,
-                            center: Text(
-                              '${project.progress.toInt()}%',
-                              style: AppTextStyles.h3.copyWith(color: AppColors.primary),
-                            ),
-                            linearGradient: const LinearGradient(
-                              colors: [AppColors.primary, AppColors.primaryHover],
-                            ),
-                            rotateLinearGradient: true,
-                            backgroundColor: AppColors.surfaceMuted,
-                          ),
-                          const SizedBox(width: 24),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('Project Progress', style: AppTextStyles.label),
-                                const SizedBox(height: 12),
-                                _buildDateRow(Iconsax.calendar_1, 'Start:', project.startDate),
-                                const SizedBox(height: 8),
-                                _buildDateRow(Iconsax.timer_1, 'End:', project.deadline),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: isLargeScreen(context) ? 400 : double.infinity,
-                    child: AppCard(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Primary Client', style: AppTextStyles.label),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                                child: const Icon(Iconsax.user, color: AppColors.primary),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Client ID: ${project.clientId}',
-                                        style: AppTextStyles.bodyLg.copyWith(fontWeight: FontWeight.w600)),
-                                    const Text('Corporate Client',
-                                        style: AppTextStyles.bodySm),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                  Text('Project Snapshot', style: AppTextStyles.h3),
+                  SizedBox(height: 4),
+                  Text(
+                    'High-level view of progress, client and financials.',
+                    style: AppTextStyles.bodySm,
                   ),
                 ],
               ),
             ),
+            if (project.status.isNotEmpty) ...[
+              const SizedBox(width: 12),
+              StatusChip.fromStatus(project.status),
+            ],
           ],
         ),
-        const SizedBox(height: 32),
-        const Text('Financial Overview', style: AppTextStyles.h3),
-        const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
+        const SizedBox(height: 20),
+
+        // Progress + Client cards
+        LayoutBuilder(builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 720;
+          final cardWidth = isWide
+              ? (constraints.maxWidth - 20) / 2
+              : constraints.maxWidth;
+          return Wrap(
+            spacing: 20,
+            runSpacing: 20,
             children: [
-              ProjectExpenseTrack(
+              SizedBox(
+                width: cardWidth,
+                child: _ProgressCard(project: project, percent: percent),
+              ),
+              SizedBox(
+                width: cardWidth,
+                child: _ClientCard(project: project),
+              ),
+            ],
+          );
+        }),
+        const SizedBox(height: 28),
+
+        // Financial overview
+        const Text('Financial Overview', style: AppTextStyles.h3),
+        const SizedBox(height: 4),
+        const Text(
+          'Live tracking of budget, expenses and net position.',
+          style: AppTextStyles.bodySm,
+        ),
+        const SizedBox(height: 16),
+        LayoutBuilder(builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 780;
+          const count = 3;
+          final cardWidth = isWide
+              ? (constraints.maxWidth - ((count - 1) * 16)) / count
+              : (constraints.maxWidth >= 520
+                  ? (constraints.maxWidth - 16) / 2
+                  : constraints.maxWidth);
+          return Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              SizedBox(
+                width: cardWidth,
+                child: ProjectExpenseTrack(
                   label: 'Project Budget',
                   amount: project.budget,
                   icon: Iconsax.wallet_money,
-                  color: AppColors.primary),
-              const SizedBox(width: 16),
-              const ProjectExpenseTrack(
+                  color: AppColors.primary,
+                ),
+              ),
+              SizedBox(
+                width: cardWidth,
+                child: const ProjectExpenseTrack(
                   label: 'Total Expenses',
                   amount: 0.00,
                   icon: Iconsax.card_send,
-                  color: AppColors.danger),
-              const SizedBox(width: 16),
-              const ProjectExpenseTrack(
+                  color: AppColors.danger,
+                ),
+              ),
+              SizedBox(
+                width: cardWidth,
+                child: const ProjectExpenseTrack(
                   label: 'Net Profit',
                   amount: 0.00,
                   icon: Iconsax.money_recive,
-                  color: AppColors.success),
+                  color: AppColors.success,
+                ),
+              ),
             ],
-          ),
-        ),
-        const SizedBox(height: 32),
+          );
+        }),
+        const SizedBox(height: 28),
+
+        // Summary
         AppCard(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -142,13 +128,67 @@ class ProjectOverview extends StatelessWidget {
               const Text('Project Summary', style: AppTextStyles.h4),
               const SizedBox(height: 12),
               Text(
-                project.summary.isEmpty ? "No description provided." : project.summary,
-                style: AppTextStyles.bodyMd.copyWith(height: 1.5),
+                project.summary.isEmpty
+                    ? 'No description provided.'
+                    : project.summary,
+                style: AppTextStyles.bodyMd.copyWith(height: 1.6),
               ),
             ],
           ),
-        )
+        ),
       ],
+    );
+  }
+}
+
+class _ProgressCard extends StatelessWidget {
+  final Project project;
+  final double percent;
+  const _ProgressCard({required this.project, required this.percent});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircularPercentIndicator(
+            startAngle: 180.0,
+            percent: percent,
+            radius: 42.0,
+            lineWidth: 10.0,
+            circularStrokeCap: CircularStrokeCap.round,
+            center: Text(
+              '${project.progress.toInt()}%',
+              style: AppTextStyles.h3.copyWith(color: AppColors.primary),
+            ),
+            linearGradient: const LinearGradient(
+              colors: [AppColors.primary, AppColors.primaryHover],
+            ),
+            rotateLinearGradient: true,
+            backgroundColor: AppColors.surfaceMuted,
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Project Progress',
+                  style: AppTextStyles.overline,
+                ),
+                const SizedBox(height: 8),
+                _buildDateRow(
+                    Iconsax.calendar_1, 'Start', project.startDate),
+                const SizedBox(height: 8),
+                _buildDateRow(Iconsax.timer_1, 'End', project.deadline),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -157,10 +197,68 @@ class ProjectOverview extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: AppColors.textMuted),
         const SizedBox(width: 6),
-        Text(label, style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted)),
-        const SizedBox(width: 4),
-        Text(date.isEmpty ? 'N/A' : date, style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w500)),
+        Text(
+          '$label:',
+          style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            date.isEmpty ? 'N/A' : date,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _ClientCard extends StatelessWidget {
+  final Project project;
+  const _ClientCard({required this.project});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Primary Client', style: AppTextStyles.overline),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 26,
+                backgroundColor: AppColors.primarySubtle,
+                child: Icon(Iconsax.user, color: AppColors.primary),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Client ID: ${project.clientId}',
+                      style: AppTextStyles.bodyLg
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      'Corporate Client',
+                      style: AppTextStyles.bodySm,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -181,28 +279,35 @@ class ProjectExpenseTrack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 280,
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderSubtle),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: color),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 18, color: color),
+              ),
               const SizedBox(width: 10),
-              Text(label, style: AppTextStyles.label.copyWith(fontSize: 12)),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.overline,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
-            '₦${amount.toStringAsFixed(2)}',
-            style: AppTextStyles.h3.copyWith(color: color),
+            '\u20A6${amount.toStringAsFixed(2)}',
+            style: AppTextStyles.h2.copyWith(color: color),
           ),
         ],
       ),

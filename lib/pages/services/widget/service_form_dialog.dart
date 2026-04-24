@@ -1,13 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -179,180 +180,155 @@ class _ServiceFormDialogState extends State<ServiceFormDialog> {
   Widget build(BuildContext context) {
     final controller = Get.find<ServiceController>();
 
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    MyText(
-                      _isEditMode ? 'Edit Service' : 'Create New Service',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: _isSubmitting
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                    ),
-                  ],
+    return DialogScaffold(
+      title: _isEditMode ? 'Edit Service' : 'Create New Service',
+      subtitle: _isEditMode
+          ? 'Update details for this service offering.'
+          : 'Define a new service offering for your catalog.',
+      size: DialogSize.md,
+      body: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSection(
+              title: 'Service details',
+              children: [
+                MyTextFormField(
+                  controller: _nameController,
+                  hintText: 'Enter service name',
+                  title: 'Service Name*',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Service name is required';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-
-              // Form fields
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 16),
-                    child: Column(
+                const SizedBox(height: 16),
+                Obx(() {
+                  if (controller.isLoadingCategories.value) {
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Service Name
-                        MyTextFormField(
-                          controller: _nameController,
-                          hintText: 'Enter service name',
-                          spaceBetweenText: 10,
-                          title: 'Service Name*',
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Service name is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Category
-                        Obx(() {
-                          if (controller.isLoadingCategories.value) {
-                            return const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyText(
-                                  'Category*',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                        const Text('Category*', style: AppTextStyles.label),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: AppRadii.brMd,
+                            border: Border.all(color: AppColors.borderSubtle),
+                          ),
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Loading categories...',
+                                style: AppTextStyles.bodySm.copyWith(
+                                  color: AppColors.textSecondary,
                                 ),
-                                SizedBox(height: 10),
-                                Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ],
-                            );
-                          }
-
-                          // Format category names for display
-                          final categoryItems = controller.categories
-                              .map((cat) => _formatCategoryName(cat.name))
-                              .toList();
-
-                          return MyDropdown(
-                            controller: _categoryController,
-                            items: categoryItems,
-                            hintText: 'Select category',
-                            spaceBetweenText: 10,
-                            title: 'Category*',
-                            onChanged: (value) {
-                              if (value != null) {
-                                // Find the category by matching formatted name
-                                final selectedCategory = controller.categories
-                                    .firstWhere((cat) =>
-                                        _formatCategoryName(cat.name) == value);
-                                setState(() {
-                                  _selectedCategoryId = selectedCategory.id;
-                                });
-                              }
-                            },
-                          );
-                        }),
-                        const SizedBox(height: 24),
-
-                        MyDropdown(
-                          controller: _statusController,
-                          items: const ['Active', 'Inactive'],
-                          hintText: 'Select status',
-                          spaceBetweenText: 10,
-                          title: 'Status*',
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedStatus = value?.toLowerCase() == 'active'
-                                  ? 'active'
-                                  : 'inactive';
-                            });
-                          },
+                              ),
+                            ],
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-                ),
-              ),
+                    );
+                  }
 
-              // Action Buttons
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: AppColors.neutral300),
-                  ),
+                  final categoryItems = controller.categories
+                      .map((cat) => _formatCategoryName(cat.name))
+                      .toList();
+
+                  return MyDropdown(
+                    controller: _categoryController,
+                    items: categoryItems,
+                    hintText: 'Select category',
+                    title: 'Category*',
+                    onChanged: (value) {
+                      if (value != null) {
+                        final selectedCategory = controller.categories
+                            .firstWhere(
+                                (cat) => _formatCategoryName(cat.name) == value);
+                        setState(() {
+                          _selectedCategoryId = selectedCategory.id;
+                        });
+                      }
+                    },
+                  );
+                }),
+                const SizedBox(height: 16),
+                MyDropdown(
+                  controller: _statusController,
+                  items: const ['Active', 'Inactive'],
+                  hintText: 'Select status',
+                  title: 'Status*',
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedStatus = value?.toLowerCase() == 'active'
+                          ? 'active'
+                          : 'inactive';
+                    });
+                  },
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MyOutlinedButton(
-                      textColor: AppColors.neutral500,
-                      borderColor: null,
-                      child: 'Cancel',
-                      onTap: _isSubmitting
-                          ? null
-                          : () {
-                              Navigator.pop(context);
-                            },
-                    ),
-                    const SizedBox(width: 16),
-                    _isSubmitting
-                        ? const SizedBox(
-                            width: 120,
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : MyElevatedButton(
-                            icon: SvgPicture.asset(
-                              "assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn),
-                            ),
-                            child:
-                                _isEditMode ? 'Update Service' : 'Add Service',
-                            onTap: _handleSubmit,
-                          ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: _isSubmitting
+              ? null
+              : () {
+                  Navigator.pop(context);
+                },
+        ),
+        MyElevatedButton(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          isLoading: _isSubmitting,
+          icon: const Icon(Iconsax.tick_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          child: _isEditMode ? 'Update Service' : 'Add Service',
+          onTap: _handleSubmit,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          ...children,
+        ],
       ),
     );
   }

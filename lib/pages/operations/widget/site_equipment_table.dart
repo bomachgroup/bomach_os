@@ -1,15 +1,20 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
 import 'package:bms_front_end/pages/operations/controllers/site_equipment_controller.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 class SiteEquipmentTable extends StatefulWidget {
   final int worksiteId;
@@ -40,100 +45,203 @@ class _SiteEquipmentTableState extends State<SiteEquipmentTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-              child: Padding(
-                  padding: EdgeInsets.all(40),
-                  child: CircularProgressIndicator()));
-        }
+    return Obx(() {
+      final loading = controller.isLoading.value;
+      final items = controller.equipment;
 
-        if (controller.equipment.isEmpty) {
-          return const Center(
-              child: Padding(
-                  padding: EdgeInsets.all(40),
-                  child: Text("No equipment found.")));
-        }
-
-        return Column(
+      return AppCard(
+        padding: EdgeInsets.zero,
+        elevation: AppCardElevation.sm,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Scrollbar(
-              controller: _scrollController,
-              thumbVisibility: true,
-              trackVisibility: true,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: bodySpace(context)),
-                  child: DataTable(
-                    dataRowMinHeight: 68,
-                    dataRowMaxHeight: 68,
-                    columnSpacing: 24,
-                    horizontalMargin: 12,
-                    columns: _createColumns(),
-                    rows: _createRows(context),
-                    showBottomBorder: true,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Site Equipment',
+                            style: AppTextStyles.h3),
+                        const SizedBox(height: 4),
+                        Text(
+                          loading
+                              ? 'Loading equipment...'
+                              : '${items.length} item${items.length == 1 ? '' : 's'} registered',
+                          style: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const StatusChip(
+                    label: 'Inventory',
+                    tone: StatusTone.primary,
+                    icon: Iconsax.box,
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            if (loading)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: LoadingSkeleton.listRows(count: 4),
+              )
+            else if (items.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: EmptyState(
+                  icon: Iconsax.box,
+                  title: 'No equipment recorded',
+                  subtitle:
+                      'Equipment allocated to this worksite will appear here.',
+                ),
+              )
+            else
+              _buildTable(items),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildTable(List<SiteEquipment> items) {
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 720),
+          child: Column(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                color: AppColors.surfaceMuted,
+                child: Row(
+                  children: [
+                    _headerCell('S/N', width: 60),
+                    _headerCell('Equipment Name', flex: 4),
+                    _headerCell('Unit Value', width: 160),
+                    _headerCell('', width: 64),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              ...List.generate(items.length,
+                  (index) => _buildEquipmentRow(items[index], index)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _headerCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildEquipmentRow(SiteEquipment eq, int index) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text(
+              '${index + 1}',
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brSm,
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Iconsax.box,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Text(
+                    eq.name.isEmpty ? '—' : eq.name,
+                    style: AppTextStyles.bodyMd.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 160,
+            child: Text(
+              eq.unitValue.isEmpty ? '—' : eq.unitValue,
+              style: AppTextStyles.bodyMd,
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: AppRadii.brSm,
+                  onTap: () => controller.deleteEquipment(
+                      context, eq.id, widget.worksiteId),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.brSm,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: const Icon(
+                      Iconsax.trash,
+                      size: 16,
+                      color: AppColors.danger,
+                    ),
                   ),
                 ),
               ),
             ),
-          ],
-        );
-      }),
+          ),
+        ],
+      ),
     );
-  }
-
-  List<DataColumn> _createColumns() {
-    return const [
-      DataColumn(
-          headingRowAlignment: MainAxisAlignment.start, label: MyText("S/N")),
-      DataColumn(label: MyText("Equipment Name")),
-      DataColumn(label: MyText("Unit Value")),
-      DataColumn(label: MyText("Action")),
-    ];
-  }
-
-  List<DataRow> _createRows(BuildContext context) {
-    final items = controller.equipment;
-    return List.generate(items.length, (index) {
-      final eq = items[index];
-      return DataRow(cells: <DataCell>[
-        DataCell(MyText("${index + 1}")),
-        DataCell(
-          Row(
-            children: [
-              SvgPicture.asset(
-                "assets/svg/note2.svg",
-                colorFilter:
-                    const ColorFilter.mode(AppColors.black, BlendMode.srcIn),
-              ),
-              kSizedBoxWidth,
-              MyText(eq.name, size: 16, weight: 400, isSelectable: false),
-            ],
-          ),
-        ),
-        DataCell(MyText(eq.unitValue)),
-        DataCell(
-          PopupMenuButton(
-            itemBuilder: (ctx) => [
-              PopupMenuItem(
-                child: const Text("Delete"),
-                onTap: () => controller.deleteEquipment(
-                    context, eq.id, widget.worksiteId),
-              ),
-            ],
-            child: const Icon(Iconsax.more),
-          ),
-        ),
-      ]);
-    });
   }
 }
 
@@ -161,75 +269,58 @@ class _AddEquipmentDialogState extends State<AddEquipmentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText('Add Equipment',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  MyTextFormField(
-                    controller: nameCtrl,
-                    title: 'Equipment Name*',
-                    hintText: 'e.g. Excavator',
-                  ),
-                  const SizedBox(height: 24),
-                  MyTextFormField(
-                    controller: unitValueCtrl,
-                    title: 'Unit Value*',
-                    hintText: 'e.g. 2',
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    child: 'Cancel',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() => controller.isActionLoading.value
-                      ? const CircularProgressIndicator()
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset("assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn)),
-                          child: 'Save',
-                          onTap: _save,
-                        )),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return DialogScaffold(
+      title: 'Add Equipment',
+      subtitle: 'Register equipment allocated to this worksite.',
+      size: DialogSize.sm,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MyTextFormField(
+            controller: nameCtrl,
+            title: 'Equipment Name*',
+            hintText: 'e.g. Excavator',
+          ),
+          const SizedBox(height: 20),
+          MyTextFormField(
+            controller: unitValueCtrl,
+            title: 'Unit Value*',
+            hintText: 'e.g. 2',
+          ),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        ),
+        Obx(
+          () => controller.isActionLoading.value
+              ? const SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              : MyElevatedButton(
+                  icon: SvgPicture.asset(
+                    'assets/svg/check.svg',
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.white, BlendMode.srcIn),
+                  ),
+                  child: 'Save',
+                  onTap: _save,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                ),
+        ),
+      ],
     );
   }
 

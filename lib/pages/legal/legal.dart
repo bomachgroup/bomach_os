@@ -1,13 +1,7 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
-import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/pages/legal/audits.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
-import 'package:bms_front_end/src/constants/permissions.dart';
-import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../components/text/my_text.dart';
 import 'cases.dart';
 import 'compliance.dart';

@@ -1,13 +1,19 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/paginate/my_paginator.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/widget/add_property_dialog.dart';
 import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -92,185 +98,135 @@ class _PropertyListPageState extends State<PropertyListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Properties',
+        subtitle: 'Manage your property inventory and listings.',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'Add Property',
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const AddPropertyDialog(),
+            );
+          },
+        ),
+      ),
       children: [
-        // Header Section
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppText.displayLg(
-                        'Properties',
-                      ),
-                      const SizedBox(height: 8),
-                      AppText.bodyMd(
-                        'Manage your property inventory and listings',
-                      ),
-                    ],
-                  ),
-                  Wrap(
-                    spacing: 15,
-                    runSpacing: 15,
-                    children: [
-                      SizedBox(
-                        width: 200,
-                        child: MyTextFormField(
-                          controller: _searchController,
-                          hintText: 'Search properties...',
-                          leading: Icon(
-                            Iconsax.search_normal,
-                            color: AppColors.neutral500.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      MyElevatedButton(
-                        child: 'Search',
-                        onTap: _applyFilters,
-                      ),
-                      MyElevatedButton(
-                        icon: const Icon(
-                          Iconsax.add_circle,
-                          color: AppColors.white,
-                        ),
-                        child: "Add Property",
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AddPropertyDialog();
-                            },
-                          );
-                        },
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-
-        // Stats Cards
         _buildStatsCards(),
-
-        kSizedBox,
-
-        // Category Filter Chips
-        const MyText(
-          'Category',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.neutral500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: _categoryFilters.keys
-                    .map((label) => _buildFilterChip(
-                          label,
-                          isSelected: _selectedCategory == label,
-                          onTap: () {
-                            setState(() => _selectedCategory = label);
-                            _applyFilters();
-                          },
-                        ))
-                    .toList(),
-              ),
-            ),
-          ],
-        ),
-
-        kSizedBoxSM,
-
-        // Status & Property Type Filters
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 12,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  // Status Dropdown
-                  _buildDropdownFilter(
-                    label: 'Status',
-                    value: _selectedStatus,
-                    items: _statusFilters.keys.toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _selectedStatus = value);
-                        _applyFilters();
-                      }
-                    },
-                  ),
-                  // Property Type Dropdown
-                  _buildDropdownFilter(
-                    label: 'Property Type',
-                    value: _selectedType,
-                    items: _typeFilters.keys.toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _selectedType = value);
-                        _applyFilters();
-                      }
-                    },
-                  ),
-                  // Clear Filters
-                  if (_hasActiveFilters)
-                    GestureDetector(
-                      onTap: _clearAllFilters,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Iconsax.close_circle,
-                                size: 16, color: Colors.red),
-                            SizedBox(width: 4),
-                            Text(
-                              'Clear Filters',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        kSizedBox,
-
-        // Property List
+        _buildToolbar(),
+        _buildFilterChips(),
         _buildPropertyList(),
       ],
+    );
+  }
+
+  Widget _buildToolbar() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          SizedBox(
+            width: 320,
+            child: MyTextFormField(
+              controller: _searchController,
+              hintText: 'Search properties by name or location',
+              height: 48,
+              leading: const Icon(Iconsax.search_normal,
+                  size: 18, color: AppColors.textMuted),
+              onChanged: (_) {},
+            ),
+          ),
+          MyElevatedButton(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 0),
+            icon: const Icon(Iconsax.search_normal,
+                color: AppColors.textOnPrimary, size: 18),
+            child: 'Search',
+            onTap: _applyFilters,
+          ),
+          _buildDropdownFilter(
+            label: 'Status',
+            value: _selectedStatus,
+            items: _statusFilters.keys.toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedStatus = value);
+                _applyFilters();
+              }
+            },
+          ),
+          _buildDropdownFilter(
+            label: 'Type',
+            value: _selectedType,
+            items: _typeFilters.keys.toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedType = value);
+                _applyFilters();
+              }
+            },
+          ),
+          if (_hasActiveFilters)
+            Material(
+              color: AppColors.dangerSubtle,
+              borderRadius: AppRadii.brMd,
+              child: InkWell(
+                onTap: _clearAllFilters,
+                borderRadius: AppRadii.brMd,
+                child: Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Iconsax.close_circle,
+                          size: 16, color: AppColors.danger),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Clear',
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChips() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: _categoryFilters.keys
+            .map((label) => Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: _buildFilterChip(
+                    label,
+                    isSelected: _selectedCategory == label,
+                    onTap: () {
+                      setState(() => _selectedCategory = label);
+                      _applyFilters();
+                    },
+                  ),
+                ))
+            .toList(),
+      ),
     );
   }
 
@@ -281,31 +237,32 @@ class _PropertyListPageState extends State<PropertyListPage> {
     required ValueChanged<String?> onChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.neutral300),
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
-              color: AppColors.neutral500,
             ),
           ),
           DropdownButton<String>(
             value: value,
             underline: const SizedBox(),
             isDense: true,
-            style: const TextStyle(
-              fontSize: 13,
+            icon: const Icon(Iconsax.arrow_down_1,
+                size: 14, color: AppColors.textMuted),
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
             ),
             items: items
                 .map((item) => DropdownMenuItem(
@@ -333,61 +290,66 @@ class _PropertyListPageState extends State<PropertyListPage> {
               p.status.toLowerCase() == 'rented')
           .length;
 
-      return Wrap(
-        spacing: 16,
-        runSpacing: 16,
-        children: [
-          _buildStatCard('Total Properties', '${props.length}', Iconsax.home,
-              AppColors.primary),
-          _buildStatCard(
-              'Available', '$available', Iconsax.tick_circle, Colors.green),
-          _buildStatCard('Reserved', '$reserved', Iconsax.clock, Colors.orange),
-          _buildStatCard('Sold/Rented', '$soldOrRented', Iconsax.tick_circle,
-              Colors.purple),
-        ],
-      );
+      return LayoutBuilder(builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+        final perRow = isWide ? 4 : 2;
+        const spacing = 16.0;
+        final cardWidth =
+            (constraints.maxWidth - ((perRow - 1) * spacing)) / perRow;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            SizedBox(
+              width: cardWidth,
+              child: _buildStatCard('Total Properties', '${props.length}',
+                  Iconsax.home, AppColors.primary),
+            ),
+            SizedBox(
+              width: cardWidth,
+              child: _buildStatCard('Available', '$available',
+                  Iconsax.tick_circle, AppColors.success),
+            ),
+            SizedBox(
+              width: cardWidth,
+              child: _buildStatCard(
+                  'Reserved', '$reserved', Iconsax.clock, AppColors.warning),
+            ),
+            SizedBox(
+              width: cardWidth,
+              child: _buildStatCard('Sold/Rented', '$soldOrRented',
+                  Iconsax.tick_circle, AppColors.info),
+            ),
+          ],
+        );
+      });
     });
   }
 
   Widget _buildStatCard(
       String label, String value, IconData icon, Color color) {
-    return Container(
-      constraints: const BoxConstraints(minWidth: 180),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(18),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: color.withValues(alpha: 0.1),
-            radius: 20,
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: AppRadii.brMd,
+            ),
             child: Icon(icon, color: color, size: 20),
           ),
-          kSizedBoxSM,
-          MyText(
-            value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          const SizedBox(height: 14),
+          Text(value, style: AppTextStyles.h1),
           const SizedBox(height: 4),
-          MyText(
+          Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.neutral500,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -397,22 +359,30 @@ class _PropertyListPageState extends State<PropertyListPage> {
 
   Widget _buildFilterChip(String label,
       {required bool isSelected, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.neutral300,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadii.brPill,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : AppColors.surface,
+            borderRadius: AppRadii.brPill,
+            border: Border.all(
+              color:
+                  isSelected ? AppColors.primary : AppColors.borderSubtle,
+            ),
           ),
-        ),
-        child: AppText.bodyMd(
-          label,
-          color: isSelected ? AppColors.white : AppColors.neutral500,
-          fontSize: 14,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: isSelected
+                  ? AppColors.textOnPrimary
+                  : AppColors.textSecondary,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
@@ -421,331 +391,220 @@ class _PropertyListPageState extends State<PropertyListPage> {
   Widget _buildPropertyList() {
     return Obx(() {
       if (_controller.errorMessage.isNotEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _controller.errorMessage.value,
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => _controller.fetchProperties(),
-                  child: const Text('Retry'),
-                ),
-              ],
+        return AppCard(
+          padding: const EdgeInsets.all(24),
+          child: EmptyState(
+            icon: Iconsax.warning_2,
+            title: 'Unable to load properties',
+            subtitle: _controller.errorMessage.value,
+            action: MyElevatedButton(
+              height: 44,
+              child: 'Retry',
+              onTap: () => _controller.fetchProperties(),
             ),
           ),
         );
       }
 
       if (_controller.isLoading.value) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(40.0),
-            child: CircularProgressIndicator(),
-          ),
+        return AppCard(
+          padding: const EdgeInsets.all(20),
+          elevation: AppCardElevation.sm,
+          child: LoadingSkeleton.listRows(count: 5, rowHeight: 120),
         );
       }
 
       if (_controller.properties.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'No properties found',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
-                ),
-                if (_hasActiveFilters) ...[
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: _clearAllFilters,
-                    child: const Text('Clear Filters'),
+        return AppCard(
+          padding: const EdgeInsets.all(24),
+          child: EmptyState(
+            icon: Iconsax.home,
+            title: 'No properties found',
+            subtitle: _hasActiveFilters
+                ? 'Try adjusting your filters or search terms.'
+                : 'Start by adding your first property to the inventory.',
+            action: _hasActiveFilters
+                ? MyElevatedButton(
+                    height: 44,
+                    child: 'Clear Filters',
+                    onTap: _clearAllFilters,
+                  )
+                : MyElevatedButton(
+                    height: 44,
+                    icon: const Icon(Iconsax.add_circle,
+                        color: AppColors.textOnPrimary, size: 18),
+                    child: 'Add Property',
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => const AddPropertyDialog(),
+                    ),
                   ),
-                ],
-              ],
-            ),
           ),
         );
       }
 
+      final currentPage = _controller.currentPage.value;
+      final hasNextPage =
+          _controller.properties.length >= _controller.limit;
+      // Estimate total items so paginator can show correct navigation.
+      final estimatedTotal = hasNextPage
+          ? (currentPage * _controller.limit) + 1
+          : ((currentPage - 1) * _controller.limit) +
+              _controller.properties.length;
+
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _controller.properties.length,
-            separatorBuilder: (context, index) => kSizedBoxSM,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final property = _controller.properties[index];
               return _buildPropertyListItem(property);
             },
           ),
-          const SizedBox(height: 24),
-          // Pagination Controls
-          Obx(() {
-            final currentPage = _controller.currentPage.value;
-            final hasNextPage =
-                _controller.properties.length >= _controller.limit;
-
-            final totalPages = hasNextPage ? currentPage + 1 : currentPage;
-            int endPage = totalPages.clamp(1, totalPages);
-            int startPage = (endPage - 4).clamp(1, endPage);
-
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed:
-                      currentPage > 1 ? () => _controller.previousPage() : null,
-                  icon: const Icon(Iconsax.arrow_left_2),
-                  style: IconButton.styleFrom(
-                    backgroundColor:
-                        currentPage > 1 ? AppColors.primary : Colors.grey[300],
-                    foregroundColor:
-                        currentPage > 1 ? Colors.white : Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                ...List.generate(
-                  endPage - startPage + 1,
-                  (index) {
-                    final pageNumber = startPage + index;
-                    final isCurrentPage = pageNumber == currentPage;
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: InkWell(
-                        onTap: () => _controller.goToPage(pageNumber),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: isCurrentPage
-                                ? AppColors.primary
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isCurrentPage
-                                  ? AppColors.primary
-                                  : Colors.grey[300]!,
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '$pageNumber',
-                            style: TextStyle(
-                              color:
-                                  isCurrentPage ? Colors.white : Colors.black87,
-                              fontWeight: isCurrentPage
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(width: 16),
-                IconButton(
-                  onPressed: hasNextPage ? () => _controller.nextPage() : null,
-                  icon: const Icon(Iconsax.arrow_right_3),
-                  style: IconButton.styleFrom(
-                    backgroundColor:
-                        hasNextPage ? AppColors.primary : Colors.grey[300],
-                    foregroundColor:
-                        hasNextPage ? Colors.white : Colors.grey[600],
-                  ),
-                ),
-              ],
-            );
-          }),
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
+          AppCard(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            elevation: AppCardElevation.sm,
+            child: PaginatorFooter(
+              totalItems: estimatedTotal,
+              limit: _controller.limit,
+              currentPage: currentPage,
+              onPageChanged: (page) => _controller.goToPage(page),
+            ),
+          ),
+          const SizedBox(height: 8),
         ],
       );
     });
   }
 
   Widget _buildPropertyListItem(Property property) {
-    final statusColor = _getStatusColor(property.status);
     final hasImage = property.images.isNotEmpty;
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+      elevation: AppCardElevation.sm,
+      onTap: () {
+        _controller.selectedProperty.value = property;
+        context.go(RouteConstants.propertyDetail);
+      },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: AppRadii.brMd,
+            child: hasImage
+                ? MyNetworkImage(
+                    property.images.first,
+                    width: 140,
+                    height: 120,
+                    fit: BoxFit.cover,
+                    errorPlaceholder: _buildPlaceholderImage(),
+                  )
+                : _buildPlaceholderImage(),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        property.name,
+                        style: AppTextStyles.h3,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    StatusChip(
+                      label: property.formattedStatus,
+                      tone: _statusTone(property.status),
+                      dense: true,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Iconsax.location,
+                        size: 16, color: AppColors.textMuted),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        property.location,
+                        style: AppTextStyles.bodySm.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 6,
+                  children: [
+                    if (property.bedrooms > 0)
+                      _buildPropertyInfo(
+                          Icons.bed_outlined, '${property.bedrooms} beds'),
+                    if (property.bathrooms > 0)
+                      _buildPropertyInfo(Icons.bathtub_outlined,
+                          '${property.bathrooms} baths'),
+                    _buildPropertyInfo(
+                        Iconsax.ruler, '${property.size} sqm'),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      property.formattedPrice,
+                      style: AppTextStyles.h2.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    StatusChip(
+                      label: property.formattedCategory,
+                      tone: StatusTone.primary,
+                      dense: true,
+                    ),
+                    if (property.propertyType.isNotEmpty)
+                      StatusChip(
+                        label: property.formattedType,
+                        tone: _typeTone(property.propertyType),
+                        dense: true,
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-      child: InkWell(
-        onTap: () {
-          _controller.selectedProperty.value = property;
-          context.go(RouteConstants.propertyDetail);
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Property Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: hasImage
-                  ? MyNetworkImage(
-                      property.images.first,
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      errorPlaceholder: _buildPlaceholderImage(),
-                    )
-                  : _buildPlaceholderImage(),
-            ),
-            kSizedBoxWidthSM,
-            // Property Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: MyText(
-                          property.name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: MyText(
-                          property.formattedStatus,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Iconsax.location,
-                          size: 16, color: AppColors.neutral500),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: MyText(
-                          property.location,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.neutral500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _buildPropertyInfo(
-                          Icons.bed, '${property.bedrooms} beds'),
-                      kSizedBoxWidthSM,
-                      _buildPropertyInfo(
-                          Icons.bathtub, '${property.bathrooms} baths'),
-                      kSizedBoxWidthSM,
-                      _buildPropertyInfo(Iconsax.ruler, '${property.size} sqm'),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      MyText(
-                        property.formattedPrice,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: MyText(
-                              property.formattedCategory,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          if (property.propertyType.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.purple.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: MyText(
-                                property.formattedType,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.purple,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
   Widget _buildPlaceholderImage() {
     return Container(
-      width: 120,
+      width: 140,
       height: 120,
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+      decoration: const BoxDecoration(
+        color: AppColors.primarySubtle,
+        borderRadius: AppRadii.brMd,
       ),
       child: const Icon(
         Iconsax.home,
@@ -757,37 +616,53 @@ class _PropertyListPageState extends State<PropertyListPage> {
 
   Widget _buildPropertyInfo(IconData icon, String text) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: AppColors.neutral500),
-        const SizedBox(width: 4),
-        MyText(
+        Icon(icon, size: 15, color: AppColors.textMuted),
+        const SizedBox(width: 5),
+        Text(
           text,
-          style: const TextStyle(
-            fontSize: 13,
-            color: AppColors.neutral500,
+          style: AppTextStyles.bodySm.copyWith(
+            color: AppColors.textSecondary,
           ),
         ),
       ],
     );
   }
 
-  Color _getStatusColor(String status) {
+  StatusTone _statusTone(String status) {
     switch (status.toLowerCase()) {
       case 'available':
-        return Colors.green;
-      case 'reserved':
-        return Colors.orange;
+      case 'vacant':
+        return StatusTone.success;
+      case 'occupied':
       case 'sold':
       case 'rented':
-        return Colors.purple;
-      case 'under_construction':
-        return Colors.blue;
+        return StatusTone.primary;
+      case 'reserved':
       case 'pending':
-        return Colors.amber;
+        return StatusTone.warning;
       case 'off_market':
-        return Colors.grey;
+        return StatusTone.neutral;
+      case 'inactive':
+        return StatusTone.danger;
       default:
-        return AppColors.neutral500;
+        return StatusTone.neutral;
+    }
+  }
+
+  StatusTone _typeTone(String type) {
+    switch (type.toLowerCase()) {
+      case 'residential':
+        return StatusTone.primary;
+      case 'commercial':
+        return StatusTone.info;
+      case 'industrial':
+        return StatusTone.warning;
+      case 'land':
+        return StatusTone.neutral;
+      default:
+        return StatusTone.neutral;
     }
   }
 }

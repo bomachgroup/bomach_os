@@ -58,6 +58,7 @@ class _SideMenuState extends State<SideMenu> {
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode(debugLabel: 'sidebar-search');
   final ScrollController _scrollController = ScrollController();
+  final Map<MainMenuItem, GlobalKey> _menuKeys = {};
   String _searchQuery = '';
 
   /// Pinned sub-items (e.g. "Employees", "Leave Requests"). Rendered as a
@@ -359,6 +360,22 @@ class _SideMenuState extends State<SideMenu> {
     }
   }
 
+  void _scrollToItem(MainMenuItem id) {
+    // Use a slight delay to allow the layout to settle after the previous 
+    // module starts collapsing, ensuring we calculate the correct scroll target.
+    Future.delayed(const Duration(milliseconds: 150), () {
+      final key = _menuKeys[id];
+      if (key != null && key.currentContext != null) {
+        Scrollable.ensureVisible(
+          key.currentContext!,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.fastOutSlowIn,
+          alignment: 0.0, // Aim for the top of the sidebar
+        );
+      }
+    });
+  }
+
   Widget _buildMenuItem(MenuItem menuItem) {
     final permissionService = Get.find<PermissionService>();
 
@@ -410,7 +427,7 @@ class _SideMenuState extends State<SideMenu> {
         _searchQuery.trim().isNotEmpty ? true : _openMenu == menuItem.id;
 
     return _ExpandableMenuRow(
-      key: ValueKey('expandable-${menuItem.id.name}'),
+      key: _menuKeys.putIfAbsent(menuItem.id, () => GlobalKey()),
       icon: menuItem.icon,
       label: menuItem.label,
       isSelected: isSelected,
@@ -429,6 +446,9 @@ class _SideMenuState extends State<SideMenu> {
               final firstChild = authorizedSubItems.first;
               _navigate(firstChild.route, menuItem.id, firstChild.id);
             }
+
+            // Scroll to the newly opened module so it's fully in view
+            _scrollToItem(menuItem.id);
           }
         });
 
@@ -450,6 +470,7 @@ class _SideMenuState extends State<SideMenu> {
           _saveOpenMenu(_openMenu);
         }
       },
+      headerKey: _menuKeys.putIfAbsent(menuItem.id, () => GlobalKey()),
       children: authorizedSubItems
           .map<Widget>((subItem) => _buildSubItem(subItem, menuItem.id))
           .toList(),
@@ -1218,6 +1239,7 @@ class _ExpandableMenuRow extends StatelessWidget {
   final VoidCallback? onExpand;
   final VoidCallback? onCollapse;
   final String searchQuery;
+  final GlobalKey? headerKey;
 
   const _ExpandableMenuRow({
     super.key,
@@ -1230,6 +1252,7 @@ class _ExpandableMenuRow extends StatelessWidget {
     this.onExpand,
     this.onCollapse,
     this.searchQuery = '',
+    this.headerKey,
   });
 
   @override
@@ -1238,6 +1261,7 @@ class _ExpandableMenuRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _MenuRow(
+          key: headerKey,
           icon: icon,
           label: label,
           isSelected: isSelected,
@@ -1290,10 +1314,7 @@ class _SectionHeader extends StatelessWidget {
     // Hide section headers in collapsed mode for a clean rail
     if (SideMenu.of(context).isCollapsed) {
       return showDivider
-          ? const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Divider(height: 1, color: AppColors.neutral200),
-            )
+          ? const SizedBox(height: 24)
           : const SizedBox(height: 4);
     }
 
@@ -1304,10 +1325,7 @@ class _SectionHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (showDivider)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Divider(height: 1, color: AppColors.neutral200),
-            ),
+            const SizedBox(height: 24),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),

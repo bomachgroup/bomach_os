@@ -1,18 +1,22 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
 import 'package:bms_front_end/pages/operations/controllers/milestone_controller.dart';
 import 'package:bms_front_end/pages/operations/models/models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/helper/color.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ProjectMilestone extends StatefulWidget {
   final int projectId;
@@ -43,104 +47,273 @@ class _ProjectMilestoneState extends State<ProjectMilestone> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-              child: Padding(
-                  padding: EdgeInsets.all(40),
-                  child: CircularProgressIndicator()));
-        }
+    return Obx(() {
+      final loading = controller.isLoading.value;
+      final milestones = controller.milestones;
 
-        if (controller.milestones.isEmpty) {
-          return const Center(
-              child: Padding(
-                  padding: EdgeInsets.all(40),
-                  child: Text("No milestones found.")));
-        }
-
-        return Column(
+      return AppCard(
+        padding: EdgeInsets.zero,
+        elevation: AppCardElevation.sm,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Scrollbar(
-              controller: _scrollController,
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: bodySpace(context)),
-                  child: DataTable(
-                    columns: _createColumns(),
-                    rows: _createRows(context),
-                    showBottomBorder: true,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Milestones', style: AppTextStyles.h3),
+                        const SizedBox(height: 4),
+                        Text(
+                          loading
+                              ? 'Loading milestones...'
+                              : '${milestones.length} milestone${milestones.length == 1 ? '' : 's'} tracked',
+                          style: AppTextStyles.bodyMd.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const StatusChip(
+                    label: 'Timeline',
+                    tone: StatusTone.primary,
+                    icon: Iconsax.flag,
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            if (loading)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: LoadingSkeleton.listRows(count: 5),
+              )
+            else if (milestones.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: EmptyState(
+                  icon: Iconsax.flag,
+                  title: 'No milestones yet',
+                  subtitle:
+                      'Milestones help track major deliverables for this project.',
+                ),
+              )
+            else
+              _buildTable(milestones),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildTable(List<Milestone> milestones) {
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 960),
+          child: Column(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                color: AppColors.surfaceMuted,
+                child: Row(
+                  children: [
+                    _headerCell('S/N', width: 60),
+                    _headerCell('Milestone Title', flex: 4),
+                    _headerCell('Budget', width: 140),
+                    _headerCell('Priority', width: 120),
+                    _headerCell('Status', width: 140),
+                    _headerCell('', width: 64),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.borderSubtle),
+              ...List.generate(
+                milestones.length,
+                (index) => _buildMilestoneRow(milestones[index], index),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _headerCell(String label, {double? width, int? flex}) {
+    final content = Text(
+      label,
+      style: AppTextStyles.bodySm.copyWith(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    if (width != null) return SizedBox(width: width, child: content);
+    return Expanded(flex: flex ?? 1, child: content);
+  }
+
+  Widget _buildMilestoneRow(Milestone m, int index) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text(
+              '${index + 1}',
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Text(
+              m.name,
+              style: AppTextStyles.bodyMd.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 140,
+            child: Text(
+              m.budget.isEmpty ? '—' : m.budget,
+              style: AppTextStyles.bodyMd,
+            ),
+          ),
+          SizedBox(
+            width: 120,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: m.priority.isEmpty ? '—' : m.priority,
+                tone: _priorityTone(m.priority),
+                dense: true,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 140,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: StatusChip(
+                label: _statusLabel(m.status),
+                tone: _statusTone(m.status),
+                dense: true,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 64,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: AppRadii.brSm,
+                  onTapDown: (details) async {
+                    final selected = await showMenu<String>(
+                      context: context,
+                      position: RelativeRect.fromLTRB(
+                        details.globalPosition.dx,
+                        details.globalPosition.dy,
+                        details.globalPosition.dx,
+                        details.globalPosition.dy,
+                      ),
+                      items: const [
+                        PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        PopupMenuItem(value: 'delete', child: Text('Delete')),
+                      ],
+                    );
+                    if (!mounted) return;
+                    if (selected == 'edit') {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddMileStoneDialog(
+                          projectId: widget.projectId,
+                          milestone: m,
+                        ),
+                      );
+                    } else if (selected == 'delete') {
+                      controller.deleteMilestone(
+                          context, m.id, widget.projectId);
+                    }
+                  },
+                  onTap: () {},
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadii.brSm,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: const Icon(Iconsax.more,
+                        size: 16, color: AppColors.textSecondary),
                   ),
                 ),
               ),
             ),
-          ],
-        );
-      }),
+          ),
+        ],
+      ),
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return const [
-      DataColumn(label: MyText("S/N")),
-      DataColumn(label: MyText("Milestone Title")),
-      DataColumn(label: MyText("Budget")),
-      DataColumn(label: MyText("Priority")),
-      DataColumn(label: MyText("Status")),
-      DataColumn(label: MyText("Action")),
-    ];
+  StatusTone _priorityTone(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return StatusTone.danger;
+      case 'medium':
+        return StatusTone.warning;
+      case 'low':
+        return StatusTone.neutral;
+      default:
+        return StatusTone.neutral;
+    }
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    final milestones = controller.milestones;
-    return List.generate(milestones.length, (index) {
-      final m = milestones[index];
-      return DataRow(cells: [
-        DataCell(MyText("${index + 1}")),
-        DataCell(MyText(m.name)),
-        DataCell(MyText(m.budget.isEmpty ? '-' : m.budget)),
-        DataCell(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-              color: getRandomColorFromList(m.priority).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6)),
-          child: MyText(m.priority.isEmpty ? '-' : m.priority),
-        )),
-        DataCell(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-              color: getRandomColorFromList(m.status).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6)),
-          child: MyText(m.status),
-        )),
-        DataCell(PopupMenuButton(
-          itemBuilder: (ctx) => [
-            PopupMenuItem(
-              child: const Text("Edit"),
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => AddMileStoneDialog(
-                    projectId: widget.projectId, milestone: m),
-              ),
-            ),
-            PopupMenuItem(
-              child: const Text("Delete"),
-              onTap: () =>
-                  controller.deleteMilestone(context, m.id, widget.projectId),
-            ),
-          ],
-          child: const Icon(Iconsax.more),
-        )),
-      ]);
-    });
+  StatusTone _statusTone(String status) {
+    final s = status.toLowerCase().replaceAll('_', ' ').trim();
+    switch (s) {
+      case 'pending':
+        return StatusTone.neutral;
+      case 'in progress':
+        return StatusTone.primary;
+      case 'completed':
+        return StatusTone.success;
+      case 'at risk':
+        return StatusTone.warning;
+      case 'overdue':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
+  }
+
+  String _statusLabel(String status) {
+    if (status.isEmpty) return '—';
+    return status
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w.isEmpty
+            ? w
+            : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+        .join(' ');
   }
 }
 
@@ -196,120 +369,111 @@ class _AddMileStoneDialogState extends State<AddMileStoneDialog> {
   Widget build(BuildContext context) {
     final isEdit = widget.milestone != null;
 
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MyText(
-                    isEdit ? 'Edit Milestone' : 'Create Milestone',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: () => Navigator.pop(context)),
-                ],
-              ),
-            ),
+    return DialogScaffold(
+      title: isEdit ? 'Edit Milestone' : 'Create Milestone',
+      subtitle:
+          'Track a major deliverable with budget, timeline and priority.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              controller: nameCtrl,
-                              title: 'Milestone Title*',
-                              hintText: 'Enter title')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              controller: budgetCtrl,
-                              title: 'Budget',
-                              hintText: '0.00')),
-                    ]),
-                    const SizedBox(height: 24),
-                    Row(children: [
-                      Expanded(
-                        child: MyDropdown(
-                            title: 'Priority',
-                            items: const ['Low', 'Medium', 'High'],
-                            hintText: 'Select',
-                            controller:
-                                TextEditingController(text: selectedPriority),
-                            onChanged: (val) =>
-                                setState(() => selectedPriority = val!)),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: MyDropdown(
-                            title: 'Status*',
-                            items: const [
-                              'Pending',
-                              'In Progress',
-                              'Completed'
-                            ],
-                            hintText: 'Select',
-                            controller:
-                                TextEditingController(text: selectedStatus),
-                            onChanged: (val) =>
-                                setState(() => selectedStatus = val!)),
-                      ),
-                    ]),
-                    const SizedBox(height: 24),
-                    Row(children: [
-                      Expanded(
-                          child: MyDateField(
-                              controller: startDateCtrl, title: 'Start Date')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyDateField(
-                              controller: endDateCtrl, title: 'End Date')),
-                    ]),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                        controller: descCtrl,
-                        title: 'Description',
-                        maxLines: 3,
-                        hintText: 'Milestone details...'),
-                    const SizedBox(height: 24),
-                  ],
-                ),
+              child: MyTextFormField(
+                controller: nameCtrl,
+                title: 'Milestone Title*',
+                hintText: 'Enter title',
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                      child: 'Cancel', onTap: () => Navigator.pop(context)),
-                  const SizedBox(width: 16),
-                  Obx(() => controller.isActionLoading.value
-                      ? const CircularProgressIndicator()
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset("assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn)),
-                          child: isEdit ? 'Update' : 'Save',
-                          onTap: _save,
-                        )),
-                ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: MyTextFormField(
+                controller: budgetCtrl,
+                title: 'Budget',
+                hintText: '0.00',
               ),
             ),
-          ],
-        ),
+          ]),
+          const SizedBox(height: 20),
+          Row(children: [
+            Expanded(
+              child: MyDropdown(
+                title: 'Priority',
+                items: const ['Low', 'Medium', 'High'],
+                hintText: 'Select',
+                controller: TextEditingController(text: selectedPriority),
+                onChanged: (val) =>
+                    setState(() => selectedPriority = val!),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: MyDropdown(
+                title: 'Status*',
+                items: const ['Pending', 'In Progress', 'Completed'],
+                hintText: 'Select',
+                controller: TextEditingController(text: selectedStatus),
+                onChanged: (val) => setState(() => selectedStatus = val!),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 20),
+          Row(children: [
+            Expanded(
+              child: MyDateField(
+                controller: startDateCtrl,
+                title: 'Start Date',
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: MyDateField(
+                controller: endDateCtrl,
+                title: 'End Date',
+              ),
+            ),
+          ]),
+          const SizedBox(height: 20),
+          MyTextFormField(
+            controller: descCtrl,
+            title: 'Description',
+            maxLines: 3,
+            hintText: 'Milestone details...',
+          ),
+        ],
       ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          onTap: () => Navigator.pop(context),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        ),
+        Obx(
+          () => controller.isActionLoading.value
+              ? const SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              : MyElevatedButton(
+                  icon: SvgPicture.asset(
+                    'assets/svg/check.svg',
+                    colorFilter: const ColorFilter.mode(
+                        AppColors.white, BlendMode.srcIn),
+                  ),
+                  child: isEdit ? 'Update' : 'Save',
+                  onTap: _save,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                ),
+        ),
+      ],
     );
   }
 

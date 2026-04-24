@@ -1,14 +1,15 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_date_field.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+
 import '../controllers/project_controller.dart';
 import '../models/models.dart';
 
@@ -41,175 +42,218 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   String? selectedClientId;
 
   @override
+  void dispose() {
+    nameCtrl.dispose();
+    shortCodeCtrl.dispose();
+    startDateCtrl.dispose();
+    deadlineCtrl.dispose();
+    locationCtrl.dispose();
+    summaryCtrl.dispose();
+    budgetCtrl.dispose();
+    categoryCtrl.dispose();
+    departmentCtrl.dispose();
+    priorityCtrl.dispose();
+    statusCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const MyText('Add Project',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  IconButton(
-                      icon: const Icon(Iconsax.close_circle),
-                      onPressed: () => Navigator.of(context).pop()),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              controller: nameCtrl,
-                              title: 'Project Name',
-                              hintText: 'Enter name')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              controller: shortCodeCtrl,
-                              title: 'Short Code',
-                              hintText: 'PRJ-001')),
-                    ]),
-                    const SizedBox(height: 24),
-                    Row(children: [
-                      Expanded(
-                          child: MyDateField(
-                              controller: startDateCtrl, title: 'Start Date')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyDateField(
-                              controller: deadlineCtrl, title: 'Deadline')),
-                    ]),
-                    const SizedBox(height: 24),
-                    Row(children: [
-                      Expanded(
-                          child: MyDropdown(
-                        controller: categoryCtrl,
-                        title: 'Category',
-                        hintText: 'Select category',
-                        initialSelection: selectedCategory,
-                        items: const [
-                          'Development',
-                          'Construction',
-                          'Consulting',
-                          'Real Estate',
-                          'Marketing',
-                          'Operations',
-                          'Other',
-                        ],
-                        onChanged: (val) =>
-                            setState(() => selectedCategory = val),
-                      )),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Obx(() => MyDropdown(
-                              controller: departmentCtrl,
-                              title: 'Department',
-                              hintText: 'Select department',
-                              initialSelection: selectedDepartmentId != null
-                                  ? controller.departments
-                                      .firstWhereOrNull((d) =>
-                                          d.id.toString() ==
-                                          selectedDepartmentId)
-                                      ?.name
-                                  : null,
-                              items: controller.departments
-                                  .map((d) => d.name)
-                                  .toList(),
-                              onChanged: (val) {
-                                final dept = controller.departments
-                                    .firstWhereOrNull((d) => d.name == val);
-                                setState(() =>
-                                    selectedDepartmentId = dept?.id.toString());
-                              },
-                            )),
-                      ),
-                    ]),
-                    const SizedBox(height: 24),
-                    Row(children: [
-                      Expanded(
-                          child: MyTextFormField(
-                              controller: locationCtrl,
-                              title: 'Location',
-                              hintText: 'City, Country')),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyTextFormField(
-                              controller: budgetCtrl,
-                              title: 'Budget',
-                              hintText: '0.00')),
-                    ]),
-                    const SizedBox(height: 24),
-                    Row(children: [
-                      Expanded(
-                          child: MyDropdown(
-                        controller: priorityCtrl,
-                        title: 'Priority',
-                        hintText: 'Select',
-                        initialSelection: selectedPriority,
-                        items: const ['Low', 'Medium', 'High'],
-                        onChanged: (val) =>
-                            setState(() => selectedPriority = val),
-                      )),
-                      const SizedBox(width: 16),
-                      Expanded(
-                          child: MyDropdown(
-                        controller: statusCtrl,
-                        title: 'Status',
-                        hintText: 'Select',
-                        initialSelection: selectedStatus,
-                        items: const ['Pending', 'In Progress', 'Completed'],
-                        onChanged: (val) =>
-                            setState(() => selectedStatus = val),
-                      )),
-                    ]),
-                    const SizedBox(height: 24),
-                    MyTextFormField(
-                        controller: summaryCtrl,
-                        title: 'Summary',
-                        maxLines: 3,
-                        hintText: 'Project description...'),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                      child: 'Cancel', onTap: () => Navigator.pop(context)),
+    return DialogScaffold(
+      title: 'Add Project',
+      subtitle: 'Create a new project and assign ownership',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSection(
+            title: 'Project details',
+            child: Column(
+              children: [
+                Row(children: [
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: nameCtrl,
+                      title: 'Project Name',
+                      hintText: 'Enter project name',
+                    ),
+                  ),
                   const SizedBox(width: 16),
-                  Obx(() => controller.isActionLoading.value
-                      ? const CircularProgressIndicator()
-                      : MyElevatedButton(
-                          icon: SvgPicture.asset("assets/svg/check.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.white, BlendMode.srcIn)),
-                          child: 'Save',
-                          onTap: _saveProject,
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: shortCodeCtrl,
+                      title: 'Short Code',
+                      hintText: 'PRJ-001',
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 16),
+                Row(children: [
+                  Expanded(
+                    child: MyDropdown(
+                      controller: categoryCtrl,
+                      title: 'Category',
+                      hintText: 'Select category',
+                      initialSelection: selectedCategory,
+                      items: const [
+                        'Development',
+                        'Construction',
+                        'Consulting',
+                        'Real Estate',
+                        'Marketing',
+                        'Operations',
+                        'Other',
+                      ],
+                      onChanged: (val) =>
+                          setState(() => selectedCategory = val),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Obx(() => MyDropdown(
+                          controller: departmentCtrl,
+                          title: 'Department',
+                          hintText: 'Select department',
+                          initialSelection: selectedDepartmentId != null
+                              ? controller.departments
+                                  .firstWhereOrNull((d) =>
+                                      d.id.toString() ==
+                                      selectedDepartmentId)
+                                  ?.name
+                              : null,
+                          items: controller.departments
+                              .map((d) => d.name)
+                              .toList(),
+                          onChanged: (val) {
+                            final dept = controller.departments
+                                .firstWhereOrNull((d) => d.name == val);
+                            setState(() => selectedDepartmentId =
+                                dept?.id.toString());
+                          },
                         )),
-                ],
-              ),
+                  ),
+                ]),
+              ],
             ),
-          ],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Schedule & budget',
+            child: Column(
+              children: [
+                Row(children: [
+                  Expanded(
+                    child: MyDateField(
+                      controller: startDateCtrl,
+                      title: 'Start Date',
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyDateField(
+                      controller: deadlineCtrl,
+                      title: 'Deadline',
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 16),
+                Row(children: [
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: locationCtrl,
+                      title: 'Location',
+                      hintText: 'City, Country',
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyTextFormField(
+                      controller: budgetCtrl,
+                      title: 'Budget',
+                      hintText: '0.00',
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Status & description',
+            child: Column(
+              children: [
+                Row(children: [
+                  Expanded(
+                    child: MyDropdown(
+                      controller: priorityCtrl,
+                      title: 'Priority',
+                      hintText: 'Select priority',
+                      initialSelection: selectedPriority,
+                      items: const ['Low', 'Medium', 'High'],
+                      onChanged: (val) =>
+                          setState(() => selectedPriority = val),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MyDropdown(
+                      controller: statusCtrl,
+                      title: 'Status',
+                      hintText: 'Select status',
+                      initialSelection: selectedStatus,
+                      items: const ['Pending', 'In Progress', 'Completed'],
+                      onChanged: (val) =>
+                          setState(() => selectedStatus = val),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  controller: summaryCtrl,
+                  title: 'Summary',
+                  maxLines: 3,
+                  hintText: 'Brief description of the project...',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
+        Obx(() => MyElevatedButton(
+              width: 140,
+              height: 44,
+              isLoading: controller.isActionLoading.value,
+              child: 'Save Project',
+              onTap: _saveProject,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection({required String title, required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

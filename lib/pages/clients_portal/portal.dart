@@ -1,15 +1,10 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
 import 'package:bms_front_end/components/cards/stats_header.dart';
-import 'package:bms_front_end/components/section/module_dashboard.dart';
 import 'package:bms_front_end/components/text/app_text.dart';
 import 'package:bms_front_end/pages/clients_portal/controller/client_portal_controller.dart';
 import 'package:bms_front_end/pages/clients_portal/slides/client_access.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/permissions.dart';
 import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';

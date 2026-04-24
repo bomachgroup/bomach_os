@@ -1,14 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 class AssignTaskDialog extends StatefulWidget {
@@ -136,7 +136,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: MyText(
+            content: Text(
               'Task assigned to $_selectedEmployee',
               style: const TextStyle(color: Colors.white),
             ),
@@ -150,7 +150,7 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: MyText(
+        content: Text(
           message,
           style: const TextStyle(color: Colors.white),
         ),
@@ -159,385 +159,256 @@ class _AssignTaskDialogState extends State<AssignTaskDialog> {
     );
   }
 
-  Color _getPriorityColor(String priority) {
+  StatusTone _priorityTone(String priority) {
     switch (priority) {
       case 'High':
-        return AppColors.danger;
+        return StatusTone.danger;
       case 'Medium':
-        return const Color(0xFFFFA500);
+        return StatusTone.warning;
       case 'Low':
-        return AppColors.success;
+        return StatusTone.neutral;
       default:
-        return AppColors.neutral500;
+        return StatusTone.neutral;
     }
   }
 
-  Color _getStatusColor(String status) {
+  StatusTone _statusTone(String status) {
     switch (status) {
       case 'Completed':
-        return AppColors.success;
+        return StatusTone.success;
       case 'In Progress':
-        return AppColors.primary;
+        return StatusTone.primary;
       case 'Pending':
-        return const Color(0xFFFFA500);
+        return StatusTone.warning;
       case 'On Hold':
-        return const Color(0xFF9B59B6);
+        return StatusTone.warning;
       default:
-        return AppColors.neutral500;
+        return StatusTone.neutral;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 846),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade300),
+    return DialogScaffold(
+      title: 'Assign task to employee',
+      subtitle: 'Fill in task details and select a team member.',
+      size: DialogSize.md,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSection(
+            title: 'Task information',
+            subtitle: 'Title, description, and workflow metadata.',
+            child: Column(
+              children: [
+                MyTextFormField(
+                  title: 'Task Title *',
+                  hintText: 'Enter task title',
+                  controller: _taskTitleController,
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Iconsax.profile_tick,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const MyText(
-                        'Assign Task to Employee',
-                        style: AppTextStyles.h2,
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-
-            // Form Content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 24,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Task Information Section
-                      const MyText(
-                        'Task Information',
-                        style: AppTextStyles.h4,
-                      ),
-                      kSizedBox,
-
-                      // Task Title
-                      MyTextFormField(
-                        title: 'Task Title *',
-                        hintText: 'Enter task title',
-                        controller: _taskTitleController,
-                        spaceBetweenText: 8,
-                      ),
-                      kSizedBox,
-
-                      // Priority and Status
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  title: 'Priority *',
-                                  items: _priorityList,
-                                  hintText: _selectedPriority,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedPriority = value ?? 'Medium';
-                                    });
-                                  },
-                                  spaceBetweenText: 8,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyDropdown(
-                                  title: 'Status *',
-                                  items: _statusList,
-                                  hintText: _selectedStatus,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedStatus = value ?? 'Pending';
-                                    });
-                                  },
-                                  spaceBetweenText: 8,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      kSizedBox,
-
-                      // Description
-                      MyTextFormField(
-                        title: 'Description',
-                        hintText: 'Enter task description',
-                        controller: _descriptionController,
-                        spaceBetweenText: 8,
-                        maxLines: 3,
-                      ),
-                      const Divider(height: 32),
-
-                      // Assignment Section
-                      const MyText(
-                        'Assign Employee',
-                        style: AppTextStyles.h4,
-                      ),
-                      kSizedBox,
-
-                      // Employee Selection
-                      MyDropdown(
-                        title: 'Employee/Member *',
-                        items: _employeeList,
-                        hintText: _selectedEmployee.isEmpty
-                            ? 'Select an employee'
-                            : _selectedEmployee,
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: MyDropdown(
+                        title: 'Priority *',
+                        items: _priorityList,
+                        hintText: _selectedPriority,
+                        initialSelection: _selectedPriority,
                         onChanged: (value) {
                           setState(() {
-                            _selectedEmployee = value ?? '';
+                            _selectedPriority = value ?? 'Medium';
                           });
                         },
-                        spaceBetweenText: 8,
                       ),
-                      kSizedBox,
-
-                      // Due Date
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const MyText(
-                            'Due Date *',
-                            style: AppTextStyles.h4,
-                          ),
-                          const SizedBox(height: 8),
-                          GestureDetector(
-                            onTap: () => _selectDueDate(context),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0XFFD5D5D5),
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.grey.shade50,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  MyText(
-                                    DateFormat('MMM dd, yyyy').format(_dueDate),
-                                    style: AppTextStyles.bodyMd,
-                                  ),
-                                  const Icon(
-                                    Iconsax.calendar_1,
-                                    size: 18,
-                                    color: AppColors.primary,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyDropdown(
+                        title: 'Status *',
+                        items: _statusList,
+                        hintText: _selectedStatus,
+                        initialSelection: _selectedStatus,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedStatus = value ?? 'Pending';
+                          });
+                        },
                       ),
-                      kSizedBox,
-
-                      // Estimated Hours
-                      MyTextFormField(
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Description',
+                  hintText: 'Enter task description',
+                  controller: _descriptionController,
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Assignment',
+            subtitle: 'Pick an assignee, due date, and expected effort.',
+            child: Column(
+              children: [
+                MyDropdown(
+                  title: 'Employee/Member *',
+                  items: _employeeList,
+                  hintText: _selectedEmployee.isEmpty
+                      ? 'Select an employee'
+                      : _selectedEmployee,
+                  initialSelection: _selectedEmployee.isEmpty
+                      ? null
+                      : _selectedEmployee,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedEmployee = value ?? '';
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: MyTextFormField(
+                        title: 'Due Date *',
+                        readOnly: true,
+                        controller: TextEditingController(
+                          text: DateFormat('MMM dd, yyyy').format(_dueDate),
+                        ),
+                        trailing: const Icon(
+                          Iconsax.calendar_1,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        ),
+                        onTap: () => _selectDueDate(context),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: MyTextFormField(
                         title: 'Estimated Hours *',
                         hintText: 'e.g., 8, 16, 40',
                         controller: _estimatedHoursController,
-                        spaceBetweenText: 8,
                         keyboardType: TextInputType.number,
                       ),
-                      const SizedBox(height: 24),
-
-                      // Preview Section
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const MyText(
-                              'Assignment Preview',
-                              style: AppTextStyles.h4,
-                            ),
-                            const SizedBox(height: 12),
-                            if (_taskTitleController.text.isNotEmpty)
-                              MyText(
-                                _taskTitleController.text,
-                                style: AppTextStyles.bodyLg,
-                              ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                if (_selectedEmployee.isNotEmpty) ...[
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: MyText(
-                                      'Assigned to: $_selectedEmployee',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                                if (_selectedPriority.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          _getPriorityColor(_selectedPriority)
-                                              .withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: MyText(
-                                      _selectedPriority,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: _getPriorityColor(
-                                          _selectedPriority,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                const SizedBox(width: 8),
-                                if (_selectedStatus.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: _getStatusColor(_selectedStatus)
-                                          .withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: MyText(
-                                      _selectedStatus,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: _getStatusColor(_selectedStatus),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
+              ],
             ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyOutlinedButton(
-                    textColor: AppColors.neutral500,
-                    borderColor: null,
-                    child: 'Cancel',
-                    onTap: _isLoading
-                        ? null
-                        : () {
-                            Navigator.pop(context);
-                          },
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Assignment preview',
+            subtitle: 'Confirm the details before assigning.',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_taskTitleController.text.isNotEmpty) ...[
+                  Text(
+                    _taskTitleController.text,
+                    style: AppTextStyles.bodyLg.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  const SizedBox(width: 16),
-                  MyElevatedButton(
-                    icon: _isLoading
-                        ? null
-                        : SvgPicture.asset(
-                            "assets/svg/check.svg",
-                            colorFilter: const ColorFilter.mode(
-                                AppColors.white, BlendMode.srcIn),
-                          ),
-                    child: _isLoading ? 'Assigning...' : 'Assign Task',
-                    onTap: _isLoading ? null : _handleAssignTask,
-                  ),
+                  const SizedBox(height: 10),
                 ],
-              ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (_selectedEmployee.isNotEmpty)
+                      StatusChip(
+                        label: 'Assigned to: $_selectedEmployee',
+                        tone: StatusTone.primary,
+                        icon: Iconsax.profile_tick,
+                      ),
+                    if (_selectedPriority.isNotEmpty)
+                      StatusChip(
+                        label: _selectedPriority,
+                        tone: _priorityTone(_selectedPriority),
+                      ),
+                    if (_selectedStatus.isNotEmpty)
+                      StatusChip(
+                        label: _selectedStatus,
+                        tone: _statusTone(_selectedStatus),
+                      ),
+                    StatusChip(
+                      label: DateFormat('MMM dd, yyyy').format(_dueDate),
+                      tone: StatusTone.neutral,
+                      icon: Iconsax.calendar,
+                    ),
+                    if (_estimatedHoursController.text.isNotEmpty)
+                      StatusChip(
+                        label: '${_estimatedHoursController.text} hrs',
+                        tone: StatusTone.neutral,
+                        icon: Iconsax.clock,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: _isLoading ? null : () => Navigator.pop(context),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+        ),
+        MyElevatedButton(
+          width: 150,
+          height: 44,
+          isLoading: _isLoading,
+          icon: _isLoading
+              ? null
+              : const Icon(Iconsax.tick_circle,
+                  size: 18, color: AppColors.textOnPrimary),
+          child: _isLoading ? 'Assigning...' : 'Assign Task',
+          onTap: _isLoading ? null : _handleAssignTask,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

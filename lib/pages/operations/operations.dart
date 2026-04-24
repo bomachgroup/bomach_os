@@ -1,10 +1,15 @@
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
 import 'package:bms_front_end/components/section/page_header.dart';
 import 'package:bms_front_end/components/section/page_scaffold.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/responsive_stat_row.dart';
 import 'package:bms_front_end/pages/operations/each_project.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,299 +42,427 @@ class _OperationsPageState extends State<OperationsPage> {
   Widget build(BuildContext context) {
     return PageScaffold(
       header: PageHeader(
-        title: 'Operations Dashboard',
-        subtitle: 'Overview & Project Management',
-        trailing: OutlinedButton.icon(
-          onPressed: () {
+        title: 'Operations',
+        subtitle: 'Overview of projects, budgets, worksites, and timelines',
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'Add Project',
+          onTap: () {
             showDialog(
               context: context,
               builder: (context) => const AddProjectDialog(),
             ).then((_) => controller.fetchDashboardData(context));
           },
-          icon: const Icon(Iconsax.add_circle, size: 18),
-          label: const Text('Add Project'),
         ),
       ),
       children: [
         // --- Stats Section ---
         Obx(() {
-          if (controller.isLoadingStats.value) {
-            return const Center(child: CircularProgressIndicator());
+          if (controller.isLoadingStats.value &&
+              controller.stats.value == null) {
+            return LoadingSkeleton.statRow(count: 4);
           }
           final stats = controller.stats.value;
-          if (stats == null) return const SizedBox();
-
-          return _buildStatsGrid(stats);
+          if (stats == null) {
+            return const _StatPlaceholder();
+          }
+          return _SummaryGridSection(stats: stats);
         }),
-
-        const SizedBox(height: 32),
 
         // --- Recent Projects Section ---
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const MyText('Recent Projects', style: AppTextStyles.h3),
-            SizedBox(
-              width: 250,
-              child: MyTextFormField(
-                hintText: 'Search Projects...',
-                leading: Icon(Iconsax.search_normal,
-                    color: AppColors.textMuted.withValues(alpha: 0.5)),
-                onChanged: (val) =>
-                    controller.fetchProjects(context, search: val),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        Obx(() {
-          if (controller.isLoadingProjects.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (controller.projects.isEmpty) {
-            return const AppCard(
-              padding: EdgeInsets.all(48),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(Iconsax.folder_open,
-                        size: 48, color: AppColors.textMuted),
-                    SizedBox(height: 16),
-                    Text("No projects found", style: AppTextStyles.bodyLg),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.projects.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final project = controller.projects[index];
-              return _buildProjectItem(context, project);
-            },
-          );
-        }),
+        _RecentProjectsSection(controller: controller),
       ],
     );
   }
+}
 
-  Widget _buildStatsGrid(DashboardStats stats) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final bool isMobile = constraints.maxWidth < 650;
-      final int crossAxisCount = isMobile ? 1 : 3;
+// ═══════════════════════════════════════════════════════════════════
+//  SUMMARY / STATS
+// ═══════════════════════════════════════════════════════════════════
 
-      return GridView.count(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        childAspectRatio: isMobile ? 2.5 : 2.2,
-        children: [
-          _buildStatCard("Active Projects", stats.activeProjects.toString(),
-              AppColors.primary, Iconsax.folder_2),
-          _buildStatCard("Total Budget", "₦${stats.totalBudget}",
-              AppColors.success, Iconsax.money_2),
-          _buildStatCard("Budget Util.", "${stats.budgetUtilization}%",
-              AppColors.warning, Iconsax.chart_2),
-          _buildStatCard("Worksites", stats.totalWorksites.toString(),
-              const Color(0xFF8B5CF6), Iconsax.building_4),
-          _buildStatCard("Contracts", stats.totalContracts.toString(),
-              const Color(0xFF14B8A6), Iconsax.document_text),
-          _buildStatCard("Timelines", stats.totalTimelines.toString(),
-              AppColors.danger, Iconsax.timer_1),
-        ],
-      );
-    });
-  }
+class _StatPlaceholder extends StatelessWidget {
+  const _StatPlaceholder();
 
-  Widget _buildStatCard(
-      String title, String value, Color color, IconData icon) {
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(24),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color.withValues(alpha: 0.15),
-                  color.withValues(alpha: 0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: color.withValues(alpha: 0.1),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(icon, color: color, size: 26),
-          ),
-          const SizedBox(width: 20),
+          const Icon(Iconsax.info_circle,
+              size: 18, color: AppColors.textSecondary),
+          const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: AppTextStyles.bodySm.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  value,
-                  style: AppTextStyles.h2.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ],
+            child: Text(
+              'Unable to load operations stats right now.',
+              style: AppTextStyles.bodyMd
+                  .copyWith(color: AppColors.textSecondary),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildProjectItem(BuildContext context, Project project) {
+class _SummaryGridSection extends StatelessWidget {
+  final DashboardStats stats;
+  const _SummaryGridSection({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveStatRow(
+      cards: [
+        _StatCard(
+          title: 'Active Projects',
+          count: stats.activeProjects.toString(),
+          icon: Iconsax.folder_2,
+          accent: AppColors.primary,
+        ),
+        _StatCard(
+          title: 'Total Budget',
+          count: 'N${stats.totalBudget}',
+          icon: Iconsax.money_2,
+          accent: AppColors.success,
+        ),
+        _StatCard(
+          title: 'Budget Utilisation',
+          count: '${stats.budgetUtilization}%',
+          icon: Iconsax.chart_2,
+          accent: AppColors.warning,
+        ),
+        _StatCard(
+          title: 'Worksites',
+          count: stats.totalWorksites.toString(),
+          icon: Iconsax.building_4,
+          accent: const Color(0xFF8B5CF6),
+        ),
+        _StatCard(
+          title: 'Contracts',
+          count: stats.totalContracts.toString(),
+          icon: Iconsax.document_text,
+          accent: const Color(0xFF14B8A6),
+        ),
+        _StatCard(
+          title: 'Timelines',
+          count: stats.totalTimelines.toString(),
+          icon: Iconsax.timer_1,
+          accent: AppColors.danger,
+        ),
+      ],
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String count;
+  final IconData icon;
+  final Color accent;
+
+  const _StatCard({
+    required this.title,
+    required this.count,
+    required this.icon,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: Icon(icon, size: 18, color: accent),
+              ),
+              const Spacer(),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            count,
+            style: AppTextStyles.h1.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  RECENT PROJECTS SECTION
+// ═══════════════════════════════════════════════════════════════════
+
+class _RecentProjectsSection extends StatelessWidget {
+  final OperationsDashboardController controller;
+  const _RecentProjectsSection({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: LayoutBuilder(builder: (context, constraints) {
+              final compact = constraints.maxWidth < 640;
+              final titleBlock = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Recent Projects', style: AppTextStyles.h3),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Latest projects across the organisation',
+                    style: AppTextStyles.bodyMd
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              );
+
+              final search = SizedBox(
+                width: compact ? double.infinity : 260,
+                child: MyTextFormField(
+                  hintText: 'Search projects...',
+                  height: 44,
+                  leading: const Icon(Iconsax.search_normal,
+                      size: 18, color: AppColors.textMuted),
+                  onChanged: (val) =>
+                      controller.fetchProjects(context, search: val),
+                ),
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    titleBlock,
+                    const SizedBox(height: 12),
+                    search,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: titleBlock),
+                  const SizedBox(width: 16),
+                  search,
+                ],
+              );
+            }),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          Obx(() {
+            if (controller.isLoadingProjects.value &&
+                controller.projects.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: LoadingSkeleton.listRows(count: 5),
+              );
+            }
+
+            if (controller.projects.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(24),
+                child: EmptyState(
+                  icon: Iconsax.folder_open,
+                  title: 'No projects found',
+                  subtitle:
+                      'Create a new project to start tracking operations.',
+                ),
+              );
+            }
+
+            final projects = controller.projects;
+            return Column(
+              children: [
+                for (int i = 0; i < projects.length; i++) ...[
+                  _ProjectTile(
+                    project: projects[i],
+                    onDelete: () =>
+                        controller.deleteProject(context, projects[i].id),
+                  ),
+                  if (i != projects.length - 1)
+                    const Divider(height: 1, color: AppColors.borderSubtle),
+                ],
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProjectTile extends StatelessWidget {
+  final Project project;
+  final VoidCallback onDelete;
+
+  const _ProjectTile({required this.project, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => EachProjects(project: project)),
         );
       },
-      child: Row(
-        children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.1),
-                  AppColors.primary.withValues(alpha: 0.02),
-                ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: const BoxDecoration(
+                color: AppColors.primarySubtle,
+                borderRadius: AppRadii.brMd,
               ),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Center(
-              child: Icon(
+              alignment: Alignment.center,
+              child: const Icon(
                 Iconsax.folder_2,
                 color: AppColors.primary,
-                size: 26,
+                size: 22,
               ),
             ),
-          ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    project.name,
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        project.shortCode,
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.textMuted),
+                      ),
+                      if (project.status.isNotEmpty) ...[
+                        const SizedBox(width: 8),
+                        StatusChip(
+                          label: project.status,
+                          tone: projectStatusTone(project.status),
+                          dense: true,
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  project.name,
-                  style: AppTextStyles.h4.copyWith(fontWeight: FontWeight.w700),
+                  'N${project.budget.toStringAsFixed(2)}',
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceMuted,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        project.shortCode,
-                        style: AppTextStyles.overline.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
+                    const Icon(Iconsax.calendar_1,
+                        size: 14, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
                     Text(
-                      "•",
-                      style:
-                          AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      project.status,
-                      style: AppTextStyles.bodySm.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      project.deadline.isEmpty ? '—' : project.deadline,
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textMuted),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "₦${project.budget}",
-                style: AppTextStyles.h4.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Icon(
-                    Iconsax.calendar_1,
-                    size: 14,
-                    color: AppColors.textMuted.withValues(alpha: 0.7),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    project.deadline,
-                    style: AppTextStyles.bodySm.copyWith(color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () => controller.deleteProject(context, project.id),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(
-                  Iconsax.trash,
-                  color: AppColors.danger.withValues(alpha: 0.7),
-                  size: 20,
-                ),
-              ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: onDelete,
+              icon: const Icon(Iconsax.trash,
+                  size: 18, color: AppColors.danger),
+              tooltip: 'Delete',
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  STATUS TONE MAPPING
+// ═══════════════════════════════════════════════════════════════════
+
+StatusTone projectStatusTone(String status) {
+  switch (status.trim().toLowerCase()) {
+    case 'planning':
+      return StatusTone.neutral;
+    case 'active':
+    case 'in_progress':
+    case 'in progress':
+    case 'ongoing':
+      return StatusTone.primary;
+    case 'on_hold':
+    case 'on hold':
+      return StatusTone.warning;
+    case 'completed':
+      return StatusTone.success;
+    case 'cancelled':
+    case 'canceled':
+    case 'overdue':
+      return StatusTone.danger;
+    default:
+      return StatusTone.neutral;
+  }
+}
+
+StatusTone priorityTone(String priority) {
+  switch (priority.trim().toLowerCase()) {
+    case 'high':
+    case 'critical':
+      return StatusTone.danger;
+    case 'medium':
+      return StatusTone.warning;
+    case 'low':
+      return StatusTone.neutral;
+    default:
+      return StatusTone.neutral;
   }
 }

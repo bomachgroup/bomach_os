@@ -1,19 +1,16 @@
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/image/image_stack.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/operations/models/models.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/components/section/page_header.dart';
-import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
+import 'package:bms_front_end/pages/operations/models/models.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/shadows.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:iconsax/iconsax.dart';
 
 class TaskDetail extends StatefulWidget {
   final Task? task;
@@ -33,7 +30,7 @@ class _TaskDetailState extends State<TaskDetail> {
       return const PageScaffold(
         children: [
           Center(
-            child: MyText('Task not found', style: AppTextStyles.bodyLg),
+            child: Text('Task not found', style: AppTextStyles.bodyLg),
           ),
         ],
       );
@@ -46,50 +43,16 @@ class _TaskDetailState extends State<TaskDetail> {
       header: PageHeader(
         title: task.name,
         subtitle: 'Comprehensive task overview and analytics',
-        trailing: Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            const SizedBox(
-              width: 250,
-              child: MyTextFormField(
-                hintText: 'Search within task...',
-                leading: Icon(Iconsax.search_normal,
-                    size: 18, color: AppColors.textMuted),
-              ),
-            ),
-            const SortBar(text: "Sort"),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Iconsax.add_circle, size: 18),
-              label: const Text('Add Action'),
-            ),
-          ],
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              size: 18, color: AppColors.textOnPrimary),
+          child: 'Add Action',
+          onTap: () {},
         ),
       ),
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 24),
-          child: AppCard(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 24,
-              runSpacing: 12,
-              children: [
-                _buildTaskInfoItem('Task ID', '#${task.id}', Iconsax.info_circle),
-                _buildTaskInfoItem('Priority', task.priority, Iconsax.flag),
-                _buildTaskInfoItem('Due Date', task.dueDate, Iconsax.calendar),
-                _buildTaskInfoItem(
-                    'Estimate', '${task.estimatedHours} hrs', Iconsax.timer_1),
-                StatusChip(
-                  label: task.status,
-                  tone: _getStatusTone(task.status),
-                ),
-              ],
-            ),
-          ),
-        ),
+        _TaskSummaryCard(task: task),
         if (isWideScreen)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,118 +62,173 @@ class _TaskDetailState extends State<TaskDetail> {
                 child: TaskDetailBody(task: task),
               ),
               const SizedBox(width: 24),
-              Expanded(
-                child: _buildTodayTasksSection(),
-              )
+              const Expanded(
+                child: _TodayTasksSection(),
+              ),
             ],
           )
         else
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TaskDetailBody(task: task),
               const SizedBox(height: 24),
-              _buildTodayTasksSection(),
+              const _TodayTasksSection(),
             ],
           ),
       ],
     );
   }
+}
 
-  Widget _buildTaskInfoItem(String label, String value, IconData icon) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: AppColors.textMuted),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: AppTextStyles.label.copyWith(fontSize: 10, color: AppColors.textMuted)),
-            Text(value, style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ],
-    );
-  }
+// ═══════════════════════════════════════════════════════════════════
+//  TASK SUMMARY CARD (Header Section)
+// ═══════════════════════════════════════════════════════════════════
 
-  StatusTone _getStatusTone(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return StatusTone.success;
-      case 'in progress':
-        return StatusTone.primary;
-      case 'pending':
-        return StatusTone.warning;
-      default:
-        return StatusTone.neutral;
-    }
-  }
+class _TaskSummaryCard extends StatelessWidget {
+  final Task task;
+  const _TaskSummaryCard({required this.task});
 
-  }
-
-  Widget _buildTodayTasksSection() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.only(top: 3.3),
-          decoration: const BoxDecoration(
-            color: AppColors.warning,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(15),
-            ),
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            decoration: const BoxDecoration(
-              color: AppColors.neutral100,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(15),
-              ),
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
             child: Row(
               children: [
-                const MyText("Today's Tasks"),
-                const Icon(
-                  Iconsax.arrow_down_1,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Task overview', style: AppTextStyles.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Snapshot of priority, deadline and estimate.',
+                        style: AppTextStyles.bodyMd
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
-                Container(
-                  alignment: Alignment.center,
-                  width: 28,
-                  height: 28,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primarySubtle,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const MyText("3"),
-                ),
-                const Spacer(),
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Iconsax.add,
-                    color: Colors.white,
-                    size: 18,
-                  ),
+                StatusChip(
+                  label: task.status.isEmpty ? 'Unknown' : task.status,
+                  tone: _statusTone(task.status),
                 ),
               ],
             ),
           ),
-        ),
-        kSizedBoxSM,
-        const ProjectCard(),
-        kSizedBoxTiny,
-        const ProjectCard(),
-        kSizedBoxTiny,
-        const ProjectCard(),
-      ],
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _InfoTile(
+                  icon: Iconsax.hashtag,
+                  label: 'Task ID',
+                  value: '#${task.id}',
+                ),
+                _InfoTile(
+                  icon: Iconsax.flag,
+                  label: 'Priority',
+                  value: task.priority.isEmpty ? '—' : task.priority,
+                ),
+                _InfoTile(
+                  icon: Iconsax.calendar,
+                  label: 'Due date',
+                  value: task.dueDate.isEmpty ? '—' : task.dueDate,
+                ),
+                _InfoTile(
+                  icon: Iconsax.timer_1,
+                  label: 'Estimate',
+                  value: task.estimatedHours > 0
+                      ? '${task.estimatedHours} hrs'
+                      : '—',
+                ),
+                _InfoTile(
+                  icon: Iconsax.briefcase,
+                  label: 'Project',
+                  value: '#${task.projectId}',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+class _InfoTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 220,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadii.brSm,
+              border: Border.all(color: AppColors.borderSubtle),
+            ),
+            child: Icon(icon, size: 18, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textMuted),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TASK DETAIL BODY (left column)
+// ═══════════════════════════════════════════════════════════════════
 
 class TaskDetailBody extends StatefulWidget {
   final Task task;
@@ -222,6 +240,7 @@ class TaskDetailBody extends StatefulWidget {
 
 class _TaskDetailBodyState extends State<TaskDetailBody> {
   String selectedTimeframe = 'Monthly';
+  static const _timeframes = ['Daily', 'Weekly', 'Monthly'];
 
   @override
   Widget build(BuildContext context) {
@@ -230,141 +249,109 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
     final isMediumScreen = screenWidth >= 600 && screenWidth < 900;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildDescriptionCard(),
+        const SizedBox(height: 24),
+        _buildStatsGrid(isSmallScreen: isSmallScreen, isMediumScreen: isMediumScreen),
+        const SizedBox(height: 24),
+        _buildChartCard(isSmallScreen: isSmallScreen),
+      ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Description section
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildDescriptionCard() {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Iconsax.document_text,
+                  size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(widget.task.name, style: AppTextStyles.h3),
+              ),
+              StatusChip(
+                label: 'Project #${widget.task.projectId}',
+                tone: StatusTone.neutral,
+                icon: Iconsax.briefcase,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.task.description.isEmpty
+                ? 'No description provided.'
+                : widget.task.description,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: widget.task.description.isEmpty
+                  ? AppColors.textMuted
+                  : AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Stat grid
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildStatsGrid({
+    required bool isSmallScreen,
+    required bool isMediumScreen,
+  }) {
+    final cards = [
+      _buildStatCard(index: 0),
+      _buildStatCard(index: 1),
+      _buildStatCard(index: 2),
+    ];
+
+    if (isSmallScreen) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          cards[0],
+          const SizedBox(height: 12),
+          cards[1],
+          const SizedBox(height: 12),
+          cards[2],
+        ],
+      );
+    }
+
+    if (isMediumScreen) {
+      return Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: cards[0]),
+              const SizedBox(width: 12),
+              Expanded(child: cards[1]),
+            ],
+          ),
+          const SizedBox(height: 12),
+          cards[2],
+        ],
+      );
+    }
+
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey..withValues(alpha: 0.01),
-                spreadRadius: 0.1,
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText(widget.task.name, weight: 700, size: 18),
-              const SizedBox(height: 8),
-              MyText(
-                widget.task.description,
-                maxLines: 4,
-                style: const TextStyle(color: Colors.black87),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                children: [
-                  MyText('Project ID: ${widget.task.projectId}',
-                      style: const TextStyle(color: Colors.black54)),
-                ],
-              )
-            ],
-          ),
-        ),
-        isSmallScreen
-            ? Column(
-                children: [
-                  _buildStatCard(index: 0),
-                  const SizedBox(height: 15),
-                  _buildStatCard(index: 1),
-                  const SizedBox(height: 15),
-                  _buildStatCard(index: 2),
-                ],
-              )
-            : isMediumScreen
-                ? Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: _buildStatCard(index: 0)),
-                          const SizedBox(width: 15),
-                          Expanded(child: _buildStatCard(index: 1)),
-                        ],
-                      ),
-                      const SizedBox(height: 15),
-                      _buildStatCard(index: 2),
-                    ],
-                  )
-                : SizedBox(
-                    height: 150,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildStatCard(index: 0)),
-                        const SizedBox(width: 15),
-                        Expanded(child: _buildStatCard(index: 1)),
-                        const SizedBox(width: 15),
-                        Expanded(child: _buildStatCard(index: 2)),
-                      ],
-                    ),
-                  ),
-        const SizedBox(height: 24),
-        Container(
-          margin: const EdgeInsets.all(5),
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey..withValues(alpha: 0.01),
-                spreadRadius: 0.1,
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const MyText(
-                'Task Done',
-                color: AppColors.neutral800,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 24,
-                runSpacing: 16,
-                children: [
-                  TimeframeTab(
-                    title: 'Daily',
-                    isSelected: selectedTimeframe == 'Daily',
-                    onTap: () => setState(() => selectedTimeframe = 'Daily'),
-                  ),
-                  TimeframeTab(
-                    title: 'Weekly',
-                    isSelected: selectedTimeframe == 'Weekly',
-                    onTap: () => setState(() => selectedTimeframe = 'Weekly'),
-                  ),
-                  TimeframeTab(
-                    title: 'Monthly',
-                    isSelected: selectedTimeframe == 'Monthly',
-                    onTap: () => setState(() => selectedTimeframe = 'Monthly'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: isSmallScreen ? 250 : 300,
-                child: const TaskChart(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
+        Expanded(child: cards[0]),
+        const SizedBox(width: 12),
+        Expanded(child: cards[1]),
+        const SizedBox(width: 12),
+        Expanded(child: cards[2]),
       ],
     );
   }
@@ -376,47 +363,143 @@ class _TaskDetailBodyState extends State<TaskDetailBody> {
         'value': '08',
         'trend': '10+ more',
         'trendPeriod': 'from last week',
-        'lineColor': Colors.blue[700]!,
-        'fillColor': Colors.blue[100]!,
+        'icon': Iconsax.tick_circle,
+        'tone': StatusTone.success,
       },
       {
         'title': 'New Task',
         'value': '10',
         'trend': '10+ more',
         'trendPeriod': 'from last week',
-        'lineColor': Colors.blue[700]!,
-        'fillColor': Colors.blue[100]!,
+        'icon': Iconsax.task_square,
+        'tone': StatusTone.primary,
       },
       {
         'title': 'Project Done',
         'value': '10',
         'trend': '08+ more',
         'trendPeriod': 'from last week',
-        'lineColor': Colors.red[400]!,
-        'fillColor': Colors.red[100]!,
+        'icon': Iconsax.chart_square,
+        'tone': StatusTone.danger,
       },
     ];
 
     final data = cardData[index];
+    final tone = data['tone'] as StatusTone;
 
     return StatCard(
       title: data['title'] as String,
       value: data['value'] as String,
       trend: data['trend'] as String,
       trendPeriod: data['trendPeriod'] as String,
-      lineColor: data['lineColor'] as Color,
-      fillColor: data['fillColor'] as Color,
+      icon: data['icon'] as IconData,
+      tone: tone,
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // Chart card with pill tab bar
+  // ────────────────────────────────────────────────────────────
+
+  Widget _buildChartCard({required bool isSmallScreen}) {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Task Done', style: AppTextStyles.h3),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Completion trend over time',
+                      style: AppTextStyles.bodyMd
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildTimeframePillBar(),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: isSmallScreen ? 250 : 300,
+            child: const TaskChart(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeframePillBar() {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        children: _timeframes
+            .map((label) => Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: _buildTimeframeButton(label),
+                  ),
+                ))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildTimeframeButton(String label) {
+    final isActive = selectedTimeframe == label;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => setState(() => selectedTimeframe = label),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.surface : Colors.transparent,
+            borderRadius: AppRadii.brMd,
+            boxShadow: isActive ? AppShadows.sm : const <BoxShadow>[],
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMd.copyWith(
+              color:
+                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  STAT CARD
+// ═══════════════════════════════════════════════════════════════════
 
 class StatCard extends StatelessWidget {
   final String title;
   final String value;
   final String trend;
   final String trendPeriod;
-  final Color lineColor;
-  final Color fillColor;
+  final IconData icon;
+  final StatusTone tone;
 
   const StatCard({
     super.key,
@@ -424,104 +507,131 @@ class StatCard extends StatelessWidget {
     required this.value,
     this.trend = '',
     this.trendPeriod = '',
-    required this.lineColor,
-    required this.fillColor,
+    required this.icon,
+    this.tone = StatusTone.primary,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(5),
+    final palette = _tonePalette(tone);
+
+    return AppCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey..withValues(alpha: 0.01),
-            spreadRadius: 0.1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                  padding: const EdgeInsets.all(5),
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: SvgPicture.asset("assets/svg/star-chart.svg")),
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: palette.background,
+                  borderRadius: AppRadii.brSm,
+                ),
+                child: Icon(icon, size: 18, color: palette.foreground),
+              ),
               const SizedBox(width: 10),
               Expanded(
-                child: MyText(
+                child: Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              MyText(
+              Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyles.h2,
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          const Divider(),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: SizedBox(
                   height: 30,
                   child: MiniLineChart(
-                    lineColor: lineColor,
-                    fillColor: fillColor,
+                    lineColor: palette.foreground,
+                    fillColor: palette.background,
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              SizedBox(
-                width: 100,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    MyText(
-                      trend,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    trend,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
                     ),
-                    MyText(
-                      trendPeriod,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              )
+                  ),
+                  Text(
+                    trendPeriod,
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.textMuted),
+                  ),
+                ],
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
+
+  _StatPalette _tonePalette(StatusTone tone) {
+    switch (tone) {
+      case StatusTone.success:
+        return const _StatPalette(
+          foreground: AppColors.success,
+          background: AppColors.successSubtle,
+        );
+      case StatusTone.warning:
+        return const _StatPalette(
+          foreground: AppColors.warning,
+          background: AppColors.warningSubtle,
+        );
+      case StatusTone.danger:
+        return const _StatPalette(
+          foreground: AppColors.danger,
+          background: AppColors.dangerSubtle,
+        );
+      case StatusTone.info:
+        return const _StatPalette(
+          foreground: AppColors.info,
+          background: AppColors.infoSubtle,
+        );
+      case StatusTone.primary:
+        return const _StatPalette(
+          foreground: AppColors.primary,
+          background: AppColors.primarySubtle,
+        );
+      case StatusTone.neutral:
+        return const _StatPalette(
+          foreground: AppColors.textSecondary,
+          background: AppColors.surfaceMuted,
+        );
+    }
+  }
 }
+
+class _StatPalette {
+  final Color foreground;
+  final Color background;
+  const _StatPalette({required this.foreground, required this.background});
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  MINI LINE CHART
+// ═══════════════════════════════════════════════════════════════════
 
 class MiniLineChart extends StatelessWidget {
   final Color lineColor;
@@ -557,7 +667,7 @@ class MiniLineChart extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: fillColor..withValues(alpha: 0.3),
+              color: fillColor.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -571,48 +681,9 @@ class MiniLineChart extends StatelessWidget {
   }
 }
 
-class TimeframeTab extends StatelessWidget {
-  final String title;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const TimeframeTab({
-    super.key,
-    required this.title,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          MyText(
-            title,
-            isSelectable: false,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? AppColors.neutral800 : Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 4),
-          if (isSelected)
-            Container(
-              height: 3,
-              width: 60,
-              decoration: BoxDecoration(
-                color: AppColors.neutral800,
-                borderRadius: BorderRadius.circular(1.5),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
+// ═══════════════════════════════════════════════════════════════════
+//  TASK CHART
+// ═══════════════════════════════════════════════════════════════════
 
 class TaskChart extends StatelessWidget {
   const TaskChart({super.key});
@@ -629,8 +700,8 @@ class TaskChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: 100,
           getDrawingHorizontalLine: (value) {
-            return FlLine(
-              color: Colors.grey[200],
+            return const FlLine(
+              color: AppColors.neutral200,
               strokeWidth: 1,
             );
           },
@@ -667,10 +738,10 @@ class TaskChart extends StatelessWidget {
                 if (index >= 0 && index < months.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: MyText(
+                    child: Text(
                       months[index],
-                      style: TextStyle(
-                        color: Colors.grey[600],
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textMuted,
                         fontSize: isSmallScreen ? 10 : 12,
                       ),
                     ),
@@ -685,10 +756,10 @@ class TaskChart extends StatelessWidget {
               showTitles: true,
               interval: 100,
               getTitlesWidget: (value, meta) {
-                return MyText(
+                return Text(
                   value.toInt().toString(),
-                  style: TextStyle(
-                    color: Colors.grey[600],
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textMuted,
                     fontSize: isSmallScreen ? 10 : 12,
                   ),
                 );
@@ -704,22 +775,22 @@ class TaskChart extends StatelessWidget {
         maxY: 400,
         lineBarsData: [
           LineChartBarData(
-            spots: [
-              const FlSpot(0, 50),
-              const FlSpot(1, 100),
-              const FlSpot(2, 200),
-              const FlSpot(3, 300),
-              const FlSpot(4, 250),
-              const FlSpot(5, 280),
-              const FlSpot(6, 220),
-              const FlSpot(7, 320),
-              const FlSpot(8, 300),
-              const FlSpot(9, 350),
-              const FlSpot(10, 200),
-              const FlSpot(11, 150),
+            spots: const [
+              FlSpot(0, 50),
+              FlSpot(1, 100),
+              FlSpot(2, 200),
+              FlSpot(3, 300),
+              FlSpot(4, 250),
+              FlSpot(5, 280),
+              FlSpot(6, 220),
+              FlSpot(7, 320),
+              FlSpot(8, 300),
+              FlSpot(9, 350),
+              FlSpot(10, 200),
+              FlSpot(11, 150),
             ],
             isCurved: true,
-            color: Colors.blue[700],
+            color: AppColors.primary,
             barWidth: 3,
             isStrokeCapRound: true,
             dotData: FlDotData(
@@ -727,9 +798,9 @@ class TaskChart extends StatelessWidget {
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
                   radius: isSmallScreen ? 3 : 4,
-                  color: Colors.white,
+                  color: AppColors.surface,
                   strokeWidth: 2,
-                  strokeColor: Colors.blue[700]!,
+                  strokeColor: AppColors.primary,
                 );
               },
             ),
@@ -737,9 +808,9 @@ class TaskChart extends StatelessWidget {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  Colors.blue[300]!.withValues(alpha: 0.4),
-                  Colors.blue[200]!..withValues(alpha: 0.2),
-                  Colors.blue[100]!..withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.25),
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.02),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -747,22 +818,22 @@ class TaskChart extends StatelessWidget {
             ),
           ),
           LineChartBarData(
-            spots: [
-              const FlSpot(0, 30),
-              const FlSpot(1, 70),
-              const FlSpot(2, 150),
-              const FlSpot(3, 230),
-              const FlSpot(4, 180),
-              const FlSpot(5, 220),
-              const FlSpot(6, 150),
-              const FlSpot(7, 250),
-              const FlSpot(8, 230),
-              const FlSpot(9, 300),
-              const FlSpot(10, 150),
-              const FlSpot(11, 100),
+            spots: const [
+              FlSpot(0, 30),
+              FlSpot(1, 70),
+              FlSpot(2, 150),
+              FlSpot(3, 230),
+              FlSpot(4, 180),
+              FlSpot(5, 220),
+              FlSpot(6, 150),
+              FlSpot(7, 250),
+              FlSpot(8, 230),
+              FlSpot(9, 300),
+              FlSpot(10, 150),
+              FlSpot(11, 100),
             ],
             isCurved: true,
-            color: Colors.blue[400],
+            color: AppColors.info,
             barWidth: 3,
             isStrokeCapRound: true,
             dotData: FlDotData(
@@ -770,23 +841,23 @@ class TaskChart extends StatelessWidget {
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
                   radius: isSmallScreen ? 3 : 4,
-                  color: Colors.white,
+                  color: AppColors.surface,
                   strokeWidth: 2,
-                  strokeColor: Colors.blue[400]!,
+                  strokeColor: AppColors.info,
                 );
               },
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue[100]!..withValues(alpha: 0.3),
+              color: AppColors.infoSubtle.withValues(alpha: 0.5),
             ),
           ),
         ],
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
             tooltipRoundedRadius: 8,
-            tooltipBorder: BorderSide(
-              color: Colors.grey[300]!,
+            tooltipBorder: const BorderSide(
+              color: AppColors.borderSubtle,
               width: 1,
             ),
             getTooltipItems: (touchedSpots) {
@@ -794,7 +865,7 @@ class TaskChart extends StatelessWidget {
                 return LineTooltipItem(
                   '${touchedSpot.y.toInt()}',
                   const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textOnPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 );
@@ -807,185 +878,269 @@ class TaskChart extends StatelessWidget {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+//  TODAY'S TASKS SIDEBAR
+// ═══════════════════════════════════════════════════════════════════
+
+class _TodayTasksSection extends StatelessWidget {
+  const _TodayTasksSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Row(
+              children: [
+                const Icon(Iconsax.calendar_1,
+                    size: 18, color: AppColors.warning),
+                const SizedBox(width: 8),
+                const Text("Today's Tasks", style: AppTextStyles.h4),
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: AppRadii.brPill,
+                  ),
+                  child: Text(
+                    '3',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Material(
+                  color: AppColors.primary,
+                  borderRadius: AppRadii.brPill,
+                  child: InkWell(
+                    borderRadius: AppRadii.brPill,
+                    onTap: () {},
+                    child: const SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: Icon(
+                        Iconsax.add,
+                        color: AppColors.textOnPrimary,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: [
+                ProjectCard(),
+                SizedBox(height: 12),
+                ProjectCard(),
+                SizedBox(height: 12),
+                ProjectCard(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  PROJECT CARD (in Today's Tasks sidebar)
+// ═══════════════════════════════════════════════════════════════════
+
 class ProjectCard extends StatelessWidget {
   const ProjectCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isVerySmallScreen = screenWidth < 400;
-
     return Container(
-      margin: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey..withValues(alpha: 0.03),
-            spreadRadius: 0.2,
-            blurRadius: 2,
-            offset: const Offset(0, 1),
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Project X dashboard UI design',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const StatusChip(
+                label: 'Ongoing',
+                tone: StatusTone.primary,
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Dashboard UI design is a visually engaging and intuitively structured interface tailored to streamline project management.',
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodySm
+                .copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Iconsax.clock,
+                  color: AppColors.warning, size: 14),
+              const SizedBox(width: 4),
+              Text(
+                'Deadline: ',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.warning,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  '11th - 15th Aug 2023',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildAvatarStack(),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceMuted,
+                      borderRadius: AppRadii.brPill,
+                      border: Border.all(color: AppColors.borderSubtle),
+                    ),
+                    child: const Icon(
+                      Iconsax.add,
+                      size: 14,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Iconsax.attach_circle,
+                      size: 16, color: AppColors.textMuted),
+                  const SizedBox(width: 4),
+                  Text('2',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary)),
+                  const SizedBox(width: 12),
+                  const Icon(Iconsax.message_text,
+                      size: 16, color: AppColors.textMuted),
+                  const SizedBox(width: 4),
+                  Text('3',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary)),
+                ],
+              ),
+            ],
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                const Expanded(
-                  child: MyText(
-                    'Project X dashboard UI design',
-                    maxLines: 2,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MyText(
-                        'Ongoing',
-                        style: TextStyle(
-                            color: AppColors.primary.withValues(alpha: 0.8),
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Icon(
-                        Iconsax.arrow_down_1,
-                        color: AppColors.primary.withValues(alpha: 0.8),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            const MyText(
-              'Dashboard UI design is a visually engaging and intuitively structured interface tailored to streamline project management',
-              maxLines: 10,
-              style: TextStyle(color: Colors.black87),
-            ),
-            const SizedBox(height: 12),
-            const Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Icon(Iconsax.clock, color: Colors.orange, size: 20),
-                MyText(
-                  'Deadline: ',
-                  style: TextStyle(
-                      color: Colors.orange, fontWeight: FontWeight.bold),
-                ),
-                MyText(
-                  '11th - 15th August 2023',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            isVerySmallScreen
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const ProfileIconsStack(
-                            imagesPath: [
-                              "assets/user1.jpg",
-                              "assets/user1.jpg",
-                            ],
-                          ),
-                          kSizedBoxWidthSM,
-                          SizedBox(
-                            height: 28,
-                            width: 28,
-                            child: SvgPicture.asset(
-                              "assets/svg/add-circle.svg",
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.neutral400, BlendMode.srcIn),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Row(
-                        children: [
-                          Icon(Iconsax.attach_circle, size: 18),
-                          SizedBox(width: 4),
-                          MyText('2'),
-                          SizedBox(width: 12),
-                          Icon(Iconsax.message_text, size: 18),
-                          SizedBox(width: 4),
-                          MyText('3'),
-                        ],
-                      ),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(
-                        child: Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const ProfileIconsStack(
-                                  imagesPath: [
-                                    "assets/user1.jpg",
-                                    "assets/user1.jpg",
-                                  ],
-                                ),
-                                kSizedBoxWidthTiny,
-                                SizedBox(
-                                  height: 28,
-                                  width: 28,
-                                  child: SvgPicture.asset(
-                                    "assets/svg/add-circle.svg",
-                                    colorFilter: const ColorFilter.mode(
-                                        AppColors.neutral400, BlendMode.srcIn),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  height: 28,
-                                ),
-                                Icon(Iconsax.attach_circle, size: 18),
-                                SizedBox(width: 4),
-                                MyText('2'),
-                                SizedBox(width: 12),
-                                Icon(Iconsax.message_text, size: 18),
-                                SizedBox(width: 4),
-                                MyText('3'),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-          ],
-        ),
+    );
+  }
+
+  Widget _buildAvatarStack() {
+    return SizedBox(
+      width: 44,
+      height: 26,
+      child: Stack(
+        children: [
+          _miniAvatar(0, AppColors.primary, 'A'),
+          Positioned(
+            left: 18,
+            child: _miniAvatar(1, AppColors.success, 'B'),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _miniAvatar(int index, Color color, String letter) {
+    return Container(
+      width: 26,
+      height: 26,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.surface, width: 2),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: AppTextStyles.caption
+            .copyWith(color: color, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TONE HELPERS
+// ═══════════════════════════════════════════════════════════════════
+
+StatusTone _statusTone(String status) {
+  switch (status.toLowerCase().trim()) {
+    case 'completed':
+    case 'approved':
+      return StatusTone.success;
+    case 'in_progress':
+    case 'in progress':
+      return StatusTone.primary;
+    case 'in_review':
+    case 'in review':
+      return StatusTone.info;
+    case 'pending':
+    case 'pending_approval':
+      return StatusTone.warning;
+    case 'blocked':
+    case 'cancelled':
+    case 'canceled':
+    case 'rejected':
+      return StatusTone.danger;
+    case 'todo':
+    case 'to do':
+    default:
+      return StatusTone.neutral;
   }
 }

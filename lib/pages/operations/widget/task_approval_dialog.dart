@@ -1,12 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/pages/operations/models/task_approval_models.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
 import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 /// Result class for task approval
 class TaskApprovalResult {
@@ -110,7 +112,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: MyText(
+            content: Text(
               'Task ${newStatus.displayName.toLowerCase()} successfully',
               style: const TextStyle(color: Colors.white),
             ),
@@ -135,7 +137,7 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: MyText(
+        content: Text(
           message,
           style: const TextStyle(color: Colors.white),
         ),
@@ -144,260 +146,130 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
     );
   }
 
+  StatusTone _statusTone(TaskStatus status) {
+    switch (status) {
+      case TaskStatus.completed:
+        return StatusTone.success;
+      case TaskStatus.inProgress:
+        return StatusTone.primary;
+      case TaskStatus.pending:
+        return StatusTone.warning;
+      case TaskStatus.onHold:
+        return StatusTone.warning;
+      case TaskStatus.rejected:
+        return StatusTone.danger;
+    }
+  }
+
+  StatusTone _priorityTone(TaskPriority priority) {
+    switch (priority) {
+      case TaskPriority.high:
+        return StatusTone.danger;
+      case TaskPriority.medium:
+        return StatusTone.warning;
+      case TaskPriority.low:
+        return StatusTone.neutral;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1000),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade300),
-                ),
-                color: Colors.green.shade50,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Task Review',
-                        style: AppTextStyles.h2,
-                      ),
-                      SizedBox(height: 4),
-                      MyText(
-                        'Review and approve task completion',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.neutral500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Iconsax.close_circle),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
+    return DialogScaffold(
+      title: 'Task review',
+      subtitle: 'Review and approve task completion.',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryBanner(),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Description',
+            child: Text(
+              widget.task.description.isEmpty
+                  ? 'No description provided.'
+                  : widget.task.description,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                height: 1.5,
               ),
             ),
-
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 24,
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: 'Your review',
+            subtitle:
+                'Choose an action, then add feedback before submitting.',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildApprovalButton(
+                        'Approve',
+                        TaskApprovalAction.approve,
+                        AppColors.success,
+                        Iconsax.tick_circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildApprovalButton(
+                        'Rework',
+                        TaskApprovalAction.requestRework,
+                        AppColors.warning,
+                        Iconsax.refresh,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildApprovalButton(
+                        'Reject',
+                        TaskApprovalAction.reject,
+                        AppColors.danger,
+                        Iconsax.close_circle,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                MyTextFormField(
+                  title: 'Feedback *',
+                  controller: _feedbackController,
+                  hintText: 'Enter your feedback...',
+                  maxLines: 4,
+                  onChanged: (value) => setState(() {}),
+                ),
+                if (_selectedAction == TaskApprovalAction.requestRework) ...[
+                  const SizedBox(height: 16),
+                  MyTextFormField(
+                    title: 'Rework Instructions *',
+                    controller: _reworkNotesController,
+                    hintText: 'Describe what needs to be reworked...',
+                    maxLines: 4,
+                    onChanged: (value) => setState(() {}),
                   ),
-                  child: Column(
+                ],
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.infoSubtle,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.info),
+                  ),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Task Info Card
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0XFFD5D5D5)),
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey.shade50,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    MyText(
-                                      widget.task.code,
-                                      style: AppTextStyles.h4,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    MyText(
-                                      widget.task.title,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.neutral500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        AppColors.primary.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: MyText(
-                                    widget.task.status.displayName,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Divider(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildInfoItem(
-                                  'Assigned To',
-                                  widget.task.assignedTo,
-                                ),
-                                _buildInfoItem(
-                                  'Priority',
-                                  widget.task.priority.displayName,
-                                ),
-                                _buildInfoItem(
-                                  'Due Date',
-                                  '${widget.task.dueDate.day}/${widget.task.dueDate.month}/${widget.task.dueDate.year}',
-                                ),
-                                _buildInfoItem(
-                                  'Est. Hours',
-                                  '${widget.task.estimatedHours.toStringAsFixed(0)} hrs',
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Task Description
-                      const MyText(
-                        'Description',
-                        style: AppTextStyles.h4,
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0XFFD5D5D5)),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: MyText(
-                          widget.task.description,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.neutral600,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Divider
-                      const Divider(height: 32),
-
-                      // Review Actions Section
-                      const MyText(
-                        'Your Review',
-                        style: AppTextStyles.h4,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Action Buttons
-                      Row(
-                        spacing: 12,
-                        children: [
-                          Expanded(
-                            child: _buildApprovalButton(
-                              'Approve',
-                              TaskApprovalAction.approve,
-                              AppColors.success,
-                              Iconsax.tick_circle,
-                            ),
-                          ),
-                          Expanded(
-                            child: _buildApprovalButton(
-                              'Rework',
-                              TaskApprovalAction.requestRework,
-                              AppColors.warning,
-                              Iconsax.refresh,
-                            ),
-                          ),
-                          Expanded(
-                            child: _buildApprovalButton(
-                              'Reject',
-                              TaskApprovalAction.reject,
-                              AppColors.danger,
-                              Iconsax.close_circle,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Feedback Field
-                      const MyText(
-                        'Feedback *',
-                        style: AppTextStyles.h4,
-                      ),
-                      const SizedBox(height: 8),
-                      MyTextFormField(
-                        controller: _feedbackController,
-                        hintText: 'Enter your feedback...',
-                        maxLines: 4,
-                        onChanged: (value) => setState(() {}),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Rework Instructions (conditional)
-                      if (_selectedAction == TaskApprovalAction.requestRework)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const MyText(
-                              'Rework Instructions *',
-                              style: AppTextStyles.h4,
-                            ),
-                            const SizedBox(height: 8),
-                            MyTextFormField(
-                              controller: _reworkNotesController,
-                              hintText: 'Describe what needs to be reworked...',
-                              maxLines: 4,
-                              onChanged: (value) => setState(() {}),
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-                        ),
-
-                      // Info Message
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0F9FF),
-                          border: Border.all(
-                            color: AppColors.info,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: MyText(
+                      const Icon(Iconsax.info_circle,
+                          size: 16, color: AppColors.info),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
                           _getInfoMessage(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF0369A1),
+                          style: AppTextStyles.bodySm.copyWith(
+                            color: AppColors.textPrimary,
                             height: 1.5,
                           ),
                         ),
@@ -405,63 +277,165 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
-
-            // Footer
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                spacing: 12,
-                children: [
-                  MyOutlinedButton(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: 'Cancel',
-                  ),
-                  MyElevatedButton(
-                    onTap: _isLoading || _selectedAction == null
-                        ? null
-                        : () => _handleApproval(_selectedAction!),
-                    isLoading: _isLoading,
-                    child: 'Submit Approval',
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
+        ],
+      ),
+      actions: [
+        MyOutlinedButton(
+          child: 'Cancel',
+          height: 44,
+          onTap: () => Navigator.of(context).pop(),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
         ),
+        MyElevatedButton(
+          width: 170,
+          height: 44,
+          isLoading: _isLoading,
+          icon: _isLoading
+              ? null
+              : const Icon(Iconsax.tick_circle,
+                  size: 18, color: AppColors.textOnPrimary),
+          onTap: _isLoading || _selectedAction == null
+              ? null
+              : () => _handleApproval(_selectedAction!),
+          child: 'Submit Approval',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brLg,
+            ),
+            child: const Icon(Iconsax.task_square,
+                color: AppColors.primary, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.task.code, style: AppTextStyles.h4),
+                const SizedBox(height: 2),
+                Text(
+                  widget.task.title,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      label: widget.task.status.displayName,
+                      tone: _statusTone(widget.task.status),
+                    ),
+                    StatusChip(
+                      label: widget.task.priority.displayName,
+                      tone: _priorityTone(widget.task.priority),
+                    ),
+                    _buildMetaChip(
+                      icon: Iconsax.profile_2user,
+                      label: widget.task.assignedTo,
+                    ),
+                    _buildMetaChip(
+                      icon: Iconsax.calendar,
+                      label:
+                          '${widget.task.dueDate.day}/${widget.task.dueDate.month}/${widget.task.dueDate.year}',
+                    ),
+                    _buildMetaChip(
+                      icon: Iconsax.clock,
+                      label:
+                          '${widget.task.estimatedHours.toStringAsFixed(0)} hrs',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MyText(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: AppColors.neutral500,
+  Widget _buildMetaChip({
+    required IconData icon,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadii.brPill,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        MyText(
-          value,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.neutral800,
-          ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
     );
   }
 
@@ -472,41 +446,43 @@ class _TaskApprovalDialogState extends State<TaskApprovalDialog> {
     IconData icon,
   ) {
     final isSelected = _selectedAction == action;
-    return GestureDetector(
-      onTap: () => setState(() {
-        _selectedAction = _selectedAction == action ? null : action;
-        if (_selectedAction != TaskApprovalAction.requestRework) {
-          _reworkNotesController.clear();
-        }
-      }),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected ? color : AppColors.neutral200,
-            width: isSelected ? 2 : 1,
+    return Material(
+      color: isSelected ? color.withValues(alpha: 0.08) : AppColors.surface,
+      borderRadius: AppRadii.brMd,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => setState(() {
+          _selectedAction = _selectedAction == action ? null : action;
+          if (_selectedAction != TaskApprovalAction.requestRework) {
+            _reworkNotesController.clear();
+          }
+        }),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: isSelected ? color : AppColors.borderSubtle,
+              width: isSelected ? 2 : 1,
+            ),
+            borderRadius: AppRadii.brMd,
           ),
-          borderRadius: BorderRadius.circular(8),
-          color:
-              isSelected ? color.withValues(alpha: 0.08) : Colors.transparent,
-        ),
-        child: Column(
-          spacing: 6,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? color : AppColors.neutral500,
-              size: 20,
-            ),
-            MyText(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? color : AppColors.neutral500,
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? color : AppColors.textSecondary,
+                size: 20,
               ),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: AppTextStyles.bodySm.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? color : AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

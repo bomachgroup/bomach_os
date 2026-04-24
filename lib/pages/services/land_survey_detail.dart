@@ -1,16 +1,15 @@
-import 'package:bms_front_end/components/button/sort_filter_bar2.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/client/clients_database.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/services/widget/image_slider.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
-import '../../components/button/icon_button.dart';
-import '../../src/constants/colors.dart';
+import 'package:iconsax/iconsax.dart';
 
 class LandSurveyDetailScreen extends StatefulWidget {
   const LandSurveyDetailScreen({super.key});
@@ -20,7 +19,7 @@ class LandSurveyDetailScreen extends StatefulWidget {
 }
 
 class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
-  PageController imageController = PageController();
+  final PageController imageController = PageController();
 
   @override
   void dispose() {
@@ -30,441 +29,261 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: const PageHeader(
+        title: 'Serenity bungalow',
+        subtitle: 'Property overview, key features and pricing details.',
+      ),
+      children: [
+        _buildOverviewCard(),
+        _buildGallery(),
+        _buildDetailsRow(),
+        _buildPricingSection(),
+      ],
+    );
+  }
+
+  Widget _buildOverviewCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        runSpacing: 16,
+        spacing: 16,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  StatusChip(
+                    label: 'Residential',
+                    tone: StatusTone.primary,
+                    icon: Iconsax.home,
+                  ),
+                  SizedBox(width: 8),
+                  StatusChip(
+                    label: 'For Sale',
+                    tone: StatusTone.success,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Iconsax.location,
+                      size: 16, color: AppColors.textMuted),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Nike, Enugu',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Price',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 4),
+              const Text('N58,000,000', style: AppTextStyles.h1),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGallery() {
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: SizedBox(
+        height: (isSmallScreen(context) ? 500 : 672) + 114,
+        child: const ImageCarousel(),
+      ),
+    );
+  }
+
+  Widget _buildDetailsRow() {
+    final isLarge = isLargeScreen(context);
+    if (!isLarge) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _descriptionCard(),
+          const SizedBox(height: 16),
+          _keyFeaturesCard(),
+        ],
+      );
+    }
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //header
-            const MyText(
-              "Services",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/plus.svg"),
-                  colorBackground: AppColors.primary,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const AddInvoiceDialog();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/note2.svg"),
-                  colorBackground: AppColors.primary,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const InvoiceContent();
-                      },
-                    );
-                  },
-                ),
-                kSizedBoxWidthSM,
-                MyIconButton(
-                  icon: SvgPicture.asset("assets/svg/notification.svg"),
-                  colorBackground: AppColors.primary,
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
-        ),
-        //search
-        const SizedBox(
-          height: 20,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                spacing: 15,
-                runSpacing: 15,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: MyTextFormField(
-                      hintText: "Search...",
-                      leading: Icon(
-                        Iconsax.search_normal,
-                        color: AppColors.neutral500.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  const SortFilterBar2(),
-                ],
-              ),
-            ),
-          ],
-        ),
+        Expanded(child: _descriptionCard()),
+        const SizedBox(width: 16),
+        Expanded(child: _keyFeaturesCard()),
+      ],
+    );
+  }
 
-        kSizedBox,
-        kSizedBoxSM,
-
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                runSpacing: 20,
-                children: [
-                  Wrap(
-                    alignment: WrapAlignment.start,
-                    spacing: 15,
-                    runSpacing: 15,
-                    children: [
-                      const MyText(
-                        "Serenity bungalow",
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w500),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.neutral500.withValues(alpha: 0.5),
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset("assets/svg/map-pin.svg"),
-                            kSizedBoxWidthTiny,
-                            const MyText(
-                              "Nike, Enugu",
-                              size: 18,
-                              weight: 400,
-                              color: AppColors.black,
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        "Price",
-                        size: 18,
-                        weight: 400,
-                        color: AppColors.neutral400,
-                      ),
-                      MyText(
-                        "N58,000,000",
-                        size: 24,
-                        weight: 500,
-                        color: AppColors.black,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-        SizedBox(
-          height: (isSmallScreen(context) ? 500 : 672) + 114,
-          child: const ImageCarousel(),
-        ),
-
-        kSizedBoxBG,
-        !isLargeScreen(context)
-            ? Wrap(
-                runSpacing: 20,
-                spacing: 20,
-                children: [
-                  description(),
-                  keyFetures(),
-                ],
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 20,
-                children: [
-                  description(),
-                  keyFetures(),
-                ],
-              ),
-
-        kSizedBoxBG,
-
-        Row(
-          children: [
-            SvgPicture.asset(
-              "assets/svg/square-star.svg",
-            ),
-            kSizedBoxWidthTiny,
-            SvgPicture.asset(
-              "assets/svg/square-filled.svg",
-            ),
-            kSizedBoxWidthTiny,
-            SvgPicture.asset(
-              "assets/svg/square-filled.svg",
-              height: 7,
-              width: 7,
-            ),
-          ],
-        ),
-        kSizedBoxSM,
-        const MyText(
-          "Pricing Details",
-          size: 38,
-          weight: 500,
-        ),
-        kSizedBox,
-        Container(
-          height: 70,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.textPrimary,
-            borderRadius: BorderRadius.circular(20),
+  Widget _descriptionCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Description', style: AppTextStyles.h3),
+          const SizedBox(height: 12),
+          Text(
+            'Discover your own piece of paradise with the Seaside Serenity Villa. With an open floor plan, breathtaking ocean views from every room, and direct access to a pristine sandy beach, this property is the epitome of coastal living.',
+            style: AppTextStyles.bodyMd
+                .copyWith(color: AppColors.textSecondary, height: 1.6),
           ),
-          child: const Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              MyText(
-                "Note",
-                size: 20,
-                weight: 500,
-                color: AppColors.white,
-              ),
-              kSizedBoxWidthSM,
-              VerticalDivider(
-                color: AppColors.white,
-                thickness: 1,
-                width: 20,
-              ),
-              kSizedBoxWidthSM,
-              Expanded(
-                child: MyText(
-                  "hvfiodbh phbgdip jbof0gopd bpuighb jv0fgdsohgh8i jvof7s9g0ogbpx oug0dsfo v0ggp80h ig7s0gho hnxci",
-                  size: 16,
-                  weight: 400,
-                  color: AppColors.white,
-                  maxLines: 1,
-                ),
-              )
-            ],
-          ),
-        ),
-        kSizedBox,
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MyText(
-              "Listing Price",
-              size: 18,
-              weight: 400,
-              color: AppColors.neutral400,
-            ),
-            MyText(
-              "N58,000,000",
-              size: 24,
-              weight: 500,
-              color: AppColors.black,
-            )
-          ],
-        ),
-
-        kSizedBox,
-        Container(
-          padding: const EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: AppColors.neutral300,
-            ),
-            borderRadius: BorderRadius.circular(24.0),
-          ),
-          child: Column(
+          const SizedBox(height: 20),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 16),
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const MyText(
-                'Additional Fees',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.black,
-                ),
+              Expanded(child: _specStat('Bedrooms', '04', 'assets/svg/bed.svg')),
+              Container(
+                width: 1,
+                height: 48,
+                color: AppColors.borderSubtle,
               ),
-              kSizedBoxBG,
-
-              const Divider(
-                height: 1,
-                color: AppColors.neutral300,
+              Expanded(
+                child: _specStat(
+                  'Bathrooms',
+                  '03',
+                  'assets/svg/bath-tub.svg',
+                ),
               ),
               Container(
-                padding: const EdgeInsets.only(top: 10),
-                alignment: Alignment.center,
-                height: 105,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Rent',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const MyText(
-                            'N58,000,000',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const VerticalDivider(
-                      color: AppColors.neutral300,
-                      thickness: 1,
-                      width: 20,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Brokerage Fees',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const MyText(
-                            '15%',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                width: 1,
+                height: 48,
+                color: AppColors.borderSubtle,
+              ),
+              Expanded(
+                child: _specStat(
+                  'Area',
+                  '1,500 sqft',
+                  'assets/svg/area.svg',
                 ),
               ),
-              kSizedBox,
-              const Divider(
-                height: 1,
-                color: AppColors.neutral300,
-              ),
-              Container(
-                padding: const EdgeInsets.only(top: 10),
-                alignment: Alignment.center,
-                height: 105,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Caution Fees',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const MyText(
-                            'N25,000',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const VerticalDivider(
-                      color: AppColors.neutral300,
-                      thickness: 1,
-                      width: 20,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MyText(
-                            'Legal Fees',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const MyText(
-                            'N50,000',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              // Property Details Row
             ],
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _specStat(String label, String value, String iconAsset) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                iconAsset,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.textMuted,
+                  BlendMode.srcIn,
+                ),
+                width: 16,
+                height: 16,
+              ),
+              if (!isSmallScreen(context)) ...[
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: AppTextStyles.h2,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _keyFeaturesCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Key Features and Amenities', style: AppTextStyles.h3),
+          const SizedBox(height: 12),
+          _buildFeatureItem(
+            'Expansive oceanfront terrace for outdoor entertaining',
+          ),
+          _buildFeatureItem(
+            'Gourmet kitchen with top-of-the-line appliances',
+          ),
+          _buildFeatureItem(
+            'Private beach access for morning strolls and sunset views',
+          ),
+          _buildFeatureItem(
+            'Master suite with a spa-inspired bathroom and ocean-facing balcony',
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildFeatureItem(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SvgPicture.asset(
-            "assets/svg/thunder.svg",
-            colorFilter: const ColorFilter.mode(
-              AppColors.black,
-              BlendMode.srcIn,
+          Container(
+            margin: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Iconsax.tick_circle,
+              size: 14,
+              color: AppColors.primary,
             ),
           ),
-          kSizedBoxWidthSM,
+          const SizedBox(width: 10),
           Expanded(
-            child: MyText(
+            child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                height: 1.5,
-              ),
+              style: AppTextStyles.bodyMd
+                  .copyWith(color: AppColors.textSecondary, height: 1.5),
             ),
           ),
         ],
@@ -472,228 +291,105 @@ class _LandSurveyDetailScreenState extends State<LandSurveyDetailScreen> {
     );
   }
 
-  Widget description() {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(24.0),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: AppColors.neutral300,
-          ),
-          borderRadius: BorderRadius.circular(24.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const MyText(
-              'Description',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-                color: AppColors.black,
-              ),
+  Widget _buildPricingSection() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Pricing Details', style: AppTextStyles.h2),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primarySubtle,
+              borderRadius: AppRadii.brMd,
+              border: Border.all(color: AppColors.primarySoft),
             ),
-            const SizedBox(height: 16),
-            const MyText(
-              'Discover your own piece of paradise with the Seaside Serenity Villa. With an open floor plan, breathtaking ocean views from every room, and direct access to a pristine sandy beach, this property is the epitome of coastal living.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Divider(
-              height: 1,
-              color: AppColors.neutral300,
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 10),
-              alignment: Alignment.center,
-              height: 130,
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Bedrooms
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/svg/bed.svg",
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.neutral500,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              if (!isSmallScreen(context)) ...[
-                                const SizedBox(width: 8),
-                                MyText(
-                                  'Bedrooms',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ]
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          const MyText(
-                            '04',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Iconsax.info_circle,
+                    size: 18, color: AppColors.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Note',
+                        style: AppTextStyles.label
+                            .copyWith(color: AppColors.primary),
                       ),
-                    ),
-                    const VerticalDivider(
-                      color: AppColors.neutral300,
-                      thickness: 1,
-                      width: 20,
-                    ),
-                    // Bathrooms
-                    Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/svg/bath-tub.svg",
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.neutral500,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              if (!isSmallScreen(context)) ...[
-                                const SizedBox(width: 8),
-                                MyText(
-                                  'Bathrooms',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          const MyText(
-                            '03',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                      const SizedBox(height: 2),
+                      Text(
+                        'Pricing is indicative and may be adjusted following site inspection and due diligence.',
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
                       ),
-                    ),
-                    const VerticalDivider(
-                      color: AppColors.neutral300,
-                      thickness: 1,
-                      width: 20,
-                    ),
-                    // Area
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/svg/area.svg",
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.neutral500,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              if (!isSmallScreen(context)) ...[
-                                const SizedBox(width: 8),
-                                MyText(
-                                  'Area',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          const Expanded(
-                            child: MyText(
-                              '1,500 Square Feet',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
-
-            const SizedBox(height: 24),
-            // Property Details Row
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Listing Price',
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 4),
+          const Text('N58,000,000', style: AppTextStyles.h1),
+          const SizedBox(height: 20),
+          const Text('Additional Fees', style: AppTextStyles.h3),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _feeRow('Rent', 'N58,000,000')),
+              Container(
+                width: 1,
+                height: 48,
+                color: AppColors.borderSubtle,
+              ),
+              Expanded(child: _feeRow('Brokerage Fees', '15%')),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _feeRow('Caution Fees', 'N25,000')),
+              Container(
+                width: 1,
+                height: 48,
+                color: AppColors.borderSubtle,
+              ),
+              Expanded(child: _feeRow('Legal Fees', 'N50,000')),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Widget keyFetures() {
-    return Expanded(
+  Widget _feeRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Features and Amenities
-          const MyText(
-            'Key Features and Amenities',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-              color: AppColors.black,
-            ),
+          Text(
+            label,
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 16),
-
-          Padding(
-            padding: const EdgeInsets.only(left: 15),
-            child: Column(
-              children: [
-                // Feature Items
-                _buildFeatureItem(
-                  'Expansive oceanfront terrace for outdoor entertaining',
-                ),
-                _buildFeatureItem(
-                  'Gourmet kitchen with top-of-the-line appliances',
-                ),
-                _buildFeatureItem(
-                  'Private beach access for morning strolls and sunset views',
-                ),
-                _buildFeatureItem(
-                  'Master suite with a spa-inspired bathroom and ocean-facing balcony',
-                ),
-              ],
-            ),
-          )
+          const SizedBox(height: 4),
+          Text(value, style: AppTextStyles.h3),
         ],
       ),
     );

@@ -1,13 +1,18 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/services/models/estate_models.dart';
 import 'package:bms_front_end/pages/services/models/performance_invoice_model.dart';
 import 'package:bms_front_end/pages/services/widget/add_performance_invoice_dialog.dart';
 import 'package:bms_front_end/pages/services/widget/view_performance_invoice_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -205,306 +210,267 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header
-        Row(
-          children: [
-            if (widget.estate != null)
-              IconButton(
-                icon: const Icon(Iconsax.arrow_left_2),
-                onPressed: () => Navigator.pop(context),
-              ),
-            Expanded(
-              child: AppText.displayLg(
-                widget.estate != null
-                    ? '${widget.estate!.name} - Performance'
-                    : 'Estate Performance & Invoices',
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-
-        // Filters and Actions
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  Wrap(
-                    spacing: 15,
-                    runSpacing: 15,
-                    children: [
-                      // Period Filter
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.neutral300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: DropdownButton<String>(
-                          value: _selectedPeriod,
-                          underline: const SizedBox(),
-                          items: [
-                            'Today',
-                            'This Week',
-                            'This Month',
-                            'Last 3 Months',
-                            'Last 6 Months',
-                            'This Year',
-                            'All Time'
-                          ].map((period) {
-                            return DropdownMenuItem(
-                              value: period,
-                              child: MyText(period),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPeriod = value ?? 'This Month';
-                              _applyDateFilter();
-                            });
-                          },
-                        ),
-                      ),
-
-                      // Service Type Filter
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.neutral300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: DropdownButton<String>(
-                          value: _selectedServiceType,
-                          underline: const SizedBox(),
-                          items: [
-                            'All Services',
-                            'Real Estate',
-                            'Land Survey',
-                            'Property Management',
-                            'Estate Management'
-                          ].map((service) {
-                            return DropdownMenuItem(
-                              value: service,
-                              child: MyText(service),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedServiceType = value ?? 'All Services';
-                            });
-                          },
-                        ),
-                      ),
-
-                      // Estate Filter (if not viewing specific estate)
-                      if (widget.estate == null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.neutral300),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButton<String>(
-                            value: _selectedEstate,
-                            underline: const SizedBox(),
-                            items: [
-                              'All Estates',
-                              'Aso Villa Estate',
-                              'Fortress City Estate',
-                              'Victoria Gardens',
-                              'Diamond Heights'
-                            ].map((estate) {
-                              return DropdownMenuItem(
-                                value: estate,
-                                child: MyText(estate),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedEstate = value ?? 'All Estates';
-                              });
-                            },
-                          ),
-                        ),
-
-                      // Search
-                      SizedBox(
-                        width: 200,
-                        child: MyTextFormField(
-                          hintText: 'Search invoices...',
-                          leading: Icon(
-                            Iconsax.search_normal,
-                            color: AppColors.neutral500.withValues(alpha: 0.5),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Add Invoice Button
-                  MyElevatedButton(
-                    icon: const Icon(
-                      Iconsax.add_circle,
-                      color: AppColors.white,
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: widget.estate != null
+            ? '${widget.estate!.name} Performance'
+            : 'Estate Performance & Invoices',
+        subtitle:
+            'Track revenue, transactions, and payments across your estates.',
+        leading: widget.estate != null
+            ? Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context),
+                  borderRadius: AppRadii.brMd,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppRadii.brMd,
+                      border: Border.all(color: AppColors.borderSubtle),
                     ),
-                    child: "Add Invoice",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AddPerformanceInvoiceDialog(
-                            estate: widget.estate,
-                            onInvoiceAdded: _addInvoice,
-                          );
-                        },
-                      );
-                    },
+                    child: const Icon(Iconsax.arrow_left_2,
+                        size: 18, color: AppColors.textSecondary),
                   ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              )
+            : null,
+        trailing: MyElevatedButton(
+          height: 48,
+          icon: const Icon(Iconsax.add_circle,
+              color: AppColors.textOnPrimary, size: 18),
+          child: 'Add Invoice',
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AddPerformanceInvoiceDialog(
+                  estate: widget.estate,
+                  onInvoiceAdded: _addInvoice,
+                );
+              },
+            );
+          },
         ),
-        kSizedBox,
-
-        // Statistics Cards
+      ),
+      children: [
+        _buildFilters(),
         _buildStatsCards(),
-        kSizedBox,
-
-        // Charts Section
         _buildChartsSection(),
-        kSizedBox,
-
-        // Recent Invoices Table
         _buildInvoicesTable(),
       ],
     );
   }
 
+  Widget _buildFilters() {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          SizedBox(
+            width: 200,
+            child: MyDropdown(
+              hintText: 'Period',
+              items: const [
+                'Today',
+                'This Week',
+                'This Month',
+                'Last 3 Months',
+                'Last 6 Months',
+                'This Year',
+                'All Time',
+              ],
+              initialSelection: _selectedPeriod,
+              onChanged: (value) {
+                setState(() {
+                  _selectedPeriod = value ?? 'This Month';
+                  _applyDateFilter();
+                });
+              },
+            ),
+          ),
+          SizedBox(
+            width: 220,
+            child: MyDropdown(
+              hintText: 'Service type',
+              items: const [
+                'All Services',
+                'Real Estate',
+                'Land Survey',
+                'Property Management',
+                'Estate Management',
+              ],
+              initialSelection: _selectedServiceType,
+              onChanged: (value) {
+                setState(() {
+                  _selectedServiceType = value ?? 'All Services';
+                });
+              },
+            ),
+          ),
+          if (widget.estate == null)
+            SizedBox(
+              width: 220,
+              child: MyDropdown(
+                hintText: 'Estate',
+                items: const [
+                  'All Estates',
+                  'Aso Villa Estate',
+                  'Fortress City Estate',
+                  'Victoria Gardens',
+                  'Diamond Heights',
+                ],
+                initialSelection: _selectedEstate,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedEstate = value ?? 'All Estates';
+                  });
+                },
+              ),
+            ),
+          SizedBox(
+            width: 260,
+            child: MyTextFormField(
+              hintText: 'Search invoices, clients, plots...',
+              height: 50,
+              leading: const Icon(Iconsax.search_normal,
+                  size: 18, color: AppColors.textMuted),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatsCards() {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      int perRow;
+      if (width >= 1100) {
+        perRow = 3;
+      } else if (width >= 720) {
+        perRow = 2;
+      } else {
+        perRow = 1;
+      }
+      const spacing = 16.0;
+      final cardWidth =
+          (width - ((perRow - 1) * spacing)) / perRow;
+
+      final items = <Widget>[
         _buildStatCard(
           'Total Revenue',
           '₦${_formatAmount(_stats.totalRevenue)}',
           Iconsax.money_recive,
-          AppColors.primary,
+          StatusTone.primary,
           subtitle: '${_stats.totalTransactions} transactions',
         ),
         _buildStatCard(
           'Paid',
           '₦${_formatAmount(_stats.totalPaid)}',
           Iconsax.tick_circle,
-          Colors.green,
+          StatusTone.success,
           subtitle: 'Completed payments',
         ),
         _buildStatCard(
           'Pending',
           '₦${_formatAmount(_stats.totalPending)}',
           Iconsax.clock,
-          Colors.orange,
+          StatusTone.warning,
           subtitle: 'Awaiting payment',
         ),
         _buildStatCard(
           'Sales',
           '${_stats.totalSales}',
           Iconsax.home,
-          Colors.purple,
+          StatusTone.info,
           subtitle: 'Total plot sales',
         ),
         _buildStatCard(
           'Avg. Transaction',
           '₦${_formatAmount(_stats.averageTransactionValue)}',
           Iconsax.trend_up,
-          Colors.teal,
+          StatusTone.primary,
           subtitle: 'Per transaction',
         ),
         _buildStatCard(
           'Commissions',
           '₦${_formatAmount(_stats.totalCommissions)}',
           Iconsax.card,
-          Colors.indigo,
+          StatusTone.info,
           subtitle: 'Total earned',
         ),
-      ],
-    );
+      ];
+
+      return Wrap(
+        spacing: spacing,
+        runSpacing: spacing,
+        children: items
+            .map((e) => SizedBox(width: cardWidth, child: e))
+            .toList(),
+      );
+    });
   }
 
   Widget _buildStatCard(
     String label,
     String value,
     IconData icon,
-    Color color, {
+    StatusTone tone, {
     String? subtitle,
   }) {
-    return Container(
-      constraints: const BoxConstraints(minWidth: 200),
+    final palette = _tonePalette(tone);
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              CircleAvatar(
-                backgroundColor: color.withValues(alpha: 0.1),
-                radius: 20,
-                child: Icon(icon, color: color, size: 20),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: palette.$1,
+                  borderRadius: AppRadii.brMd,
+                ),
+                child: Icon(icon, color: palette.$2, size: 20),
               ),
               const Spacer(),
-              const Icon(Iconsax.more, size: 20, color: AppColors.neutral500),
+              const Icon(Iconsax.more, size: 18, color: AppColors.textMuted),
             ],
           ),
-          kSizedBox,
-          MyText(
+          const SizedBox(height: 16),
+          Text(
             value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.h2,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          MyText(
+          Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.neutral500,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            MyText(
+            const SizedBox(height: 2),
+            Text(
               subtitle,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.neutral500,
-              ),
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.textMuted),
             ),
           ],
         ],
@@ -512,226 +478,263 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
     );
   }
 
+  (Color, Color) _tonePalette(StatusTone tone) {
+    switch (tone) {
+      case StatusTone.success:
+        return (AppColors.successSubtle, AppColors.success);
+      case StatusTone.warning:
+        return (AppColors.warningSubtle, AppColors.warning);
+      case StatusTone.danger:
+        return (AppColors.dangerSubtle, AppColors.danger);
+      case StatusTone.info:
+        return (AppColors.infoSubtle, AppColors.info);
+      case StatusTone.primary:
+        return (AppColors.primarySubtle, AppColors.primary);
+      case StatusTone.neutral:
+        return (AppColors.surfaceMuted, AppColors.textSecondary);
+    }
+  }
+
   Widget _buildChartsSection() {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        // Revenue by Estate
-        if (widget.estate == null)
-          Container(
-            width: isLargeScreen(context) ? 500 : double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.neutral300),
+    return LayoutBuilder(builder: (context, constraints) {
+      final isWide = constraints.maxWidth >= 900;
+      const spacing = 16.0;
+      final revenueWidth = widget.estate == null
+          ? (isWide
+              ? (constraints.maxWidth - spacing) * 0.55
+              : double.infinity)
+          : double.infinity;
+      final typeWidth = widget.estate == null
+          ? (isWide
+              ? (constraints.maxWidth - spacing) * 0.45 - 4
+              : double.infinity)
+          : double.infinity;
+
+      return Wrap(
+        spacing: spacing,
+        runSpacing: spacing,
+        children: [
+          if (widget.estate == null)
+            SizedBox(
+              width: revenueWidth,
+              child: _buildRevenueByEstateCard(),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const MyText(
-                  'Revenue by Estate',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                kSizedBox,
-                ..._stats.revenueByEstate.entries.map((entry) {
-                  final percentage = _stats.totalRevenue > 0
-                      ? (entry.value / _stats.totalRevenue * 100)
-                      : 0;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          SizedBox(
+            width: widget.estate == null ? typeWidth : double.infinity,
+            child: _buildTransactionsByTypeCard(),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildRevenueByEstateCard() {
+    final entries = _stats.revenueByEstate.entries.toList();
+
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Expanded(
+                child: Text('Revenue by Estate', style: AppTextStyles.h3),
+              ),
+              StatusChip(
+                label: 'Top performers',
+                tone: StatusTone.primary,
+                icon: Iconsax.trend_up,
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (entries.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: EmptyState(
+                compact: true,
+                icon: Iconsax.chart,
+                title: 'No revenue yet',
+                subtitle: 'Data will appear once invoices are recorded.',
+              ),
+            )
+          else
+            ...entries.map((entry) {
+              final percentage = _stats.totalRevenue > 0
+                  ? (entry.value / _stats.totalRevenue * 100)
+                  : 0;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: MyText(
-                                entry.key,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                        Expanded(
+                          child: Text(
+                            entry.key,
+                            style: AppTextStyles.bodyMd.copyWith(
+                              fontWeight: FontWeight.w600,
                             ),
-                            MyText(
-                              '₦${_formatAmount(entry.value)}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value: percentage / 100,
-                          backgroundColor: AppColors.neutral300,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              AppColors.primary),
-                          minHeight: 8,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        const SizedBox(height: 4),
-                        MyText(
-                          '${percentage.toStringAsFixed(1)}%',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.neutral500,
+                        Text(
+                          '₦${_formatAmount(entry.value)}',
+                          style: AppTextStyles.bodyMd.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
                           ),
                         ),
                       ],
                     ),
-                  );
-                }),
-              ],
-            ),
-          ),
-
-        // Transactions by Type
-        Container(
-          width: isLargeScreen(context) ? 400 : double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.neutral300),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const MyText(
-                'Transactions by Type',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: (percentage / 100).clamp(0, 1).toDouble(),
+                        backgroundColor: AppColors.surfaceMuted,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.primary),
+                        minHeight: 8,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${percentage.toStringAsFixed(1)}%',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textMuted),
+                    ),
+                  ],
                 ),
-              ),
-              kSizedBox,
-              ..._stats.transactionsByType.entries.map((entry) {
-                final colors = {
-                  'Sale': Colors.green,
-                  'Reservation': Colors.orange,
-                  'Payment': Colors.blue,
-                  'Commission': Colors.purple,
-                };
-                final color = colors[entry.key] ?? AppColors.neutral500;
+              );
+            }),
+        ],
+      ),
+    );
+  }
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
+  Widget _buildTransactionsByTypeCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Transactions by Type', style: AppTextStyles.h3),
+          const SizedBox(height: 16),
+          if (_stats.transactionsByType.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: EmptyState(
+                compact: true,
+                icon: Iconsax.chart_2,
+                title: 'No transactions yet',
+                subtitle: 'Transactions will appear here once recorded.',
+              ),
+            )
+          else
+            ..._stats.transactionsByType.entries.map((entry) {
+              final tones = {
+                'Sale': StatusTone.success,
+                'Reservation': StatusTone.warning,
+                'Payment': StatusTone.info,
+                'Commission': StatusTone.primary,
+              };
+              final tone = tones[entry.key] ?? StatusTone.neutral;
+              final palette = _tonePalette(tone);
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: palette.$2,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        entry.key,
+                        style: AppTextStyles.bodyMd.copyWith(
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: MyText(
-                          entry.key,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      MyText(
-                        '${entry.value}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ],
+                    ),
+                    Text(
+                      '${entry.value}',
+                      style: AppTextStyles.h4,
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
     );
   }
 
   Widget _buildInvoicesTable() {
     if (_filteredInvoices.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(40),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.neutral300),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              Icon(
-                Iconsax.receipt_2,
-                size: 64,
-                color: AppColors.neutral500.withValues(alpha: 0.5),
-              ),
-              kSizedBox,
-              const MyText(
-                'No invoices found',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: AppColors.neutral500,
-                ),
-              ),
-            ],
-          ),
+      return const AppCard(
+        padding: EdgeInsets.all(12),
+        child: EmptyState(
+          icon: Iconsax.receipt_2,
+          title: 'No invoices found',
+          subtitle:
+              'Try a different period or clear filters to see more results.',
         ),
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-      ),
+    final pageLimit = _filteredInvoices.length > 10
+        ? 10
+        : _filteredInvoices.length;
+
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const MyText(
-                  'Recent Invoices',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Recent Invoices', style: AppTextStyles.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${_filteredInvoices.length} total',
+                        style: AppTextStyles.bodySm
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
                   ),
                 ),
-                MyText(
-                  '${_filteredInvoices.length} total',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.neutral500,
-                  ),
+                StatusChip(
+                  label: '$pageLimit showing',
+                  tone: StatusTone.neutral,
+                  dense: true,
                 ),
               ],
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: AppColors.borderSubtle),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount:
-                _filteredInvoices.length > 10 ? 10 : _filteredInvoices.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
+            itemCount: pageLimit,
+            separatorBuilder: (context, index) =>
+                const Divider(height: 1, color: AppColors.borderSubtle),
             itemBuilder: (context, index) {
               final invoice = _filteredInvoices[index];
               return _buildInvoiceRow(invoice);
@@ -743,8 +746,6 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
   }
 
   Widget _buildInvoiceRow(PerformanceInvoice invoice) {
-    final statusColor = _getPaymentStatusColor(invoice.paymentStatus);
-
     return InkWell(
       onTap: () {
         showDialog(
@@ -753,7 +754,7 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
         );
       },
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           children: [
             // Invoice Info
@@ -762,20 +763,20 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MyText(
+                  Text(
                     invoice.invoiceNumber ?? 'N/A',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.bodyMd
+                        .copyWith(fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  MyText(
+                  const SizedBox(height: 2),
+                  Text(
                     invoice.clientName ?? 'Unknown Client',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.neutral500,
-                    ),
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -788,20 +789,20 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyText(
+                    Text(
                       invoice.estateName,
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style: AppTextStyles.bodySm.copyWith(
                         fontWeight: FontWeight.w500,
+                        color: AppColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    MyText(
+                    const SizedBox(height: 2),
+                    Text(
                       invoice.plotNumber ?? 'N/A',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.neutral500,
-                      ),
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textMuted),
                     ),
                   ],
                 ),
@@ -810,21 +811,12 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
             // Transaction Type
             if (isLargeScreen(context))
               Expanded(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: MyText(
-                    invoice.transactionType,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: StatusChip(
+                    label: invoice.transactionType,
+                    tone: StatusTone.primary,
+                    dense: true,
                   ),
                 ),
               ),
@@ -834,65 +826,86 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  MyText(
+                  Text(
                     '₦${_formatAmount(invoice.amount)}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.bodyMd
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                   if (invoice.balance != null && invoice.balance! > 0) ...[
-                    const SizedBox(height: 4),
-                    MyText(
+                    const SizedBox(height: 2),
+                    Text(
                       'Bal: ₦${_formatAmount(invoice.balance!)}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Colors.orange,
-                      ),
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.warning),
                     ),
                   ],
                 ],
               ),
             ),
 
-            const SizedBox(width: 16),
-
-            // Status
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: MyText(
-                invoice.paymentStatus,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: statusColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-
             const SizedBox(width: 12),
 
+            // Status
+            StatusChip(
+              label: invoice.paymentStatus,
+              tone: _invoiceTone(invoice.paymentStatus),
+              dense: true,
+            ),
+
+            const SizedBox(width: 8),
+
             // View Invoice Button
-            IconButton(
-              icon: const Icon(Iconsax.receipt_2, size: 20),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) =>
-                      ViewPerformanceInvoiceDialog(invoice: invoice),
-                );
-              },
-              tooltip: 'View Invoice',
-              color: AppColors.primary,
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) =>
+                        ViewPerformanceInvoiceDialog(invoice: invoice),
+                  );
+                },
+                borderRadius: AppRadii.brSm,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadii.brSm,
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: const Icon(Iconsax.receipt_2,
+                      size: 16, color: AppColors.primary),
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  StatusTone _invoiceTone(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+      case 'approved':
+        return StatusTone.success;
+      case 'pending':
+      case 'overdue':
+        return status.toLowerCase() == 'overdue'
+            ? StatusTone.danger
+            : StatusTone.warning;
+      case 'partial':
+        return StatusTone.info;
+      case 'draft':
+        return StatusTone.neutral;
+      case 'cancelled':
+      case 'rejected':
+      case 'failed':
+        return StatusTone.danger;
+      default:
+        return StatusTone.neutral;
+    }
   }
 
   String _formatAmount(double amount) {
@@ -902,20 +915,5 @@ class _EstatePerformancePageState extends State<EstatePerformancePage> {
       return '${(amount / 1000).toStringAsFixed(1)}K';
     }
     return amount.toStringAsFixed(0);
-  }
-
-  Color _getPaymentStatusColor(String status) {
-    switch (status) {
-      case 'Paid':
-        return Colors.green;
-      case 'Pending':
-        return Colors.orange;
-      case 'Partial':
-        return Colors.blue;
-      case 'Failed':
-        return Colors.red;
-      default:
-        return AppColors.neutral500;
-    }
   }
 }

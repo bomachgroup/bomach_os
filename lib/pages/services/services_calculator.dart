@@ -1,9 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -266,414 +271,475 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return PageScaffold(
+      maxContentWidth: 1200,
+      header: const PageHeader(
+        title: 'Services Cost Calculator',
+        subtitle: 'Get instant estimates for various professional services.',
+      ),
+      children: [
+        Form(
+          key: _formKey,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isWideScreen = constraints.maxWidth > 900;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildServiceDetailsCard(isWideScreen),
+                  const SizedBox(height: 16),
+                  _buildProjectInfoCard(isWideScreen),
+                  const SizedBox(height: 16),
+                  _buildAdditionalServicesCard(),
+                  const SizedBox(height: 16),
+                  _buildContactInfoCard(isWideScreen),
+                  const SizedBox(height: 20),
+                  _buildActionRow(),
+                  if (_showEstimate) ...[
+                    const SizedBox(height: 20),
+                    _buildEstimateResult(),
+                  ],
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _sectionHeader(String title, {IconData? icon, String? subtitle}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (icon != null) ...[
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              color: AppColors.primarySubtle,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 18, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: AppTextStyles.h3),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServiceDetailsCard(bool isWideScreen) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          AppText.displayLg('Services Cost Calculator'),
-          kSizedBox,
-          AppText.bodyLg(
-            'Get instant estimates for various professional services',
-            color: AppColors.textSecondary,
+          _sectionHeader('Service Details',
+              icon: Iconsax.briefcase,
+              subtitle: 'Pick the service, scale and desired turnaround.'),
+          const SizedBox(height: 20),
+          if (isWideScreen)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildServiceCategoryDropdown()),
+                const SizedBox(width: 16),
+                Expanded(child: _buildServiceTypeDropdown()),
+              ],
+            )
+          else ...[
+            _buildServiceCategoryDropdown(),
+            const SizedBox(height: 16),
+            _buildServiceTypeDropdown(),
+          ],
+          const SizedBox(height: 16),
+          if (isWideScreen)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildProjectScaleDropdown()),
+                const SizedBox(width: 16),
+                Expanded(child: _buildUrgencyDropdown()),
+              ],
+            )
+          else ...[
+            _buildProjectScaleDropdown(),
+            const SizedBox(height: 16),
+            _buildUrgencyDropdown(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProjectInfoCard(bool isWideScreen) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionHeader('Project Information',
+              icon: Iconsax.document,
+              subtitle: 'Tell us about the project scope and location.'),
+          const SizedBox(height: 20),
+          MyTextFormField(
+            controller: _projectDescriptionController,
+            title: 'Project Description',
+            hintText: 'Briefly describe your project',
+            maxLines: 4,
+            height: 120,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter project description';
+              }
+              return null;
+            },
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 16),
+          if (isWideScreen)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _locationController,
+                    title: 'Location',
+                    hintText: 'Enter project location',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter location';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _timelineController,
+                    title: 'Desired Timeline',
+                    hintText: 'e.g., 3 months',
+                  ),
+                ),
+              ],
+            )
+          else ...[
+            MyTextFormField(
+              controller: _locationController,
+              title: 'Location',
+              hintText: 'Enter project location',
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter location';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _timelineController,
+              title: 'Desired Timeline',
+              hintText: 'e.g., 3 months',
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
-          // Form
-          Form(
-            key: _formKey,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                bool isWideScreen = constraints.maxWidth > 900;
+  Widget _buildAdditionalServicesCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionHeader('Additional Services',
+              icon: Iconsax.add_square,
+              subtitle: 'Add optional deliverables to your estimate.'),
+          const SizedBox(height: 12),
+          _buildServiceOption(
+            title: 'Site Visit',
+            subtitle: 'Professional site inspection',
+            price: '+N80,000',
+            value: _includeSiteVisit,
+            onChanged: (value) {
+              setState(() {
+                _includeSiteVisit = value ?? false;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          _buildServiceOption(
+            title: 'Detailed Report',
+            subtitle: 'Comprehensive analysis and recommendations',
+            price: '+N60,000',
+            value: _includeDetailedReport,
+            onChanged: (value) {
+              setState(() {
+                _includeDetailedReport = value ?? false;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
+          _buildServiceOption(
+            title: 'Technical Drawings',
+            subtitle: 'CAD drawings and technical illustrations',
+            price: '+N100,000',
+            value: _includeTechnicalDrawings,
+            onChanged: (value) {
+              setState(() {
+                _includeTechnicalDrawings = value ?? false;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
-                return Column(
+  Widget _buildServiceOption({
+    required String title,
+    required String subtitle,
+    required String price,
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+  }) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: AppRadii.brMd,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: value ? AppColors.primarySubtle : AppColors.surfaceMuted,
+          borderRadius: AppRadii.brMd,
+          border: Border.all(
+            color: value ? AppColors.primarySoft : AppColors.borderSubtle,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Checkbox(
+                value: value,
+                onChanged: onChanged,
+                activeColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(title, style: AppTextStyles.label),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodySm
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              price,
+              style: AppTextStyles.label.copyWith(color: AppColors.primary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactInfoCard(bool isWideScreen) {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionHeader('Contact Information (Optional)',
+              icon: Iconsax.user,
+              subtitle: 'We will use this to follow up on your quote.'),
+          const SizedBox(height: 20),
+          MyTextFormField(
+            controller: _clientNameController,
+            title: 'Full Name',
+            hintText: 'Enter your full name',
+          ),
+          const SizedBox(height: 16),
+          if (isWideScreen)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _clientEmailController,
+                    title: 'Email Address',
+                    hintText: 'Enter your email',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: MyTextFormField(
+                    controller: _clientPhoneController,
+                    title: 'Phone Number',
+                    hintText: 'Enter your phone number',
+                    keyboardType: TextInputType.phone,
+                  ),
+                ),
+              ],
+            )
+          else ...[
+            MyTextFormField(
+              controller: _clientEmailController,
+              title: 'Email Address',
+              hintText: 'Enter your email',
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+            MyTextFormField(
+              controller: _clientPhoneController,
+              title: 'Phone Number',
+              hintText: 'Enter your phone number',
+              keyboardType: TextInputType.phone,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        MyOutlinedButton(
+          child: 'Reset',
+          onTap: _resetForm,
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        ),
+        const SizedBox(width: 12),
+        MyElevatedButton(
+          child: 'Calculate Estimate',
+          onTap: _calculateEstimate,
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          icon: const Icon(Iconsax.calculator,
+              color: AppColors.textOnPrimary, size: 16),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEstimateResult() {
+    return AppCard(
+      padding: const EdgeInsets.all(24),
+      elevation: AppCardElevation.md,
+      backgroundColor: AppColors.primarySubtle,
+      borderColor: AppColors.primarySoft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Iconsax.money_tick,
+                    color: AppColors.primary, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Service Selection Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral300),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText.h3('Service Details'),
-                          const SizedBox(height: 20),
-                          if (isWideScreen)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: _buildServiceCategoryDropdown(),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _buildServiceTypeDropdown(),
-                                ),
-                              ],
-                            )
-                          else ...[
-                            _buildServiceCategoryDropdown(),
-                            const SizedBox(height: 16),
-                            _buildServiceTypeDropdown(),
-                          ],
-                          const SizedBox(height: 16),
-                          if (isWideScreen)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: _buildProjectScaleDropdown(),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _buildUrgencyDropdown(),
-                                ),
-                              ],
-                            )
-                          else ...[
-                            _buildProjectScaleDropdown(),
-                            const SizedBox(height: 16),
-                            _buildUrgencyDropdown(),
-                          ],
-                        ],
-                      ),
+                    Text(
+                      'Estimated Cost',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.textSecondary),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Project Information Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral300),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText.h3('Project Information'),
-                          const SizedBox(height: 20),
-                          MyTextFormField(
-                            controller: _projectDescriptionController,
-                            title: 'Project Description',
-                            hintText: 'Briefly describe your project',
-                            maxLines: 4,
-                            height: 120,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter project description';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          if (isWideScreen)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _locationController,
-                                    title: 'Location',
-                                    hintText: 'Enter project location',
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter location';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _timelineController,
-                                    title: 'Desired Timeline',
-                                    hintText: 'e.g., 3 months',
-                                  ),
-                                ),
-                              ],
-                            )
-                          else ...[
-                            MyTextFormField(
-                              controller: _locationController,
-                              title: 'Location',
-                              hintText: 'Enter project location',
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter location';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            MyTextFormField(
-                              controller: _timelineController,
-                              title: 'Desired Timeline',
-                              hintText: 'e.g., 3 months',
-                            ),
-                          ],
-                        ],
-                      ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'N${_calculatedCost.toStringAsFixed(2)}',
+                      style: AppTextStyles.displayMd
+                          .copyWith(color: AppColors.primary),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Additional Services Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral300),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText.h3('Additional Services'),
-                          const SizedBox(height: 20),
-                          CheckboxListTile(
-                            title: const Text('Site Visit (+₦80,000)'),
-                            subtitle:
-                                const Text('Professional site inspection'),
-                            value: _includeSiteVisit,
-                            onChanged: (value) {
-                              setState(() {
-                                _includeSiteVisit = value ?? false;
-                              });
-                            },
-                            activeColor: AppColors.primary,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          CheckboxListTile(
-                            title: const Text('Detailed Report (+₦60,000)'),
-                            subtitle: const Text(
-                                'Comprehensive analysis and recommendations'),
-                            value: _includeDetailedReport,
-                            onChanged: (value) {
-                              setState(() {
-                                _includeDetailedReport = value ?? false;
-                              });
-                            },
-                            activeColor: AppColors.primary,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          CheckboxListTile(
-                            title: const Text('Technical Drawings (+₦100,000)'),
-                            subtitle: const Text(
-                                'CAD drawings and technical illustrations'),
-                            value: _includeTechnicalDrawings,
-                            onChanged: (value) {
-                              setState(() {
-                                _includeTechnicalDrawings = value ?? false;
-                              });
-                            },
-                            activeColor: AppColors.primary,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _selectedServiceType,
+                      style: AppTextStyles.bodySm
+                          .copyWith(color: AppColors.textSecondary),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Client Information Card
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral300),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppText.h3('Contact Information (Optional)'),
-                          const SizedBox(height: 20),
-                          MyTextFormField(
-                            controller: _clientNameController,
-                            title: 'Full Name',
-                            hintText: 'Enter your full name',
-                          ),
-                          const SizedBox(height: 16),
-                          if (isWideScreen)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _clientEmailController,
-                                    title: 'Email Address',
-                                    hintText: 'Enter your email',
-                                    keyboardType: TextInputType.emailAddress,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: MyTextFormField(
-                                    controller: _clientPhoneController,
-                                    title: 'Phone Number',
-                                    hintText: 'Enter your phone number',
-                                    keyboardType: TextInputType.phone,
-                                  ),
-                                ),
-                              ],
-                            )
-                          else ...[
-                            MyTextFormField(
-                              controller: _clientEmailController,
-                              title: 'Email Address',
-                              hintText: 'Enter your email',
-                              keyboardType: TextInputType.emailAddress,
-                            ),
-                            const SizedBox(height: 16),
-                            MyTextFormField(
-                              controller: _clientPhoneController,
-                              title: 'Phone Number',
-                              hintText: 'Enter your phone number',
-                              keyboardType: TextInputType.phone,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // Action Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        MyElevatedButton(
-                          child: 'Reset',
-                          onTap: _resetForm,
-                          bgColor: AppColors.neutral400,
-                          textColor: AppColors.black,
-                        ),
-                        const SizedBox(width: 16),
-                        MyElevatedButton(
-                          child: 'Calculate Estimate',
-                          onTap: _calculateEstimate,
-                        ),
-                      ],
-                    ),
-
-                    // Estimate Result
-                    if (_showEstimate) ...[
-                      const SizedBox(height: 30),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primaryPressed
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 16,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Iconsax.money_tick,
-                              color: Colors.white,
-                              size: 48,
-                            ),
-                            const SizedBox(height: 16),
-                            AppText.bodyLg(
-                              'Estimated Cost',
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            const SizedBox(height: 8),
-                            AppText.displayMd(
-                              '₦${_calculatedCost.toStringAsFixed(2)}',
-                              color: AppColors.white,
-                            ),
-                            const SizedBox(height: 8),
-                            AppText.bodyMd(
-                              _selectedServiceType,
-                              color: AppColors.white.withValues(alpha: 0.7),
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'This is an estimated cost. Final price will be determined after consultation.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            MyElevatedButton(
-                              child: 'Request Detailed Quote',
-                              onTap: () {
-                                AppToast.success(context,
-                                    'Quote request sent successfully!');
-                              },
-                              bgColor: Colors.white,
-                              textColor: AppColors.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 40),
                   ],
-                );
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.primarySoft),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Iconsax.info_circle,
+                  size: 16, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'This is an estimated cost. Final price will be determined after consultation.',
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: MyElevatedButton(
+              child: 'Request Detailed Quote',
+              height: 42,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              onTap: () {
+                AppToast.success(
+                    context, 'Quote request sent successfully!');
               },
             ),
           ),
@@ -683,152 +749,69 @@ class _ServicesCalculatorPageState extends State<ServicesCalculatorPage> {
   }
 
   Widget _buildServiceCategoryDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText.label('Service Category'),
-        const SizedBox(height: 10),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedServiceCategory,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              borderRadius: BorderRadius.circular(15),
-              items: _servicesByCategory.keys.map((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedServiceCategory = value!;
-                  // Reset service type to first item in new category
-                  _selectedServiceType = _currentServiceTypes.first;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MyDropdown(
+      title: 'Service Category',
+      hintText: 'Select service category',
+      items: _servicesByCategory.keys.toList(),
+      initialSelection: _selectedServiceCategory,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedServiceCategory = value;
+            // Reset service type to first item in new category
+            _selectedServiceType = _currentServiceTypes.first;
+          });
+        }
+      },
     );
   }
 
   Widget _buildServiceTypeDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText.label('Service Type'),
-        const SizedBox(height: 10),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedServiceType,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              borderRadius: BorderRadius.circular(15),
-              items: _currentServiceTypes.map((String type) {
-                return DropdownMenuItem<String>(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedServiceType = value!;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MyDropdown(
+      key: ValueKey('service-type-$_selectedServiceCategory'),
+      title: 'Service Type',
+      hintText: 'Select service type',
+      items: _currentServiceTypes,
+      initialSelection: _selectedServiceType,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedServiceType = value;
+          });
+        }
+      },
     );
   }
 
   Widget _buildProjectScaleDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText.label('Project Scale'),
-        const SizedBox(height: 10),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedProjectScale,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              borderRadius: BorderRadius.circular(15),
-              items: _projectScales.map((String scale) {
-                return DropdownMenuItem<String>(
-                  value: scale,
-                  child: Text(scale),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedProjectScale = value!;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MyDropdown(
+      title: 'Project Scale',
+      hintText: 'Select project scale',
+      items: _projectScales,
+      initialSelection: _selectedProjectScale,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedProjectScale = value;
+          });
+        }
+      },
     );
   }
 
   Widget _buildUrgencyDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText.label('Project Urgency'),
-        const SizedBox(height: 10),
-        Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedUrgency,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              borderRadius: BorderRadius.circular(15),
-              items: _urgencyLevels.map((String level) {
-                return DropdownMenuItem<String>(
-                  value: level,
-                  child: Text(level),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedUrgency = value!;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+    return MyDropdown(
+      title: 'Project Urgency',
+      hintText: 'Select urgency',
+      items: _urgencyLevels,
+      initialSelection: _selectedUrgency,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _selectedUrgency = value;
+          });
+        }
+      },
     );
   }
 }

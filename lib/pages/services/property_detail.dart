@@ -1,15 +1,19 @@
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/image/my_network_image.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/services/controller/property_controller.dart';
 import 'package:bms_front_end/pages/services/widget/add_property_dialog.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:bms_front_end/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import 'models/property_model.dart';
@@ -45,168 +49,157 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       final property = _controller.selectedProperty.value;
 
       if (property == null) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(40.0),
-            child: Text(
-              'No property selected',
-              style: TextStyle(fontSize: 16, color: Colors.black54),
+        return const PageScaffold(
+          children: [
+            SizedBox(height: 80),
+            Center(
+              child: Text('No property selected'),
             ),
-          ),
+          ],
         );
       }
 
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with back button
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Iconsax.arrow_left_2),
-                  onPressed: () => context.pop(),
-                ),
-                const Expanded(
-                  child: MyText(
-                    'Property Details',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                MyOutlinedButton(
-                  borderColor: AppColors.neutral300,
-                  textColor: AppColors.neutral500,
-                  child: 'Edit',
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) =>
-                          AddPropertyDialog(property: property),
-                    );
-                  },
-                ),
-              ],
-            ),
-
-            kSizedBox,
-
-            // Main content
-            LayoutBuilder(
-              builder: (context, constraints) {
-                if (isLargeScreen(context)) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _buildLeftSection(property),
-                      ),
-                      kSizedBoxWidthSM,
-                      Expanded(
-                        flex: 2,
-                        child: _buildRightSection(property),
-                      ),
-                    ],
-                  );
-                } else {
-                  return Column(
-                    children: [
-                      _buildLeftSection(property),
-                      kSizedBox,
-                      _buildRightSection(property),
-                    ],
-                  );
-                }
-              },
-            ),
-          ],
+      return PageScaffold(
+        maxContentWidth: 1440,
+        header: PageHeader(
+          title: property.name,
+          subtitle: property.formattedType.isNotEmpty
+              ? '${property.formattedType} • ${property.formattedCategory}'
+              : property.formattedCategory,
+          leading: _backButton(context),
+          trailing: MyOutlinedButton(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 0),
+            icon: const Icon(Iconsax.edit,
+                size: 16, color: AppColors.primary),
+            child: 'Edit Property',
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) =>
+                    AddPropertyDialog(property: property),
+              );
+            },
+          ),
         ),
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (isLargeScreen(context)) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: _buildLeftSection(property),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      flex: 2,
+                      child: _buildRightSection(property),
+                    ),
+                  ],
+                );
+              } else {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildLeftSection(property),
+                    const SizedBox(height: 20),
+                    _buildRightSection(property),
+                  ],
+                );
+              }
+            },
+          ),
+        ],
       );
     });
   }
 
+  Widget _backButton(BuildContext context) {
+    return Material(
+      color: AppColors.surface,
+      borderRadius: AppRadii.brMd,
+      child: InkWell(
+        borderRadius: AppRadii.brMd,
+        onTap: () => context.pop(),
+        child: Container(
+          width: 42,
+          height: 42,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.borderStrong),
+            borderRadius: AppRadii.brMd,
+          ),
+          child: const Icon(Iconsax.arrow_left_2,
+              size: 18, color: AppColors.textPrimary),
+        ),
+      ),
+    );
+  }
+
   Widget _buildLeftSection(Property property) {
-    final statusColor = _getStatusColor(property.status);
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Image Gallery
-        _buildImageGallery(property),
-
-        kSizedBox,
-
-        // Property Title and Status
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: MyText(
-                property.name,
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
+        AppCard(
+          padding: const EdgeInsets.all(16),
+          elevation: AppCardElevation.sm,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildImageGallery(property),
+              const SizedBox(height: 20),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  StatusChip(
+                    label: property.formattedStatus,
+                    tone: _statusTone(property.status),
+                  ),
+                  if (property.propertyType.isNotEmpty)
+                    StatusChip(
+                      label: property.formattedType,
+                      tone: _typeTone(property.propertyType),
+                    ),
+                  StatusChip(
+                    label: property.formattedCategory,
+                    tone: StatusTone.primary,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  const Icon(Iconsax.location,
+                      size: 18, color: AppColors.textMuted),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      property.location,
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text(
+                property.formattedPrice,
+                style: AppTextStyles.displayMd.copyWith(
+                  color: AppColors.primary,
                 ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: MyText(
-                property.formattedStatus,
-                style: TextStyle(
-                  color: statusColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        kSizedBoxSM,
-
-        // Location
-        Row(
-          children: [
-            const Icon(Iconsax.location, size: 20, color: AppColors.neutral500),
-            const SizedBox(width: 8),
-            MyText(
-              property.location,
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.neutral500,
-              ),
-            ),
-          ],
-        ),
-
-        kSizedBox,
-
-        // Price
-        MyText(
-          property.formattedPrice,
-          style: const TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+            ],
           ),
         ),
-
-        kSizedBox,
-
-        // Property Features
+        const SizedBox(height: 20),
         _buildPropertyFeatures(property),
-
-        kSizedBox,
-
-        // Tabs Section
+        const SizedBox(height: 20),
         _buildTabSection(property),
       ],
     );
@@ -214,19 +207,9 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
 
   Widget _buildRightSection(Property property) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Quick Info Card
         _buildQuickInfoCard(property),
-
-        kSizedBox,
-
-        // Contact Card
-        // _buildContactCard(),
-
-        // kSizedBox,
-
-        // Documents Card
-        // _buildDocumentsCard(),
       ],
     );
   }
@@ -236,19 +219,21 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
 
     if (images.isEmpty) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.brLg,
         child: Container(
           width: double.infinity,
-          height: 400,
-          color: AppColors.primary.withValues(alpha: 0.1),
-          child: const Column(
+          height: 380,
+          color: AppColors.primarySubtle,
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Iconsax.home, size: 80, color: AppColors.primary),
-              SizedBox(height: 16),
-              MyText(
+              const Icon(Iconsax.home, size: 72, color: AppColors.primary),
+              const SizedBox(height: 14),
+              Text(
                 'No images available',
-                style: TextStyle(fontSize: 16, color: AppColors.neutral500),
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -262,44 +247,38 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Main Image
         ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.brLg,
           child: Stack(
             children: [
               MyNetworkImage(
                 images[_currentImageIndex],
                 width: double.infinity,
-                height: 400,
+                height: 380,
                 fit: BoxFit.cover,
                 errorPlaceholder: Container(
                   width: double.infinity,
-                  height: 400,
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  height: 380,
+                  color: AppColors.primarySubtle,
                   child: const Icon(Iconsax.gallery_slash,
-                      size: 80, color: AppColors.neutral500),
+                      size: 72, color: AppColors.textMuted),
                 ),
               ),
               if (images.length > 1) ...[
-                // Navigation arrows
                 Positioned(
                   left: 16,
                   top: 0,
                   bottom: 0,
                   child: Center(
-                    child: IconButton(
-                      icon: const Icon(Iconsax.arrow_left_2,
-                          color: AppColors.white, size: 32),
-                      onPressed: () {
-                        setState(() {
-                          _currentImageIndex =
-                              (_currentImageIndex - 1) % images.length;
-                        });
-                      },
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withValues(alpha: 0.5),
-                      ),
+                    child: _galleryNavButton(
+                      icon: Iconsax.arrow_left_2,
+                      onTap: () => setState(() {
+                        _currentImageIndex =
+                            (_currentImageIndex - 1 + images.length) %
+                                images.length;
+                      }),
                     ),
                   ),
                 ),
@@ -308,49 +287,41 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                   top: 0,
                   bottom: 0,
                   child: Center(
-                    child: IconButton(
-                      icon: const Icon(Iconsax.arrow_right_3,
-                          color: AppColors.white, size: 32),
-                      onPressed: () {
-                        setState(() {
-                          _currentImageIndex =
-                              (_currentImageIndex + 1) % images.length;
-                        });
-                      },
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withValues(alpha: 0.5),
-                      ),
+                    child: _galleryNavButton(
+                      icon: Iconsax.arrow_right_3,
+                      onTap: () => setState(() {
+                        _currentImageIndex =
+                            (_currentImageIndex + 1) % images.length;
+                      }),
                     ),
                   ),
                 ),
               ],
-              // Image counter
               Positioned(
-                bottom: 16,
-                right: 16,
+                bottom: 14,
+                right: 14,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(20),
+                    color: AppColors.neutral900.withValues(alpha: 0.65),
+                    borderRadius: AppRadii.brPill,
                   ),
                   child: Text(
                     '${_currentImageIndex + 1} / ${images.length}',
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textOnPrimary,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
-
         if (images.length > 1) ...[
-          kSizedBoxSM,
-
-          // Thumbnail Images
+          const SizedBox(height: 12),
           SizedBox(
-            height: 80,
+            height: 72,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: images.length,
@@ -358,27 +329,25 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
               itemBuilder: (context, index) {
                 final isSelected = index == _currentImageIndex;
                 return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _currentImageIndex = index;
-                    });
-                  },
+                  onTap: () => setState(() => _currentImageIndex = index),
                   child: Container(
-                    width: 80,
+                    width: 96,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadii.brMd,
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : AppColors.neutral300,
-                        width: isSelected ? 3 : 1,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.borderSubtle,
+                        width: isSelected ? 2.5 : 1,
                       ),
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadii.brMd,
                       child: MyNetworkImage(
                         images[index],
                         fit: BoxFit.cover,
-                        errorPlaceholder:
-                            const Icon(Iconsax.gallery_slash, size: 24),
+                        errorPlaceholder: const Icon(Iconsax.gallery_slash,
+                            size: 24, color: AppColors.textMuted),
                       ),
                     ),
                   ),
@@ -391,28 +360,54 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildPropertyFeatures(Property property) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
+  Widget _galleryNavButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: AppColors.neutral900.withValues(alpha: 0.55),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          alignment: Alignment.center,
+          child: Icon(icon, size: 22, color: AppColors.textOnPrimary),
+        ),
       ),
-      child: Wrap(
-        spacing: 40,
-        runSpacing: 20,
+    );
+  }
+
+  Widget _buildPropertyFeatures(Property property) {
+    return AppCard(
+      padding: const EdgeInsets.all(20),
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (property.bedrooms > 0)
-            _buildFeatureItem(Icons.bed, '${property.bedrooms} Bedrooms'),
-          if (property.bathrooms > 0)
-            _buildFeatureItem(Icons.bathtub, '${property.bathrooms} Bathrooms'),
-          _buildFeatureItem(Iconsax.ruler, '${property.size} sqm'),
-          if (property.parkingSpaces > 0)
-            _buildFeatureItem(
-                Iconsax.car, '${property.parkingSpaces} Parking'),
-          _buildFeatureItem(Iconsax.home, property.formattedType),
-          _buildFeatureItem(Iconsax.category_2, property.formattedCategory),
+          const Text('Property Features', style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 24,
+            runSpacing: 16,
+            children: [
+              if (property.bedrooms > 0)
+                _buildFeatureItem(
+                    Icons.bed_outlined, '${property.bedrooms} Bedrooms'),
+              if (property.bathrooms > 0)
+                _buildFeatureItem(Icons.bathtub_outlined,
+                    '${property.bathrooms} Bathrooms'),
+              _buildFeatureItem(Iconsax.ruler, '${property.size} sqm'),
+              if (property.parkingSpaces > 0)
+                _buildFeatureItem(
+                    Iconsax.car, '${property.parkingSpaces} Parking'),
+              _buildFeatureItem(Iconsax.home, property.formattedType),
+              _buildFeatureItem(
+                  Iconsax.category_2, property.formattedCategory),
+            ],
+          ),
         ],
       ),
     );
@@ -422,79 +417,75 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CircleAvatar(
-          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          radius: 20,
-          child: Icon(icon, color: AppColors.primary, size: 20),
-        ),
-        const SizedBox(width: 12),
-        MyText(
-          label,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+            color: AppColors.primarySubtle,
+            borderRadius: AppRadii.brMd,
           ),
+          child: Icon(icon, color: AppColors.primary, size: 18),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
         ),
       ],
     );
   }
 
   Widget _buildTabSection(Property property) {
-    return Column(
-      children: [
-        TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.neutral500,
-          indicatorColor: AppColors.primary,
-          tabs: const [
-            Tab(text: 'Description'),
-            Tab(text: 'Location'),
-          ],
-        ),
-        kSizedBoxSM,
-        SizedBox(
-          height: 300,
-          child: TabBarView(
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.sm,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TabBar(
             controller: _tabController,
-            children: [
-              _buildDescriptionTab(property),
-              _buildLocationTab(property),
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.textSecondary,
+            indicatorColor: AppColors.primary,
+            labelStyle:
+                AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+            unselectedLabelStyle: AppTextStyles.bodyMd,
+            tabs: const [
+              Tab(text: 'Description'),
+              Tab(text: 'Location'),
             ],
           ),
-        ),
-      ],
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          SizedBox(
+            height: 280,
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildDescriptionTab(property),
+                _buildLocationTab(property),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildDescriptionTab(Property property) {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-      ),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const MyText(
-              'About This Property',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            MyText(
+            const Text('About This Property', style: AppTextStyles.h4),
+            const SizedBox(height: 14),
+            Text(
               property.description.isNotEmpty
                   ? property.description
                   : 'No description available.',
-              style: const TextStyle(
-                fontSize: 15,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textSecondary,
                 height: 1.6,
-                color: AppColors.neutral500,
               ),
             ),
           ],
@@ -504,32 +495,21 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
   }
 
   Widget _buildLocationTab(Property property) {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText(
-            'Location',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 16),
+          const Text('Location', style: AppTextStyles.h4),
+          const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(Iconsax.location, color: AppColors.primary),
-              const SizedBox(width: 8),
+              const Icon(Iconsax.location, color: AppColors.primary, size: 20),
+              const SizedBox(width: 10),
               Expanded(
-                child: MyText(
+                child: Text(
                   property.location,
-                  style: const TextStyle(fontSize: 15),
+                  style: AppTextStyles.bodyMd,
                 ),
               ),
             ],
@@ -542,36 +522,20 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
   Widget _buildQuickInfoCard(Property property) {
     final dateFormat = DateFormat('MMM dd, yyyy');
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const MyText(
-            'Quick Info',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          kSizedBoxSM,
+          const Text('Quick Info', style: AppTextStyles.h4),
+          const SizedBox(height: 16),
           _buildInfoRow('Property ID', 'PROP-${property.id}'),
           _buildInfoRow('Type', property.formattedType),
           _buildInfoRow('Category', property.formattedCategory),
           _buildInfoRow('Size', '${property.size} sqm'),
-          _buildInfoRow('Client ID', property.clientId),
+          _buildInfoRow(
+              'Client ID', property.clientId.isEmpty ? '—' : property.clientId),
           if (property.createdAt != null)
             _buildInfoRow(
                 'Listed Date', dateFormat.format(property.createdAt!)),
@@ -587,21 +551,23 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          MyText(
+          Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.neutral500,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
+          const SizedBox(width: 12),
           Flexible(
-            child: MyText(
+            child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+              textAlign: TextAlign.end,
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -610,21 +576,39 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Color _getStatusColor(String status) {
+  StatusTone _statusTone(String status) {
     switch (status.toLowerCase()) {
       case 'available':
-        return Colors.green;
-      case 'reserved':
-        return Colors.orange;
+      case 'vacant':
+        return StatusTone.success;
+      case 'occupied':
       case 'sold':
       case 'rented':
-        return Colors.purple;
-      case 'under_construction':
-        return Colors.blue;
+        return StatusTone.primary;
+      case 'reserved':
       case 'pending':
-        return Colors.amber;
+        return StatusTone.warning;
+      case 'off_market':
+        return StatusTone.neutral;
+      case 'inactive':
+        return StatusTone.danger;
       default:
-        return AppColors.neutral500;
+        return StatusTone.neutral;
+    }
+  }
+
+  StatusTone _typeTone(String type) {
+    switch (type.toLowerCase()) {
+      case 'residential':
+        return StatusTone.primary;
+      case 'commercial':
+        return StatusTone.info;
+      case 'industrial':
+        return StatusTone.warning;
+      case 'land':
+        return StatusTone.neutral;
+      default:
+        return StatusTone.neutral;
     }
   }
 }

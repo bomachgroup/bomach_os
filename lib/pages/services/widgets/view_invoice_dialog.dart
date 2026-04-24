@@ -1,8 +1,14 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
+import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+
 import '../models/service_invoice_model.dart';
 
 class ViewInvoiceDialog extends StatefulWidget {
@@ -27,692 +33,537 @@ class _ViewInvoiceDialogState extends State<ViewInvoiceDialog> {
   }
 
   String _formatCurrency(double amount) {
-    return '₦${amount.toStringAsFixed(2)}';
+    return 'NGN ${amount.toStringAsFixed(2)}';
   }
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  StatusTone _invoiceStatusTone(ServiceInvoiceStatus status) {
+    switch (status) {
+      case ServiceInvoiceStatus.draft:
+        return StatusTone.neutral;
+      case ServiceInvoiceStatus.sent:
+        return StatusTone.info;
+      case ServiceInvoiceStatus.viewed:
+        return StatusTone.primary;
+      case ServiceInvoiceStatus.overdue:
+        return StatusTone.danger;
+      case ServiceInvoiceStatus.cancelled:
+      case ServiceInvoiceStatus.void_:
+        return StatusTone.neutral;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    final invoice = widget.invoice;
+
+    return DialogScaffold(
+      title: invoice.invoiceNumber,
+      subtitle: 'Issued ${_formatDate(invoice.issueDate)}',
+      size: DialogSize.lg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildStatusBanner(invoice),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Client information',
+            children: [_buildClientInfo(invoice)],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Service details',
+            children: [_buildServiceDetails(invoice)],
+          ),
+          const SizedBox(height: 16),
+          _buildSection(
+            title: 'Invoice items',
+            children: [_buildInvoiceItems(invoice)],
+          ),
+          const SizedBox(height: 16),
+          _buildFinancialSummary(invoice),
+          if (invoice.paymentStatus != ServicePaymentStatus.paid) ...[
+            const SizedBox(height: 16),
+            _buildPaymentStatus(invoice),
+          ],
+          if (invoice.payments.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Payment history',
+              children: [_buildPaymentHistory(invoice)],
+            ),
+          ],
+          if (invoice.notes != null && invoice.notes!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildSection(
+              title: 'Notes',
+              children: [
+                Text(
+                  invoice.notes!,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+      actions: [
+        MyOutlinedButton(
+          child: 'Close',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          textColor: AppColors.textSecondary,
+          borderColor: AppColors.borderStrong,
+          onTap: () => Navigator.pop(context),
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey[200]!),
+        MyOutlinedButton(
+          child: 'Download PDF',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          icon: const Icon(Iconsax.document_download,
+              size: 18, color: AppColors.primary),
+          onTap: () {
+            AppToast.info(context, 'PDF download coming soon');
+          },
+        ),
+        MyElevatedButton(
+          child: 'Print Invoice',
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          icon: const Icon(Iconsax.printer,
+              size: 18, color: AppColors.textOnPrimary),
+          onTap: () {
+            AppToast.info(context, 'Print functionality coming soon');
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusBanner(ServiceInvoice invoice) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primarySubtle,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.primarySoft),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: AppRadii.brSm,
+            ),
+            child: const Icon(Iconsax.receipt_2,
+                color: AppColors.textOnPrimary, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(invoice.invoiceNumber, style: AppTextStyles.h4),
+                const SizedBox(height: 2),
+                Text(
+                  _formatCurrency(invoice.totalAmount),
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
+              ],
+            ),
+          ),
+          StatusChip(
+            label: invoice.status.toDisplayString(),
+            tone: _invoiceStatusTone(invoice.status),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClientInfo(ServiceInvoice invoice) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                invoice.clientName,
+                style: AppTextStyles.bodyMd
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+            if (invoice.leadId.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
+                decoration: const BoxDecoration(
+                  color: AppColors.infoSubtle,
+                  borderRadius: AppRadii.brPill,
+                ),
+                child: Text(
+                  'Lead: ${invoice.leadId}',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.info,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          invoice.clientEmail ?? 'N/A',
+          style: AppTextStyles.bodySm
+              .copyWith(color: AppColors.textSecondary),
+        ),
+        if (invoice.clientPhone != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            invoice.clientPhone!,
+            style: AppTextStyles.bodySm
+                .copyWith(color: AppColors.textSecondary),
+          ),
+        ],
+        if (invoice.clientAddress != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            invoice.clientAddress!,
+            style: AppTextStyles.bodySm
+                .copyWith(color: AppColors.textSecondary),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildServiceDetails(ServiceInvoice invoice) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _metaRow('Service Type', invoice.serviceType),
+        if (invoice.propertyAddress != null) ...[
+          const SizedBox(height: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Property/Address',
+                style: AppTextStyles.bodySm
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                invoice.propertyAddress!,
+                style: AppTextStyles.bodyMd
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _metaRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.bodySm
+              .copyWith(color: AppColors.textSecondary),
+        ),
+        Text(
+          value,
+          style: AppTextStyles.bodySm.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInvoiceItems(ServiceInvoice invoice) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.borderSubtle),
+        borderRadius: AppRadii.brMd,
+      ),
+      child: Column(
+        children: List.generate(
+          invoice.items.length,
+          (index) {
+            final item = invoice.items[index];
+            final isLast = index == invoice.items.length - 1;
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.description,
+                        style: AppTextStyles.bodyMd
+                            .copyWith(fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${item.quantity} x ${_formatCurrency(item.unitPrice)}',
+                            style: AppTextStyles.bodySm.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            _formatCurrency(item.amount),
+                            style: AppTextStyles.bodyMd
+                                .copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isLast)
+                  const Divider(
+                    height: 1,
+                    color: AppColors.borderSubtle,
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFinancialSummary(ServiceInvoice invoice) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.primarySubtle,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.primarySoft),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Financial summary', style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          _summaryRow('Subtotal', _formatCurrency(invoice.subtotal)),
+          const SizedBox(height: 12),
+          _summaryRow(
+            'Tax (${invoice.taxRate.toStringAsFixed(1)}%)',
+            _formatCurrency(invoice.taxAmount),
+          ),
+          if (invoice.discount > 0) ...[
+            const SizedBox(height: 12),
+            _summaryRow(
+              'Discount',
+              '-${_formatCurrency(invoice.discount)}',
+              valueColor: AppColors.danger,
+            ),
+          ],
+          const SizedBox(height: 16),
+          const Divider(color: AppColors.borderSubtle, height: 1),
+          const SizedBox(height: 16),
+          _summaryRow(
+            'Total',
+            _formatCurrency(invoice.totalAmount),
+            isTotal: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryRow(String label, String value,
+      {bool isTotal = false, Color? valueColor}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: isTotal
+              ? AppTextStyles.h4
+              : AppTextStyles.bodyMd
+                  .copyWith(color: AppColors.textSecondary),
+        ),
+        Text(
+          value,
+          style: isTotal
+              ? AppTextStyles.h4.copyWith(color: AppColors.primary)
+              : AppTextStyles.bodyMd.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: valueColor,
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentStatus(ServiceInvoice invoice) {
+    final progress = invoice.totalAmount == 0
+        ? 0.0
+        : (invoice.amountPaid / invoice.totalAmount).clamp(0.0, 1.0);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.warningSubtle,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.warningSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Iconsax.money_send,
+                  size: 18, color: AppColors.warning),
+              const SizedBox(width: 8),
+              const Text(
+                'Payment status',
+                style: AppTextStyles.h4,
+              ),
+              const SizedBox(width: 8),
+              StatusChip(
+                label: invoice.paymentStatus.toDisplayString(),
+                tone: StatusTone.warning,
+                dense: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _summaryRow('Amount paid', _formatCurrency(invoice.amountPaid)),
+          const SizedBox(height: 12),
+          _summaryRow(
+            'Balance',
+            _formatCurrency(invoice.balance),
+            valueColor: AppColors.danger,
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: AppColors.surface,
+              valueColor:
+                  const AlwaysStoppedAnimation(AppColors.warning),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentHistory(ServiceInvoice invoice) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.borderSubtle),
+        borderRadius: AppRadii.brMd,
+      ),
+      child: Column(
+        children: List.generate(
+          invoice.payments.length,
+          (index) {
+            final payment = invoice.payments[index];
+            final isLast = index == invoice.payments.length - 1;
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            MyText(
-                              widget.invoice.invoiceNumber,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black87,
+                            Text(
+                              payment.paymentMethod,
+                              style: AppTextStyles.bodyMd.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 4),
-                            MyText(
-                              'Issued: ${_formatDate(widget.invoice.issueDate)}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
+                            Text(
+                              _formatDate(payment.paymentDate),
+                              style: AppTextStyles.bodySm.copyWith(
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: widget.invoice.status
-                                .getStatusColor()
-                                .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            widget.invoice.status.toDisplayString(),
-                            style: TextStyle(
-                              color: widget.invoice.status.getStatusColor(),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Content
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Client Information
-                    const MyText(
-                      'Client Information',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                widget.invoice.clientName,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              if (widget.invoice.leadId.isNotEmpty)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[50],
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    'Lead: ${widget.invoice.leadId}',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.blue[700],
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
                           Text(
-                            widget.invoice.clientEmail ?? 'N/A',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                          if (widget.invoice.clientPhone != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                widget.invoice.clientPhone!,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          if (widget.invoice.clientAddress != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                widget.invoice.clientAddress!,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Service Information
-                    const MyText(
-                      'Service Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Service Type:',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              Text(
-                                widget.invoice.serviceType,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          if (widget.invoice.propertyAddress != null)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Property/Address:',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  widget.invoice.propertyAddress!,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Invoice Items
-                    const MyText(
-                      'Invoice Items',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: List.generate(
-                          widget.invoice.items.length,
-                          (index) {
-                            final item = widget.invoice.items[index];
-                            final isLast =
-                                index == widget.invoice.items.length - 1;
-                            return Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.description,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            '${item.quantity} × ${_formatCurrency(item.unitPrice)}',
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey[700],
-                                            ),
-                                          ),
-                                          Text(
-                                            _formatCurrency(item.amount),
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (!isLast)
-                                  Divider(
-                                    height: 1,
-                                    color: Colors.grey[300],
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Totals
-                    const MyText(
-                      'Financial Summary',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue[200]!),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Subtotal:',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              Text(
-                                _formatCurrency(widget.invoice.subtotal),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Tax (${widget.invoice.taxRate.toStringAsFixed(1)}%):',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              Text(
-                                _formatCurrency(widget.invoice.taxAmount),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                          if (widget.invoice.discount > 0) ...[
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Discount:',
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                                Text(
-                                  '-${_formatCurrency(widget.invoice.discount)}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                          const Divider(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const MyText(
-                                'Total:',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              MyText(
-                                _formatCurrency(widget.invoice.totalAmount),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Payment Information
-                    if (widget.invoice.paymentStatus !=
-                        ServicePaymentStatus.paid)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const MyText(
-                            'Payment Status',
-                            style: TextStyle(
-                              fontSize: 16,
+                            _formatCurrency(payment.amount),
+                            style: AppTextStyles.bodyMd.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.orange[50],
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.orange[200]!),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Amount Paid:',
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                    Text(
-                                      _formatCurrency(
-                                          widget.invoice.amountPaid),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Balance:',
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                    Text(
-                                      _formatCurrency(widget.invoice.balance),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: LinearProgressIndicator(
-                                    value: widget.invoice.amountPaid /
-                                        widget.invoice.totalAmount,
-                                    minHeight: 8,
-                                    backgroundColor: Colors.grey[300],
-                                    valueColor: AlwaysStoppedAnimation(
-                                      Colors.orange[600]!,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          const SizedBox(height: 4),
+                          StatusChip(
+                            label: payment.status,
+                            tone: StatusTone.success,
+                            dense: true,
                           ),
-                          const SizedBox(height: 24),
                         ],
                       ),
-
-                    // Payment History
-                    if (widget.invoice.payments.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const MyText(
-                            'Payment History',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              children: List.generate(
-                                widget.invoice.payments.length,
-                                (index) {
-                                  final payment =
-                                      widget.invoice.payments[index];
-                                  final isLast = index ==
-                                      widget.invoice.payments.length - 1;
-                                  return Column(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(12),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    payment.paymentMethod,
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    _formatDate(
-                                                        payment.paymentDate),
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[700],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  _formatCurrency(
-                                                      payment.amount),
-                                                  style: const TextStyle(
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 2,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.green[50],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                  ),
-                                                  child: Text(
-                                                    payment.status,
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.green[700],
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (!isLast)
-                                        Divider(
-                                          height: 1,
-                                          color: Colors.grey[300],
-                                        ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
-
-                    // Notes
-                    if (widget.invoice.notes != null &&
-                        widget.invoice.notes!.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const MyText(
-                            'Notes',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.grey[200]!),
-                            ),
-                            child: Text(
-                              widget.invoice.notes!,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-
-              // Footer Buttons
-              Container(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.grey[200]!),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: MyElevatedButton(
-                        child: 'Close',
-                        bgColor: Colors.grey[200] ?? Colors.grey,
-                        textColor: Colors.black87,
-                        onTap: () => Navigator.pop(context),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: MyElevatedButton(
-                        child: 'Print Invoice',
-                        bgColor: AppColors.primary,
-                        onTap: () {
-                          AppToast.info(context, 'Print functionality coming soon');
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                if (!isLast)
+                  const Divider(
+                    height: 1,
+                    color: AppColors.borderSubtle,
+                  ),
+              ],
+            );
+          },
         ),
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: AppColors.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyles.h4),
+          const SizedBox(height: 16),
+          ...children,
+        ],
       ),
     );
   }

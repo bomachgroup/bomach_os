@@ -1,13 +1,19 @@
 import 'package:bms_front_end/components/button/my_elevated_button.dart';
 import 'package:bms_front_end/components/button/my_outlined_button.dart';
+import 'package:bms_front_end/components/cards/app_card.dart';
+import 'package:bms_front_end/components/chip/status_chip.dart';
 import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
 import 'package:bms_front_end/components/feedback/app_toast.dart';
 import 'package:bms_front_end/components/input/my_dropdown.dart';
 import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
+import 'package:bms_front_end/components/section/empty_state.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
+import 'package:bms_front_end/components/section/page_header.dart';
+import 'package:bms_front_end/components/section/page_scaffold.dart';
 import 'package:bms_front_end/pages/services/controller/payment_approval_controller.dart';
 import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bms_front_end/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -50,43 +56,59 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     return invoices;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildHeader(),
-        kSizedBox,
-        Obx(() => _buildStatsCards()),
-        const SizedBox(height: 24),
-        _buildFilters(),
-        const SizedBox(height: 24),
-        Obx(() => _buildPaymentsList()),
-      ],
-    );
+  StatusTone _toneForPaymentStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return StatusTone.success;
+      case 'partially_paid':
+        return StatusTone.warning;
+      case 'overdue':
+        return StatusTone.danger;
+      case 'sent':
+        return StatusTone.info;
+      case 'draft':
+      case 'cancelled':
+        return StatusTone.neutral;
+      case 'pending_approval':
+        return StatusTone.warning;
+      case 'approved':
+        return StatusTone.success;
+      case 'rejected':
+      case 'flagged':
+        return StatusTone.danger;
+      case 'under_review':
+        return StatusTone.info;
+      default:
+        return StatusTone.neutral;
+    }
   }
 
-  Widget _buildHeader() {
-    return Row(
+  String _formatStatusLabel(String status) {
+    if (status.isEmpty) return 'Unknown';
+    return status[0].toUpperCase() +
+        status.substring(1).replaceAll('_', ' ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageScaffold(
+      maxContentWidth: 1440,
+      header: PageHeader(
+        title: 'Payment Approval',
+        subtitle: 'Review and approve pending payment submissions.',
+        trailing: MyOutlinedButton(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          icon: const Icon(Iconsax.refresh,
+              size: 18, color: AppColors.primary),
+          child: 'Refresh',
+          onTap: () => controller.fetchPendingApprovals(),
+        ),
+      ),
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppText.displayLg('Payment Approval'),
-              const SizedBox(height: 4),
-              AppText.bodyLg(
-                'Review and approve pending payment submissions',
-                color: AppColors.textSecondary,
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          onPressed: () => controller.fetchPendingApprovals(),
-          icon: const Icon(Iconsax.refresh),
-          tooltip: 'Refresh',
-        ),
+        Obx(() => _buildStatsCards()),
+        _buildFilters(),
+        Obx(() => _buildPaymentsCard()),
       ],
     );
   }
@@ -106,63 +128,79 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
       return issueDate.startsWith(today);
     }).length;
 
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        _buildStatCard(
-          'Pending Approvals',
-          pendingCount.toString(),
-          Iconsax.timer_1,
-          AppColors.primary,
-        ),
-        _buildStatCard(
-          'Total Amount',
-          '\u20A6${NumberFormat('#,###').format(pendingAmount)}',
-          Iconsax.money_recive,
-          AppColors.success,
-        ),
-        _buildStatCard(
-          'Today\'s Submissions',
-          todayCount.toString(),
-          Iconsax.calendar_1,
-          AppColors.warning,
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 700;
+        final stats = [
+          _StatData(
+            label: 'Pending Approvals',
+            value: pendingCount.toString(),
+            icon: Iconsax.timer_1,
+            tone: AppColors.primary,
+          ),
+          _StatData(
+            label: 'Total Amount',
+            value:
+                '\u20A6${NumberFormat('#,###').format(pendingAmount)}',
+            icon: Iconsax.money_recive,
+            tone: AppColors.success,
+          ),
+          _StatData(
+            label: "Today's Submissions",
+            value: todayCount.toString(),
+            icon: Iconsax.calendar_1,
+            tone: AppColors.warning,
+          ),
+        ];
+
+        if (isWide) {
+          return Row(
+            children: stats
+                .map((s) => Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            right: s == stats.last ? 0 : 16),
+                        child: _buildStatCard(s),
+                      ),
+                    ))
+                .toList(),
+          );
+        }
+        return Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: stats
+              .map((s) => SizedBox(
+                    width: (constraints.maxWidth - 16) / 2,
+                    child: _buildStatCard(s),
+                  ))
+              .toList(),
+        );
+      },
     );
   }
 
-  Widget _buildStatCard(
-      String label, String value, IconData icon, Color color) {
-    return Container(
-      constraints: const BoxConstraints(minWidth: 180, minHeight: 140),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildStatCard(_StatData data) {
+    return AppCard(
+      padding: const EdgeInsets.all(18),
+      elevation: AppCardElevation.sm,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: color.withValues(alpha: 0.1),
-            radius: 20,
-            child: Icon(icon, color: color, size: 20),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: data.tone.withValues(alpha: 0.12),
+              borderRadius: AppRadii.brSm,
+            ),
+            child: Icon(data.icon, color: data.tone, size: 20),
           ),
-          kSizedBoxSM,
-          AppText.h2(value),
+          const SizedBox(height: 14),
+          Text(data.value, style: AppTextStyles.h2),
           const SizedBox(height: 4),
-          AppText.bodySm(
-            label,
-            color: AppColors.textSecondary,
+          Text(
+            data.label,
+            style: AppTextStyles.bodySm,
           ),
         ],
       ),
@@ -170,126 +208,148 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
   }
 
   Widget _buildFilters() {
-    return Row(
-      children: [
-        Expanded(
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              SizedBox(
-                width: 280,
-                child: MyTextFormField(
-                  hintText: 'Search by invoice or client...',
-                  leading: Icon(
-                    Iconsax.search_normal,
-                    color: AppColors.neutral500.withValues(alpha: 0.5),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                ),
-              ),
-              SizedBox(
-                width: 200,
-                child: MyDropdown(
-                  items: const [
-                    'All',
-                    'Draft',
-                    'Sent',
-                    'Partially Paid',
-                    'Paid',
-                    'Overdue',
-                    'Cancelled',
-                  ],
-                  hintText: _selectedFilter,
-                  title: 'Filter by Status',
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFilter = value ?? 'All';
-                    });
-                  },
-                ),
-              ),
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      elevation: AppCardElevation.sm,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 640;
+          final searchField = MyTextFormField(
+            hintText: 'Search by invoice or client',
+            height: 48,
+            leading: const Icon(Iconsax.search_normal,
+                size: 18, color: AppColors.textMuted),
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+          );
+          final statusFilter = MyDropdown(
+            items: const [
+              'All',
+              'Draft',
+              'Sent',
+              'Partially Paid',
+              'Paid',
+              'Overdue',
+              'Cancelled',
             ],
-          ),
-        ),
-      ],
+            hintText: _selectedFilter,
+            initialSelection: _selectedFilter,
+            onChanged: (value) {
+              setState(() {
+                _selectedFilter = value ?? 'All';
+              });
+            },
+          );
+          if (isWide) {
+            return Row(
+              children: [
+                Expanded(flex: 3, child: searchField),
+                const SizedBox(width: 12),
+                Expanded(flex: 2, child: statusFilter),
+              ],
+            );
+          }
+          return Column(
+            children: [
+              searchField,
+              const SizedBox(height: 12),
+              statusFilter,
+            ],
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildPaymentsList() {
-    if (controller.isLoading.value) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(48),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (controller.errorMessage.value.isNotEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(48),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Iconsax.danger, size: 64, color: Colors.red.shade400),
-            const SizedBox(height: 16),
-            AppText.bodyMd(
-              controller.errorMessage.value,
-              color: AppColors.danger,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            MyElevatedButton(
-              child: 'Retry',
-              onTap: () => controller.fetchPendingApprovals(),
-            ),
-          ],
-        ),
-      );
-    }
-
+  Widget _buildPaymentsCard() {
+    final loading = controller.isLoading.value;
+    final hasError = controller.errorMessage.value.isNotEmpty;
     final filteredInvoices = _filteredInvoices;
 
-    if (filteredInvoices.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(48),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Iconsax.tick_circle,
-              size: 64,
-              color: Colors.grey.shade400,
+    return AppCard(
+      padding: EdgeInsets.zero,
+      elevation: AppCardElevation.md,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Approval queue', style: AppTextStyles.h3),
+                      const SizedBox(height: 4),
+                      Text(
+                        loading
+                            ? 'Loading pending approvals...'
+                            : '${filteredInvoices.length} invoice${filteredInvoices.length == 1 ? '' : 's'} awaiting decision',
+                        style: AppTextStyles.bodyMd.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const StatusChip(
+                  label: 'Approvals',
+                  tone: StatusTone.warning,
+                  icon: Iconsax.shield_tick,
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            AppText.h3(
-              'No pending payments',
-              color: AppColors.textSecondary,
+          ),
+          const Divider(height: 1, color: AppColors.borderSubtle),
+          if (loading)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 4),
+            )
+          else if (hasError)
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.danger,
+                title: 'Could not load approvals',
+                subtitle: controller.errorMessage.value,
+                action: MyElevatedButton(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 12),
+                  icon: const Icon(Iconsax.refresh,
+                      size: 18, color: AppColors.textOnPrimary),
+                  child: 'Retry',
+                  onTap: () => controller.fetchPendingApprovals(),
+                ),
+              ),
+            )
+          else if (filteredInvoices.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: EmptyState(
+                icon: Iconsax.tick_circle,
+                title: 'No pending payments',
+                subtitle: 'All payments have been processed.',
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: filteredInvoices.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (_, index) =>
+                    _buildPaymentCard(filteredInvoices[index]),
+              ),
             ),
-            const SizedBox(height: 8),
-            AppText.bodyMd(
-              'All payments have been processed',
-              color: AppColors.textMuted,
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredInvoices.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        return _buildPaymentCard(filteredInvoices[index]);
-      },
+        ],
+      ),
     );
   }
 
@@ -304,23 +364,15 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     final approvals = (invoice['approvals'] as List?) ?? [];
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: AppColors.surface,
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Invoice Header
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -330,50 +382,70 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                   children: [
                     Row(
                       children: [
-                        AppText.h4(invoiceNumber),
-                        const SizedBox(width: 12),
-                        _buildStatusBadge(status),
+                        Flexible(
+                          child: Text(
+                            invoiceNumber.toString(),
+                            style: AppTextStyles.h4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        StatusChip(
+                          label: _formatStatusLabel(status),
+                          tone: _toneForPaymentStatus(status),
+                          dense: true,
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    AppText.bodyMd(
-                      clientName,
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(height: 6),
+                    Text(
+                      clientName.toString(),
+                      style: AppTextStyles.bodyMd.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    if (invoiceType.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      AppText.bodySm(
-                        invoiceType,
-                        color: AppColors.textSecondary,
+                    if (invoiceType.toString().isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        invoiceType.toString(),
+                        style: AppTextStyles.bodySm,
                       ),
                     ],
                   ],
                 ),
               ),
+              const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  AppText.bodyMd(
-                    'Total: \u20A6${NumberFormat('#,###').format(totalAmount)}',
-                    fontWeight: FontWeight.w600,
+                  const Text(
+                    'Total',
+                    style: AppTextStyles.caption,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '\u20A6${NumberFormat('#,###').format(totalAmount)}',
+                    style: AppTextStyles.bodyMd.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  AppText.bodySm(
-                    'Balance: \u20A6${NumberFormat('#,###').format(balance)}',
-                    color: AppColors.danger,
-                    fontWeight: FontWeight.w500,
+                  Text(
+                    'Balance \u20A6${NumberFormat('#,###').format(balance)}',
+                    style: AppTextStyles.bodySm.copyWith(
+                      color: AppColors.danger,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-
-          // Items section
           if (items.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            const Divider(),
+            const SizedBox(height: 14),
+            const Divider(height: 1, color: AppColors.borderSubtle),
             const SizedBox(height: 12),
-            AppText.h4('Invoice Items'),
+            const Text('Invoice Items', style: AppTextStyles.h4),
             const SizedBox(height: 8),
             ...items.map((item) {
               final description =
@@ -385,32 +457,31 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: AppText.bodySm(
+                      child: Text(
                         description,
-                        color: AppColors.textSecondary,
+                        style: AppTextStyles.bodySm,
                       ),
                     ),
-                    AppText.bodySm(
-                      '$quantity x \u20A6${NumberFormat('#,###').format(unitPrice)}',
-                      color: AppColors.textMuted,
+                    Text(
+                      '$quantity × \u20A6${NumberFormat('#,###').format(unitPrice)}',
+                      style: AppTextStyles.bodySm.copyWith(
+                        color: AppColors.textMuted,
+                      ),
                     ),
                   ],
                 ),
               );
             }),
           ],
-
-          // Approvals section
           if (approvals.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            const Divider(),
+            const SizedBox(height: 14),
+            const Divider(height: 1, color: AppColors.borderSubtle),
             const SizedBox(height: 12),
-            AppText.h4('Approval Steps'),
-            const SizedBox(height: 12),
-            ...approvals.map((approval) => _buildApprovalStep(
-                  approval,
-                  invoice,
-                )),
+            const Text('Approval Steps', style: AppTextStyles.h4),
+            const SizedBox(height: 10),
+            ...approvals.map(
+              (approval) => _buildApprovalStep(approval, invoice),
+            ),
           ],
         ],
       ),
@@ -425,16 +496,33 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
     final comment = (approval['comment'] ?? '').toString();
     final invoiceId = invoice['id'];
     final isPending = decision.isEmpty || decision == 'pending';
+    final isApproved = decision == 'approved';
+
+    final tone = isPending
+        ? StatusTone.warning
+        : isApproved
+            ? StatusTone.success
+            : StatusTone.danger;
+    final icon = isPending
+        ? Iconsax.timer_1
+        : isApproved
+            ? Iconsax.tick_circle
+            : Iconsax.close_circle;
+
+    final backgroundColor = isPending
+        ? AppColors.warningSubtle
+        : AppColors.surfaceMuted;
+    final borderColor = isPending
+        ? AppColors.warningSubtle
+        : AppColors.borderSubtle;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isPending ? Colors.orange.shade50 : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isPending ? Colors.orange.shade200 : Colors.grey.shade200,
-        ),
+        color: backgroundColor,
+        borderRadius: AppRadii.brSm,
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,40 +530,43 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
           Row(
             children: [
               Icon(
-                isPending
-                    ? Iconsax.timer_1
-                    : decision == 'approved'
-                        ? Iconsax.tick_circle
-                        : Iconsax.close_circle,
+                icon,
                 size: 18,
                 color: isPending
-                    ? Colors.orange
-                    : decision == 'approved'
-                        ? Colors.green
-                        : Colors.red,
+                    ? AppColors.warning
+                    : isApproved
+                        ? AppColors.success
+                        : AppColors.danger,
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: AppText.bodyMd(
+                child: Text(
                   stepName,
-                  fontWeight: FontWeight.w600,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              if (!isPending) _buildDecisionBadge(decision),
+              if (!isPending)
+                StatusChip(
+                  label: isApproved ? 'Approved' : 'Rejected',
+                  tone: tone,
+                  dense: true,
+                ),
             ],
           ),
           if (decidedBy.isNotEmpty) ...[
             const SizedBox(height: 4),
-            AppText.bodySm(
+            Text(
               'Decided by: $decidedBy',
-              color: AppColors.textSecondary,
+              style: AppTextStyles.bodySm,
             ),
           ],
           if (comment.isNotEmpty) ...[
             const SizedBox(height: 4),
-            AppText.bodySm(
+            Text(
               'Comment: $comment',
-              color: AppColors.textSecondary,
+              style: AppTextStyles.bodySm,
             ),
           ],
           if (isPending) ...[
@@ -484,94 +575,30 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 MyOutlinedButton(
-                  textColor: Colors.red,
-                  borderColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  borderColor: AppColors.danger,
+                  textColor: AppColors.danger,
+                  icon: const Icon(Iconsax.close_circle,
+                      size: 16, color: AppColors.danger),
                   child: 'Reject',
-                  onTap: () => _handleRejectPayment(invoiceId, step, invoice),
+                  onTap: () =>
+                      _handleRejectPayment(invoiceId, step, invoice),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 MyElevatedButton(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
                   icon: const Icon(Iconsax.tick_circle,
-                      color: Colors.white, size: 18),
+                      size: 16, color: AppColors.textOnPrimary),
                   child: 'Approve',
-                  onTap: () => _handleApprovePayment(invoiceId, step, invoice),
+                  onTap: () =>
+                      _handleApprovePayment(invoiceId, step, invoice),
                 ),
               ],
             ),
           ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildDecisionBadge(String decision) {
-    final isApproved = decision == 'approved';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isApproved ? Colors.green.shade100 : Colors.red.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: AppText.label(
-        isApproved ? 'Approved' : 'Rejected',
-        color: isApproved ? AppColors.success : AppColors.danger,
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    Color backgroundColor;
-    Color textColor;
-    String label;
-
-    switch (status.toLowerCase()) {
-      case 'paid':
-        backgroundColor = AppColors.success.withValues(alpha: 0.1);
-        textColor = AppColors.success;
-        label = 'Paid';
-        break;
-      case 'partially_paid':
-        backgroundColor = AppColors.warning.withValues(alpha: 0.1);
-        textColor = AppColors.warning;
-        label = 'Partially Paid';
-        break;
-      case 'overdue':
-        backgroundColor = AppColors.dangerSubtle;
-        textColor = AppColors.danger;
-        label = 'Overdue';
-        break;
-      case 'sent':
-        backgroundColor = AppColors.info.withValues(alpha: 0.1);
-        textColor = AppColors.info;
-        label = 'Sent';
-        break;
-      case 'draft':
-        backgroundColor = Colors.grey.shade100;
-        textColor = Colors.grey.shade800;
-        label = 'Draft';
-        break;
-      case 'cancelled':
-        backgroundColor = Colors.grey.shade100;
-        textColor = Colors.grey.shade800;
-        label = 'Cancelled';
-        break;
-      default:
-        backgroundColor = Colors.blue.shade100;
-        textColor = Colors.blue.shade800;
-        label = status.isNotEmpty
-            ? status[0].toUpperCase() + status.substring(1).replaceAll('_', ' ')
-            : 'Unknown';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: AppText.label(
-        label,
-        color: textColor,
       ),
     );
   }
@@ -590,24 +617,28 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText.bodyMd('Are you sure you want to approve this payment?'),
-          const SizedBox(height: 16),
-          AppText.bodyMd(
-            'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
-            fontWeight: FontWeight.w600,
+          const Text(
+            'Are you sure you want to approve this payment?',
+            style: AppTextStyles.bodyMd,
           ),
-          AppText.bodySm('Invoice: $invoiceNumber'),
-          AppText.bodySm('Client: $clientName'),
+          const SizedBox(height: 16),
+          Text(
+            'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
+            style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 4),
+          Text('Invoice: $invoiceNumber', style: AppTextStyles.bodySm),
+          Text('Client: $clientName', style: AppTextStyles.bodySm),
         ],
       ),
       actions: [
         MyOutlinedButton(
-          textColor: AppColors.neutral500,
-          borderColor: null,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: 'Cancel',
           onTap: () => Navigator.pop(context),
         ),
         MyElevatedButton(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: 'Approve',
           onTap: () {
             Navigator.pop(context);
@@ -635,8 +666,11 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText.bodyMd('Please provide a reason for rejection:'),
-          const SizedBox(height: 16),
+          const Text(
+            'Please provide a reason for rejection:',
+            style: AppTextStyles.bodyMd,
+          ),
+          const SizedBox(height: 14),
           MyTextFormField(
             controller: reasonController,
             hintText: 'Enter rejection reason',
@@ -644,22 +678,23 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
             maxLines: 3,
           ),
           const SizedBox(height: 16),
-          AppText.bodyMd(
+          Text(
             'Amount: \u20A6${NumberFormat('#,###').format(balance)}',
-            fontWeight: FontWeight.w600,
+            style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
           ),
-          AppText.bodySm('Invoice: $invoiceNumber'),
+          const SizedBox(height: 4),
+          Text('Invoice: $invoiceNumber', style: AppTextStyles.bodySm),
         ],
       ),
       actions: [
         MyOutlinedButton(
-          textColor: AppColors.neutral500,
-          borderColor: null,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: 'Cancel',
           onTap: () => Navigator.pop(context),
         ),
         MyElevatedButton(
-          bgColor: Colors.red,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          bgColor: AppColors.danger,
           child: 'Reject',
           onTap: () {
             if (reasonController.text.isEmpty) {
@@ -677,4 +712,17 @@ class _PaymentApprovalPageState extends State<PaymentApprovalPage> {
       ],
     );
   }
+}
+
+class _StatData {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color tone;
+  const _StatData({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.tone,
+  });
 }

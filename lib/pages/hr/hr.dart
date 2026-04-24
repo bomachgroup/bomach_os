@@ -18,6 +18,9 @@ import 'package:bms_front_end/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:bms_front_end/pages/hr/controller/dashboard_controller.dart';
+import 'package:bms_front_end/src/services/hr/hr_services.dart';
+import 'package:bms_front_end/components/section/loading_skeleton.dart';
 
 // Local accent palette
 const Color _accentGreen = AppColors.success;
@@ -34,6 +37,8 @@ class HRPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final HRController controller = Get.put(HRController());
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -48,7 +53,12 @@ class HRPage extends StatelessWidget {
           ),
           children: [
             const _QuickNavSection(),
-            const _SummaryGridSection(),
+            Obx(() {
+              if (controller.isLoading.value && controller.stats.value == null) {
+                return LoadingSkeleton.statRow(count: 4);
+              }
+              return _SummaryGridSection(stats: controller.stats.value);
+            }),
             if (isDesktop)
               const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,33 +199,34 @@ class _QuickNavSection extends StatelessWidget {
 }
 
 class _SummaryGridSection extends StatelessWidget {
-  const _SummaryGridSection();
+  final DashboardStatsModel? stats;
+  const _SummaryGridSection({this.stats});
 
   @override
   Widget build(BuildContext context) {
-    return const ResponsiveStatRow(
+    return ResponsiveStatRow(
       cards: [
         _StatCard(
           title: 'Total Employees',
-          count: '234',
+          count: stats != null ? '${stats!.totalEmployees}' : '--',
           icon: Iconsax.people,
           accent: _accentGreen,
         ),
         _StatCard(
-          title: 'New Hires (30 days)',
-          count: '18',
+          title: 'New Hires (MTD)',
+          count: stats != null ? '${stats!.newEmployeesCount}' : '--',
           icon: Iconsax.user_add,
           accent: _accentBlue,
         ),
         _StatCard(
           title: 'Open Roles',
-          count: '12',
+          count: stats != null ? '${stats!.jobPostings}' : '--',
           icon: Iconsax.briefcase,
           accent: _accentAmber,
         ),
         _StatCard(
-          title: 'On Leave Today',
-          count: '2',
+          title: 'Pending Leaves',
+          count: stats != null ? '${stats!.leaves}' : '--',
           icon: Iconsax.calendar_remove,
           accent: _accentPink,
         ),
