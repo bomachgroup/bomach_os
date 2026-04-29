@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/cards/stats_header.dart';
-import 'package:bms_front_end/pages/legal/legal.dart';
+import 'package:bomach_os/components/cards/stats_header.dart';
+import 'package:bomach_os/pages/legal/legal.dart';
 import 'package:flutter/material.dart';
 
 // Model for the data ou can manipulate this later on sha

@@ -1,11 +1,11 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/chip/status_chip.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/permission_gate.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/permission_gate.dart';
+import 'package:bomach_os/components/text/app_text.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -87,7 +87,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
           child: Container(
             constraints: const BoxConstraints(maxWidth: 500),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
@@ -189,15 +189,17 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
 
                     // Buttons
                     const Divider(
-                        height: 1, thickness: 1, color: Colors.black12),
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.borderSubtle),
                     const SizedBox(height: 20),
                     Row(
                       children: [
                         Expanded(
                           child: MyElevatedButton(
                             child: 'Cancel',
-                            bgColor: Colors.grey[200] ?? Colors.grey,
-                            textColor: Colors.black87,
+                            bgColor: AppColors.neutral200,
+                            textColor: AppColors.textPrimary,
                             onTap: isSubmitting
                                 ? null
                                 : () => Navigator.pop(context),
@@ -252,14 +254,8 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                         }
                                       } catch (e) {
                                         if (mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Error: ${e.toString()}'),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          AppToast.error(
+                                              context, 'Error: ${e.toString()}');
                                         }
                                       } finally {
                                         if (mounted) {
@@ -296,13 +292,13 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
               children: [
                 AppText.bodyMd(
                   _controller.errorMessage.value,
-                  color: Colors.red,
+                  color: AppColors.danger,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => _controller.fetchLeads(),
-                  child: const Text('Retry'),
+                MyElevatedButton(
+                  child: 'Retry',
+                  onTap: () => _controller.fetchLeads(),
                 ),
               ],
             ),
@@ -339,7 +335,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                 child: MyElevatedButton(
                   child: 'Add Lead',
                   bgColor: AppColors.primary,
-                  icon: const Icon(Iconsax.add, color: Colors.white),
+                  icon: const Icon(Iconsax.add, color: AppColors.white),
                   onTap: _showAddLeadDialog,
                 ),
               ),
@@ -504,22 +500,10 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                             child: AppText.bodyMd('Cancel',
                                                 color: AppColors.textSecondary),
                                           ),
-                                          ElevatedButton(
-                                            onPressed: () =>
+                                          MyElevatedButton(
+                                            child: 'Convert',
+                                            onTap: () =>
                                                 Navigator.pop(context, true),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  AppColors.primary,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8)),
-                                            ),
-                                            child: const Text(
-                                              'Convert',
-                                              style: TextStyle(
-                                                  color: AppColors.white,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
                                           ),
                                         ],
                                       ),
@@ -607,7 +591,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                               ? AppColors.primary
                               : AppColors.neutral200,
                           foregroundColor: currentPage > 1
-                              ? Colors.white
+                              ? AppColors.white
                               : AppColors.textSecondary,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)),
@@ -658,7 +642,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                                 child: AppText.bodySm(
                                   '$pageNumber',
                                   color: isCurrentPage
-                                      ? Colors.white
+                                      ? AppColors.white
                                       : AppColors.textPrimary,
                                   fontWeight: isCurrentPage
                                       ? FontWeight.w600
@@ -684,7 +668,7 @@ class _ServiceLeadsPageState extends State<ServiceLeadsPage> {
                               ? AppColors.primary
                               : AppColors.neutral200,
                           foregroundColor: hasNextPage
-                              ? Colors.white
+                              ? AppColors.white
                               : AppColors.textSecondary,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)),

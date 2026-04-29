@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/pages/analytics/overview.dart';
+import 'package:bomach_os/components/text/app_text.dart';
+import 'package:bomach_os/pages/analytics/overview.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

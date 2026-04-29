@@ -81,7 +81,7 @@ for my $path (@files) {
         unless ($src =~ m{src/constants/colors\.dart}) {
             if ($src =~ m{^(import\s+[^\n]+;)\n}m) {
                 $src =~ s{^(import\s+[^\n]+;)\n}
-                         {$1\nimport 'package:bms_front_end/src/constants/colors.dart';\n}m;
+                         {$1\nimport 'package:bomach_os/src/constants/colors.dart';\n}m;
             }
         }
         open my $out, '>', $path or next;

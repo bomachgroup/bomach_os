@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bomach_os/src/constants/spaces.dart';
 
 /// A row that automatically adjusts its layout based on available width.
 ///

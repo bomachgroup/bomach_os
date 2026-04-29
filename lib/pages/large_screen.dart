@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/nav/side_menu.dart';
-import 'package:bms_front_end/main.dart';
+import 'package:bomach_os/components/nav/side_menu.dart';
+import 'package:bomach_os/main.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

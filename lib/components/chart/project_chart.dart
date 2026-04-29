@@ -1,4 +1,4 @@
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

@@ -1,13 +1,13 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/chip/status_chip.dart';
-import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/shadows.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/model/branch_model.dart';
+import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/shadows.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/model/branch_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

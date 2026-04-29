@@ -1,8 +1,8 @@
-// import 'package:bms_front_end/firebase_options.dart';
-import 'package:bms_front_end/src/app_routes/app_router.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+// import 'package:bomach_os/firebase_options.dart';
+import 'package:bomach_os/src/app_routes/app_router.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages

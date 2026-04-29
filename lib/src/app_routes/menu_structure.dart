@@ -1,6 +1,6 @@
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
-import 'package:bms_front_end/src/constants/icons.dart';
-import 'package:bms_front_end/src/constants/permissions.dart';
+import 'package:bomach_os/src/app_routes/app_route_constants.dart';
+import 'package:bomach_os/src/constants/icons.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 

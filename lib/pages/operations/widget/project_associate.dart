@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/section/empty_state.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/components/section/empty_state.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 

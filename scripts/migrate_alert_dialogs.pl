@@ -194,7 +194,7 @@ END
         unless ($out_src =~ m{components/dialog/dialog_scaffold\.dart}) {
             if ($out_src =~ m{^(import\s+[^\r\n]+;)(\r?\n)}m) {
                 $out_src =~ s{^(import\s+[^\r\n]+;)(\r?\n)}
-                             {$1$2import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';$2}m;
+                             {$1$2import 'package:bomach_os/components/dialog/dialog_scaffold.dart';$2}m;
             }
         }
         open my $out, '>', $path or next;

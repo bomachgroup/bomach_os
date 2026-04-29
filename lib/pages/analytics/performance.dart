@@ -1,6 +1,6 @@
-import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/text/app_text.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

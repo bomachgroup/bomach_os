@@ -1,6 +1,6 @@
-import 'package:bms_front_end/components/nav/header.dart';
-import 'package:bms_front_end/components/nav/side_menu.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bomach_os/components/nav/header.dart';
+import 'package:bomach_os/components/nav/side_menu.dart';
+import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

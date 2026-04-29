@@ -1,6 +1,6 @@
-import 'package:bms_front_end/pages/legal/detailed_view.dart';
+import 'package:bomach_os/pages/legal/detailed_view.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/pages/legal/widgets/status_tag.dart'
+import 'package:bomach_os/pages/legal/widgets/status_tag.dart'
     show StatusTag;
 import 'package:flutter/material.dart';
 

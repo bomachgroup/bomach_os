@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:bms_front_end/src/constants/api_constants.dart';
-import 'package:bms_front_end/pages/services/models/estate_models.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
+import 'package:bomach_os/pages/services/models/estate_models.dart';
 
 class EstateService {
   final Dio _dio;

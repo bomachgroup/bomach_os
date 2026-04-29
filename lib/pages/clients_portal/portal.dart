@@ -1,10 +1,10 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/cards/stats_header.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/pages/clients_portal/controller/client_portal_controller.dart';
-import 'package:bms_front_end/pages/clients_portal/slides/client_access.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/cards/stats_header.dart';
+import 'package:bomach_os/components/text/app_text.dart';
+import 'package:bomach_os/pages/clients_portal/controller/client_portal_controller.dart';
+import 'package:bomach_os/pages/clients_portal/slides/client_access.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';

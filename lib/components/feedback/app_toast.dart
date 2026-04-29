@@ -1,7 +1,7 @@
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/icons.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/icons.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 /// Thin wrapper over `ScaffoldMessenger` so callers write one line instead

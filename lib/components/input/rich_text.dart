@@ -1,5 +1,5 @@
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 

@@ -1,7 +1,7 @@
-import 'package:bms_front_end/pages/legal/detailed_view.dart'
+import 'package:bomach_os/pages/legal/detailed_view.dart'
     show DetailsViewPage;
 import 'package:flutter/material.dart';
-import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:get/get.dart';
 

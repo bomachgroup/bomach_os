@@ -1,13 +1,13 @@
 import 'dart:developer';
-import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'package:bms_front_end/src/model/board_model.dart';
-import 'package:bms_front_end/src/model/approval_model.dart';
-import 'package:bms_front_end/src/services/approval_service.dart';
+import 'package:bomach_os/src/model/board_model.dart';
+import 'package:bomach_os/src/model/approval_model.dart';
+import 'package:bomach_os/src/services/approval_service.dart';
 
 class ApprovalController extends GetxController {
   final ApprovalService _approvalService = ApprovalService();

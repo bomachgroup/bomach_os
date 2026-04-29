@@ -1,14 +1,14 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/chip/status_chip.dart';
-import 'package:bms_front_end/components/section/empty_state.dart';
-import 'package:bms_front_end/components/section/page_header.dart';
-import 'package:bms_front_end/components/section/page_scaffold.dart';
-import 'package:bms_front_end/pages/services/widget/invoice_list.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/section/empty_state.dart';
+import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
+import 'package:bomach_os/pages/services/widget/invoice_list.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -57,7 +57,8 @@ class _ServiceOrderState extends State<ServiceOrder> {
             final tab = _tabs[index];
             final isActive = _selectedTab == index;
             return Padding(
-              padding: EdgeInsets.only(right: index == _tabs.length - 1 ? 0 : 8),
+              padding:
+                  EdgeInsets.only(right: index == _tabs.length - 1 ? 0 : 8),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -69,9 +70,8 @@ class _ServiceOrderState extends State<ServiceOrder> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: isActive
-                          ? AppColors.primary
-                          : AppColors.surfaceMuted,
+                      color:
+                          isActive ? AppColors.primary : AppColors.surfaceMuted,
                       borderRadius: AppRadii.brMd,
                     ),
                     child: Row(

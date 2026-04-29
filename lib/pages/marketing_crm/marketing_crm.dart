@@ -1,8 +1,8 @@
-import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
-import 'package:bms_front_end/components/section/module_dashboard.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
-import 'package:bms_front_end/src/constants/permissions.dart';
-import 'package:bms_front_end/src/services/permission_service.dart';
+import 'package:bomach_os/components/cards/module_shortcut_card.dart';
+import 'package:bomach_os/components/section/module_dashboard.dart';
+import 'package:bomach_os/src/app_routes/app_route_constants.dart';
+import 'package:bomach_os/src/constants/permissions.dart';
+import 'package:bomach_os/src/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';

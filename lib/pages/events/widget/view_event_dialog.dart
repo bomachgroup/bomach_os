@@ -1,9 +1,9 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/events/controller/event_controller.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/services/events/event_service.dart';
+import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/pages/events/controller/event_controller.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/services/events/event_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

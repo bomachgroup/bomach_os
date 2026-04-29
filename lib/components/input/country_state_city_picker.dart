@@ -1,9 +1,9 @@
-import 'package:bms_front_end/components/input/my_dropdown.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/data/country_state_city.dart';
+import 'package:bomach_os/components/input/my_dropdown.dart';
+import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/data/country_state_city.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';

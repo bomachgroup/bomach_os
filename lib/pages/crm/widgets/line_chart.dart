@@ -1,4 +1,4 @@
-import 'package:bms_front_end/components/text/my_text.dart' show MyText;
+import 'package:bomach_os/components/text/my_text.dart' show MyText;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 

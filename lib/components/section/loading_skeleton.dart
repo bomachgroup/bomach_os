@@ -1,6 +1,6 @@
-import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/radii.dart';
 import 'package:flutter/material.dart';
 
 /// Shimmering placeholder block. Compose into list rows, cards, stat rows,

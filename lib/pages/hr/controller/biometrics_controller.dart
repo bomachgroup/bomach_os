@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:bms_front_end/src/services/biometric_api_service.dart';
-import 'package:bms_front_end/src/services/location_service.dart';
+import 'package:bomach_os/src/services/biometric_api_service.dart';
+import 'package:bomach_os/src/services/location_service.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';

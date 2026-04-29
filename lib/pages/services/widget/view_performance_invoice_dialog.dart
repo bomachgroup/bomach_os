@@ -1,9 +1,9 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/text/app_text.dart';
-import 'package:bms_front_end/pages/services/models/performance_invoice_model.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/components/text/app_text.dart';
+import 'package:bomach_os/pages/services/models/performance_invoice_model.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class ViewPerformanceInvoiceDialog extends StatelessWidget {
@@ -55,19 +55,19 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
     Color color;
     switch (status) {
       case 'Paid':
-        color = Colors.green;
+        color = AppColors.success;
         break;
       case 'Pending':
-        color = Colors.orange;
+        color = AppColors.warning;
         break;
       case 'Partial':
-        color = Colors.blue;
+        color = AppColors.info;
         break;
       case 'Failed':
-        color = Colors.red;
+        color = AppColors.danger;
         break;
       default:
-        color = Colors.grey;
+        color = AppColors.neutral500;
     }
 
     return Container(
@@ -95,7 +95,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 900),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -252,13 +252,13 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                             Divider(height: 24, color: AppColors.primary.withValues(alpha: 0.1)),
                             _buildFinancialRow(
                                 'Amount Paid', invoice.amountPaid!,
-                                color: Colors.green),
+                                color: AppColors.success),
                           ],
                           if (invoice.balance != null &&
                               invoice.balance! > 0) ...[
                             Divider(height: 24, color: AppColors.primary.withValues(alpha: 0.1)),
                             _buildFinancialRow('Balance', invoice.balance!,
-                                color: Colors.orange),
+                                color: AppColors.warning),
                           ],
                         ],
                       ),
@@ -316,7 +316,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                               _buildFinancialRow(
                                 'Commission Amount',
                                 invoice.commissionAmount!,
-                                color: Colors.purple,
+                                color: AppColors.primary,
                               ),
                           ],
                         ),
@@ -359,7 +359,7 @@ class ViewPerformanceInvoiceDialog extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       MyElevatedButton(
-                        bgColor: Colors.green,
+                        bgColor: AppColors.success,
                         icon: const Icon(Iconsax.share, color: AppColors.white),
                         child: 'Share',
                         onTap: () {

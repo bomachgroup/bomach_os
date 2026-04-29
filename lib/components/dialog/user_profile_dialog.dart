@@ -1,13 +1,13 @@
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/pages/auth/controller.dart';
-import 'package:bms_front_end/pages/dashboad/widget/edit_profile_dialog.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/model/user_model.dart';
+import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/pages/auth/controller.dart';
+import 'package:bomach_os/pages/dashboad/widget/edit_profile_dialog.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/model/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bms_front_end/src/app_routes/app_route_constants.dart';
+import 'package:bomach_os/src/app_routes/app_route_constants.dart';
 
 class UserProfileDialog extends StatelessWidget {
   final User user;

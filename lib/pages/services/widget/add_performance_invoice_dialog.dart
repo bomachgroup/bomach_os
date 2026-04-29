@@ -1,15 +1,14 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
-import 'package:bms_front_end/components/input/my_dropdown.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/input/upload_file.dart';
-import 'package:bms_front_end/pages/services/models/estate_models.dart';
-import 'package:bms_front_end/pages/services/models/performance_invoice_model.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/input/my_dropdown.dart';
+import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/input/upload_file.dart';
+import 'package:bomach_os/components/text/app_text.dart';
+import 'package:bomach_os/pages/services/models/estate_models.dart';
+import 'package:bomach_os/pages/services/models/performance_invoice_model.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:iconsax/iconsax.dart';
 
 class AddPerformanceInvoiceDialog extends StatefulWidget {
@@ -145,436 +144,438 @@ class _AddPerformanceInvoiceDialogState
 
   @override
   Widget build(BuildContext context) {
-    return DialogScaffold(
-      title: 'Add Performance Invoice',
-      subtitle: 'Record a new transaction or invoice for an estate.',
-      size: DialogSize.lg,
-      body: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSection(
-              title: 'Invoice Details',
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyTextFormField(
-                          controller: _invoiceNumberController,
-                          hintText: 'Enter invoice number',
-                          title: 'Invoice Number *',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter invoice number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(child: _buildDateField()),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  MyDropdown(
-                    items: const [
-                      'Real Estate',
-                      'Land Survey',
-                      'Property Management',
-                      'Estate Management'
-                    ],
-                    hintText: 'Select service type',
-                    title: 'Service Type *',
-                    initialSelection: _selectedServiceType,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedServiceType = value ?? 'Real Estate';
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: widget.estate == null
-                            ? MyDropdown(
-                                items: const [
-                                  'Aso Villa Estate',
-                                  'Fortress City Estate',
-                                  'Victoria Gardens',
-                                  'Diamond Heights'
-                                ],
-                                hintText: 'Select estate',
-                                title: 'Estate *',
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedEstate = value ?? '';
-                                  });
-                                },
-                              )
-                            : _buildReadOnlyField(
-                                label: 'Estate',
-                                value: widget.estate!.name,
-                              ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: MyDropdown(
-                          items: const [
-                            'Sale',
-                            'Reservation',
-                            'Payment',
-                            'Commission'
-                          ],
-                          hintText: 'Select type',
-                          title: 'Transaction Type *',
-                          initialSelection: _selectedTransactionType,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedTransactionType = value ?? 'Sale';
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildSection(
-              title: 'Payment',
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyTextFormField(
-                          controller: _amountController,
-                          hintText: 'Enter amount',
-                          title: 'Amount (₦) *',
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter amount';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Enter a valid number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: MyTextFormField(
-                          controller: _amountPaidController,
-                          hintText: 'Enter amount paid',
-                          title: 'Amount Paid (₦)',
-                          keyboardType: TextInputType.number,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyDropdown(
-                          items: const [
-                            'Cash',
-                            'Bank Transfer',
-                            'Card',
-                            'Cheque',
-                            'Installment'
-                          ],
-                          hintText: 'Select method',
-                          title: 'Payment Method *',
-                          initialSelection: _selectedPaymentMethod,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPaymentMethod =
-                                  value ?? 'Bank Transfer';
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: MyDropdown(
-                          items: const [
-                            'Paid',
-                            'Pending',
-                            'Partial',
-                            'Failed'
-                          ],
-                          hintText: 'Select status',
-                          title: 'Payment Status *',
-                          initialSelection: _selectedPaymentStatus,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPaymentStatus = value ?? 'Paid';
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildSection(
-              title: 'Client & Property',
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyTextFormField(
-                          controller: _clientNameController,
-                          hintText: 'Enter client name',
-                          title: 'Client Name',
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: MyTextFormField(
-                          controller: _clientPhoneController,
-                          hintText: 'Enter phone number',
-                          title: 'Client Phone',
-                          keyboardType: TextInputType.phone,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MyTextFormField(
-                          controller: _plotNumberController,
-                          hintText: 'e.g., Plot 001',
-                          title: 'Plot Number',
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: MyTextFormField(
-                          controller: _clientEmailController,
-                          hintText: 'Enter email',
-                          title: 'Client Email',
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  MyTextFormField(
-                    controller: _descriptionController,
-                    maxLines: 3,
-                    hintText: 'Enter transaction description',
-                    title: 'Description',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildOptionalSection(),
-          ],
-        ),
+    return Dialog(
+      backgroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-      actions: [
-        MyOutlinedButton(
-          height: 44,
-          textColor: AppColors.textSecondary,
-          borderColor: AppColors.borderStrong,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: 'Cancel',
-          onTap: () => Navigator.pop(context),
-        ),
-        MyElevatedButton(
-          height: 44,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          icon: const Icon(Iconsax.tick_circle,
-              color: AppColors.white, size: 16),
-          child: 'Save Invoice',
-          onTap: _saveInvoice,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Transaction Date *',
-          style: AppTextStyles.bodyMd.copyWith(
-            color: AppColors.textPrimary,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: _selectDate,
-            borderRadius: AppRadii.brMd,
-            child: Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: AppRadii.brMd,
-                border: Border.all(color: AppColors.borderSubtle),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${_transactionDate.day}/${_transactionDate.month}/${_transactionDate.year}',
-                      style: AppTextStyles.bodyMd,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 846, maxHeight: 800),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppText.h3('Add Performance Invoice'),
+                    IconButton(
+                      icon: const Icon(Iconsax.close_circle),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
-                  ),
-                  const Icon(
-                    Iconsax.calendar_1,
-                    size: 18,
-                    color: AppColors.textMuted,
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+              const Divider(height: 1),
 
-  Widget _buildReadOnlyField({required String label, required String value}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.bodyMd.copyWith(
-            color: AppColors.textPrimary,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceMuted,
-            borderRadius: AppRadii.brMd,
-            border: Border.all(color: AppColors.borderSubtle),
-          ),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            value,
-            style: AppTextStyles.bodyMd
-                .copyWith(fontWeight: FontWeight.w600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
+              // Form fields
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Invoice Number and Date
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: MyTextFormField(
+                                    controller: _invoiceNumberController,
+                                    hintText: 'Enter invoice number',
+                                    spaceBetweenText: 10,
+                                    title: 'Invoice Number*',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter invoice number';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      AppText.bodySm(
+                                        'Transaction Date*',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      InkWell(
+                                        onTap: _selectDate,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: AppColors.neutral300),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              AppText.bodySm(
+                                                '${_transactionDate.day}/${_transactionDate.month}/${_transactionDate.year}',
+                                              ),
+                                              const Icon(
+                                                Iconsax.calendar_1,
+                                                size: 18,
+                                                color: AppColors.neutral500,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
 
-  Widget _buildOptionalSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: AppRadii.brLg,
-        border: Border.all(color: AppColors.borderSubtle),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          InkWell(
-            onTap: () {
-              setState(() {
-                _showOptionalFields = !_showOptionalFields;
-              });
-            },
-            borderRadius: AppRadii.brSm,
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Agent & Commission Details (Optional)',
-                    style: AppTextStyles.h4,
+                            // Service Type
+                            MyDropdown(
+                              items: const [
+                                'Real Estate',
+                                'Land Survey',
+                                'Property Management',
+                                'Estate Management'
+                              ],
+                              hintText: 'Select service type',
+                              spaceBetweenText: 10,
+                              title: 'Service Type*',
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedServiceType =
+                                      value ?? 'Real Estate';
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Estate and Transaction Type
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: widget.estate == null
+                                      ? MyDropdown(
+                                          items: const [
+                                            'Aso Villa Estate',
+                                            'Fortress City Estate',
+                                            'Victoria Gardens',
+                                            'Diamond Heights'
+                                          ],
+                                          hintText: 'Select estate',
+                                          spaceBetweenText: 10,
+                                          title: 'Estate*',
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _selectedEstate = value ?? '';
+                                            });
+                                          },
+                                        )
+                                      : Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AppText.bodySm(
+                                              'Estate',
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            AppText.bodyMd(
+                                              widget.estate!.name,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Sale',
+                                      'Reservation',
+                                      'Payment',
+                                      'Commission'
+                                    ],
+                                    hintText: 'Select type',
+                                    spaceBetweenText: 10,
+                                    title: 'Transaction Type*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedTransactionType =
+                                            value ?? 'Sale';
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Amount and Amount Paid
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: MyTextFormField(
+                                    controller: _amountController,
+                                    hintText: 'Enter amount',
+                                    spaceBetweenText: 10,
+                                    title: 'Amount (₦)*',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter amount';
+                                      }
+                                      if (double.tryParse(value) == null) {
+                                        return 'Enter a valid number';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: MyTextFormField(
+                                    controller: _amountPaidController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'Enter amount paid',
+                                    title: 'Amount Paid (₦)',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Payment Method and Status
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Cash',
+                                      'Bank Transfer',
+                                      'Card',
+                                      'Cheque',
+                                      'Installment'
+                                    ],
+                                    hintText: 'Select method',
+                                    spaceBetweenText: 10,
+                                    title: 'Payment Method*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedPaymentMethod =
+                                            value ?? 'Bank Transfer';
+                                      });
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: MyDropdown(
+                                    items: const [
+                                      'Paid',
+                                      'Pending',
+                                      'Partial',
+                                      'Failed'
+                                    ],
+                                    hintText: 'Select status',
+                                    spaceBetweenText: 10,
+                                    title: 'Payment Status*',
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedPaymentStatus =
+                                            value ?? 'Paid';
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Client Name and Phone
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: MyTextFormField(
+                                    controller: _clientNameController,
+                                    hintText: 'Enter client name',
+                                    spaceBetweenText: 10,
+                                    title: 'Client Name',
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: MyTextFormField(
+                                    controller: _clientPhoneController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'Enter phone number',
+                                    title: 'Client Phone',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Plot Number and Description
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: MyTextFormField(
+                                    controller: _plotNumberController,
+                                    hintText: 'e.g., Plot 001',
+                                    spaceBetweenText: 10,
+                                    title: 'Plot Number',
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: MyTextFormField(
+                                    controller: _clientEmailController,
+                                    spaceBetweenText: 10,
+                                    hintText: 'Enter email',
+                                    title: 'Client Email',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Description
+                            MyTextFormField(
+                              controller: _descriptionController,
+                              maxLines: 3,
+                              hintText: 'Enter transaction description',
+                              spaceBetweenText: 10,
+                              title: 'Description',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Optional Section
+                      const Divider(
+                        color: AppColors.neutral200,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showOptionalFields = !_showOptionalFields;
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  AppText.bodyLg(
+                                    'Agent & Commission Details (Optional)',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    _showOptionalFields
+                                        ? Iconsax.arrow_up_3
+                                        : Iconsax.arrow_down_1,
+                                    size: 20,
+                                    color: AppColors.neutral700,
+                                  )
+                                ],
+                              ),
+                            ),
+                            if (_showOptionalFields) ...[
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: MyTextFormField(
+                                      controller: _agentNameController,
+                                      hintText: 'Agent name',
+                                      spaceBetweenText: 10,
+                                      title: 'Agent Name',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: MyTextFormField(
+                                      controller:
+                                          _commissionPercentageController,
+                                      spaceBetweenText: 10,
+                                      hintText: 'Commission %',
+                                      title: 'Commission Percentage',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              AppText.bodySm(
+                                'Upload Attachments (Receipt, Agreement, etc.)',
+                                fontWeight: FontWeight.w500,
+                              ),
+                              const SizedBox(height: 8),
+                              const UploadFile(),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Icon(
-                  _showOptionalFields
-                      ? Iconsax.arrow_up_3
-                      : Iconsax.arrow_down_1,
-                  size: 18,
-                  color: AppColors.textSecondary,
-                )
-              ],
-            ),
-          ),
-          if (_showOptionalFields) ...[
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: MyTextFormField(
-                    controller: _agentNameController,
-                    hintText: 'Agent name',
-                    title: 'Agent Name',
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: MyTextFormField(
-                    controller: _commissionPercentageController,
-                    hintText: 'Commission %',
-                    title: 'Commission Percentage',
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Upload Attachments (Receipt, Agreement, etc.)',
-              style: AppTextStyles.label,
-            ),
-            const SizedBox(height: 8),
-            const UploadFile(),
-          ],
-        ],
-      ),
-    );
-  }
+              ),
 
-  Widget _buildSection({required String title, required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: AppRadii.brLg,
-        border: Border.all(color: AppColors.borderSubtle),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(title, style: AppTextStyles.h4),
-          const SizedBox(height: 12),
-          child,
-        ],
+              // Action Buttons
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: AppColors.neutral300),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    MyOutlinedButton(
+                      textColor: AppColors.neutral500,
+                      borderColor: null,
+                      child: 'Cancel',
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    MyElevatedButton(
+                      icon: SvgPicture.asset(
+                        "assets/svg/check.svg",
+                        colorFilter: const ColorFilter.mode(
+                            AppColors.white, BlendMode.srcIn),
+                      ),
+                      child: 'Save Invoice',
+                      onTap: _saveInvoice,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

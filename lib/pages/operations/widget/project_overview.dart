@@ -1,8 +1,8 @@
-import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/chip/status_chip.dart';
-import 'package:bms_front_end/pages/operations/models/models.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/pages/operations/models/models.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';

@@ -1,10 +1,10 @@
-import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/section/empty_state.dart';
-import 'package:bms_front_end/components/section/loading_skeleton.dart';
-import 'package:bms_front_end/components/section/page_header.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/responsive_breakpoints.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/section/empty_state.dart';
+import 'package:bomach_os/components/section/loading_skeleton.dart';
+import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';

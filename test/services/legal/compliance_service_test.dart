@@ -1,5 +1,5 @@
-import 'package:bms_front_end/src/services/legal/compliance_service.dart';
-import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:bomach_os/src/services/legal/compliance_service.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';

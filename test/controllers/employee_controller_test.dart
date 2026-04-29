@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
-import 'package:bms_front_end/src/services/employees_services.dart';
-import 'package:bms_front_end/src/model/employees_model.dart';
+import 'package:bomach_os/src/services/employees_services.dart';
+import 'package:bomach_os/src/model/employees_model.dart';
 
 /// Tests the EmployeeService create/fetch flow end-to-end
 /// using a mock Dio adapter (no live API calls).

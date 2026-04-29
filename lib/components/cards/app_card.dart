@@ -1,6 +1,6 @@
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/shadows.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/shadows.dart';
 import 'package:flutter/material.dart';
 
 /// Base card surface for Bomach OS.

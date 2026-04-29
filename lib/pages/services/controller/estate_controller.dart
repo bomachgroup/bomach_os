@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
-import 'package:bms_front_end/pages/services/models/estate_models.dart';
-import 'package:bms_front_end/src/services/estate_service.dart';
+import 'package:bomach_os/pages/services/models/estate_models.dart';
+import 'package:bomach_os/src/services/estate_service.dart';
 
 class EstateController extends GetxController {
   final EstateService _service = EstateService();

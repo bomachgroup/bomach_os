@@ -1,6 +1,6 @@
 $files = Get-ChildItem -Path lib, test -Recurse -Filter *.dart
 $searchToken = "ApiConstants"
-$importLine = "import 'package:bms_front_end/src/constants/api_constants.dart';"
+$importLine = "import 'package:bomach_os/src/constants/api_constants.dart';"
 
 foreach ($file in $files) {
     $content = Get-Content -Path $file.FullName -Raw

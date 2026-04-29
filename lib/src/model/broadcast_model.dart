@@ -1,4 +1,4 @@
-import 'package:bms_front_end/src/model/board_model.dart';
+import 'package:bomach_os/src/model/board_model.dart';
 
 // ─── ANNOUNCEMENT MODEL ─────────────────────────────────────────
 

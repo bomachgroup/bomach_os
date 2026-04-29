@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bms_front_end/src/model/employees_model.dart';
+import 'package:bomach_os/src/model/employees_model.dart';
 
 void main() {
   group('Employee.fromJson', () {

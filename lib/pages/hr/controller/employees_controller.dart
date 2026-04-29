@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'dart:developer';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';

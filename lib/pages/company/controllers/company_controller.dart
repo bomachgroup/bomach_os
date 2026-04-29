@@ -1,13 +1,13 @@
 import 'dart:developer';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
 // Assuming these exist based on your imports
-import 'package:bms_front_end/src/model/company_model.dart';
-import 'package:bms_front_end/src/services/company_service.dart';
+import 'package:bomach_os/src/model/company_model.dart';
+import 'package:bomach_os/src/services/company_service.dart';
 
 class CompanyController extends GetxController {
   final CompanyService _companyService = CompanyService();

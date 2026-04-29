@@ -82,7 +82,7 @@ for my $path (@files) {
         unless ($src =~ m{components/feedback/app_toast\.dart}) {
             if ($src =~ m{^(import\s+[^\r\n]+;)(\r?\n)}m) {
                 $src =~ s{^(import\s+[^\r\n]+;)(\r?\n)}
-                         {$1$2import 'package:bms_front_end/components/feedback/app_toast.dart';$2}m;
+                         {$1$2import 'package:bomach_os/components/feedback/app_toast.dart';$2}m;
             }
         }
         open my $out, '>', $path or next;

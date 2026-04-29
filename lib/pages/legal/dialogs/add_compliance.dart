@@ -1,9 +1,9 @@
-import 'package:bms_front_end/components/input/my_dropdown.dart';
+import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:bms_front_end/pages/legal/controllers/compliance_controller.dart';
-import 'package:bms_front_end/pages/legal/models/compliance_record_model.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
+import 'package:bomach_os/pages/legal/controllers/compliance_controller.dart';
+import 'package:bomach_os/pages/legal/models/compliance_record_model.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

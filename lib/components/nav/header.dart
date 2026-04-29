@@ -1,8 +1,8 @@
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/helper/screen_size.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/spaces.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 
 class TopNavigationBar extends StatelessWidget {

@@ -1,11 +1,11 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart'
+import 'package:bomach_os/components/button/my_elevated_button.dart'
     show MyElevatedButton;
-import 'package:bms_front_end/pages/legal/controllers/compliance_controller.dart';
-import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/pages/legal/controllers/compliance_controller.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/pages/legal/detailed_view.dart';
-import 'package:bms_front_end/pages/legal/models/compliance_record_model.dart';
-import 'package:bms_front_end/pages/legal/widgets/status_tag.dart';
+import 'package:bomach_os/pages/legal/detailed_view.dart';
+import 'package:bomach_os/pages/legal/models/compliance_record_model.dart';
+import 'package:bomach_os/pages/legal/widgets/status_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

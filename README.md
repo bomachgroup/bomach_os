@@ -1,4 +1,4 @@
-# bms_front_end
+# Bomach OS
 
 A new Flutter project.
 

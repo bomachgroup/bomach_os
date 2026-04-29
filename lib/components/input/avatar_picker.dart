@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:iconsax/iconsax.dart';
 
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';

@@ -1,4 +1,4 @@
-import 'package:bms_front_end/pages/crm/models.dart';
+import 'package:bomach_os/pages/crm/models.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 

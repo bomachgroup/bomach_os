@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 import '../model/approval_model.dart';

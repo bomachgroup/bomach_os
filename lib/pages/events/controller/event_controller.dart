@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:bms_front_end/main.dart';
-import 'package:bms_front_end/src/services/events/event_service.dart';
+import 'package:bomach_os/main.dart';
+import 'package:bomach_os/src/services/events/event_service.dart';
 
 class EventController extends GetxController {
   final EventService _service = EventService();

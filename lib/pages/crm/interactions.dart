@@ -1,4 +1,4 @@
-import 'package:bms_front_end/src/constants/colors.dart' show AppColors;
+import 'package:bomach_os/src/constants/colors.dart' show AppColors;
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
 

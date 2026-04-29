@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:dio/dio.dart' as dio_pkg show Response;
 import 'package:dio/dio.dart' hide Response;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

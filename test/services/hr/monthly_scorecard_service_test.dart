@@ -1,7 +1,7 @@
-import 'package:bms_front_end/pages/hr/models/monthly_scorecard_models.dart';
-import 'package:bms_front_end/pages/hr/models/performance_leaderboard_models.dart';
-import 'package:bms_front_end/src/constants/api_constants.dart';
-import 'package:bms_front_end/src/services/hr/monthly_scorecard_service.dart';
+import 'package:bomach_os/pages/hr/models/monthly_scorecard_models.dart';
+import 'package:bomach_os/pages/hr/models/performance_leaderboard_models.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
+import 'package:bomach_os/src/services/hr/monthly_scorecard_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';

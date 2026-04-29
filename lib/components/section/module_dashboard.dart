@@ -1,5 +1,5 @@
-import 'package:bms_front_end/components/cards/module_shortcut_card.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/components/cards/module_shortcut_card.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 /// Unified module landing page layout. Every module dashboard in the app

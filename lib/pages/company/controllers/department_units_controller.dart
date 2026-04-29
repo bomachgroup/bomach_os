@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

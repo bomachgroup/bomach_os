@@ -63,7 +63,7 @@
 //     messagingSenderId: '163744287260',
 //     projectId: 'bomach-os-app',
 //     storageBucket: 'bomach-os-app.firebasestorage.app',
-//     iosBundleId: 'com.example.bmsFrontEnd',
+//     iosBundleId: 'com.example.bomachOs',
 //   );
 
 //   static const FirebaseOptions macos = FirebaseOptions(
@@ -72,7 +72,7 @@
 //     messagingSenderId: '163744287260',
 //     projectId: 'bomach-os-app',
 //     storageBucket: 'bomach-os-app.firebasestorage.app',
-//     iosBundleId: 'com.example.bmsFrontEnd',
+//     iosBundleId: 'com.example.bomachOs',
 //   );
 
 //   static const FirebaseOptions windows = FirebaseOptions(

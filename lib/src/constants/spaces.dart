@@ -1,4 +1,4 @@
-import 'package:bms_front_end/src/helper/screen_size.dart';
+import 'package:bomach_os/src/helper/screen_size.dart';
 import 'package:flutter/material.dart';
 
 /// Spacing scale on a 4 px grid. Use `AppSpacing.*` in new code.

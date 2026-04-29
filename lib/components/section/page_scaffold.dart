@@ -1,4 +1,4 @@
-import 'package:bms_front_end/src/helper/responsive_breakpoints.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
 
 /// Consistent outer wrapper for module pages.

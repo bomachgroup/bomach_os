@@ -1,4 +1,4 @@
-package com.example.bms_front_end
+package com.example.bomach_os
 
 import io.flutter.embedding.android.FlutterActivity
 

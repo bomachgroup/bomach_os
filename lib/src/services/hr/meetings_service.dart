@@ -1,5 +1,5 @@
-import 'package:bms_front_end/pages/hr/models/meeting_model.dart';
-import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:bomach_os/pages/hr/models/meeting_model.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 
 class MeetingsService {

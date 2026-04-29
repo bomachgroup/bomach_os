@@ -1,6 +1,6 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/pages/legal/audits.dart';
+import 'package:bomach_os/pages/legal/audits.dart';
 import 'package:flutter/material.dart';
 import '../../components/text/my_text.dart';
 import 'cases.dart';

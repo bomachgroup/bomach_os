@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:bms_front_end/src/constants/api_constants.dart';
+import 'package:bomach_os/src/constants/api_constants.dart';
 
 import '../../pages/dashboad/models/dashboard_models.dart';
 

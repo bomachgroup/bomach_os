@@ -1,15 +1,15 @@
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/sort_bar.dart';
-import 'package:bms_front_end/components/cards/app_card.dart';
-import 'package:bms_front_end/components/chip/status_chip.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/components/nav/three_dot_pop.dart';
-import 'package:bms_front_end/components/section/page_header.dart';
-import 'package:bms_front_end/pages/finance/widget/add_invoice_dialog.dart';
-import 'package:bms_front_end/pages/finance/widget/view_invoice_dialog.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/button/sort_bar.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
+import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/nav/three_dot_pop.dart';
+import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/pages/finance/widget/add_invoice_dialog.dart';
+import 'package:bomach_os/pages/finance/widget/view_invoice_dialog.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/spaces.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 

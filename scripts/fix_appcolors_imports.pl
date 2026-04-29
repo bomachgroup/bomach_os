@@ -27,7 +27,7 @@ for my $path (@files) {
 
     my $inserted = $src =~
         s{^(import\s+[^\r\n]+;)(\r?\n)}
-         {$1$2import 'package:bms_front_end/src/constants/colors.dart';$2}m;
+         {$1$2import 'package:bomach_os/src/constants/colors.dart';$2}m;
 
     if ($inserted) {
         open my $out, '>', $path or next;

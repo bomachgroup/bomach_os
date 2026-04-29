@@ -1,9 +1,9 @@
-import 'package:bms_front_end/components/cards/stats_header.dart';
+import 'package:bomach_os/components/cards/stats_header.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/spaces.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/spaces.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

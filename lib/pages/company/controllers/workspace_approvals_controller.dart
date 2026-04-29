@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
-import 'package:bms_front_end/pages/hr/models/workspace_model.dart';
-import 'package:bms_front_end/src/services/biometric_api_service.dart';
+import 'package:bomach_os/pages/hr/models/workspace_model.dart';
+import 'package:bomach_os/src/services/biometric_api_service.dart';
 
 /// Which slice of submissions the admin is looking at.
 ///

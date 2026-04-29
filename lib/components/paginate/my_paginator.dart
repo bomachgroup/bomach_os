@@ -1,8 +1,8 @@
 import 'dart:math';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter/material.dart';
-import 'package:bms_front_end/components/text/my_text.dart';
+import 'package:bomach_os/components/text/my_text.dart';
 
 class PaginatorFooter extends StatelessWidget {
   final int totalItems;

@@ -1,6 +1,6 @@
 // ignore_for_file: unused_local_variable
 
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 

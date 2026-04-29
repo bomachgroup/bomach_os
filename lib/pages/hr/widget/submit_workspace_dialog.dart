@@ -1,15 +1,15 @@
 import 'dart:developer';
 
-import 'package:bms_front_end/components/button/my_elevated_button.dart';
-import 'package:bms_front_end/components/button/my_outlined_button.dart';
-import 'package:bms_front_end/components/dialog/dialog_scaffold.dart';
-import 'package:bms_front_end/components/feedback/app_toast.dart';
-import 'package:bms_front_end/components/input/my_dropdown.dart';
-import 'package:bms_front_end/components/input/my_textformfield.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
-import 'package:bms_front_end/src/constants/radii.dart';
-import 'package:bms_front_end/src/constants/textstyle.dart';
-import 'package:bms_front_end/src/services/location_service.dart';
+import 'package:bomach_os/components/button/my_elevated_button.dart';
+import 'package:bomach_os/components/button/my_outlined_button.dart';
+import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/input/my_dropdown.dart';
+import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/radii.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';

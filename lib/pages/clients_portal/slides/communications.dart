@@ -1,6 +1,6 @@
-import 'package:bms_front_end/pages/clients_portal/model/coms_model.dart';
+import 'package:bomach_os/pages/clients_portal/model/coms_model.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:bms_front_end/src/constants/colors.dart';
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:flutter/material.dart';
 import '../dialog/send_message.dart';
 

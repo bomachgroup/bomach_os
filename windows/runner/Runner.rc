@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "bms_front_end" "\0"
+            VALUE "FileDescription", "bomach_os" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "bms_front_end" "\0"
+            VALUE "InternalName", "bomach_os" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "bms_front_end.exe" "\0"
-            VALUE "ProductName", "bms_front_end" "\0"
+            VALUE "OriginalFilename", "bomach_os.exe" "\0"
+            VALUE "ProductName", "bomach_os" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

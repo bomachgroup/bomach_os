@@ -1,4 +1,4 @@
-import 'package:bms_front_end/src/constants/textstyle.dart';
+import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:flutter/material.dart';
 
 class AppText extends StatelessWidget {
