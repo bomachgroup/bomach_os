@@ -4,6 +4,7 @@ import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/input/my_dropdown.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
 import 'package:bomach_os/components/paginate/my_paginator.dart';
+import 'package:bomach_os/components/paginate/responsive_table.dart';
 import 'package:bomach_os/components/permission/permission_gate.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
@@ -15,6 +16,7 @@ import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/permissions.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/components/text/my_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -30,7 +32,6 @@ class LeavesPage extends StatefulWidget {
 }
 
 class _LeavesPageState extends State<LeavesPage> {
-  final ScrollController _scrollController = ScrollController();
   final MyLeavesController _ctrl = Get.put(MyLeavesController());
 
   @override
@@ -43,12 +44,6 @@ class _LeavesPageState extends State<LeavesPage> {
       _ctrl.fetchMyLeaves(context);
     });
     _ctrl.searchController.addListener(() => _ctrl.onSearchChanged(context));
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   void _openRequestDialog() {
@@ -339,115 +334,158 @@ class _LeavesPageState extends State<LeavesPage> {
   }
 
   Widget _buildTable() {
-    return Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: MediaQuery.of(context).size.width - 64,
-          ),
-          child: DataTable(
-            dataRowMinHeight: 64,
-            dataRowMaxHeight: 72,
-            columnSpacing: 28,
-            horizontalMargin: 20,
-            showBottomBorder: false,
-            headingRowColor:
-                WidgetStateProperty.all(AppColors.surfaceMuted),
-            headingTextStyle: AppTextStyles.bodySm.copyWith(
-              color: AppColors.textSecondary,
+    return ResponsiveTable(
+      items: _ctrl.leaveList,
+      columns: const [
+        DataColumn(label: Text('Leave Type')),
+        DataColumn(label: Text('Period')),
+        DataColumn(label: Text('Duration')),
+        DataColumn(label: Text('Reason')),
+        DataColumn(label: Text('Status')),
+      ],
+      rowBuilder: (leave, index) {
+        final startStr = leave.startDate != null
+            ? DateFormat('dd MMM yyyy').format(leave.startDate!)
+            : '-';
+        final endStr = leave.endDate != null
+            ? DateFormat('dd MMM yyyy').format(leave.endDate!)
+            : '-';
+        final days = leave.durationDays ?? 0;
+        final status = (leave.status ?? 'pending');
+
+        return DataRow(cells: [
+          // Leave Type
+          DataCell(Align(
+            alignment: Alignment.centerLeft,
+            child: StatusChip(
+              label: _formatLeaveType(leave.leaveType),
+              tone: _leaveTypeTone(leave.leaveType),
+              icon: _leaveTypeIcon(leave.leaveType),
+              dense: true,
+            ),
+          )),
+          // Period
+          DataCell(Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                startStr,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (endStr != '-') ...[
+                const SizedBox(height: 2),
+                Text(
+                  '→ $endStr',
+                  style: AppTextStyles.bodySm.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ],
+          )),
+          // Duration
+          DataCell(Text(
+            '$days day${days == 1 ? '' : 's'}',
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
-            dividerThickness: 1,
-            columns: const [
-              DataColumn(label: Text('Leave Type')),
-              DataColumn(label: Text('Period')),
-              DataColumn(label: Text('Duration')),
-              DataColumn(label: Text('Reason')),
-              DataColumn(label: Text('Status')),
-            ],
-            rows: _ctrl.leaveList.map((leave) {
-              final startStr = leave.startDate != null
-                  ? DateFormat('dd MMM yyyy').format(leave.startDate!)
-                  : '-';
-              final endStr = leave.endDate != null
-                  ? DateFormat('dd MMM yyyy').format(leave.endDate!)
-                  : '-';
-              final days = leave.durationDays ?? 0;
-              final status = (leave.status ?? 'pending');
+          )),
+          // Reason
+          DataCell(SizedBox(
+            width: 220,
+            child: Text(
+              leave.reason ?? '-',
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          )),
+          // Status
+          DataCell(Align(
+            alignment: Alignment.centerLeft,
+            child: StatusChip(
+              label: _titleCase(status),
+              tone: _statusTone(status),
+              icon: _statusIcon(status),
+              dense: true,
+            ),
+          )),
+        ]);
+      },
+      mobileCardBuilder: (leave, index) {
+        final startStr = leave.startDate != null
+            ? DateFormat('dd MMM').format(leave.startDate!)
+            : '-';
+        final endStr = leave.endDate != null
+            ? DateFormat('dd MMM').format(leave.endDate!)
+            : '-';
+        final days = leave.durationDays ?? 0;
+        final status = (leave.status ?? 'pending');
 
-              return DataRow(cells: [
-                // Leave Type
-                DataCell(Align(
-                  alignment: Alignment.centerLeft,
-                  child: StatusChip(
+        return AppCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StatusChip(
                     label: _formatLeaveType(leave.leaveType),
                     tone: _leaveTypeTone(leave.leaveType),
                     icon: _leaveTypeIcon(leave.leaveType),
                     dense: true,
                   ),
-                )),
-                // Period
-                DataCell(Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      startStr,
-                      style: AppTextStyles.bodyMd.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (endStr != '-') ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        '→ $endStr',
-                        style: AppTextStyles.bodySm.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ],
-                )),
-                // Duration
-                DataCell(Text(
-                  '$days day${days == 1 ? '' : 's'}',
-                  style: AppTextStyles.bodyMd.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )),
-                // Reason
-                DataCell(SizedBox(
-                  width: 220,
-                  child: Text(
-                    leave.reason ?? '-',
-                    style: AppTextStyles.bodySm.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )),
-                // Status
-                DataCell(Align(
-                  alignment: Alignment.centerLeft,
-                  child: StatusChip(
+                  StatusChip(
                     label: _titleCase(status),
                     tone: _statusTone(status),
-                    icon: _statusIcon(status),
                     dense: true,
                   ),
-                )),
-              ]);
-            }).toList(),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const MyText('Period',
+                            size: 11, color: AppColors.textSecondary),
+                        const SizedBox(height: 4),
+                        MyText('$startStr - $endStr',
+                            size: 13, weight: 600, color: AppColors.textPrimary),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const MyText('Duration',
+                          size: 11, color: AppColors.textSecondary),
+                      const SizedBox(height: 4),
+                      MyText('$days day${days == 1 ? '' : 's'}',
+                          size: 13, weight: 700, color: AppColors.primary),
+                    ],
+                  ),
+                ],
+              ),
+              const Divider(height: 24),
+              const MyText('Reason', size: 11, color: AppColors.textSecondary),
+              const SizedBox(height: 4),
+              MyText(leave.reason ?? '-',
+                  size: 13, color: AppColors.textPrimary, maxLines: 2),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

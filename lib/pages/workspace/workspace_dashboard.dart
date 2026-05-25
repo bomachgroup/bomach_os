@@ -1,13 +1,14 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/components/cards/stats_header.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
-import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/workspace/widget/add_project_workspace_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
-import 'package:bomach_os/src/constants/spaces.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class WorkspaceDashboardPage extends StatefulWidget {
   const WorkspaceDashboardPage({super.key});
@@ -21,50 +22,18 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return PageScaffold(
+      header: const PageHeader(
+        title: 'Virtual Workspace',
+        subtitle:
+            'Collaborate with your team on projects and communicate effectively',
+      ),
       children: [
-        // Header Section
-        const Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Virtual Workspace',
-                        style: AppTextStyles.displayLg,
-                      ),
-                      MyText(
-                        'Collaborate with your team on projects and communicate effectively',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        kSizedBox,
-
         // Stats Cards
         _buildTopStats(context),
-        const SizedBox(height: 18),
 
         // Tabs
         _buildTabs(context, (index) => setState(() => _selectedTab = index)),
-        const SizedBox(height: 18),
 
         // Tab Content
         if (_selectedTab == 0) _project(),
@@ -80,59 +49,74 @@ class _WorkspaceDashboardPageState extends State<WorkspaceDashboardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Projects Header
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
+        context.isMobile
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Project Workspaces',
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 8),
-                      Text('Manage collaborative project environments',
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.black54)),
-                    ],
+                  const Text('Project Workspaces', style: AppTextStyles.h3),
+                  const SizedBox(height: 4),
+                  const Text('Manage collaborative project environments',
+                      style: AppTextStyles.bodySm),
+                  const SizedBox(height: 16),
+                  MyTextFormField(
+                    hintText: 'Search ...',
+                    leading: Icon(
+                      Iconsax.search_normal,
+                      color: AppColors.neutral500.withValues(alpha: 0.5),
+                    ),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 300,
-                        child: MyTextFormField(
-                          hintText: 'Search ...',
-                          leading: Icon(
-                            Iconsax.search_normal,
-                            color: AppColors.neutral500.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      MyElevatedButton(
-                        child: 'Add Project',
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AddProjectWorkspaceDialog();
-                            },
-                          );
+                  const SizedBox(height: 12),
+                  MyElevatedButton(
+                    child: 'Add Project',
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const AddProjectWorkspaceDialog();
                         },
+                      );
+                    },
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Project Workspaces', style: AppTextStyles.h3),
+                        SizedBox(height: 4),
+                        Text('Manage collaborative project environments',
+                            style: AppTextStyles.bodySm),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    width: 300,
+                    child: MyTextFormField(
+                      hintText: 'Search ...',
+                      leading: Icon(
+                        Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5),
                       ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  MyElevatedButton(
+                    child: 'Add Project',
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const AddProjectWorkspaceDialog();
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
         const SizedBox(height: 24),
 
         LayoutBuilder(
@@ -721,7 +705,9 @@ class MeetingCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isCompleted ? AppColors.primary : AppColors.neutral200,
+                        color: isCompleted
+                            ? AppColors.primary
+                            : AppColors.neutral200,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -766,8 +752,7 @@ class MeetingCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              icon: const Icon(Iconsax.video,
-                  size: 18, color: Colors.white),
+              icon: const Icon(Iconsax.video, size: 18, color: Colors.white),
               label: const Text("Join",
                   style: TextStyle(color: Colors.white, fontSize: 13)),
             ),

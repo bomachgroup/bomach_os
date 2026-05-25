@@ -1,5 +1,6 @@
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/feedback/app_toast.dart';
+import 'package:bomach_os/components/paginate/responsive_table.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/section/responsive_stat_row.dart';
@@ -1004,47 +1005,94 @@ class AttendancePageState extends State<AttendancePage> {
                 ),
               );
             }
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: MediaQuery.of(context).size.width * 0.8,
-                ),
-                child: DataTable(
-                  headingTextStyle: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.neutral600,
-                    fontSize: 12,
-                    letterSpacing: 0.5,
+            return ResponsiveTable<DailyAttendance>(
+              items: controller.dailyAttendanceList,
+              columns: const [
+                DataColumn(label: Text('DATE')),
+                DataColumn(label: Text('CLOCK IN')),
+                DataColumn(label: Text('CLOCK OUT')),
+                DataColumn(label: Text('HOURS')),
+              ],
+              rowBuilder: (day, index) => DataRow(cells: [
+                DataCell(Text(
+                  _prettyDate(day.date),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.neutral900,
+                    fontSize: 13,
                   ),
-                  headingRowColor: WidgetStateProperty.all(AppColors.neutral50),
-                  columnSpacing: 24,
-                  columns: const [
-                    DataColumn(label: Text('DATE')),
-                    DataColumn(label: Text('CLOCK IN')),
-                    DataColumn(label: Text('CLOCK OUT')),
-                    DataColumn(label: Text('HOURS')),
-                  ],
-                  rows: controller.dailyAttendanceList.map((day) {
-                    return DataRow(cells: [
-                      DataCell(Text(
-                        _prettyDate(day.date),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.neutral900,
-                          fontSize: 13,
+                )),
+                DataCell(Text(day.clockInTime ?? '--:--',
+                    style: const TextStyle(fontSize: 13))),
+                DataCell(Text(day.clockOutTime ?? '--:--',
+                    style: const TextStyle(fontSize: 13))),
+                DataCell(Text(
+                  day.hoursWorked,
+                  style: AppTextStyles.h4,
+                )),
+              ]),
+              mobileCardBuilder: (day, index) => AppCard(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _prettyDate(day.date),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
-                      )),
-                      DataCell(Text(day.clockInTime ?? '--:--',
-                          style: const TextStyle(fontSize: 13))),
-                      DataCell(Text(day.clockOutTime ?? '--:--',
-                          style: const TextStyle(fontSize: 13))),
-                      DataCell(Text(
-                        day.hoursWorked,
-                        style: AppTextStyles.h4,
-                      )),
-                    ]);
-                  }).toList(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            day.hoursWorked,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Clock In',
+                                  style: AppTextStyles.caption),
+                              const SizedBox(height: 4),
+                              Text(day.clockInTime ?? '--:--',
+                                  style: AppTextStyles.h4),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Clock Out',
+                                  style: AppTextStyles.caption),
+                              const SizedBox(height: 4),
+                              Text(day.clockOutTime ?? '--:--',
+                                  style: AppTextStyles.h4),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             );

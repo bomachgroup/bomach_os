@@ -15,324 +15,251 @@ class RevenueAnalyticsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final screenWidth = constraints.maxWidth;
-      final bool isMobile = constraints.maxWidth < 700;
+      final bool isCompact = constraints.maxWidth < 900;
+      const cardGap = 16.0;
+      final columns = screenWidth >= 1100
+          ? 3
+          : screenWidth >= 680
+              ? 2
+              : 1;
+      final cardWidth = (screenWidth - (cardGap * (columns - 1))) / columns;
 
-      // subtract sidebar (300) and horizontal padding (32 * 2 = 64)
-      final availableWidth = screenWidth - 300 - 64;
-
-      double cardWidth;
-      if (screenWidth > 1200) {
-        // 3 cards per row
-        cardWidth = availableWidth / 3;
-      } else if (screenWidth > 800) {
-        // 2 cards per row
-        cardWidth = availableWidth / 2;
-      } else {
-        // 1 card per row (mobile view)
-        cardWidth = screenWidth;
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            screenWidth > 800
-                ? const Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            MyText(
-                              'Analytics',
-                              style: AppTextStyles.displayLg,
-                            ),
-                            SizedBox(height: 4),
-                            MyText(
-                              'Business intelligence and performance metrics',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 15,
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              screenWidth > 800
+                  ? const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              MyText(
+                                'Analytics',
+                                style: AppTextStyles.displayLg,
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 4),
+                              MyText(
+                                'Business intelligence and performance metrics',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      AnalyticsActions(),
-                    ],
-                  )
-                : const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText(
-                        'Analytics',
-                        style: AppTextStyles.displayLg,
-                      ),
-                      SizedBox(height: 4),
-                      MyText(
-                        'Business intelligence and performance metrics',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      AnalyticsActions(),
-                    ],
-                  ),
-            kSizedBox,
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: summaryData.map((e) {
-                return SizedBox(
-                  width: cardWidth,
-                  child: AnalyticsMetricCard(
-                    title: e["title"] ?? '',
-                    value: e["value"] ?? '',
-                    subtitle: e['subtitle'] ?? '',
-                    showtrend: false,
-                  ),
-                );
-              }).toList(),
-            )
-          ]),
-          kSizedBox,
-          SectionCard(
-            title: "Revenue Trend Analysis",
-            titleIcon: Iconsax.chart_2,
-            child: SizedBox(
-              height: 250,
-              child: LineChart(
-                LineChartData(
-                  titlesData: const FlTitlesData(show: true),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: [
-                        const FlSpot(1, 2),
-                        const FlSpot(2, 2.2),
-                        const FlSpot(3, 2.5),
-                        const FlSpot(4, 2.7),
-                        const FlSpot(5, 3),
-                        const FlSpot(6, 3.2),
+                        AnalyticsActions(),
                       ],
-                      isCurved: true,
-                      color: Colors.blue,
-                      belowBarData: BarAreaData(
-                          show: true,
-                          color: Colors.blue.withValues(alpha: 0.2)),
+                    )
+                  : const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MyText(
+                          'Analytics',
+                          style: AppTextStyles.displayLg,
+                        ),
+                        SizedBox(height: 4),
+                        MyText(
+                          'Business intelligence and performance metrics',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        AnalyticsActions(),
+                      ],
                     ),
-                  ],
+              kSizedBox,
+              Wrap(
+                spacing: cardGap,
+                runSpacing: cardGap,
+                children: summaryData.map((e) {
+                  return SizedBox(
+                    width: cardWidth,
+                    child: AnalyticsMetricCard(
+                      title: e["title"] ?? '',
+                      value: e["value"] ?? '',
+                      subtitle: e['subtitle'] ?? '',
+                      showtrend: false,
+                    ),
+                  );
+                }).toList(),
+              )
+            ]),
+            kSizedBox,
+            SectionCard(
+              title: "Revenue Trend Analysis",
+              titleIcon: Iconsax.chart_2,
+              child: SizedBox(
+                height: 250,
+                child: LineChart(
+                  LineChartData(
+                    titlesData: const FlTitlesData(show: true),
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: [
+                          const FlSpot(1, 2),
+                          const FlSpot(2, 2.2),
+                          const FlSpot(3, 2.5),
+                          const FlSpot(4, 2.7),
+                          const FlSpot(5, 3),
+                          const FlSpot(6, 3.2),
+                        ],
+                        isCurved: true,
+                        color: Colors.blue,
+                        belowBarData: BarAreaData(
+                            show: true,
+                            color: Colors.blue.withValues(alpha: 0.2)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          kSizedBox,
-          isMobile
-              ? Wrap(
-                  children: [
-                    Expanded(
-                      child: SectionCard(
-                        title: "Revenue by Service Type",
-                        titleIcon: Iconsax.chart_21,
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 220,
-                              child: PieChart(
-                                PieChartData(
-                                  sectionsSpace: 2,
-                                  centerSpaceRadius: 0,
-                                  sections:
-                                      pieData.asMap().entries.map((entry) {
-                                    final i = entry.key;
-                                    final e = entry.value;
-                                    final colors = [
-                                      Colors.blue,
-                                      Colors.orange,
-                                      Colors.green,
-                                      Colors.purple,
-                                      Colors.red,
-                                      Colors.teal,
-                                    ];
-                                    return PieChartSectionData(
-                                      color: colors[i % colors.length],
-                                      value: e['value'] as double,
-                                      radius: 70,
-                                      showTitle: false,
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 16,
-                              runSpacing: 8,
-                              children: pieData.asMap().entries.map((entry) {
-                                final i = entry.key;
-                                final e = entry.value;
-                                final colors = [
-                                  Colors.blue,
-                                  Colors.orange,
-                                  Colors.green,
-                                  Colors.purple,
-                                  Colors.red,
-                                  Colors.teal,
-                                ];
-                                return Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 14,
-                                      height: 14,
-                                      decoration: BoxDecoration(
-                                        color: colors[i % colors.length],
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text("${e['label']} (${e['value']}%)"),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
+            kSizedBox,
+            isCompact
+                ? Column(
+                    children: [
+                      _buildServiceTypeCard(),
+                      const SizedBox(height: 16),
+                      _buildLocationCard(),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _buildServiceTypeCard(),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: SectionCard(
-                        title: "Revenue by Location",
-                        titleIcon: Iconsax.location,
-                        child: Column(
-                          children: locationData.map((e) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(e["label"]!),
-                                  Text(e["value"]!,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildLocationCard(),
                       ),
-                    ),
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: SectionCard(
-                        title: "Revenue by Service Type",
-                        titleIcon: Iconsax.chart_21,
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 220,
-                              child: PieChart(
-                                PieChartData(
-                                  sectionsSpace: 2,
-                                  centerSpaceRadius: 0,
-                                  sections:
-                                      pieData.asMap().entries.map((entry) {
-                                    final i = entry.key;
-                                    final e = entry.value;
-                                    final colors = [
-                                      Colors.blue,
-                                      Colors.orange,
-                                      Colors.green,
-                                      Colors.purple,
-                                      Colors.red,
-                                      Colors.teal,
-                                    ];
-                                    return PieChartSectionData(
-                                      color: colors[i % colors.length],
-                                      value: e['value'] as double,
-                                      radius: 70,
-                                      showTitle: false,
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 16,
-                              runSpacing: 8,
-                              children: pieData.asMap().entries.map((entry) {
-                                final i = entry.key;
-                                final e = entry.value;
-                                final colors = [
-                                  Colors.blue,
-                                  Colors.orange,
-                                  Colors.green,
-                                  Colors.purple,
-                                  Colors.red,
-                                  Colors.teal,
-                                ];
-                                return Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 14,
-                                      height: 14,
-                                      decoration: BoxDecoration(
-                                        color: colors[i % colors.length],
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text("${e['label']} (${e['value']}%)"),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: SectionCard(
-                        title: "Revenue by Location",
-                        titleIcon: Iconsax.location,
-                        child: Column(
-                          children: locationData.map((e) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(e["label"]!),
-                                  Text(e["value"]!,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-        ],
+                    ],
+                  ),
+          ],
+        ),
       );
     });
   }
+
+  Widget _buildServiceTypeCard() {
+    return SectionCard(
+      title: "Revenue by Service Type",
+      titleIcon: Iconsax.chart_21,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 220,
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: 2,
+                centerSpaceRadius: 0,
+                sections: pieData.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  final e = entry.value;
+                  return PieChartSectionData(
+                    color: _pieColors[i % _pieColors.length],
+                    value: e['value'] as double,
+                    radius: 70,
+                    showTitle: false,
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: pieData.asMap().entries.map((entry) {
+              final i = entry.key;
+              final e = entry.value;
+              return _buildLegendItem(
+                _pieColors[i % _pieColors.length],
+                "${e['label']} (${e['value']}%)",
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationCard() {
+    return SectionCard(
+      title: "Revenue by Location",
+      titleIcon: Iconsax.location,
+      child: Column(
+        children: locationData.map((e) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    e["label"]!,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Text(
+                    e["value"]!,
+                    textAlign: TextAlign.right,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 220),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 14,
+            height: 14,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+const _pieColors = [
+  Colors.blue,
+  Colors.orange,
+  Colors.green,
+  Colors.purple,
+  Colors.red,
+  Colors.teal,
+];
 
 final summaryData = [
   {
@@ -396,11 +323,16 @@ class SectionCard extends StatelessWidget {
               spacing: 4,
               children: [
                 if (titleIcon != null) Icon(titleIcon),
-                Text(title,
+                Expanded(
+                  child: Text(
+                    title,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600)),
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),

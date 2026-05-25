@@ -3,6 +3,7 @@ import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
+import 'package:bomach_os/components/paginate/responsive_table.dart';
 import 'package:bomach_os/pages/hr/widget/add_job_post_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
@@ -192,93 +193,153 @@ class _JobOpeningTable extends StatelessWidget {
           );
         }
 
-        return Scrollbar(
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowHeight: 56,
-              dataRowMinHeight: 64,
-              dataRowMaxHeight: 64,
-              columnSpacing: 24,
-              horizontalMargin: 24,
-              headingTextStyle: AppTextStyles.bodySm.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+        return ResponsiveTable<JobPosting>(
+          items: controller.jobList,
+          columns: const [
+            DataColumn(label: Text("Job Title")),
+            DataColumn(label: Text("Department")),
+            DataColumn(label: Text("Location")),
+            DataColumn(label: Text("Type")),
+            DataColumn(label: Text("Vacancies")),
+            DataColumn(label: Text("Status")),
+            DataColumn(label: Text("Action")),
+          ],
+          rowBuilder: (job, index) {
+            final bool isActive = job.status.toLowerCase() == 'active';
+            final Color statusColor =
+                isActive ? AppColors.success : AppColors.neutral400;
+            final Color statusBg = statusColor.withValues(alpha: 0.1);
+            final String statusText = isActive ? 'Active' : 'Draft';
+
+            return DataRow(cells: <DataCell>[
+              DataCell(MyText(job.title,
+                  size: 14, weight: 600, color: AppColors.textPrimary)),
+              DataCell(MyText(job.departmentId,
+                  size: 14, color: AppColors.textSecondary)),
+              DataCell(MyText(job.branchId,
+                  size: 14, color: AppColors.textSecondary)),
+              DataCell(MyText(_formatEnum(job.jobType),
+                  size: 14, color: AppColors.textSecondary)),
+              const DataCell(
+                  MyText("2", size: 14, color: AppColors.textSecondary)),
+              DataCell(
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusBg,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                            color: statusColor, shape: BoxShape.circle),
+                      ),
+                      const SizedBox(width: 6),
+                      MyText(statusText,
+                          size: 12, weight: 600, color: statusColor),
+                    ],
+                  ),
+                ),
               ),
-              dividerThickness: 1,
-              columns: const [
-                DataColumn(label: Text("Job Title")),
-                DataColumn(label: Text("Department")),
-                DataColumn(label: Text("Location")),
-                DataColumn(label: Text("Type")),
-                DataColumn(label: Text("Vacancies")),
-                DataColumn(label: Text("Status")),
-                DataColumn(label: Text("Action")),
-              ],
-              rows: _createRows(context, controller.jobList),
-            ),
-          ),
+              DataCell(
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Iconsax.more,
+                      size: 18, color: AppColors.textSecondary),
+                  style: IconButton.styleFrom(
+                    padding: const EdgeInsets.all(8),
+                    backgroundColor: AppColors.neutral100,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ),
+            ]);
+          },
+          mobileCardBuilder: (job, index) {
+            final bool isActive = job.status.toLowerCase() == 'active';
+            final Color statusColor =
+                isActive ? AppColors.success : AppColors.neutral400;
+            final Color statusBg = statusColor.withValues(alpha: 0.1);
+            final String statusText = isActive ? 'Active' : 'Draft';
+
+            return AppCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: MyText(job.title,
+                            size: 16, weight: 700, color: AppColors.textPrimary),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusBg,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: MyText(statusText,
+                            size: 11, weight: 600, color: statusColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(Iconsax.location,
+                          size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      MyText(job.branchId,
+                          size: 12, color: AppColors.textSecondary),
+                      const SizedBox(width: 16),
+                      const Icon(Iconsax.briefcase,
+                          size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      MyText(_formatEnum(job.jobType),
+                          size: 12, color: AppColors.textSecondary),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const MyText('Department',
+                              size: 11, color: AppColors.textSecondary),
+                          const SizedBox(height: 4),
+                          MyText(job.departmentId,
+                              size: 13,
+                              weight: 600,
+                              color: AppColors.textPrimary),
+                        ],
+                      ),
+                      MyElevatedButton(
+                        height: 36,
+                        bgColor: AppColors.neutral100,
+                        textColor: AppColors.textPrimary,
+                        child: 'Manage',
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
         );
       }),
     );
-  }
-
-  List<DataRow> _createRows(BuildContext context, List<JobPosting> jobs) {
-    return jobs.map((job) {
-      final bool isActive = job.status.toLowerCase() == 'active';
-      final Color statusColor =
-          isActive ? AppColors.success : AppColors.neutral400;
-      final Color statusBg = statusColor.withValues(alpha: 0.1);
-      final String statusText = isActive ? 'Active' : 'Draft';
-
-      return DataRow(cells: <DataCell>[
-        DataCell(MyText(job.title,
-            size: 14, weight: 600, color: AppColors.textPrimary)),
-        DataCell(
-            MyText(job.departmentId, size: 14, color: AppColors.textSecondary)),
-        DataCell(
-            MyText(job.branchId, size: 14, color: AppColors.textSecondary)),
-        DataCell(MyText(_formatEnum(job.jobType),
-            size: 14, color: AppColors.textSecondary)),
-        const DataCell(MyText("2", size: 14, color: AppColors.textSecondary)),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusBg,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration:
-                      BoxDecoration(color: statusColor, shape: BoxShape.circle),
-                ),
-                const SizedBox(width: 6),
-                MyText(statusText, size: 12, weight: 600, color: statusColor),
-              ],
-            ),
-          ),
-        ),
-        DataCell(
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Iconsax.more,
-                size: 18, color: AppColors.textSecondary),
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(8),
-              backgroundColor: AppColors.neutral100,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-        ),
-      ]);
-    }).toList();
   }
 }
 
@@ -479,129 +540,177 @@ class OnboardingTab extends StatelessWidget {
           status: 'In-Progress'),
     ];
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Scrollbar(
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 1000),
-                child: DataTable(
-                  headingRowHeight: 60,
-                  dataRowMinHeight: 80,
-                  dataRowMaxHeight: 80,
-                  columnSpacing: 24,
-                  horizontalMargin: 24,
-                  headingTextStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                      fontSize: 14),
-                  dividerThickness: 0.5,
-                  columns: const [
-                    DataColumn(label: Text("Employee")),
-                    DataColumn(label: Text("Department")),
-                    DataColumn(label: Text("Location")),
-                    DataColumn(label: Text("Hire Date")),
-                    DataColumn(label: Text("Status")),
-                    DataColumn(label: Text("Action")),
-                  ],
-                  rows: employees.map((e) => _buildRow(e)).toList(),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  DataRow _buildRow(_OnboardingEmployee e) {
-    return DataRow(cells: [
-      DataCell(Row(children: [
-        const CircleAvatar(radius: 18, backgroundColor: AppColors.neutral200),
-        const SizedBox(width: 12),
-        Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              MyText(e.name,
-                  weight: 600, size: 14, color: AppColors.textPrimary),
-              const SizedBox(height: 2),
-              MyText(e.id,
-                  weight: 500, size: 12, color: AppColors.textSecondary),
-            ])
-      ])),
-      DataCell(MyText(e.department, size: 14, color: AppColors.textSecondary)),
-      DataCell(MyText(e.location, size: 14, color: AppColors.textSecondary)),
-      DataCell(MyText(e.hireDate, size: 14, color: AppColors.textSecondary)),
-      DataCell(SizedBox(
-          width: 140,
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+    return ResponsiveTable<_OnboardingEmployee>(
+      items: employees,
+      columns: const [
+        DataColumn(label: Text("Employee")),
+        DataColumn(label: Text("Department")),
+        DataColumn(label: Text("Location")),
+        DataColumn(label: Text("Hire Date")),
+        DataColumn(label: Text("Status")),
+        DataColumn(label: Text("Action")),
+      ],
+      rowBuilder: (e, index) => DataRow(cells: [
+        DataCell(Row(children: [
+          const CircleAvatar(radius: 18, backgroundColor: AppColors.neutral200),
+          const SizedBox(width: 12),
+          Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ClipRRect(
+                MyText(e.name,
+                    weight: 600, size: 14, color: AppColors.textPrimary),
+                const SizedBox(height: 2),
+                MyText(e.id,
+                    weight: 500, size: 12, color: AppColors.textSecondary),
+              ])
+        ])),
+        DataCell(MyText(e.department, size: 14, color: AppColors.textSecondary)),
+        DataCell(MyText(e.location, size: 14, color: AppColors.textSecondary)),
+        DataCell(MyText(e.hireDate, size: 14, color: AppColors.textSecondary)),
+        DataCell(SizedBox(
+            width: 140,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                          value: e.progress,
+                          backgroundColor: AppColors.neutral100,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              e.progress == 1.0
+                                  ? AppColors.success
+                                  : AppColors.warning),
+                          minHeight: 6)),
+                  const SizedBox(height: 8),
+                  Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: AppColors.neutral100,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: e.progress == 1.0
+                                    ? AppColors.success
+                                    : AppColors.warning)),
+                        const SizedBox(width: 6),
+                        MyText(e.status,
+                            size: 11,
+                            color: AppColors.textSecondary,
+                            weight: 600),
+                        const SizedBox(width: 4),
+                        const Icon(Iconsax.arrow_down_1,
+                            size: 14, color: AppColors.textSecondary)
+                      ]))
+                ]))),
+        DataCell(IconButton(
+          onPressed: () {},
+          icon: const Icon(Iconsax.more,
+              size: 18, color: AppColors.textSecondary),
+          style: IconButton.styleFrom(
+            padding: const EdgeInsets.all(8),
+            backgroundColor: AppColors.neutral100,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        )),
+      ]),
+      mobileCardBuilder: (e, index) => AppCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const CircleAvatar(
+                    radius: 20, backgroundColor: AppColors.neutral200),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MyText(e.name,
+                          weight: 600, size: 15, color: AppColors.textPrimary),
+                      MyText(e.id,
+                          weight: 500,
+                          size: 12,
+                          color: AppColors.textSecondary),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Iconsax.more, size: 20),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MyText('Department',
+                          size: 11, color: AppColors.textSecondary),
+                      MyText(e.department,
+                          size: 13,
+                          weight: 600,
+                          color: AppColors.textPrimary),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MyText('Location',
+                          size: 11, color: AppColors.textSecondary),
+                      MyText(e.location,
+                          size: 13,
+                          weight: 600,
+                          color: AppColors.textPrimary),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const MyText('Onboarding Progress',
+                size: 11, color: AppColors.textSecondary),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                        value: e.progress,
-                        backgroundColor: AppColors.neutral100,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            e.progress == 1.0
-                                ? AppColors.success
-                                : AppColors.warning),
-                        minHeight: 6)),
-                const SizedBox(height: 8),
-                Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                        color: AppColors.neutral100,
-                        borderRadius: BorderRadius.circular(6)),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: e.progress == 1.0
-                                  ? AppColors.success
-                                  : AppColors.warning)),
-                      const SizedBox(width: 6),
-                      MyText(e.status,
-                          size: 11,
-                          color: AppColors.textSecondary,
-                          weight: 600),
-                      const SizedBox(width: 4),
-                      const Icon(Iconsax.arrow_down_1,
-                          size: 14, color: AppColors.textSecondary)
-                    ]))
-              ]))),
-      DataCell(IconButton(
-        onPressed: () {},
-        icon:
-            const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
-        style: IconButton.styleFrom(
-          padding: const EdgeInsets.all(8),
-          backgroundColor: AppColors.neutral100,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      value: e.progress,
+                      backgroundColor: AppColors.neutral100,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          e.progress == 1.0
+                              ? AppColors.success
+                              : AppColors.warning),
+                      minHeight: 8,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                MyText('${(e.progress * 100).toInt()}%',
+                    size: 12, weight: 700, color: AppColors.textPrimary),
+              ],
+            ),
+          ],
         ),
-      )),
-    ]);
+      ),
+    );
   }
 }
 
@@ -650,87 +759,172 @@ class OffboardingTab extends StatelessWidget {
           status: 'In-Progress'),
     ];
 
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: Scrollbar(
-        thumbVisibility: true,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowHeight: 56,
-            dataRowMinHeight: 72,
-            dataRowMaxHeight: 72,
-            columnSpacing: 24,
-            horizontalMargin: 24,
-            headingTextStyle: AppTextStyles.bodySm.copyWith(
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+    return ResponsiveTable<_OffboardingEmployee>(
+      items: employees,
+      columns: const [
+        DataColumn(label: Text("Employee")),
+        DataColumn(label: Text("Department")),
+        DataColumn(label: Text("Exit Date")),
+        DataColumn(label: Text("Reason")),
+        DataColumn(label: Text("Status")),
+        DataColumn(label: Text("Action")),
+      ],
+      rowBuilder: (e, index) {
+        final bool isCompleted = e.status == 'Completed';
+        final Color statusColor =
+            isCompleted ? AppColors.success : AppColors.warning;
+        final Color statusBg = statusColor.withValues(alpha: 0.1);
+
+        return DataRow(cells: [
+          DataCell(Row(children: [
+            const CircleAvatar(
+                radius: 18, backgroundColor: AppColors.neutral200),
+            const SizedBox(width: 12),
+            Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  MyText(e.name,
+                      weight: 600, size: 14, color: AppColors.textPrimary),
+                  const SizedBox(height: 2),
+                  MyText(e.id,
+                      weight: 500, size: 12, color: AppColors.textSecondary),
+                ])
+          ])),
+          DataCell(
+              MyText(e.department, size: 14, color: AppColors.textSecondary)),
+          DataCell(MyText(e.exitDate, size: 14, color: AppColors.textSecondary)),
+          DataCell(MyText(e.reason,
+              weight: 600, size: 14, color: AppColors.textPrimary)),
+          DataCell(Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                  color: statusBg, borderRadius: BorderRadius.circular(12)),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle, color: statusColor)),
+                const SizedBox(width: 6),
+                MyText(e.status, size: 12, color: statusColor, weight: 600),
+              ]))),
+          DataCell(IconButton(
+            onPressed: () {},
+            icon: const Icon(Iconsax.more,
+                size: 18, color: AppColors.textSecondary),
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(8),
+              backgroundColor: AppColors.neutral100,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
-            dividerThickness: 1,
-            columns: const [
-              DataColumn(label: Text("Employee")),
-              DataColumn(label: Text("Department")),
-              DataColumn(label: Text("Exit Date")),
-              DataColumn(label: Text("Reason")),
-              DataColumn(label: Text("Status")),
-              DataColumn(label: Text("Action")),
-            ],
-            rows: employees.map((e) => _buildRow(e)).toList(),
-          ),
-        ),
-      ),
-    );
-  }
+          )),
+        ]);
+      },
+      mobileCardBuilder: (e, index) {
+        final bool isCompleted = e.status == 'Completed';
+        final Color statusColor =
+            isCompleted ? AppColors.success : AppColors.warning;
+        final Color statusBg = statusColor.withValues(alpha: 0.1);
 
-  DataRow _buildRow(_OffboardingEmployee e) {
-    final bool isCompleted = e.status == 'Completed';
-    final Color statusColor =
-        isCompleted ? AppColors.success : AppColors.warning;
-    final Color statusBg = statusColor.withValues(alpha: 0.1);
-
-    return DataRow(cells: [
-      DataCell(Row(children: [
-        const CircleAvatar(radius: 18, backgroundColor: AppColors.neutral200),
-        const SizedBox(width: 12),
-        Column(
+        return AppCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              MyText(e.name,
-                  weight: 600, size: 14, color: AppColors.textPrimary),
-              const SizedBox(height: 2),
-              MyText(e.id,
-                  weight: 500, size: 12, color: AppColors.textSecondary),
-            ])
-      ])),
-      DataCell(MyText(e.department, size: 14, color: AppColors.textSecondary)),
-      DataCell(MyText(e.exitDate, size: 14, color: AppColors.textSecondary)),
-      DataCell(MyText(e.reason,
-          weight: 600, size: 14, color: AppColors.textPrimary)),
-      DataCell(Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-              color: statusBg, borderRadius: BorderRadius.circular(12)),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-                width: 6,
-                height: 6,
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: statusColor)),
-            const SizedBox(width: 6),
-            MyText(e.status, size: 12, color: statusColor, weight: 600),
-          ]))),
-      DataCell(IconButton(
-        onPressed: () {},
-        icon:
-            const Icon(Iconsax.more, size: 18, color: AppColors.textSecondary),
-        style: IconButton.styleFrom(
-          padding: const EdgeInsets.all(8),
-          backgroundColor: AppColors.neutral100,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      )),
-    ]);
+              Row(
+                children: [
+                  const CircleAvatar(
+                      radius: 20, backgroundColor: AppColors.neutral200),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MyText(e.name,
+                            weight: 600,
+                            size: 15,
+                            color: AppColors.textPrimary),
+                        MyText(e.id,
+                            weight: 500,
+                            size: 12,
+                            color: AppColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: statusBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: MyText(e.status,
+                        size: 11, weight: 600, color: statusColor),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const MyText('Department',
+                            size: 11, color: AppColors.textSecondary),
+                        MyText(e.department,
+                            size: 13,
+                            weight: 600,
+                            color: AppColors.textPrimary),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const MyText('Exit Date',
+                            size: 11, color: AppColors.textSecondary),
+                        MyText(e.exitDate,
+                            size: 13,
+                            weight: 600,
+                            color: AppColors.textPrimary),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MyText('Reason',
+                          size: 11, color: AppColors.textSecondary),
+                      MyText(e.reason,
+                          size: 13,
+                          weight: 600,
+                          color: AppColors.textPrimary),
+                    ],
+                  ),
+                  MyElevatedButton(
+                    height: 36,
+                    bgColor: AppColors.neutral100,
+                    textColor: AppColors.textPrimary,
+                    child: 'Details',
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

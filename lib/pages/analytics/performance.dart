@@ -61,126 +61,130 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isMobile = constraints.maxWidth < 700;
+      final isCompact = constraints.maxWidth < 900;
 
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        !isMobile
-            ? Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText.displayLg(
-                          'Analytics',
-                        ),
-                        const SizedBox(height: 4),
-                        AppText.bodyMd(
-                          'Business intelligence and performance metrics',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ],
+      return SingleChildScrollView(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          !isCompact
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppText.displayLg(
+                            'Analytics',
+                          ),
+                          const SizedBox(height: 4),
+                          AppText.bodyMd(
+                            'Business intelligence and performance metrics',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const AnalyticsActions(),
-                ],
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText.displayLg(
-                    'Analytics',
-                  ),
-                  const SizedBox(height: 4),
-                  AppText.bodyMd(
-                    'Business intelligence and performance metrics',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  const AnalyticsActions(),
-                ],
-              ),
-        kSizedBox,
-        if (isMobile)
-          Column(
-            children: [
-              _MetricCard(
-                  title: "Team Performance", child: _TeamPerformanceMetrics()),
-              const SizedBox(height: 16),
-              _MetricCard(title: "Client Metrics", child: _ClientMetrics()),
-              const SizedBox(height: 16),
-              _MetricCard(title: "Financial Health", child: _FinancialHealth()),
-            ],
+                    const AnalyticsActions(),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText.displayLg(
+                      'Analytics',
+                    ),
+                    const SizedBox(height: 4),
+                    AppText.bodyMd(
+                      'Business intelligence and performance metrics',
+                      fontWeight: FontWeight.w500,
+                    ),
+                    const AnalyticsActions(),
+                  ],
+                ),
+          kSizedBox,
+          if (isCompact)
+            Column(
+              children: [
+                _MetricCard(
+                    title: "Team Performance",
+                    child: _TeamPerformanceMetrics()),
+                const SizedBox(height: 16),
+                _MetricCard(title: "Client Metrics", child: _ClientMetrics()),
+                const SizedBox(height: 16),
+                _MetricCard(
+                    title: "Financial Health", child: _FinancialHealth()),
+              ],
+            ),
+          if (!isCompact)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                    child: _MetricCard(
+                        title: "Team Performance",
+                        child: _TeamPerformanceMetrics())),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _MetricCard(
+                        title: "Client Metrics", child: _ClientMetrics())),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _MetricCard(
+                        title: "Financial Health", child: _FinancialHealth())),
+              ],
+            ),
+          const SizedBox(height: 24),
+          _MetricCard(
+            title: "Performance Trends",
+            subtitle: "Key performance indicators over time",
+            child: SizedBox(
+              height: 280,
+              child: _PerformanceTrendsChart(),
+            ),
           ),
-        if (!isMobile)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+          const SizedBox(height: 16),
+          if (!isCompact)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
                   child: _MetricCard(
-                      title: "Team Performance",
-                      child: _TeamPerformanceMetrics())),
-              const SizedBox(width: 16),
-              Expanded(
+                    title: "Performance by Location",
+                    subtitle: "Regional performance comparison",
+                    child: SizedBox(height: 280, child: _LocationBarChart()),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
                   child: _MetricCard(
-                      title: "Client Metrics", child: _ClientMetrics())),
-              const SizedBox(width: 16),
-              Expanded(
-                  child: _MetricCard(
-                      title: "Financial Health", child: _FinancialHealth())),
-            ],
-          ),
-        const SizedBox(height: 24),
-        _MetricCard(
-          title: "Performance Trends",
-          subtitle: "Key performance indicators over time",
-          child: SizedBox(
-            height: 280,
-            child: _PerformanceTrendsChart(),
-          ),
-        ),
-        const SizedBox(width: 16),
-        if (!isMobile)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _MetricCard(
+                    title: "Performance Benchmarks",
+                    child: _Benchmarks(),
+                  ),
+                ),
+              ],
+            ),
+          if (isCompact)
+            Column(
+              children: [
+                const SizedBox(height: 16),
+                _MetricCard(
                   title: "Performance by Location",
                   subtitle: "Regional performance comparison",
-                  child: SizedBox(height: 280, child: _LocationBarChart()),
+                  child: SizedBox(
+                    height: 220,
+                    child: _LocationBarChart(),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: _MetricCard(
+                const SizedBox(height: 16),
+                const _MetricCard(
                   title: "Performance Benchmarks",
                   child: _Benchmarks(),
                 ),
-              ),
-            ],
-          ),
-        if (isMobile)
-          Column(
-            children: [
-              const SizedBox(height: 16),
-              _MetricCard(
-                title: "Performance by Location",
-                subtitle: "Regional performance comparison",
-                child: SizedBox(
-                  height: 220,
-                  child: _LocationBarChart(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const _MetricCard(
-                title: "Performance Benchmarks",
-                child: _Benchmarks(),
-              ),
-            ],
-          ),
-        const SizedBox(height: 24),
-      ]);
+              ],
+            ),
+          const SizedBox(height: 24),
+        ]),
+      );
     });
   }
 }
@@ -278,14 +282,20 @@ class _MetricRow extends StatelessWidget {
         children: [
           Expanded(
             child: Text(label,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 14, color: Colors.black54)),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
           ),
         ],
@@ -494,11 +504,17 @@ class _Benchmarks extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(label,
+                    overflow: TextOverflow.ellipsis,
                     style:
                         const TextStyle(fontSize: 14, color: Colors.black54)),
               ),
-              Text(
-                '${(value * 100).truncateToDouble()}% vs $industryValue',
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  '${(value * 100).truncateToDouble()}% vs $industryValue',
+                  textAlign: TextAlign.right,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),

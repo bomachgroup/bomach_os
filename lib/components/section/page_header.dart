@@ -1,3 +1,4 @@
+import 'package:bomach_os/src/constants/colors.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class PageHeader extends StatelessWidget {
         ],
         Text(
           title,
-          style: isMobile ? AppTextStyles.h1 : AppTextStyles.displayMd,
+          style: isMobile ? AppTextStyles.h2 : AppTextStyles.displayMd,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -47,8 +48,8 @@ class PageHeader extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle!,
-            style: AppTextStyles.bodyMd.copyWith(
-              color: AppTextStyles.bodySm.color,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
         ],

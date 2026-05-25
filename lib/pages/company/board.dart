@@ -168,8 +168,7 @@ class BoardPage extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.bodyMd.copyWith(
-              color:
-                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -316,8 +315,7 @@ PopupMenuItem<String> _menuItem({
   required String label,
   bool destructive = false,
 }) {
-  final color =
-      destructive ? AppColors.danger : AppColors.textSecondary;
+  final color = destructive ? AppColors.danger : AppColors.textSecondary;
   return PopupMenuItem<String>(
     value: value,
     child: Row(
@@ -356,8 +354,8 @@ class _MeetingsTab extends StatelessWidget {
         Obx(() {
           final loading = controller.isLoadingMeetings.value &&
               controller.meetingList.isEmpty;
-          final isEmpty =
-              !controller.isLoadingMeetings.value && controller.meetingList.isEmpty;
+          final isEmpty = !controller.isLoadingMeetings.value &&
+              controller.meetingList.isEmpty;
 
           return _buildTableCard(
             title: 'Meetings register',
@@ -380,8 +378,7 @@ class _MeetingsTab extends StatelessWidget {
                         child: EmptyState(
                           icon: Iconsax.calendar_1,
                           title: 'No meetings scheduled',
-                          subtitle:
-                              'Schedule a new meeting to get started.',
+                          subtitle: 'Schedule a new meeting to get started.',
                           action: MyElevatedButton(
                             child: 'New Meeting',
                             icon: const Icon(Iconsax.add_circle,
@@ -585,8 +582,7 @@ class _MeetingsTab extends StatelessWidget {
         }
       },
       itemBuilder: (_) => [
-        _menuItem(
-            value: 'view', icon: Iconsax.eye, label: 'View Details'),
+        _menuItem(value: 'view', icon: Iconsax.eye, label: 'View Details'),
         _menuItem(value: 'edit', icon: Iconsax.edit, label: 'Edit'),
         _menuItem(
             value: 'delete',
@@ -725,14 +721,16 @@ class _ResolutionsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               resolution.resolutionTypeDisplay,
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               displayDate,
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -747,8 +745,7 @@ class _ResolutionsTab extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-              width: 48, child: _buildActionMenu(context, resolution)),
+          SizedBox(width: 48, child: _buildActionMenu(context, resolution)),
         ],
       ),
     );
@@ -976,7 +973,8 @@ class _InvestorsTab extends StatelessWidget {
             flex: 2,
             child: Text(
               s.titleDisplay,
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -994,8 +992,7 @@ class _InvestorsTab extends StatelessWidget {
             child: Icon(
               s.isBoardMember ? Iconsax.tick_circle : Iconsax.close_circle,
               size: 18,
-              color:
-                  s.isBoardMember ? AppColors.success : AppColors.textMuted,
+              color: s.isBoardMember ? AppColors.success : AppColors.textMuted,
             ),
           ),
           SizedBox(
@@ -1003,8 +1000,7 @@ class _InvestorsTab extends StatelessWidget {
             child: PopupMenuButton<String>(
               icon: const Icon(Iconsax.more,
                   size: 18, color: AppColors.textSecondary),
-              shape:
-                  const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
               onSelected: (value) async {
                 switch (value) {
                   case 'edit':
@@ -1237,7 +1233,8 @@ class _PartnersTab extends StatelessWidget {
             flex: 2,
             child: Text(
               p.categoryDisplay,
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
           Expanded(
@@ -1245,8 +1242,7 @@ class _PartnersTab extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: StatusChip(
-                label:
-                    p.statusDisplay.isEmpty ? 'Unknown' : p.statusDisplay,
+                label: p.statusDisplay.isEmpty ? 'Unknown' : p.statusDisplay,
                 tone: _partnerStatusTone(p.status),
               ),
             ),
@@ -1266,8 +1262,7 @@ class _PartnersTab extends StatelessWidget {
             child: PopupMenuButton<String>(
               icon: const Icon(Iconsax.more,
                   size: 18, color: AppColors.textSecondary),
-              shape:
-                  const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
               onSelected: (value) async {
                 switch (value) {
                   case 'edit':
@@ -1432,24 +1427,147 @@ class _EmployeeListTab extends StatelessWidget {
   }
 
   Widget _buildEmployeeTable(BuildContext context) {
-    return Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 980) {
+          return _buildEmployeeCards(context);
+        }
+
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              color: AppColors.surfaceMuted,
+              child: Row(
+                children: [
+                  _buildHeaderCell('Name', flex: 3),
+                  const SizedBox(width: 16),
+                  _buildHeaderCell('Email', flex: 3),
+                  const SizedBox(width: 16),
+                  _buildHeaderCell('Phone', flex: 2),
+                  const SizedBox(width: 16),
+                  _buildHeaderCell('Department', flex: 2),
+                  const SizedBox(width: 16),
+                  _buildHeaderCell('Status', flex: 2),
+                  const SizedBox(width: 16),
+                  _buildHeaderCell('', width: 48),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.borderSubtle),
+            ...employeeList.map((e) => _buildEmployeeRow(context, e)),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildEmployeeCards(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: employeeList.map((employee) {
+          final hasPicture = employee.profilePicture != null &&
+              employee.profilePicture!.isNotEmpty &&
+              employee.profilePicture != 'string';
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadii.brMd,
+              border: Border.all(color: AppColors.borderSubtle),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildEmployeeIdentity(employee, hasPicture),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 10,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _buildInfoLine('Email', employee.email),
+                    _buildInfoLine('Phone', employee.phoneNumber ?? '-'),
+                    _buildInfoLine(
+                        'Department', employee.departmentName ?? '-'),
+                    StatusChip.fromStatus(
+                      employee.isActive ? 'Active' : 'Inactive',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showViewDialog(context, employee),
+                    icon: const Icon(Iconsax.eye, size: 16),
+                    label: const Text('View Details'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textPrimary,
+                      side: const BorderSide(color: AppColors.borderStrong),
+                      minimumSize: const Size(0, 42),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadii.brMd),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildEmployeeIdentity(Employee employee, bool hasPicture) {
+    return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          color: AppColors.surfaceMuted,
-          child: Row(
+        CircleAvatar(
+          radius: 18,
+          backgroundColor: AppColors.primarySubtle,
+          backgroundImage:
+              hasPicture ? NetworkImage(employee.profilePicture!) : null,
+          child: !hasPicture
+              ? Text(
+                  employee.firstName.isNotEmpty
+                      ? employee.firstName[0].toUpperCase()
+                      : '?',
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
+              : null,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeaderCell('Name', flex: 3),
-              _buildHeaderCell('Email', flex: 3),
-              _buildHeaderCell('Phone', flex: 2),
-              _buildHeaderCell('Department', flex: 2),
-              _buildHeaderCell('Status', flex: 2),
-              _buildHeaderCell('', width: 48),
+              Text(
+                employee.fullName,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (employee.role.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  employee.role,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
           ),
         ),
-        const Divider(height: 1, color: AppColors.borderSubtle),
-        ...employeeList.map((e) => _buildEmployeeRow(context, e)),
       ],
     );
   }
@@ -1468,53 +1586,9 @@ class _EmployeeListTab extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppColors.primarySubtle,
-                  backgroundImage:
-                      hasPicture ? NetworkImage(employee.profilePicture!) : null,
-                  child: !hasPicture
-                      ? Text(
-                          employee.firstName.isNotEmpty
-                              ? employee.firstName[0].toUpperCase()
-                              : '?',
-                          style: AppTextStyles.label.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        )
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        employee.fullName,
-                        style: AppTextStyles.bodyMd.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (employee.role.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          employee.role,
-                          style: AppTextStyles.bodySm
-                              .copyWith(color: AppColors.textSecondary),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            child: _buildEmployeeIdentity(employee, hasPicture),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 3,
             child: Text(
@@ -1524,22 +1598,27 @@ class _EmployeeListTab extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Text(
               employee.phoneNumber ?? '—',
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Text(
               employee.departmentName ?? '—',
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Align(
@@ -1549,13 +1628,13 @@ class _EmployeeListTab extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 16),
           SizedBox(
             width: 48,
             child: PopupMenuButton<String>(
               icon: const Icon(Iconsax.more,
                   size: 18, color: AppColors.textSecondary),
-              shape:
-                  const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
               onSelected: (value) {
                 if (value == 'view') {
                   _showViewDialog(context, employee);
@@ -1563,10 +1642,36 @@ class _EmployeeListTab extends StatelessWidget {
               },
               itemBuilder: (_) => [
                 _menuItem(
-                    value: 'view',
-                    icon: Iconsax.eye,
-                    label: 'View Details'),
+                    value: 'view', icon: Iconsax.eye, label: 'View Details'),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoLine(String label, String value) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 120, maxWidth: 260),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textMuted,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

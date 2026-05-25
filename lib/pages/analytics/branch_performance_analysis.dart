@@ -618,18 +618,23 @@ class _BranchPerformanceAnalysisPageState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  MyText(
-                    mainValue,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: MyText(
+                      mainValue,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  MyText(
-                    subValue,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.neutral500,
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: MyText(
+                      subValue,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.neutral500,
+                      ),
                     ),
                   ),
                 ],
@@ -660,7 +665,6 @@ class _SectionCard extends StatelessWidget {
       color: AppColors.white,
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -670,9 +674,11 @@ class _SectionCard extends StatelessWidget {
               spacing: 8,
               children: [
                 if (titleIcon != null) Icon(titleIcon, size: 20),
-                MyText(
-                  title,
-                  style: AppTextStyles.bodyLg,
+                Expanded(
+                  child: MyText(
+                    title,
+                    style: AppTextStyles.bodyLg,
+                  ),
                 ),
               ],
             ),

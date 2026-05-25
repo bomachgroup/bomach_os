@@ -1,6 +1,7 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
-import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/src/constants/colors.dart';
@@ -14,14 +15,14 @@ import 'package:get/get.dart';
 import '../controllers/branch_controller.dart';
 import 'add_branch_dialog.dart';
 
-class ViewBranchDialog extends StatefulWidget {
-  const ViewBranchDialog({super.key});
+class BranchDetailPage extends StatefulWidget {
+  const BranchDetailPage({super.key});
 
   @override
-  State<ViewBranchDialog> createState() => _ViewBranchDialogState();
+  State<BranchDetailPage> createState() => _BranchDetailPageState();
 }
 
-class _ViewBranchDialogState extends State<ViewBranchDialog>
+class _BranchDetailPageState extends State<BranchDetailPage>
     with SingleTickerProviderStateMixin {
   final BranchController controller = Get.find<BranchController>();
   late TabController _tabController;
@@ -42,113 +43,46 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoadingDetail.value) {
-        return const DialogScaffold(
-          title: 'Branch details',
-          size: DialogSize.lg,
-          body: SizedBox(
-            height: 280,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-          actions: [],
-        );
-      }
-
-      final branch = controller.currentBranch.value;
-      if (branch == null) {
-        return DialogScaffold(
-          title: 'Branch details',
-          size: DialogSize.lg,
-          body: const SizedBox(
-            height: 220,
-            child: Center(child: Text('No branch data available')),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
+        return const PageScaffold(
+          header: PageHeader(title: 'Branch details'),
+          children: [
+            SizedBox(
+              height: 280,
+              child: Center(child: CircularProgressIndicator()),
             ),
           ],
         );
       }
 
-      return DialogScaffold(
-        title: branch.branchName,
-        subtitle: '${branch.branchRoleDisplay} • ${_branchLocation(branch)}',
-        size: DialogSize.lg,
-        scrollable: false,
-        bodyPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-        body: SizedBox(
-          height: 560,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildSummaryBanner(branch),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: AppRadii.brMd,
-                  border: Border.all(color: AppColors.borderSubtle),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  labelColor: AppColors.textPrimary,
-                  unselectedLabelColor: AppColors.textSecondary,
-                  indicator: const BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: AppRadii.brMd,
-                    boxShadow: AppShadows.sm,
-                  ),
-                  dividerColor: Colors.transparent,
-                  labelStyle:
-                      AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w600),
-                  unselectedLabelStyle:
-                      AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.w500),
-                  padding: const EdgeInsets.all(6),
-                  tabs: const [
-                    Tab(text: 'Overview'),
-                    Tab(text: 'Departments'),
-                    Tab(text: 'Projects'),
-                    Tab(text: 'Financial'),
-                    Tab(text: 'People'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: AppRadii.brLg,
-                    border: Border.all(color: AppColors.borderSubtle),
-                  ),
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildOverviewTab(branch),
-                      _buildDepartmentsTab(),
-                      _buildProjectsTab(),
-                      _buildFinancialTab(),
-                      _buildPeopleTab(branch),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+      final branch = controller.currentBranch.value;
+      if (branch == null) {
+        return PageScaffold(
+          header: PageHeader(
+            title: 'Branch details',
+            leading: _buildBackButton(context),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          MyElevatedButton(
-            width: 120,
+          children: const [
+            SizedBox(
+              height: 220,
+              child: Center(child: Text('No branch data available')),
+            ),
+          ],
+        );
+      }
+
+      return PageScaffold(
+        maxContentWidth: 1280,
+        header: PageHeader(
+          title: branch.branchName,
+          subtitle: '${branch.branchRoleDisplay} • ${_branchLocation(branch)}',
+          leading: _buildBackButton(context),
+          trailing: MyElevatedButton(
+            width: 128,
             height: 44,
+            icon: const Icon(Iconsax.edit,
+                size: 16, color: AppColors.textOnPrimary),
             child: 'Edit Branch',
             onTap: () {
-              Navigator.pop(context);
               controller.loadFilterResources();
               showDialog(
                 context: context,
@@ -156,63 +90,161 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
               );
             },
           ),
-        ],
-      );
-    });
-  }
-
-  Widget _buildSummaryBanner(Branch branch) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: AppRadii.brLg,
-        border: Border.all(color: AppColors.borderSubtle),
-      ),
-      child: Row(
+        ),
         children: [
+          _buildSummaryBanner(branch),
           Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              color: AppColors.primarySubtle,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
               borderRadius: AppRadii.brLg,
+              border: Border.all(color: AppColors.borderSubtle),
             ),
-            child: const Icon(Iconsax.building_4,
-                color: AppColors.primary, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(branch.branchName, style: AppTextStyles.h2),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    StatusChip.fromStatus(branch.operationalStatusDisplay),
-                    _buildMetaChip(
-                      icon: Iconsax.tag,
-                      label: branch.branchId.isNotEmpty
-                          ? branch.branchId
-                          : '#${branch.id}',
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceMuted,
+                    borderRadius: AppRadii.brMd,
+                    border: Border.all(color: AppColors.borderSubtle),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    labelColor: AppColors.textPrimary,
+                    unselectedLabelColor: AppColors.textSecondary,
+                    indicator: const BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppRadii.brMd,
+                      boxShadow: AppShadows.sm,
                     ),
-                    _buildMetaChip(
-                      icon: Iconsax.profile_circle,
-                      label: branch.managerName.isNotEmpty
-                          ? branch.managerName
-                          : 'No manager assigned',
+                    dividerColor: Colors.transparent,
+                    labelStyle: AppTextStyles.bodyMd
+                        .copyWith(fontWeight: FontWeight.w600),
+                    unselectedLabelStyle: AppTextStyles.bodyMd
+                        .copyWith(fontWeight: FontWeight.w500),
+                    padding: const EdgeInsets.all(6),
+                    tabs: const [
+                      Tab(text: 'Overview'),
+                      Tab(text: 'Departments'),
+                      Tab(text: 'Projects'),
+                      Tab(text: 'Financial'),
+                      Tab(text: 'People'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: MediaQuery.sizeOf(context).height < 820 ? 520 : 620,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppRadii.brLg,
+                      border: Border.all(color: AppColors.borderSubtle),
                     ),
-                  ],
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildOverviewTab(branch),
+                        _buildDepartmentsTab(),
+                        _buildProjectsTab(),
+                        _buildFinancialTab(),
+                        _buildPeopleTab(branch),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ],
+      );
+    });
+  }
+
+  Widget _buildBackButton(BuildContext context) {
+    return IconButton(
+      tooltip: 'Back to branches',
+      onPressed: () => Navigator.maybePop(context),
+      icon: const Icon(Iconsax.arrow_left, color: AppColors.textPrimary),
+      style: IconButton.styleFrom(
+        backgroundColor: AppColors.surface,
+        side: const BorderSide(color: AppColors.borderSubtle),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brMd),
       ),
+    );
+  }
+
+  Widget _buildSummaryBanner(Branch branch) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 560;
+
+        final iconCard = Container(
+          width: 52,
+          height: 52,
+          decoration: const BoxDecoration(
+            color: AppColors.primarySubtle,
+            borderRadius: AppRadii.brLg,
+          ),
+          child: const Icon(Iconsax.building_4,
+              color: AppColors.primary, size: 24),
+        );
+
+        final content = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(branch.branchName, style: AppTextStyles.h2),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                StatusChip.fromStatus(branch.operationalStatusDisplay),
+                _buildMetaChip(
+                  icon: Iconsax.tag,
+                  label: branch.branchId.isNotEmpty
+                      ? branch.branchId
+                      : '#${branch.id}',
+                ),
+                _buildMetaChip(
+                  icon: Iconsax.profile_circle,
+                  label: branch.managerName.isNotEmpty
+                      ? branch.managerName
+                      : 'No manager assigned',
+                ),
+              ],
+            ),
+          ],
+        );
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceMuted,
+            borderRadius: AppRadii.brLg,
+            border: Border.all(color: AppColors.borderSubtle),
+          ),
+          child: compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    iconCard,
+                    const SizedBox(height: 14),
+                    content,
+                  ],
+                )
+              : Row(
+                  children: [
+                    iconCard,
+                    const SizedBox(width: 14),
+                    Expanded(child: content),
+                  ],
+                ),
+        );
+      },
     );
   }
 
@@ -382,8 +414,10 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               _buildSectionTitle("Departments"),
               Container(
@@ -413,39 +447,71 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.neutral200),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Iconsax.people,
-                          color: Colors.blue, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final compact = constraints.maxWidth < 520;
+                    final header = Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Iconsax.people,
+                              color: Colors.blue, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(dept["name"] as String,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14)),
+                              const SizedBox(height: 2),
+                              Text("Head: ${dept["head"]}",
+                                  style: const TextStyle(
+                                      color: Colors.grey, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+
+                    final meta = Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text("${dept["employees"]} staff",
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 12)),
+                        _buildStatusBadge(dept["status"] as String),
+                      ],
+                    );
+
+                    if (compact) {
+                      return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(dept["name"] as String,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 14)),
-                          const SizedBox(height: 2),
-                          Text("Head: ${dept["head"]}",
-                              style: const TextStyle(
-                                  color: Colors.grey, fontSize: 12)),
+                          header,
+                          const SizedBox(height: 12),
+                          meta,
                         ],
-                      ),
-                    ),
-                    Text("${dept["employees"]} staff",
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12)),
-                    const SizedBox(width: 12),
-                    _buildStatusBadge(dept["status"] as String),
-                  ],
+                      );
+                    }
+
+                    return Row(
+                      children: [
+                        Expanded(child: header),
+                        const SizedBox(width: 12),
+                        meta,
+                      ],
+                    );
+                  },
                 ),
               )),
           const SizedBox(height: 12),
@@ -558,19 +624,28 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
         children: [
           _buildSectionTitle("Financial Summary"),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              _buildFinancialCard(
-                  "Revenue", "N12,500,000", Iconsax.trend_up, Colors.green),
-              _buildFinancialCard(
-                  "Expenses", "N8,200,000", Iconsax.trend_down, Colors.red),
-              _buildFinancialCard(
-                  "Profit", "N4,300,000", Iconsax.bank, Colors.blue),
-              _buildFinancialCard(
-                  "Budget", "N15,000,000", Iconsax.chart_21, Colors.orange),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 520;
+              final cardWidth = compact
+                  ? constraints.maxWidth
+                  : (constraints.maxWidth - 12) / 2;
+
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildFinancialCard("Revenue", "N12,500,000",
+                      Iconsax.trend_up, Colors.green, cardWidth),
+                  _buildFinancialCard("Expenses", "N8,200,000",
+                      Iconsax.trend_down, Colors.red, cardWidth),
+                  _buildFinancialCard("Profit", "N4,300,000", Iconsax.bank,
+                      Colors.blue, cardWidth),
+                  _buildFinancialCard("Budget", "N15,000,000", Iconsax.chart_21,
+                      Colors.orange, cardWidth),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 24),
           _buildSectionTitle("Recent Transactions"),
@@ -687,8 +762,10 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               _buildSectionTitle("Staff"),
               Container(
@@ -727,38 +804,64 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.neutral200),
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: color.withValues(alpha: 0.15),
-                    child: Text(
-                      (person["name"] as String).isNotEmpty
-                          ? (person["name"] as String)[0].toUpperCase()
-                          : "?",
-                      style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final compact = constraints.maxWidth < 520;
+
+                  final identity = Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: color.withValues(alpha: 0.15),
+                        child: Text(
+                          (person["name"] as String).isNotEmpty
+                              ? (person["name"] as String)[0].toUpperCase()
+                              : "?",
+                          style: TextStyle(
+                              color: color,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(person["name"] as String,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 14)),
+                            const SizedBox(height: 2),
+                            Text(person["role"] as String,
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+
+                  final status = _buildStatusBadge(person["status"] as String);
+
+                  if (compact) {
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(person["name"] as String,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 14)),
-                        const SizedBox(height: 2),
-                        Text(person["role"] as String,
-                            style: const TextStyle(
-                                color: Colors.grey, fontSize: 12)),
+                        identity,
+                        const SizedBox(height: 12),
+                        status,
                       ],
-                    ),
-                  ),
-                  _buildStatusBadge(person["status"] as String),
-                ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: identity),
+                      const SizedBox(width: 12),
+                      status,
+                    ],
+                  );
+                },
               ),
             );
           }),
@@ -783,88 +886,141 @@ class _ViewBranchDialogState extends State<ViewBranchDialog>
   }
 
   Widget _buildDetailGrid(List<_DetailItem> items) {
-    return Wrap(
-      spacing: 24,
-      runSpacing: 12,
-      children: items.map((item) {
-        return SizedBox(
-          width: 320,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 120,
-                child: Text(
-                  item.label,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.neutral500,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  item.value.isNotEmpty ? item.value : "-",
-                  style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.neutral700,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 760;
+        final itemWidth =
+            compact ? constraints.maxWidth : (constraints.maxWidth - 24) / 2;
+
+        return Wrap(
+          spacing: 24,
+          runSpacing: 12,
+          children: items.map((item) {
+            return SizedBox(
+              width: itemWidth,
+              child: compact
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.label,
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.neutral500,
+                              fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.value.isNotEmpty ? item.value : "-",
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.neutral700,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            item.label,
+                            style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.neutral500,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            item.value.isNotEmpty ? item.value : "-",
+                            style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.neutral700,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
   }
 
   Widget _buildManagerCard(Branch branch) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.neutral50,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.neutral200),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              shape: BoxShape.circle,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 520;
+
+        final identity = Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Iconsax.profile_circle,
+                  color: Colors.blue, size: 22),
             ),
-            child: const Icon(Iconsax.profile_circle,
-                color: Colors.blue, size: 22),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MyText(
+                    branch.managerName.isNotEmpty
+                        ? branch.managerName
+                        : "Unassigned",
+                    weight: 600,
+                    size: 14,
+                  ),
+                  const MyText("Branch Manager", size: 12, color: Colors.grey),
+                ],
+              ),
+            ),
+          ],
+        );
+
+        final status = _buildStatusBadge(
+            branch.managerName.isNotEmpty ? "Assigned" : "Unassigned");
+
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.neutral50,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.neutral200),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MyText(
-                  branch.managerName.isNotEmpty
-                      ? branch.managerName
-                      : "Unassigned",
-                  weight: 600,
-                  size: 14,
+          child: compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    identity,
+                    const SizedBox(height: 12),
+                    status,
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: identity),
+                    const SizedBox(width: 12),
+                    status,
+                  ],
                 ),
-                const MyText("Branch Manager", size: 12, color: Colors.grey),
-              ],
-            ),
-          ),
-          _buildStatusBadge(
-              branch.managerName.isNotEmpty ? "Assigned" : "Unassigned"),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildFinancialCard(
-      String label, String value, IconData icon, Color color) {
+      String label, String value, IconData icon, Color color, double width) {
     return Container(
-      width: 165,
+      width: width,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,

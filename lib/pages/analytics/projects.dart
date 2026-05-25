@@ -207,7 +207,7 @@ class ProjectBody extends StatelessWidget {
                       ],
                     ),
               const SizedBox(height: 20),
-              RecentProjectsTable(),
+              const RecentProjectsTable(),
             ],
           ),
         );
@@ -455,7 +455,7 @@ const List<Project> recentProjects = [
 ];
 
 class RecentProjectsTable extends StatelessWidget {
-  RecentProjectsTable({super.key});
+  const RecentProjectsTable({super.key});
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -515,8 +515,6 @@ class RecentProjectsTable extends StatelessWidget {
     );
   }
 
-  final ScrollController scrollController = ScrollController();
-
   @override
   Widget build(BuildContext context) {
     const Color cardColor = Color(0xFFFFFFFF);
@@ -524,6 +522,7 @@ class RecentProjectsTable extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 700;
+        final useCards = constraints.maxWidth < 900;
         return Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -541,103 +540,191 @@ class RecentProjectsTable extends StatelessWidget {
                 const Text('Latest project activities and status',
                     style: TextStyle(fontSize: 14, color: Colors.grey)),
                 const SizedBox(height: 16),
-                Scrollbar(
-                  controller: scrollController,
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: isMobile ? 600 : 900,
-                        maxWidth: isMobile ? 700 : double.infinity,
-                      ),
-                      child: DataTable(
-                        columnSpacing: isMobile ? 16 : 30,
-                        dataRowMinHeight: isMobile ? 36 : 50,
-                        dataRowMaxHeight: isMobile ? 48 : 60,
-                        headingRowHeight: isMobile ? 32 : 40,
-                        border: TableBorder(
-                          verticalInside: BorderSide.none,
-                          horizontalInside: BorderSide(
-                              color: Colors.grey.shade300, width: 0.5),
-                          top: BorderSide(
-                              color: Colors.grey.shade300, width: 0.5),
-                        ),
-                        columns: [
-                          DataColumn(
-                              label: Text('Project',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 12 : 14))),
-                          DataColumn(
-                              label: Text('Client',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 12 : 14))),
-                          DataColumn(
-                              label: Text('Value',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 12 : 14))),
-                          DataColumn(
-                              label: Text('Duration',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 12 : 14))),
-                          DataColumn(
-                              label: Text('Status',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 12 : 14))),
-                          DataColumn(
-                              label: Text('Progress',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isMobile ? 12 : 14))),
-                        ],
-                        rows: recentProjects
-                            .map((proj) => DataRow(cells: [
-                                  DataCell(Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(proj.id,
-                                          style: TextStyle(
-                                              fontSize: isMobile ? 10 : 12,
-                                              color: Colors.grey)),
-                                      Text(proj.name,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: isMobile ? 11 : 13)),
-                                    ],
-                                  )),
-                                  DataCell(Text(proj.client,
-                                      style: TextStyle(
-                                          fontSize: isMobile ? 11 : 13))),
-                                  DataCell(Text(_formatCurrency(proj.value),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: isMobile ? 11 : 13))),
-                                  DataCell(Text('${proj.duration} days',
-                                      style: TextStyle(
-                                          fontSize: isMobile ? 11 : 13))),
-                                  DataCell(
-                                      _buildStatusChip(proj.status, isMobile)),
-                                  DataCell(_buildProgressBar(
-                                      proj.progress, Colors.black, isMobile)),
-                                ]))
-                            .toList(),
-                      ),
-                    ),
-                  ),
-                ),
+                useCards
+                    ? _buildProjectCards(isMobile)
+                    : _buildProjectRows(isMobile),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildProjectRows(bool isMobile) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Colors.grey.shade300, width: 0.5),
+              top: BorderSide(color: Colors.grey.shade300, width: 0.5),
+            ),
+          ),
+          child: const Row(
+            children: [
+              Expanded(flex: 3, child: _TableHeader('Project')),
+              SizedBox(width: 14),
+              Expanded(flex: 3, child: _TableHeader('Client')),
+              SizedBox(width: 14),
+              Expanded(flex: 2, child: _TableHeader('Value')),
+              SizedBox(width: 14),
+              Expanded(flex: 2, child: _TableHeader('Duration')),
+              SizedBox(width: 14),
+              Expanded(flex: 2, child: _TableHeader('Status')),
+              SizedBox(width: 14),
+              Expanded(flex: 2, child: _TableHeader('Progress')),
+            ],
+          ),
+        ),
+        ...recentProjects.map((proj) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.shade300, width: 0.5),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(flex: 3, child: _buildProjectIdentity(proj, isMobile)),
+                const SizedBox(width: 14),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    proj.client,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: isMobile ? 11 : 13),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    _formatCurrency(proj.value),
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: isMobile ? 11 : 13),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    '${proj.duration} days',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: isMobile ? 11 : 13),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                    flex: 2, child: _buildStatusChip(proj.status, isMobile)),
+                const SizedBox(width: 14),
+                Expanded(
+                    flex: 2,
+                    child: _buildProgressBar(
+                        proj.progress, Colors.black, isMobile)),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildProjectCards(bool isMobile) {
+    return Column(
+      children: recentProjects.map((proj) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProjectIdentity(proj, isMobile),
+              const SizedBox(height: 10),
+              Text(
+                proj.client,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: isMobile ? 11 : 13),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  _buildMeta('Value', _formatCurrency(proj.value), isMobile),
+                  _buildMeta('Duration', '${proj.duration} days', isMobile),
+                  _buildStatusChip(proj.status, isMobile),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildProgressBar(proj.progress, Colors.black, isMobile),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildProjectIdentity(Project proj, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(proj.id,
+            style: TextStyle(fontSize: isMobile ? 10 : 12, color: Colors.grey)),
+        Text(
+          proj.name,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+              fontWeight: FontWeight.w500, fontSize: isMobile ? 11 : 13),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMeta(String label, String value, bool isMobile) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 96, maxWidth: 180),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  TextStyle(fontSize: isMobile ? 10 : 12, color: Colors.grey)),
+          Text(
+            value,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                fontWeight: FontWeight.w500, fontSize: isMobile ? 11 : 13),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TableHeader extends StatelessWidget {
+  const _TableHeader(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
     );
   }
 }

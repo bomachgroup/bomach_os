@@ -26,20 +26,22 @@ class InvoiceCard extends StatelessWidget {
             child: SvgPicture.asset("assets/svg/pdf.svg"),
           ),
           kSizedBoxWidthSM,
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MyText(
-                'Invoice #1273636',
-              ),
-              MyText(
-                'Chijiokeugo@nggs',
-              ),
-            ],
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MyText(
+                  'Invoice #1273636',
+                ),
+                MyText(
+                  'Chijiokeugo@nggs',
+                ),
+              ],
+            ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           SvgPicture.asset("assets/svg/download2.svg"),
-          kSizedBoxWidthSM,
+          const SizedBox(width: 12),
           SvgPicture.asset("assets/svg/share.svg"),
         ],
       ),

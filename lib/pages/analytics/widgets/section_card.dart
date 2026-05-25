@@ -32,12 +32,15 @@ class MetricsSection extends StatelessWidget {
               children: [
                 Icon(icon, size: 20, color: Colors.grey[700]),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                Expanded(
+                  child: Text(
+                    title,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -48,14 +51,24 @@ class MetricsSection extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(item["label"],
-                        style: Theme.of(context).textTheme.bodyMedium),
-                    Text(
-                      item["value"],
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                    Expanded(
+                      child: Text(
+                        item["label"],
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        item["value"],
+                        textAlign: TextAlign.right,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ],
                 ),

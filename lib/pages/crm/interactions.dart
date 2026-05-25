@@ -58,27 +58,35 @@ class InteractionsPage extends StatelessWidget {
 
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
           spacing: 12,
+          runSpacing: 12,
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Flexible(
-              child: Column(
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isMobile ? double.infinity : 520,
+              ),
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const MyText(
+                  MyText(
                     'Customer Relationship Management',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
+                  SizedBox(height: 4),
                   MyText(
                     'Manage clients, leads, and customer interactions',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ],
               ),
             ),
-            Row(
+            Wrap(
               spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 buildActionButton(
                     onPressed: () {},
@@ -194,27 +202,27 @@ class InteractonsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: <Widget>[
-              const Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search interactions...',
-                    prefixIcon: Icon(Iconsax.search_normal),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.neutral100,
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 620;
+
+              const search = TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search interactions...',
+                  prefixIcon: Icon(Iconsax.search_normal),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                    borderSide: BorderSide.none,
                   ),
+                  filled: true,
+                  fillColor: AppColors.neutral100,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 ),
-              ),
-              const SizedBox(width: 16),
-              SizedBox(
-                width: 150,
+              );
+
+              final filter = SizedBox(
+                width: compact ? double.infinity : 150,
                 child: MyDropdown(
                   hintText: 'All Types',
                   items: const [
@@ -227,119 +235,256 @@ class InteractonsWidget extends StatelessWidget {
                   onChanged: (String? newValue) {},
                   fillColor: AppColors.neutral100,
                 ),
-              ),
-            ],
+              );
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    search,
+                    const SizedBox(height: 12),
+                    filter,
+                  ],
+                );
+              }
+
+              return Row(
+                children: <Widget>[
+                  const Expanded(child: search),
+                  const SizedBox(width: 16),
+                  filter,
+                ],
+              );
+            },
           ),
           const SizedBox(height: 24),
-          InteractionDataTable(),
+          const InteractionDataTable(),
         ],
       ),
     );
   }
 }
 
-class InteractionDataTable extends StatelessWidget {
-  InteractionDataTable({super.key});
-  final scrollControler = ScrollController();
+class _HeaderText extends StatelessWidget {
+  const _HeaderText(this.label);
+
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      controller: scrollControler,
-      child: SingleChildScrollView(
-        controller: scrollControler,
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor:
-              WidgetStateProperty.resolveWith((states) => Colors.transparent),
-          columnSpacing: 35,
-          dataRowMinHeight: 60,
-          dataRowMaxHeight: 80,
-          dividerThickness: 1.0,
-          columns: const <DataColumn>[
-            DataColumn(
-                label: Text('Client',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Type',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Subject',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Priority',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Status',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Date',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Created By',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(
-                label: Text('Actions',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
+    return Text(
+      label,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    );
+  }
+}
+
+class InteractionDataTable extends StatelessWidget {
+  const InteractionDataTable({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 900) {
+          return _buildCards();
+        }
+
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: AppColors.neutral100,
+              child: const Row(
+                children: [
+                  Expanded(flex: 2, child: _HeaderText('Client')),
+                  SizedBox(width: 14),
+                  Expanded(flex: 2, child: _HeaderText('Subject')),
+                  SizedBox(width: 14),
+                  Expanded(child: _HeaderText('Type')),
+                  SizedBox(width: 14),
+                  Expanded(child: _HeaderText('Priority')),
+                  SizedBox(width: 14),
+                  Expanded(child: _HeaderText('Status')),
+                  SizedBox(width: 14),
+                  Expanded(child: _HeaderText('Date')),
+                  SizedBox(width: 14),
+                  Expanded(child: _HeaderText('Created By')),
+                  SizedBox(width: 44),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.neutral200),
+            ...interactionsMock.map(_buildRow),
           ],
-          rows: interactionsMock
-              .map((interaction) => _buildDataRow(interaction))
-              .toList(),
-        ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRow(ClientInteraction interaction) {
+    final priorityColors = _getPriorityColors(interaction.priority);
+    final statusColors = _getStatusColors(interaction.status);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.neutral200)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(interaction.client,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            flex: 2,
+            child: _buildSubject(interaction),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _buildSimpleTag(interaction.type,
+                  backgroundColor: AppColors.neutral100,
+                  textColor: Colors.black87),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _buildColoredTag(
+                interaction.priority,
+                backgroundColor: priorityColors['bg']!,
+                textColor: priorityColors['text']!,
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _buildColoredTag(
+                interaction.status,
+                backgroundColor: statusColors['bg']!,
+                textColor: statusColors['text']!,
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(interaction.date, overflow: TextOverflow.ellipsis),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(interaction.createdBy, overflow: TextOverflow.ellipsis),
+          ),
+          const SizedBox(
+            width: 44,
+            child: IconButton(
+              icon: Icon(Iconsax.eye, color: Colors.grey),
+              onPressed: null,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  DataRow _buildDataRow(ClientInteraction interaction) {
-    final priorityColors = _getPriorityColors(interaction.priority);
-    final statusColors = _getStatusColors(interaction.status);
+  Widget _buildCards() {
+    return Column(
+      children: interactionsMock.map((interaction) {
+        final priorityColors = _getPriorityColors(interaction.priority);
+        final statusColors = _getStatusColors(interaction.status);
 
-    return DataRow(
-      cells: <DataCell>[
-        DataCell(Text(interaction.client,
-            style: const TextStyle(fontWeight: FontWeight.w600))),
-        DataCell(_buildSimpleTag(interaction.type,
-            backgroundColor: AppColors.neutral100,
-            textColor: Colors.black87)),
-        DataCell(
-          SizedBox(
-            width: 300,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  interaction.subject,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 14),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  interaction.details,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: AppColors.neutral200),
+            borderRadius: BorderRadius.circular(8),
           ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      interaction.client,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 14),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildSimpleTag(interaction.type,
+                      backgroundColor: AppColors.neutral100,
+                      textColor: Colors.black87),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _buildSubject(interaction),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  _buildColoredTag(
+                    interaction.priority,
+                    backgroundColor: priorityColors['bg']!,
+                    textColor: priorityColors['text']!,
+                  ),
+                  _buildColoredTag(
+                    interaction.status,
+                    backgroundColor: statusColors['bg']!,
+                    textColor: statusColors['text']!,
+                  ),
+                  _buildMeta(Iconsax.calendar, interaction.date),
+                  _buildMeta(Iconsax.user, interaction.createdBy),
+                ],
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildSubject(ClientInteraction interaction) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          interaction.subject,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          overflow: TextOverflow.ellipsis,
         ),
-        DataCell(_buildColoredTag(
-          interaction.priority,
-          backgroundColor: priorityColors['bg']!,
-          textColor: priorityColors['text']!,
-        )),
-        DataCell(_buildColoredTag(
-          interaction.status,
-          backgroundColor: statusColors['bg']!,
-          textColor: statusColors['text']!,
-        )),
-        DataCell(Text(interaction.date)),
-        DataCell(Text(interaction.createdBy)),
-        const DataCell(
-          IconButton(
-            icon: Icon(Iconsax.eye, color: Colors.grey),
-            onPressed: null,
-          ),
+        Text(
+          interaction.details,
+          maxLines: 2,
+          style: const TextStyle(color: Colors.grey, fontSize: 12),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMeta(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),
       ],
     );

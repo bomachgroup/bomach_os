@@ -74,22 +74,22 @@ class DepartmentsUnitsPage extends StatelessWidget {
         borderRadius: AppRadii.brLg,
         border: Border.all(color: AppColors.borderSubtle),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: _tabs
-              .map((label) => Padding(
-                    padding: const EdgeInsets.only(right: 6),
+      child: Row(
+        children: _tabs
+            .map((label) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      right: label == _tabs.last ? 0 : 6,
+                    ),
                     child: _buildTabButton(controller, label),
-                  ))
-              .toList(),
-        ),
+                  ),
+                ))
+            .toList(),
       ),
     );
   }
 
-  Widget _buildTabButton(
-      DepartmentsUnitsController controller, String label) {
+  Widget _buildTabButton(DepartmentsUnitsController controller, String label) {
     final isActive = controller.currentTab.value == label;
     return Material(
       color: Colors.transparent,
@@ -107,8 +107,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.bodyMd.copyWith(
-              color:
-                  isActive ? AppColors.textPrimary : AppColors.textSecondary,
+              color: isActive ? AppColors.textPrimary : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -163,9 +162,7 @@ class DepartmentsUnitsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isDepartments
-                            ? 'Department register'
-                            : 'Unit register',
+                        isDepartments ? 'Department register' : 'Unit register',
                         style: AppTextStyles.h3,
                       ),
                       const SizedBox(height: 4),
@@ -181,9 +178,8 @@ class DepartmentsUnitsPage extends StatelessWidget {
                   ),
                 ),
                 StatusChip(
-                  label: isDepartments
-                      ? 'Organizational map'
-                      : 'Unit directory',
+                  label:
+                      isDepartments ? 'Organizational map' : 'Unit directory',
                   tone: StatusTone.primary,
                   icon: isDepartments ? Iconsax.people : Iconsax.hierarchy,
                 ),
@@ -306,11 +302,13 @@ class DepartmentsUnitsPage extends StatelessWidget {
     DepartmentsUnitsController controller,
     List<Department> data,
   ) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 960,
-        child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 820) {
+          return _buildDepartmentCards(context, data);
+        }
+
+        return Column(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -318,22 +316,23 @@ class DepartmentsUnitsPage extends StatelessWidget {
               child: Row(
                 children: [
                   _buildHeaderCell('Department', flex: 4),
+                  const SizedBox(width: 16),
                   _buildHeaderCell('Code', flex: 2),
-                  _buildHeaderCell('', width: 220),
+                  const SizedBox(width: 16),
+                  _buildHeaderCell('', width: 190),
                 ],
               ),
             ),
             const Divider(height: 1, color: AppColors.borderSubtle),
             ...data.map((dept) => _buildDepartmentRow(context, dept)),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _buildDepartmentRow(BuildContext context, Department dept) {
-    final code =
-        'DEP-${dept.id.length >= 3 ? dept.id.substring(0, 3) : dept.id}';
+    final code = _departmentCode(dept);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -346,96 +345,118 @@ class DepartmentsUnitsPage extends StatelessWidget {
         children: [
           Expanded(
             flex: 4,
-            child: Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primarySubtle,
-                    borderRadius: AppRadii.brMd,
-                  ),
-                  child: const Icon(
-                    Iconsax.people,
-                    size: 18,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        dept.name,
-                        style: AppTextStyles.bodyMd.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (dept.description.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          dept.description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodySm
-                              .copyWith(color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            child: _buildDepartmentIdentity(dept),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Text(
               code,
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
             ),
           ),
+          const SizedBox(width: 16),
           SizedBox(
-            width: 220,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => showDialog(
-                    context: context,
-                    builder: (_) =>
-                        ViewDepartmentDetailsDialog(department: dept),
-                  ),
-                  icon: const Icon(Iconsax.eye, size: 16),
-                  label: const Text('View'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textPrimary,
-                    side: const BorderSide(color: AppColors.borderStrong),
-                    minimumSize: const Size(0, 42),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadii.brMd,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                MyElevatedButton(
-                  height: 42,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  icon: const Icon(Iconsax.edit,
-                      size: 16, color: AppColors.textOnPrimary),
-                  child: 'Edit',
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (_) => CreateDepartmentDialog(department: dept),
-                  ),
-                ),
-              ],
-            ),
+            width: 190,
+            child: _buildDepartmentActions(context, dept, alignEnd: true),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDepartmentCards(BuildContext context, List<Department> data) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: data
+            .map(
+              (dept) => Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.borderSubtle),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDepartmentIdentity(dept),
+                    const SizedBox(height: 14),
+                    _buildInfoLine('Code', _departmentCode(dept)),
+                    const SizedBox(height: 14),
+                    _buildDepartmentActions(context, dept),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildDepartmentIdentity(Department dept) {
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: const BoxDecoration(
+            color: AppColors.primarySubtle,
+            borderRadius: AppRadii.brMd,
+          ),
+          child: const Icon(
+            Iconsax.people,
+            size: 18,
+            color: AppColors.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                dept.name,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (dept.description.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  dept.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDepartmentActions(
+    BuildContext context,
+    Department dept, {
+    bool alignEnd = false,
+  }) {
+    return _buildRecordActions(
+      alignEnd: alignEnd,
+      onView: () => showDialog(
+        context: context,
+        builder: (_) => ViewDepartmentDetailsDialog(department: dept),
+      ),
+      onEdit: () => showDialog(
+        context: context,
+        builder: (_) => CreateDepartmentDialog(department: dept),
       ),
     );
   }
@@ -447,11 +468,13 @@ class DepartmentsUnitsPage extends StatelessWidget {
     DepartmentsUnitsController controller,
     List<DepartmentUnit> data,
   ) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1080,
-        child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 980) {
+          return _buildUnitCards(context, data);
+        }
+
+        return Column(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -459,18 +482,22 @@ class DepartmentsUnitsPage extends StatelessWidget {
               child: Row(
                 children: [
                   _buildHeaderCell('Unit', flex: 3),
+                  const SizedBox(width: 16),
                   _buildHeaderCell('Department', flex: 2),
+                  const SizedBox(width: 16),
                   _buildHeaderCell('Head of Unit', flex: 2),
+                  const SizedBox(width: 16),
                   _buildHeaderCell('Status', flex: 2),
-                  _buildHeaderCell('', width: 220),
+                  const SizedBox(width: 16),
+                  _buildHeaderCell('', width: 190),
                 ],
               ),
             ),
             const Divider(height: 1, color: AppColors.borderSubtle),
             ...data.map((unit) => _buildUnitRow(context, unit)),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -488,66 +515,29 @@ class DepartmentsUnitsPage extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primarySubtle,
-                    borderRadius: AppRadii.brMd,
-                  ),
-                  child: const Icon(
-                    Iconsax.hierarchy,
-                    size: 18,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        unit.name,
-                        style: AppTextStyles.bodyMd.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (unit.description.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          unit.description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodySm
-                              .copyWith(color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            child: _buildUnitIdentity(unit),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Text(
               unit.departmentName ?? '-',
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Text(
               unit.hod ?? 'Not Assigned',
-              style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Align(
@@ -555,41 +545,148 @@ class DepartmentsUnitsPage extends StatelessWidget {
               child: StatusChip.fromStatus(status),
             ),
           ),
+          const SizedBox(width: 16),
           SizedBox(
-            width: 220,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => showDialog(
-                    context: context,
-                    builder: (_) => ViewUnitDetailsDialog(unit: unit),
-                  ),
-                  icon: const Icon(Iconsax.eye, size: 16),
-                  label: const Text('View'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textPrimary,
-                    side: const BorderSide(color: AppColors.borderStrong),
-                    minimumSize: const Size(0, 42),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: AppRadii.brMd,
-                    ),
-                  ),
+            width: 190,
+            child: _buildUnitActions(context, unit, alignEnd: true),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUnitCards(BuildContext context, List<DepartmentUnit> data) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: data
+            .map(
+              (unit) => Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: AppRadii.brMd,
+                  border: Border.all(color: AppColors.borderSubtle),
                 ),
-                const SizedBox(width: 8),
-                MyElevatedButton(
-                  height: 42,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  icon: const Icon(Iconsax.edit,
-                      size: 16, color: AppColors.textOnPrimary),
-                  child: 'Edit',
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (_) => CreateUnitDialog(unit: unit),
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildUnitIdentity(unit),
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 14,
+                      runSpacing: 10,
+                      children: [
+                        _buildInfoLine(
+                            'Department', unit.departmentName ?? '-'),
+                        _buildInfoLine(
+                            'Head of Unit', unit.hod ?? 'Not Assigned'),
+                        StatusChip.fromStatus(unit.status ?? 'Active'),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    _buildUnitActions(context, unit),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildUnitIdentity(DepartmentUnit unit) {
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: const BoxDecoration(
+            color: AppColors.primarySubtle,
+            borderRadius: AppRadii.brMd,
+          ),
+          child: const Icon(
+            Iconsax.hierarchy,
+            size: 18,
+            color: AppColors.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                unit.name,
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (unit.description.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  unit.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySm
+                      .copyWith(color: AppColors.textSecondary),
                 ),
               ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUnitActions(
+    BuildContext context,
+    DepartmentUnit unit, {
+    bool alignEnd = false,
+  }) {
+    return _buildRecordActions(
+      alignEnd: alignEnd,
+      onView: () => showDialog(
+        context: context,
+        builder: (_) => ViewUnitDetailsDialog(unit: unit),
+      ),
+      onEdit: () => showDialog(
+        context: context,
+        builder: (_) => CreateUnitDialog(unit: unit),
+      ),
+    );
+  }
+
+  // ─────────── HELPERS ───────────
+
+  String _departmentCode(Department dept) {
+    return 'DEP-${dept.id.length >= 3 ? dept.id.substring(0, 3) : dept.id}';
+  }
+
+  Widget _buildInfoLine(String label, String value) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 120, maxWidth: 240),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.bodySm.copyWith(
+              color: AppColors.textMuted,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -597,7 +694,53 @@ class DepartmentsUnitsPage extends StatelessWidget {
     );
   }
 
-  // ─────────── HELPERS ───────────
+  Widget _buildRecordActions({
+    required VoidCallback onView,
+    required VoidCallback onEdit,
+    bool alignEnd = false,
+  }) {
+    final viewButton = OutlinedButton.icon(
+      onPressed: onView,
+      icon: const Icon(Iconsax.eye, size: 16),
+      label: const Text('View'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.textPrimary,
+        side: const BorderSide(color: AppColors.borderStrong),
+        minimumSize: const Size(0, 42),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppRadii.brMd,
+        ),
+      ),
+    );
+
+    final editButton = MyElevatedButton(
+      height: 42,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      icon: const Icon(Iconsax.edit, size: 16, color: AppColors.textOnPrimary),
+      child: 'Edit',
+      onTap: onEdit,
+    );
+
+    if (alignEnd) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          viewButton,
+          const SizedBox(width: 8),
+          editButton,
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: viewButton),
+        const SizedBox(width: 8),
+        Expanded(child: editButton),
+      ],
+    );
+  }
 
   Widget _buildHeaderCell(String label, {double? width, int? flex}) {
     final content = Text(

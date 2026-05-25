@@ -77,9 +77,8 @@ class _BranchListPageState extends State<BranchListPage> {
 
   void _openViewDialog(Branch branch) {
     controller.fetchBranchDetails(branch.id);
-    showDialog(
-      context: context,
-      builder: (_) => const ViewBranchDialog(),
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const BranchDetailPage()),
     );
   }
 
@@ -361,36 +360,34 @@ class _BranchListPageState extends State<BranchListPage> {
   }
 
   Widget _buildDesktopTable() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: 1080,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              color: AppColors.surfaceMuted,
-              child: const Row(
-                children: [
-                  SizedBox(
-                      width: 300, child: Text('Branch', style: AppTextStyles.label)),
-                  SizedBox(
-                      width: 200, child: Text('Type', style: AppTextStyles.label)),
-                  SizedBox(
-                      width: 250,
-                      child: Text('Location', style: AppTextStyles.label)),
-                  SizedBox(
-                      width: 150, child: Text('Manager', style: AppTextStyles.label)),
-                  SizedBox(
-                      width: 120, child: Text('Status', style: AppTextStyles.label)),
-                  SizedBox(width: 40),
-                ],
-              ),
-            ),
-            ...controller.branchList.map(_buildDesktopRow),
-          ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          color: AppColors.surfaceMuted,
+          child: const Row(
+            children: [
+              Expanded(
+                  flex: 30, child: Text('Branch', style: AppTextStyles.label)),
+              SizedBox(width: 16),
+              Expanded(
+                  flex: 20, child: Text('Type', style: AppTextStyles.label)),
+              SizedBox(width: 16),
+              Expanded(
+                  flex: 24,
+                  child: Text('Location', style: AppTextStyles.label)),
+              SizedBox(width: 16),
+              Expanded(
+                  flex: 16, child: Text('Manager', style: AppTextStyles.label)),
+              SizedBox(width: 16),
+              Expanded(
+                  flex: 12, child: Text('Status', style: AppTextStyles.label)),
+              SizedBox(width: 40),
+            ],
+          ),
         ),
-      ),
+        ...controller.branchList.map(_buildDesktopRow),
+      ],
     );
   }
 
@@ -404,12 +401,18 @@ class _BranchListPageState extends State<BranchListPage> {
       ),
       child: Row(
         children: [
-          SizedBox(width: 300, child: _buildBranchIdentity(branch)),
-          SizedBox(width: 200, child: _buildTypeCell(branch)),
-          SizedBox(width: 250, child: _buildLocationCell(branch)),
-          SizedBox(width: 150, child: _buildManagerCell(branch)),
-          SizedBox(
-              width: 120, child: StatusChip.fromStatus(_statusLabel(branch))),
+          Expanded(flex: 30, child: _buildBranchIdentity(branch)),
+          const SizedBox(width: 16),
+          Expanded(flex: 20, child: _buildTypeCell(branch)),
+          const SizedBox(width: 16),
+          Expanded(flex: 24, child: _buildLocationCell(branch)),
+          const SizedBox(width: 16),
+          Expanded(flex: 16, child: _buildManagerCell(branch)),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 12,
+            child: StatusChip.fromStatus(_statusLabel(branch)),
+          ),
           SizedBox(
             width: 40,
             child: _buildActionMenu(branch),
@@ -575,8 +578,7 @@ class _BranchListPageState extends State<BranchListPage> {
                         foregroundColor: AppColors.textPrimary,
                         side: const BorderSide(color: AppColors.borderStrong),
                         minimumSize: const Size(0, 42),
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         shape: const RoundedRectangleBorder(
                           borderRadius: AppRadii.brMd,
                         ),
@@ -585,8 +587,7 @@ class _BranchListPageState extends State<BranchListPage> {
                     const SizedBox(width: 8),
                     MyElevatedButton(
                       height: 42,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       icon: const Icon(Iconsax.edit,
                           size: 16, color: AppColors.textOnPrimary),
                       child: 'Edit',

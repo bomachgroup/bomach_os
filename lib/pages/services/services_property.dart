@@ -3,6 +3,7 @@ import 'package:bomach_os/components/button/my_outlined_button.dart';
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/paginate/responsive_table.dart';
 import 'package:bomach_os/components/section/page_header.dart';
 import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/pages/services/widget/service_form_dialog.dart';
@@ -149,28 +150,81 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
             ),
           ),
           const Divider(height: 1, color: AppColors.borderSubtle),
-          Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            trackVisibility: true,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 1080),
-                child: DataTable(
-                  dataRowMinHeight: 68,
-                  dataRowMaxHeight: 84,
-                  columnSpacing: 28,
-                  horizontalMargin: 20,
-                  headingRowColor: WidgetStateProperty.all(
-                    AppColors.surfaceMuted,
-                  ),
-                  columns: _createColumns(),
-                  rows: _createRows(context),
-                  showBottomBorder: true,
-                  dividerThickness: 1,
+          ResponsiveTable<int>(
+            items: List.generate(10, (i) => i),
+            columns: _createColumns(),
+            rowBuilder: (index, _) => _createDataRow(context, index),
+            mobileCardBuilder: (index, _) => _buildMobileCard(context, index),
+            onRowTap: (index) => context.go(RouteConstants.serviceDetail),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileCard(BuildContext context, int index) {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      borderColor: AppColors.borderSubtle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: AppRadii.brSm,
                 ),
+                child: const Icon(
+                  Iconsax.home_2,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Real Estate',
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const Icon(Iconsax.arrow_right_3, size: 16, color: AppColors.textMuted),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildMobileInfoItem('Sub service', 'Development and sales, Buy/Sales'),
+          _buildMobileInfoItem('Inventory', 'Fortress city, Bethel city'),
+          _buildMobileInfoItem('Sales', '10 Orders / sales - 35,00'),
+          _buildMobileInfoItem('Date', '11/02/2024'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileInfoItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTextStyles.bodySm.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -203,95 +257,90 @@ class ServicesPropertyPageState extends State<ServicesPropertyPage> {
     );
   }
 
-  List<DataRow> _createRows(BuildContext context) {
-    return List.generate(10, (index) {
-      return DataRow(cells: <DataCell>[
-        DataCell(
-          onTap: () {
-            context.go(RouteConstants.serviceDetail);
-          },
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: AppColors.primarySubtle,
-                  borderRadius: AppRadii.brSm,
-                ),
-                child: const Icon(
-                  Iconsax.home_2,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
+  DataRow _createDataRow(BuildContext context, int index) {
+    return DataRow(cells: <DataCell>[
+      DataCell(
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: AppColors.primarySubtle,
+                borderRadius: AppRadii.brSm,
               ),
-              const SizedBox(width: 12),
-              Text(
-                'Real Estate',
-                style: AppTextStyles.bodyMd.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: const Icon(
+                Iconsax.home_2,
+                size: 16,
+                color: AppColors.primary,
               ),
-            ],
-          ),
-        ),
-        DataCell(
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '- Development and sales',
-                style: AppTextStyles.bodySm
-                    .copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Real Estate',
+              style: AppTextStyles.bodyMd.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: 2),
-              Text(
-                '- Buy/Sales of property',
-                style: AppTextStyles.bodySm
-                    .copyWith(color: AppColors.textSecondary),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        DataCell(
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '- Fortress city Estate',
-                style: AppTextStyles.bodySm
-                    .copyWith(color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '- Bethel city Estate',
-                style: AppTextStyles.bodySm
-                    .copyWith(color: AppColors.textSecondary),
-              ),
-            ],
-          ),
+      ),
+      DataCell(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '- Development and sales',
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '- Buy/Sales of property',
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ],
         ),
-        DataCell(
-          Text(
-            '10 Orders / sales - 35,00',
-            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
-          ),
+      ),
+      DataCell(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '- Fortress city Estate',
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '- Bethel city Estate',
+              style: AppTextStyles.bodySm
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ],
         ),
-        DataCell(
-          Text(
-            '11/02/2024',
-            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
-          ),
+      ),
+      DataCell(
+        Text(
+          '10 Orders / sales - 35,00',
+          style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
         ),
-        DataCell(
-          Text(
-            '—',
-            style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
-          ),
+      ),
+      DataCell(
+        Text(
+          '11/02/2024',
+          style: AppTextStyles.bodyMd.copyWith(color: AppColors.textPrimary),
         ),
-      ]);
-    });
+      ),
+      DataCell(
+        Text(
+          '—',
+          style: AppTextStyles.bodyMd.copyWith(color: AppColors.textMuted),
+        ),
+      ),
+    ]);
   }
 }

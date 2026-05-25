@@ -1,14 +1,18 @@
 import 'package:bomach_os/components/button/my_elevated_button.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:bomach_os/components/cards/app_card.dart';
+import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/input/my_textformfield.dart';
+import 'package:bomach_os/components/paginate/responsive_table.dart';
+import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/components/text/my_text.dart';
 import 'package:bomach_os/pages/finance/controllers/expense_controller.dart';
 import 'package:bomach_os/pages/finance/widget/add_expense_dialog.dart';
 import 'package:bomach_os/src/constants/colors.dart';
-import 'package:bomach_os/src/constants/spaces.dart';
-import 'package:bomach_os/src/constants/textstyle.dart';
+import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ExpensesPage extends StatelessWidget {
   const ExpensesPage({super.key});
@@ -16,53 +20,48 @@ class ExpensesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ExpenseController controller = Get.put(ExpenseController());
-    final ScrollController scrollController = ScrollController();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MyText('Expenses', style: AppTextStyles.displayLg),
-                    ],
-                  ),
-                  MyElevatedButton(
-                    icon: const Icon(Iconsax.add_circle,
-                        color: AppColors.white),
-                    child: "New Expense",
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const AddExpenseDialog(),
-                      );
-                    },
-                  )
-                ],
-              ),
-            ),
-          ],
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Expenses',
+        subtitle: 'Track and manage company expenses',
+        trailing: MyElevatedButton(
+          icon: const Icon(Iconsax.add_circle, color: AppColors.white),
+          child: "New Expense",
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const AddExpenseDialog(),
+            );
+          },
         ),
-        kSizedBox,
-        Row(
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 15,
-                runSpacing: 15,
-                alignment: WrapAlignment.spaceBetween,
+      ),
+      children: [
+        // Search and Filters
+        context.isMobile
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MyTextFormField(
+                    hintText: 'Search for expense...',
+                    leading: Icon(Iconsax.search_normal,
+                        color: AppColors.neutral500.withValues(alpha: 0.5)),
+                    onChanged: (val) => controller.searchQuery.value = val,
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Iconsax.refresh),
+                      onPressed: () => controller.fetchExpenses(refresh: true),
+                    ),
+                  ),
+                ],
+              )
+            : Row(
                 children: [
                   SizedBox(
-                    width: 250,
+                    width: 300,
                     child: MyTextFormField(
                       hintText: 'Search for expense...',
                       leading: Icon(Iconsax.search_normal,
@@ -70,154 +69,134 @@ class ExpensesPage extends StatelessWidget {
                       onChanged: (val) => controller.searchQuery.value = val,
                     ),
                   ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Iconsax.refresh),
+                    onPressed: () => controller.fetchExpenses(refresh: true),
+                  ),
+                ],
+              ),
+        const SizedBox(height: 24),
+
+        // Expenses Table/List
+        // Expenses Table/List
+        Obx(() {
+          if (controller.isLoading.value && controller.expenseList.isEmpty) {
+            return const Center(
+                child: Padding(
+                    padding: EdgeInsets.all(40),
+                    child: CircularProgressIndicator()));
+          }
+          if (controller.expenseList.isEmpty) {
+            return const Center(
+                child: Padding(
+                    padding: EdgeInsets.all(40),
+                    child: Text("No expenses found.")));
+          }
+          return ResponsiveTable(
+            items: controller.expenseList,
+            columns: const [
+              DataColumn(label: MyText("Date")),
+              DataColumn(label: MyText("Description")),
+              DataColumn(label: MyText("Amount")),
+              DataColumn(label: MyText("Category")),
+              DataColumn(label: MyText("Status")),
+              DataColumn(label: MyText("Action")),
+            ],
+            rowBuilder: (expense, index) => DataRow(cells: [
+              DataCell(MyText(expense.date)),
+              DataCell(MyText(expense.description)),
+              DataCell(MyText(expense.amount)),
+              DataCell(MyText(expense.category)),
+              DataCell(StatusChip.fromStatus(expense.status, dense: true)),
+              DataCell(
+                PopupMenuButton<String>(
+                  icon: const Icon(Iconsax.more),
+                  onSelected: (value) {
+                    if (value == 'delete') {
+                      controller.deleteExpense(context, expense.id);
+                    } else if (value == 'approve') {
+                      controller.approveExpense(context, expense.id);
+                    } else if (value == 'reject') {
+                      controller.rejectExpense(context, expense.id);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    const PopupMenuItem(
+                        value: 'approve', child: Text('Approve')),
+                    const PopupMenuItem(
+                        value: 'reject', child: Text('Reject')),
+                    const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Delete',
+                            style: TextStyle(color: Colors.red))),
+                  ],
+                ),
+              ),
+            ]),
+            mobileCardBuilder: (expense, index) => AppCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Row(
-                    spacing: 15,
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        icon: const Icon(Iconsax.refresh),
-                        onPressed: () =>
-                            controller.fetchExpenses(refresh: true),
+                      StatusChip.fromStatus(expense.status, dense: true),
+                      MyText(expense.amount,
+                          weight: 700, size: 14, color: AppColors.primary),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  MyText(expense.description,
+                      weight: 600, size: 15, color: AppColors.textPrimary),
+                  const SizedBox(height: 4),
+                  MyText(expense.category,
+                      size: 13, color: AppColors.textSecondary),
+                  const Divider(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      MyText(expense.date,
+                          size: 12, color: AppColors.textSecondary),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              controller.approveExpense(context, expense.id);
+                            },
+                            icon: const Icon(Iconsax.tick_circle,
+                                size: 18, color: AppColors.success),
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  AppColors.success.withValues(alpha: 0.1),
+                              padding: const EdgeInsets.all(8),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: () {
+                              controller.deleteExpense(context, expense.id);
+                            },
+                            icon: const Icon(Iconsax.trash,
+                                size: 18, color: AppColors.danger),
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  AppColors.danger.withValues(alpha: 0.1),
+                              padding: const EdgeInsets.all(8),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-        kSizedBox,
-        kSizedBoxSM,
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.6, color: const Color(0XFFD5D5D5)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Obx(() {
-            if (controller.isLoading.value && controller.expenseList.isEmpty) {
-              return const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: CircularProgressIndicator()));
-            }
-            if (controller.expenseList.isEmpty) {
-              return const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text("No expenses found.")));
-            }
-            return Column(
-              children: [
-                Scrollbar(
-                  controller: scrollController,
-                  thumbVisibility: true,
-                  trackVisibility: true,
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: bodySpace(context)),
-                      child: DataTable(
-                        dataRowMinHeight: 68,
-                        dataRowMaxHeight: 68,
-                        columnSpacing: 24,
-                        horizontalMargin: 12,
-                        columns: const [
-                          DataColumn(label: MyText("Date")),
-                          DataColumn(label: MyText("Description")),
-                          DataColumn(label: MyText("Amount")),
-                          DataColumn(label: MyText("Category")),
-                          DataColumn(label: MyText("Status")),
-                          DataColumn(label: MyText("Action")),
-                        ],
-                        rows: controller.expenseList.map((expense) {
-                          return DataRow(cells: [
-                            DataCell(MyText(expense.date)),
-                            DataCell(MyText(expense.description)),
-                            DataCell(MyText(expense.amount)),
-                            DataCell(MyText(expense.category)),
-                            DataCell(_statusBadge(expense.status)),
-                            DataCell(
-                              PopupMenuButton<String>(
-                                icon: const Icon(Iconsax.more),
-                                onSelected: (value) {
-                                  if (value == 'delete') {
-                                    controller.deleteExpense(
-                                        context, expense.id);
-                                  } else if (value == 'approve') {
-                                    controller.approveExpense(
-                                        context, expense.id);
-                                  } else if (value == 'reject') {
-                                    controller.rejectExpense(
-                                        context, expense.id);
-                                  }
-                                },
-                                itemBuilder: (context) => [
-                                  const PopupMenuItem(
-                                      value: 'edit', child: Text('Edit')),
-                                  const PopupMenuItem(
-                                      value: 'approve', child: Text('Approve')),
-                                  const PopupMenuItem(
-                                      value: 'reject', child: Text('Reject')),
-                                  const PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text('Delete',
-                                          style: TextStyle(color: Colors.red))),
-                                ],
-                              ),
-                            ),
-                          ]);
-                        }).toList(),
-                        showBottomBorder: true,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }),
-        ),
+          );
+        }),
       ],
-    );
-  }
-
-  Widget _statusBadge(String status) {
-    Color bgColor;
-    Color textColor;
-
-    switch (status.toLowerCase()) {
-      case 'approved':
-        bgColor = Colors.green.shade50;
-        textColor = Colors.green.shade700;
-        break;
-      case 'rejected':
-        bgColor = Colors.red.shade50;
-        textColor = Colors.red.shade700;
-        break;
-      case 'pending':
-        bgColor = Colors.orange.shade50;
-        textColor = Colors.orange.shade700;
-        break;
-      default:
-        bgColor = Colors.grey.shade100;
-        textColor = Colors.grey.shade700;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
     );
   }
 }

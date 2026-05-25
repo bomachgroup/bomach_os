@@ -1,12 +1,15 @@
 import 'package:bomach_os/components/cards/app_card.dart';
 import 'package:bomach_os/components/chip/status_chip.dart';
 import 'package:bomach_os/components/dialog/dialog_scaffold.dart';
+import 'package:bomach_os/components/paginate/responsive_table.dart';
 import 'package:bomach_os/components/section/empty_state.dart';
 import 'package:bomach_os/components/section/loading_skeleton.dart';
 import 'package:bomach_os/components/section/page_header.dart';
+import 'package:bomach_os/components/section/page_scaffold.dart';
 import 'package:bomach_os/src/constants/radii.dart';
 import 'package:bomach_os/src/constants/textstyle.dart';
 import 'package:bomach_os/src/helper/responsive_breakpoints.dart';
+import 'package:bomach_os/components/text/my_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -26,99 +29,58 @@ class CasesPageView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(LegalCaseController());
 
-    return Builder(
-      builder: (context) {
-        final isMobile = context.isMobile;
-        return SingleChildScrollView(
-          padding: EdgeInsets.all(isMobile ? 8.0 : 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PageHeader(
-                title: 'Legal Cases',
-                subtitle: 'Manage litigation, disputes, and legal proceedings',
-                trailing: isMobile
-                    ? null
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 250,
-                            child: MyTextFormField(
-                              hintText: 'Search for cases...',
-                              leading: const Icon(
-                                Iconsax.search_normal_1,
-                                size: 18,
-                                color: AppColors.textMuted,
-                              ),
-                              onChanged: controller.onSearchChanged,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          MyElevatedButton(
-                            child: 'Create Cases',
-                            onTap: () {
-                              CreateNewLegalCaseDialog.show(context);
-                            },
-                          ),
-                        ],
-                      ),
-              ),
-              if (isMobile) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: MyTextFormField(
-                        hintText: 'Search for cases...',
-                        leading: const Icon(
-                          Iconsax.search_normal_1,
-                          size: 18,
-                          color: AppColors.textMuted,
-                        ),
-                        onChanged: controller.onSearchChanged,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    MyElevatedButton(
-                      child: 'Create Cases',
-                      onTap: () {
-                        CreateNewLegalCaseDialog.show(context);
-                      },
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 20),
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return AppCard(
-                    padding: const EdgeInsets.all(20),
-                    child: LoadingSkeleton.listRows(count: 5),
-                  );
-                }
-
-                if (controller.caseList.isEmpty) {
-                  return const AppCard(
-                    padding: EdgeInsets.all(32),
-                    child: EmptyState(
-                      icon: Iconsax.judge,
-                      title: 'No legal cases found',
-                      subtitle: 'Create a new case to get started.',
-                    ),
-                  );
-                }
-
-                return CasesTable(
-                  isMobile: isMobile,
-                  cases: controller.caseList,
-                  controller: controller,
-                );
-              }),
-            ],
+    return PageScaffold(
+      header: PageHeader(
+        title: 'Legal Cases',
+        subtitle: 'Manage litigation, disputes, and legal proceedings',
+        trailing: MyElevatedButton(
+          child: 'Create Case',
+          onTap: () {
+            CreateNewLegalCaseDialog.show(context);
+          },
+        ),
+      ),
+      children: [
+        // Search bar
+        SizedBox(
+          width: context.isMobile ? double.infinity : 350,
+          child: MyTextFormField(
+            hintText: 'Search for cases...',
+            leading: const Icon(
+              Iconsax.search_normal_1,
+              size: 18,
+              color: AppColors.textMuted,
+            ),
+            onChanged: controller.onSearchChanged,
           ),
-        );
-      },
+        ),
+        const SizedBox(height: 24),
+
+        Obx(() {
+          if (controller.isLoading.value) {
+            return AppCard(
+              padding: const EdgeInsets.all(20),
+              child: LoadingSkeleton.listRows(count: 5),
+            );
+          }
+
+          if (controller.caseList.isEmpty) {
+            return const AppCard(
+              padding: EdgeInsets.all(32),
+              child: EmptyState(
+                icon: Iconsax.judge,
+                title: 'No legal cases found',
+                subtitle: 'Create a new case to get started.',
+              ),
+            );
+          }
+
+          return CasesTable(
+            cases: controller.caseList,
+            controller: controller,
+          );
+        }),
+      ],
     );
   }
 }
@@ -127,14 +89,12 @@ class CasesTable extends StatelessWidget {
   final bool isMobile;
   final List<LegalCase> cases;
   final LegalCaseController controller;
-  CasesTable({
+  const CasesTable({
     super.key,
     this.isMobile = false,
     required this.cases,
     required this.controller,
   });
-
-  final ScrollController _scrollController = ScrollController();
 
   DataRow _buildDataRow(LegalCase data, BuildContext context) {
     return DataRow(
@@ -187,7 +147,8 @@ class CasesTable extends StatelessWidget {
               data.nextHearing ?? 'N/A',
               softWrap: true,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
+              style:
+                  AppTextStyles.bodySm.copyWith(color: AppColors.textPrimary),
             ),
           ),
         ),
@@ -302,8 +263,8 @@ class CasesTable extends StatelessWidget {
               : AppColors.borderSubtle,
         ),
         minimumSize: Size(isMobile ? 40 : 60, 32),
-        padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 6 : 12, vertical: 4),
+        padding:
+            EdgeInsets.symmetric(horizontal: isMobile ? 6 : 12, vertical: 4),
         shape: const RoundedRectangleBorder(
           borderRadius: AppRadii.brSm,
         ),
@@ -313,57 +274,107 @@ class CasesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      padding: EdgeInsets.all(isMobile ? 16 : 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Legal Cases', style: AppTextStyles.h2),
-          const SizedBox(height: 4),
-          Text(
-            'Track all legal proceedings and disputes',
-            style: AppTextStyles.bodySm.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 16),
-          Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: isMobile ? 600 : 900,
-                  maxWidth: isMobile ? 700 : double.infinity,
+    return ResponsiveTable<LegalCase>(
+      items: cases,
+      columns: const [
+        DataColumn(label: Text('Case')),
+        DataColumn(label: Text('Type')),
+        DataColumn(label: Text('Status')),
+        DataColumn(label: Text('Exposure')),
+        DataColumn(label: Text('Next Hearing')),
+        DataColumn(label: Text('Actions')),
+      ],
+      rowBuilder: (data, index) => _buildDataRow(data, context),
+      mobileCardBuilder: (data, index) => AppCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: MyText(data.caseName,
+                      weight: 700, size: 15, color: AppColors.textPrimary),
                 ),
-                child: DataTable(
-                  columnSpacing: isMobile ? 12 : 24,
-                  headingRowColor: WidgetStateProperty.all(
-                      AppColors.surfaceMuted),
-                  headingTextStyle: AppTextStyles.label.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                  dataTextStyle: AppTextStyles.bodyMd.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-                  dividerThickness: 1.0,
-                  columns: const [
-                    DataColumn(label: Text('Case')),
-                    DataColumn(label: Text('Type')),
-                    DataColumn(label: Text('Status')),
-                    DataColumn(label: Text('Exposure')),
-                    DataColumn(label: Text('Next Hearing')),
-                    DataColumn(label: Text('Actions')),
-                  ],
-                  rows: cases.map((e) => _buildDataRow(e, context)).toList(),
-                  dataRowMinHeight: isMobile ? 48 : 60,
-                  dataRowMaxHeight: isMobile ? 64 : 80,
-                  headingRowHeight: isMobile ? 36 : 44,
-                ),
-              ),
+                const SizedBox(width: 8),
+                StatusChip.fromStatus(data.statusDisplay, dense: true),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                StatusChip(
+                  label: data.caseTypeDisplay,
+                  tone: StatusTone.neutral,
+                  dense: true,
+                ),
+                const Spacer(),
+                MyText(data.exposure ?? 'N/A',
+                    size: 13, weight: 600, color: AppColors.danger),
+              ],
+            ),
+            const Divider(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const MyText('Next Hearing',
+                        size: 11, color: AppColors.textSecondary),
+                    const SizedBox(height: 4),
+                    MyText(data.nextHearing ?? 'N/A',
+                        size: 13, weight: 600, color: AppColors.textPrimary),
+                  ],
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        final Map<String, String> legalCaseDetails = {
+                          'Case Number': data.caseNumber ?? 'N/A',
+                          'Case Title': data.caseName,
+                          'Case Type': data.caseTypeDisplay,
+                          'Status': data.statusDisplay,
+                          'Exposure': data.exposure ?? 'N/A',
+                          'Description': data.description,
+                          'Next Hearing': data.nextHearing ?? 'N/A',
+                          'Date Filed': data.dateFiled ?? 'N/A',
+                          'Date Closed': data.dateClosed ?? 'N/A',
+                        };
+
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => DetailsViewPage(
+                                title: data.caseName,
+                                details: legalCaseDetails),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Iconsax.eye, size: 20),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.neutral100,
+                        padding: const EdgeInsets.all(8),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        CreateNewLegalCaseDialog.show(context);
+                      },
+                      icon: const Icon(Iconsax.edit, size: 20),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.neutral100,
+                        padding: const EdgeInsets.all(8),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

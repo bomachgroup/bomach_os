@@ -31,11 +31,7 @@ class AnalyticsMetricCard extends StatelessWidget {
         final textTheme = Theme.of(context).textTheme;
 
         return Container(
-          constraints: const BoxConstraints(
-            minWidth: 200,
-            minHeight: 120,
-            maxHeight: 130,
-          ),
+          constraints: const BoxConstraints(minHeight: 120),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -49,6 +45,7 @@ class AnalyticsMetricCard extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
@@ -84,9 +81,11 @@ class AnalyticsMetricCard extends StatelessWidget {
                     )
                 ],
               ),
-              const Spacer(),
+              const SizedBox(height: 20),
               Text(
                 value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: textTheme.titleLarge?.copyWith(
                   fontSize: isWide ? 22 : 18,
                   fontWeight: FontWeight.bold,
